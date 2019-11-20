@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Implementation: 5.9.3
+Implementation-ProductID: bboss-elasticsearch-rest-kafka
+Compile-Timestamp: 2019-11-20 23:29:55
+Compile-User: biaoping.yin
+Specification-Version: 5.9.3
+Implementation-Vendor: bbossgroups
+

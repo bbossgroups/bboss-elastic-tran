@@ -1,0 +1,5 @@
+include 'bboss-elasticsearch-rest-jdbc'
+include 'bboss-elasticsearch-rest-mongodb'
+include 'bboss-elasticsearch-rest-kafka'
+include 'bboss-elasticsearch-rest-kafka1x'
+include 'bboss-elasticsearch-rest-kafka2x'
