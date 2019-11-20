@@ -1,3 +1,4 @@
+include 'bboss-elasticsearch-geoip'
 include 'bboss-elasticsearch-rest-jdbc'
 include 'bboss-elasticsearch-rest-mongodb'
 include 'bboss-elasticsearch-rest-kafka'
