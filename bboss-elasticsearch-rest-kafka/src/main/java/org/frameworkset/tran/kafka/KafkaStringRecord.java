@@ -46,5 +46,11 @@ public class KafkaStringRecord implements Record {
 	public Object getData(){
 		return this;
 	}
+	public Object getKey() {
+		return key;
+	}
 
+	public String getRecord() {
+		return record;
+	}
 }

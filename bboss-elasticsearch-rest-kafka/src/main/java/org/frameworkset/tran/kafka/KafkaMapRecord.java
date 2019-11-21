@@ -47,4 +47,11 @@ public class KafkaMapRecord implements Record {
 		return this;
 	}
 
+	public Object getKey() {
+		return key;
+	}
+
+	public Map<String, Object> getRecord() {
+		return record;
+	}
 }
