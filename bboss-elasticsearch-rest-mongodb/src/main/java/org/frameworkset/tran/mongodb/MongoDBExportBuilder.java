@@ -15,13 +15,12 @@ package org.frameworkset.tran.mongodb;
  * limitations under the License.
  */
 
-import com.frameworkset.util.SimpleStringUtil;
 import com.mongodb.DBObject;
 import com.mongodb.client.model.DBCollectionFindOptions;
+import org.frameworkset.nosql.mongodb.ClientMongoCredential;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
-import org.frameworkset.nosql.mongodb.ClientMongoCredential;
 import org.frameworkset.tran.db.DBExportBuilder;
 import org.frameworkset.tran.es.ESExportResultHandler;
 
@@ -197,11 +196,6 @@ public abstract class MongoDBExportBuilder extends DBExportBuilder {
 		return this;
 	}
 
-	public String toString(){
-		StringBuilder ret = new StringBuilder();
-		ret.append(SimpleStringUtil.object2json(this));
-		return ret.toString();
-	}
 
 	@Override
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
@@ -214,8 +208,10 @@ public abstract class MongoDBExportBuilder extends DBExportBuilder {
 //		this.buildDBConfig();
 //		this.buildStatusDBConfig();
 		try {
-			logger.info("Import Configs:");
-			logger.info(this.toString());
+			if(logger.isInfoEnabled()) {
+				logger.info("MongoDB Import Configs:");
+				logger.info(this.toString());
+			}
 		}
 		catch (Exception e){
 

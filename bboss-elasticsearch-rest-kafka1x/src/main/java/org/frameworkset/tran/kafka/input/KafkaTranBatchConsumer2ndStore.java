@@ -25,7 +25,7 @@ import org.frameworkset.tran.kafka.KafkaContext;
 import org.frameworkset.tran.kafka.KafkaImportConfig;
 import org.frameworkset.tran.kafka.KafkaMapRecord;
 import org.frameworkset.tran.kafka.KafkaStringRecord;
-import org.frameworkset.tran.kafka.codec.CodecUtil;
+import org.frameworkset.tran.kafka.codec.CodecObjectUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +47,18 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 	public KafkaTranBatchConsumer2ndStore(AsynESOutPutDataTran asynESOutPutDataTran, KafkaContext kafkaContext) {
 		this.asynESOutPutDataTran = asynESOutPutDataTran;
 		this.kafkaContext = kafkaContext;
-		valueDeserializer = CodecUtil.getDeserializer(kafkaContext.getValueCodec());
-		keyDeserializer = CodecUtil.getDeserializer(kafkaContext.getKeyCodec());
+		if(kafkaContext.getValueCodec() != null) {
+			valueDeserializer = CodecObjectUtil.getDeserializer(kafkaContext.getValueCodec());
+		}
+		else{
+			valueDeserializer = CodecObjectUtil.getDeserializer(KafkaImportConfig.CODEC_JSON);
+		}
+		if(kafkaContext.getKeyCodec() != null) {
+			keyDeserializer = CodecObjectUtil.getDeserializer(kafkaContext.getKeyCodec());
+		}
+		else{
+			keyDeserializer = CodecObjectUtil.getDeserializer(KafkaImportConfig.CODEC_TEXT);
+		}
 	}
 
 	private AsynESOutPutDataTran asynESOutPutDataTran;
@@ -65,11 +75,40 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 		messages.add(message);
 		store(messages);
 	}
+	private void deserializeData(MessageAndMetadata<byte[], byte[]> consumerRecord, List<Record> results){
+		Object value = valueDeserializer.deserialize(consumerRecord.topic(),consumerRecord.message());
+		Object key = keyDeserializer.deserialize(consumerRecord.topic(),consumerRecord.key());
+		if (value instanceof List) {
+			List rs = (List) value;
 
+			for (int i = 0; i < rs.size(); i++) {
+				Object v = rs.get(i);
+				if (v instanceof Map) {
+					results.add(new KafkaMapRecord(key, (Map<String, Object>) v));
+				} else {
+					results.add(new KafkaStringRecord(key, (String) v));
+				}
+			}
+			//return new KafkaMapRecord((ConsumerRecord<Object, List<Map<String, Object>>>) data);
+		} else if (value instanceof Map) {
+			results.add( new KafkaMapRecord(key, (Map<String, Object>) value));
+		} else if (value instanceof String) {
+			results.add(new KafkaStringRecord(key, (String) value));
+		}
+		else{
+			if(logger.isWarnEnabled()){
+				logger.warn("unknown value type:{}",value.getClass().getName());
+			}
+			results.add(new KafkaStringRecord(key, String.valueOf( value)));
+		}
+//		throw new IllegalArgumentException(new StringBuilder().append("unknown consumerRecord").append(consumerRecord.toString()).toString());
+	}
 	protected List<Record> parserData(List<MessageAndMetadata<byte[], byte[]>> messages) {
 		List<Record> results = new ArrayList<>();
 		for(int k = 0; k < messages.size(); k ++) {
 			MessageAndMetadata<byte[], byte[]> consumerRecord = messages.get(k);
+			deserializeData(  consumerRecord,  results);
+			/**
 			if (this.kafkaContext.getValueCodec() == KafkaImportConfig.CODEC_JSON) {
 				Object value = valueDeserializer.deserialize(consumerRecord.topic(),consumerRecord.message());
 				if (value instanceof List) {
@@ -115,7 +154,7 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 					results.add(new KafkaStringRecord(consumerRecord.key(), (String) value));
 				}
 				throw new IllegalArgumentException(new StringBuilder().append("unknown consumerRecord with codec[").append(this.kafkaContext.getValueCodec()).append("]").append(consumerRecord.toString()).toString());
-			}
+			}*/
 		}
 		return results;
 	}

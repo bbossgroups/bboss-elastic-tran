@@ -67,8 +67,10 @@ public class DB2ESImportBuilder extends BaseImportBuilder {
 	public DataStream builder(){
 		super.builderConfig();
 		try {
-			logger.info("DB2ES Import Configs:");
-			logger.info(this.toString());
+			if(logger.isInfoEnabled()) {
+				logger.info("DB2ES Import Configs:");
+				logger.info(this.toString());
+			}
 		}
 		catch (Exception e){
 

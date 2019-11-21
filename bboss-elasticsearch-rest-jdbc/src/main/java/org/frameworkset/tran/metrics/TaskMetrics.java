@@ -15,6 +15,7 @@ package org.frameworkset.tran.metrics;
  * limitations under the License.
  */
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -135,13 +136,20 @@ public class TaskMetrics {
 		this.taskEndTime = taskEndTime;
 	}
 	public String toString(){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		StringBuilder builder = new StringBuilder();
 		builder.append("{taskNo:").append(taskNo)
-				.append(", jobNo:").append(jobNo)
-				.append(", jobStartTime:").append(jobStartTime)
-				.append(", taskStartTime:").append(taskStartTime)
-				.append(", taskEndTime:").append(taskEndTime)
-				.append(", totalRecords:").append(totalRecords)
+				.append(", jobNo:").append(jobNo);
+		if(jobStartTime != null) {
+			builder.append(", jobStartTime:").append(dateFormat.format(jobStartTime));
+		}
+		if(taskStartTime != null) {
+			builder.append(", taskStartTime:").append(dateFormat.format(taskStartTime));
+		}
+		if(taskEndTime != null) {
+			builder.append(", taskEndTime:").append(dateFormat.format(taskEndTime));
+		}
+		builder.append(", totalRecords:").append(totalRecords)
 				.append(", totalSuccessRecords:").append(totalSuccessRecords)
 				.append(", totalIgnoreRecords:").append(totalIgnoreRecords)
 				.append(", totalFailedRecords:").append(totalFailedRecords)

@@ -16,11 +16,10 @@ package org.frameworkset.tran.es.input.db;
  */
 
 import com.frameworkset.common.poolman.BatchHandler;
-import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.DataStream;
+import org.frameworkset.tran.DefualtExportResultHandler;
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
-import org.frameworkset.tran.DefualtExportResultHandler;
 import org.frameworkset.tran.db.DBExportBuilder;
 
 import java.util.HashMap;
@@ -47,11 +46,7 @@ public class ES2DBExportBuilder extends DBExportBuilder {
 	private boolean sliceQuery;
 	private int sliceSize;
 
-	public String toString(){
-		StringBuilder ret = new StringBuilder();
-		ret.append(SimpleStringUtil.object2json(this));
-		return ret.toString();
-	}
+
 
 	@Override
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
@@ -64,8 +59,10 @@ public class ES2DBExportBuilder extends DBExportBuilder {
 //		this.buildDBConfig();
 //		this.buildStatusDBConfig();
 		try {
-			logger.info("ES2DB Import Configs:");
-			logger.info(this.toString());
+			if(logger.isInfoEnabled()) {
+				logger.info("ES2DB Import Configs:");
+				logger.info(this.toString());
+			}
 		}
 		catch (Exception e){
 

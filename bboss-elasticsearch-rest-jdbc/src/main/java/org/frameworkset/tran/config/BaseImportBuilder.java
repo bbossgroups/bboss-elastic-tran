@@ -15,13 +15,14 @@ package org.frameworkset.tran.config;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.spi.assemble.PropertiesContainer;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.ScheduleConfig;
-import org.frameworkset.spi.assemble.PropertiesContainer;
-import org.frameworkset.tran.*;
 import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,9 @@ public abstract class BaseImportBuilder {
 	/**
 	 * 定时任务拦截器
 	 */
-	private List<CallInterceptor> callInterceptors;
+	private transient List<CallInterceptor> callInterceptors;
+	private transient List<String> callInterceptorClasses;
+
 	private String applicationPropertiesFile;
 	private boolean freezen;
 	private boolean statusFreezen;
@@ -159,7 +162,13 @@ public abstract class BaseImportBuilder {
 	/**抽取数据的sql语句*/
 	private Boolean useJavaName;
 
-	protected ExportResultHandler exportResultHandler;
+	protected transient ExportResultHandler exportResultHandler;
+	private String exportResultHandlerClass;
+
+	public String getExportResultHandlerClass() {
+		return exportResultHandlerClass;
+	}
+
 	public static final String DEFAULT_CONFIG_FILE = "application.properties";
 	protected void buildDBConfig(){
 		if(!freezen) {
@@ -178,21 +187,26 @@ public abstract class BaseImportBuilder {
 			_buildDBConfig(propertiesContainer,dbName,dbConfig, "");
 		}
 	}
-
+	@JsonIgnore
 	public ExportResultHandler getExportResultHandler() {
 		return exportResultHandler;
 	}
 
 	public BaseImportBuilder setExportResultHandler(ExportResultHandler exportResultHandler) {
 		this.exportResultHandler = exportResultHandler;
+		if(exportResultHandler != null){
+			exportResultHandlerClass = exportResultHandler.getClass().getName();
+		}
 		return this;
 	}
 
 
 
 	public BaseImportBuilder setEsIdGenerator(EsIdGenerator esIdGenerator) {
-		if(esIdGenerator != null)
-			this.esIdGenerator = 	esIdGenerator;
+		if(esIdGenerator != null) {
+			this.esIdGenerator = esIdGenerator;
+			this.esIdGeneratorClass = esIdGenerator.getClass().getName();
+		}
 		return this;
 	}
 	protected void buildStatusDBConfig(){
@@ -310,36 +324,7 @@ public abstract class BaseImportBuilder {
 		String dbtype  = propertiesContainer.getProperty(prefix+"db.dbtype");
 		dbConfig.setDbtype(dbtype);
 	}
-	public String getDbName() {
-		return dbConfig.getDbName();
-	}
 
-	public String getDbDriver() {
-		return dbConfig.getDbDriver();
-	}
-
-	public String getDbUrl() {
-		return dbConfig.getDbUrl();
-	}
-
-	public String getDbUser() {
-		return dbConfig.getDbUser();
-	}
-
-	public String getDbPassword() {
-		return dbConfig.getDbPassword();
-	}
-
-	public String getValidateSQL() {
-		return dbConfig.getValidateSQL();
-	}
-
-	public boolean isUsePool() {
-		return dbConfig.isUsePool();
-	}
-	public boolean isShowSql() {
-		return dbConfig.isShowSql();
-	}
 	protected void _setJdbcFetchSize(Integer jdbcFetchSize) {
 		freezen = true;
 		if(this.dbConfig == null){
@@ -615,8 +600,10 @@ public abstract class BaseImportBuilder {
 	public BaseImportBuilder addCallInterceptor(CallInterceptor interceptor){
 		if(this.callInterceptors == null){
 			this.callInterceptors = new ArrayList<CallInterceptor>();
+			this.callInterceptorClasses = new ArrayList<>();
 		}
 		this.callInterceptors.add(interceptor);
+		callInterceptorClasses.add(interceptor.getClass().getName());
 		return this;
 	}
 
@@ -639,6 +626,7 @@ public abstract class BaseImportBuilder {
 			return configString = ret.toString();
 		}
 		catch (Exception e){
+			e.printStackTrace();
 			configString = "";
 			return configString;
 		}
@@ -783,11 +771,11 @@ public abstract class BaseImportBuilder {
 	private String locale;
 	/**抽取数据的sql语句*/
 	private String timeZone;
-	private EsIdGenerator esIdGenerator = BaseImportConfig.DEFAULT_EsIdGenerator;
+	private transient EsIdGenerator esIdGenerator = BaseImportConfig.DEFAULT_EsIdGenerator;
 	private Map<String,FieldMeta> fieldMetaMap = new HashMap<>();
-
+	private String esIdGeneratorClass = "org.frameworkset.tran.DefaultEsIdGenerator";
 	private List<FieldMeta> fieldValues = new ArrayList<>();
-	private DataRefactor dataRefactor;
+	private transient DataRefactor dataRefactor;
 	public DateFormateMeta buildDateFormateMeta(String dateFormat){
 		return dateFormat == null?null:DateFormateMeta.buildDateFormateMeta(dateFormat,locale,timeZone);
 	}
@@ -874,12 +862,14 @@ public abstract class BaseImportBuilder {
 
 
 
-	public DataRefactor getDataRefactor() {
-		return dataRefactor;
+	public String getDataRefactorClass() {
+		return dataRefactorClass;
 	}
 
+	private String dataRefactorClass;
 	public BaseImportBuilder setDataRefactor(DataRefactor dataRefactor) {
 		this.dataRefactor = dataRefactor;
+		dataRefactorClass = dataRefactor.getClass().getName();
 		return this;
 	}
 
@@ -1138,4 +1128,8 @@ public abstract class BaseImportBuilder {
 	 *  tranDataBufferQueue * fetchSize * 单条记录mem大小
 	 */
 	private int tranDataBufferQueue = 10;
+
+	public String getEsIdGeneratorClass() {
+		return esIdGeneratorClass;
+	}
 }

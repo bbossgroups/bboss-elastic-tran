@@ -16,11 +16,7 @@ package org.frameworkset.tran.kafka.codec;
  */
 
 import org.apache.kafka.common.serialization.Deserializer;
-import org.apache.kafka.common.serialization.IntegerDeserializer;
-import org.apache.kafka.common.serialization.LongDeserializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.frameworkset.tran.ESDataImportException;
-import org.frameworkset.tran.kafka.KafkaImportConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,24 +28,16 @@ import org.slf4j.LoggerFactory;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class CodecUtil {
+public abstract class CodecObjectUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CodecUtil.class);
 	public static Deserializer getDeserializer(String codecType){
-		if(codecType == null || codecType.equals(KafkaImportConfig.CODEC_TEXT)){
-			return new StringDeserializer();
-		}
-		else if(codecType.equals(KafkaImportConfig.CODEC_JSON)){
+		if(codecType == null ){
 			return new JsonDeserializer();
 		}
-		else if(codecType.equals(KafkaImportConfig.CODEC_LONG)){
-			return new LongDeserializer();
-		}
-		else if(codecType.equals(KafkaImportConfig.CODEC_INTEGER)){
-			return new IntegerDeserializer();
-		}
 		else{
+			String cls = CodecUtil.getDeserializer(codecType);
 			try {
-				Class<Deserializer> clazz = (Class<Deserializer>) Class.forName(codecType);
+				Class<Deserializer> clazz = (Class<Deserializer>) Class.forName(cls);
 				return clazz.newInstance();
 			}
 			catch (Exception e){
@@ -59,5 +47,6 @@ public abstract class CodecUtil {
 				throw new ESDataImportException("",e);
 			}
 		}
+
 	}
 }

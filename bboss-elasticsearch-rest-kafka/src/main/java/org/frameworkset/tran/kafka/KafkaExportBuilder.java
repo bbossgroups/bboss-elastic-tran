@@ -20,6 +20,7 @@ import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.BaseImportBuilder;
 import org.frameworkset.tran.DefualtExportResultHandler;
+import org.frameworkset.tran.kafka.codec.CodecUtil;
 
 import java.util.Properties;
 
@@ -125,8 +126,10 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 //		this.buildDBConfig();
 //		this.buildStatusDBConfig();
 		try {
-			logger.info("Import Configs:");
-			logger.info(this.toString());
+			if(logger.isInfoEnabled()) {
+				logger.info("Kafka Import Configs:");
+				logger.info(this.toString());
+			}
 		}
 		catch (Exception e){
 
@@ -135,6 +138,8 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		super.buildImportConfig(es2DBImportConfig);
 		es2DBImportConfig.setCheckinterval(this.getCheckinterval());
 		es2DBImportConfig.setDiscardRejectMessage(this.isDiscardRejectMessage());
+		es2DBImportConfig.setValueCodec(this.getValueCodec());
+		es2DBImportConfig.setKeyCodec(this.getKeyCodec());
 		preHandlerCodec();
 		es2DBImportConfig.setKafkaConfigs(this.getKafkaConfigs());
 		es2DBImportConfig.setKafkaTopic(this.getKafkaTopic());
@@ -148,24 +153,23 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 	private void preHandlerCodec(){
 		Properties properties = this.getKafkaConfigs();
 		if(!properties.containsKey("value.deserializer")){
-			if(this.getValueCodec() != null && KafkaImportConfig.CODEC_JSON.equals(this.getValueCodec())) {
-				properties.put("value.deserializer", "org.frameworkset.tran.kafka.codec.JsonDeserializer");
+
+			if(this.getValueCodec() != null) {
+				properties.put("value.deserializer", CodecUtil.getDeserializer(getValueCodec()));
 			}
 			else{
-				properties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+				properties.put("value.deserializer", CodecUtil.getDeserializer(KafkaImportConfig.CODEC_JSON));
 			}
+
 		}
-		if(!properties.containsKey("key.deserializer") && this.getKeyCodec() != null){
-			//key.deserializer","org.apache.kafka.common.serialization.LongDeserializer
-			if(KafkaImportConfig.CODEC_TEXT.equals(this.getKeyCodec())) {
-				properties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+		if(!properties.containsKey("key.deserializer") ){
+			if(this.getKeyCodec() != null) {
+				properties.put("key.deserializer", CodecUtil.getDeserializer(getKeyCodec()));
 			}
-			else if(KafkaImportConfig.CODEC_LONG.equals(this.getKeyCodec())) {
-				properties.put("key.deserializer", "org.apache.kafka.common.serialization.LongDeserializer");
+			else{
+				properties.put("key.deserializer", CodecUtil.getDeserializer(KafkaImportConfig.CODEC_TEXT));
 			}
-			else if(KafkaImportConfig.CODEC_INTEGER.equals(this.getKeyCodec())) {
-				properties.put("key.deserializer", "org.apache.kafka.common.serialization.IntegerDeserializer");
-			}
+
 		}
 
 	}

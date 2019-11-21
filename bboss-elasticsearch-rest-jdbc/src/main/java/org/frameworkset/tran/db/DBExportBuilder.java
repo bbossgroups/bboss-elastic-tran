@@ -15,7 +15,6 @@ package org.frameworkset.tran.db;
  * limitations under the License.
  */
 
-import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.config.BaseImportBuilder;
 
 /**
@@ -31,11 +30,7 @@ public abstract class DBExportBuilder extends BaseImportBuilder {
 	protected String sqlFilepath;
 	protected String sqlName;
 	protected String sql;
-	public String toString(){
-		StringBuilder ret = new StringBuilder();
-		ret.append(SimpleStringUtil.object2json(this));
-		return ret.toString();
-	}
+
 
 
 	protected void buildDBImportConfig(DBImportConfig dbImportConfig){
