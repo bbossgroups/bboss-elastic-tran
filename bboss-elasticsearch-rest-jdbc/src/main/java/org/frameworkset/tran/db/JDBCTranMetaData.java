@@ -1,4 +1,4 @@
-package org.frameworkset.tran.db.input.es;
+package org.frameworkset.tran.db;
 /**
  * Copyright 2008 biaoping.yin
  * <p>

@@ -1,4 +1,4 @@
-package org.frameworkset.tran.db.input.es;/*
+package org.frameworkset.tran.db;/*
  *  Copyright 2008 biaoping.yin
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");

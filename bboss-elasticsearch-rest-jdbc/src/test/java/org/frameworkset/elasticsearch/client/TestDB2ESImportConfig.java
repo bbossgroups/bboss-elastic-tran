@@ -8,7 +8,7 @@ import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
 import org.frameworkset.tran.db.input.es.DB2ESImportContext;
 import org.frameworkset.tran.db.input.es.DB2ESDataTran;
-import org.frameworkset.tran.db.input.es.JDBCResultSet;
+import org.frameworkset.tran.db.JDBCResultSet;
 import org.frameworkset.tran.DataStream;
 import org.junit.Test;
 

@@ -67,7 +67,8 @@ public abstract class DBExportBuilder extends BaseImportBuilder {
 		return sqlFilepath;
 	}
 
-	public void setSqlFilepath(String sqlFilepath) {
+	public DBExportBuilder setSqlFilepath(String sqlFilepath) {
 		this.sqlFilepath = sqlFilepath;
+		return this;
 	}
 }

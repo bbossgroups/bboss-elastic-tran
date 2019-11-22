@@ -1,4 +1,4 @@
-package org.frameworkset.tran.db.input.es;
+package org.frameworkset.tran.db.input.db;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -30,9 +30,9 @@ import java.sql.ResultSet;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DefaultResultSetHandler extends ResultSetHandler {
+public class DB2DBResultSetHandler extends ResultSetHandler {
 	private ImportContext importContext ;
-	public DefaultResultSetHandler(ImportContext importContext){
+	public DB2DBResultSetHandler(ImportContext importContext){
 		this.importContext = importContext;
 
 	}
@@ -42,8 +42,8 @@ public class DefaultResultSetHandler extends ResultSetHandler {
 		jdbcResultSet.setResultSet(resultSet);
 		jdbcResultSet.setMetaData(statementInfo.getMeta());
 		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-		DB2ESDataTran db2ESDataTran = new DB2ESDataTran(jdbcResultSet,importContext);
+		DB2DBDataTran db2DBDataTran = new DB2DBDataTran(jdbcResultSet,importContext);
 
-		db2ESDataTran.tran(  );
+		db2DBDataTran.tran(  );
 	}
 }

@@ -2,6 +2,7 @@ package org.frameworkset.tran.db.input.es;
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.BaseElasticsearchDataTran;
+import org.frameworkset.tran.db.JDBCResultSet;
 
 public class DB2ESDataTran extends BaseElasticsearchDataTran {
 

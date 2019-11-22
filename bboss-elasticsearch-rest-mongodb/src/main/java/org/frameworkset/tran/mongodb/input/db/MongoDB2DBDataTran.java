@@ -14,5 +14,4 @@ public class MongoDB2DBDataTran extends DBOutPutDataTran<List<Map<String,Object>
 	}
 
 
-
 }

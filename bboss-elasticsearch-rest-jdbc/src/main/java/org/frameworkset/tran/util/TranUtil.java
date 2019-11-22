@@ -18,6 +18,7 @@ package org.frameworkset.tran.util;
 import bboss.org.apache.velocity.VelocityContext;
 import com.frameworkset.common.poolman.ConfigSQLExecutor;
 import com.frameworkset.util.VariableHandler;
+import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.persitent.util.SQLInfo;
@@ -42,6 +43,7 @@ import java.util.List;
  * @version 1.0
  */
 public abstract class TranUtil {
+/**
 	public static void initSQLInfo(DBOutPutContext dbContext, ImportContext importContext) throws ESDataImportException {
 		TranSQLInfo sqlInfo = new TranSQLInfo();
 
@@ -49,6 +51,29 @@ public abstract class TranUtil {
 
 		try {
 			SQLInfo sqlinfo = configSQLExecutor.getSqlInfo(importContext.getDbConfig().getDbName(), dbContext.getSqlName());
+			sqlInfo.setOriginSQL(sqlinfo.getSql());
+			String sql = parserSQL(  sqlinfo);
+
+			VariableHandler.SQLStruction sqlstruction = sqlinfo.getSqlutil().getSQLStruction(sqlinfo,sql);
+			sql = sqlstruction.getSql();
+			sqlInfo.setSql(sql);
+			List<VariableHandler.Variable> vars = sqlstruction.getVariables();
+			sqlInfo.setVars(vars);
+			dbContext.setSqlInfo(sqlInfo);
+		} catch (SQLException e) {
+			throw new ESDataImportException("Init SQLInfo failed",e);
+		}
+
+
+	}*/
+
+	public static void initTargetSQLInfo(DBOutPutContext dbContext, DBConfig db,String sqlName) throws ESDataImportException {
+		TranSQLInfo sqlInfo = new TranSQLInfo();
+
+		ConfigSQLExecutor configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
+
+		try {
+			SQLInfo sqlinfo = configSQLExecutor.getSqlInfo(db.getDbName(), sqlName);
 			sqlInfo.setOriginSQL(sqlinfo.getSql());
 			String sql = parserSQL(  sqlinfo);
 

@@ -65,7 +65,7 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 	}
 	@Override
 	public void afterInit(){
-		TranUtil.initSQLInfo(es2DBContext,importContext);
+		TranUtil.initTargetSQLInfo(es2DBContext,importContext.getDbConfig(),es2DBContext.getSqlName());
 		this.initDSLInfo();
 	}
 	public void initDSLInfo(){
