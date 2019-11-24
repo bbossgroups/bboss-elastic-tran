@@ -895,6 +895,14 @@ public abstract class BaseImportBuilder {
 	//是否采用分页抽取数据
 	private boolean pagine ;
 
+	public DBConfig getDbConfig() {
+		return dbConfig;
+	}
+	public String getDbName(){
+		if(dbConfig != null)
+			return dbConfig.getDbName();
+		throw new ESDataImportException("dbconfig is null.");
+	}
 
 	protected void buildImportConfig(BaseImportConfig baseImportConfig){
 
