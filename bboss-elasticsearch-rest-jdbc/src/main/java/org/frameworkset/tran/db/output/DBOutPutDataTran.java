@@ -57,7 +57,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 			TranSQLInfo sqlinfo = es2DBContext.getSqlInfo();
 			Object temp = null;
 			Param param = null;
-			List<List<Param>> records = new ArrayList<>();
+			List<List<Param>> records = new ArrayList<List<Param>>();
 			while (jdbcResultSet.next()) {
 				try {
 					if (lastValue == null)
@@ -118,7 +118,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 	private List<Param> buildRecord(Context context, List<VariableHandler.Variable> vars ){
 		Object temp = null;
 		Param param = null;
-		List<Param> record = new ArrayList<>();
+		List<Param> record = new ArrayList<Param>();
 		Map<String,Object> addedFields = new HashMap<String,Object>();
 
 		List<FieldMeta> fieldValueMetas = context.getFieldValues();//context优先级高于，全局配置，全局配置高于字段值
@@ -162,7 +162,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 			TranSQLInfo sqlinfo = es2DBContext.getSqlInfo();
 			Object temp = null;
 			Param param = null;
-			List<List<Param>> records = new ArrayList<>();
+			List<List<Param>> records = new ArrayList<List<Param>>();
 			while (jdbcResultSet.next()) {
 				if(!tranErrorWrapper.assertCondition()) {
 					tranErrorWrapper.throwError();
@@ -188,7 +188,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					count = 0;
 					taskNo ++;
 					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(sqlinfo.getSql(),totalCount,importContext,records,taskNo,totalCount.getJobNo());
-					records = new ArrayList<>();
+					records = new ArrayList<List<Param>>();
 					tasks.add(service.submit(new TaskCall(taskCommand,  tranErrorWrapper)));
 
 
@@ -255,7 +255,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		try {
 			istart = start;
 			TranSQLInfo sqlinfo = es2DBContext.getSqlInfo();
-			List<List<Param>> records = new ArrayList<>();
+			List<List<Param>> records = new ArrayList<List<Param>>();
 			while (jdbcResultSet.next()) {
 				if(!tranErrorWrapper.assertCondition()) {
 					tranErrorWrapper.throwError();
@@ -278,7 +278,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					count = 0;
 					taskNo ++;
 					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(sqlinfo.getSql(),importCount,importContext,records,taskNo,importCount.getJobNo());
-					records = new ArrayList<>();
+					records = new ArrayList<List<Param>>();
 					ret = TaskCall.call(taskCommand);
 					importContext.flushLastValue(lastValue);
 

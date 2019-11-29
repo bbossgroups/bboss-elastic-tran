@@ -250,7 +250,7 @@ public abstract class BaseImportBuilder {
 			if(thirdDatasources == null || thirdDatasources.equals(""))
 				return;
 			String[] names = thirdDatasources.split(",");
-			List<DBConfig> dbConfigs = new ArrayList<>();
+			List<DBConfig> dbConfigs = new ArrayList<DBConfig>();
 			for(int i = 0; i < names.length; i ++ ) {
 				String prefix = names[i].trim();
 				if(prefix.equals(""))
@@ -600,7 +600,7 @@ public abstract class BaseImportBuilder {
 	public BaseImportBuilder addCallInterceptor(CallInterceptor interceptor){
 		if(this.callInterceptors == null){
 			this.callInterceptors = new ArrayList<CallInterceptor>();
-			this.callInterceptorClasses = new ArrayList<>();
+			this.callInterceptorClasses = new ArrayList<String>();
 		}
 		this.callInterceptors.add(interceptor);
 		callInterceptorClasses.add(interceptor.getClass().getName());
@@ -772,9 +772,9 @@ public abstract class BaseImportBuilder {
 	/**抽取数据的sql语句*/
 	private String timeZone;
 	private transient EsIdGenerator esIdGenerator = BaseImportConfig.DEFAULT_EsIdGenerator;
-	private Map<String,FieldMeta> fieldMetaMap = new HashMap<>();
+	private Map<String,FieldMeta> fieldMetaMap = new HashMap<String,FieldMeta>();
 	private String esIdGeneratorClass = "org.frameworkset.tran.DefaultEsIdGenerator";
-	private List<FieldMeta> fieldValues = new ArrayList<>();
+	private List<FieldMeta> fieldValues = new ArrayList<FieldMeta>();
 	private transient DataRefactor dataRefactor;
 	public DateFormateMeta buildDateFormateMeta(String dateFormat){
 		return dateFormat == null?null:DateFormateMeta.buildDateFormateMeta(dateFormat,locale,timeZone);

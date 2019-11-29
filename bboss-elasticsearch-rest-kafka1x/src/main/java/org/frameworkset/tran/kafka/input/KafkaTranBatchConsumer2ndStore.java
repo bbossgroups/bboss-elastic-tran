@@ -71,7 +71,7 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 
 	@Override
 	public void store(MessageAndMetadata<byte[], byte[]> message) throws Exception {
-		List<MessageAndMetadata<byte[], byte[]>> messages = new ArrayList<>();
+		List<MessageAndMetadata<byte[], byte[]>> messages = new ArrayList<MessageAndMetadata<byte[], byte[]>>();
 		messages.add(message);
 		store(messages);
 	}
@@ -104,7 +104,7 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 //		throw new IllegalArgumentException(new StringBuilder().append("unknown consumerRecord").append(consumerRecord.toString()).toString());
 	}
 	protected List<Record> parserData(List<MessageAndMetadata<byte[], byte[]>> messages) {
-		List<Record> results = new ArrayList<>();
+		List<Record> results = new ArrayList<Record>();
 		for(int k = 0; k < messages.size(); k ++) {
 			MessageAndMetadata<byte[], byte[]> consumerRecord = messages.get(k);
 			deserializeData(  consumerRecord,  results);

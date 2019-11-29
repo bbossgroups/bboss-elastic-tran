@@ -15,6 +15,7 @@ package org.frameworkset.tran.es.input.db;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.common.poolman.BatchHandler;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.DefualtExportResultHandler;
@@ -38,6 +39,7 @@ public class ES2DBExportBuilder extends DBExportBuilder {
 	private String scrollLiveTime = "100m";
 
 	private transient BatchHandler<Map> batchHandler;
+	private String batchHandlerClass;
 	private Map params;
 	/**indexName/_search*/
 	private String queryUrl;
@@ -103,13 +105,16 @@ public class ES2DBExportBuilder extends DBExportBuilder {
 		this.queryUrl = queryUrl;
 		return this;
 	}
-
+	@JsonIgnore
 	public BatchHandler<Map> getBatchHandler() {
 		return batchHandler;
 	}
 
 	public ES2DBExportBuilder setBatchHandler(BatchHandler<Map> batchHandler) {
 		this.batchHandler = batchHandler;
+		if(batchHandler != null){
+			batchHandlerClass = batchHandler.getClass().getName();
+		}
 		return this;
 	}
 
@@ -163,5 +168,10 @@ public class ES2DBExportBuilder extends DBExportBuilder {
 		this.params.put(key,value);
 		return this;
 	}
+
+	public String getBatchHandlerClass() {
+		return batchHandlerClass;
+	}
+
 
 }

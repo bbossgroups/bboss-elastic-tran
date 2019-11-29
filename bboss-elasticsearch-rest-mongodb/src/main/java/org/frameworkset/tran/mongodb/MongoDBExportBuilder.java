@@ -70,7 +70,7 @@ public abstract class MongoDBExportBuilder extends DBExportBuilder {
 	public MongoDBExportBuilder buildClientMongoCredential(String database, String userName,
 														   String password, String mechanism){
 		if(credentials == null){
-			credentials = new ArrayList<>();
+			credentials = new ArrayList<ClientMongoCredential>();
 		}
 		ClientMongoCredential clientMongoCredential = new ClientMongoCredential();
 		clientMongoCredential.setDatabase(database);
