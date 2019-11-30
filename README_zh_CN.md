@@ -11,15 +11,18 @@ https://esdoc.bbossgroups.com/#/README
 JDK requirement: JDK 1.7+
 Elasticsearch version requirements: 1.X,2.X,5.X,6.X,7.x,+
 # Build from source code
-First Get source code from https://github.com/bbossgroups/bboss-elasticsearch
+First Get source code from https://github.com/bbossgroups/bboss-elastic-tran
 
-Then change to cmd window under directory bboss-elasticsearch and run gradle build command：
+Then change to cmd window under directory bboss-elastic-tran and run gradle build command：
 
 ```
 gradle install
 ```
 
-Gradle environmenet install and config document: https://esdoc.bbossgroups.com/#/bboss-build
+
+Build from source code guide:
+ 
+https://esdoc.bbossgroups.com/#/bboss-build
 
 # How to use Elastic Tran Bboss.
 
@@ -29,7 +32,7 @@ First add the maven dependency of BBoss to your pom.xml:
        <dependency>
             <groupId>com.bbossgroups.plugins</groupId>
             <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-            <version>5.9.3</version>
+            <version>5.9.5</version>
         </dependency>
 ```
 
