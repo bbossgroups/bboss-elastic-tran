@@ -97,6 +97,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
 				context.refactorData();
 				if (context.isDrop()) {
+					totalCount.increamentIgnoreTotalCount();
 					continue;
 				}
 				evalBuilk(this.jdbcResultSet,  batchContext,writer, context, "index",clientInterface.isVersionUpper7());

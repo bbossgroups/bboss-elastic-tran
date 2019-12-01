@@ -86,6 +86,7 @@ public class TaskCall implements Runnable {
 			taskMetrics.setTotalSuccessRecords(metrics[0]);
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setSuccessRecords((long)taskCommand.getDataSize());
+			taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
 			taskMetrics.setTaskEndTime(new Date());
 			if (importContext.getExportResultHandler() != null) {//处理返回值
 				try {
@@ -102,6 +103,7 @@ public class TaskCall implements Runnable {
 			taskMetrics.setFailedRecords(taskCommand.getDataSize());
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setTotalFailedRecords(metrics[0]);
+			taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
 			taskMetrics.setTaskEndTime(new Date());
 			if (importContext.getExportResultHandler() != null) {
 				try {
@@ -118,6 +120,7 @@ public class TaskCall implements Runnable {
 			taskMetrics.setFailedRecords(taskCommand.getDataSize());
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setTotalFailedRecords(metrics[0]);
+			taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
 			taskMetrics.setTaskEndTime(new Date());
 			if (importContext.getExportResultHandler() != null) {
 				try {

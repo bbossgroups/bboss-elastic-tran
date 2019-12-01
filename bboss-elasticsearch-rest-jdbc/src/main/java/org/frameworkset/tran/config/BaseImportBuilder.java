@@ -898,6 +898,7 @@ public abstract class BaseImportBuilder {
 	public DBConfig getDbConfig() {
 		return dbConfig;
 	}
+	@JsonIgnore
 	public String getDbName(){
 		if(dbConfig != null)
 			return dbConfig.getDbName();

@@ -68,7 +68,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					Context context = new ContextImpl(importContext, jdbcResultSet, null);
 					context.refactorData();
 					if (context.isDrop()) {
-						ignoreTotalCount ++;
+						importCount.increamentIgnoreTotalCount();
 						continue;
 					}
 					List<Param> record = buildRecord(  context,  sqlinfo.getVars() );
@@ -87,7 +87,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 				long end = System.currentTimeMillis();
 				logger.info(new StringBuilder().append("All Take time:").append((end - start)).append("ms")
 						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
-						.append(ignoreTotalCount).append(" records.").toString());
+						.append(importCount.getIgnoreTotalCount()).append(" records.").toString());
 
 			}
 		}

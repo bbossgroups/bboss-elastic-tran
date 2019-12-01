@@ -154,7 +154,7 @@ public class TaskMetrics {
 				.append(", totalIgnoreRecords:").append(totalIgnoreRecords)
 				.append(", totalFailedRecords:").append(totalFailedRecords)
 				.append(", successRecords:").append(successRecords)
-				.append(", ignoreRecords:").append(ignoreRecords)
+//				.append(", ignoreRecords:").append(ignoreRecords)
 				.append(", failedRecords:").append(failedRecords).append("}");
 		return builder.toString();
 	}
