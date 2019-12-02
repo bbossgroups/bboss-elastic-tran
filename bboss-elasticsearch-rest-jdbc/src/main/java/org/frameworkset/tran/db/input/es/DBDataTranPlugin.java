@@ -44,7 +44,15 @@ public class DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranP
 
 
 	}
+	@Override
+	public void initStatusTableId() {
+		if(isIncreamentImport()) {
+			if(dbContext.getSql() != null && !dbContext.getSql().equals("")) {
+				importContext.setStatusTableId(dbContext.getSql().hashCode());
+			}
+		}
 
+	}
 
 	public void initSQLInfo(){
 
@@ -63,7 +71,6 @@ public class DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranP
 
 		}
 		if(dbContext.getSql() != null && !dbContext.getSql().equals("")) {
-			importContext.setStatusTableId(dbContext.getSql().hashCode());
 			initSQLInfoParams();
 		}
 

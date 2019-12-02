@@ -61,14 +61,13 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 		this.initDS(importContext.getDbConfig());
 		initOtherDSes(importContext.getConfigs());
 
-
 	}
 	@Override
 	public void afterInit(){
 		TranUtil.initTargetSQLInfo(es2DBContext,importContext.getDbConfig(),es2DBContext.getSqlName());
-		this.initDSLInfo();
+
 	}
-	public void initDSLInfo(){
+	public void initStatusTableId(){
 		if(isIncreamentImport() && es2DBContext.getDslFile() != null && !es2DBContext.getDslFile().equals("")) {
 			try {
 				ClientInterface clientInterface = ElasticSearchHelper.getConfigRestClientUtil(es2DBContext.getDslFile());

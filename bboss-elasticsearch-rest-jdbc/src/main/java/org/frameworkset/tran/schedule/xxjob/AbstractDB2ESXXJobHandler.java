@@ -15,13 +15,6 @@ package org.frameworkset.tran.schedule.xxjob;
  * limitations under the License.
  */
 
-import com.xxl.job.core.biz.model.ReturnT;
-import com.xxl.job.core.handler.IJobHandler;
-import org.frameworkset.tran.schedule.ExternalScheduler;
-
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -30,24 +23,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class AbstractDB2ESXXJobHandler extends IJobHandler {
-	protected ExternalScheduler externalScheduler;
-	private Lock lock = new ReentrantLock();
-	public abstract void init();
-	public ReturnT<String> execute(String param){
-		try {
-			lock.lock();
-			externalScheduler.execute(  param);
-			return SUCCESS;
-		}
-		finally {
-			lock.unlock();
-		}
-	}
+public abstract class AbstractDB2ESXXJobHandler extends AbstractXXLJobHandler {
 
-	public void destroy(){
-		if(externalScheduler != null){
-			externalScheduler.destroy();
-		}
-	}
 }

@@ -15,6 +15,13 @@ package org.frameworkset.tran.schedule.quartz;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.schedule.ExternalScheduler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -23,6 +30,25 @@ package org.frameworkset.tran.schedule.quartz;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class AbstractDB2ESQuartzJobHandler extends AbstractQuartzJobHandler {
+public abstract class AbstractQuartzJobHandler {
+	protected Logger logger = LoggerFactory.getLogger(this.getClass());
+	protected ExternalScheduler externalScheduler;
+	private Lock lock = new ReentrantLock();
+	public abstract void init();
+	public void execute(){
+		try {
+			lock.lock();
+			externalScheduler.execute(null);
 
+		}
+		finally {
+			lock.unlock();
+		}
+	}
+
+	public void destroy(){
+		if(externalScheduler != null){
+			externalScheduler.destroy();
+		}
+	}
 }

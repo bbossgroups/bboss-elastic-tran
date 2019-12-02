@@ -1,4 +1,4 @@
-package org.frameworkset.tran.schedule.quartz;
+package org.frameworkset.tran.schedule.xxjob;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,6 +15,13 @@ package org.frameworkset.tran.schedule.quartz;
  * limitations under the License.
  */
 
+import com.xxl.job.core.biz.model.ReturnT;
+import com.xxl.job.core.handler.IJobHandler;
+import org.frameworkset.tran.schedule.ExternalScheduler;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -23,6 +30,24 @@ package org.frameworkset.tran.schedule.quartz;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class AbstractDB2ESQuartzJobHandler extends AbstractQuartzJobHandler {
+public abstract class AbstractXXLJobHandler extends IJobHandler {
+	protected ExternalScheduler externalScheduler;
+	private Lock lock = new ReentrantLock();
+	public abstract void init();
+	public ReturnT<String> execute(String param){
+		try {
+			lock.lock();
+			externalScheduler.execute(  param);
+			return SUCCESS;
+		}
+		finally {
+			lock.unlock();
+		}
+	}
 
+	public void destroy(){
+		if(externalScheduler != null){
+			externalScheduler.destroy();
+		}
+	}
 }

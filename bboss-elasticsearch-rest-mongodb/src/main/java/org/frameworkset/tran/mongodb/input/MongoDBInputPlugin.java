@@ -88,8 +88,22 @@ public abstract class MongoDBInputPlugin extends BaseDataTranPlugin implements D
 	}
 	@Override
 	public void afterInit(){
+
 	}
 
+	@Override
+	public void initStatusTableId() {
+		if(isIncreamentImport()) {
+			//计算增量记录id
+
+			String statusTableId = es2DBContext.getDB()+"|"+es2DBContext.getDBCollection();
+			if(es2DBContext.getQuery() != null){
+				statusTableId = statusTableId +"|" + es2DBContext.getQuery().toString();
+			}
+			importContext.setStatusTableId(statusTableId.hashCode());
+		}
+
+	}
 
 	private void commonImportData() throws Exception {
 

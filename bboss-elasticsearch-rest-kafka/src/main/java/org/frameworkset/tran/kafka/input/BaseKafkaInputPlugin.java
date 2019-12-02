@@ -39,7 +39,10 @@ public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements
 
 	}
 
+	@Override
+	public void initStatusTableId() {
 
+	}
 	public BaseKafkaInputPlugin(ImportContext importContext){
 		super(importContext);
 

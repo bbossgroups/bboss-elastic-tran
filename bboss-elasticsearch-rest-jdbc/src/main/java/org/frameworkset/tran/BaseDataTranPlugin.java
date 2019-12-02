@@ -123,6 +123,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 	public abstract void beforeInit();
 	public abstract void afterInit();
+	public abstract void initStatusTableId();
 	@Override
 	public void init() {
 		exportCount = new ExportCount();
@@ -131,6 +132,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		initLastValueClumnName();
 		initStatusStore();
 		initDatasource();
+		this.initStatusTableId();
 		initTableAndStatus();
 		afterInit();
 	}

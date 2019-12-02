@@ -49,7 +49,16 @@ public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 		db2DBContext = (DB2DBContext)importContext;
 		super.init(importContext);
 	}
+	@Override
+	public void initStatusTableId() {
+		if(isIncreamentImport()) {
+			if(dbContext.getSql() != null && !dbContext.getSql().equals("")) {
+				//计算增量记录id
+				importContext.setStatusTableId(dbContext.getSql().hashCode());
+			}
+		}
 
+	}
 	public void initSourceSQLInfo(){
 
 		if(dbContext.getSql() == null || dbContext.getSql().equals("")){
@@ -67,7 +76,7 @@ public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 
 		}
 		if(dbContext.getSql() != null && !dbContext.getSql().equals("")) {
-			importContext.setStatusTableId(dbContext.getSql().hashCode());
+
 			initSQLInfoParams();
 		}
 

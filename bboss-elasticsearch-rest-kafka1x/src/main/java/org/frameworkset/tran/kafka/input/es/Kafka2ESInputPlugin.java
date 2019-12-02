@@ -37,6 +37,9 @@ public class Kafka2ESInputPlugin extends BaseKafkaInputPlugin {
 		initOtherDSes(importContext.getConfigs());
 		super.beforeInit();
 	}
+
+
+
 	@Override
 	protected void initKafkaTranBatchConsumer2ndStore(Kafka2ESDataTran kafka2ESDataTran) throws Exception {
 		final KafkaTranBatchConsumer2ndStore kafkaBatchConsumer2ndStore = new KafkaTranBatchConsumer2ndStore(kafka2ESDataTran,kafkaContext);
