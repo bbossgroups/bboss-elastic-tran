@@ -50,7 +50,7 @@ public class SyndataXXJobConfig {
                         if(!value.equals("")) {
                             try {
                                 IJobHandler abstractDB2ESXXJobHandler = (IJobHandler)Class.forName(value).newInstance();
-                                XxlJobExecutor.registJobHandler(name, abstractDB2ESXXJobHandler);
+                                XxlJobExecutor.registJobHandler(name, new WrapperXXLJobHandler(abstractDB2ESXXJobHandler));
                             }
                             catch (Exception e){
                                 logger.error(new StringBuilder().append("registJobHandler [").append(orineName).append("=").append(orignValue).append("] failed:").toString(),e);

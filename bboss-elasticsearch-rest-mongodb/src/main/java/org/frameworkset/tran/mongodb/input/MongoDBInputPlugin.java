@@ -96,7 +96,7 @@ public abstract class MongoDBInputPlugin extends BaseDataTranPlugin implements D
 		if(isIncreamentImport()) {
 			//计算增量记录id
 
-			String statusTableId = es2DBContext.getDB()+"|"+es2DBContext.getDBCollection();
+			String statusTableId = es2DBContext.getDB()+"|"+es2DBContext.getDBCollection()+"|"+es2DBContext.getServerAddresses();
 			if(es2DBContext.getQuery() != null){
 				statusTableId = statusTableId +"|" + es2DBContext.getQuery().toString();
 			}

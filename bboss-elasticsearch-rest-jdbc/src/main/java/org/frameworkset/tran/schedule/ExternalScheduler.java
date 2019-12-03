@@ -18,6 +18,8 @@ package org.frameworkset.tran.schedule;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.config.BaseImportBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Description: </p>
@@ -30,6 +32,7 @@ import org.frameworkset.tran.config.BaseImportBuilder;
 public class ExternalScheduler {
 	private DataStreamBuilder dataStreamBuilder;
 	private DataStream dataStream;
+	private static Logger logger = LoggerFactory.getLogger(ExternalScheduler.class);
 //	private Lock lock = new ReentrantLock();
 	public void dataStream(DataStreamBuilder dataStreamBuilder){
 		this.dataStreamBuilder = dataStreamBuilder;
@@ -48,6 +51,21 @@ public class ExternalScheduler {
 					}
 					dataStream = db2ESImportBuilder.builder();
 				}
+			}
+			catch (ESDataImportException e){
+				if(logger.isErrorEnabled())
+					logger.error("ExternalScheduler execute failed:",e);
+				throw e;
+			}
+			catch (Exception e){
+				if(logger.isErrorEnabled())
+					logger.error("ExternalScheduler execute failed:",e);
+				throw new ESDataImportException("ExternalScheduler execute failed:",e);
+			}
+			catch (Throwable e){
+				if(logger.isErrorEnabled())
+					logger.error("ExternalScheduler execute failed:",e);
+				throw new ESDataImportException("ExternalScheduler execute failed:",e);
 			}
 			finally {
 //				lock.unlock();

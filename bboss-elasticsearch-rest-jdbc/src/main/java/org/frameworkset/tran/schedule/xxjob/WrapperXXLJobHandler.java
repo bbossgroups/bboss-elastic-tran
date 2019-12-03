@@ -17,7 +17,7 @@ package org.frameworkset.tran.schedule.xxjob;
 
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.IJobHandler;
-import org.frameworkset.tran.schedule.ExternalScheduler;
+import org.frameworkset.tran.ESDataImportException;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -26,31 +26,64 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- * @Date 2019/4/20 22:51
+ * @Date 2019/12/3 14:11
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class AbstractXXLJobHandler extends IJobHandler {
-	protected ExternalScheduler externalScheduler;
-
+public class WrapperXXLJobHandler extends IJobHandler {
+	private IJobHandler iJobHandler;
+	private boolean inited;
 	private Lock lock = new ReentrantLock();
-	public abstract void init();
-	public ReturnT<String> execute(String param){
+	public WrapperXXLJobHandler(IJobHandler iJobHandler) {
+		this.iJobHandler = iJobHandler;
+	}
+
+	@Override
+	public void init() {
+		if(inited )
+			return;
+
 		try {
 			lock.lock();
-			externalScheduler.execute(  param);
-			return SUCCESS;
+			if(inited )
+				return;
+			try {
+				iJobHandler.init();
+				inited = true;
+			}
+			catch (ESDataImportException e){
+				throw e;
+			}
+			catch (Exception e){
+				throw new ESDataImportException("Init iJobHandler failed:" ,e);
+			}
+			catch (Throwable e){
+				throw new ESDataImportException("Init iJobHandler failed:" ,e);
+			}
+			finally {
+				if(!inited)
+					inited = true;
+			}
+
+
 		}
 		finally {
 			lock.unlock();
 		}
 	}
-
-	public void destroy(){
-		if(externalScheduler != null){
-			externalScheduler.destroy();
+	public ReturnT<String> execute(String param) throws Exception {
+		try {
+			init();
+			return iJobHandler.execute(param);
+		}
+		catch (Exception e){
+			throw e;
 		}
 	}
-
-
+	public boolean isInited() {
+		return inited;
+	}
+	public String toString(){
+		return iJobHandler.getClass().getName();
+	}
 }
