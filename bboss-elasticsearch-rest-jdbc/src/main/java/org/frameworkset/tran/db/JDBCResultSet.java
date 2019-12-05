@@ -46,6 +46,11 @@ public class JDBCResultSet implements TranResultSet {
 		return getResultSet();
 	}
 
+	@Override
+	public void stop() {
+
+	}
+
 	public void setMetaData(PoolManResultSetMetaData metaData) {
 		this.metaData = new JDBCTranMetaData(metaData);
 	}
@@ -131,7 +136,7 @@ public class JDBCResultSet implements TranResultSet {
 	}
 
 
-	public boolean next() throws ESDataImportException {
+	public Boolean next() throws ESDataImportException {
 		try {
 			return resultSet.next();
 		}

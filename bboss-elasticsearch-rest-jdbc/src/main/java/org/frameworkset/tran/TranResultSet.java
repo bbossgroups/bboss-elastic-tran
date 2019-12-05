@@ -28,8 +28,15 @@ public interface TranResultSet {
 
 	public Date getDateTimeValue(String colName) throws ESDataImportException;
 
-	public boolean next() throws ESDataImportException ;
+	/**
+	 * 如果返回null，说明是强制fush操作，true表示有数据，false表示没有数据
+	 * @return
+	 * @throws ESDataImportException
+	 */
+	public Boolean next() throws ESDataImportException ;
 	public TranMeta getMetaData();
 
 	Object getRecord();
+
+	void stop();
 }

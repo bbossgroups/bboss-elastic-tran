@@ -42,7 +42,7 @@ public abstract class BaseImportBuilder {
 	private DBConfig dbConfig ;
 	private DBConfig statusDbConfig ;
 	private Integer fetchSize = 5000;
-
+	private long flushInterval;
 	public boolean isSortLastValue() {
 		return sortLastValue;
 	}
@@ -970,6 +970,7 @@ public abstract class BaseImportBuilder {
 		}
 		baseImportConfig.setPagine(this.pagine);
 		baseImportConfig.setTranDataBufferQueue(this.tranDataBufferQueue);
+		baseImportConfig.setFlushInterval(this.flushInterval);
 	}
 	protected abstract WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler);
 	public BaseImportBuilder setIndexType(String indexType) {
@@ -1140,5 +1141,14 @@ public abstract class BaseImportBuilder {
 
 	public String getEsIdGeneratorClass() {
 		return esIdGeneratorClass;
+	}
+
+	public long getFlushInterval() {
+		return flushInterval;
+	}
+
+	public BaseImportBuilder setFlushInterval(long flushInterval) {
+		this.flushInterval = flushInterval;
+		return this;
 	}
 }

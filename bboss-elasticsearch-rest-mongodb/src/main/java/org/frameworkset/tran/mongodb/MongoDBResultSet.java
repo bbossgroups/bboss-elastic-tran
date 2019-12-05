@@ -78,7 +78,7 @@ public class MongoDBResultSet implements TranResultSet {
 	}
 
 	@Override
-	public boolean next() throws ESDataImportException {
+	public Boolean next() throws ESDataImportException {
 		boolean hasNext = dbCursor.hasNext();
 		if( hasNext){
 			record = dbCursor.next();
@@ -94,5 +94,10 @@ public class MongoDBResultSet implements TranResultSet {
 	@Override
 	public Object getRecord() {
 		return record;
+	}
+
+	@Override
+	public void stop() {
+
 	}
 }

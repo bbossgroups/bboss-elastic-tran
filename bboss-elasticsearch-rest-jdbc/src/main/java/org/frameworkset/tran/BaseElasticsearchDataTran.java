@@ -84,10 +84,32 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 		try {
 
 			BatchContext batchContext = new BatchContext();
-			while (jdbcResultSet.next()) {
+			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {
+					jdbcResultSet.stop();
 					tranErrorWrapper.throwError();
 				}
+				Boolean hasNext = jdbcResultSet.next();
+				if(hasNext == null){//强制flush操作
+					if (count > 0) {
+						writer.flush();
+						String datas = builder.toString();
+						builder.setLength(0);
+						writer.close();
+						writer = new BBossStringWriter(builder);
+						taskNo ++;
+						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount,importContext,count,taskNo,totalCount.getJobNo());
+						count = 0;
+						taskCommand.setClientInterface(clientInterface);
+						taskCommand.setRefreshOption(importContext.getRefreshOption());
+						taskCommand.setDatas(datas);
+						tasks.add(service.submit(new TaskCall(taskCommand,  tranErrorWrapper)));
+					}
+					continue;
+				}
+				else if(!hasNext.booleanValue())
+					break;
+
 				if(lastValue == null)
 					lastValue = importContext.max(currentValue,getLastValue());
 				else{
@@ -102,22 +124,19 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				}
 				evalBuilk(this.jdbcResultSet,  batchContext,writer, context, "index",clientInterface.isVersionUpper7());
 				count++;
-				if (count == batchsize) {
+				if (count >= batchsize) {
 					writer.flush();
 					String datas = builder.toString();
 					builder.setLength(0);
 					writer.close();
 					writer = new BBossStringWriter(builder);
-					count = 0;
 					taskNo ++;
-					TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount,importContext,batchsize,taskNo,totalCount.getJobNo());
+					TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount,importContext,count,taskNo,totalCount.getJobNo());
+					count = 0;
 					taskCommand.setClientInterface(clientInterface);
 					taskCommand.setRefreshOption(importContext.getRefreshOption());
 					taskCommand.setDatas(datas);
 					tasks.add(service.submit(new TaskCall(taskCommand,  tranErrorWrapper)));
-
-
-
 				}
 
 			}
@@ -194,7 +213,41 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 		try {
 			istart = start;
 			BatchContext batchContext = new BatchContext();
-			while (jdbcResultSet.next()) {
+			while (true) {
+				Boolean hasNext = jdbcResultSet.next();
+				if(hasNext == null){
+					if(count > 0) {
+						writer.flush();
+						String datas = builder.toString();
+						builder.setLength(0);
+						writer.close();
+						writer = new BBossStringWriter(builder);
+
+
+						taskNo++;
+						TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext, count, taskNo, importCount.getJobNo());
+						int temp = count;
+						count = 0;
+						taskCommand.setClientInterface(clientInterface);
+						taskCommand.setRefreshOption(refreshOption);
+						taskCommand.setDatas(datas);
+						ret = TaskCall.call(taskCommand);
+						importContext.flushLastValue(lastValue);
+
+
+						if (isPrintTaskLog()) {
+							end = System.currentTimeMillis();
+							logger.info(new StringBuilder().append("Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+									.append(",import ").append(temp).append(" records.").toString());
+							istart = end;
+						}
+						totalCount += temp;
+					}
+					continue;
+				}
+				else if(!hasNext.booleanValue()){
+					break;
+				}
 				if(lastValue == null)
 					lastValue = importContext.max(currentValue,getLastValue());
 				else{
@@ -208,16 +261,17 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				}
 				evalBuilk(  this.jdbcResultSet,batchContext,writer,   context, "index",clientInterface.isVersionUpper7());
 				count++;
-				if (count == batchsize) {
+				if (count >= batchsize) {
 					writer.flush();
 					String datas = builder.toString();
 					builder.setLength(0);
 					writer.close();
 					writer = new BBossStringWriter(builder);
-					count = 0;
+
 
 					taskNo ++;
-					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount,importContext,batchsize,taskNo,importCount.getJobNo());
+					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount,importContext,count,taskNo,importCount.getJobNo());
+					count = 0;
 					taskCommand.setClientInterface(clientInterface);
 					taskCommand.setRefreshOption(refreshOption);
 					taskCommand.setDatas(datas);
@@ -231,7 +285,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 								.append(",import ").append(batchsize).append(" records.").toString());
 						istart = end;
 					}
-					totalCount += batchsize;
+					totalCount += count;
 
 
 				}
@@ -305,7 +359,37 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 		long ignoreTotalCount = 0;
 		try {
 			BatchContext batchContext =  new BatchContext();
-			while (jdbcResultSet.next()) {
+			while (true) {
+				Boolean hasNext = jdbcResultSet.next();
+				if(hasNext == null){ //强制flush数据
+					writer.flush();
+					String ret = null;
+					if(builder.length() > 0) {
+
+						TaskCommandImpl taskCommand = new TaskCommandImpl(importCount,importContext,totalCount,1,importCount.getJobNo());
+						taskCommand.setClientInterface(clientInterface);
+						taskCommand.setRefreshOption(refreshOption);
+						taskCommand.setDatas(builder.toString());
+						builder.setLength(0);
+						ret = TaskCall.call(taskCommand);
+					}
+					else{
+						ret = "{\"took\":0,\"errors\":false}";
+					}
+					importContext.flushLastValue(lastValue);
+					if(isPrintTaskLog()) {
+
+						long end = System.currentTimeMillis();
+						logger.info(new StringBuilder().append("Force flush datas Take time:").append((end - start)).append("ms")
+								.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
+								.append(ignoreTotalCount).append(" records.").toString());
+
+					}
+					continue;
+				}
+				else if(!hasNext.booleanValue()){
+					break;
+				}
 				try {
 					if(lastValue == null)
 						lastValue = importContext.max(currentValue,getLastValue());

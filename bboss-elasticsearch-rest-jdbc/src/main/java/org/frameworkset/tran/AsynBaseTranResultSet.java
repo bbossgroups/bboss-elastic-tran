@@ -96,7 +96,7 @@ public abstract class AsynBaseTranResultSet<T extends Data> implements AsynTranR
 	}
 
 	@Override
-	public boolean next() throws ESDataImportException {
+	public Boolean next() throws ESDataImportException {
 		if( pos < size){
 			record = buildRecord(records.get(pos));
 			pos ++;
@@ -112,13 +112,16 @@ public abstract class AsynBaseTranResultSet<T extends Data> implements AsynTranR
 				if(status == STATUS_STOP){
 					return false;
 				}
+
+
 				if(datas != null){
 					this.records = datas.getDatas();
 					size = records != null ? records.size():0;
 				}
+
 				if(datas == null || size == 0)
 				{
-
+					long pollStartTime = System.currentTimeMillis();
 					do{
 						datas = queue.poll(1000, TimeUnit.MILLISECONDS);
 						if(status == STATUS_STOP ){
@@ -127,6 +130,12 @@ public abstract class AsynBaseTranResultSet<T extends Data> implements AsynTranR
 						if(datas == null){
 							if(reachEnd)
 								break;
+							if(importContext.getFlushInterval() > 0) {
+								long interval = System.currentTimeMillis() - pollStartTime;
+								if (interval > importContext.getFlushInterval()){
+									return null;
+								}
+							}
 							continue;
 						}
 						this.records = datas.getDatas();

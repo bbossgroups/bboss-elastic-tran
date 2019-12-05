@@ -18,5 +18,4 @@ public interface AsynTranResultSet<T extends Data> extends TranResultSet{
 
 
 	public void appendData(T datas);
-	void stop();
 }

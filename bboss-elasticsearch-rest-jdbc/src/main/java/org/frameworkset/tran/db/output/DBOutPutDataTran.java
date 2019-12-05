@@ -48,6 +48,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		Status currentStatus = importContext.getCurrentStatus();
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
 		ImportCount importCount = new SerialImportCount();
+		int taskNo = 0;
 		long totalCount = 0;
 		long ignoreTotalCount = 0;
 
@@ -58,7 +59,28 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 			Object temp = null;
 			Param param = null;
 			List<List<Param>> records = new ArrayList<List<Param>>();
-			while (jdbcResultSet.next()) {
+			while (true) {
+				Boolean hasNext = jdbcResultSet.next();
+				if(hasNext == null){
+					if(records.size() > 0) {
+						taskNo ++;
+						TaskCommand<List<List<Param>>, String> taskCommand = new Base2DBTaskCommandImpl(sqlinfo.getSql(), importCount, importContext, records, taskNo, importCount.getJobNo());
+						TaskCall.call(taskCommand);
+						importContext.flushLastValue(lastValue);
+						records.clear();
+						if(isPrintTaskLog()) {
+							long end = System.currentTimeMillis();
+							logger.info(new StringBuilder().append("Force flush records Take time:").append((end - start)).append("ms")
+									.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
+									.append(importCount.getIgnoreTotalCount()).append(" records.").toString());
+
+						}
+					}
+					continue;
+				}
+				else if(!hasNext.booleanValue()){
+					break;
+				}
 				try {
 					if (lastValue == null)
 						lastValue = importContext.max(currentValue, getLastValue());
@@ -80,9 +102,12 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					throw new ElasticSearchException(e);
 				}
 			}
-			TaskCommand<List<List<Param>>, String> taskCommand = new Base2DBTaskCommandImpl(sqlinfo.getSql(),importCount,importContext,records,1,importCount.getJobNo());
-			TaskCall.call(taskCommand);
-			importContext.flushLastValue(lastValue);
+			if(records.size() > 0) {
+				taskNo ++;
+				TaskCommand<List<List<Param>>, String> taskCommand = new Base2DBTaskCommandImpl(sqlinfo.getSql(), importCount, importContext, records, taskNo, importCount.getJobNo());
+				TaskCall.call(taskCommand);
+				importContext.flushLastValue(lastValue);
+			}
 			if(isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
 				logger.info(new StringBuilder().append("All Take time:").append((end - start)).append("ms")
@@ -163,9 +188,23 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 			Object temp = null;
 			Param param = null;
 			List<List<Param>> records = new ArrayList<List<Param>>();
-			while (jdbcResultSet.next()) {
+			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {
 					tranErrorWrapper.throwError();
+				}
+				Boolean hasNext = jdbcResultSet.next();
+				if(hasNext == null){
+					if(count > 0) {//强制刷新数据
+						count = 0;
+						taskNo++;
+						Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(sqlinfo.getSql(), totalCount, importContext, records, taskNo, totalCount.getJobNo());
+						records = new ArrayList<List<Param>>();
+						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+					}
+					continue;
+				}
+				else if(!hasNext.booleanValue()){
+					break;
 				}
 				if(lastValue == null)
 					lastValue = importContext.max(currentValue,getLastValue());
@@ -183,7 +222,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 				records.add(record);
 				//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 				count++;
-				if (count == batchsize) {
+				if (count >= batchsize) {
 
 					count = 0;
 					taskNo ++;
@@ -256,9 +295,35 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 			istart = start;
 			TranSQLInfo sqlinfo = es2DBContext.getSqlInfo();
 			List<List<Param>> records = new ArrayList<List<Param>>();
-			while (jdbcResultSet.next()) {
+			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {
+					jdbcResultSet.stop();
 					tranErrorWrapper.throwError();
+				}
+				Boolean hasNext = jdbcResultSet.next();
+				if(hasNext == null){
+					if(count > 0) {//强制flush数据
+						taskNo++;
+						Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(sqlinfo.getSql(), importCount, importContext, records, taskNo, importCount.getJobNo());
+						int temp = count;
+						count = 0;
+						records = new ArrayList<List<Param>>();
+						ret = TaskCall.call(taskCommand);
+						importContext.flushLastValue(lastValue);
+
+						if (isPrintTaskLog()) {
+							end = System.currentTimeMillis();
+							logger.info(new StringBuilder().append("Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+									.append(",import ").append(temp).append(" records.").toString());
+							istart = end;
+						}
+
+						totalCount += temp;
+					}
+					continue;
+				}
+				else if(!hasNext.booleanValue()){
+					break;
 				}
 				if(lastValue == null)
 					lastValue = importContext.max(currentValue,getLastValue());
@@ -274,10 +339,12 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 				List<Param> record = buildRecord(  context,  sqlinfo.getVars() );
 				records.add(record);
 				count++;
-				if (count == batchsize) {
-					count = 0;
+				if (count >= batchsize) {
+
 					taskNo ++;
 					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(sqlinfo.getSql(),importCount,importContext,records,taskNo,importCount.getJobNo());
+					int temp  = count;
+					count = 0;
 					records = new ArrayList<List<Param>>();
 					ret = TaskCall.call(taskCommand);
 					importContext.flushLastValue(lastValue);
@@ -285,10 +352,11 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					if(isPrintTaskLog())  {
 						end = System.currentTimeMillis();
 						logger.info(new StringBuilder().append("Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
-								.append(",import ").append(batchsize).append(" records.").toString());
+								.append(",import ").append(temp).append(" records.").toString());
 						istart = end;
 					}
-					totalCount += batchsize;
+
+					totalCount += temp;
 
 
 				}
