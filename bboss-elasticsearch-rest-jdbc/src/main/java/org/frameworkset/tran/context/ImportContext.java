@@ -43,6 +43,12 @@ public interface ImportContext {
 	 * @return
 	 */
 	long getFlushInterval();
+	public long getAsynResultPollTimeOut();
+	/**
+	 * 忽略空值字段，elasticsearch数据导入的时候可以统一开启开关
+	 * @return
+	 */
+	boolean isIgnoreNullValueField();
 	boolean isPrintTaskLog();
 	void setRefreshOption(String refreshOption);
 	void setBatchSize(int batchSize);

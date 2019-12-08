@@ -123,7 +123,7 @@ public abstract class AsynBaseTranResultSet<T extends Data> implements AsynTranR
 				{
 					long pollStartTime = System.currentTimeMillis();
 					do{
-						datas = queue.poll(1000, TimeUnit.MILLISECONDS);
+						datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
 						if(status == STATUS_STOP ){
 							return false;
 						}

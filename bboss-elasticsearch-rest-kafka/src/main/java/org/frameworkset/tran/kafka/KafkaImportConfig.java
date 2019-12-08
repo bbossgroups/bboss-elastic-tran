@@ -32,7 +32,7 @@ public class KafkaImportConfig extends BaseImportConfig {
 	private String kafkaTopic;
 	private long checkinterval = 3000l;
 	private int consumerThreads;
-	private int pollTimeOut;
+	private long pollTimeOut;
 	public static final String CODEC_TEXT = "text";
 	public static final String CODEC_LONG = "long";
 	public static final String CODEC_JSON = "json";
@@ -92,11 +92,11 @@ public class KafkaImportConfig extends BaseImportConfig {
 		this.consumerThreads = threads;
 	}
 
-	public int getPollTimeOut() {
+	public long getPollTimeOut() {
 		return pollTimeOut;
 	}
 
-	public void setPollTimeOut(int pollTimeOut) {
+	public void setPollTimeOut(long pollTimeOut) {
 		this.pollTimeOut = pollTimeOut;
 	}
 

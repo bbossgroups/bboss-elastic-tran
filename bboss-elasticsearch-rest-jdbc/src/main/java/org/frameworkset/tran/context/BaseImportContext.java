@@ -51,11 +51,21 @@ public abstract  class BaseImportContext implements ImportContext {
 	public long getFlushInterval(){
 		return baseImportConfig.getFlushInterval();
 	}
+	/**
+	 * 忽略空值字段，elasticsearch数据导入的时候可以统一开启开关
+	 * @return
+	 */
+	public boolean isIgnoreNullValueField(){
+		return baseImportConfig.isIgnoreNullValueField();
+	}
 	public void setEsIdField(String esIdField) {
 		baseImportConfig.setEsIdField(  esIdField);
 	}
 	public boolean isSortLastValue() {
 		return baseImportConfig.isSortLastValue();
+	}
+	public long getAsynResultPollTimeOut() {
+		return baseImportConfig.getAsynResultPollTimeOut();
 	}
 	@Override
 	public Integer getFetchSize() {

@@ -93,7 +93,7 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 
 
 
-	public int getPollTimeOut() {
+	public long getPollTimeOut() {
 		return pollTimeOut;
 	}
 

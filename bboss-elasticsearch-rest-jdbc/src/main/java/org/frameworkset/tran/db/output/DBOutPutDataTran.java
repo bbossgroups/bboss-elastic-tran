@@ -313,7 +313,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 
 						if (isPrintTaskLog()) {
 							end = System.currentTimeMillis();
-							logger.info(new StringBuilder().append("Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+							logger.info(new StringBuilder().append("Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
 									.append(",import ").append(temp).append(" records.").toString());
 							istart = end;
 						}

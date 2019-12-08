@@ -43,6 +43,25 @@ public abstract class BaseImportConfig {
 	private List<DBConfig> configs;
 	private boolean sortLastValue ;
 	private long flushInterval;
+	private long asynResultPollTimeOut = 1000;
+
+	public boolean isIgnoreNullValueField() {
+		return ignoreNullValueField;
+	}
+
+	public long getAsynResultPollTimeOut() {
+		return asynResultPollTimeOut;
+	}
+
+	public void setAsynResultPollTimeOut(long asynResultPollTimeOut) {
+		this.asynResultPollTimeOut = asynResultPollTimeOut;
+	}
+
+	public void setIgnoreNullValueField(boolean ignoreNullValueField) {
+		this.ignoreNullValueField = ignoreNullValueField;
+	}
+
+	private boolean ignoreNullValueField;
 	public Integer getFetchSize() {
 		return fetchSize;
 	}
@@ -762,4 +781,6 @@ public abstract class BaseImportConfig {
 	public int getTranDataBufferQueue() {
 		return tranDataBufferQueue;
 	}
+
+
 }

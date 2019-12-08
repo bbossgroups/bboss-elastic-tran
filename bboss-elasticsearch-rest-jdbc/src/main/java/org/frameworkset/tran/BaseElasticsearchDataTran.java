@@ -237,7 +237,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 
 						if (isPrintTaskLog()) {
 							end = System.currentTimeMillis();
-							logger.info(new StringBuilder().append("Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+							logger.info(new StringBuilder().append("Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
 									.append(",import ").append(temp).append(" records.").toString());
 							istart = end;
 						}
@@ -682,15 +682,20 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 			if(addedFields.containsKey(javaName)){
 				continue;
 			}
+			Object value = context.getValue(     i,  colName,sqlType);
+			if(value == null && importContext.isIgnoreNullValueField()){
+				continue;
+			}
 			if(hasSeted )
 				writer.write(",");
 			else
 				hasSeted = true;
+
 			writer.write("\"");
 			writer.write(javaName);
 			writer.write("\":");
 //			int colType = metaData.getColumnTypeByIndex(i);
-			Object value = context.getValue(     i,  colName,sqlType);
+
 			if(value != null) {
 				if (value instanceof String) {
 					writer.write("\"");

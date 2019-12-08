@@ -35,7 +35,7 @@ public interface KafkaContext {
 	public int getConsumerThreads() ;
 
 
-	public int getPollTimeOut() ;
+	public long getPollTimeOut() ;
 	public String getValueCodec();
 	public String getKeyCodec();
 

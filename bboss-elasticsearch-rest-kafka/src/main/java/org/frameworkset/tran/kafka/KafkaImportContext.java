@@ -70,7 +70,7 @@ public abstract class KafkaImportContext extends BaseImportContext implements Ka
 
 
 
-	public int getPollTimeOut() {
+	public long getPollTimeOut() {
 		return kafkaImportConfig.getPollTimeOut();
 	}
 

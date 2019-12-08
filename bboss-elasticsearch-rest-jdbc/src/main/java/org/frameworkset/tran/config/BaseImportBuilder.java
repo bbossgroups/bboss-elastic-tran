@@ -43,6 +43,7 @@ public abstract class BaseImportBuilder {
 	private DBConfig statusDbConfig ;
 	private Integer fetchSize = 5000;
 	private long flushInterval;
+	private boolean ignoreNullValueField;
 	public boolean isSortLastValue() {
 		return sortLastValue;
 	}
@@ -121,6 +122,16 @@ public abstract class BaseImportBuilder {
 	 */
 	private boolean continueOnError;
 
+	public long getAsynResultPollTimeOut() {
+		return asynResultPollTimeOut;
+	}
+
+	public BaseImportBuilder setAsynResultPollTimeOut(long asynResultPollTimeOut) {
+		this.asynResultPollTimeOut = asynResultPollTimeOut;
+		return this;
+	}
+
+	private long asynResultPollTimeOut = 1000;
 	public Boolean getUseLowcase() {
 		return useLowcase;
 	}
@@ -946,6 +957,7 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setQueue(this.queue);
 		baseImportConfig.setAsyn(this.asyn);
 		baseImportConfig.setContinueOnError(this.continueOnError);
+		baseImportConfig.setAsynResultPollTimeOut(this.asynResultPollTimeOut);
 		/**
 		 * 是否不需要返回响应，不需要的情况下，可以设置为true，
 		 * 提升性能，如果debugResponse设置为true，那么强制返回并打印响应到日志文件中
@@ -971,6 +983,7 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setPagine(this.pagine);
 		baseImportConfig.setTranDataBufferQueue(this.tranDataBufferQueue);
 		baseImportConfig.setFlushInterval(this.flushInterval);
+		baseImportConfig.setIgnoreNullValueField(this.ignoreNullValueField);
 	}
 	protected abstract WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler);
 	public BaseImportBuilder setIndexType(String indexType) {
@@ -1151,4 +1164,15 @@ public abstract class BaseImportBuilder {
 		this.flushInterval = flushInterval;
 		return this;
 	}
+
+	public boolean isIgnoreNullValueField() {
+		return ignoreNullValueField;
+	}
+
+	public BaseImportBuilder setIgnoreNullValueField(boolean ignoreNullValueField) {
+		this.ignoreNullValueField = ignoreNullValueField;
+		return this;
+	}
+
+
 }
