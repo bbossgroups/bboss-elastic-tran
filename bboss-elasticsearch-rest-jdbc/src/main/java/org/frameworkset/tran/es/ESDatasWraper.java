@@ -15,27 +15,27 @@ package org.frameworkset.tran.es;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.AsynBaseTranResultSet;
-import org.frameworkset.tran.Record;
+import org.frameworkset.elasticsearch.entity.ESDatas;
+import org.frameworkset.elasticsearch.entity.MetaMap;
+import org.frameworkset.tran.Data;
+
+import java.util.List;
 
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- * @Date 2019/10/28 22:37
+ * @Date 2019/11/7 23:54
  * @author biaoping.yin
  * @version 1.0
  */
-public class ES2DBTranResultSet extends AsynBaseTranResultSet {
-
-	public ES2DBTranResultSet(ImportContext importContext) {
-		super(importContext);
-
+public class ESDatasWraper implements Data<MetaMap> {
+	private ESDatas<MetaMap> esDatas;
+	public ESDatasWraper(ESDatas esDatas){
+		this.esDatas = esDatas;
 	}
-	protected Record buildRecord(Object data){
-		return new ESRecord(data);
+	@Override
+	public List<MetaMap> getDatas() {
+		return esDatas.getDatas();
 	}
-
-
 }

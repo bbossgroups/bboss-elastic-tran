@@ -1,4 +1,4 @@
-package org.frameworkset.tran.es.input.db;
+package org.frameworkset.tran.es;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,11 +15,10 @@ package org.frameworkset.tran.es.input.db;
  * limitations under the License.
  */
 
-import com.frameworkset.common.poolman.ConfigSQLExecutor;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.elasticsearch.entity.ESDatas;
 import org.frameworkset.elasticsearch.scroll.HandlerInfo;
 import org.frameworkset.elasticsearch.scroll.ParralBreakableScrollHandler;
+import org.frameworkset.tran.context.ImportContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,14 +32,13 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class BaseESExporterScrollHandler<T> extends ParralBreakableScrollHandler<T> {
 	protected ImportContext importContext ;
-	protected ES2DBContext es2DBContext ;
-	protected ConfigSQLExecutor configSQLExecutor;
+
+
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-//	private ESTranResultSet esTranResultSet ;
-	public BaseESExporterScrollHandler(ImportContext importContext, ConfigSQLExecutor configSQLExecutor ) {
+	public BaseESExporterScrollHandler(ImportContext importContext ) {
 		this.importContext = importContext;
-		this.es2DBContext = (ES2DBContext)importContext;
-		this.configSQLExecutor = configSQLExecutor;
+
+
 
 	}
 

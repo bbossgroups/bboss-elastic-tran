@@ -17,15 +17,12 @@ package org.frameworkset.tran.context;
 
 import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
-import org.frameworkset.tran.ColumnData;
-import org.frameworkset.tran.DataRefactor;
-import org.frameworkset.tran.FieldMeta;
 import org.frameworkset.elasticsearch.client.ResultUtil;
+import org.frameworkset.spi.geoip.IpInfo;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
-import org.frameworkset.tran.TranMeta;
-import org.frameworkset.tran.TranResultSet;
-import org.frameworkset.spi.geoip.IpInfo;
+import org.frameworkset.tran.es.ESField;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -229,6 +226,12 @@ public class ContextImpl implements Context {
 	public Object getValue(String fieldName) throws Exception{
 		return jdbcResultSet.getValue(fieldName);
 	}
+
+	@Override
+	public Object getMetaValue(String fieldName) throws Exception {
+		return jdbcResultSet.getMetaValue(fieldName) ;
+	}
+
 	public FieldMeta getMappingName(String colName){
 		if(fieldMetaMap != null) {
 			FieldMeta fieldMeta = this.fieldMetaMap.get(colName.toLowerCase());
@@ -246,7 +249,7 @@ public class ContextImpl implements Context {
 	}
 
 	@Override
-	public String getEsIdField() {
+	public ESField getEsIdField() {
 		return esjdbc.getEsIdField();
 	}
 
@@ -298,8 +301,13 @@ public class ContextImpl implements Context {
 	}
 
 	public  Object getParentId() throws Exception {
-		if(esjdbc.getEsParentIdField() != null) {
-			return jdbcResultSet.getValue(esjdbc.getEsParentIdField());
+		ESField esField = esjdbc.getEsParentIdField();
+		if(esField != null) {
+			if(!esField.isMeta())
+				return jdbcResultSet.getValue(esField.getField());
+			else{
+				return jdbcResultSet.getMetaValue(esField.getField());
+			}
 		}
 		else
 			return esjdbc.getEsParentIdValue();
@@ -312,10 +320,18 @@ public class ContextImpl implements Context {
 		return jdbcResultSet.getRecord();
 	}
 	public Object getRouting() throws Exception{
-
-		Object routing =  jdbcResultSet.getValue(esjdbc.getRoutingField());
-		if(routing == null)
+		ESField esField = esjdbc.getRoutingField();
+		Object routing = null;
+		if(esField != null) {
+			if(!esField.isMeta())
+				routing = jdbcResultSet.getValue(esField.getField());
+			else{
+				routing = jdbcResultSet.getMetaValue(esField.getField());
+			}
+		}
+		else {
 			routing = esjdbc.getRoutingValue();
+		}
 		return routing;
 	}
 	public Object getEsRetryOnConflict(){
@@ -326,7 +342,18 @@ public class ContextImpl implements Context {
 	}
 
 	public Object getVersion() throws Exception {
-		Object version = esjdbc.getEsVersionField() !=null? jdbcResultSet.getValue(esjdbc.getEsVersionField()):esjdbc.getEsVersionValue();
+		ESField esField = esjdbc.getEsVersionField();
+		Object version = null;
+		if(esField != null) {
+			if(!esField.isMeta())
+				version = jdbcResultSet.getValue(esField.getField());
+			else{
+				version = jdbcResultSet.getMetaValue(esField.getField());
+			}
+		}
+		else {
+			version =  esjdbc.getEsVersionValue();
+		}
 		return version;
 	}
 

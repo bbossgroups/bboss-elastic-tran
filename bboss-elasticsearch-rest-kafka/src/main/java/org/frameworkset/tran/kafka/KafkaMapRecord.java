@@ -47,6 +47,11 @@ public class KafkaMapRecord implements Record {
 		return this;
 	}
 
+	@Override
+	public Object getMetaValue(String metaName) {
+		return null;
+	}
+
 	public Object getKey() {
 		return key;
 	}

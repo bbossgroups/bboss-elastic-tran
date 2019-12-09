@@ -20,6 +20,7 @@ import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.tran.FieldMeta;
 import org.frameworkset.tran.TranMeta;
 import org.frameworkset.spi.geoip.IpInfo;
+import org.frameworkset.tran.es.ESField;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -54,6 +55,7 @@ public interface Context {
 	public ImportContext getImportContext();
 	public String getDBName();
 	public Object getValue(String fieldName) throws Exception;
+	public Object getMetaValue(String fieldName) throws Exception;
 	public String getStringValue(String fieldName) throws Exception;
 	public Object getParentId() throws Exception;
 	public Object getRouting() throws Exception;
@@ -72,7 +74,7 @@ public interface Context {
 	public FieldMeta getMappingName(String colName);
 	Object getEsId() throws Exception;
 
-	String getEsIdField();
+	ESField getEsIdField();
 	public boolean isDrop();
 	public void setDrop(boolean drop);
 	public IpInfo getIpInfo(String fieldName) throws Exception;

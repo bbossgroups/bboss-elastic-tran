@@ -46,6 +46,12 @@ public class KafkaStringRecord implements Record {
 	public Object getData(){
 		return this;
 	}
+
+	@Override
+	public Object getMetaValue(String metaName) {
+		return null;
+	}
+
 	public Object getKey() {
 		return key;
 	}

@@ -16,12 +16,13 @@ package org.frameworkset.tran.config;
  */
 
 import com.frameworkset.orm.annotation.ESIndexWrapper;
-import org.frameworkset.tran.schedule.CallInterceptor;
-import org.frameworkset.tran.schedule.ImportIncreamentConfig;
-import org.frameworkset.tran.schedule.ScheduleConfig;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.spi.geoip.GeoIPUtil;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.schedule.CallInterceptor;
+import org.frameworkset.tran.schedule.ImportIncreamentConfig;
+import org.frameworkset.tran.schedule.ScheduleConfig;
 import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,15 +132,15 @@ public abstract class BaseImportConfig {
 	private int threadCount = 200;
 	private int queue = Integer.MAX_VALUE;
 	private String applicationPropertiesFile;
-	private String esIdField;
-	private String esParentIdField;
-	private String esParentIdValue;
-	private String routingField;
+	private ESField esIdField;
+	private ESField esParentIdField;
+	private Object esParentIdValue;
+	private ESField routingField;
 	private String routingValue;
 	private Boolean esDocAsUpsert;
 	private Integer esRetryOnConflict;
 	private Boolean esReturnSource;
-	private String esVersionField;
+	private ESField esVersionField;
 	private Object esVersionValue;
 	private String esVersionType;
 	private Boolean useJavaName;
@@ -277,27 +278,27 @@ public abstract class BaseImportConfig {
 		this.routingValue = routingValue;
 	}
 
-	public String getRoutingField() {
+	public ESField getRoutingField() {
 		return routingField;
 	}
 
-	public void setRoutingField(String routingField) {
+	public void setRoutingField(ESField routingField) {
 		this.routingField = routingField;
 	}
 
-	public String getEsParentIdField() {
+	public ESField getEsParentIdField() {
 		return esParentIdField;
 	}
 
-	public void setEsParentIdField(String esParentIdField) {
+	public void setEsParentIdField(ESField esParentIdField) {
 		this.esParentIdField = esParentIdField;
 	}
 
-	public String getEsIdField() {
+	public ESField getEsIdField() {
 		return esIdField;
 	}
 
-	public void setEsIdField(String esIdField) {
+	public void setEsIdField(ESField esIdField) {
 		this.esIdField = esIdField;
 	}
 
@@ -309,11 +310,11 @@ public abstract class BaseImportConfig {
 		this.esReturnSource = esReturnSource;
 	}
 
-	public String getEsVersionField() {
+	public ESField getEsVersionField() {
 		return esVersionField;
 	}
 
-	public void setEsVersionField(String esVersionField) {
+	public void setEsVersionField(ESField esVersionField) {
 		this.esVersionField = esVersionField;
 	}
 
@@ -491,11 +492,11 @@ public abstract class BaseImportConfig {
 //		return this;
 //	}
 
-	public String getEsParentIdValue() {
+	public Object getEsParentIdValue() {
 		return esParentIdValue;
 	}
 
-	public void setEsParentIdValue(String esParentIdValue) {
+	public void setEsParentIdValue(Object esParentIdValue) {
 		this.esParentIdValue = esParentIdValue;
 	}
 

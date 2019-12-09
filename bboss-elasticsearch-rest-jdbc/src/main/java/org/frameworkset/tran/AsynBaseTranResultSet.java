@@ -78,6 +78,11 @@ public abstract class AsynBaseTranResultSet<T extends Data> implements AsynTranR
 	public Object getValue(String colName, int sqlType) throws ESDataImportException {
 		return getValue(  colName);
 	}
+	@Override
+	public Object getMetaValue(String fieldName) {
+		return record.getMetaValue(fieldName);
+	}
+
 
 	@Override
 	public Date getDateTimeValue(String colName) throws ESDataImportException {

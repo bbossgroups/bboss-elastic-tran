@@ -39,4 +39,6 @@ public interface TranResultSet {
 	Object getRecord();
 
 	void stop();
+
+	Object getMetaValue(String fieldName);
 }

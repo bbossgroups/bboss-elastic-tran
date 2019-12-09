@@ -15,10 +15,10 @@ package org.frameworkset.tran.es.input.db;
  * limitations under the License.
  */
 
-import com.frameworkset.common.poolman.ConfigSQLExecutor;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.elasticsearch.entity.ESDatas;
 import org.frameworkset.elasticsearch.scroll.HandlerInfo;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.es.BaseESExporterScrollHandler;
 
 /**
  * <p>Description: </p>
@@ -28,11 +28,11 @@ import org.frameworkset.elasticsearch.scroll.HandlerInfo;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ESExporterScrollHandler<T>  extends BaseESExporterScrollHandler<T>{
+public class ESExporterScrollHandler<T>  extends BaseESExporterScrollHandler<T> {
 
 	protected ES2DBOutPutDataTran es2DBDataTran ;
-	public ESExporterScrollHandler(ImportContext importContext,ConfigSQLExecutor configSQLExecutor,ES2DBOutPutDataTran es2DBDataTran ) {
-		super(  importContext,  configSQLExecutor);
+	public ESExporterScrollHandler(ImportContext importContext,ES2DBOutPutDataTran es2DBDataTran ) {
+		super(  importContext);
 		this.es2DBDataTran = es2DBDataTran;
 		this.es2DBDataTran.setBreakableScrollHandler(this);
 	}

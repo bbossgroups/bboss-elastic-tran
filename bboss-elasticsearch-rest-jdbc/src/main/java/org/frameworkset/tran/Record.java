@@ -30,4 +30,6 @@ public interface Record {
 	Object getValue(String colName);
 	public Set<String> getKeys();
 	public Object getData();
+
+	public Object getMetaValue(String metaName);
 }

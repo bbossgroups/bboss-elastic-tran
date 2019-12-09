@@ -100,4 +100,9 @@ public class MongoDBResultSet implements TranResultSet {
 	public void stop() {
 
 	}
+
+	@Override
+	public Object getMetaValue(String fieldName) {
+		return null;
+	}
 }

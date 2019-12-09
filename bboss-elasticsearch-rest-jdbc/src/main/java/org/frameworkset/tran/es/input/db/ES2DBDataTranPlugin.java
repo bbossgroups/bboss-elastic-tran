@@ -24,7 +24,8 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.SQLBaseDataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.es.ES2DBTranResultSet;
+import org.frameworkset.tran.es.BaseESExporterScrollHandler;
+import org.frameworkset.tran.es.ES2TranResultSet;
 import org.frameworkset.tran.util.TranUtil;
 
 import java.util.HashMap;
@@ -161,10 +162,10 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 			}
 		}
 		else {
-			AsynBaseTranResultSet jdbcResultSet = new ES2DBTranResultSet(importContext);
+			AsynBaseTranResultSet jdbcResultSet = new ES2TranResultSet(importContext);
 			final CountDownLatch countDownLatch = new CountDownLatch(1);
 			final ES2DBOutPutDataTran es2DBDataTran = new ES2DBOutPutDataTran(jdbcResultSet,importContext,countDownLatch);
-			ESExporterScrollHandler<Map> esExporterScrollHandler = new ESExporterScrollHandler<Map>(importContext, executor,
+			ESExporterScrollHandler<Map> esExporterScrollHandler = new ESExporterScrollHandler<Map>(importContext,
 					es2DBDataTran);
 			try {
 				Thread tranThread = new Thread(new Runnable() {

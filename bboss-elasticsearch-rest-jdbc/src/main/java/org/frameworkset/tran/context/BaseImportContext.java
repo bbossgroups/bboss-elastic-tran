@@ -18,6 +18,7 @@ package org.frameworkset.tran.context;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.*;
 
 import java.math.BigDecimal;
@@ -58,7 +59,7 @@ public abstract  class BaseImportContext implements ImportContext {
 	public boolean isIgnoreNullValueField(){
 		return baseImportConfig.isIgnoreNullValueField();
 	}
-	public void setEsIdField(String esIdField) {
+	public void setEsIdField(ESField esIdField) {
 		baseImportConfig.setEsIdField(  esIdField);
 	}
 	public boolean isSortLastValue() {

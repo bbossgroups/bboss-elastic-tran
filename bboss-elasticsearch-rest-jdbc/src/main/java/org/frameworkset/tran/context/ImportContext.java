@@ -20,6 +20,7 @@ import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataRefactor;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ScheduleConfig;
 import org.frameworkset.tran.schedule.ScheduleService;
@@ -53,7 +54,7 @@ public interface ImportContext {
 	void setRefreshOption(String refreshOption);
 	void setBatchSize(int batchSize);
 	public Integer getFetchSize() ;
-	public void setEsIdField(String esIdField);
+	public void setEsIdField(ESField esIdField);
 	void destroy();
 	public ExportCount getExportCount();
 	void importData();

@@ -20,6 +20,7 @@ import com.frameworkset.orm.annotation.ESIndexWrapper;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.spi.assemble.PropertiesContainer;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.ScheduleConfig;
@@ -916,6 +917,9 @@ public abstract class BaseImportBuilder {
 		throw new ESDataImportException("dbconfig is null.");
 	}
 
+	public static void main(String[] args){
+		System.out.println("meta:_id".substring(5));//""
+	}
 	protected void buildImportConfig(BaseImportConfig baseImportConfig){
 
 
@@ -923,16 +927,43 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setLocale(locale);
 		baseImportConfig.setTimeZone(this.timeZone);
 		baseImportConfig.setEsDocAsUpsert(this.esDocAsUpsert);
-		baseImportConfig.setEsIdField(this.esIdField);
-		baseImportConfig.setEsParentIdField(esParentIdField);
+		if(esIdField != null) {
+			if (!esIdField.startsWith("meta:"))
+				baseImportConfig.setEsIdField(new ESField(false,this.esIdField));
+			else{
+				baseImportConfig.setEsIdField(new ESField(true,this.esIdField.substring(5)));
+			}
+		}
+		if(esParentIdField != null) {
+			if (!esParentIdField.startsWith("meta:"))
+				baseImportConfig.setEsParentIdField(new ESField(false,this.esParentIdField));
+			else{
+				baseImportConfig.setEsParentIdField(new ESField(true,this.esParentIdField.substring(5)));
+			}
+		}
+//		baseImportConfig.setEsParentIdField(esParentIdField);
 		baseImportConfig.setEsParentIdValue(esParentIdValue);
 		baseImportConfig.setEsRetryOnConflict(esRetryOnConflict);
 		baseImportConfig.setEsReturnSource(esReturnSource);
-		baseImportConfig.setEsVersionField(esVersionField);
+		if(esVersionField != null) {
+			if (!esVersionField.startsWith("meta:"))
+				baseImportConfig.setEsVersionField(new ESField(false,this.esVersionField));
+			else{
+				baseImportConfig.setEsVersionField(new ESField(true,this.esVersionField.substring(5)));
+			}
+		}
+//		baseImportConfig.setEsVersionField(esVersionField);
 		baseImportConfig.setEsVersionValue(esVersionValue);
 		baseImportConfig.setEsVersionType(esVersionType);
 		baseImportConfig.setFetchSize(this.fetchSize);
-		baseImportConfig.setRoutingField(this.routingField);
+		if(routingField != null) {
+			if (!routingField.startsWith("meta:"))
+				baseImportConfig.setRoutingField(new ESField(false,this.routingField));
+			else{
+				baseImportConfig.setRoutingField(new ESField(true,this.routingField.substring(5)));
+			}
+		}
+//		baseImportConfig.setRoutingField(this.routingField);
 		baseImportConfig.setRoutingValue(this.routingValue);
 		baseImportConfig.setUseJavaName(this.useJavaName);
 		baseImportConfig.setFieldMetaMap(this.fieldMetaMap);

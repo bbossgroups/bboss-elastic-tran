@@ -617,7 +617,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				writer.write(String.valueOf(context.getEsReturnSource()));
 			}
 			writer.write("}\n");
-			}
+		}
 
 
 	}
