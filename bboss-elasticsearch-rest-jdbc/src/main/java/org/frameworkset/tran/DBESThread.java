@@ -26,6 +26,6 @@ package org.frameworkset.tran;
 public class DBESThread extends Thread {
 	public DBESThread(Runnable run,int num ){
 		super(run);
-		this.setName("DB2ESImportThread-"+num);
+		this.setName("DataTranThread-"+num);
 	}
 }
