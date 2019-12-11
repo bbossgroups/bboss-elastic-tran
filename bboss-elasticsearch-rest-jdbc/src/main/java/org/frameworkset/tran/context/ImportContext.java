@@ -55,6 +55,7 @@ public interface ImportContext {
 	void setBatchSize(int batchSize);
 	public Integer getFetchSize() ;
 	public void setEsIdField(ESField esIdField);
+	public void setEsIdField(String esIdField);
 	void destroy();
 	public ExportCount getExportCount();
 	void importData();

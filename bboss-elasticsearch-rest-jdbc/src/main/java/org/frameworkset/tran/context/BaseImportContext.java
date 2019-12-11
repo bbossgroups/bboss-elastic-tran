@@ -62,6 +62,9 @@ public abstract  class BaseImportContext implements ImportContext {
 	public void setEsIdField(ESField esIdField) {
 		baseImportConfig.setEsIdField(  esIdField);
 	}
+	public void setEsIdField(String esIdField) {
+		baseImportConfig.setEsIdField( new ESField(false, esIdField));
+	}
 	public boolean isSortLastValue() {
 		return baseImportConfig.isSortLastValue();
 	}
