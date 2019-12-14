@@ -18,14 +18,15 @@ package org.frameworkset.tran.context;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataRefactor;
+import org.frameworkset.tran.ExportCount;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ScheduleConfig;
 import org.frameworkset.tran.schedule.ScheduleService;
 import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.ExportCount;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -154,4 +155,5 @@ public interface ImportContext {
 //	public Object getDateTimeValue(String columnName) throws ESDataImportException;
 	void setDataRefactor( DataRefactor dataRefactor);
 
+	ClientOptions getClientOptions();
 }

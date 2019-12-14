@@ -15,6 +15,7 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.es.ESField;
 
@@ -30,7 +31,8 @@ import org.frameworkset.tran.es.ESField;
 public class DefaultEsIdGenerator implements EsIdGenerator {
 	@Override
 	public Object genId(Context context) throws Exception {
-		ESField esIdField = context.getEsIdField();
+		ClientOptions clientOptions = context.getClientOptions();
+		ESField esIdField = clientOptions != null?clientOptions.getIdField():null;
 		if (esIdField != null) {
 			if(!esIdField.isMeta())
 				return context.getValue(esIdField.getField());

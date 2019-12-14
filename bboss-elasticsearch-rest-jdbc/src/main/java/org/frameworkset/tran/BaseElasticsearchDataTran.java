@@ -6,7 +6,13 @@ import com.frameworkset.orm.annotation.ESIndexWrapper;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.ElasticSearchException;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
-import org.frameworkset.elasticsearch.client.*;
+import org.frameworkset.elasticsearch.client.BuildTool;
+import org.frameworkset.elasticsearch.client.ClientInterface;
+import org.frameworkset.elasticsearch.serial.CharEscapeUtil;
+import org.frameworkset.elasticsearch.serial.SerialUtil;
+import org.frameworkset.elasticsearch.template.ESUtil;
+import org.frameworkset.soa.BBossStringWriter;
+import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
@@ -17,9 +23,6 @@ import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.task.TaskCall;
-import org.frameworkset.elasticsearch.serial.CharEscapeUtil;
-import org.frameworkset.elasticsearch.template.ESUtil;
-import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
 
@@ -118,11 +121,12 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 
 				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
 				context.refactorData();
+				context.afterRefactor();
 				if (context.isDrop()) {
 					totalCount.increamentIgnoreTotalCount();
 					continue;
 				}
-				evalBuilk(this.jdbcResultSet,  batchContext,writer, context, "index",clientInterface.isVersionUpper7());
+				evalBuilk(this.jdbcResultSet,  batchContext,writer, context, clientInterface.isVersionUpper7());
 				count++;
 				if (count >= batchsize) {
 					writer.flush();
@@ -255,11 +259,12 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				}
 				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
 				context.refactorData();
+				context.afterRefactor();
 				if (context.isDrop()) {
 					importCount.increamentIgnoreTotalCount();
 					continue;
 				}
-				evalBuilk(  this.jdbcResultSet,batchContext,writer,   context, "index",clientInterface.isVersionUpper7());
+				evalBuilk(  this.jdbcResultSet,batchContext,writer,   context, clientInterface.isVersionUpper7());
 				count++;
 				if (count >= batchsize) {
 					writer.flush();
@@ -398,11 +403,12 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 					}
 					Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
 					context.refactorData();
+					context.afterRefactor();
 					if (context.isDrop()) {
 						importCount.increamentIgnoreTotalCount();
 						continue;
 					}
-					evalBuilk(this.jdbcResultSet,  batchContext,writer,  context,  "index",clientInterface.isVersionUpper7());
+					evalBuilk(this.jdbcResultSet,  batchContext,writer,  context,  clientInterface.isVersionUpper7());
 					totalCount ++;
 				} catch (Exception e) {
 					throw new ElasticSearchException(e);
@@ -454,36 +460,292 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 
 
 
-	public static void buildMeta(Context context,Writer writer ,String action,boolean upper7) throws Exception {
 
+	public static void buildMeta(Context context, Writer writer ,boolean upper7) throws Exception {
 		Object id = context.getEsId();
 		Object parentId = context.getParentId();
 		Object routing = context.getRouting();
-
-		Object esRetryOnConflict = context.getEsRetryOnConflict();
-
-
-		buildMeta( context, writer ,      action,  id,  parentId,routing,esRetryOnConflict,upper7);
-	}
-
-	public static void buildMeta(Context context, Writer writer , String action,
-								 Object id, Object parentId, Object routing, Object esRetryOnConflict, boolean upper7) throws Exception {
+		ClientOptions clientOptions = context.getClientOptions();
+		Object esRetryOnConflict = clientOptions != null?clientOptions.getEsRetryOnConflict():null;
 		ESIndexWrapper esIndexWrapper = context.getESIndexWrapper();
 
 		JDBCGetVariableValue jdbcGetVariableValue = new JDBCGetVariableValue(context);
+		writer.write("{ \"");
+		writer.write(context.getOperation());
+		writer.write("\" : { \"_index\" : \"");
 
-		if(id != null) {
-			writer.write("{ \"");
-			writer.write(action);
-			writer.write("\" : { \"_index\" : \"");
+		if (esIndexWrapper == null ) {
+			throw new ESDataImportException(" ESIndex not seted." );
+		}
+		BuildTool.buildIndiceName(esIndexWrapper,writer,jdbcGetVariableValue);
 
+		writer.write("\"");
+		if(!upper7) {
+			writer.write(", \"_type\" : \"");
 			if (esIndexWrapper == null ) {
-				throw new ESDataImportException(" ESIndex not seted." );
+				throw new ESDataImportException(" ESIndex type not seted." );
 			}
+			BuildTool.buildIndiceType(esIndexWrapper,writer,jdbcGetVariableValue);
+			writer.write("\"");
+		}
+		if(id != null) {
+			writer.write(", \"_id\" : ");
+			BuildTool.buildId(id, writer, true);
+		}
+		if(parentId != null){
+			writer.write(", \"parent\" : ");
+			BuildTool.buildId(parentId,writer,true);
+		}
+		if(routing != null){
+			if(!upper7) {
+				writer.write(", \"_routing\" : ");
+			}
+			else{
+				writer.write(", \"routing\" : ");
+			}
+			BuildTool.buildId(routing,writer,true);
+		}
+
+//			if(action.equals("update"))
+//			{
+		if (esRetryOnConflict != null) {
+			if(!upper7) {
+				writer.write(",\"_retry_on_conflict\":");
+			}
+			else{
+				writer.write(",\"retry_on_conflict\":");
+			}
+			writer.write(String.valueOf(esRetryOnConflict));
+		}
+		Object version = context.getVersion();
+
+		if (version != null) {
+
+			writer.write(",\"_version\":");
+
+			writer.write(String.valueOf(version));
+
+		}
+		Object versionType = clientOptions!= null?clientOptions.getVersionType():null;
+		if(versionType != null) {
+			writer.write(",\"_version_type\":\"");
+			writer.write(String.valueOf(versionType));
+			writer.write("\"");
+		}
+		/**
+		String refresh = clientOptions!= null?clientOptions.getRefresh():null;
+
+		if (refresh != null) {
+
+			writer.write(",\"refresh\":\"");
+
+			writer.write(refresh);
+			writer.write("\"");
+		}*/
+		/**
+		String timeout = clientOptions!= null?clientOptions.getTimeout():null;
+
+		if (timeout != null) {
+
+			writer.write(",\"timeout\":\"");
+
+			writer.write(timeout);
+			writer.write("\"");
+		}
+		 */
+		/**
+		Integer waitForActiveShards = clientOptions!= null?clientOptions.getWaitForActiveShards():null;
+
+		if (waitForActiveShards != null) {
+
+			writer.write(",\"wait_for_active_shards\":");
+
+			writer.write(String.valueOf(waitForActiveShards));
+		}
+		 */
+		/**
+		Long if_seq_no = clientOptions!= null?clientOptions.getIfSeqNo():null;
+
+		if (if_seq_no != null) {
+
+			writer.write(",\"if_seq_no\":");
+
+			writer.write(String.valueOf(if_seq_no));
+		}
+		Long if_primary_term = clientOptions!= null?clientOptions.getIfPrimaryTerm():null;
+
+		if (if_primary_term != null) {
+
+			writer.write(",\"if_primary_term\":");
+
+			writer.write(String.valueOf(if_primary_term));
+		}
+		 */
+		if(context.isUpdate()){
+			/**
+			String masterTimeout  = clientOptions!= null?clientOptions.getMasterTimeout():null;
+
+			if (masterTimeout != null) {
+
+				writer.write(",\"master_timeout\":\"");
+
+				writer.write(masterTimeout);
+				writer.write("\"");
+			}
+			*/
+
+		}
+		else{
+			if(upper7) {
+				Long if_seq_no = clientOptions!= null?clientOptions.getIfSeqNo():null;
+
+				if (if_seq_no != null) {
+
+//					if(!upper7) {
+//						writer.write(",\"_if_seq_no\":");
+//					}
+//					else{
+//						writer.write(",\"if_seq_no\":");
+//					}
+
+					writer.write(",\"if_seq_no\":");
+
+					writer.write(String.valueOf(if_seq_no));
+				}
+
+				Long if_primary_term = clientOptions != null ? clientOptions.getIfPrimaryTerm() : null;
+
+				if (if_primary_term != null) {
+//					if (!upper7) {
+//						writer.write(",\"_if_primary_term\":");
+//					} else {
+//						writer.write(",\"if_primary_term\":");
+//					}
+					writer.write(",\"if_primary_term\":");
+					writer.write(String.valueOf(if_primary_term));
+				}
+			}
+			String pipeline = clientOptions!= null?clientOptions.getPipeline():null;
+
+			if (pipeline != null) {
+
+				writer.write(",\"pipeline\":\"");
+
+				writer.write(pipeline);
+				writer.write("\"");
+			}
+		}
+		if(context.isInsert()){
+
+			String op_type = clientOptions!= null?clientOptions.getOpType():null;
+
+			if (op_type != null) {
+
+				writer.write(",\"op_type\":\"");
+
+				writer.write(op_type);
+				writer.write("\"");
+			}
+		}
+		writer.write(" } }\n");
+
+	}
+
+	public  void evalBuilk(TranResultSet jdbcResultSet,BatchContext batchContext, Writer writer, Context context, boolean upper7) throws Exception {
+		String action = context.getOperation();
+
+
+		if(context.isInsert()) {
+//				SerialUtil.object2json(param,writer);
+			buildMeta( context, writer ,       upper7);
+			serialResult(  writer,context);
+			writer.write("\n");
+		}
+		else if(context.isUpdate())
+		{
+			buildMeta( context, writer ,       upper7);
+			writer.write("{\"doc\":");
+			serialResult(  writer,context);
+			ClientOptions clientOptions = context.getClientOptions();
+			Object esDocAsUpsert = clientOptions != null?clientOptions.getDocasupsert():null;
+			if(esDocAsUpsert != null){
+				writer.write(",\"doc_as_upsert\":");
+				writer.write(String.valueOf(esDocAsUpsert));
+			}
+			Object detect_noop = clientOptions != null?clientOptions.getDetectNoop():null;
+			if(detect_noop != null){
+				writer.write(",\"detect_noop\":");
+				writer.write(detect_noop.toString());
+			}
+			Object esReturnSource = clientOptions != null?clientOptions.getReturnSource():null;
+			if(esReturnSource != null){
+				writer.write(",\"_source\":");
+				writer.write(String.valueOf(esReturnSource));
+			}
+			List<String> sourceUpdateExcludes  = clientOptions!= null?clientOptions.getSourceUpdateExcludes():null;
+
+			if (sourceUpdateExcludes != null) {
+				/**
+				if(!upper7) {
+					writer.write(",\"_source_excludes\":");
+				}
+				else{
+					writer.write(",\"source_excludes\":");
+				}
+				 */
+				if(!upper7) {
+					writer.write(",\"_source_excludes\":");
+					SerialUtil.object2json(sourceUpdateExcludes,writer);
+				}
+
+			}
+			List<String> sourceUpdateIncludes  = clientOptions!= null?clientOptions.getSourceUpdateIncludes():null;
+
+			if (sourceUpdateIncludes != null) {
+				/**
+				if(!upper7) {
+					writer.write(",\"_source_includes\":");
+				}
+				else{
+					writer.write(",\"source_includes\":");
+				}
+				 */
+				if(!upper7) {
+					writer.write(",\"_source_includes\":");
+					SerialUtil.object2json(sourceUpdateIncludes,writer);
+				}
+
+
+			}
+			writer.write("}\n");
+		}
+		else if(context.isDelete()){
+			evalDeleteBuilk(  writer, context,upper7);
+		}
+		else{
+			buildMeta( context, writer ,       upper7);
+			serialResult(  writer,context);
+			writer.write("\n");
+		}
+
+
+	}
+
+	public static void evalDeleteBuilk(Writer writer,  Context context,boolean isUpper7)  throws Exception{
+		/**
+		try {
+			ESIndexWrapper esIndexWrapper = context.getESIndexWrapper();
+
+			JDBCGetVariableValue jdbcGetVariableValue = new JDBCGetVariableValue(context);
+			Object id = context.getEsId();
+
+
+			writer.write("{ \"delete\" : { \"_index\" : \"");
+
 			BuildTool.buildIndiceName(esIndexWrapper,writer,jdbcGetVariableValue);
 
 			writer.write("\"");
-			if(!upper7) {
+			if(!isUpper7) {
 				writer.write(", \"_type\" : \"");
 				if (esIndexWrapper == null ) {
 					throw new ESDataImportException(" ESIndex type not seted." );
@@ -493,132 +755,13 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 			}
 			writer.write(", \"_id\" : ");
 			BuildTool.buildId(id,writer,true);
-			if(parentId != null){
-				writer.write(", \"parent\" : ");
-				BuildTool.buildId(parentId,writer,true);
-			}
-			if(routing != null){
-				if(!upper7) {
-					writer.write(", \"_routing\" : ");
-				}
-				else{
-					writer.write(", \"routing\" : ");
-				}
-				BuildTool.buildId(routing,writer,true);
-			}
-
-//			if(action.equals("update"))
-//			{
-			if (esRetryOnConflict != null) {
-				writer.write(",\"_retry_on_conflict\":");
-				writer.write(String.valueOf(esRetryOnConflict));
-			}
-			Object version = context.getVersion();
-
-			if (version != null) {
-
-				writer.write(",\"_version\":");
-
-				writer.write(String.valueOf(version));
-
-			}
-
-			Object versionType = context.getEsVersionType();
-			if(versionType != null) {
-				writer.write(",\"_version_type\":\"");
-				writer.write(String.valueOf(versionType));
-				writer.write("\"");
-			}
-
-
-
 			writer.write(" } }\n");
-		}
-		else {
 
-			writer.write("{ \"");
-			writer.write(action);
-			writer.write("\" : { \"_index\" : \"");
-			if (esIndexWrapper == null ) {
-				throw new ESDataImportException(" ESIndex not seted." );
-			}
-			BuildTool.buildIndiceName(esIndexWrapper,writer,jdbcGetVariableValue);
-			writer.write("\"");
-			if(!upper7) {
-				writer.write(", \"_type\" : \"");
-				if (esIndexWrapper == null ) {
-					throw new ESDataImportException(" ESIndex type not seted." );
-				}
-				BuildTool.buildIndiceType(esIndexWrapper,writer,jdbcGetVariableValue);
-				writer.write("\"");
 
-			}
-
-			if(parentId != null){
-				writer.write(", \"parent\" : ");
-				BuildTool.buildId(parentId,writer,true);
-			}
-			if(routing != null){
-
-				if(!upper7) {
-					writer.write(", \"_routing\" : ");
-				}
-				else{
-					writer.write(", \"routing\" : ");
-				}
-				BuildTool.buildId(routing,writer,true);
-			}
-//			if(action.equals("update"))
-//			{
-
-			if (esRetryOnConflict != null) {
-				writer.write(",\"_retry_on_conflict\":");
-				writer.write(String.valueOf(esRetryOnConflict));
-			}
-			Object version = context.getVersion();
-			if (version != null) {
-
-				writer.write(",\"_version\":");
-
-				writer.write(String.valueOf(version));
-
-			}
-
-			Object versionType = context.getEsVersionType();
-			if(versionType != null) {
-				writer.write(",\"_version_type\":\"");
-				writer.write(String.valueOf(versionType));
-				writer.write("\"");
-			}
-			writer.write(" } }\n");
-		}
-	}
-
-	public  void evalBuilk(TranResultSet jdbcResultSet,BatchContext batchContext, Writer writer, Context context, String action, boolean upper7) throws Exception {
-
-		buildMeta( context, writer ,     action,  upper7);
-
-		if(!action.equals("update")) {
-//				SerialUtil.object2json(param,writer);
-			serialResult(  writer,context);
-		}
-		else
-		{
-
-			writer.write("{\"doc\":");
-			serialResult(  writer,context);
-			if(context.getEsDocAsUpsert() != null){
-				writer.write(",\"doc_as_upsert\":");
-				writer.write(String.valueOf(context.getEsDocAsUpsert()));
-			}
-
-			if(context.getEsReturnSource() != null){
-				writer.write(",\"_source\":");
-				writer.write(String.valueOf(context.getEsReturnSource()));
-			}
-			writer.write("}\n");
-		}
-
+		} catch (Exception e) {
+			throw new ElasticSearchException(e);
+		}*/
+		buildMeta(context,writer,isUpper7);
 
 	}
 
@@ -743,7 +886,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 
 		}
 
-		writer.write("}\n");
+		writer.write("}");
 	}
 	private  boolean appendFieldValues(Writer writer,Context context,
 										  List<FieldMeta> fieldValueMetas,boolean hasSeted,Map<String,Object> addedFields) throws IOException {

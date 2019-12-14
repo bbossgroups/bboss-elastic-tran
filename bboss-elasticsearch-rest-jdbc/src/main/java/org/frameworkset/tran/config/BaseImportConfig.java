@@ -83,9 +83,15 @@ public abstract class BaseImportConfig {
 	 *  tranDataBufferQueue * fetchSize * 单条记录mem大小
 	 */
 	private int tranDataBufferQueue = 10;
+//	private Object esDetectNoop;
+//	protected List<String> sourceUpdateExcludes;
+//	protected List<String> sourceUpdateIncludes;
+//	protected String timeout = "30s";
+//	protected String masterTimeout = "30s";
+//	protected Integer waitForActiveShards;
 	public static EsIdGenerator DEFAULT_EsIdGenerator = new DefaultEsIdGenerator();
 	private EsIdGenerator esIdGenerator = DEFAULT_EsIdGenerator;
-
+	private ClientOptions clientOptions;
 	private DBConfig dbConfig;
 	/**
 	 * 增量导入状态存储数据源
@@ -132,17 +138,17 @@ public abstract class BaseImportConfig {
 	private int threadCount = 200;
 	private int queue = Integer.MAX_VALUE;
 	private String applicationPropertiesFile;
-	private ESField esIdField;
-	private ESField esParentIdField;
-	private Object esParentIdValue;
-	private ESField routingField;
-	private String routingValue;
-	private Boolean esDocAsUpsert;
-	private Integer esRetryOnConflict;
-	private Boolean esReturnSource;
-	private ESField esVersionField;
-	private Object esVersionValue;
-	private String esVersionType;
+//	private ESField esIdField;
+//	private ESField esParentIdField;
+//	private Object esParentIdValue;
+//	private ESField routingField;
+//	private String routingValue;
+//	private Boolean esDocAsUpsert;
+//	private Integer esRetryOnConflict;
+//	private Boolean esReturnSource;
+//	private ESField esVersionField;
+//	private Object esVersionValue;
+//	private String esVersionType;
 	private Boolean useJavaName;
 
 	public Boolean getUseLowcase() {
@@ -167,7 +173,7 @@ public abstract class BaseImportConfig {
 //	private String sql;
 //	private String sqlFilepath;
 //	private String sqlName;
-	private String refreshOption;
+//	private String refreshOption;
 	private int batchSize;
 //	private ConfigSQLExecutor executor;
 
@@ -253,78 +259,78 @@ public abstract class BaseImportConfig {
 
 
 
-
-	public Integer getEsRetryOnConflict() {
-		return esRetryOnConflict;
-	}
-
-	public void setEsRetryOnConflict(Integer esRetryOnConflict) {
-		this.esRetryOnConflict = esRetryOnConflict;
-	}
-
-	public Boolean getEsDocAsUpsert() {
-		return esDocAsUpsert;
-	}
-
-	public void setEsDocAsUpsert(Boolean esDocAsUpsert) {
-		this.esDocAsUpsert = esDocAsUpsert;
-	}
-
-	public String getRoutingValue() {
-		return routingValue;
-	}
-
-	public void setRoutingValue(String routingValue) {
-		this.routingValue = routingValue;
-	}
-
-	public ESField getRoutingField() {
-		return routingField;
-	}
-
-	public void setRoutingField(ESField routingField) {
-		this.routingField = routingField;
-	}
-
-	public ESField getEsParentIdField() {
-		return esParentIdField;
-	}
-
-	public void setEsParentIdField(ESField esParentIdField) {
-		this.esParentIdField = esParentIdField;
-	}
-
-	public ESField getEsIdField() {
-		return esIdField;
-	}
-
-	public void setEsIdField(ESField esIdField) {
-		this.esIdField = esIdField;
-	}
-
-	public Boolean getEsReturnSource() {
-		return esReturnSource;
-	}
-
-	public void setEsReturnSource(Boolean esReturnSource) {
-		this.esReturnSource = esReturnSource;
-	}
-
-	public ESField getEsVersionField() {
-		return esVersionField;
-	}
-
-	public void setEsVersionField(ESField esVersionField) {
-		this.esVersionField = esVersionField;
-	}
-
-	public String getEsVersionType() {
-		return esVersionType;
-	}
-
-	public void setEsVersionType(String esVersionType) {
-		this.esVersionType = esVersionType;
-	}
+//
+//	public Integer getEsRetryOnConflict() {
+//		return esRetryOnConflict;
+//	}
+//
+//	public void setEsRetryOnConflict(Integer esRetryOnConflict) {
+//		this.esRetryOnConflict = esRetryOnConflict;
+//	}
+//
+//	public Boolean getEsDocAsUpsert() {
+//		return esDocAsUpsert;
+//	}
+//
+//	public void setEsDocAsUpsert(Boolean esDocAsUpsert) {
+//		this.esDocAsUpsert = esDocAsUpsert;
+//	}
+//
+//	public String getRoutingValue() {
+//		return routingValue;
+//	}
+//
+//	public void setRoutingValue(String routingValue) {
+//		this.routingValue = routingValue;
+//	}
+//
+//	public ESField getRoutingField() {
+//		return routingField;
+//	}
+//
+//	public void setRoutingField(ESField routingField) {
+//		this.routingField = routingField;
+//	}
+//
+//	public ESField getEsParentIdField() {
+//		return esParentIdField;
+//	}
+//
+//	public void setEsParentIdField(ESField esParentIdField) {
+//		this.esParentIdField = esParentIdField;
+//	}
+//
+//	public ESField getEsIdField() {
+//		return esIdField;
+//	}
+//
+//	public void setEsIdField(ESField esIdField) {
+//		this.esIdField = esIdField;
+//	}
+//
+//	public Boolean getEsReturnSource() {
+//		return esReturnSource;
+//	}
+//
+//	public void setEsReturnSource(Boolean esReturnSource) {
+//		this.esReturnSource = esReturnSource;
+//	}
+//
+//	public ESField getEsVersionField() {
+//		return esVersionField;
+//	}
+//
+//	public void setEsVersionField(ESField esVersionField) {
+//		this.esVersionField = esVersionField;
+//	}
+//
+//	public String getEsVersionType() {
+//		return esVersionType;
+//	}
+//
+//	public void setEsVersionType(String esVersionType) {
+//		this.esVersionType = esVersionType;
+//	}
 
 	public Boolean getUseJavaName() {
 		return useJavaName;
@@ -492,21 +498,21 @@ public abstract class BaseImportConfig {
 //		return this;
 //	}
 
-	public Object getEsParentIdValue() {
-		return esParentIdValue;
-	}
-
-	public void setEsParentIdValue(Object esParentIdValue) {
-		this.esParentIdValue = esParentIdValue;
-	}
-
-	public Object getEsVersionValue() {
-		return esVersionValue;
-	}
-
-	public void setEsVersionValue(Object esVersionValue) {
-		this.esVersionValue = esVersionValue;
-	}
+//	public Object getEsParentIdValue() {
+//		return esParentIdValue;
+//	}
+//
+//	public void setEsParentIdValue(Object esParentIdValue) {
+//		this.esParentIdValue = esParentIdValue;
+//	}
+//
+//	public Object getEsVersionValue() {
+//		return esVersionValue;
+//	}
+//
+//	public void setEsVersionValue(Object esVersionValue) {
+//		this.esVersionValue = esVersionValue;
+//	}
 
 	public boolean isDiscardBulkResponse() {
 		return discardBulkResponse;
@@ -714,13 +720,13 @@ public abstract class BaseImportConfig {
 		this.configs = configs;
 	}
 
-	public String getRefreshOption() {
-		return refreshOption;
-	}
-
-	public void setRefreshOption(String refreshOption) {
-		this.refreshOption = refreshOption;
-	}
+//	public String getRefreshOption() {
+//		return refreshOption;
+//	}
+//
+//	public void setRefreshOption(String refreshOption) {
+//		this.refreshOption = refreshOption;
+//	}
 
 	public int getBatchSize() {
 		return batchSize;
@@ -783,5 +789,73 @@ public abstract class BaseImportConfig {
 		return tranDataBufferQueue;
 	}
 
+//
+//	public Object getEsDetectNoop() {
+//		return esDetectNoop;
+//	}
+//
+//	public void setEsDetectNoop(Object esDetectNoop) {
+//		this.esDetectNoop = esDetectNoop;
+//	}
+//	public String getTimeout() {
+//		return timeout;
+//	}
+//
+//	public void setTimeout(String timeout) {
+//		this.timeout = timeout;
+//	}
+//
+//	public String getMasterTimeout() {
+//		return masterTimeout;
+//	}
+//
+//	public void setMasterTimeout(String masterTimeout) {
+//		this.masterTimeout = masterTimeout;
+//	}
+//
+//	public Integer getWaitForActiveShards() {
+//		return waitForActiveShards;
+//	}
+//
+//	public void setWaitForActiveShards(Integer waitForActiveShards) {
+//		this.waitForActiveShards = waitForActiveShards;
+//	}
+//
+//	public List<String> getSourceUpdateExcludes() {
+//		return sourceUpdateExcludes;
+//	}
+//
+//	public List<String> getSourceUpdateIncludes() {
+//		return sourceUpdateIncludes;
+//	}
+//
+//	public void setSourceUpdateExcludes(List<String> sourceUpdateExcludes) {
+//		this.sourceUpdateExcludes = sourceUpdateExcludes;
+//	}
+//
+//	public void setSourceUpdateIncludes(List<String> sourceUpdateIncludes) {
+//		this.sourceUpdateIncludes = sourceUpdateIncludes;
+//	}
 
+	public ClientOptions getClientOptions() {
+		return clientOptions;
+	}
+
+	public void setClientOptions(ClientOptions clientOptions) {
+		this.clientOptions = clientOptions;
+	}
+
+	public void setEsIdField(ESField esIdField) {
+		if(this.clientOptions == null){
+			clientOptions = new ClientOptions();
+		}
+		clientOptions.setIdField(esIdField);
+	}
+
+	public void setRefreshOption(String refreshOption) {
+		if(this.clientOptions == null){
+			clientOptions = new ClientOptions();
+		}
+		clientOptions.setRefreshOption(  refreshOption);
+	}
 }

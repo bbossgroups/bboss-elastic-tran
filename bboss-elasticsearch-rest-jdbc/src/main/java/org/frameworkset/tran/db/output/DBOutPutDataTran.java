@@ -89,6 +89,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					}
 					Context context = new ContextImpl(importContext, jdbcResultSet, null);
 					context.refactorData();
+					context.afterRefactor();
 					if (context.isDrop()) {
 						importCount.increamentIgnoreTotalCount();
 						continue;
@@ -214,6 +215,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 
 				Context context = new ContextImpl(importContext, jdbcResultSet, null);
 				context.refactorData();
+				context.afterRefactor();
 				if (context.isDrop()) {
 					totalCount.increamentIgnoreTotalCount();
 					continue;
@@ -332,6 +334,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 				}
 				Context context = new ContextImpl(importContext, jdbcResultSet, null);
 				context.refactorData();
+				context.afterRefactor();
 				if (context.isDrop()) {
 					importCount.increamentIgnoreTotalCount();
 					continue;

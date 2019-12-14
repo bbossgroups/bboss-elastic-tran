@@ -45,14 +45,8 @@ public abstract class BaseImportBuilder {
 	private Integer fetchSize = 5000;
 	private long flushInterval;
 	private boolean ignoreNullValueField;
-	public boolean isSortLastValue() {
-		return sortLastValue;
-	}
 
-	public BaseImportBuilder setSortLastValue(boolean sortLastValue) {
-		this.sortLastValue = sortLastValue;
-		return this;
-	}
+	private ClientOptions clientOptions;
 
 	private boolean sortLastValue = true;
 	/**
@@ -144,33 +138,33 @@ public abstract class BaseImportBuilder {
 
 	private Boolean useLowcase;
 	/**抽取数据的sql语句*/
-	private String refreshOption;
+//	private String refreshOption;
 	private Integer scheduleBatchSize ;
 	private String index;
 	/**抽取数据的sql语句*/
 	private String indexType;
-	/**抽取数据的sql语句*/
-	private String esIdField;
-	/**抽取数据的sql语句*/
-	private String esParentIdField;
-	/**抽取数据的sql语句*/
-	private String esParentIdValue;
-	/**抽取数据的sql语句*/
-	private String routingField;
-	/**抽取数据的sql语句*/
-	private String routingValue;
-	/**抽取数据的sql语句*/
-	private Boolean esDocAsUpsert;
-	/**抽取数据的sql语句*/
-	private Integer esRetryOnConflict;
-	/**抽取数据的sql语句*/
-	private Boolean esReturnSource;
-	/**抽取数据的sql语句*/
-	private String esVersionField;
-	/**抽取数据的sql语句*/
-	private Object esVersionValue;
-	/**抽取数据的sql语句*/
-	private String esVersionType;
+//	/**抽取数据的sql语句*/
+//	private String esIdField;
+//	/**抽取数据的sql语句*/
+//	private String esParentIdField;
+//	/**抽取数据的sql语句*/
+//	private String esParentIdValue;
+//	/**抽取数据的sql语句*/
+//	private String routingField;
+//	/**抽取数据的sql语句*/
+//	private String routingValue;
+//	/**抽取数据的sql语句*/
+//	private Boolean esDocAsUpsert;
+//	/**抽取数据的sql语句*/
+//	private Integer esRetryOnConflict;
+//	/**抽取数据的sql语句*/
+//	private Boolean esReturnSource;
+//	/**抽取数据的sql语句*/
+//	private String esVersionField;
+//	/**抽取数据的sql语句*/
+//	private Object esVersionValue;
+//	/**抽取数据的sql语句*/
+//	private String esVersionType;
 	/**抽取数据的sql语句*/
 	private Boolean useJavaName;
 
@@ -457,20 +451,20 @@ public abstract class BaseImportBuilder {
 	}
 
 
-	public String getEsParentIdValue() {
-		return esParentIdValue;
+
+	public BaseImportBuilder setEsParentIdValue(String esParentIdValue) {
+		checkclientOptions();
+		clientOptions.setEsParentIdValue(esParentIdValue);
+//		this.esParentIdValue = esParentIdValue;
+		return this;
 	}
 
-	public void setEsParentIdValue(String esParentIdValue) {
-		this.esParentIdValue = esParentIdValue;
-	}
 
-	public Object getEsVersionValue() {
-		return esVersionValue;
-	}
 
 	public BaseImportBuilder setEsVersionValue(Object esVersionValue) {
-		this.esVersionValue = esVersionValue;
+		checkclientOptions();
+		clientOptions.setVersion(esVersionValue);
+//		this.esVersionValue = esVersionValue;
 		return this;
 	}
 
@@ -926,45 +920,11 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setDateFormat(dateFormat);
 		baseImportConfig.setLocale(locale);
 		baseImportConfig.setTimeZone(this.timeZone);
-		baseImportConfig.setEsDocAsUpsert(this.esDocAsUpsert);
-		if(esIdField != null) {
-			if (!esIdField.startsWith("meta:"))
-				baseImportConfig.setEsIdField(new ESField(false,this.esIdField));
-			else{
-				baseImportConfig.setEsIdField(new ESField(true,this.esIdField.substring(5)));
-			}
-		}
-		if(esParentIdField != null) {
-			if (!esParentIdField.startsWith("meta:"))
-				baseImportConfig.setEsParentIdField(new ESField(false,this.esParentIdField));
-			else{
-				baseImportConfig.setEsParentIdField(new ESField(true,this.esParentIdField.substring(5)));
-			}
-		}
-//		baseImportConfig.setEsParentIdField(esParentIdField);
-		baseImportConfig.setEsParentIdValue(esParentIdValue);
-		baseImportConfig.setEsRetryOnConflict(esRetryOnConflict);
-		baseImportConfig.setEsReturnSource(esReturnSource);
-		if(esVersionField != null) {
-			if (!esVersionField.startsWith("meta:"))
-				baseImportConfig.setEsVersionField(new ESField(false,this.esVersionField));
-			else{
-				baseImportConfig.setEsVersionField(new ESField(true,this.esVersionField.substring(5)));
-			}
-		}
-//		baseImportConfig.setEsVersionField(esVersionField);
-		baseImportConfig.setEsVersionValue(esVersionValue);
-		baseImportConfig.setEsVersionType(esVersionType);
+
 		baseImportConfig.setFetchSize(this.fetchSize);
-		if(routingField != null) {
-			if (!routingField.startsWith("meta:"))
-				baseImportConfig.setRoutingField(new ESField(false,this.routingField));
-			else{
-				baseImportConfig.setRoutingField(new ESField(true,this.routingField.substring(5)));
-			}
-		}
+
+		baseImportConfig.setClientOptions(clientOptions);
 //		baseImportConfig.setRoutingField(this.routingField);
-		baseImportConfig.setRoutingValue(this.routingValue);
 		baseImportConfig.setUseJavaName(this.useJavaName);
 		baseImportConfig.setFieldMetaMap(this.fieldMetaMap);
 		baseImportConfig.setFieldValues(fieldValues);
@@ -974,7 +934,6 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setStatusDbConfig(statusDbConfig);
 
 		baseImportConfig.setConfigs(this.configs);
-		baseImportConfig.setRefreshOption(this.refreshOption);
 		baseImportConfig.setBatchSize(this.batchSize);
 		if(index != null) {
 			ESIndexWrapper esIndexWrapper = new ESIndexWrapper(index, indexType);
@@ -1015,6 +974,44 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setTranDataBufferQueue(this.tranDataBufferQueue);
 		baseImportConfig.setFlushInterval(this.flushInterval);
 		baseImportConfig.setIgnoreNullValueField(this.ignoreNullValueField);
+//		baseImportConfig.setEsDetectNoop(this.esDetectNoop);
+
+	}
+
+
+	public BaseImportBuilder setTimeout(String timeout) {
+		checkclientOptions();
+		clientOptions.setTimeout(timeout);
+		return this;
+	}
+
+
+
+	public BaseImportBuilder setMasterTimeout(String masterTimeout) {
+		checkclientOptions();
+		clientOptions.setMasterTimeout(masterTimeout);
+		return this;
+	}
+
+
+
+	public BaseImportBuilder setWaitForActiveShards(Integer waitForActiveShards) {
+		checkclientOptions();
+		clientOptions.setWaitForActiveShards(waitForActiveShards);
+		return this;
+	}
+
+
+	public BaseImportBuilder setSourceUpdateExcludes(List<String> sourceUpdateExcludes) {
+		checkclientOptions();
+		clientOptions.setSourceUpdateExcludes(sourceUpdateExcludes);
+		return this;
+	}
+
+	public BaseImportBuilder setSourceUpdateIncludes(List<String> sourceUpdateIncludes) {
+		checkclientOptions();
+		clientOptions.setSourceUpdateIncludes(sourceUpdateIncludes);
+		return this;
 	}
 	protected abstract WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler);
 	public BaseImportBuilder setIndexType(String indexType) {
@@ -1033,7 +1030,8 @@ public abstract class BaseImportBuilder {
 	}
 
 	public BaseImportBuilder setRefreshOption(String refreshOption) {
-		this.refreshOption = refreshOption;
+		this.checkclientOptions();
+		this.clientOptions.setRefreshOption(refreshOption);
 		return this;
 	}
 
@@ -1046,9 +1044,7 @@ public abstract class BaseImportBuilder {
 		this.freezen = freezen;
 	}
 
-	public String getRefreshOption() {
-		return refreshOption;
-	}
+
 
 	public int getBatchSize() {
 		return batchSize;
@@ -1062,41 +1058,7 @@ public abstract class BaseImportBuilder {
 		return indexType;
 	}
 
-	public String getEsIdField() {
-		return esIdField;
-	}
 
-	public String getEsParentIdField() {
-		return esParentIdField;
-	}
-
-	public String getRoutingField() {
-		return routingField;
-	}
-
-	public String getRoutingValue() {
-		return routingValue;
-	}
-
-	public Boolean getEsDocAsUpsert() {
-		return esDocAsUpsert;
-	}
-
-	public Integer getEsRetryOnConflict() {
-		return esRetryOnConflict;
-	}
-
-	public Boolean getEsReturnSource() {
-		return esReturnSource;
-	}
-
-	public String getEsVersionField() {
-		return esVersionField;
-	}
-
-	public String getEsVersionType() {
-		return esVersionType;
-	}
 
 	public Boolean getUseJavaName() {
 		return useJavaName;
@@ -1113,47 +1075,77 @@ public abstract class BaseImportBuilder {
 	}
 
 	public BaseImportBuilder setEsVersionType(String esVersionType) {
-		this.esVersionType = esVersionType;
+		checkclientOptions();
+		clientOptions.setVersionType(esVersionType);
 		return this;
 	}
 
 	public BaseImportBuilder setEsVersionField(String esVersionField) {
-		this.esVersionField = esVersionField;
+		checkclientOptions();
+		if (!esVersionField.startsWith("meta:"))
+			clientOptions.setVersionField(new ESField(false,esVersionField));
+		else{
+			clientOptions.setVersionField(new ESField(true,esVersionField.substring(5)));
+
+		}
 		return this;
 	}
 
 	public BaseImportBuilder setEsReturnSource(Boolean esReturnSource) {
-		this.esReturnSource = esReturnSource;
+		checkclientOptions();
+		clientOptions.setReturnSource(esReturnSource);
 		return this;
 	}
 
 	public BaseImportBuilder setEsRetryOnConflict(Integer esRetryOnConflict) {
-		this.esRetryOnConflict = esRetryOnConflict;
+		checkclientOptions();
+		clientOptions.setEsRetryOnConflict(esRetryOnConflict);
 		return this;
 	}
 
 	public BaseImportBuilder setEsDocAsUpsert(Boolean esDocAsUpsert) {
-		this.esDocAsUpsert = esDocAsUpsert;
+		checkclientOptions();
+		clientOptions.setDocasupsert(esDocAsUpsert);
 		return this;
 	}
 
 	public BaseImportBuilder setRoutingValue(String routingValue) {
-		this.routingValue = routingValue;
+		checkclientOptions();
+		clientOptions.setRouting(routingValue);
 		return this;
 	}
 
 	public BaseImportBuilder setRoutingField(String routingField) {
-		this.routingField = routingField;
+		checkclientOptions();
+		if (!routingField.startsWith("meta:"))
+			clientOptions.setRoutingField(new ESField(false,routingField));
+		else{
+			clientOptions.setRoutingField(new ESField(true,routingField.substring(5)));
+
+		}
 		return this;
 	}
 
 	public BaseImportBuilder setEsParentIdField(String esParentIdField) {
-		this.esParentIdField = esParentIdField;
+		checkclientOptions();
+		if (!esParentIdField.startsWith("meta:"))
+			clientOptions.setParentIdField(new ESField(false,esParentIdField));
+		else{
+			clientOptions.setParentIdField(new ESField(true,esParentIdField.substring(5)));
+
+		}
 		return this;
 	}
 
 	public BaseImportBuilder setEsIdField(String esIdField) {
-		this.esIdField = esIdField;
+		checkclientOptions();
+		if (!esIdField.startsWith("meta:"))
+			clientOptions.setIdField(new ESField(false,esIdField));
+		else{
+			clientOptions.setIdField(new ESField(true,esIdField.substring(5)));
+
+		}
+
 		return this;
 	}
 
@@ -1206,4 +1198,41 @@ public abstract class BaseImportBuilder {
 	}
 
 
+
+
+	public BaseImportBuilder setEsDetectNoop(Object esDetectNoop) {
+		checkclientOptions();
+		clientOptions.setDetectNoop(esDetectNoop);
+		return this;
+	}
+	public boolean isSortLastValue() {
+		return sortLastValue;
+	}
+	private void checkclientOptions(){
+		if(clientOptions == null){
+			clientOptions = new ClientOptions();
+		}
+	}
+	public BaseImportBuilder setSortLastValue(boolean sortLastValue) {
+		this.sortLastValue = sortLastValue;
+		return this;
+	}
+
+	public ClientOptions getClientOptions() {
+		return clientOptions;
+	}
+	private void copy(ClientOptions oldClientOptions,ClientOptions newClientOptions){
+		if(oldClientOptions.getIdField() !=null )
+			newClientOptions.setIdField(oldClientOptions.getIdField());
+		if(oldClientOptions.getRefreshOption() != null)
+			newClientOptions.setRefreshOption(oldClientOptions.getRefreshOption());
+	}
+	public BaseImportBuilder setClientOptions(ClientOptions clientOptions) {
+		if(this.clientOptions != null){
+			copy(this.clientOptions,clientOptions);
+		}
+		this.clientOptions = clientOptions;
+
+		return this;
+	}
 }

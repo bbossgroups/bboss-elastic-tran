@@ -32,6 +32,9 @@ public class ESField implements Serializable {
 		this.meta = meta;
 		this.field = field;
 	}
+	public ESField(String field) {
+		this(false,  field);
+	}
 
 	private String field;
 

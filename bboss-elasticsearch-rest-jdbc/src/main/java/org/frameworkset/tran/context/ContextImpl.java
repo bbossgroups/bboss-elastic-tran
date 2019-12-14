@@ -21,6 +21,7 @@ import org.frameworkset.elasticsearch.client.ResultUtil;
 import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
 import org.frameworkset.tran.es.ESField;
 
@@ -42,13 +43,18 @@ public class ContextImpl implements Context {
 
 	private Map<String,String> newfieldNames;
 	private Map<String,ColumnData> newfieldName2ndColumnDatas;
-	private BaseImportConfig esjdbc;
+	private BaseImportConfig baseImportConfig;
 	private TranResultSet jdbcResultSet;
 	private BatchContext batchContext;
 	private boolean drop;
+	private int status = 0;
+	private String index;
+	private String indexType;
+	private ESIndexWrapper esIndexWrapper;
+	private ClientOptions clientOptions;
 	private ImportContext importContext;
 	public ContextImpl(ImportContext importContext, TranResultSet jdbcResultSet, BatchContext batchContext){
-		this.esjdbc = importContext.getImportConfig();
+		this.baseImportConfig = importContext.getImportConfig();
 		this.importContext = importContext;
 		this.jdbcResultSet = jdbcResultSet;
 		this.batchContext = batchContext;
@@ -57,29 +63,87 @@ public class ContextImpl implements Context {
 		return jdbcResultSet.getMetaData();
 
 	}
-	public Boolean getEsReturnSource() {
-		return esjdbc.getEsReturnSource();
+
+	@Override
+	public void setIndex(String index) {
+		this.index = index;
 	}
-	public Boolean getEsDocAsUpsert() {
-		return this.esjdbc.getEsDocAsUpsert();
+
+	@Override
+	public void setIndexType(String indexType) {
+		this.indexType = indexType;
 	}
+
+	@Override
+	public String getIndex() {
+		return index;
+	}
+
+	@Override
+	public String getIndexType() {
+		return indexType;
+	}
+	public void afterRefactor(){
+		if(index != null && !index.equals("")){
+			if(indexType == null)
+				esIndexWrapper = new ESIndexWrapper(index,baseImportConfig.getEsIndexWrapper().getType());
+			else{
+				esIndexWrapper = new ESIndexWrapper(index,indexType);
+			}
+		}
+	}
+
+	@Override
+	public void setClientOptions(ClientOptions clientOptions) {
+
+		this.clientOptions = clientOptions;
+		if(baseImportConfig.getClientOptions() != null && clientOptions != null){
+			clientOptions.setParentClientOptions(baseImportConfig.getClientOptions());
+		}
+	}
+
+	public ClientOptions getClientOptions(){
+		if(clientOptions != null){
+			return clientOptions;
+		}
+		else{
+			return baseImportConfig.getClientOptions();
+		}
+	}
+	public String getOperation(){
+		if(this.isInsert() ){
+			return "index";
+		}
+		else if(this.isUpdate()){
+			return "update";
+		}
+		else if(isDelete()){
+			return "delete";
+		}
+		else{
+			return "index";
+		}
+	}
+
+
+
 	public List<FieldMeta> getESJDBCFieldValues() {
-		return esjdbc.getFieldValues();
+		return baseImportConfig.getFieldValues();
 	}
 	public Boolean getUseLowcase() {
-		return esjdbc.getUseLowcase();
+		return baseImportConfig.getUseLowcase();
 	}
 	public Object getValue(     int i,String  colName,int sqlType) throws Exception {
 		return jdbcResultSet.getValue(i,colName,sqlType);
 	}
 	public Boolean getUseJavaName() {
-		return esjdbc.getUseJavaName();
+		return baseImportConfig.getUseJavaName();
 	}
 	public DateFormat getDateFormat(){
-		return esjdbc.getFormat();
+		return baseImportConfig.getFormat();
 	}
 	public void refactorData() throws Exception{
-		DataRefactor dataRefactor = esjdbc.getDataRefactor();
+		DataRefactor dataRefactor = baseImportConfig.getDataRefactor();
 		if(dataRefactor != null){
 
 			dataRefactor.refactor(this);
@@ -107,7 +171,7 @@ public class ContextImpl implements Context {
 	public Context addFieldValue(String fieldName, String dateFormat, Object value) {
 		if(this.fieldValues == null)
 			fieldValues = new ArrayList<FieldMeta>();
-		DB2ESImportBuilder.addFieldValue(fieldValues,fieldName,dateFormat,value,esjdbc.getLocale(),esjdbc.getTimeZone());
+		DB2ESImportBuilder.addFieldValue(fieldValues,fieldName,dateFormat,value,baseImportConfig.getLocale(),baseImportConfig.getTimeZone());
 		return this;
 	}
 
@@ -130,7 +194,7 @@ public class ContextImpl implements Context {
 
 
 	public String getDBName(){
-		return esjdbc.getDbConfig().getDbName();
+		return baseImportConfig.getDbConfig().getDbName();
 	}
 
 	@Override
@@ -239,19 +303,15 @@ public class ContextImpl implements Context {
 				return fieldMeta;
 			}
 		}
-		return esjdbc.getMappingName(colName);
+		return baseImportConfig.getMappingName(colName);
 	}
 
 	@Override
 	public Object getEsId() throws Exception {
 
-		return esjdbc.getEsIdGenerator().genId(this);
+		return baseImportConfig.getEsIdGenerator().genId(this);
 	}
 
-	@Override
-	public ESField getEsIdField() {
-		return esjdbc.getEsIdField();
-	}
 
 	public boolean isDrop() {
 		return drop;
@@ -267,16 +327,16 @@ public class ContextImpl implements Context {
 		if(_ip == null){
 			return null;
 		}
-		if(esjdbc.getGeoIPUtil() != null) {
-			return esjdbc.getGeoIPUtil().getAddressMapResult(String.valueOf(_ip));
+		if(baseImportConfig.getGeoIPUtil() != null) {
+			return baseImportConfig.getGeoIPUtil().getAddressMapResult(String.valueOf(_ip));
 		}
 		return null;
 	}
 
 	@Override
 	public IpInfo getIpInfoByIp(String ip) {
-		if(esjdbc.getGeoIPUtil() != null) {
-			return esjdbc.getGeoIPUtil().getAddressMapResult(ip);
+		if(baseImportConfig.getGeoIPUtil() != null) {
+			return baseImportConfig.getGeoIPUtil().getAddressMapResult(ip);
 		}
 		return null;
 	}
@@ -301,7 +361,8 @@ public class ContextImpl implements Context {
 	}
 
 	public  Object getParentId() throws Exception {
-		ESField esField = esjdbc.getEsParentIdField();
+		ClientOptions clientOptions = getClientOptions();
+		ESField esField = clientOptions != null?clientOptions.getParentIdField():null;
 		if(esField != null) {
 			if(!esField.isMeta())
 				return jdbcResultSet.getValue(esField.getField());
@@ -310,7 +371,7 @@ public class ContextImpl implements Context {
 			}
 		}
 		else
-			return esjdbc.getEsParentIdValue();
+			return clientOptions != null?clientOptions.getEsParentIdValue():null;
 	}
 	/**
 	 * 获取原始记录对象
@@ -319,8 +380,42 @@ public class ContextImpl implements Context {
 	public Object getRecord(){
 		return jdbcResultSet.getRecord();
 	}
+
+	@Override
+	public void markRecoredInsert() {
+		this.status = 0;
+	}
+
+	@Override
+	public void markRecoredUpdate() {
+		this.status = 1;
+	}
+
+	@Override
+	public void markRecoredDelete() {
+		this.status = 2;
+	}
+
+	@Override
+	public boolean isInsert() {
+		return status == 0;
+	}
+
+	@Override
+	public boolean isUpdate() {
+		return status == 1;
+	}
+
+	@Override
+	public boolean isDelete() {
+		return status == 2;
+	}
+
+
+
 	public Object getRouting() throws Exception{
-		ESField esField = esjdbc.getRoutingField();
+		ClientOptions clientOptions = getClientOptions();
+		ESField esField = clientOptions != null?clientOptions.getRoutingField():null;
 		Object routing = null;
 		if(esField != null) {
 			if(!esField.isMeta())
@@ -330,19 +425,21 @@ public class ContextImpl implements Context {
 			}
 		}
 		else {
-			routing = esjdbc.getRoutingValue();
+			routing = clientOptions != null? clientOptions.getRouting():null;
 		}
 		return routing;
 	}
-	public Object getEsRetryOnConflict(){
-		return esjdbc.getEsRetryOnConflict();
-	}
+
 	public ESIndexWrapper getESIndexWrapper(){
-		return esjdbc.getEsIndexWrapper();
+		if(esIndexWrapper == null)
+			return baseImportConfig.getEsIndexWrapper();
+		else
+			return esIndexWrapper;
 	}
 
 	public Object getVersion() throws Exception {
-		ESField esField = esjdbc.getEsVersionField();
+		ClientOptions clientOptions = getClientOptions();
+		ESField esField = clientOptions != null ?clientOptions.getVersionField():null;
 		Object version = null;
 		if(esField != null) {
 			if(!esField.isMeta())
@@ -352,12 +449,10 @@ public class ContextImpl implements Context {
 			}
 		}
 		else {
-			version =  esjdbc.getEsVersionValue();
+			version =  clientOptions != null?clientOptions.getVersion():null;
 		}
 		return version;
 	}
 
-	public Object getEsVersionType(){
-		return esjdbc.getEsVersionType();
-	}
+
 }

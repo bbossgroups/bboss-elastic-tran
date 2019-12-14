@@ -18,6 +18,7 @@ package org.frameworkset.tran.context;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.*;
 
@@ -113,15 +114,19 @@ public abstract  class BaseImportContext implements ImportContext {
 
 	protected abstract DataTranPlugin buildDataTranPlugin();
 
-	public String getRefreshOption(){
-		return baseImportConfig.getRefreshOption();
-	}
+
 	public boolean isPrintTaskLog(){
 		return baseImportConfig.isPrintTaskLog();
 	}
 	public void setDataRefactor( DataRefactor dataRefactor){
 		this.baseImportConfig.setDataRefactor(dataRefactor);
 	}
+
+	@Override
+	public ClientOptions getClientOptions() {
+		return baseImportConfig.getClientOptions();
+	}
+
 	@Override
 	public void destroy() {
 //		if(dataTranPlugin != null){
@@ -286,8 +291,8 @@ public abstract  class BaseImportContext implements ImportContext {
 					return oldValue;
 			}
 			else if(oldValue instanceof Long || newValue instanceof Long){
-				int e = Long.compare(((Number)oldValue).longValue(), ((Number)newValue).longValue());
-				if(e < 0)
+				boolean e = ((Number)oldValue).longValue() <= ((Number)newValue).longValue();
+				if(e)
 					return newValue;
 				else
 					return oldValue;
@@ -336,8 +341,8 @@ public abstract  class BaseImportContext implements ImportContext {
 					return oldValue;
 			}
 			else {
-				int e = Integer.compare(((Number)oldValue).intValue(), ((Number)newValue).intValue());
-				if(e < 0)
+				boolean e = ((Number)oldValue).intValue() <= ((Number)newValue).intValue();
+				if(e)
 					return newValue;
 				else
 					return oldValue;
@@ -453,6 +458,10 @@ public abstract  class BaseImportContext implements ImportContext {
 
 	public void setRefreshOption(String refreshOption){
 		baseImportConfig.setRefreshOption(refreshOption);
+	}
+	public String getRefreshOption(){
+		ClientOptions clientOptions = baseImportConfig.getClientOptions();
+		return clientOptions != null?clientOptions.getRefreshOption():null;
 	}
 
 	public void setBatchSize(int batchSize){
