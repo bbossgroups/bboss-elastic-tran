@@ -104,7 +104,6 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount,importContext,count,taskNo,totalCount.getJobNo());
 						count = 0;
 						taskCommand.setClientInterface(clientInterface);
-						taskCommand.setRefreshOption(importContext.getRefreshOption());
 						taskCommand.setDatas(datas);
 						tasks.add(service.submit(new TaskCall(taskCommand,  tranErrorWrapper)));
 					}
@@ -138,7 +137,6 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 					TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount,importContext,count,taskNo,totalCount.getJobNo());
 					count = 0;
 					taskCommand.setClientInterface(clientInterface);
-					taskCommand.setRefreshOption(importContext.getRefreshOption());
 					taskCommand.setDatas(datas);
 					tasks.add(service.submit(new TaskCall(taskCommand,  tranErrorWrapper)));
 				}
@@ -156,7 +154,6 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				taskNo ++;
 				TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount,importContext,count,taskNo,totalCount.getJobNo());
 				taskCommand.setClientInterface(clientInterface);
-				taskCommand.setRefreshOption(importContext.getRefreshOption());
 				taskCommand.setDatas(datas);
 				tasks.add(service.submit(new TaskCall(taskCommand,tranErrorWrapper)));
 
@@ -213,7 +210,6 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 
 		ImportCount importCount = new SerialImportCount();
 		int batchsize = importContext.getStoreBatchSize();
-		String refreshOption = importContext.getRefreshOption();
 		try {
 			istart = start;
 			BatchContext batchContext = new BatchContext();
@@ -233,7 +229,6 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 						int temp = count;
 						count = 0;
 						taskCommand.setClientInterface(clientInterface);
-						taskCommand.setRefreshOption(refreshOption);
 						taskCommand.setDatas(datas);
 						ret = TaskCall.call(taskCommand);
 						importContext.flushLastValue(lastValue);
@@ -278,7 +273,6 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount,importContext,count,taskNo,importCount.getJobNo());
 					count = 0;
 					taskCommand.setClientInterface(clientInterface);
-					taskCommand.setRefreshOption(refreshOption);
 					taskCommand.setDatas(datas);
 					ret = TaskCall.call(taskCommand);
 					importContext.flushLastValue(lastValue);
@@ -303,7 +297,6 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				taskNo ++;
 				TaskCommandImpl taskCommand = new TaskCommandImpl(importCount,importContext,count,taskNo,importCount.getJobNo());
 				taskCommand.setClientInterface(clientInterface);
-				taskCommand.setRefreshOption(refreshOption);
 				taskCommand.setDatas(datas);
 				ret = TaskCall.call(taskCommand);
 				importContext.flushLastValue(lastValue);
@@ -351,7 +344,6 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 	}
 
 	public String serialExecute(  ){
-		String refreshOption = importContext.getRefreshOption();
 		StringBuilder builder = new StringBuilder();
 		BBossStringWriter writer = new BBossStringWriter(builder);
 		Object lastValue = null;
@@ -373,7 +365,6 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 
 						TaskCommandImpl taskCommand = new TaskCommandImpl(importCount,importContext,totalCount,1,importCount.getJobNo());
 						taskCommand.setClientInterface(clientInterface);
-						taskCommand.setRefreshOption(refreshOption);
 						taskCommand.setDatas(builder.toString());
 						builder.setLength(0);
 						ret = TaskCall.call(taskCommand);
@@ -421,7 +412,6 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 
 				TaskCommandImpl taskCommand = new TaskCommandImpl(importCount,importContext,totalCount,1,importCount.getJobNo());
 				taskCommand.setClientInterface(clientInterface);
-				taskCommand.setRefreshOption(refreshOption);
 				taskCommand.setDatas(builder.toString());
 				ret = TaskCall.call(taskCommand);
 			}
@@ -581,23 +571,9 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 			writer.write(String.valueOf(if_primary_term));
 		}
 		 */
-		if(context.isUpdate()){
-			/**
-			String masterTimeout  = clientOptions!= null?clientOptions.getMasterTimeout():null;
-
-			if (masterTimeout != null) {
-
-				writer.write(",\"master_timeout\":\"");
-
-				writer.write(masterTimeout);
-				writer.write("\"");
-			}
-			*/
-
-		}
-		else{
-			if(upper7) {
-				Long if_seq_no = clientOptions!= null?clientOptions.getIfSeqNo():null;
+//		if(!context.isUpdate()){
+		if(upper7) {
+				Long if_seq_no = clientOptions != null ? clientOptions.getIfSeqNo() : null;
 
 				if (if_seq_no != null) {
 
@@ -625,6 +601,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 					writer.write(String.valueOf(if_primary_term));
 				}
 			}
+//			}
 			String pipeline = clientOptions!= null?clientOptions.getPipeline():null;
 
 			if (pipeline != null) {
@@ -634,7 +611,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				writer.write(pipeline);
 				writer.write("\"");
 			}
-		}
+//		}
 		if(context.isInsert()){
 
 			String op_type = clientOptions!= null?clientOptions.getOpType():null;

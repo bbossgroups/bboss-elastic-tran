@@ -292,7 +292,6 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		long ignoreTotalCount = 0;
 		ImportCount importCount = new SerialImportCount();
 		int batchsize = importContext.getStoreBatchSize();
-		String refreshOption = importContext.getRefreshOption();
 		try {
 			istart = start;
 			TranSQLInfo sqlinfo = es2DBContext.getSqlInfo();

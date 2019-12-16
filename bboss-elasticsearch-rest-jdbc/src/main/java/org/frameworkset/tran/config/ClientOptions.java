@@ -15,6 +15,7 @@ package org.frameworkset.tran.config;
  * limitations under the License.
  */
 
+import org.frameworkset.elasticsearch.bulk.BulkActionConfig;
 import org.frameworkset.tran.es.ESField;
 
 import java.io.Serializable;
@@ -38,7 +39,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ClientOptions implements Serializable {
+public class ClientOptions implements BulkActionConfig,Serializable {
 	public static final Object NULL_OBJECT_VALUE = new Object();
 	public static final String NULL_STRING_VALUE = new String();
 
