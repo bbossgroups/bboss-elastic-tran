@@ -71,7 +71,7 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 	public void initStatusTableId(){
 		if(isIncreamentImport() && es2DBContext.getDslFile() != null && !es2DBContext.getDslFile().equals("")) {
 			try {
-				ClientInterface clientInterface = ElasticSearchHelper.getConfigRestClientUtil(es2DBContext.getDslFile());
+				ClientInterface clientInterface = ElasticSearchHelper.getConfigRestClientUtil(importContext.getSourceElasticsearch(),es2DBContext.getDslFile());
 				ESInfo esInfo = clientInterface.getESInfo(es2DBContext.getDslName());
 				importContext.setStatusTableId(esInfo.getTemplate().hashCode());
 			} catch (Exception e) {
@@ -96,7 +96,7 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 		//采用自定义handler函数处理每个scroll的结果集后，response中只会包含总记录数，不会包含记录集合
 		//scroll上下文有效期1分钟；大数据量时可以采用handler函数来处理每次scroll检索的结果，规避数据量大时存在的oom内存溢出风险
 
-		ClientInterface clientUtil = ElasticSearchHelper.getConfigRestClientUtil(es2DBContext.getDslFile());
+		ClientInterface clientUtil = ElasticSearchHelper.getConfigRestClientUtil(importContext.getSourceElasticsearch(),es2DBContext.getDslFile());
 
 		ESDatas<Map> response = null;
 		if(!es2DBContext.isSliceQuery()) {

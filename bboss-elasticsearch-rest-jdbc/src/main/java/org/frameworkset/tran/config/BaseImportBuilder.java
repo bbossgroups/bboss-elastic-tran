@@ -45,7 +45,8 @@ public abstract class BaseImportBuilder {
 	private Integer fetchSize = 5000;
 	private long flushInterval;
 	private boolean ignoreNullValueField;
-
+	private String targetElasticsearch = "default";
+	private String sourceElasticsearch = "default";
 	private ClientOptions clientOptions;
 
 	private boolean sortLastValue = true;
@@ -915,8 +916,10 @@ public abstract class BaseImportBuilder {
 		System.out.println("meta:_id".substring(5));//""
 	}
 	protected void buildImportConfig(BaseImportConfig baseImportConfig){
-
-
+		if(getTargetElasticsearch() != null && !getTargetElasticsearch().equals(""))
+			baseImportConfig.setTargetElasticsearch(this.getTargetElasticsearch());
+		if(getSourceElasticsearch() != null && !getSourceElasticsearch().equals(""))
+			baseImportConfig.setSourceElasticsearch(this.getSourceElasticsearch());
 		baseImportConfig.setDateFormat(dateFormat);
 		baseImportConfig.setLocale(locale);
 		baseImportConfig.setTimeZone(this.timeZone);
@@ -1233,6 +1236,24 @@ public abstract class BaseImportBuilder {
 		}
 		this.clientOptions = clientOptions;
 
+		return this;
+	}
+
+	public String getTargetElasticsearch() {
+		return targetElasticsearch;
+	}
+
+	public BaseImportBuilder setTargetElasticsearch(String targetElasticsearch) {
+		this.targetElasticsearch = targetElasticsearch;
+		return this;
+	}
+
+	public String getSourceElasticsearch() {
+		return sourceElasticsearch;
+	}
+
+	public BaseImportBuilder setSourceElasticsearch(String sourceElasticsearch) {
+		this.sourceElasticsearch = sourceElasticsearch;
 		return this;
 	}
 }

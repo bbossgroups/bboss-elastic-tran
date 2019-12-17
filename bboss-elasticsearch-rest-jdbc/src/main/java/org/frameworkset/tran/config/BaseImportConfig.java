@@ -46,6 +46,18 @@ public abstract class BaseImportConfig {
 	private long flushInterval;
 	private long asynResultPollTimeOut = 1000;
 
+	public void setTargetElasticsearch(String targetElasticsearch) {
+		this.targetElasticsearch = targetElasticsearch;
+	}
+	private String sourceElasticsearch = "default";
+	private String targetElasticsearch;
+	public String getSourceElasticsearch() {
+		return sourceElasticsearch;
+	}
+
+	public void setSourceElasticsearch(String sourceElasticsearch) {
+		this.sourceElasticsearch = sourceElasticsearch;
+	}
 	public boolean isIgnoreNullValueField() {
 		return ignoreNullValueField;
 	}
@@ -857,5 +869,9 @@ public abstract class BaseImportConfig {
 			clientOptions = new ClientOptions();
 		}
 		clientOptions.setRefreshOption(  refreshOption);
+	}
+
+	public String getTargetElasticsearch() {
+		return targetElasticsearch;
 	}
 }

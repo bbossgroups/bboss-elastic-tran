@@ -34,7 +34,6 @@ public class ES2ESImportConfig extends BaseImportConfig {
 	private String dslName ;//= "scrollQuery";
 	private String dsl2ndSqlFile;// = "esmapper/dsl2ndSqlFile.xml";
 	private String scrollLiveTime ;//= "100m";
-	private String targetElasticsearch;
 	private String targetIndex;
 	private String targetIndexType;
 
@@ -146,13 +145,7 @@ public class ES2ESImportConfig extends BaseImportConfig {
 //		return this.configSQLExecutor;
 //	}
 
-	public String getTargetElasticsearch() {
-		return targetElasticsearch;
-	}
 
-	public void setTargetElasticsearch(String targetElasticsearch) {
-		this.targetElasticsearch = targetElasticsearch;
-	}
 
 
 	public String getTargetIndexType() {

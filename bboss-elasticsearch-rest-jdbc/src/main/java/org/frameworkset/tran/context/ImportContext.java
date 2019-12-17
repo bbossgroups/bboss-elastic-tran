@@ -156,4 +156,7 @@ public interface ImportContext {
 	void setDataRefactor( DataRefactor dataRefactor);
 
 	ClientOptions getClientOptions();
+
+	String getTargetElasticsearch();
+	String getSourceElasticsearch();
 }

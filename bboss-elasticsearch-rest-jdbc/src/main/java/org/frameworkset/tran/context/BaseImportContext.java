@@ -121,7 +121,12 @@ public abstract  class BaseImportContext implements ImportContext {
 	public void setDataRefactor( DataRefactor dataRefactor){
 		this.baseImportConfig.setDataRefactor(dataRefactor);
 	}
-
+	public String getTargetElasticsearch(){
+		return baseImportConfig.getTargetElasticsearch();
+	}
+	public String getSourceElasticsearch(){
+		return baseImportConfig.getSourceElasticsearch();
+	}
 	@Override
 	public ClientOptions getClientOptions() {
 		return baseImportConfig.getClientOptions();

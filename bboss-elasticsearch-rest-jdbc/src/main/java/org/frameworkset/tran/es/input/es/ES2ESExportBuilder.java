@@ -44,16 +44,12 @@ public class ES2ESExportBuilder extends BaseImportBuilder {
 	private boolean sliceQuery;
 	private int sliceSize;
 
-	public String getTargetElasticsearch() {
-		return targetElasticsearch;
-	}
 
 	public ES2ESExportBuilder setTargetElasticsearch(String targetElasticsearch) {
-		this.targetElasticsearch = targetElasticsearch;
+		super.setTargetElasticsearch( targetElasticsearch) ;
 		return this;
 	}
 
-	private String targetElasticsearch;
 
 	private String targetIndex;
 	private String targetIndexType;
@@ -94,7 +90,7 @@ public class ES2ESExportBuilder extends BaseImportBuilder {
 		es2DBImportConfig.setSliceQuery(this.sliceQuery);
 		es2DBImportConfig.setSliceSize(this.sliceSize);
 		es2DBImportConfig.setParams(this.params);
-		es2DBImportConfig.setTargetElasticsearch(this.targetElasticsearch);
+
 		es2DBImportConfig.setTargetIndex(this.targetIndex);
 		es2DBImportConfig.setTargetIndexType(this.targetIndexType);
 		ES2ESDataStreamImpl dataStream = new ES2ESDataStreamImpl();

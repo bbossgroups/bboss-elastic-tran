@@ -50,7 +50,10 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 
 	public BaseElasticsearchDataTran(TranResultSet jdbcResultSet, ImportContext importContext) {
 		super(jdbcResultSet,importContext);
-		clientInterface = ElasticSearchHelper.getRestClientUtil();
+		String elasticsearch = importContext.getTargetElasticsearch();
+		if(elasticsearch == null)
+			elasticsearch = "default";
+		clientInterface = ElasticSearchHelper.getRestClientUtil(elasticsearch);
 	}
 
 	public BaseElasticsearchDataTran(TranResultSet jdbcResultSet,ImportContext importContext, String esCluster) {
