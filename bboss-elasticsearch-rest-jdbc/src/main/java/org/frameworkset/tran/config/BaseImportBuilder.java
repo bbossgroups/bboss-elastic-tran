@@ -433,8 +433,9 @@ public abstract class BaseImportBuilder {
 		return queue;
 	}
 
-	public void setQueue(int queue) {
+	public BaseImportBuilder setQueue(int queue) {
 		this.queue = queue;
+		return this;
 	}
 
 	public boolean isAsyn() {
