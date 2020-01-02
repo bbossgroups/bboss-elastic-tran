@@ -254,9 +254,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 				else{
 					if(logger.isInfoEnabled()) {
-						logger.info("Last Value Illegal:{}", importContext.getConfigLastValue());
+						logger.info("TIMESTAMP TYPE Last Value Illegal:{}", importContext.getConfigLastValue());
 					}
-					throw new ESDataImportException("Last Value Illegal:"+importContext.getConfigLastValue() );
+					throw new ESDataImportException("TIMESTAMP TYPE Last Value Illegal:"+importContext.getConfigLastValue() );
 				}
 			}
 			else {
