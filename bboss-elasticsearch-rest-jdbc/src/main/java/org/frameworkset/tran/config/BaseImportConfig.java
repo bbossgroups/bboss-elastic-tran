@@ -19,6 +19,7 @@ import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.spi.geoip.GeoIPUtil;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
@@ -50,6 +51,7 @@ public abstract class BaseImportConfig {
 		this.targetElasticsearch = targetElasticsearch;
 	}
 	private String sourceElasticsearch = "default";
+	private ESConfig esConfig;
 	private String targetElasticsearch;
 	public String getSourceElasticsearch() {
 		return sourceElasticsearch;
@@ -873,5 +875,13 @@ public abstract class BaseImportConfig {
 
 	public String getTargetElasticsearch() {
 		return targetElasticsearch;
+	}
+
+	public ESConfig getESConfig() {
+		return esConfig;
+	}
+
+	public void setEsConfig(ESConfig esConfig) {
+		this.esConfig = esConfig;
 	}
 }

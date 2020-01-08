@@ -479,14 +479,23 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	}
 	public void flushLastValue(Object lastValue) {
 		if(lastValue != null) {
-			this.currentStatus.setTime(System.currentTimeMillis());
+			long time = System.currentTimeMillis();
+			synchronized (this.currentStatus) {
+				this.currentStatus.setTime(time);
 
-			this.currentStatus.setLastValue(lastValue);
-			if (this.isIncreamentImport())
-				this.storeStatus();
+				this.currentStatus.setLastValue(lastValue);
+			}
+			if (this.isIncreamentImport()) {
+				Status temp = new Status();
+				temp.setTime(time);
+				temp.setId(this.currentStatus.getId());
+				temp.setLastValueType(this.currentStatus.getLastValueType());
+				temp.setLastValue(lastValue);
+				this.storeStatus(temp);
+			}
 		}
 	}
-	public void storeStatus()  {
+	public void storeStatus(Status currentStatus)  {
 //		if(!insertedCheck){
 //			try {
 //				insertedCheckLock.lock();
@@ -594,6 +603,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	protected void initES(String applicationPropertiesFile){
 		if(SimpleStringUtil.isNotEmpty(applicationPropertiesFile ))
 			ElasticSearchBoot.boot(applicationPropertiesFile);
+		if(this.importContext.getESConfig() != null){
+			ElasticSearchBoot.boot(importContext.getESConfig().getConfigs());
+		}
 	}
 
 	public void initSchedule(){

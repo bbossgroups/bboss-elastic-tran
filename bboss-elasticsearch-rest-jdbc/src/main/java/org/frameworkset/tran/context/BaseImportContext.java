@@ -19,6 +19,7 @@ import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
+import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.*;
 
@@ -45,6 +46,9 @@ public abstract  class BaseImportContext implements ImportContext {
 
 	public BaseImportContext(){
 
+	}
+	public ESConfig getESConfig(){
+		return baseImportConfig.getESConfig();
 	}
 	/**
 	 * 异步消费数据时，强制刷新检测空闲时间间隔，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作

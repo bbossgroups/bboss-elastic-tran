@@ -20,6 +20,7 @@ import com.frameworkset.orm.annotation.ESIndexWrapper;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.spi.assemble.PropertiesContainer;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
@@ -47,6 +48,7 @@ public abstract class BaseImportBuilder {
 	private boolean ignoreNullValueField;
 	private String targetElasticsearch = "default";
 	private String sourceElasticsearch = "default";
+	private ESConfig esConfig;
 	private ClientOptions clientOptions;
 
 	private boolean sortLastValue = true;
@@ -194,6 +196,26 @@ public abstract class BaseImportBuilder {
 			_buildDBConfig(propertiesContainer,dbName,dbConfig, "");
 		}
 	}
+	protected void buildESConfig(){
+		if(!freezen) {
+//			PropertiesContainer propertiesContainer = new PropertiesContainer();
+//
+//			if(this.applicationPropertiesFile == null) {
+//				propertiesContainer.addConfigPropertiesFile(DEFAULT_CONFIG_FILE);
+//			}
+//			else{
+//				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+//			}
+//			String dbName  = propertiesContainer.getProperty("db.name");
+//			if(dbName == null || dbName.equals(""))
+//				return;
+//			dbConfig = new DBConfig();
+//			_buildDBConfig(propertiesContainer,dbName,dbConfig, "");
+//			if(esConfig != null){
+//				ElasticSearchBoot.boot(esConfig.getConfigs());
+//			}
+		}
+	}
 	@JsonIgnore
 	public ExportResultHandler getExportResultHandler() {
 		return exportResultHandler;
@@ -235,6 +257,7 @@ public abstract class BaseImportBuilder {
 		}
 	}
 	protected void builderConfig(){
+		this.buildESConfig();
 		this.buildDBConfig();
 		this.buildStatusDBConfig();
 		this.buildOtherDBConfigs();
@@ -921,6 +944,9 @@ public abstract class BaseImportBuilder {
 			baseImportConfig.setTargetElasticsearch(this.getTargetElasticsearch());
 		if(getSourceElasticsearch() != null && !getSourceElasticsearch().equals(""))
 			baseImportConfig.setSourceElasticsearch(this.getSourceElasticsearch());
+		if(this.esConfig != null){
+			baseImportConfig.setEsConfig(esConfig);
+		}
 		baseImportConfig.setDateFormat(dateFormat);
 		baseImportConfig.setLocale(locale);
 		baseImportConfig.setTimeZone(this.timeZone);
@@ -1257,4 +1283,23 @@ public abstract class BaseImportBuilder {
 		this.sourceElasticsearch = sourceElasticsearch;
 		return this;
 	}
+
+	/**
+	 * 添加es客户端配置属性，具体的配置项参考文档：
+	 * https://esdoc.bbossgroups.com/#/development?id=_2-elasticsearch%e9%85%8d%e7%bd%ae
+	 *
+	 * 如果在代码中指定配置项，就不会去加载application.properties中指定的数据源配置，如果没有配置则去加载applciation.properties中的对应数据源配置
+	 * @param name
+	 * @param value
+	 * @return
+	 */
+	public BaseImportBuilder addElasticsearchProperty(String name,String value){
+		if(this.esConfig == null){
+			esConfig = new ESConfig();
+		}
+		esConfig.addElasticsearchProperty(name,value);
+		return this;
+	}
+
+
 }
