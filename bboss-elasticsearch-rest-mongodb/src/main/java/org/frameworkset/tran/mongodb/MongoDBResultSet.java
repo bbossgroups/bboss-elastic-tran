@@ -18,10 +18,7 @@ package org.frameworkset.tran.mongodb;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
-import org.frameworkset.tran.DefaultTranMetaData;
-import org.frameworkset.tran.ESDataImportException;
-import org.frameworkset.tran.TranMeta;
-import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.util.TranUtil;
 
@@ -35,8 +32,7 @@ import java.util.Date;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MongoDBResultSet implements TranResultSet {
-	private ImportContext importContext ;
+public class MongoDBResultSet extends LastValue implements TranResultSet {
 	private DBCursor dbCursor;
 	private DBObject record;
 	public MongoDBResultSet(ImportContext importContext, DBCursor dbCursor) {

@@ -17,7 +17,9 @@ package org.frameworkset.tran.hbase;
 
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
+import org.frameworkset.tran.hbase.input.HBase2ESInputPlugin;
 
 import java.util.Map;
 
@@ -33,13 +35,15 @@ public class HBaseContextImpl extends BaseImportContext implements HBaseContext{
 	private HBaseImportConfig hBaseImportConfig;
 	public HBaseContextImpl(HBaseImportConfig importConfig) {
 		super(importConfig);
-		this.hBaseImportConfig = importConfig;
-	}
 
+	}
+	protected void init(BaseImportConfig baseImportConfig){
+		this.hBaseImportConfig = (HBaseImportConfig)baseImportConfig;
+	}
 
 	@Override
 	protected DataTranPlugin buildDataTranPlugin() {
-		return null;
+		return new HBase2ESInputPlugin(this);
 	}
 
 	public Map<String, String> getHbaseClientProperties() {
@@ -73,7 +77,7 @@ public class HBaseContextImpl extends BaseImportContext implements HBaseContext{
 	}
 
 	@Override
-	public Long getHbaseBatch() {
+	public Integer getHbaseBatch() {
 		return hBaseImportConfig.getHbaseBatch();
 	}
 
@@ -126,6 +130,11 @@ public class HBaseContextImpl extends BaseImportContext implements HBaseContext{
 	public String getIncrementFamilyName() {
 		return hBaseImportConfig.getIncrementFamilyName();
 	}
-
+	public Long getEndTimestamp() {
+		return hBaseImportConfig.getEndTimestamp();
+	}
+	public Long getStartTimestamp() {
+		return hBaseImportConfig.getStartTimestamp();
+	}
 
 }

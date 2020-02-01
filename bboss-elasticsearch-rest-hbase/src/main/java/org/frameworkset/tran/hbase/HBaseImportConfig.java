@@ -42,9 +42,11 @@ public class HBaseImportConfig extends BaseImportConfig {
 	private String startRow;
 	private String endRow;
 	private Long maxResultSize;
-	private Long hbaseBatch;
+	private Integer hbaseBatch;
 	private FilterList filterList;
 	private Boolean filterIfMissing;
+	private Long startTimestamp;
+	private Long endTimestamp;
 	private String incrementFamilyName;
 
 	public Map<String, String> getHbaseClientProperties() {
@@ -143,11 +145,11 @@ public class HBaseImportConfig extends BaseImportConfig {
 		this.maxResultSize = maxResultSize;
 	}
 
-	public Long getHbaseBatch() {
+	public Integer getHbaseBatch() {
 		return hbaseBatch;
 	}
 
-	public void setHbaseBatch(Long hbaseBatch) {
+	public void setHbaseBatch(Integer hbaseBatch) {
 		this.hbaseBatch = hbaseBatch;
 	}
 
@@ -173,5 +175,21 @@ public class HBaseImportConfig extends BaseImportConfig {
 
 	public void setIncrementFamilyName(String incrementFamilyName) {
 		this.incrementFamilyName = incrementFamilyName;
+	}
+
+	public Long getStartTimestamp() {
+		return startTimestamp;
+	}
+
+	public void setStartTimestamp(Long startTimestamp) {
+		this.startTimestamp = startTimestamp;
+	}
+
+	public Long getEndTimestamp() {
+		return endTimestamp;
+	}
+
+	public void setEndTimestamp(Long endTimestamp) {
+		this.endTimestamp = endTimestamp;
 	}
 }

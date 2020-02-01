@@ -49,7 +49,7 @@ public interface HBaseContext {
 	 * 客户端每次获取的列数
 	 * @return
 	 */
-	public Long getHbaseBatch();
+	public Integer getHbaseBatch();
 
 	/**
 	 *
@@ -101,6 +101,7 @@ public interface HBaseContext {
 	 * @return
 	 */
 	public String getIncrementFamilyName();
-
+	public Long getEndTimestamp() ;
+	public Long getStartTimestamp();
 
 }

@@ -15,11 +15,14 @@ package org.frameworkset.tran.hbase.input;
  * limitations under the License.
  */
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
+import org.apache.hadoop.hbase.CompareOperator;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.nosql.hbase.HBaseHelper;
 import org.frameworkset.nosql.hbase.TableFactory;
 import org.frameworkset.tran.BaseDataTranPlugin;
@@ -27,10 +30,11 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.hbase.HBaseContext;
+import org.frameworkset.tran.hbase.HBaseRecord;
+import org.frameworkset.tran.hbase.HBaseResultSet;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -42,16 +46,23 @@ import java.util.List;
  */
 public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranPlugin {
 	private TableFactory tableFactory;
+
 	private HBaseContext hbaseContext;
+	private byte[] incrementFamily;
+	private byte[] incrementColumn;
 	protected void init(ImportContext importContext){
 		super.init(importContext);
 		hbaseContext = (HBaseContext)importContext;
+
 
 	}
 	protected void doTran(ResultScanner rs) {
 //		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);
 //		MongoDB2ESDataTran mongoDB2ESDataTran = new MongoDB2ESDataTran(mongoDB2ESResultSet,importContext);
 //		mongoDB2ESDataTran.tran();
+		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
+		HBase2ESDataTran hBase2ESDataTran = new HBase2ESDataTran(hBaseResultSet,importContext);
+		hBase2ESDataTran.tran();
 	}
 
 	public HBase2ESInputPlugin(ImportContext importContext){
@@ -59,7 +70,11 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 
 
 	}
+	public void destroy(){
 
+		HBaseHelper.destroy();
+
+	}
 	@Override
 	public void beforeInit() {
 		this.initES(importContext.getApplicationPropertiesFile());
@@ -112,13 +127,22 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 	}
 	@Override
 	public void afterInit(){
-
+		initIncrementInfos();
 	}
 
 	@Override
 	public void initStatusTableId() {
 		if(isIncreamentImport()) {
 			//计算增量记录id
+			String statusTableId = hbaseContext.getHbaseTable()+"|"+hbaseContext.getIncrementFamilyName();
+
+			if(hbaseContext.getStartRow() != null )
+				statusTableId =statusTableId +"|"+hbaseContext.getStartRow();
+			if(hbaseContext.getEndRow() != null )
+				statusTableId =statusTableId +"|"+hbaseContext.getEndRow();
+			if(hbaseContext.getScanFilters() != null )
+				statusTableId =statusTableId +"|"+hbaseContext.getScanFilters();
+			importContext.setStatusTableId(statusTableId.hashCode());
 //
 //			String statusTableId = es2DBContext.getDB()+"|"+es2DBContext.getDBCollection()+"|"+es2DBContext.getServerAddresses();
 //			if(es2DBContext.getQuery() != null){
@@ -129,25 +153,7 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 
 	}
 
-	private void commonImportData() throws Exception {
-
-//		DBObject dbObject = es2DBContext.getQuery();
-//		if(dbObject == null)
-//			dbObject = new BasicDBObject();
-//
-//		exportESData(  dbObject);
-		/**
-		 * JDBCResultSet jdbcResultSet = new JDBCResultSet();
-		 * 		jdbcResultSet.setResultSet(resultSet);
-		 * 		jdbcResultSet.setMetaData(statementInfo.getMeta());
-		 * 		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-		 * 		DB2ESDataTran db2ESDataTran = new DB2ESDataTran(jdbcResultSet,importContext);
-		 *
-		 * 		db2ESDataTran.tran(  );
-		 */
-	}
-
-	private void exportESData(DBObject dbObject){
+	private void exportESData(){
 //		MongoDB mogodb = MongoDBHelper.getMongoDB(es2DBContext.getName());
 //		DB db = mogodb.getDB(es2DBContext.getDB());
 //		DBCollection dbCollection = db.getCollection(es2DBContext.getDBCollection());
@@ -172,21 +178,86 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 ////		MongoDB2ESDataTran mongoDB2ESDataTran = new MongoDB2ESDataTran(mongoDB2ESResultSet,importContext);
 ////		mongoDB2ESDataTran.tran();
 //		doTran(  dbCursor);
+		Table table = null;
+		try {
+			table = tableFactory.getTable(TableName.valueOf(hbaseContext.getHbaseTable()));
+			Scan scan = new Scan();
+			if(hbaseContext.getStartRow() != null){
+				scan.withStartRow(Bytes.toBytes(hbaseContext.getStartRow()),true);
+			}
+			if(hbaseContext.getEndRow() != null){
+				scan.withStopRow(Bytes.toBytes(hbaseContext.getEndRow()),true);
+			}
+			if(hbaseContext.getHbaseBatch() != null){
+				scan.setBatch(hbaseContext.getHbaseBatch());
+			}
+			if(hbaseContext.getMaxResultSize() != null){
+				scan.setMaxResultSize(hbaseContext.getMaxResultSize());
+			}
+
+
+
+			if(hbaseContext.getStartTimestamp() != null && hbaseContext.getEndTimestamp() != null)
+				scan.setTimeRange(hbaseContext.getStartTimestamp(),hbaseContext.getEndTimestamp());
+			if (isIncreamentImport()) {
+
+				putLastParamValue(scan,hbaseContext.getScanFilters());
+
+			}
+
+			if(hbaseContext.getScanFilters() != null) {
+				scan.setFilter(hbaseContext.getScanFilters());
+
+			}
+			if(importContext.getFetchSize() != null) {
+				scan.setCaching(importContext.getFetchSize());
+			}
+
+			ResultScanner rs = table.getScanner(scan);
+			doTran(rs);
+		}
+		catch (Exception e){
+			throw new ESDataImportException(e);
+		}
+		finally {
+			if(tableFactory != null && table != null){
+				tableFactory.releaseTable(table);
+			}
+		}
+
 
 	}
-	private void increamentImportData() throws Exception {
+	private void initIncrementInfos(){
+		if(getLastValueVarName() != null){
 
-//		DBObject dbObject = es2DBContext.getQuery();
-//		if(dbObject == null)
-//			dbObject = new BasicDBObject();
-//		putLastParamValue((BasicDBObject)dbObject);
-//		exportESData(  dbObject);
+			if(hbaseContext.getIncrementFamilyName() != null){
+				incrementFamily = Bytes.toBytes(hbaseContext.getIncrementFamilyName());
+				incrementColumn = Bytes.toBytes(getLastValueVarName());
+			}
+			else{
+				byte[][] infos = HBaseRecord.parserColumn(getLastValueVarName());
+				incrementFamily = infos[0];
+				incrementColumn = infos[1];
+			}
+		}
+
+
 	}
-	public void putLastParamValue(FilterList query){
+	public void putLastParamValue(Scan scan,FilterList filterList){
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
-			query.append(getLastValueVarName(),
-					new BasicDBObject("$gt", this.currentStatus.getLastValue()));
-//			params.put(getLastValueVarName(), this.currentStatus.getLastValue());
+
+			SingleColumnValueFilter scvf = new SingleColumnValueFilter(incrementFamily, incrementColumn,
+
+					CompareOperator.GREATER, Bytes.toBytes((Long) this.currentStatus.getLastValue()));
+
+			if (hbaseContext.getFilterIfMissing() != null)
+				scvf.setFilterIfMissing(hbaseContext.getFilterIfMissing()); //默认为false， 没有此列的数据也会返回 ，为true则只返回name=lisi的数据
+			if (filterList == null) {
+				filterList.addFilter(scvf);
+
+			} else {
+				scan.setFilter(scvf);
+			}
 		}
 		else{
 			Object lv = null;
@@ -208,11 +279,23 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 					lv =  new Date(((Number) this.currentStatus.getLastValue()).longValue());
 				}
 			}
-			query.append(getLastValueVarName(),
-					new BasicDBObject("$gt", lv));
+			SingleColumnValueFilter scvf= new SingleColumnValueFilter(incrementFamily, incrementColumn,
+
+					CompareOperator.GREATER,Bytes.toBytes(((Date)this.currentStatus.getLastValue()).getTime()));
+
+			if(hbaseContext.getFilterIfMissing() != null)
+				scvf.setFilterIfMissing(hbaseContext.getFilterIfMissing()); //默认为false， 没有此列的数据也会返回 ，为true则只返回name=lisi的数据
+			if(filterList == null){
+				filterList.addFilter(scvf);
+
+			}
+			else {
+				scan.setFilter(scvf);
+			}
+
 		}
 		if(isPrintTaskLog()){
-			logger.info(new StringBuilder().append("Current values: ").append(query).toString());
+			logger.info(new StringBuilder().append("Current values: ").append(currentStatus.getLastValue()).toString());
 		}
 	}
 
@@ -220,15 +303,7 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 
 
 			try {
-				if (!isIncreamentImport()) {
-
-					commonImportData( );
-
-				} else {
-
-					increamentImportData( );
-
-				}
+				exportESData();
 			} catch (ESDataImportException e) {
 				throw e;
 			} catch (Exception e) {

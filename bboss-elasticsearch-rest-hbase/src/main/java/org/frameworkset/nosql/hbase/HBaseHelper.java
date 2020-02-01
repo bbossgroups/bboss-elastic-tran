@@ -20,6 +20,8 @@ import org.apache.hadoop.util.ShutdownHookManagerProxy;
 import org.frameworkset.spi.BaseApplicationContext;
 import org.frameworkset.tran.hbase.input.HBaseTranException;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -33,6 +35,9 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0
  */
 public class HBaseHelper {
+	private static Logger logger = LoggerFactory.getLogger(HBaseHelper.class);
+	private static ConnectionFactoryBean connectionFactoryBean;
+	private static ExecutorService executorService;
 	public static TableFactory buildTableFactory(Map<String,String> properties,int threadCount,int threadQueue,long keepAliveTime,
 												 long blockedWaitTimeout,int warnMultsRejects,boolean preStartAllCoreThreads,final Boolean daemon){
 		HbaseConfigurationFactoryBean hbaseConfigurationFactoryBean = new HbaseConfigurationFactoryBean();
@@ -40,9 +45,9 @@ public class HBaseHelper {
 		hbaseConfigurationFactoryBean.afterPropertiesSet();
 		Configuration configuration = hbaseConfigurationFactoryBean.getConfiguration();
 //		final ExecutorService executorService = ThreadPoolFactory.buildThreadPool("HBase-Input","HBase tran",100,100,0L,1000l,1000,true,true);
-		final ExecutorService executorService = ThreadPoolFactory.buildThreadPool("HBase-Input","HBase tran", threadCount, threadQueue, keepAliveTime,
+		executorService = ThreadPoolFactory.buildThreadPool("HBase-Input","HBase tran", threadCount, threadQueue, keepAliveTime,
 		 																			blockedWaitTimeout, warnMultsRejects, preStartAllCoreThreads,  daemon);
-		final ConnectionFactoryBean connectionFactoryBean = new ConnectionFactoryBean(configuration,executorService);
+		connectionFactoryBean = new ConnectionFactoryBean(configuration,executorService);
 		try {
 			TableFactory tableFactory = new HbaseTableFactory(connectionFactoryBean.getConnection());
 			return tableFactory;
@@ -60,22 +65,31 @@ public class HBaseHelper {
 			BaseApplicationContext.addShutdownHook(new Runnable() {
 				@Override
 				public void run() {
-					try {
-						connectionFactoryBean.destroy();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					try {
-						executorService.shutdown();
-					}
-					catch (Exception e){
-						e.printStackTrace();
-					}
+					destroy();
 
 
 				}
 			});
 		}
 
+	}
+	public static void destroy(){
+		try {
+			if(connectionFactoryBean != null) {
+				connectionFactoryBean.destroy();
+				connectionFactoryBean = null;
+			}
+		} catch (Exception e) {
+			logger.warn("",e);
+		}
+		try {
+			if(executorService != null) {
+				executorService.shutdown();
+				executorService = null;
+			}
+		}
+		catch (Exception e){
+			logger.warn("",e);
+		}
 	}
 }

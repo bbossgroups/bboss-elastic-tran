@@ -15,11 +15,13 @@ package org.frameworkset.tran.hbase;
  * limitations under the License.
  */
 
+import org.apache.hadoop.hbase.filter.FilterList;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.BaseImportBuilder;
 import org.frameworkset.tran.es.ESExportResultHandler;
+import org.frameworkset.tran.hbase.input.HBase2ESDataStreamImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,10 +44,23 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 	private boolean hbaseClientPreStartAllCoreThreads;
 	private  Boolean hbaseClientThreadDaemon;
 
+	private String hbaseTable;
+	private String startRow;
+	private String endRow;
+	private Long maxResultSize;
+	private Integer hbaseBatch;
+	private FilterList filterList;
+	private Boolean filterIfMissing;
+	private String incrementFamilyName;
+	private Long startTimestamp;
+	private Long endTimestamp;
 	public Map<String, String> getHbaseClientProperties() {
 		return hbaseClientProperties;
 	}
 
+	public static HBaseExportBuilder newInstance(){
+		return new HBaseExportBuilder();
+	}
 	 public HBaseExportBuilder addHbaseClientProperty(String name,String value){
 		if(hbaseClientProperties == null){
 			hbaseClientProperties = new HashMap<String, String>();
@@ -122,7 +137,7 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		return new ESExportResultHandler(exportResultHandler);
 	}
 	protected DataStream createDataStream(){
-		return null;
+		return new HBase2ESDataStreamImpl();
 	}
 
 	public DataStream builder(){
@@ -140,6 +155,9 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		}
 		HBaseImportConfig hBaseImportConfig = new HBaseImportConfig();
 		super.buildImportConfig(hBaseImportConfig);
+		if(hBaseImportConfig.getEsIdGenerator() == null) {
+			hBaseImportConfig.setEsIdGenerator(new HBaseEsIdGenerator());
+		}
 		hBaseImportConfig.setHbaseClientProperties(hbaseClientProperties);
 		hBaseImportConfig.setHbaseClientThreadCount(hbaseClientThreadCount);
 		hBaseImportConfig.setHbaseClientThreadQueue(hbaseClientThreadQueue);
@@ -148,6 +166,17 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		hBaseImportConfig.setHbaseClientWarnMultsRejects(hbaseClientWarnMultsRejects);
 		hBaseImportConfig.setHbaseClientPreStartAllCoreThreads(hbaseClientPreStartAllCoreThreads);
 		hBaseImportConfig.setHbaseClientThreadDaemon(hbaseClientThreadDaemon);
+
+		hBaseImportConfig.setHbaseTable(hbaseTable);
+		hBaseImportConfig.setStartRow(startRow);
+		hBaseImportConfig.setEndRow(endRow);
+		hBaseImportConfig.setMaxResultSize(maxResultSize);
+		hBaseImportConfig.setHbaseBatch(hbaseBatch);
+		hBaseImportConfig.setFilterList(filterList);
+		hBaseImportConfig.setFilterIfMissing(filterIfMissing);
+		hBaseImportConfig.setIncrementFamilyName(incrementFamilyName);
+		hBaseImportConfig.setStartTimestamp(this.startTimestamp);
+		hBaseImportConfig.setEndTimestamp(this.endTimestamp);
 		/**
 		MongoDBImportConfig es2DBImportConfig = new MongoDBImportConfig();
 		super.buildImportConfig(es2DBImportConfig);
@@ -187,4 +216,93 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 	}
 
 
+	public String getHbaseTable() {
+		return hbaseTable;
+	}
+
+	public HBaseExportBuilder setHbaseTable(String hbaseTable) {
+		this.hbaseTable = hbaseTable;
+		return this;
+	}
+
+	public String getStartRow() {
+		return startRow;
+	}
+
+	public HBaseExportBuilder setStartRow(String startRow) {
+		this.startRow = startRow;
+		return this;
+	}
+
+	public String getEndRow() {
+		return endRow;
+	}
+
+	public HBaseExportBuilder setEndRow(String endRow) {
+		this.endRow = endRow;
+		return this;
+	}
+
+	public Long getMaxResultSize() {
+		return maxResultSize;
+	}
+
+	public HBaseExportBuilder setMaxResultSize(Long maxResultSize) {
+		this.maxResultSize = maxResultSize;
+		return this;
+	}
+
+	public Integer getHbaseBatch() {
+		return hbaseBatch;
+	}
+
+	public HBaseExportBuilder setHbaseBatch(Integer hbaseBatch) {
+		this.hbaseBatch = hbaseBatch;
+		return this;
+	}
+
+	public FilterList getFilterList() {
+		return filterList;
+	}
+
+	public HBaseExportBuilder setFilterList(FilterList filterList) {
+		this.filterList = filterList;
+		return this;
+	}
+
+	public Boolean getFilterIfMissing() {
+		return filterIfMissing;
+	}
+
+	public HBaseExportBuilder setFilterIfMissing(Boolean filterIfMissing) {
+		this.filterIfMissing = filterIfMissing;
+		return this;
+	}
+
+	public String getIncrementFamilyName() {
+		return incrementFamilyName;
+	}
+
+	public HBaseExportBuilder setIncrementFamilyName(String incrementFamilyName) {
+		this.incrementFamilyName = incrementFamilyName;
+		return this;
+	}
+
+	public Long getStartTimestamp() {
+		return startTimestamp;
+	}
+
+	public HBaseExportBuilder setStartTimestamp(Long startTimestamp) {
+		this.startTimestamp = startTimestamp;
+		return this;
+	}
+
+	public Long getEndTimestamp() {
+		return endTimestamp;
+	}
+
+	public HBaseExportBuilder setEndTimestamp(Long endTimestamp) {
+		this.endTimestamp = endTimestamp;
+		return this;
+	}
 }
