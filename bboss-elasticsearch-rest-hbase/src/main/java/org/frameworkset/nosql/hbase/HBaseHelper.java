@@ -16,11 +16,12 @@ package org.frameworkset.nosql.hbase;
  */
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.ShutdownHookManagerProxy;
 import org.frameworkset.spi.BaseApplicationContext;
 import org.frameworkset.tran.hbase.input.HBaseTranException;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
 
-import java.util.Properties;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -32,12 +33,15 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0
  */
 public class HBaseHelper {
-	public static TableFactory buildTableFactory(Properties properties){
+	public static TableFactory buildTableFactory(Map<String,String> properties,int threadCount,int threadQueue,long keepAliveTime,
+												 long blockedWaitTimeout,int warnMultsRejects,boolean preStartAllCoreThreads,final Boolean daemon){
 		HbaseConfigurationFactoryBean hbaseConfigurationFactoryBean = new HbaseConfigurationFactoryBean();
 		hbaseConfigurationFactoryBean.setProperties(properties);
 		hbaseConfigurationFactoryBean.afterPropertiesSet();
 		Configuration configuration = hbaseConfigurationFactoryBean.getConfiguration();
-		final ExecutorService executorService = ThreadPoolFactory.buildThreadPool("HBase-Input","HBase tran",100,100,0L,1000l,1000,true,true);
+//		final ExecutorService executorService = ThreadPoolFactory.buildThreadPool("HBase-Input","HBase tran",100,100,0L,1000l,1000,true,true);
+		final ExecutorService executorService = ThreadPoolFactory.buildThreadPool("HBase-Input","HBase tran", threadCount, threadQueue, keepAliveTime,
+		 																			blockedWaitTimeout, warnMultsRejects, preStartAllCoreThreads,  daemon);
 		final ConnectionFactoryBean connectionFactoryBean = new ConnectionFactoryBean(configuration,executorService);
 		try {
 			TableFactory tableFactory = new HbaseTableFactory(connectionFactoryBean.getConnection());
@@ -46,20 +50,28 @@ public class HBaseHelper {
 			throw new HBaseTranException(e);
 		}
 		finally {
+			try {
+				ShutdownHookManagerProxy shutdownHookManagerProxy = new ShutdownHookManagerProxy();
+//						shutdownHookManagerProxy.destroy();
+			}
+			catch (Exception e){
+				e.printStackTrace();
+			}
 			BaseApplicationContext.addShutdownHook(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						connectionFactoryBean.destroy();
 					} catch (Exception e) {
-
+						e.printStackTrace();
 					}
 					try {
 						executorService.shutdown();
 					}
 					catch (Exception e){
-
+						e.printStackTrace();
 					}
+
 
 				}
 			});

@@ -16,8 +16,10 @@ package org.frameworkset.tran.hbase.input;
  */
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
 import org.frameworkset.nosql.hbase.HBaseHelper;
 import org.frameworkset.nosql.hbase.TableFactory;
 import org.frameworkset.tran.BaseDataTranPlugin;
@@ -28,6 +30,7 @@ import org.frameworkset.tran.hbase.HBaseContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -37,7 +40,7 @@ import java.util.Date;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class HBaseInputPlugin extends BaseDataTranPlugin implements DataTranPlugin {
+public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranPlugin {
 	private TableFactory tableFactory;
 	private HBaseContext hbaseContext;
 	protected void init(ImportContext importContext){
@@ -45,9 +48,13 @@ public abstract class HBaseInputPlugin extends BaseDataTranPlugin implements Dat
 		hbaseContext = (HBaseContext)importContext;
 
 	}
+	protected void doTran(ResultScanner rs) {
+//		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);
+//		MongoDB2ESDataTran mongoDB2ESDataTran = new MongoDB2ESDataTran(mongoDB2ESResultSet,importContext);
+//		mongoDB2ESDataTran.tran();
+	}
 
-
-	public HBaseInputPlugin(ImportContext importContext){
+	public HBase2ESInputPlugin(ImportContext importContext){
 		super(importContext);
 
 
@@ -94,7 +101,14 @@ public abstract class HBaseInputPlugin extends BaseDataTranPlugin implements Dat
 //		} catch (Exception e) {
 //			throw new HBaseTranException(e);
 //		}
-		tableFactory = HBaseHelper.buildTableFactory(hbaseContext.getProperties());
+		tableFactory = HBaseHelper.buildTableFactory(hbaseContext.getHbaseClientProperties(),
+				hbaseContext.getHbaseClientThreadCount(),
+				hbaseContext.getHbaseClientThreadQueue(),
+				hbaseContext.getHbaseClientKeepAliveTime(),
+				hbaseContext.getHbaseClientBlockedWaitTimeout(),
+				hbaseContext.getHbaseClientWarnMultsRejects(),
+				hbaseContext.isHbaseClientPreStartAllCoreThreads(),
+				hbaseContext.getHbaseClientThreadDaemon());
 	}
 	@Override
 	public void afterInit(){
@@ -160,7 +174,6 @@ public abstract class HBaseInputPlugin extends BaseDataTranPlugin implements Dat
 //		doTran(  dbCursor);
 
 	}
-	protected abstract void doTran(DBCursor dbCursor);
 	private void increamentImportData() throws Exception {
 
 //		DBObject dbObject = es2DBContext.getQuery();
@@ -169,7 +182,7 @@ public abstract class HBaseInputPlugin extends BaseDataTranPlugin implements Dat
 //		putLastParamValue((BasicDBObject)dbObject);
 //		exportESData(  dbObject);
 	}
-	public void putLastParamValue(BasicDBObject query){
+	public void putLastParamValue(FilterList query){
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 			query.append(getLastValueVarName(),
 					new BasicDBObject("$gt", this.currentStatus.getLastValue()));

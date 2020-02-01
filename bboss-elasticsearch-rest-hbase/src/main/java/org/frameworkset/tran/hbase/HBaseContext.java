@@ -15,12 +15,9 @@ package org.frameworkset.tran.hbase;
  * limitations under the License.
  */
 
-import com.mongodb.DBObject;
-import com.mongodb.client.model.DBCollectionFindOptions;
-import org.frameworkset.nosql.mongodb.ClientMongoCredential;
+import org.apache.hadoop.hbase.filter.FilterList;
 
-import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 /**
  * <p>Description: </p>
@@ -32,37 +29,78 @@ import java.util.Properties;
  */
 public interface HBaseContext {
 
-	public String getName() ;
+//	int threadCount,int threadQueue,long keepAliveTime,
+//	long blockedWaitTimeout,int warnMultsRejects,boolean preStartAllCoreThreads,final Boolean daemon
+	Map<String,String> getHbaseClientProperties();
 
-	public String getDB();
-	public String getDBCollection();
-	public DBObject getQuery();
-	public DBCollectionFindOptions getDBCollectionFindOptions();
-	public String getServerAddresses() ;
+	public int getHbaseClientThreadCount();
+	public String getHbaseTable();
+	public String getStartRow();
+	public String getEndRow();
 
-	public String getOption() ;
+	//.setCaching => .setNumberOfRowsFetchSize (客户端每次 rpc fetch 的行数)
+	// see fetchSize;
+	/**
+	 * 客户端缓存的最大字节数
+	 * @return
+	 */
+	public Long getMaxResultSize();
+	/**
+	 * 客户端每次获取的列数
+	 * @return
+	 */
+	public Long getHbaseBatch();
 
-	public String getWriteConcern();
+	/**
+	 *
+	 FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ONE); //数据只要满足一组过滤器中的一个就可以
 
-	public String getReadPreference() ;
+	 SingleColumnValueFilter filter1 = new SingleColumnValueFilter(cf,column,CompareOp.EQUAL,Bytes.toBytes("my value"));
 
-	public Boolean getAutoConnectRetry() ;
+	 list.add(filter1);
 
-	public int getConnectionsPerHost() ;
+	 SingleColumnValueFilter filter2 = new SingleColumnValueFilter(cf,column,CompareOp.EQUAL,Bytes.toBytes("my other value"));
 
-	public int getMaxWaitTime() ;
 
-	public int getSocketTimeout() ;
 
-	public int getConnectTimeout() ;
+	 * @return
+	 */
+	public FilterList getScanFilters();
 
-	public int getThreadsAllowedToBlockForConnectionMultiplier();
+	/**
+	 * 如果setFilterIfMissing(true), 有匹配只会返回当前列所在的行数据，基于行的数据 country 也返回了，因为他么你的rowkey是相同的
+	 * 如果setFilterIfMissing（false），有匹配的列的值相同会返回，没有此列的 name的也会返回，， 不匹配的name则不会返回。
+	 * https://blog.csdn.net/kangkangwanwan/article/details/89332536
+	 * @return
+	 */
+	public Boolean getFilterIfMissing();
 
-	public Boolean getSocketKeepAlive() ;
-	public DBObject getFetchFields();
+	public int getHbaseClientThreadQueue() ;
 
-	public String getMode() ;
-	public List<ClientMongoCredential> getCredentials() ;
 
-	Properties getProperties();
+
+	public long getHbaseClientKeepAliveTime() ;
+
+
+
+	public long getHbaseClientBlockedWaitTimeout() ;
+
+
+
+	public int getHbaseClientWarnMultsRejects() ;
+
+
+
+	public boolean isHbaseClientPreStartAllCoreThreads() ;
+
+
+	public Boolean getHbaseClientThreadDaemon();
+
+	/**
+	 *
+	 * @return
+	 */
+	public String getIncrementFamilyName();
+
+
 }

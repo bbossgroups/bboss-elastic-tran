@@ -19,8 +19,7 @@ package org.frameworkset.nosql.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 
-import java.util.Enumeration;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Factory for creating HBase specific configuration. By default cleans up any connection associated with the current configuration.
@@ -31,7 +30,7 @@ public class HbaseConfigurationFactoryBean{
 
     private Configuration configuration;
     private Configuration hadoopConfig;
-    private Properties properties;
+    private Map<String,String> properties;
 
     /**
      * Sets the Hadoop configuration to use.
@@ -47,7 +46,7 @@ public class HbaseConfigurationFactoryBean{
      *
      * @param properties The properties to set.
      */
-    public void setProperties(Properties properties) {
+    public void setProperties(Map<String,String> properties) {
         this.properties = properties;
     }
 
@@ -86,13 +85,14 @@ public class HbaseConfigurationFactoryBean{
      * @param configuration configuration to manipulate. Should not be null.
      * @param properties properties to add to the configuration. May be null.
      */
-    private void addProperties(Configuration configuration, Properties properties) {
+    private void addProperties(Configuration configuration, Map<String,String> properties) {
 //        Assert.notNull(configuration, "A non-null configuration is required");
-        if (properties != null) {
-            Enumeration<?> props = properties.propertyNames();
-            while (props.hasMoreElements()) {
-                String key = props.nextElement().toString();
-                configuration.set(key, properties.getProperty(key));
+        if (properties != null && properties.size() > 0) {
+            Iterator<Map.Entry<String, String>> props = properties.entrySet().iterator();
+            while (props.hasNext()) {
+                Map.Entry<String, String> entry = props.next();
+                String key = entry.getKey();
+                configuration.set(key, entry.getValue());
             }
         }
     }
