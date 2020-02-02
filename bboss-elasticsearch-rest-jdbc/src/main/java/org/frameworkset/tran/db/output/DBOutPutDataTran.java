@@ -2,10 +2,8 @@ package org.frameworkset.tran.db.output;
 
 import com.frameworkset.util.VariableHandler;
 import org.frameworkset.elasticsearch.ElasticSearchException;
-import org.frameworkset.tran.FieldMeta;
-import org.frameworkset.tran.TranErrorWrapper;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
@@ -13,9 +11,6 @@ import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.task.TaskCall;
 import org.frameworkset.tran.task.TaskCommand;
-import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.Param;
-import org.frameworkset.tran.TranResultSet;
 import org.slf4j.Logger;
 
 import java.sql.SQLException;
@@ -87,7 +82,8 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					else {
 						lastValue = importContext.max(lastValue, getLastValue());
 					}
-					Context context = new ContextImpl(importContext, jdbcResultSet, null);
+//					Context context = new ContextImpl(importContext, jdbcResultSet, null);
+					Context context = importContext.buildContext(jdbcResultSet, null);
 					context.refactorData();
 					context.afterRefactor();
 					if (context.isDrop()) {
@@ -213,7 +209,8 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
 
-				Context context = new ContextImpl(importContext, jdbcResultSet, null);
+//				Context context = new ContextImpl(importContext, jdbcResultSet, null);
+				Context context = importContext.buildContext(jdbcResultSet, null);
 				context.refactorData();
 				context.afterRefactor();
 				if (context.isDrop()) {
@@ -331,8 +328,10 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 				else{
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
-				Context context = new ContextImpl(importContext, jdbcResultSet, null);
+//				Context context = new ContextImpl(importContext, jdbcResultSet, null);
+				Context context = importContext.buildContext(jdbcResultSet, null);
 				context.refactorData();
+
 				context.afterRefactor();
 				if (context.isDrop()) {
 					importCount.increamentIgnoreTotalCount();

@@ -14,7 +14,6 @@ import org.frameworkset.elasticsearch.template.ESUtil;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.input.es.JDBCGetVariableValue;
 import org.frameworkset.tran.db.input.es.TaskCommandImpl;
@@ -120,8 +119,8 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				else{
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
-
-				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
+				Context context = importContext.buildContext(jdbcResultSet, batchContext);
+//				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
 				context.refactorData();
 				context.afterRefactor();
 				if (context.isDrop()) {
@@ -255,7 +254,8 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				else{
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
-				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
+				Context context = importContext.buildContext(jdbcResultSet, batchContext);
+//				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
 				context.refactorData();
 				context.afterRefactor();
 				if (context.isDrop()) {
@@ -395,7 +395,8 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 					else{
 						lastValue = importContext.max(lastValue,getLastValue());
 					}
-					Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
+//					Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
+					Context context = importContext.buildContext(jdbcResultSet, batchContext);
 					context.refactorData();
 					context.afterRefactor();
 					if (context.isDrop()) {

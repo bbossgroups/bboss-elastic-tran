@@ -15,6 +15,7 @@ package org.frameworkset.tran.context;
  * limitations under the License.
  */
 
+import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
@@ -47,6 +48,10 @@ public abstract  class BaseImportContext implements ImportContext {
 	public BaseImportContext(){
 
 	}
+	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
+		return new ContextImpl(this, jdbcResultSet, batchContext);
+	}
+
 	public ESConfig getESConfig(){
 		return baseImportConfig.getESConfig();
 	}

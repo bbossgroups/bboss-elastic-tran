@@ -34,6 +34,7 @@ import org.frameworkset.tran.hbase.HBaseRecord;
 import org.frameworkset.tran.hbase.HBaseResultSet;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 
+import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -134,14 +135,18 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 	public void initStatusTableId() {
 		if(isIncreamentImport()) {
 			//计算增量记录id
-			String statusTableId = hbaseContext.getHbaseTable()+"|"+hbaseContext.getIncrementFamilyName();
+			String statusTableId = hbaseContext.getHbaseTable();
+			if(hbaseContext.getIncrementFamilyName() != null)
+				statusTableId =statusTableId +"|"+hbaseContext.getIncrementFamilyName();
+			if(importContext.getLastValueClumnName() != null)
+				statusTableId =statusTableId +"|"+importContext.getLastValueClumnName();
 
 			if(hbaseContext.getStartRow() != null )
 				statusTableId =statusTableId +"|"+hbaseContext.getStartRow();
 			if(hbaseContext.getEndRow() != null )
 				statusTableId =statusTableId +"|"+hbaseContext.getEndRow();
-			if(hbaseContext.getScanFilters() != null )
-				statusTableId =statusTableId +"|"+hbaseContext.getScanFilters();
+//			if(hbaseContext.getScanFilters() != null )
+//				statusTableId =statusTableId +"|"+hbaseContext.getScanFilters();
 			importContext.setStatusTableId(statusTableId.hashCode());
 //
 //			String statusTableId = es2DBContext.getDB()+"|"+es2DBContext.getDBCollection()+"|"+es2DBContext.getServerAddresses();
@@ -228,7 +233,7 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 
 	}
 	private void initIncrementInfos(){
-		if(getLastValueVarName() != null){
+		if(getLastValueVarName() != null && !getLastValueVarName().equals("_")){
 
 			if(hbaseContext.getIncrementFamilyName() != null){
 				incrementFamily = Bytes.toBytes(hbaseContext.getIncrementFamilyName());
@@ -243,11 +248,11 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 
 
 	}
-	public void putLastParamValue(Scan scan,FilterList filterList){
+	private long lastValue;
+	public void putLastParamValue(Scan scan,FilterList filterList) throws IOException {
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 
 			SingleColumnValueFilter scvf = new SingleColumnValueFilter(incrementFamily, incrementColumn,
-
 					CompareOperator.GREATER, Bytes.toBytes((Long) this.currentStatus.getLastValue()));
 
 			if (hbaseContext.getFilterIfMissing() != null)
@@ -260,37 +265,39 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 			}
 		}
 		else{
-			Object lv = null;
-			if(this.currentStatus.getLastValue() instanceof Date) {
-				lv = this.currentStatus.getLastValue();
+			if(hbaseContext.isIncrementByTimeRange()){
+				long temp = System.currentTimeMillis();
+				scan.setTimeRange(lastValue,temp);
+				lastValue = temp;
+			}
+			else {
+				Object lv = null;
+				if (this.currentStatus.getLastValue() instanceof Date) {
+					lv = this.currentStatus.getLastValue();
 //				params.put(getLastValueVarName(), this.currentStatus.getLastValue());
-			}
-			else {
-				if(this.currentStatus.getLastValue() instanceof Long) {
-					lv =   new Date((Long)this.currentStatus.getLastValue());
+				} else {
+					if (this.currentStatus.getLastValue() instanceof Long) {
+						lv = new Date((Long) this.currentStatus.getLastValue());
+					} else if (this.currentStatus.getLastValue() instanceof Integer) {
+						lv = new Date(((Integer) this.currentStatus.getLastValue()).longValue());
+					} else if (this.currentStatus.getLastValue() instanceof Short) {
+						lv = new Date(((Short) this.currentStatus.getLastValue()).longValue());
+					} else {
+						lv = new Date(((Number) this.currentStatus.getLastValue()).longValue());
+					}
 				}
-				else if(this.currentStatus.getLastValue() instanceof Integer){
-					lv =  new Date(((Integer) this.currentStatus.getLastValue()).longValue());
-				}
-				else if(this.currentStatus.getLastValue() instanceof Short){
-					lv =  new Date(((Short) this.currentStatus.getLastValue()).longValue());
-				}
-				else{
-					lv =  new Date(((Number) this.currentStatus.getLastValue()).longValue());
-				}
-			}
-			SingleColumnValueFilter scvf= new SingleColumnValueFilter(incrementFamily, incrementColumn,
+				SingleColumnValueFilter scvf = new SingleColumnValueFilter(incrementFamily, incrementColumn,
 
-					CompareOperator.GREATER,Bytes.toBytes(((Date)this.currentStatus.getLastValue()).getTime()));
+						CompareOperator.GREATER, Bytes.toBytes(((Date) this.currentStatus.getLastValue()).getTime()));
 
-			if(hbaseContext.getFilterIfMissing() != null)
-				scvf.setFilterIfMissing(hbaseContext.getFilterIfMissing()); //默认为false， 没有此列的数据也会返回 ，为true则只返回name=lisi的数据
-			if(filterList == null){
-				filterList.addFilter(scvf);
+				if (hbaseContext.getFilterIfMissing() != null)
+					scvf.setFilterIfMissing(hbaseContext.getFilterIfMissing()); //默认为false， 没有此列的数据也会返回 ，为true则只返回name=lisi的数据
+				if (filterList == null) {
+					filterList.addFilter(scvf);
 
-			}
-			else {
-				scan.setFilter(scvf);
+				} else {
+					scan.setFilter(scvf);
+				}
 			}
 
 		}

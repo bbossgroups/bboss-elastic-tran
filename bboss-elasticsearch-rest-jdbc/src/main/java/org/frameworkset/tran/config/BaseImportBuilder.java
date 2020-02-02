@@ -60,12 +60,17 @@ public abstract class BaseImportBuilder {
 	/**是否调试bulk响应日志，true启用，false 不启用，*/
 	private boolean debugResponse;
 	private ScheduleConfig scheduleConfig;
-	private ImportIncreamentConfig importIncreamentConfig;
+	protected ImportIncreamentConfig importIncreamentConfig;
 	public boolean isExternalTimer() {
 		return externalTimer;
 	}
 
-
+	public void setStatusTableId(Integer statusTableId) {
+		if(importIncreamentConfig == null){
+			importIncreamentConfig = new ImportIncreamentConfig();
+		}
+		importIncreamentConfig.setStatusTableId(statusTableId);
+	}
 	/**
 	 * 采用外部定时任务引擎执行定时任务控制变量：
 	 * false 内部引擎，默认值

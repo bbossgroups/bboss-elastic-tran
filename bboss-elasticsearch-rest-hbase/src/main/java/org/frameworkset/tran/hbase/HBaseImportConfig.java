@@ -48,7 +48,7 @@ public class HBaseImportConfig extends BaseImportConfig {
 	private Long startTimestamp;
 	private Long endTimestamp;
 	private String incrementFamilyName;
-
+	private boolean incrementByTimeRange;
 	public Map<String, String> getHbaseClientProperties() {
 		return hbaseClientProperties;
 	}
@@ -191,5 +191,13 @@ public class HBaseImportConfig extends BaseImportConfig {
 
 	public void setEndTimestamp(Long endTimestamp) {
 		this.endTimestamp = endTimestamp;
+	}
+
+	public boolean isIncrementByTimeRange() {
+		return incrementByTimeRange;
+	}
+
+	public void setIncrementByTimeRange(boolean incrementByTimeRange) {
+		this.incrementByTimeRange = incrementByTimeRange;
 	}
 }

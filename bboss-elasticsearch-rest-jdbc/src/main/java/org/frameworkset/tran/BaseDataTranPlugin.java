@@ -132,7 +132,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		initLastValueClumnName();
 		initStatusStore();
 		initDatasource();
-		this.initStatusTableId();
+		if(this.isIncreamentImport() && this.importContext.getStatusTableId() == null) {
+			this.initStatusTableId();
+		}
 		initTableAndStatus();
 		afterInit();
 	}

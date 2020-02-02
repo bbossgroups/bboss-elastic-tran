@@ -15,10 +15,13 @@ package org.frameworkset.tran.hbase;
  * limitations under the License.
  */
 
+import com.frameworkset.orm.annotation.BatchContext;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
+import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.hbase.input.HBase2ESInputPlugin;
 
 import java.util.Map;
@@ -37,10 +40,15 @@ public class HBaseContextImpl extends BaseImportContext implements HBaseContext{
 		super(importConfig);
 
 	}
+	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
+		return new HBaseRecordContextImpl(this, jdbcResultSet, batchContext);
+	}
 	protected void init(BaseImportConfig baseImportConfig){
 		this.hBaseImportConfig = (HBaseImportConfig)baseImportConfig;
 	}
-
+	public boolean isIncrementByTimeRange() {
+		return hBaseImportConfig.isIncrementByTimeRange();
+	}
 	@Override
 	protected DataTranPlugin buildDataTranPlugin() {
 		return new HBase2ESInputPlugin(this);

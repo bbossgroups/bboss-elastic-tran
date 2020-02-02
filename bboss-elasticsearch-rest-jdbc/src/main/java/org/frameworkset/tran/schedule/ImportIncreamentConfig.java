@@ -45,12 +45,12 @@ public class ImportIncreamentConfig {
 	/**
 	 * 根据导入的sql的hashcode决定导入作业的增量导入状态记录主键
 	 */
-	private int statusTableId = 0;
-	public int getStatusTableId() {
+	private Integer statusTableId = null;
+	public Integer getStatusTableId() {
 		return statusTableId;
 	}
 
-	public void setStatusTableId(int statusTableId) {
+	public void setStatusTableId(Integer statusTableId) {
 		this.statusTableId = statusTableId;
 	}
 	public String getDateLastValueColumn() {

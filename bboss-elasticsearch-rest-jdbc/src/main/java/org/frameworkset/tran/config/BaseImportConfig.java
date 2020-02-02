@@ -555,7 +555,7 @@ public abstract class BaseImportConfig {
 	public ImportIncreamentConfig getImportIncreamentConfig() {
 		return importIncreamentConfig;
 	}
-	public void setStatusTableId(int statusTableId) {
+	public void setStatusTableId(Integer statusTableId) {
 		if(importIncreamentConfig != null)
 			importIncreamentConfig.setStatusTableId(statusTableId);
 	}

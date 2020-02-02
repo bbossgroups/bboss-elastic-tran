@@ -39,12 +39,14 @@ import java.util.Map;
 public class HBaseResultSet extends LastValue implements TranResultSet {
 	private ResultScanner resultScanner;
 	private Record record;
+	private boolean incrementByTimeRange;
 
 	private Map<String,byte[][]> familys;
 	public HBaseResultSet(ImportContext importContext, ResultScanner resultScanner) {
 		this.importContext = importContext;
 		this.resultScanner = resultScanner;
 		familys = new HashMap<String, byte[][]>();
+		incrementByTimeRange = ((HBaseContextImpl)importContext).isIncrementByTimeRange();
 	}
 
 
@@ -119,6 +121,9 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 				Object value = tranResultSet.getValue(importContext.getLastValueClumnName());
 				Long l = Bytes.toLong((byte[])value);
 				return l;
+			}
+			else if(incrementByTimeRange){
+				return tranResultSet.getMetaValue("timestamp");
 			}
 			else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
 				return tranResultSet.getDateTimeValue(importContext.getLastValueClumnName());

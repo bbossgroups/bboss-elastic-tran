@@ -158,6 +158,13 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		if(hBaseImportConfig.getEsIdGenerator() == null) {
 			hBaseImportConfig.setEsIdGenerator(new HBaseEsIdGenerator());
 		}
+		if(this.importIncreamentConfig != null){
+			if(importIncreamentConfig.isLastValueDateType()
+					&& importIncreamentConfig.getDateLastValueColumn() == null ){
+				hBaseImportConfig.setIncrementByTimeRange(true);
+				importIncreamentConfig.setDateLastValueColumn("_");
+			}
+		}
 		hBaseImportConfig.setHbaseClientProperties(hbaseClientProperties);
 		hBaseImportConfig.setHbaseClientThreadCount(hbaseClientThreadCount);
 		hBaseImportConfig.setHbaseClientThreadQueue(hbaseClientThreadQueue);

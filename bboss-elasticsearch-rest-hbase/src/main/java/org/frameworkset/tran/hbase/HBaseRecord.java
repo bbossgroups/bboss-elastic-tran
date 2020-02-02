@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.Record;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,9 +67,13 @@ public class HBaseRecord implements Record {
 	public Object getMetaValue(String colName) {
 		/**文档_id*/
 //		private String id;
+
 		if(colName.equals("rowkey"))
 			return  data.getRow();
+		else if(colName.equals("timestamp")){
 
+			return new Date(data.rawCells()[0].getTimestamp());
+		}
 
 		throw new ESDataImportException("Get Meta Value failed: " + colName + " is not a elasticsearch document meta field.");
 	}

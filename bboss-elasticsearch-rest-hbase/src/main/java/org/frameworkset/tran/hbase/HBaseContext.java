@@ -36,8 +36,9 @@ public interface HBaseContext {
 	public int getHbaseClientThreadCount();
 	public String getHbaseTable();
 	public String getStartRow();
-	public String getEndRow();
 
+	public String getEndRow();
+	public boolean isIncrementByTimeRange();
 	//.setCaching => .setNumberOfRowsFetchSize (客户端每次 rpc fetch 的行数)
 	// see fetchSize;
 	/**

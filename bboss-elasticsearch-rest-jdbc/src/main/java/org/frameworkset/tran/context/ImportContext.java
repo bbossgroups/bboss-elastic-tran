@@ -15,11 +15,9 @@ package org.frameworkset.tran.context;
  * limitations under the License.
  */
 
+import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
-import org.frameworkset.tran.DBConfig;
-import org.frameworkset.tran.DataRefactor;
-import org.frameworkset.tran.ExportCount;
-import org.frameworkset.tran.WrapedExportResultHandler;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.es.ESConfig;
@@ -41,6 +39,7 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0
  */
 public interface ImportContext {
+	Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext);
 	ESConfig getESConfig();
 	/**
 	 * 异步消费数据时，强制刷新检测空闲时间间隔，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作

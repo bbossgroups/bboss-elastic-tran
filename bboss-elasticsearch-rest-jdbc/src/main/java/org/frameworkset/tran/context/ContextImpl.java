@@ -38,21 +38,21 @@ import java.util.*;
  * @version 1.0
  */
 public class ContextImpl implements Context {
-	private List<FieldMeta> fieldValues ;
-	private Map<String,FieldMeta> fieldMetaMap;
+	protected List<FieldMeta> fieldValues ;
+	protected Map<String,FieldMeta> fieldMetaMap;
 
-	private Map<String,String> newfieldNames;
-	private Map<String,ColumnData> newfieldName2ndColumnDatas;
-	private BaseImportConfig baseImportConfig;
-	private TranResultSet jdbcResultSet;
-	private BatchContext batchContext;
-	private boolean drop;
-	private int status = 0;
-	private String index;
-	private String indexType;
-	private ESIndexWrapper esIndexWrapper;
-	private ClientOptions clientOptions;
-	private ImportContext importContext;
+	protected Map<String,String> newfieldNames;
+	protected Map<String,ColumnData> newfieldName2ndColumnDatas;
+	protected BaseImportConfig baseImportConfig;
+	protected TranResultSet jdbcResultSet;
+	protected BatchContext batchContext;
+	protected boolean drop;
+	protected int status = 0;
+	protected String index;
+	protected String indexType;
+	protected ESIndexWrapper esIndexWrapper;
+	protected ClientOptions clientOptions;
+	protected ImportContext importContext;
 	public ContextImpl(ImportContext importContext, TranResultSet jdbcResultSet, BatchContext batchContext){
 		this.baseImportConfig = importContext.getImportConfig();
 		this.importContext = importContext;
