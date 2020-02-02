@@ -248,7 +248,10 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 
 
 	}
-	private long lastValue;
+	private Long lastValue;
+	public Long getTimeRangeLastValue(){
+		return lastValue;
+	}
 	public void putLastParamValue(Scan scan,FilterList filterList) throws IOException {
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 
@@ -266,6 +269,9 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 		}
 		else{
 			if(hbaseContext.isIncrementByTimeRange()){
+				if(lastValue == null){
+					lastValue = ((Date)importContext.getCurrentStatus().getLastValue()).getTime();
+				}
 				long temp = System.currentTimeMillis();
 				scan.setTimeRange(lastValue,temp);
 				lastValue = temp;

@@ -44,14 +44,15 @@ public abstract  class BaseImportContext implements ImportContext {
 	private DataTranPlugin dataTranPlugin;
 	private boolean currentStoped = false;
 
-
 	public BaseImportContext(){
 
 	}
 	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
 		return new ContextImpl(this, jdbcResultSet, batchContext);
 	}
-
+	public Long getTimeRangeLastValue(){
+		return dataTranPlugin.getTimeRangeLastValue();
+	}
 	public ESConfig getESConfig(){
 		return baseImportConfig.getESConfig();
 	}
@@ -211,6 +212,11 @@ public abstract  class BaseImportContext implements ImportContext {
 
 
 	public void flushLastValue(Object lastValue){
+		Long timeLastValue = this.getTimeRangeLastValue();
+		if(timeLastValue != null){
+
+			lastValue = max(lastValue,new Date(timeLastValue));
+		}
 		this.dataTranPlugin.flushLastValue(lastValue);
 	}
 	public boolean isLastValueDateType()

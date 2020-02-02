@@ -50,7 +50,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		return exportCount;
 	}
 
-
+	public Long getTimeRangeLastValue(){
+		return null;
+	}
 	public BaseDataTranPlugin(ImportContext importContext){
 		this.importContext = importContext;
 		init(importContext);
