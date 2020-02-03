@@ -72,7 +72,7 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 
 	}
 	public void destroy(){
-
+		super.destroy();
 		HBaseHelper.destroy();
 
 	}
@@ -290,6 +290,12 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 				long temp = System.currentTimeMillis();
 				scan.setTimeRange(lastValue,temp);
 				lastValue = temp;
+				if(hbaseContext.getScanFilters() != null){
+					scan.setFilter(hbaseContext.getScanFilters());
+				}
+				else if(hbaseContext.getScanFilter() != null){
+					scan.setFilter(hbaseContext.getScanFilter());
+				}
 			}
 			else {
 				Object lv = null;
