@@ -15,6 +15,7 @@ package org.frameworkset.tran.hbase;
  * limitations under the License.
  */
 
+import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.frameworkset.tran.config.BaseImportConfig;
 
@@ -43,7 +44,14 @@ public class HBaseImportConfig extends BaseImportConfig {
 	private String endRow;
 	private Long maxResultSize;
 	private Integer hbaseBatch;
+	/**
+	 * filter和filterList只能指定一个
+	 */
 	private FilterList filterList;
+	/**
+	 * filter和filterList只能指定一个
+	 */
+	private Filter filter;
 	private Boolean filterIfMissing;
 	private Long startTimestamp;
 	private Long endTimestamp;
@@ -199,5 +207,13 @@ public class HBaseImportConfig extends BaseImportConfig {
 
 	public void setIncrementByTimeRange(boolean incrementByTimeRange) {
 		this.incrementByTimeRange = incrementByTimeRange;
+	}
+
+	public Filter getFilter() {
+		return filter;
+	}
+
+	public void setFilter(Filter filter) {
+		this.filter = filter;
 	}
 }

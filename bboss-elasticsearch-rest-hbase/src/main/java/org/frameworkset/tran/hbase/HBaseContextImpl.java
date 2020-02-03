@@ -16,6 +16,7 @@ package org.frameworkset.tran.hbase;
  */
 
 import com.frameworkset.orm.annotation.BatchContext;
+import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.TranResultSet;
@@ -92,6 +93,10 @@ public class HBaseContextImpl extends BaseImportContext implements HBaseContext{
 	@Override
 	public FilterList getScanFilters() {
 		return hBaseImportConfig.getFilterList();
+	}
+
+	public Filter getScanFilter() {
+		return hBaseImportConfig.getFilter();
 	}
 
 	@Override

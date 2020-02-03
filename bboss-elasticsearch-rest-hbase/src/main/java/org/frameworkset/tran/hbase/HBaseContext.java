@@ -15,6 +15,7 @@ package org.frameworkset.tran.hbase;
  * limitations under the License.
  */
 
+import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 
 import java.util.Map;
@@ -52,6 +53,7 @@ public interface HBaseContext {
 	 */
 	public Integer getHbaseBatch();
 
+	public Filter getScanFilter();
 	/**
 	 *
 	 FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ONE); //数据只要满足一组过滤器中的一个就可以

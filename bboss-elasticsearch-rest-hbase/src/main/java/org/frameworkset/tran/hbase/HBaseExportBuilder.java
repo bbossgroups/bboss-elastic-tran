@@ -15,6 +15,7 @@ package org.frameworkset.tran.hbase;
  * limitations under the License.
  */
 
+import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.ExportResultHandler;
@@ -49,7 +50,14 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 	private String endRow;
 	private Long maxResultSize;
 	private Integer hbaseBatch;
+	/**
+	 * filter和filterList只能指定一个
+	 */
 	private FilterList filterList;
+	/**
+	 * filter和filterList只能指定一个
+	 */
+	private Filter filter;
 	private Boolean filterIfMissing;
 	private String incrementFamilyName;
 	private Long startTimestamp;
@@ -180,6 +188,7 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		hBaseImportConfig.setMaxResultSize(maxResultSize);
 		hBaseImportConfig.setHbaseBatch(hbaseBatch);
 		hBaseImportConfig.setFilterList(filterList);
+		hBaseImportConfig.setFilter(filter);
 		hBaseImportConfig.setFilterIfMissing(filterIfMissing);
 		hBaseImportConfig.setIncrementFamilyName(incrementFamilyName);
 		hBaseImportConfig.setStartTimestamp(this.startTimestamp);
@@ -310,6 +319,15 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 
 	public HBaseExportBuilder setEndTimestamp(Long endTimestamp) {
 		this.endTimestamp = endTimestamp;
+		return this;
+	}
+
+	public Filter getFilter() {
+		return filter;
+	}
+
+	public HBaseExportBuilder setFilter(Filter filter) {
+		this.filter = filter;
 		return this;
 	}
 }

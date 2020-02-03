@@ -15,11 +15,11 @@ package org.frameworkset.tran.hbase.input;
  * limitations under the License.
  */
 
-import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -188,10 +188,10 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 			table = tableFactory.getTable(TableName.valueOf(hbaseContext.getHbaseTable()));
 			Scan scan = new Scan();
 			if(hbaseContext.getStartRow() != null){
-				scan.withStartRow(Bytes.toBytes(hbaseContext.getStartRow()),true);
+				scan.setStartRow(Bytes.toBytes(hbaseContext.getStartRow()));
 			}
 			if(hbaseContext.getEndRow() != null){
-				scan.withStopRow(Bytes.toBytes(hbaseContext.getEndRow()),true);
+				scan.setStopRow(Bytes.toBytes(hbaseContext.getEndRow()));
 			}
 			if(hbaseContext.getHbaseBatch() != null){
 				scan.setBatch(hbaseContext.getHbaseBatch());
@@ -206,14 +206,19 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 				scan.setTimeRange(hbaseContext.getStartTimestamp(),hbaseContext.getEndTimestamp());
 			if (isIncreamentImport()) {
 
-				putLastParamValue(scan,hbaseContext.getScanFilters());
+				putLastParamValue(scan);
 
 			}
-
-			if(hbaseContext.getScanFilters() != null) {
-				scan.setFilter(hbaseContext.getScanFilters());
-
+			else{
+				if(hbaseContext.getScanFilters() != null){
+					scan.setFilter(hbaseContext.getScanFilters());
+				}
+				else if(hbaseContext.getScanFilter() != null){
+					scan.setFilter(hbaseContext.getScanFilter());
+				}
 			}
+
+
 			if(importContext.getFetchSize() != null) {
 				scan.setCaching(importContext.getFetchSize());
 			}
@@ -252,18 +257,28 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 	public Long getTimeRangeLastValue(){
 		return lastValue;
 	}
-	public void putLastParamValue(Scan scan,FilterList filterList) throws IOException {
+	public void putLastParamValue(Scan scan) throws IOException {
+
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 
 			SingleColumnValueFilter scvf = new SingleColumnValueFilter(incrementFamily, incrementColumn,
-					CompareOperator.GREATER, Bytes.toBytes((Long) this.currentStatus.getLastValue()));
+					CompareFilter.CompareOp.GREATER, Bytes.toBytes((Long) this.currentStatus.getLastValue()));
 
 			if (hbaseContext.getFilterIfMissing() != null)
 				scvf.setFilterIfMissing(hbaseContext.getFilterIfMissing()); //默认为false， 没有此列的数据也会返回 ，为true则只返回name=lisi的数据
-			if (filterList == null) {
-				filterList.addFilter(scvf);
-
-			} else {
+			if (hbaseContext.getScanFilters() != null) {
+//				filterList.addFilter(scvf);
+				FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+				list.addFilter(hbaseContext.getScanFilters());
+				list.addFilter(scvf);
+				scan.setFilter(list);
+			} else if(hbaseContext.getScanFilter() != null){
+				FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+				list.addFilter(hbaseContext.getScanFilter());
+				list.addFilter(scvf);
+				scan.setFilter(list);
+			}
+			else{
 				scan.setFilter(scvf);
 			}
 		}
@@ -294,14 +309,23 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 				}
 				SingleColumnValueFilter scvf = new SingleColumnValueFilter(incrementFamily, incrementColumn,
 
-						CompareOperator.GREATER, Bytes.toBytes(((Date) this.currentStatus.getLastValue()).getTime()));
+						CompareFilter.CompareOp.GREATER, Bytes.toBytes(((Date) this.currentStatus.getLastValue()).getTime()));
 
 				if (hbaseContext.getFilterIfMissing() != null)
 					scvf.setFilterIfMissing(hbaseContext.getFilterIfMissing()); //默认为false， 没有此列的数据也会返回 ，为true则只返回name=lisi的数据
-				if (filterList == null) {
-					filterList.addFilter(scvf);
-
-				} else {
+				if (hbaseContext.getScanFilters() != null) {
+//				filterList.addFilter(scvf);
+					FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+					list.addFilter(hbaseContext.getScanFilters());
+					list.addFilter(scvf);
+					scan.setFilter(list);
+				} else if(hbaseContext.getScanFilter() != null){
+					FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+					list.addFilter(hbaseContext.getScanFilter());
+					list.addFilter(scvf);
+					scan.setFilter(list);
+				}
+				else{
 					scan.setFilter(scvf);
 				}
 			}
