@@ -149,5 +149,8 @@ public class HBaseContextImpl extends BaseImportContext implements HBaseContext{
 	public Long getStartTimestamp() {
 		return hBaseImportConfig.getStartTimestamp();
 	}
+	public Boolean getHbaseAsynMetricsEnable(){
+		return hBaseImportConfig.getHbaseAsynMetricsEnable();
+	}
 
 }

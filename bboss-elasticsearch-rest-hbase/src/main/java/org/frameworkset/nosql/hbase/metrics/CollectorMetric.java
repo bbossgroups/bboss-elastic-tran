@@ -20,16 +20,11 @@ import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
-import com.codahale.metrics.jvm.JvmAttributeGaugeSet;
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
-import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import org.frameworkset.LoggerUtils;
 import org.frameworkset.nosql.hbase.HBaseAsyncOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PreDestroy;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -78,11 +73,11 @@ public class CollectorMetric {
         if(hBaseAsyncOperationMetrics == null){
             hBaseAsyncOperationMetrics = new HBaseAsyncOperationMetrics(hBaseAsyncOperation);
         }
-        // add JVM statistics
-        metricRegistry.register("jvm.memory", new MemoryUsageGaugeSet());
-        metricRegistry.register("jvm.vm", new JvmAttributeGaugeSet());
-        metricRegistry.register("jvm.garbage-collectors", new GarbageCollectorMetricSet());
-        metricRegistry.register("jvm.thread-states", new ThreadStatesGaugeSet());
+//        // add JVM statistics
+//        metricRegistry.register("jvm.memory", new MemoryUsageGaugeSet());
+//        metricRegistry.register("jvm.vm", new JvmAttributeGaugeSet());
+//        metricRegistry.register("jvm.garbage-collectors", new GarbageCollectorMetricSet());
+//        metricRegistry.register("jvm.thread-states", new ThreadStatesGaugeSet());
 
         if (hBaseAsyncOperationMetrics != null) {
             Map<String, Metric> metrics = hBaseAsyncOperationMetrics.getMetrics();
@@ -104,13 +99,17 @@ public class CollectorMetric {
     }
 
 
-    @PreDestroy
-    private void shutdown() {
-        if (reporter == null) {
-            return;
+    public void shutdown() {
+        try {
+            if (reporter == null) {
+                return;
+            }
+            reporter.stop();
+            reporter = null;
         }
-        reporter.stop();
-        reporter = null;
+        catch (Exception e){
+            reporterLogger.warn("",e);
+        }
     }
 
 }

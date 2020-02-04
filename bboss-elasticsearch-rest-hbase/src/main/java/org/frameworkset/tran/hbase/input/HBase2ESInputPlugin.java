@@ -117,14 +117,15 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 //		} catch (Exception e) {
 //			throw new HBaseTranException(e);
 //		}
-		tableFactory = HBaseHelper.buildTableFactory(hbaseContext.getHbaseClientProperties(),
+		 HBaseHelper.buildHBaseClient(hbaseContext.getHbaseClientProperties(),
 				hbaseContext.getHbaseClientThreadCount(),
 				hbaseContext.getHbaseClientThreadQueue(),
 				hbaseContext.getHbaseClientKeepAliveTime(),
 				hbaseContext.getHbaseClientBlockedWaitTimeout(),
 				hbaseContext.getHbaseClientWarnMultsRejects(),
 				hbaseContext.isHbaseClientPreStartAllCoreThreads(),
-				hbaseContext.getHbaseClientThreadDaemon());
+				hbaseContext.getHbaseClientThreadDaemon(),hbaseContext.getHbaseAsynMetricsEnable());
+		tableFactory = HBaseHelper.getTableFactory();
 	}
 	@Override
 	public void afterInit(){

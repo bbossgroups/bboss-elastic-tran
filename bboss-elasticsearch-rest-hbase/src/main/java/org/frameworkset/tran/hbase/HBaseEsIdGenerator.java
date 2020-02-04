@@ -41,7 +41,11 @@ public class HBaseEsIdGenerator implements EsIdGenerator {
 				id = context.getValue(esIdField.getField());
 			else
 				id = context.getMetaValue(esIdField.getField());
-			return Bytes.toString((byte[])id);
+			if(id instanceof byte[])
+				return Bytes.toString((byte[])id);
+			else{
+				return String.valueOf(id);
+			}
 		}
 		return null;
 	}

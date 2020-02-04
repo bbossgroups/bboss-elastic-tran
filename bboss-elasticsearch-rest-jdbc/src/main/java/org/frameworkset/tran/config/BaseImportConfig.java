@@ -884,4 +884,6 @@ public abstract class BaseImportConfig {
 	public void setEsConfig(ESConfig esConfig) {
 		this.esConfig = esConfig;
 	}
+
+
 }

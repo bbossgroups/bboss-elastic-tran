@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2016 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,26 +12,29 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.frameworkset.nosql.hbase;
 
 /**
- * @author emeroad
+ * @author Taejin Koo
  */
-public final class TimeUtils {
-    private TimeUtils() {
+public class HBaseAccessException extends RuntimeException {
+
+    public HBaseAccessException() {
     }
 
-    public static long reverseTimeMillis(long currentTimeMillis) {
-        return Long.MAX_VALUE - currentTimeMillis;
+    public HBaseAccessException(String message) {
+        super(message);
     }
 
-    public static long reverseCurrentTimeMillis() {
-        return reverseTimeMillis(System.currentTimeMillis());
+    public HBaseAccessException(Throwable cause) {
+        super(cause);
     }
 
-    public static long recoveryTimeMillis(long reverseCurrentTimeMillis) {
-        return Long.MAX_VALUE - reverseCurrentTimeMillis;
+    public HBaseAccessException(String message, Throwable cause) {
+        super(message, cause);
     }
+
 }

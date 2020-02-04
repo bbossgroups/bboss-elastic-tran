@@ -57,6 +57,7 @@ public class HBaseImportConfig extends BaseImportConfig {
 	private Long endTimestamp;
 	private String incrementFamilyName;
 	private boolean incrementByTimeRange;
+	private Boolean hbaseAsynMetricsEnable;
 	public Map<String, String> getHbaseClientProperties() {
 		return hbaseClientProperties;
 	}
@@ -215,5 +216,13 @@ public class HBaseImportConfig extends BaseImportConfig {
 
 	public void setFilter(Filter filter) {
 		this.filter = filter;
+	}
+	public Boolean getHbaseAsynMetricsEnable(){
+		return hbaseAsynMetricsEnable;
+
+	}
+
+	public void setHbaseAsynMetricsEnable(Boolean hbaseAsynMetricsEnable) {
+		this.hbaseAsynMetricsEnable = hbaseAsynMetricsEnable;
 	}
 }

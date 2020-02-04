@@ -37,6 +37,22 @@ import java.util.Map;
  */
 public class HBaseExportBuilder extends BaseImportBuilder {
 	private Map<String,String> hbaseClientProperties;
+
+	public HBaseExportBuilder setHbaseClientProperties(Map<String, String> hbaseClientProperties) {
+		this.hbaseClientProperties = hbaseClientProperties;
+		return this;
+	}
+
+	public Boolean getHbaseAsynMetricsEnable() {
+		return hbaseAsynMetricsEnable;
+	}
+
+	public HBaseExportBuilder setHbaseAsynMetricsEnable(Boolean hbaseAsynMetricsEnable) {
+		this.hbaseAsynMetricsEnable = hbaseAsynMetricsEnable;
+		return this;
+	}
+
+	private Boolean hbaseAsynMetricsEnable;
 	private int hbaseClientThreadCount;
 	private int hbaseClientThreadQueue;
 	private long hbaseClientKeepAliveTime;
@@ -163,7 +179,7 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		}
 		HBaseImportConfig hBaseImportConfig = new HBaseImportConfig();
 		super.buildImportConfig(hBaseImportConfig);
-		if(hBaseImportConfig.getEsIdGenerator() == null) {
+		if(hBaseImportConfig.getEsIdGenerator() == null || hBaseImportConfig.getEsIdGenerator() == hBaseImportConfig.DEFAULT_EsIdGenerator) {
 			hBaseImportConfig.setEsIdGenerator(new HBaseEsIdGenerator());
 		}
 		if(this.importIncreamentConfig != null){
@@ -174,6 +190,7 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 			}
 		}
 		hBaseImportConfig.setHbaseClientProperties(hbaseClientProperties);
+		hBaseImportConfig.setHbaseAsynMetricsEnable(hbaseAsynMetricsEnable);
 		hBaseImportConfig.setHbaseClientThreadCount(hbaseClientThreadCount);
 		hBaseImportConfig.setHbaseClientThreadQueue(hbaseClientThreadQueue);
 		hBaseImportConfig.setHbaseClientKeepAliveTime(hbaseClientKeepAliveTime);

@@ -107,4 +107,5 @@ public interface HBaseContext {
 	public Long getEndTimestamp() ;
 	public Long getStartTimestamp();
 
+	Boolean getHbaseAsynMetricsEnable();
 }
