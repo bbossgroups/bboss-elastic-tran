@@ -54,9 +54,9 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 	 */
 	private String keyCodec;
 	/**
-	 * 并行消费处理消息
+	 * 并行消费处理拒绝消息
 	 */
-	private boolean discardRejectMessage = false ;
+	private String discardRejectMessage  ;
 
 
 	@Override
@@ -102,11 +102,11 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		return this;
 	}
 
-	public boolean isDiscardRejectMessage() {
+	public String getDiscardRejectMessage() {
 		return discardRejectMessage;
 	}
 
-	public KafkaExportBuilder setDiscardRejectMessage(boolean discardRejectMessage) {
+	public KafkaExportBuilder setDiscardRejectMessage(String discardRejectMessage) {
 		this.discardRejectMessage = discardRejectMessage;
 		return this;
 	}
@@ -137,7 +137,7 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		KafkaImportConfig es2DBImportConfig = new KafkaImportConfig();
 		super.buildImportConfig(es2DBImportConfig);
 		es2DBImportConfig.setCheckinterval(this.getCheckinterval());
-		es2DBImportConfig.setDiscardRejectMessage(this.isDiscardRejectMessage());
+		es2DBImportConfig.setDiscardRejectMessage(this.getDiscardRejectMessage());
 		es2DBImportConfig.setValueCodec(this.getValueCodec());
 		es2DBImportConfig.setKeyCodec(this.getKeyCodec());
 		preHandlerCodec();

@@ -17,6 +17,7 @@ package org.frameworkset.tran.kafka.input;
 
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.frameworkset.plugin.kafka.KafkaBatchConsumer2ndStore;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.es.output.AsynESOutPutDataTran;
@@ -45,7 +46,7 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 
 	private AsynESOutPutDataTran asynESOutPutDataTran;
 	@Override
-	public void store(List<ConsumerRecord<Object,Object>> messages) throws Exception {
+	public void store(ConsumerRecords<Object, Object> messages) throws Exception {
 
 		List<Record> records = parserData(messages);
 		asynESOutPutDataTran.appendInData(records);
@@ -53,9 +54,7 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 
 	@Override
 	public void store(ConsumerRecord<Object, Object> message) throws Exception {
-		List<ConsumerRecord<Object,Object>> messages = new ArrayList<ConsumerRecord<Object,Object>>();
-		messages.add(message);
-		store(messages);
+
 	}
 
 	private void deserializeData(ConsumerRecord<Object,Object> consumerRecord,List<Record> results){
@@ -86,10 +85,10 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 		}
 //		throw new IllegalArgumentException(new StringBuilder().append("unknown consumerRecord").append(consumerRecord.toString()).toString());
 	}
-	protected List<Record> parserData(List<ConsumerRecord<Object,Object>> messages) {
+	protected List<Record> parserData(ConsumerRecords<Object, Object> messages) {
 		List<Record> results = new ArrayList<Record>();
-		for(int k = 0; k < messages.size(); k ++) {
-			ConsumerRecord consumerRecord = messages.get(k);
+		for(ConsumerRecord consumerRecord:messages) {
+//			ConsumerRecord consumerRecord = messages.get(k);
 			deserializeData(consumerRecord,results);
 			/**
 			if(this.kafkaContext.getValueCodec() == null){
@@ -145,9 +144,6 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 		return results;
 	}
 
-	@Override
-	public void closeService() {
 
-	}
 
 }

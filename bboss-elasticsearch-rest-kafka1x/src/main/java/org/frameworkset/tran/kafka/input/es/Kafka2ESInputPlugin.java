@@ -48,7 +48,7 @@ public class Kafka2ESInputPlugin extends BaseKafkaInputPlugin {
 		kafkaBatchConsumer2ndStore.setCheckinterval(kafkaContext.getCheckinterval());
 		kafkaBatchConsumer2ndStore.setConsumerPropes(kafkaContext.getKafkaConfigs());
 		kafkaBatchConsumer2ndStore.setPartitions(kafkaContext.getConsumerThreads());
-		kafkaBatchConsumer2ndStore.setDiscardRejectMessage(kafkaContext.isDiscardRejectMessage());
+		kafkaBatchConsumer2ndStore.setDiscardRejectMessage(kafkaContext.getDiscardRejectMessage());
 //			kafkaBatchConsumer2ndStore.setPollTimeOut(kafkaContext.getPollTimeOut());
 		kafkaBatchConsumer2ndStore.afterPropertiesSet();
 		Thread consumerThread = new Thread(kafkaBatchConsumer2ndStore,"kafka-elasticsearch-BatchConsumer2ndStore");

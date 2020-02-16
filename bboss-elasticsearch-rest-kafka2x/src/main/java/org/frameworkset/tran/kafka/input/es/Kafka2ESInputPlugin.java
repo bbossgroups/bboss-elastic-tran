@@ -41,12 +41,12 @@ public class Kafka2ESInputPlugin extends BaseKafkaInputPlugin {
 	protected void initKafkaTranBatchConsumer2ndStore(Kafka2ESDataTran kafka2ESDataTran) throws Exception {
 		final KafkaTranBatchConsumer2ndStore kafkaBatchConsumer2ndStore = new KafkaTranBatchConsumer2ndStore(kafka2ESDataTran,kafkaContext);
 		kafkaBatchConsumer2ndStore.setTopic(kafkaContext.getKafkaTopic());
-		kafkaBatchConsumer2ndStore.setBatchsize(importContext.getFetchSize());
-		kafkaBatchConsumer2ndStore.setCheckinterval(kafkaContext.getCheckinterval());
+		kafkaBatchConsumer2ndStore.setMaxPollRecords(importContext.getFetchSize());
+		kafkaBatchConsumer2ndStore.setPollTimeout(kafkaContext.getPollTimeOut());
 		kafkaBatchConsumer2ndStore.setConsumerPropes(kafkaContext.getKafkaConfigs());
-		kafkaBatchConsumer2ndStore.setPartitions(kafkaContext.getConsumerThreads());
-		kafkaBatchConsumer2ndStore.setDiscardRejectMessage(kafkaContext.isDiscardRejectMessage());
-		kafkaBatchConsumer2ndStore.setPollTimeOut(kafkaContext.getPollTimeOut());
+		kafkaBatchConsumer2ndStore.setThreads(kafkaContext.getConsumerThreads());
+		kafkaBatchConsumer2ndStore.setDiscardRejectMessage(kafkaContext.getDiscardRejectMessage());
+//		kafkaBatchConsumer2ndStore.setPollTimeOut(kafkaContext.getPollTimeOut());
 		kafkaBatchConsumer2ndStore.afterPropertiesSet();
 		Thread consumerThread = new Thread(kafkaBatchConsumer2ndStore,"kafka-elasticsearch-BatchConsumer2ndStore");
 		consumerThread.start();
