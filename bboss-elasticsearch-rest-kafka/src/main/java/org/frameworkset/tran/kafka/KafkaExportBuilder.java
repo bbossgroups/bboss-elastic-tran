@@ -68,7 +68,7 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		return kafkaConfigs;
 	}
 
-	public KafkaExportBuilder addKafkaConfig(String key, Object value){
+	public KafkaExportBuilder addKafkaConfig(String key, String value){
 		kafkaConfigs.put(key,value);
 		return this;
 	}

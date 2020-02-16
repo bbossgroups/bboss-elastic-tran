@@ -19,6 +19,8 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.input.BaseKafkaInputPlugin;
 import org.frameworkset.tran.kafka.input.KafkaTranBatchConsumer2ndStore;
 
+import java.util.Properties;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -41,7 +43,10 @@ public class Kafka2ESInputPlugin extends BaseKafkaInputPlugin {
 	protected void initKafkaTranBatchConsumer2ndStore(Kafka2ESDataTran kafka2ESDataTran) throws Exception {
 		final KafkaTranBatchConsumer2ndStore kafkaBatchConsumer2ndStore = new KafkaTranBatchConsumer2ndStore(kafka2ESDataTran,kafkaContext);
 		kafkaBatchConsumer2ndStore.setTopic(kafkaContext.getKafkaTopic());
-		kafkaBatchConsumer2ndStore.setMaxPollRecords(importContext.getFetchSize());
+		Properties config = kafkaContext.getKafkaConfigs();
+		boolean contain = config != null && !config.contains("max.poll.records");
+		if(!contain)
+			kafkaBatchConsumer2ndStore.setMaxPollRecords(importContext.getFetchSize());
 		kafkaBatchConsumer2ndStore.setPollTimeout(kafkaContext.getPollTimeOut());
 		kafkaBatchConsumer2ndStore.setConsumerPropes(kafkaContext.getKafkaConfigs());
 		kafkaBatchConsumer2ndStore.setThreads(kafkaContext.getConsumerThreads());
