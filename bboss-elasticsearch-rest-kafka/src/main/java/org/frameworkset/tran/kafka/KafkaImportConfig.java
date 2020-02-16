@@ -115,4 +115,20 @@ public class KafkaImportConfig extends BaseImportConfig {
 	public void setKeyCodec(String keyCodec) {
 		this.keyCodec = keyCodec;
 	}
+	private Integer kafkaWorkThreads;
+	private Integer kafkaWorkQueue;
+	public Integer getKafkaWorkThreads(){
+		return kafkaWorkThreads;
+	}
+	public Integer getKafkaWorkQueue(){
+		return kafkaWorkQueue;
+	}
+
+	public void setKafkaWorkThreads(Integer kafkaWorkThreads) {
+		this.kafkaWorkThreads = kafkaWorkThreads;
+	}
+
+	public void setKafkaWorkQueue(Integer kafkaWorkQueue) {
+		this.kafkaWorkQueue = kafkaWorkQueue;
+	}
 }

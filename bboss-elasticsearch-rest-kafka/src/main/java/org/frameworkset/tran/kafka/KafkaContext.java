@@ -38,5 +38,6 @@ public interface KafkaContext {
 	public long getPollTimeOut() ;
 	public String getValueCodec();
 	public String getKeyCodec();
-
+	public Integer getKafkaWorkThreads();
+	public Integer getKafkaWorkQueue();
 }

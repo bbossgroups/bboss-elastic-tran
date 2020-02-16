@@ -146,9 +146,32 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		es2DBImportConfig.setPollTimeOut(this.getPollTimeOut());
 		es2DBImportConfig.setConsumerThreads(this.getConsumerThreads());
 		es2DBImportConfig.setValueCodec(this.getValueCodec());
+		es2DBImportConfig.setKafkaWorkQueue(kafkaWorkQueue);
+		es2DBImportConfig.setKafkaWorkThreads(kafkaWorkThreads);
 		DataStream dataStream = createDataStream();//new Kafka2ESDataStreamImpl();
 		dataStream.setImportConfig(es2DBImportConfig);
 		return dataStream;
+	}
+	private Integer kafkaWorkThreads;
+	private Integer kafkaWorkQueue;
+
+
+
+	public Integer getKafkaWorkThreads(){
+		return kafkaWorkThreads;
+	}
+	public Integer getKafkaWorkQueue(){
+		return kafkaWorkQueue;
+	}
+
+	public KafkaExportBuilder setKafkaWorkThreads(Integer kafkaWorkThreads) {
+		this.kafkaWorkThreads = kafkaWorkThreads;
+		return this;
+	}
+
+	public KafkaExportBuilder setKafkaWorkQueue(Integer kafkaWorkQueue) {
+		this.kafkaWorkQueue = kafkaWorkQueue;
+		return this;
 	}
 	private void preHandlerCodec(){
 		Properties properties = this.getKafkaConfigs();
