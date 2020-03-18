@@ -52,6 +52,7 @@ public abstract class BaseImportBuilder {
 	private ClientOptions clientOptions;
 
 	private boolean sortLastValue = true;
+	private boolean useBatchContextIndexName = false;
 	/**
 	 * 是否不需要返回响应，不需要的情况下，可以设置为true，
 	 * 提升性能，如果debugResponse设置为true，那么强制返回并打印响应到日志文件中
@@ -972,6 +973,7 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setBatchSize(this.batchSize);
 		if(index != null) {
 			ESIndexWrapper esIndexWrapper = new ESIndexWrapper(index, indexType);
+//			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);
 			baseImportConfig.setEsIndexWrapper(esIndexWrapper);
 		}
 
@@ -1307,4 +1309,12 @@ public abstract class BaseImportBuilder {
 	}
 
 
+	public boolean isUseBatchContextIndexName() {
+		return useBatchContextIndexName;
+	}
+
+	public BaseImportBuilder setUseBatchContextIndexName(boolean useBatchContextIndexName) {
+		this.useBatchContextIndexName = useBatchContextIndexName;
+		return this;
+	}
 }

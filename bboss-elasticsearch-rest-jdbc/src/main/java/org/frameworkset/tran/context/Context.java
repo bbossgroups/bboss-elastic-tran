@@ -164,5 +164,7 @@ public interface Context {
 
 	public String getOperation();
 
+	public boolean isUseBatchContextIndexName() ;
 
+	public void setUseBatchContextIndexName(boolean useBatchContextIndexName) ;
 }

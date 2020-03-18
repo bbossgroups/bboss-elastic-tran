@@ -40,7 +40,7 @@ import java.util.*;
 public class ContextImpl implements Context {
 	protected List<FieldMeta> fieldValues ;
 	protected Map<String,FieldMeta> fieldMetaMap;
-
+	private boolean useBatchContextIndexName = false;
 	protected Map<String,String> newfieldNames;
 	protected Map<String,ColumnData> newfieldName2ndColumnDatas;
 	protected BaseImportConfig baseImportConfig;
@@ -90,6 +90,7 @@ public class ContextImpl implements Context {
 			else{
 				esIndexWrapper = new ESIndexWrapper(index,indexType);
 			}
+//			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);
 		}
 	}
 
@@ -455,4 +456,11 @@ public class ContextImpl implements Context {
 	}
 
 
+	public boolean isUseBatchContextIndexName() {
+		return useBatchContextIndexName;
+	}
+
+	public void setUseBatchContextIndexName(boolean useBatchContextIndexName) {
+		this.useBatchContextIndexName = useBatchContextIndexName;
+	}
 }
