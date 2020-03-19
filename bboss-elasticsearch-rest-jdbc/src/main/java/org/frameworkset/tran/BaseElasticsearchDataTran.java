@@ -479,7 +479,11 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 			if (esIndexWrapper == null ) {
 				throw new ESDataImportException(" ESIndex type not seted." );
 			}
-			BuildTool.buildIndiceType(esIndexWrapper,writer,jdbcGetVariableValue);
+			String indexType = BuildTool.buildIndiceType(esIndexWrapper,jdbcGetVariableValue);
+			if(indexType == null || indexType.equals("")){
+				throw new ESDataImportException(" ESIndex type not seted." );
+			}
+			writer.write(indexType);
 			writer.write("\"");
 		}
 		if(id != null) {
