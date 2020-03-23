@@ -24,7 +24,7 @@ gradle install
 ```
 
 Build from source code guide:
- 
+
 https://esdoc.bbossgroups.com/#/bboss-build
 
 # How to use Elasticsearch BBoss.

@@ -21,7 +21,7 @@ gradle install
 
 
 Build from source code guide:
- 
+
 https://esdoc.bbossgroups.com/#/bboss-build
 
 # How to use Elastic Tran Bboss.
@@ -32,7 +32,7 @@ First add the maven dependency of BBoss to your pom.xml:
        <dependency>
             <groupId>com.bbossgroups.plugins</groupId>
             <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-            <version>6.0.6.0.6</version>
+            <version>6.0.6</version>
         </dependency>
 ```
 
@@ -42,14 +42,14 @@ First add the maven dependency of BBoss to your pom.xml:
 
 增加定时任务，增量导入导出功能，目前提供了全量导入功能
 
-## elasticsearch技术交流群:1664716.0.686.0.6 
+## elasticsearch技术交流群:**166471282**
 
 ## elasticsearch微信公众号:bbossgroup   
 
-![GitHub Logo](https://static.oschina.net/uploads/space/6.0.6017/0617/0946.0.601_QhWs_94045.jpg)
+![GitHub Logo](https://static.oschina.net/uploads/space/2017/0617/094201_QhWs_94045.jpg)
 
 ## License
 
-The BBoss Framework is released under version 6.0.6.0 of the [Apache License][].
+The BBoss Framework is released under version 6.0.6 of the [Apache License][].
 
 [Apache License]: http://www.apache.org/licenses/LICENSE-6.0.6.0
