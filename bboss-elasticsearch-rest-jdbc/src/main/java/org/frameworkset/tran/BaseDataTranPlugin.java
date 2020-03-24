@@ -330,6 +330,11 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 							if(lastValue instanceof Long){
 								currentStatus.setLastValue(new Date((Long)lastValue));
 							}
+							else{
+								if(logger.isWarnEnabled())
+									logger.warn("增量字段类型为日期类型, But the LastValue from status table is not a long value:{},value type is {}",lastValue,lastValue.getClass().getName());
+								throw new ESDataImportException("LastValue is not a long value:"+lastValue+",value type is "+lastValue.getClass().getName());
+							}
 						}
 						this.firstStatus = (Status) currentStatus.clone();
 					}
@@ -500,27 +505,16 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		}
 	}
 	public void storeStatus(Status currentStatus)  {
-//		if(!insertedCheck){
-//			try {
-//				insertedCheckLock.lock();
-//				if (!insertedCheck) {
-//					addStatus(currentStatus);
-//					insertedCheck = true;
-//				}
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			} finally {
-//				insertedCheckLock.unlock();
-//			}
-//
-//		}
-//		else{
+
 		try {
 			updateStatus(currentStatus);
-		} catch (Exception e) {
+		}
+		catch (ESDataImportException e) {
+			throw e;
+		}
+		catch (Exception e) {
 			throw new ESDataImportException(e);
 		}
-//		}
 
 	}
 	public void addStatus(Status currentStatus) throws Exception {
@@ -528,7 +522,21 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),lastValue,lastValueType);
 	}
 	public void updateStatus(Status currentStatus) throws Exception {
-		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
+		Object lastValue = currentStatus.getLastValue();
+		if(logger.isInfoEnabled()){
+			logger.info("增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
+					lastValue.getClass().getName(),lastValue);
+		}
+
+		if(importContext.isLastValueDateType()){
+			if(lastValue instanceof Date) {
+				lastValue = ((Date) lastValue).getTime();
+			}
+			else{
+				throw new ESDataImportException("增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
+			}
+		}
+//		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
 		SQLExecutor.updateWithDBName(statusDbname,updateSQL, currentStatus.getTime(), lastValue, lastValueType,currentStatus.getId());
 	}
 
