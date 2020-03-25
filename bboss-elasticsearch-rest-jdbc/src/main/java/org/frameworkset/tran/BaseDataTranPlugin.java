@@ -294,8 +294,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	protected void initTableAndStatus(){
 		if(this.isIncreamentImport()) {
 			try {
-				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-				initLastDate = dateFormat.parse("1970-01-01");
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				initLastDate = dateFormat.parse("1970-01-01 00:00:00");
 				SQLExecutor.queryObjectWithDBName(int.class, statusDbname, existSQL);
 
 			} catch (Exception e) {
@@ -330,10 +330,13 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 							if(lastValue instanceof Long){
 								currentStatus.setLastValue(new Date((Long)lastValue));
 							}
+							else if(lastValue instanceof Integer){
+								currentStatus.setLastValue(new Date(((Integer) lastValue).longValue()));
+							}
 							else{
 								if(logger.isWarnEnabled())
-									logger.warn("增量字段类型为日期类型, But the LastValue from status table is not a long value:{},value type is {}",lastValue,lastValue.getClass().getName());
-								throw new ESDataImportException("增量字段类型为日期类型, But the LastValue from status table is not a long value:"+lastValue+",value type is "+lastValue.getClass().getName());
+									logger.warn("initTableAndStatus：增量字段类型为日期类型, But the LastValue from status table is not a long value:{},value type is {}",lastValue,lastValue.getClass().getName());
+								throw new ESDataImportException("InitTableAndStatus：增量字段类型为日期类型, But the LastValue from status table is not a long value:"+lastValue+",value type is "+lastValue.getClass().getName());
 							}
 						}
 						this.firstStatus = (Status) currentStatus.clone();
@@ -518,13 +521,33 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 	}
 	public void addStatus(Status currentStatus) throws Exception {
-		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
+//		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
+		Object lastValue = currentStatus.getLastValue();
+		if(logger.isInfoEnabled()){
+			logger.info("AddStatus: 增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
+					lastValue.getClass().getName(),lastValue);
+		}
+
+		if(importContext.isLastValueDateType()){
+			if(lastValue instanceof Date) {
+				lastValue = ((Date) lastValue).getTime();
+
+			}
+			else{
+				throw new ESDataImportException("AddStatus: 增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
+			}
+		}
+		if(logger.isInfoEnabled()){
+			logger.info("AddStatus: 增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}",importContext.isLastValueDateType(),
+					lastValue.getClass().getName(),lastValue);
+		}
+
 		SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),lastValue,lastValueType);
 	}
 	public void updateStatus(Status currentStatus) throws Exception {
 		Object lastValue = currentStatus.getLastValue();
-		if(logger.isInfoEnabled()){
-			logger.info("增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
+		if(logger.isDebugEnabled()){
+			logger.debug("UpdateStatus：增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
 					lastValue.getClass().getName(),lastValue);
 		}
 
@@ -533,11 +556,11 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				lastValue = ((Date) lastValue).getTime();
 			}
 			else{
-				throw new ESDataImportException("增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
+				throw new ESDataImportException("UpdateStatus：增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
 			}
 		}
-		if(logger.isInfoEnabled()){
-			logger.info("增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}",importContext.isLastValueDateType(),
+		if(logger.isDebugEnabled()){
+			logger.debug("UpdateStatus：增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}",importContext.isLastValueDateType(),
 					lastValue.getClass().getName(),lastValue);
 		}
 //		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
