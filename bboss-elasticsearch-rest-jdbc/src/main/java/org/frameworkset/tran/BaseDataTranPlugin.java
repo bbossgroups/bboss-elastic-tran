@@ -333,7 +333,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 							else{
 								if(logger.isWarnEnabled())
 									logger.warn("增量字段类型为日期类型, But the LastValue from status table is not a long value:{},value type is {}",lastValue,lastValue.getClass().getName());
-								throw new ESDataImportException("LastValue is not a long value:"+lastValue+",value type is "+lastValue.getClass().getName());
+								throw new ESDataImportException("增量字段类型为日期类型, But the LastValue from status table is not a long value:"+lastValue+",value type is "+lastValue.getClass().getName());
 							}
 						}
 						this.firstStatus = (Status) currentStatus.clone();
@@ -535,6 +535,10 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			else{
 				throw new ESDataImportException("增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
 			}
+		}
+		if(logger.isInfoEnabled()){
+			logger.info("增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}",importContext.isLastValueDateType(),
+					lastValue.getClass().getName(),lastValue);
 		}
 //		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
 		SQLExecutor.updateWithDBName(statusDbname,updateSQL, currentStatus.getTime(), lastValue, lastValueType,currentStatus.getId());
