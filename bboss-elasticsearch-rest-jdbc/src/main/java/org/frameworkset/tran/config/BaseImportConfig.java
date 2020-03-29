@@ -221,7 +221,7 @@ public abstract class BaseImportConfig {
 
 	private ScheduleConfig scheduleConfig;
 	private ImportIncreamentConfig importIncreamentConfig;
-
+	private Map<String, String> geoipConfig;
 
 
 
@@ -715,8 +715,8 @@ public abstract class BaseImportConfig {
 	public void setStatusDbConfig(DBConfig statusDbConfig) {
 		this.statusDbConfig = statusDbConfig;
 	}
-	public static GeoIPUtil getGeoIPUtil(){
-		return GeoIPUtil.getGeoIPUtil();
+	public static GeoIPUtil getGeoIPUtil(Map<String, String> geoipConfig){
+		return GeoIPUtil.getGeoIPUtil(geoipConfig);
 	}
 
 	public void setExternalTimer(boolean externalTimer) {
@@ -886,4 +886,11 @@ public abstract class BaseImportConfig {
 	}
 
 
+	public Map<String, String> getGeoipConfig() {
+		return geoipConfig;
+	}
+
+	public void setGeoipConfig(Map<String, String> geoipConfig) {
+		this.geoipConfig = geoipConfig;
+	}
 }

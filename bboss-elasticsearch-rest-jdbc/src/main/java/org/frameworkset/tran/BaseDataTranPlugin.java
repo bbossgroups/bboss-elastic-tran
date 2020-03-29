@@ -492,11 +492,10 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public void flushLastValue(Object lastValue) {
 		if(lastValue != null) {
 			long time = System.currentTimeMillis();
-			synchronized (this.currentStatus) {
-				this.currentStatus.setTime(time);
+			this.currentStatus.setTime(time);
 
-				this.currentStatus.setLastValue(lastValue);
-			}
+			this.currentStatus.setLastValue(lastValue);
+
 			if (this.isIncreamentImport()) {
 				Status temp = new Status();
 				temp.setTime(time);

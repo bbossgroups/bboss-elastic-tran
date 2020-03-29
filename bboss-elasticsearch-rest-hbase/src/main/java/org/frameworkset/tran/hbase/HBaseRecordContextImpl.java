@@ -151,8 +151,8 @@ public class HBaseRecordContextImpl extends ContextImpl {
 			return null;
 		}
 		String ip = Bytes.toString((byte[])_ip);
-		if(baseImportConfig.getGeoIPUtil() != null) {
-			return baseImportConfig.getGeoIPUtil().getAddressMapResult(ip);
+		if(baseImportConfig.getGeoIPUtil(getGeoipConfig()) != null) {
+			return baseImportConfig.getGeoIPUtil(getGeoipConfig()).getAddressMapResult(ip);
 		}
 		return null;
 	}

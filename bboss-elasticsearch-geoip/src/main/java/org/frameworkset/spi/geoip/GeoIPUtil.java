@@ -393,7 +393,7 @@ public class GeoIPUtil {
 //	}
 	private static Logger logger = LoggerFactory.getLogger(GeoIPUtil.class);
 	private static boolean getGeoIPUtil ;
-	public static GeoIPUtil getGeoIPUtil() {
+	public static GeoIPUtil getGeoIPUtil(Map<String, String> geoipConfig) {
 		if(getGeoIPUtil)
 			return  geoIPUtil;
 		synchronized (GeoIPUtil.class){
@@ -403,7 +403,11 @@ public class GeoIPUtil {
 			if(geoIPUtil == null) {
 
 				try {
-					Map<String, String> geoipConfig = ElasticSearchHelper.getGeoipConfig();
+					if(geoipConfig == null)
+						geoipConfig = ElasticSearchHelper.getGeoipConfig();
+					if(geoipConfig == null || geoipConfig.size() == 0){
+						return null;
+					}
 					GeoIPUtil geoIPUtil = new GeoIPUtil();
 					geoIPUtil.setDatabase(geoipConfig.get("ip.database"));
 					geoIPUtil.setAsnDatabase(geoipConfig.get("ip.asnDatabase"));

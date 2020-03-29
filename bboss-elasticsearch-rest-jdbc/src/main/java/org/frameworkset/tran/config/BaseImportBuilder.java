@@ -50,6 +50,7 @@ public abstract class BaseImportBuilder {
 	private String sourceElasticsearch = "default";
 	private ESConfig esConfig;
 	private ClientOptions clientOptions;
+	private Map<String, String> geoipConfig;
 
 	private boolean sortLastValue = true;
 	private boolean useBatchContextIndexName = false;
@@ -64,6 +65,10 @@ public abstract class BaseImportBuilder {
 	protected ImportIncreamentConfig importIncreamentConfig;
 	public boolean isExternalTimer() {
 		return externalTimer;
+	}
+
+	public Map<String, String> getGeoipConfig() {
+		return geoipConfig;
 	}
 
 	public void setStatusTableId(Integer statusTableId) {
@@ -234,7 +239,52 @@ public abstract class BaseImportBuilder {
 		}
 		return this;
 	}
+	private String geoipDatabase;
+	private String geoipAsnDatabase;
+	private Integer geoipCachesize;
+	private String geoipTaobaoServiceURL;
+	protected void buildGeoipConfig(){
+		if(geoipDatabase != null){
+			if(this.geoipConfig == null){
+				geoipConfig = new HashMap<String, String>();
+			}
+			geoipConfig.put("ip.database",
+					geoipDatabase);
+			if(geoipAsnDatabase != null)
+				geoipConfig.put("ip.asnDatabase",
+					geoipAsnDatabase);
+			if(geoipCachesize != null)
+				geoipConfig.put("ip.cachesize",
+						geoipCachesize+"");
+			else{
+				geoipConfig.put("ip.cachesize",
+						"10000");
+			}
+			if(geoipTaobaoServiceURL != null)
+				geoipConfig.put("ip.serviceUrl",
+						geoipTaobaoServiceURL);
+		}
+	}
+	/**
 
+		geoipConfig.put("ip.database",
+		ElasticSearchHelper._getStringValue("","ip.database",configContext,""));
+		geoipConfig.put("ip.asnDatabase",
+				ElasticSearchHelper._getStringValue("","ip.asnDatabase",configContext,""));
+		geoipConfig.put("ip.cachesize",
+				ElasticSearchHelper._getStringValue("","ip.cachesize",configContext,"2000"));
+		geoipConfig.put("ip.serviceUrl",
+				ElasticSearchHelper._getStringValue("","ip.serviceUrl",configContext,""));
+
+		if(logger.isInfoEnabled()) {
+		try {
+			logger.info("Geo ipinfo config {},from springboot:{}", SimpleStringUtil.object2json(geoipConfig), fromspringboot);
+		}
+		catch (Exception e){
+
+		}
+	} *
+	 */
 
 
 	public BaseImportBuilder setEsIdGenerator(EsIdGenerator esIdGenerator) {
@@ -263,10 +313,12 @@ public abstract class BaseImportBuilder {
 		}
 	}
 	protected void builderConfig(){
+		this.buildGeoipConfig();
 		this.buildESConfig();
 		this.buildDBConfig();
 		this.buildStatusDBConfig();
 		this.buildOtherDBConfigs();
+
 
 	}
 	/**
@@ -953,6 +1005,9 @@ public abstract class BaseImportBuilder {
 		if(this.esConfig != null){
 			baseImportConfig.setEsConfig(esConfig);
 		}
+		if(geoipConfig != null && geoipConfig.size() > 0){
+			baseImportConfig.setGeoipConfig(geoipConfig);
+		}
 		baseImportConfig.setDateFormat(dateFormat);
 		baseImportConfig.setLocale(locale);
 		baseImportConfig.setTimeZone(this.timeZone);
@@ -1315,6 +1370,26 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setUseBatchContextIndexName(boolean useBatchContextIndexName) {
 		this.useBatchContextIndexName = useBatchContextIndexName;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoipDatabase(String geoipDatabase) {
+		this.geoipDatabase = geoipDatabase;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoipAsnDatabase(String geoipAsnDatabase) {
+		this.geoipAsnDatabase = geoipAsnDatabase;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoipCachesize(int geoipCachesize) {
+		this.geoipCachesize = geoipCachesize;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoipTaobaoServiceURL(String geoipTaobaoServiceURL) {
+		this.geoipTaobaoServiceURL = geoipTaobaoServiceURL;
 		return this;
 	}
 }

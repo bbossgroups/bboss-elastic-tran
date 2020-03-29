@@ -23,7 +23,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 	@Override
 	public void logTaskStart(Logger logger) {
 		logger.info(new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
-				.append("] dbuser[").append(importContext.getDbConfig().getDbUser()).append(" sql[").append(es2DBContext.getSqlInfo().getOriginSQL()).append("] start.").toString());
+				.append("] dbuser[").append(importContext.getDbConfig().getDbUser()).append("] sql[").append(es2DBContext.getSqlInfo().getOriginSQL()).append("] start.").toString());
 	}
 	protected void init(){
 		es2DBContext = (DBOutPutContext)importContext;

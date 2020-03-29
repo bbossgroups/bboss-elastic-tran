@@ -36,6 +36,7 @@ import java.util.Map;
  * @version 1.0
  */
 public interface Context {
+	public Map<String, String> getGeoipConfig();
 	public void afterRefactor();
 	public void setClientOptions(ClientOptions clientOptions);
 	public Context addFieldValue(String fieldName, Object value);
