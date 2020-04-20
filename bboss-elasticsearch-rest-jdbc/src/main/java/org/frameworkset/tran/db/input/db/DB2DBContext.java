@@ -15,7 +15,6 @@ package org.frameworkset.tran.db.input.db;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.db.output.DBOutPutContext;
 
 /**
@@ -29,6 +28,5 @@ import org.frameworkset.tran.db.output.DBOutPutContext;
 public interface DB2DBContext extends DBOutPutContext {
 	public String getInsertSqlName() ;
 
-	public DBConfig getTargetDBConfig();
 
 }

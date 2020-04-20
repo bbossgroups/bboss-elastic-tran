@@ -15,7 +15,6 @@ package org.frameworkset.tran.db.input.db;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.db.DBImportConfig;
 
 /**
@@ -29,16 +28,9 @@ import org.frameworkset.tran.db.DBImportConfig;
 public class DB2DBImportConfig extends DBImportConfig {
 
 
-	private DBConfig targetDBConfig;
+
 	private String insertSqlName;
 
-	public DBConfig getTargetDBConfig() {
-		return targetDBConfig;
-	}
-
-	public void setTargetDBConfig(DBConfig targetDBConfig) {
-		this.targetDBConfig = targetDBConfig;
-	}
 
 	public String getInsertSqlName() {
 		return insertSqlName;

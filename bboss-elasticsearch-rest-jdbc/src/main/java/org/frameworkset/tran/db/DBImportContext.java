@@ -15,6 +15,7 @@ package org.frameworkset.tran.db;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.db.output.DBOutPutContext;
@@ -30,7 +31,9 @@ import org.frameworkset.tran.db.output.TranSQLInfo;
  */
 public abstract class DBImportContext extends BaseImportContext implements DBOutPutContext {
 	protected DBImportConfig dbImportConfig;
-
+	public DBConfig getTargetDBConfig() {
+		return dbImportConfig.getTargetDBConfig();
+	}
 	public TranSQLInfo getSqlInfo() {
 		return sqlInfo;
 	}

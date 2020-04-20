@@ -15,6 +15,7 @@ package org.frameworkset.tran.db.output;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.db.DBContext;
 
 /**
@@ -26,6 +27,7 @@ import org.frameworkset.tran.db.DBContext;
  * @version 1.0
  */
 public interface DBOutPutContext extends DBContext {
+	public DBConfig getTargetDBConfig() ;
 	/**
 	 * 数据库相关配置
 	 * @return

@@ -43,13 +43,14 @@ import java.util.List;
  */
 public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<List<Param>>, String> {
 	private String sql;
-
+	private DBOutPutContext es2DBContext;
 	public Base2DBTaskCommandImpl(String sql, ImportCount importCount, ImportContext importContext,
 								  List<List<Param>> datas, int taskNo, String jobNo) {
 		super(importCount,importContext,datas.size(),  taskNo,  jobNo);
 		this.sql = sql;
 		this.importContext = importContext;
 		this.datas = datas;
+		es2DBContext = (DBOutPutContext )importContext;
 	}
 
 
@@ -101,7 +102,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<List<Param>>, S
 		try {
 
 //		GetCUDResult CUDResult = null;
-			String dbname = importContext.getDbConfig().getDbName();
+			String dbname = es2DBContext.getTargetDBConfig().getDbName();
 //			logger.info("DBUtil.getConection(dbname)");
 //			debugDB(dbname);
 			con_ = DBUtil.getConection(dbname);

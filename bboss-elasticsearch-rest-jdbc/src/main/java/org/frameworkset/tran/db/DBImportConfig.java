@@ -14,13 +14,26 @@ package org.frameworkset.tran.db;/*
  *  limitations under the License.
  */
 
+import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.config.BaseImportConfig;
 
 public class DBImportConfig extends BaseImportConfig {
-
+	private DBConfig targetDBConfig;
 	private String sql;
 	private String sqlFilepath;
 	private String sqlName;
+	public DBConfig getTargetDBConfig() {
+		if(targetDBConfig != null) {
+			return targetDBConfig;
+		}
+		else{
+			return super.getDbConfig();
+		}
+	}
+
+	public void setTargetDBConfig(DBConfig targetDBConfig) {
+		this.targetDBConfig = targetDBConfig;
+	}
 
 	public String getSql() {
 		return sql;
