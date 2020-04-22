@@ -19,9 +19,32 @@ import org.frameworkset.tran.config.BaseImportConfig;
 
 public class DBImportConfig extends BaseImportConfig {
 	private DBConfig targetDBConfig;
-	private String sql;
+	protected String sql;
 	private String sqlFilepath;
-	private String sqlName;
+	protected String sqlName;
+	protected String insertSql;
+	protected String insertSqlName;
+
+
+
+	public void setInsertSqlName(String insertSqlName) {
+		this.insertSqlName = insertSqlName;
+	}
+
+
+	public String getInsertSqlName() {
+		return insertSqlName;
+
+	}
+
+	public String getInsertSql() {
+		return insertSql;
+
+	}
+
+	public void setInsertSql(String insertSql) {
+		this.insertSql = insertSql;
+	}
 	public DBConfig getTargetDBConfig() {
 		if(targetDBConfig != null) {
 			return targetDBConfig;

@@ -29,15 +29,5 @@ public class DB2DBImportConfig extends DBImportConfig {
 
 
 
-	private String insertSqlName;
-
-
-	public String getInsertSqlName() {
-		return insertSqlName;
-	}
-
-	public void setInsertSqlName(String insertSqlName) {
-		this.insertSqlName = insertSqlName;
-	}
 
 }

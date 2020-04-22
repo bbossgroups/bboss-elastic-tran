@@ -26,7 +26,6 @@ import org.frameworkset.tran.db.output.DBOutPutContext;
  * @version 1.0
  */
 public interface DB2DBContext extends DBOutPutContext {
-	public String getInsertSqlName() ;
 
 
 }

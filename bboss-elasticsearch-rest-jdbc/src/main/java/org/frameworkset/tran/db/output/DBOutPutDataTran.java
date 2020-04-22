@@ -23,7 +23,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 	@Override
 	public void logTaskStart(Logger logger) {
 		logger.info(new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
-				.append("] dbuser[").append(importContext.getDbConfig().getDbUser()).append("] sql[").append(es2DBContext.getSqlInfo().getOriginSQL()).append("] start.").toString());
+				.append("] dbuser[").append(importContext.getDbConfig().getDbUser()).append("] sql[").append(es2DBContext.getTargetSqlInfo().getOriginSQL()).append("] start.").toString());
 	}
 	protected void init(){
 		es2DBContext = (DBOutPutContext)importContext;
@@ -50,7 +50,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		try {
 
 			//		GetCUDResult CUDResult = null;
-			TranSQLInfo sqlinfo = es2DBContext.getSqlInfo();
+			TranSQLInfo sqlinfo = es2DBContext.getTargetSqlInfo();
 			Object temp = null;
 			Param param = null;
 			List<List<Param>> records = new ArrayList<List<Param>>();
@@ -181,7 +181,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
 		int batchsize = importContext.getStoreBatchSize();
 		try {
-			TranSQLInfo sqlinfo = es2DBContext.getSqlInfo();
+			TranSQLInfo sqlinfo = es2DBContext.getTargetSqlInfo();
 			Object temp = null;
 			Param param = null;
 			List<List<Param>> records = new ArrayList<List<Param>>();
@@ -291,7 +291,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		int batchsize = importContext.getStoreBatchSize();
 		try {
 			istart = start;
-			TranSQLInfo sqlinfo = es2DBContext.getSqlInfo();
+			TranSQLInfo sqlinfo = es2DBContext.getTargetSqlInfo();
 			List<List<Param>> records = new ArrayList<List<Param>>();
 			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {

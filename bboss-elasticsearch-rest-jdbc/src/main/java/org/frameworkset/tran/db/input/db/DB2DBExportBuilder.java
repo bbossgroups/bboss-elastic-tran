@@ -15,7 +15,6 @@ package org.frameworkset.tran.db.input.db;
  * limitations under the License.
  */
 
-import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.db.DBExportBuilder;
 
@@ -31,7 +30,6 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 
 	private DBConfig targetDBConfig;
 
-	private String insertSqlName;
 
 	private String targetValidateSQL;
 
@@ -64,11 +62,7 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 		super.buildImportConfig(db2DBImportConfig);
 		db2DBImportConfig.setUseJavaName(false);
 		db2DBImportConfig.setTargetDBConfig(this.targetDBConfig);
-		db2DBImportConfig.setSqlFilepath(this.sqlFilepath);
-		db2DBImportConfig.setSqlName(sqlName);
-		if(SimpleStringUtil.isNotEmpty(sql))
-			db2DBImportConfig.setSql(this.sql);
-		db2DBImportConfig.setInsertSqlName(this.insertSqlName);
+		super.buildDBImportConfig(db2DBImportConfig);
 
 		DB2DBDataStreamImpl dataStream = new DB2DBDataStreamImpl();
 		dataStream.setImportConfig(db2DBImportConfig);
@@ -152,16 +146,10 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 
 
 
-	public String getInsertSqlName() {
-		return insertSqlName;
-	}
 
-	public DB2DBExportBuilder setInsertSqlName(String insertSqlName) {
-		this.insertSqlName = insertSqlName;
-		return this;
-	}
 	public DB2DBExportBuilder setTargetValidateSQL(String validateSQL) {
 		this.targetValidateSQL = validateSQL;
 		return this;
 	}
+
 }

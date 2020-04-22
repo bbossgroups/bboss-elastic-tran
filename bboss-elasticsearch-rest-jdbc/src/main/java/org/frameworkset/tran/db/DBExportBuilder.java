@@ -15,6 +15,7 @@ package org.frameworkset.tran.db;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.config.BaseImportBuilder;
 
 /**
@@ -31,12 +32,36 @@ public abstract class DBExportBuilder extends BaseImportBuilder {
 	protected String sqlName;
 	protected String sql;
 
+	private String insertSqlName;
+	private String insertSql;
+	public String getInsertSqlName() {
+		return insertSqlName;
+	}
 
+	public DBExportBuilder setInsertSqlName(String insertSqlName) {
+		this.insertSqlName = insertSqlName;
+		return this;
+	}
+	public String getInsertSql() {
+		return insertSql;
+	}
 
+	public DBExportBuilder setInsertSql(String insertSql) {
+		this.insertSql = insertSql;
+		return this;
+	}
 	protected void buildDBImportConfig(DBImportConfig dbImportConfig){
-		dbImportConfig.setSqlFilepath(sqlFilepath);
+//		dbImportConfig.setSqlFilepath(sqlFilepath);
+//		dbImportConfig.setSqlName(sqlName);
+//		dbImportConfig.setSql(this.sql);
+//		dbImportConfig.setInsertSql(this.insert);
+
+		dbImportConfig.setSqlFilepath(this.sqlFilepath);
 		dbImportConfig.setSqlName(sqlName);
-		dbImportConfig.setSql(this.sql);
+		if(SimpleStringUtil.isNotEmpty(sql))
+			dbImportConfig.setSql(this.sql);
+		dbImportConfig.setInsertSqlName(this.insertSqlName);
+		dbImportConfig.setInsertSql(this.insertSql);
 	}
 
 

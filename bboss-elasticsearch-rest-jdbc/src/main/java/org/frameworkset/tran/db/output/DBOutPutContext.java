@@ -32,9 +32,13 @@ public interface DBOutPutContext extends DBContext {
 	 * 数据库相关配置
 	 * @return
 	 */
-	public TranSQLInfo getSqlInfo() ;
+	public TranSQLInfo getTargetSqlInfo() ;
 
-	public void setSqlInfo(TranSQLInfo sqlInfo) ;
+	public void setTargetSqlInfo(TranSQLInfo sqlInfo) ;
+
+	public String getInsertSqlName() ;
+	public String getInsertSql();
+
 
 
 }

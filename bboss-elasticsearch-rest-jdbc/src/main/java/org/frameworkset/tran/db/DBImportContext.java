@@ -34,15 +34,9 @@ public abstract class DBImportContext extends BaseImportContext implements DBOut
 	public DBConfig getTargetDBConfig() {
 		return dbImportConfig.getTargetDBConfig();
 	}
-	public TranSQLInfo getSqlInfo() {
-		return sqlInfo;
-	}
 
-	public void setSqlInfo(TranSQLInfo sqlInfo) {
-		this.sqlInfo = sqlInfo;
-	}
 
-	private TranSQLInfo sqlInfo;
+	private TranSQLInfo targetSqlInfo;
 
 	protected void init(BaseImportConfig baseImportConfig){
 		dbImportConfig = (DBImportConfig)baseImportConfig;
@@ -75,8 +69,21 @@ public abstract class DBImportContext extends BaseImportContext implements DBOut
 		dbImportConfig.setSql(sql);
 	}
 
+	@Override
+	public String getInsertSqlName() {
+		return dbImportConfig.getInsertSqlName();
+	}
+	@Override
+	public String getInsertSql() {
+		return dbImportConfig.getInsertSql();
+	}
 
 
+	public TranSQLInfo getTargetSqlInfo() {
+		return targetSqlInfo;
+	}
 
-
+	public void setTargetSqlInfo(TranSQLInfo targetSqlInfo) {
+		this.targetSqlInfo = targetSqlInfo;
+	}
 }
