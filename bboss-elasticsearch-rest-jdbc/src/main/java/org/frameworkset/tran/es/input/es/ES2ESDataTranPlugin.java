@@ -169,8 +169,5 @@ public class ES2ESDataTranPlugin  extends BaseDataTranPlugin implements DataTran
 
 	}
 
-	@Override
-	public String getLastValueVarName() {
-		return importContext.getLastValueClumnName();
-	}
+
 }

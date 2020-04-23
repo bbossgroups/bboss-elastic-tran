@@ -139,8 +139,8 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 			String statusTableId = hbaseContext.getHbaseTable();
 			if(hbaseContext.getIncrementFamilyName() != null)
 				statusTableId =statusTableId +"|"+hbaseContext.getIncrementFamilyName();
-			if(importContext.getLastValueClumnName() != null)
-				statusTableId =statusTableId +"|"+importContext.getLastValueClumnName();
+			if(importContext.getLastValueColumnName() != null)
+				statusTableId =statusTableId +"|"+importContext.getLastValueColumnName();
 
 			if(hbaseContext.getStartRow() != null )
 				statusTableId =statusTableId +"|"+hbaseContext.getStartRow();
@@ -356,8 +356,5 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 
 	}
 
-	@Override
-	public String getLastValueVarName() {
-		return importContext.getLastValueClumnName();
-	}
+
 }

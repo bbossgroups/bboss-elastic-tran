@@ -200,10 +200,10 @@ public abstract class BaseDataTran implements DataTran{
 	public Object getLastValue() throws ESDataImportException {
 
 
-		if(importContext.getLastValueClumnName() == null){
+		if(importContext.getLastValueColumnName() == null){
 			return null;
 		}
-		return jdbcResultSet.getLastValue(importContext.getLastValueClumnName());
+		return jdbcResultSet.getLastValue(importContext.getLastValueColumnName());
 //		try {
 //			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
 //				return jdbcResultSet.getValue(importContext.getLastValueClumnName());

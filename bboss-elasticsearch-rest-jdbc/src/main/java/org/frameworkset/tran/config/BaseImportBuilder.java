@@ -613,21 +613,33 @@ public abstract class BaseImportBuilder {
 		return importIncreamentConfig;
 	}
 
+	/**
+	 * @See use setLastValueColumn(String numberLastValueColumn)
+	 * @param dateLastValueColumn
+	 * @return
+	 */
+	@Deprecated
 	public BaseImportBuilder setDateLastValueColumn(String dateLastValueColumn) {
-		if(importIncreamentConfig == null){
-			importIncreamentConfig = new ImportIncreamentConfig();
-		}
-		this.importIncreamentConfig.setDateLastValueColumn(dateLastValueColumn);
-		return this;
+		return setLastValueColumn(dateLastValueColumn);
 	}
 
 
-	public BaseImportBuilder setNumberLastValueColumn(String numberLastValueColumn) {
+	public BaseImportBuilder setLastValueColumn(String numberLastValueColumn) {
 		if(importIncreamentConfig == null){
 			importIncreamentConfig = new ImportIncreamentConfig();
 		}
-		this.importIncreamentConfig.setNumberLastValueColumn(numberLastValueColumn);
+		this.importIncreamentConfig.setLastValueColumn(numberLastValueColumn);
 		return this;
+	}
+
+	/**
+	 * @See use setLastValueColumn(String numberLastValueColumn)
+	 * @param numberLastValueColumn
+	 * @return
+	 */
+	@Deprecated
+	public BaseImportBuilder setNumberLastValueColumn(String numberLastValueColumn) {
+		return setLastValueColumn(numberLastValueColumn);
 	}
 
 

@@ -214,8 +214,5 @@ public abstract class MongoDBInputPlugin extends BaseDataTranPlugin implements D
 
 	}
 
-	@Override
-	public String getLastValueVarName() {
-		return importContext.getLastValueClumnName();
-	}
+
 }

@@ -49,7 +49,10 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public ExportCount getExportCount() {
 		return exportCount;
 	}
-
+	@Override
+	public String getLastValueVarName() {
+		return importContext.getLastValueColumnName();
+	}
 	public Long getTimeRangeLastValue(){
 		return null;
 	}
@@ -227,12 +230,13 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			return ;
 		}
 
-		if (importContext.getDateLastValueColumn() != null) {
-			lastValueClumnName = importContext.getDateLastValueColumn();
-		} else if (importContext.getNumberLastValueColumn() != null) {
-			lastValueClumnName = importContext.getNumberLastValueColumn();
-		} else if (this.getLastValueVarName() != null) {
-
+		if (importContext.getLastValueColumnName() != null) {
+			lastValueClumnName = importContext.getLastValueColumnName();
+		}
+//		else if (importContext.getNumberLastValueColumn() != null) {
+//			lastValueClumnName = importContext.getNumberLastValueColumn();
+//		}
+		else if (this.getLastValueVarName() != null) {
 			lastValueClumnName =  getLastValueVarName();
 		}
 
@@ -249,13 +253,16 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		currentStatus.setTime(new Date().getTime());
 		if(lastValueType == ImportIncreamentConfig.TIMESTAMP_TYPE) {
 			if(importContext.getConfigLastValue() != null){
-				if(importContext.getConfigLastValue() instanceof Long){
-					currentStatus.setLastValue(new Date((Long)importContext.getConfigLastValue()));
-				}
-				else if(importContext.getConfigLastValue() instanceof Date) {
+
+				if(importContext.getConfigLastValue() instanceof Date) {
 					currentStatus.setLastValue(importContext.getConfigLastValue());
 				}
-
+				else if(importContext.getConfigLastValue() instanceof Long){
+					currentStatus.setLastValue(new Date((Long)importContext.getConfigLastValue()));
+				}
+				else if(importContext.getConfigLastValue() instanceof Integer){
+					currentStatus.setLastValue(new Date((Integer)importContext.getConfigLastValue()));
+				}
 				else{
 					if(logger.isInfoEnabled()) {
 						logger.info("TIMESTAMP TYPE Last Value Illegal:{}", importContext.getConfigLastValue());
@@ -324,7 +331,11 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				} else {
 					if (importContext.isFromFirst()) {
 						initLastValueStatus(true);
-					} else {
+					}
+					else if(currentStatus.getLastValueType() != this.lastValueType){ //如果当前lastValueType和作业配置的类型不一致，按照配置了类型重置当前类型
+						initLastValueStatus(true);
+					}
+					else {
 						if(currentStatus.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE){
 							Object lastValue = currentStatus.getLastValue();
 							if(lastValue instanceof Long){
@@ -453,15 +464,16 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				}
 				createStatusTableSQL = createStatusTableSQL.replace("$statusTableName",statusTableName);
 			}
-
-			if (importContext.getDateLastValueColumn() != null) {
-				this.lastValueType = ImportIncreamentConfig.TIMESTAMP_TYPE;
-			} else if (importContext.getNumberLastValueColumn() != null) {
-				this.lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
-
-			} else if (importContext.getLastValueType() != null) {
+			if (importContext.getLastValueType() != null) {
 				this.lastValueType = importContext.getLastValueType();
-			} else {
+			}
+//			else if (importContext.getDateLastValueColumn() != null) {
+//				this.lastValueType = ImportIncreamentConfig.TIMESTAMP_TYPE;
+//			} else if (importContext.getNumberLastValueColumn() != null) {
+//				this.lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
+//
+//			}
+			else {
 				this.lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
 			}
 			/**

@@ -240,12 +240,10 @@ public abstract  class BaseImportContext implements ImportContext {
 		return baseImportConfig.isExternalTimer();
 	}
 
-	public String getLastValueClumnName(){
+	public String getLastValueColumnName(){
 		return dataTranPlugin.getLastValueClumnName();
 	}
-	public String getNumberLastValueColumn(){
-		return baseImportConfig.getNumberLastValueColumn();
-	}
+
 
 	@Override
 	public Object getConfigLastValue() {
@@ -471,10 +469,7 @@ public abstract  class BaseImportContext implements ImportContext {
 		return baseImportConfig.isFromFirst();
 	}
 
-	@Override
-	public String getDateLastValueColumn() {
-		return baseImportConfig.getDateLastValueColumn();
-	}
+
 
 	public void setRefreshOption(String refreshOption){
 		baseImportConfig.setRefreshOption(refreshOption);

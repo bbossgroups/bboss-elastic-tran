@@ -613,12 +613,10 @@ public abstract class BaseImportConfig {
 		return importIncreamentConfig != null?importIncreamentConfig.getLastValueStorePath():null;
 	}
 
-	public String getDateLastValueColumn() {
-		return importIncreamentConfig != null?importIncreamentConfig.getDateLastValueColumn():null;
+	public String getLastValueColumn() {
+		return importIncreamentConfig != null?importIncreamentConfig.getLastValueColumn():null;
 	}
-	public String getNumberLastValueColumn() {
-		return importIncreamentConfig != null?importIncreamentConfig.getNumberLastValueColumn():null;
-	}
+
 
 	public Integer getLastValueType() {
 		return importIncreamentConfig != null?importIncreamentConfig.getLastValueType():null;

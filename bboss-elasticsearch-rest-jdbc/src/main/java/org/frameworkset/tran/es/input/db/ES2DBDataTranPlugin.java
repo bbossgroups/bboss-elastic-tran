@@ -202,8 +202,5 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 		}
 	}
 
-	@Override
-	public String getLastValueVarName() {
-		return importContext.getLastValueClumnName();
-	}
+
 }

@@ -24,8 +24,8 @@ package org.frameworkset.tran.schedule;
  * @version 1.0
  */
 public class ImportIncreamentConfig {
-	private String dateLastValueColumn;
-	private String numberLastValueColumn;
+	private String lastValueColumn;
+//	private String numberLastValueColumn;
 	public static final int NUMBER_TYPE = 0;
 	public static final int TIMESTAMP_TYPE = 1;
 	/**
@@ -53,21 +53,14 @@ public class ImportIncreamentConfig {
 	public void setStatusTableId(Integer statusTableId) {
 		this.statusTableId = statusTableId;
 	}
-	public String getDateLastValueColumn() {
-		return dateLastValueColumn;
+
+	public void setLastValueColumn(String lastValueColumn) {
+		this.lastValueColumn = lastValueColumn;
 	}
 
-	public void setDateLastValueColumn(String dateLastValueColumn) {
-		this.dateLastValueColumn = dateLastValueColumn;
-	}
 
-	public String getNumberLastValueColumn() {
-		return numberLastValueColumn;
-	}
 
-	public void setNumberLastValueColumn(String numberLastValueColumn) {
-		this.numberLastValueColumn = numberLastValueColumn;
-	}
+
 
 	public String getLastValueStorePath() {
 		return lastValueStorePath;
@@ -93,10 +86,18 @@ public class ImportIncreamentConfig {
 		this.fromFirst = fromFirst;
 	}
 
+	/**
+	 * 获取增量起始值
+	 * @return
+	 */
 	public Object getLastValue() {
 		return lastValue;
 	}
 
+	/**
+	 * 设置增量起始值
+	 * @param lastValue
+	 */
 	public void setLastValue(Object lastValue) {
 		this.lastValue = lastValue;
 	}
@@ -116,5 +117,9 @@ public class ImportIncreamentConfig {
 
 	public void setLastValueDateType(boolean lastValueDateType) {
 		this.lastValueDateType = lastValueDateType;
+	}
+
+	public String getLastValueColumn() {
+		return lastValueColumn;
 	}
 }

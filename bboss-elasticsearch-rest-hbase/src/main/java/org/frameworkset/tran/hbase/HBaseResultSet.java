@@ -118,7 +118,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 	public Object getLastValue(TranResultSet tranResultSet,ImportContext importContext,String colName) throws ESDataImportException{
 		try {
 			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE) {
-				Object value = tranResultSet.getValue(importContext.getLastValueClumnName());
+				Object value = tranResultSet.getValue(importContext.getLastValueColumnName());
 				Long l = Bytes.toLong((byte[])value);
 				return l;
 			}
@@ -126,7 +126,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 				return tranResultSet.getMetaValue("timestamp");
 			}
 			else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
-				return tranResultSet.getDateTimeValue(importContext.getLastValueClumnName());
+				return tranResultSet.getDateTimeValue(importContext.getLastValueColumnName());
 			}
 		}
 		catch (ESDataImportException e){

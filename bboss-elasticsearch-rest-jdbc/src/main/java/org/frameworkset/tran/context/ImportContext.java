@@ -79,9 +79,7 @@ public interface ImportContext {
 
 	boolean isFromFirst();
 
-	String getDateLastValueColumn();
 
-	String getNumberLastValueColumn();
 
 	Object getConfigLastValue();
 
@@ -135,7 +133,7 @@ public interface ImportContext {
 
 	ESIndexWrapper getEsIndexWrapper();
 
-	String getLastValueClumnName();
+	String getLastValueColumnName();
 
 	boolean isParallel();
 

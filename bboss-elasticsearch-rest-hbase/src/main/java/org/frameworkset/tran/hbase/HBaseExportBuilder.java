@@ -184,9 +184,9 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		}
 		if(this.importIncreamentConfig != null){
 			if(importIncreamentConfig.isLastValueDateType()
-					&& importIncreamentConfig.getDateLastValueColumn() == null ){
+					&& importIncreamentConfig.getLastValueColumn() == null ){
 				hBaseImportConfig.setIncrementByTimeRange(true);
-				importIncreamentConfig.setDateLastValueColumn("_");
+				importIncreamentConfig.setLastValueColumn("_");
 			}
 		}
 		hBaseImportConfig.setHbaseClientProperties(hbaseClientProperties);

@@ -37,9 +37,9 @@ public abstract class LastValue implements TranResultSet{
 	public Object getLastValue(TranResultSet tranResultSet,ImportContext importContext,String colName) throws ESDataImportException{
 		try {
 			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
-				return tranResultSet.getValue(importContext.getLastValueClumnName());
+				return tranResultSet.getValue(importContext.getLastValueColumnName());
 			else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
-				return tranResultSet.getDateTimeValue(importContext.getLastValueClumnName());
+				return tranResultSet.getDateTimeValue(importContext.getLastValueColumnName());
 			}
 		}
 		catch (ESDataImportException e){
