@@ -333,6 +333,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 						initLastValueStatus(true);
 					}
 					else if(currentStatus.getLastValueType() != this.lastValueType){ //如果当前lastValueType和作业配置的类型不一致，按照配置了类型重置当前类型
+						if(logger.isWarnEnabled()){
+							logger.warn("The config lastValueType is {} but from currentStatus lastValueType is {},and use the config lastValueType to releace currentStatus lastValueType.",lastValueType,currentStatus.getLastValueType());
+						}
 						initLastValueStatus(true);
 					}
 					else {
