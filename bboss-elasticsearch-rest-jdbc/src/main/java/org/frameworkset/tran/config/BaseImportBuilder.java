@@ -43,6 +43,7 @@ public abstract class BaseImportBuilder {
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	private DBConfig dbConfig ;
 	private DBConfig statusDbConfig ;
+	private String statusDbname;
 	private Integer fetchSize = 5000;
 	private long flushInterval;
 	private boolean ignoreNullValueField;
@@ -296,20 +297,25 @@ public abstract class BaseImportBuilder {
 	}
 	protected void buildStatusDBConfig(){
 		if(!statusFreezen) {
-			PropertiesContainer propertiesContainer = new PropertiesContainer();
-			String prefix = "config.";
-			if(this.applicationPropertiesFile == null) {
-				propertiesContainer.addConfigPropertiesFile("application.properties");
+			if(statusDbname == null) {
+				PropertiesContainer propertiesContainer = new PropertiesContainer();
+				String prefix = "config.";
+				if (this.applicationPropertiesFile == null) {
+					propertiesContainer.addConfigPropertiesFile("application.properties");
+				} else {
+					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+				}
+				String dbName = propertiesContainer.getProperty(prefix + "db.name");
+				if (dbName == null || dbName.equals(""))
+					return;
+
+				statusDbConfig = new DBConfig();
+				_buildDBConfig(propertiesContainer, dbName, statusDbConfig, "config.");
 			}
 			else{
-				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+				statusDbConfig = new DBConfig();
+				statusDbConfig.setDbName(statusDbname);
 			}
-			String dbName  = propertiesContainer.getProperty(prefix+"db.name");
-			if(dbName == null || dbName.equals(""))
-				return;
-
-			statusDbConfig = new DBConfig();
-			_buildDBConfig(propertiesContainer,dbName,statusDbConfig, "config.");
 		}
 	}
 	protected void builderConfig(){
@@ -1402,6 +1408,15 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setGeoipTaobaoServiceURL(String geoipTaobaoServiceURL) {
 		this.geoipTaobaoServiceURL = geoipTaobaoServiceURL;
+		return this;
+	}
+
+	public String getStatusDbname() {
+		return statusDbname;
+	}
+
+	public BaseImportBuilder setStatusDbname(String statusDbname) {
+		this.statusDbname = statusDbname;
 		return this;
 	}
 }
