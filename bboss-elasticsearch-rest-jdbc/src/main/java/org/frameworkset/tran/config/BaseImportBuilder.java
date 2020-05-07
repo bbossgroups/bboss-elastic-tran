@@ -44,6 +44,7 @@ public abstract class BaseImportBuilder {
 	private DBConfig dbConfig ;
 	private DBConfig statusDbConfig ;
 	private String statusDbname;
+	private String statusTableDML;
 	private Integer fetchSize = 5000;
 	private long flushInterval;
 	private boolean ignoreNullValueField;
@@ -315,6 +316,9 @@ public abstract class BaseImportBuilder {
 			else{
 				statusDbConfig = new DBConfig();
 				statusDbConfig.setDbName(statusDbname);
+				if(statusTableDML != null && !statusTableDML.equals("")){
+					statusDbConfig.setStatusTableDML(statusTableDML);
+				}
 			}
 		}
 	}
@@ -1417,6 +1421,15 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setStatusDbname(String statusDbname) {
 		this.statusDbname = statusDbname;
+		return this;
+	}
+
+	public String getStatusTableDML() {
+		return statusTableDML;
+	}
+
+	public BaseImportBuilder setStatusTableDML(String statusTableDML) {
+		this.statusTableDML = statusTableDML;
 		return this;
 	}
 }
