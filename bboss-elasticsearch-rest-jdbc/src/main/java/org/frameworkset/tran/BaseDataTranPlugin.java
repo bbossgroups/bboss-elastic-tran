@@ -51,7 +51,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	}
 	@Override
 	public String getLastValueVarName() {
-		return importContext.getLastValueColumnName();
+		return importContext.getLastValueColumn();
 	}
 	public Long getTimeRangeLastValue(){
 		return null;
@@ -230,8 +230,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			return ;
 		}
 
-		if (importContext.getLastValueColumnName() != null) {
-			lastValueClumnName = importContext.getLastValueColumnName();
+		if (importContext.getLastValueColumn() != null) {
+			lastValueClumnName = importContext.getLastValueColumn();
 		}
 //		else if (importContext.getNumberLastValueColumn() != null) {
 //			lastValueClumnName = importContext.getNumberLastValueColumn();

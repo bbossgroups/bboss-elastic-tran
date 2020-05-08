@@ -239,7 +239,9 @@ public abstract  class BaseImportContext implements ImportContext {
 	public boolean isExternalTimer() {
 		return baseImportConfig.isExternalTimer();
 	}
-
+	public String getLastValueColumn(){
+		return baseImportConfig.getLastValueColumn();
+	}
 	public String getLastValueColumnName(){
 		return dataTranPlugin.getLastValueClumnName();
 	}

@@ -133,6 +133,16 @@ public interface ImportContext {
 
 	ESIndexWrapper getEsIndexWrapper();
 
+	/**
+	 * 返回配置的增量字段名称
+	 * @return
+	 */
+	public String getLastValueColumn();
+
+	/**
+	 * 返回最终运算出来的增量字段名称
+	 * @return
+	 */
 	String getLastValueColumnName();
 
 	boolean isParallel();
