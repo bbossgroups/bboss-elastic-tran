@@ -18,6 +18,7 @@ package org.frameworkset.tran.es.input.db;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.frameworkset.elasticsearch.entity.ESDatas;
+import org.frameworkset.elasticsearch.entity.MetaMap;
 import org.frameworkset.elasticsearch.template.ESInfo;
 import org.frameworkset.tran.AsynBaseTranResultSet;
 import org.frameworkset.tran.DataTranPlugin;
@@ -65,7 +66,7 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 	}
 	@Override
 	public void afterInit(){
-		TranUtil.initTargetSQLInfo(es2DBContext,importContext.getDbConfig());
+		executor = TranUtil.initTargetSQLInfo(es2DBContext,importContext.getDbConfig());
 
 	}
 	public void initStatusTableId(){
@@ -82,7 +83,7 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 
 
 
-	private void commonImportData(BaseESExporterScrollHandler<Map> esExporterScrollHandler) throws Exception {
+	private void commonImportData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
 		Map params = es2DBContext.getParams() != null ?es2DBContext.getParams():new HashMap();
 		params.put("size", importContext.getFetchSize());//每页5000条记录
 		if(es2DBContext.isSliceQuery()){
@@ -91,31 +92,31 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 		exportESData(  esExporterScrollHandler,  params);
 	}
 
-	private void exportESData(BaseESExporterScrollHandler<Map> esExporterScrollHandler,Map params){
+	private void exportESData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,Map params){
 
 		//采用自定义handler函数处理每个scroll的结果集后，response中只会包含总记录数，不会包含记录集合
 		//scroll上下文有效期1分钟；大数据量时可以采用handler函数来处理每次scroll检索的结果，规避数据量大时存在的oom内存溢出风险
 
 		ClientInterface clientUtil = ElasticSearchHelper.getConfigRestClientUtil(importContext.getSourceElasticsearch(),es2DBContext.getDslFile());
 
-		ESDatas<Map> response = null;
+		ESDatas<MetaMap> response = null;
 		if(!es2DBContext.isSliceQuery()) {
 
 			if(importContext.isParallel() && esExporterScrollHandler instanceof ESDirectExporterScrollHandler) {
 				response = clientUtil.scrollParallel(es2DBContext.getQueryUrl(),
 						es2DBContext.getDslName(), es2DBContext.getScrollLiveTime(),
-						params, Map.class, esExporterScrollHandler);
+						params, MetaMap.class, esExporterScrollHandler);
 			}
 			else
 			{
 				response = clientUtil.scroll(es2DBContext.getQueryUrl(),
 						es2DBContext.getDslName(), es2DBContext.getScrollLiveTime(),
-						params, Map.class, esExporterScrollHandler);
+						params, MetaMap.class, esExporterScrollHandler);
 			}
 		}
 		else{
 			response = clientUtil.scrollSliceParallel(es2DBContext.getQueryUrl(), es2DBContext.getDslName(),
-					params, es2DBContext.getScrollLiveTime(),Map.class, esExporterScrollHandler);
+					params, es2DBContext.getScrollLiveTime(),MetaMap.class, esExporterScrollHandler);
 		}
 		if(logger.isInfoEnabled()) {
 			if(response != null) {
@@ -126,7 +127,7 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 			}
 		}
 	}
-	private void increamentImportData(BaseESExporterScrollHandler<Map> esExporterScrollHandler) throws Exception {
+	private void increamentImportData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
 		Map params = es2DBContext.getParams() != null ?es2DBContext.getParams():new HashMap();
 		params.put("size", importContext.getFetchSize());//每页5000条记录
 		if(es2DBContext.isSliceQuery()){
@@ -165,7 +166,7 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 			AsynBaseTranResultSet jdbcResultSet = new ES2TranResultSet(importContext);
 			final CountDownLatch countDownLatch = new CountDownLatch(1);
 			final ES2DBOutPutDataTran es2DBDataTran = new ES2DBOutPutDataTran(jdbcResultSet,importContext,countDownLatch);
-			ESExporterScrollHandler<Map> esExporterScrollHandler = new ESExporterScrollHandler<Map>(importContext,
+			ESExporterScrollHandler<MetaMap> esExporterScrollHandler = new ESExporterScrollHandler<MetaMap>(importContext,
 					es2DBDataTran);
 			try {
 				Thread tranThread = new Thread(new Runnable() {

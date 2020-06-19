@@ -148,14 +148,23 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		appendFieldValues( record, vars,    fieldValueMetas,  addedFields);
 		fieldValueMetas = context.getESJDBCFieldValues();
 		appendFieldValues(  record, vars,   fieldValueMetas,  addedFields);
+		String varName = null;
 		for(int i = 0;i < vars.size(); i ++)
 		{
 			VariableHandler.Variable var = vars.get(i);
 			if(addedFields.get(var.getVariableName()) != null)
 				continue;
-			temp = jdbcResultSet.getValue(var.getVariableName());
+			varName = var.getVariableName();
+			FieldMeta fieldMeta = context.getMappingName(varName);
+			if(fieldMeta != null) {
+				if(fieldMeta.getIgnore() != null && fieldMeta.getIgnore() == true)
+					continue;
+				varName = fieldMeta.getEsFieldName();
+			}
+			temp = jdbcResultSet.getValue(varName);
 			if(temp == null) {
-				logger.warn("未指定绑定变量的值：{}",var.getVariableName());
+				if(logger.isWarnEnabled())
+					logger.warn("未指定绑定变量的值：{}",var.getVariableName());
 			}
 			param = new Param();
 			param.setVariable(var);

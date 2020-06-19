@@ -68,10 +68,11 @@ public abstract class TranUtil {
 
 	}*/
 
-	public static void initTargetSQLInfo(DBOutPutContext dbContext, DBConfig db) throws ESDataImportException {
+	public static ConfigSQLExecutor initTargetSQLInfo(DBOutPutContext dbContext, DBConfig db) throws ESDataImportException {
 		TranSQLInfo sqlInfo = new TranSQLInfo();
 		SQLInfo sqlinfo = null;
 		String sqlName = dbContext.getInsertSqlName();
+		ConfigSQLExecutor configSQLExecutor = null;
 		try {
 			if(sqlName == null) {
 				sqlName = dbContext.getInsertSql();
@@ -79,7 +80,7 @@ public abstract class TranUtil {
 					sqlinfo = GloableSQLUtil.getGlobalSQLUtil().getSQLInfo(sqlName);
 			}
 			else{
-				ConfigSQLExecutor configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
+				configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
 				sqlinfo = configSQLExecutor.getSqlInfo(db.getDbName(), sqlName);
 			}
 
@@ -101,6 +102,7 @@ public abstract class TranUtil {
 		} catch (SQLException e) {
 			throw new ESDataImportException("Init TargetSQLInfo failed",e);
 		}
+		return configSQLExecutor;
 
 
 	}
