@@ -2,7 +2,8 @@ package org.frameworkset.tran.schedule.xxjob;
 
 import com.xxl.job.core.executor.XxlJobExecutor;
 import com.xxl.job.core.handler.IJobHandler;
-import org.frameworkset.spi.assemble.PropertiesContainer;
+import org.frameworkset.spi.DefaultApplicationContext;
+import org.frameworkset.spi.assemble.GetProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,10 +30,11 @@ public class SyndataXXJobConfig {
      * init
      */
     public void initXxlJobExecutor() {
-        PropertiesContainer propertiesContainer = new PropertiesContainer();
-        propertiesContainer.addConfigPropertiesFile("application.properties");
+//        PropertiesContainer propertiesContainer = new PropertiesContainer();
+//        propertiesContainer.addConfigPropertiesFile("application.properties");
 
-        Map<Object, Object>  objectMap =propertiesContainer.getAllProperties();
+        GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
+        Map<Object, Object>  objectMap =propertiesContainer.getAllExternalProperties();
         if(objectMap != null) {
             // registry jobhandler
             Set<Map.Entry<Object, Object>> entrySet = objectMap.entrySet();
@@ -70,13 +72,13 @@ public class SyndataXXJobConfig {
 
         // init executor
         xxlJobExecutor = new XxlJobExecutor();
-        xxlJobExecutor.setAdminAddresses(propertiesContainer.getProperty("xxl.job.admin.addresses"));
-        xxlJobExecutor.setAppName(propertiesContainer.getProperty("xxl.job.executor.appname"));
+        xxlJobExecutor.setAdminAddresses(propertiesContainer.getExternalProperty("xxl.job.admin.addresses"));
+        xxlJobExecutor.setAppName(propertiesContainer.getExternalProperty("xxl.job.executor.appname"));
         xxlJobExecutor.setIp(propertiesContainer.getSystemEnvProperty("xxl.job.executor.ip"));
-        xxlJobExecutor.setPort(Integer.valueOf(propertiesContainer.getProperty("xxl.job.executor.port")));
-        xxlJobExecutor.setAccessToken(propertiesContainer.getProperty("xxl.job.accessToken"));
-        xxlJobExecutor.setLogPath(propertiesContainer.getProperty("xxl.job.executor.logpath"));
-        xxlJobExecutor.setLogRetentionDays(Integer.valueOf(propertiesContainer.getProperty("xxl.job.executor.logretentiondays")));
+        xxlJobExecutor.setPort(Integer.valueOf(propertiesContainer.getExternalProperty("xxl.job.executor.port")));
+        xxlJobExecutor.setAccessToken(propertiesContainer.getExternalProperty("xxl.job.accessToken"));
+        xxlJobExecutor.setLogPath(propertiesContainer.getExternalProperty("xxl.job.executor.logpath"));
+        xxlJobExecutor.setLogRetentionDays(Integer.valueOf(propertiesContainer.getExternalProperty("xxl.job.executor.logretentiondays")));
 
         // start executor
         try {

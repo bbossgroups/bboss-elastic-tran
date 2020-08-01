@@ -18,7 +18,9 @@ package org.frameworkset.tran.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.spi.assemble.PropertiesContainer;
+import org.frameworkset.elasticsearch.boot.ElasticSearchPropertiesFilePlugin;
+import org.frameworkset.spi.DefaultApplicationContext;
+import org.frameworkset.spi.assemble.GetProperties;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
@@ -194,15 +196,23 @@ public abstract class BaseImportBuilder {
 	public static final String DEFAULT_CONFIG_FILE = "application.properties";
 	protected void buildDBConfig(){
 		if(!freezen) {
-			PropertiesContainer propertiesContainer = new PropertiesContainer();
+//			PropertiesContainer propertiesContainer = new PropertiesContainer();
+//
+//			if(this.applicationPropertiesFile == null) {
+//				propertiesContainer.addConfigPropertiesFile(DEFAULT_CONFIG_FILE);
+//			}
+//			else{
+//				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+//			}
+			if (this.applicationPropertiesFile == null) {
+//					propertiesContainer.addConfigPropertiesFile("application.properties");
 
-			if(this.applicationPropertiesFile == null) {
-				propertiesContainer.addConfigPropertiesFile(DEFAULT_CONFIG_FILE);
+			} else {
+				ElasticSearchPropertiesFilePlugin.init(applicationPropertiesFile);
+//					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
 			}
-			else{
-				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
-			}
-			String dbName  = propertiesContainer.getProperty("db.name");
+			GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
+			String dbName  = propertiesContainer.getExternalProperty("db.name");
 			if(dbName == null || dbName.equals(""))
 				return;
 			dbConfig = new DBConfig();
@@ -299,14 +309,17 @@ public abstract class BaseImportBuilder {
 	protected void buildStatusDBConfig(){
 		if(!statusFreezen) {
 			if(statusDbname == null) {
-				PropertiesContainer propertiesContainer = new PropertiesContainer();
+				GetProperties propertiesContainer = null;
 				String prefix = "config.";
 				if (this.applicationPropertiesFile == null) {
-					propertiesContainer.addConfigPropertiesFile("application.properties");
+//					propertiesContainer.addConfigPropertiesFile("application.properties");
+
 				} else {
-					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+					ElasticSearchPropertiesFilePlugin.init(applicationPropertiesFile);
+//					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
 				}
-				String dbName = propertiesContainer.getProperty(prefix + "db.name");
+				propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
+				String dbName = propertiesContainer.getExternalProperty(prefix + "db.name");
 				if (dbName == null || dbName.equals(""))
 					return;
 
@@ -336,90 +349,98 @@ public abstract class BaseImportBuilder {
 	 */
 	protected void buildOtherDBConfigs(){
 
-			PropertiesContainer propertiesContainer = new PropertiesContainer();
+//			PropertiesContainer propertiesContainer = new PropertiesContainer();
 
-			if(this.applicationPropertiesFile == null) {
-				propertiesContainer.addConfigPropertiesFile("application.properties");
-			}
-			else{
-				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
-			}
-			String thirdDatasources = propertiesContainer.getProperty("thirdDatasources");
-			if(thirdDatasources == null || thirdDatasources.equals(""))
-				return;
-			String[] names = thirdDatasources.split(",");
-			List<DBConfig> dbConfigs = new ArrayList<DBConfig>();
-			for(int i = 0; i < names.length; i ++ ) {
-				String prefix = names[i].trim();
-				if(prefix.equals(""))
-					continue;
+//			if(this.applicationPropertiesFile == null) {
+//				propertiesContainer.addConfigPropertiesFile("application.properties");
+//			}
+//			else{
+//				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+//			}
+		if (this.applicationPropertiesFile == null) {
+//					propertiesContainer.addConfigPropertiesFile("application.properties");
+
+		} else {
+			ElasticSearchPropertiesFilePlugin.init(applicationPropertiesFile);
+//					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+		}
+		GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
+		String thirdDatasources = propertiesContainer.getExternalProperty("thirdDatasources");
+		if(thirdDatasources == null || thirdDatasources.equals(""))
+			return;
+		String[] names = thirdDatasources.split(",");
+		List<DBConfig> dbConfigs = new ArrayList<DBConfig>();
+		for(int i = 0; i < names.length; i ++ ) {
+			String prefix = names[i].trim();
+			if(prefix.equals(""))
+				continue;
 
 
-				DBConfig dbConfig = new DBConfig();
-				_buildDBConfig(propertiesContainer, prefix, dbConfig, prefix+".");
-				dbConfigs.add(dbConfig);
-			}
-			this.configs = dbConfigs;
+			DBConfig dbConfig = new DBConfig();
+			_buildDBConfig(propertiesContainer, prefix, dbConfig, prefix+".");
+			dbConfigs.add(dbConfig);
+		}
+		this.configs = dbConfigs;
 
 	}
 
 
-	protected void _buildDBConfig(PropertiesContainer propertiesContainer, String dbName,DBConfig dbConfig,String prefix){
+	protected void _buildDBConfig(GetProperties propertiesContainer, String dbName,DBConfig dbConfig,String prefix){
 
 
 
 		dbConfig.setDbName(dbName);
-		String dbUser  = propertiesContainer.getProperty(prefix+"db.user");
+		String dbUser  = propertiesContainer.getExternalProperty(prefix+"db.user");
 		dbConfig.setDbUser(dbUser);
-		String dbPassword  = propertiesContainer.getProperty(prefix+"db.password");
+		String dbPassword  = propertiesContainer.getExternalProperty(prefix+"db.password");
 		dbConfig.setDbPassword(dbPassword);
-		String dbDriver  = propertiesContainer.getProperty(prefix+"db.driver");
+		String dbDriver  = propertiesContainer.getExternalProperty(prefix+"db.driver");
 		dbConfig.setDbDriver(dbDriver);
 
-		boolean enableDBTransaction = propertiesContainer.getBooleanProperty(prefix+"db.enableDBTransaction",false);
+		boolean enableDBTransaction = propertiesContainer.getExternalBooleanProperty(prefix+"db.enableDBTransaction",false);
 		dbConfig.setEnableDBTransaction(enableDBTransaction);
-		String dbUrl  = propertiesContainer.getProperty(prefix+"db.url");
+		String dbUrl  = propertiesContainer.getExternalProperty(prefix+"db.url");
 		dbConfig.setDbUrl(dbUrl);
-		String _usePool = propertiesContainer.getProperty(prefix+"db.usePool");
+		String _usePool = propertiesContainer.getExternalProperty(prefix+"db.usePool");
 		if(_usePool != null && !_usePool.equals("")) {
 			boolean usePool = Boolean.parseBoolean(_usePool);
 			dbConfig.setUsePool(usePool);
 		}
-		String validateSQL  = propertiesContainer.getProperty(prefix+"db.validateSQL");
+		String validateSQL  = propertiesContainer.getExternalProperty(prefix+"db.validateSQL");
 		dbConfig.setValidateSQL(validateSQL);
 
-		String _showSql = propertiesContainer.getProperty(prefix+"db.showsql");
+		String _showSql = propertiesContainer.getExternalProperty(prefix+"db.showsql");
 		if(_showSql != null && !_showSql.equals("")) {
 			boolean showSql = Boolean.parseBoolean(_showSql);
 			dbConfig.setShowSql(showSql);
 		}
 
-		String _jdbcFetchSize = propertiesContainer.getProperty(prefix+"db.jdbcFetchSize");
+		String _jdbcFetchSize = propertiesContainer.getExternalProperty(prefix+"db.jdbcFetchSize");
 		if(_jdbcFetchSize != null && !_jdbcFetchSize.equals("")) {
 			int jdbcFetchSize = Integer.parseInt(_jdbcFetchSize);
 			dbConfig.setJdbcFetchSize(jdbcFetchSize);
 		}
-		String _initSize = propertiesContainer.getProperty(prefix+"db.initSize");
+		String _initSize = propertiesContainer.getExternalProperty(prefix+"db.initSize");
 		if(_initSize != null && !_initSize.equals("")) {
 			int initSize = Integer.parseInt(_initSize);
 			dbConfig.setInitSize(initSize);
 		}
-		String _minIdleSize = propertiesContainer.getProperty(prefix+"db.minIdleSize");
+		String _minIdleSize = propertiesContainer.getExternalProperty(prefix+"db.minIdleSize");
 		if(_minIdleSize != null && !_minIdleSize.equals("")) {
 			int minIdleSize = Integer.parseInt(_minIdleSize);
 			dbConfig.setMinIdleSize(minIdleSize);
 		}
-		String _maxSize = propertiesContainer.getProperty(prefix+"db.maxSize");
+		String _maxSize = propertiesContainer.getExternalProperty(prefix+"db.maxSize");
 		if(_maxSize != null && !_maxSize.equals("")) {
 			int maxSize = Integer.parseInt(_maxSize);
 			dbConfig.setMaxSize(maxSize);
 		}
-		String statusTableDML  = propertiesContainer.getProperty(prefix+"db.statusTableDML");
+		String statusTableDML  = propertiesContainer.getExternalProperty(prefix+"db.statusTableDML");
 		dbConfig.setStatusTableDML(statusTableDML);
 
-		String dbAdaptor  = propertiesContainer.getProperty(prefix+"db.dbAdaptor");
+		String dbAdaptor  = propertiesContainer.getExternalProperty(prefix+"db.dbAdaptor");
 		dbConfig.setDbAdaptor(dbAdaptor);
-		String dbtype  = propertiesContainer.getProperty(prefix+"db.dbtype");
+		String dbtype  = propertiesContainer.getExternalProperty(prefix+"db.dbtype");
 		dbConfig.setDbtype(dbtype);
 	}
 
