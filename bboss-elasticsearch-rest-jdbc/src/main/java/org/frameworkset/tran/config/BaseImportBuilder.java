@@ -467,6 +467,19 @@ public abstract class BaseImportBuilder {
 		return this;
 	}
 
+	public BaseImportBuilder setDbInitSize(int dbInitSize) {
+		_setDbInitSize( dbInitSize);
+		return this;
+	}
+	public BaseImportBuilder setDbMaxSize(int dbMaxSize) {
+		_setDbMaxSize(  dbMaxSize);
+		return this;
+	}
+	public BaseImportBuilder setDbMinIdleSize(int dbMinIdleSize) {
+		_setDbMinIdleSize(  dbMinIdleSize);
+		return this;
+	}
+
 
 
 	public BaseImportBuilder setDbDriver(String dbDriver) {
@@ -782,6 +795,31 @@ public abstract class BaseImportBuilder {
 
 		dbConfig.setDbName(dbName);
 
+	}
+
+	public void _setDbInitSize(int dbInitSize) {
+		freezen = true;
+		if(this.dbConfig == null){
+			this.dbConfig = new DBConfig();
+		}
+
+		dbConfig.setInitSize(dbInitSize);
+	}
+	public void _setDbMaxSize(int dbMaxSize) {
+		freezen = true;
+		if(this.dbConfig == null){
+			this.dbConfig = new DBConfig();
+		}
+
+		dbConfig.setMaxSize(dbMaxSize);
+	}
+	public void _setDbMinIdleSize(int dbMinIdleSize) {
+		freezen = true;
+		if(this.dbConfig == null){
+			this.dbConfig = new DBConfig();
+		}
+
+		dbConfig.setMinIdleSize(dbMinIdleSize);
 	}
 
 	public void _setDbDriver(String dbDriver) {
