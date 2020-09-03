@@ -16,12 +16,19 @@ package org.frameworkset.spi.geoip;
  */
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.maxmind.db.CHMCache;
+import com.maxmind.db.Reader;
+import com.maxmind.db.Record;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.entity.geo.GeoPoint;
 import org.frameworkset.spi.remote.http.HttpRequestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -103,20 +110,70 @@ public class GeoIPUtil {
 	}
 
 	private String ipUrl;
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		// 测试ip 221.232.245.73 湖北武汉
 		String ip = "localhost";
-		String address = "";
 		try {
 			GeoIPUtil addressUtils = new GeoIPUtil();
+			addressUtils.setAsnDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
+			addressUtils.setDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
+			addressUtils.setCachesize(2000);
+			addressUtils.init();
 			addressUtils.setIpUrl("http://ip.taobao.com/service/getIpInfo.php");
-         	address = addressUtils.getAddressResult("218.104.155.137");
-
+         	IpInfo address = addressUtils.getAddressMapResult("183.15.204.103");
+			System.out.println(address);
 		} catch (Exception e) {
 			 e.printStackTrace();
 		}
-        System.out.println(address);
+		File database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
+			Reader reader = new Reader(database,new CHMCache(4096));
+			InetAddress address = InetAddress.getByName("183.15.204.103");
+
+			// get() returns just the data for the associated record
+			JsonNode recordData = reader.get(address);
+
+			System.out.println(recordData);
+
+			// getRecord() returns a Record class that contains both
+			// the data for the record and associated metadata.
+			Record record = reader.getRecord(address);
+
+			System.out.println(record.getData());
+			System.out.println(record.getNetwork());
+
+
+		database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
+		 reader = new Reader(database,new CHMCache(4096));
+		 address = InetAddress.getByName("183.15.204.103");
+
+		// get() returns just the data for the associated record
+		 recordData = reader.get(address);
+
+		System.out.println(recordData);
+
+		// getRecord() returns a Record class that contains both
+		// the data for the record and associated metadata.
+		 record = reader.getRecord(address);
+
+		System.out.println(record.getData());
+		System.out.println(record.getNetwork());
          // 输出结果为：中国 湖北省 武汉市
+
+		database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-Country.mmdb");
+		reader = new Reader(database,new CHMCache(4096));
+		address = InetAddress.getByName("183.15.204.103");
+
+		// get() returns just the data for the associated record
+		recordData = reader.get(address);
+
+		System.out.println(recordData);
+
+		// getRecord() returns a Record class that contains both
+		// the data for the record and associated metadata.
+		record = reader.getRecord(address);
+
+		System.out.println(record.getData());
+		System.out.println(record.getNetwork());
 	}
 
 
