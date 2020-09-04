@@ -142,7 +142,7 @@ public class GeoIPUtil {
 			System.out.println(record.getNetwork());
 
 
-		database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
+		 database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
 		 reader = new Reader(database,new CHMCache(4096));
 		 address = InetAddress.getByName("183.15.204.103");
 
