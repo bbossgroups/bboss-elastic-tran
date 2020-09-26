@@ -37,7 +37,7 @@ import org.frameworkset.elasticsearch.entity.geo.GeoPoint;
  * ip
  * 查询的IP地址。</p>
  * <p>Copyright (c) 2018</p>
- * @Date 2019/3/25 18:45
+ * date 2019/3/25 18:45
  * @author biaoping.yin
  * @version 1.0
  */
