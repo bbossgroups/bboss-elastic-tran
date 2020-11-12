@@ -35,7 +35,7 @@ import java.io.IOException;
  * @version 1.0
  */
 public class IP2Region {
-	private static Logger logger = LoggerFactory.getLogger(IP2Region.class);
+	private static final Logger logger = LoggerFactory.getLogger(IP2Region.class);
 	private DbSearcher searcher;
 	private DaemonThread daemonThread ;
 	private String ip2regionDatabase;
@@ -123,6 +123,7 @@ public class IP2Region {
 			ipInfo.setCity(infos[3]);
 			ipInfo.setIsp(infos[4]);
 			ipInfo.setCityId(dataBlock.getCityId()+"");
+			ipInfo.setIp(ip);
 			return ipInfo;
 
 

@@ -54,7 +54,7 @@ public abstract class BaseImportBuilder {
 	private String sourceElasticsearch = "default";
 	private ESConfig esConfig;
 	private ClientOptions clientOptions;
-	private Map<String, String> geoipConfig;
+	private Map<String, Object> geoipConfig;
 
 	private boolean sortLastValue = true;
 	private boolean useBatchContextIndexName = false;
@@ -71,7 +71,7 @@ public abstract class BaseImportBuilder {
 		return externalTimer;
 	}
 
-	public Map<String, String> getGeoipConfig() {
+	public Map<String, Object> getGeoipConfig() {
 		return geoipConfig;
 	}
 
@@ -253,19 +253,24 @@ public abstract class BaseImportBuilder {
 	}
 	private String geoipDatabase;
 	private String geoipAsnDatabase;
+	private Object geoipIspConverter;
 	private String geoip2regionDatabase;
 	private Integer geoipCachesize;
 	private String geoipTaobaoServiceURL;
 	protected void buildGeoipConfig(){
 		if(geoipDatabase != null){
 			if(this.geoipConfig == null){
-				geoipConfig = new HashMap<String, String>();
+				geoipConfig = new HashMap<String, Object>();
 			}
 			geoipConfig.put("ip.database",
 					geoipDatabase);
 			if(geoipAsnDatabase != null)
 				geoipConfig.put("ip.asnDatabase",
 					geoipAsnDatabase);
+
+			if(geoipIspConverter != null)
+				geoipConfig.put("ip.ispConverter",
+						geoipIspConverter);
 			if(geoip2regionDatabase != null)
 				geoipConfig.put("ip.ip2regionDatabase",
 						geoip2regionDatabase);
@@ -282,26 +287,6 @@ public abstract class BaseImportBuilder {
 						geoipTaobaoServiceURL);
 		}
 	}
-	/**
-
-		geoipConfig.put("ip.database",
-		ElasticSearchHelper._getStringValue("","ip.database",configContext,""));
-		geoipConfig.put("ip.asnDatabase",
-				ElasticSearchHelper._getStringValue("","ip.asnDatabase",configContext,""));
-		geoipConfig.put("ip.cachesize",
-				ElasticSearchHelper._getStringValue("","ip.cachesize",configContext,"2000"));
-		geoipConfig.put("ip.serviceUrl",
-				ElasticSearchHelper._getStringValue("","ip.serviceUrl",configContext,""));
-
-		if(logger.isInfoEnabled()) {
-		try {
-			logger.info("Geo ipinfo config {},from springboot:{}", SimpleStringUtil.object2json(geoipConfig), fromspringboot);
-		}
-		catch (Exception e){
-
-		}
-	} *
-	 */
 
 
 	public BaseImportBuilder setEsIdGenerator(EsIdGenerator esIdGenerator) {
@@ -947,9 +932,9 @@ public abstract class BaseImportBuilder {
 	/**抽取数据的sql语句*/
 	private String timeZone;
 	private transient EsIdGenerator esIdGenerator = BaseImportConfig.DEFAULT_EsIdGenerator;
-	private Map<String,FieldMeta> fieldMetaMap = new HashMap<String,FieldMeta>();
+	private final Map<String,FieldMeta> fieldMetaMap = new HashMap<String,FieldMeta>();
 	private String esIdGeneratorClass = "org.frameworkset.tran.DefaultEsIdGenerator";
-	private List<FieldMeta> fieldValues = new ArrayList<FieldMeta>();
+	private final List<FieldMeta> fieldValues = new ArrayList<FieldMeta>();
 	private transient DataRefactor dataRefactor;
 	public DateFormateMeta buildDateFormateMeta(String dateFormat){
 		return dateFormat == null?null:DateFormateMeta.buildDateFormateMeta(dateFormat,locale,timeZone);
@@ -1499,6 +1484,11 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setStatusTableDML(String statusTableDML) {
 		this.statusTableDML = statusTableDML;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoipIspConverter(Object geoipIspConverter) {
+		this.geoipIspConverter = geoipIspConverter;
 		return this;
 	}
 }

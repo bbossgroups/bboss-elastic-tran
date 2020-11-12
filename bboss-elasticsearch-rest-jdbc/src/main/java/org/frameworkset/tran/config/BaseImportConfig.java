@@ -221,7 +221,7 @@ public abstract class BaseImportConfig {
 
 	private ScheduleConfig scheduleConfig;
 	private ImportIncreamentConfig importIncreamentConfig;
-	private Map<String, String> geoipConfig;
+	private Map<String, Object> geoipConfig;
 
 
 
@@ -602,7 +602,7 @@ public abstract class BaseImportConfig {
 
 
 	public boolean isFromFirst() {
-		return importIncreamentConfig != null?importIncreamentConfig.isFromFirst():false;
+		return importIncreamentConfig != null && importIncreamentConfig.isFromFirst();
 	}
 
 	public String getLastValueStoreTableName() {
@@ -884,11 +884,11 @@ public abstract class BaseImportConfig {
 	}
 
 
-	public Map<String, String> getGeoipConfig() {
+	public Map<String, Object> getGeoipConfig() {
 		return geoipConfig;
 	}
 
-	public void setGeoipConfig(Map<String, String> geoipConfig) {
+	public void setGeoipConfig(Map<String, Object> geoipConfig) {
 		this.geoipConfig = geoipConfig;
 	}
 }

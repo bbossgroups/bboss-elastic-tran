@@ -16,11 +16,7 @@ package org.frameworkset.spi.geoip;
  */
 
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.frameworkset.util.SimpleStringUtil;
-import com.maxmind.db.CHMCache;
-import com.maxmind.db.Reader;
-import com.maxmind.db.Record;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.entity.geo.GeoPoint;
 import org.frameworkset.spi.ip2region.IP2Region;
@@ -28,9 +24,6 @@ import org.frameworkset.spi.remote.http.HttpRequestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,16 +69,58 @@ import java.util.Map;
 public class GeoIPUtil {
 	private GeoIPFilter geoIPFilter;
 	private IP2Region ip2Region;
+
+	public Object getIspConverter() {
+		return ispConverter;
+	}
+
+	public void setIspConverter(Object ispConverter) {
+		this.ispConverter = ispConverter;
+	}
+
+	private Object ispConverter;
+	private IspConverter _ispConverter;
 	public GeoIPFilter getGeoIPFilter() {
 		return geoIPFilter;
 	}
 	private boolean assertEmpty(){
-		if(SimpleStringUtil.isEmpty(database) || SimpleStringUtil.isEmpty(asnDatabase))
-			return true;
-		return false;
+		return SimpleStringUtil.isEmpty(database) || SimpleStringUtil.isEmpty(asnDatabase);
 	}
 	public void init(){
-		geoIPFilter = assertEmpty()?null:new GeoIPFilter(database,asnDatabase,cachesize);
+
+		if(!assertEmpty()){
+			if(ispConverter != null){
+				if(ispConverter instanceof IspConverter){
+					_ispConverter = (IspConverter)ispConverter;
+				}
+				else {
+					String cls = ((String)ispConverter).trim();
+					if(!cls.equals("")) {
+						try {
+							Class<? extends IspConverter> clazz = (Class<? extends IspConverter>) Class.forName(cls);
+							_ispConverter = clazz.newInstance();
+						} catch (ClassNotFoundException e) {
+							logger.warn(cls, e);
+							_ispConverter = new DefaultIspConverter();
+						} catch (IllegalAccessException e) {
+							logger.warn(cls, e);
+							_ispConverter = new DefaultIspConverter();
+						} catch (InstantiationException e) {
+							logger.warn(cls, e);
+							_ispConverter = new DefaultIspConverter();
+						}
+					}
+					else{
+						_ispConverter = new DefaultIspConverter();
+					}
+				}
+			}
+			else{
+				_ispConverter = new DefaultIspConverter();
+			}
+			geoIPFilter = new GeoIPFilter(database,asnDatabase,cachesize,_ispConverter);
+		}
+
 		if(ip2regionDatabase != null && !ip2regionDatabase.equals("")){
 			IP2Region ip2Region = new IP2Region();
 			ip2Region.init(ip2regionDatabase);
@@ -122,71 +157,7 @@ public class GeoIPUtil {
 	}
 
 	private String ipUrl;
-	public static void main(String[] args) throws IOException {
-		// 测试ip 221.232.245.73 湖北武汉
-		try {
-			GeoIPUtil addressUtils = new GeoIPUtil();
-			addressUtils.setAsnDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
-			addressUtils.setDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
-			addressUtils.setIp2regionDatabase("E:\\workspace\\ip2region-master\\data\\ip2region.db");
-			addressUtils.setCachesize(2000);
-			addressUtils.init();
-			addressUtils.setIpUrl("http://ip.taobao.com/service/getIpInfo.php");
-         	IpInfo address = addressUtils.getAddressMapResult("183.15.204.103");
-			System.out.println(address);
-		} catch (Exception e) {
-			 e.printStackTrace();
-		}
-		File database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
-			Reader reader = new Reader(database,new CHMCache(4096));
-			InetAddress address = InetAddress.getByName("183.15.204.103");
 
-			// get() returns just the data for the associated record
-			JsonNode recordData = reader.get(address);
-
-			System.out.println(recordData);
-
-			// getRecord() returns a Record class that contains both
-			// the data for the record and associated metadata.
-			Record record = reader.getRecord(address);
-
-			System.out.println(record.getData());
-			System.out.println(record.getNetwork());
-
-
-		 database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
-		 reader = new Reader(database,new CHMCache(4096));
-		 address = InetAddress.getByName("183.15.204.103");
-
-		// get() returns just the data for the associated record
-		 recordData = reader.get(address);
-
-		System.out.println(recordData);
-
-		// getRecord() returns a Record class that contains both
-		// the data for the record and associated metadata.
-		 record = reader.getRecord(address);
-
-		System.out.println(record.getData());
-		System.out.println(record.getNetwork());
-         // 输出结果为：中国 湖北省 武汉市
-
-		database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-Country.mmdb");
-		reader = new Reader(database,new CHMCache(4096));
-		address = InetAddress.getByName("183.15.204.103");
-
-		// get() returns just the data for the associated record
-		recordData = reader.get(address);
-
-		System.out.println(recordData);
-
-		// getRecord() returns a Record class that contains both
-		// the data for the record and associated metadata.
-		record = reader.getRecord(address);
-
-		System.out.println(record.getData());
-		System.out.println(record.getNetwork());
-	}
 
 	public String getAddressResult(String ip)  {
 
@@ -213,6 +184,16 @@ public class GeoIPUtil {
 		if(ip2Region != null){
 			IpInfo ipInfo = ip2Region.getAddressMapResult(ip);
 			if(ipInfo != null){
+				if(ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
+					ipInfo.setIsp("未知");
+				if(ipInfo.getArea() == null || ipInfo.getArea().equals("0"))
+					ipInfo.setArea("未知");
+				if(ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
+					ipInfo.setCountry("未知");
+				if(ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
+					ipInfo.setRegion("未知");
+				if(ipInfo.getCity() == null || ipInfo.getCity().equals("0"))
+					ipInfo.setCity("未知");
 				return ipInfo;
 			}
 		}
@@ -239,6 +220,7 @@ public class GeoIPUtil {
 			ipInfo.setCounty((String)geoData_.get("regionName"));
 			ipInfo.setCountyId((String)geoData_.get("regionCode"));
 			ipInfo.setIsp((String)asnData_.get("asOrg"));
+			ipInfo.setOrinIsp((String)asnData_.get("orinIsp"));
 			ipInfo.setIspId((Integer)asnData_.get("asn"));
 			ipInfo.setRegion((String)geoData_.get("regionName"));
 			ipInfo.setRegionId((String)geoData_.get("regionCode"));
@@ -326,7 +308,7 @@ public class GeoIPUtil {
 	}
 
 
-	private static Logger logger = LoggerFactory.getLogger(GeoIPUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(GeoIPUtil.class);
 	private static boolean getGeoIPUtil ;
 	public static GeoIPUtil getGeoIPUtil(Map<String, String> geoipConfig) {
 		if(getGeoIPUtil)
@@ -347,6 +329,7 @@ public class GeoIPUtil {
 					geoIPUtil.setDatabase(geoipConfig.get("ip.database"));
 					geoIPUtil.setAsnDatabase(geoipConfig.get("ip.asnDatabase"));
 					geoIPUtil.setIp2regionDatabase(geoipConfig.get("ip.ip2regionDatabase"));
+					geoIPUtil.setIspConverter(geoipConfig.get("ip.ispConverter"));
 					String _cachsize = geoipConfig.get("ip.cachesize");
 					if (_cachsize != null) {
 						try {

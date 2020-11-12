@@ -67,6 +67,10 @@ public class IpInfo implements java.io.Serializable{
 	private String countyId;
 	// ISP服务商名称（电信/联通/铁通/移动...）。
 	private String isp;
+	/**
+	 * 根据ip获取的原始isp信息
+	 */
+	private String orinIsp;
 	// ISP服务商编号。
 	private Integer ispId;
 	// 查询的IP地址
@@ -191,5 +195,13 @@ public class IpInfo implements java.io.Serializable{
 
 	public void setGeoPoint(GeoPoint geoPoint) {
 		this.geoPoint = geoPoint;
+	}
+
+	public String getOrinIsp() {
+		return orinIsp;
+	}
+
+	public void setOrinIsp(String orinIsp) {
+		this.orinIsp = orinIsp;
 	}
 }
