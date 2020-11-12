@@ -17,11 +17,13 @@ package org.frameworkset.spi.geoip;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.frameworkset.util.SimpleStringUtil;
 import com.maxmind.db.CHMCache;
 import com.maxmind.db.Reader;
 import com.maxmind.db.Record;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.entity.geo.GeoPoint;
+import org.frameworkset.spi.ip2region.IP2Region;
 import org.frameworkset.spi.remote.http.HttpRequestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,13 +75,22 @@ import java.util.Map;
  */
 public class GeoIPUtil {
 	private GeoIPFilter geoIPFilter;
-
+	private IP2Region ip2Region;
 	public GeoIPFilter getGeoIPFilter() {
 		return geoIPFilter;
 	}
-
+	private boolean assertEmpty(){
+		if(SimpleStringUtil.isEmpty(database) || SimpleStringUtil.isEmpty(asnDatabase))
+			return true;
+		return false;
+	}
 	public void init(){
-		geoIPFilter = new GeoIPFilter(database,asnDatabase,cachesize);
+		geoIPFilter = assertEmpty()?null:new GeoIPFilter(database,asnDatabase,cachesize);
+		if(ip2regionDatabase != null && !ip2regionDatabase.equals("")){
+			IP2Region ip2Region = new IP2Region();
+			ip2Region.init(ip2regionDatabase);
+			this.ip2Region = ip2Region;
+		}
 	}
 
 	public void setGeoIPFilter(GeoIPFilter geoIPFilter) {
@@ -87,6 +98,7 @@ public class GeoIPUtil {
 	}
 
 	private  String database;
+	private String ip2regionDatabase;
 
 	public String getAsnDatabase() {
 		return asnDatabase;
@@ -112,11 +124,11 @@ public class GeoIPUtil {
 	private String ipUrl;
 	public static void main(String[] args) throws IOException {
 		// 测试ip 221.232.245.73 湖北武汉
-		String ip = "localhost";
 		try {
 			GeoIPUtil addressUtils = new GeoIPUtil();
 			addressUtils.setAsnDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
 			addressUtils.setDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
+			addressUtils.setIp2regionDatabase("E:\\workspace\\ip2region-master\\data\\ip2region.db");
 			addressUtils.setCachesize(2000);
 			addressUtils.init();
 			addressUtils.setIpUrl("http://ip.taobao.com/service/getIpInfo.php");
@@ -176,72 +188,6 @@ public class GeoIPUtil {
 		System.out.println(record.getNetwork());
 	}
 
-
-//	/**
-//	 * @param content
-//	 *   请求的参数 格式为：name=xxx&pwd=xxx
-//	 *   服务器端请求编码。如GBK,UTF-8等
-//	 * @return
-//	 * @throws UnsupportedEncodingException
-//	 */
-//	public String getAddresses(String content ) throws UnsupportedEncodingException {
-//		// 这里调用pconline的接口
-//		String urlStr = ipUrl;
-//		// 从http://whois.pconline.com.cn取得IP所在的省市区信息
-//		String returnStr = this.getResult(urlStr, content );
-//		if (returnStr != null) {
-//			// 处理返回的省市区信息
-//			System.out.println("IP====="+returnStr);
-//			String[] temp = returnStr.split(",");
-//			if(temp.length<3){
-//				return "0";                                        //无效IP，局域网测试
-//			}
-//			String region = (temp[5].split(":"))[1].replaceAll("\"", "");
-//			region = decodeUnicode(region);                        // 省
-//			System.out.println("region = "+region);
-//
-//			String country = "";
-//			String area = "";
-//			// String region = "";
-//			String city = "";
-//			String county = "";
-//			String isp = "";
-//			System.out.println("temp的长度="+temp.length);
-//			for (int i = 0; i < temp.length; i++) {
-//				switch (i) {
-//					//　如果使用的是新浪的接口，那这里的需要修改，case:3 4 5分别对应国家，省，市区
-//					case 1:
-//						country = (temp[i].split(":"))[2].replaceAll("\"", "");
-//						country = decodeUnicode(country);            // 国家
-//						break;
-//					case 3:
-//						area = (temp[i].split(":"))[1].replaceAll("\"", "");
-//						area = decodeUnicode(area);                // 地区
-//						break;
-//					case 5:
-//						region = (temp[i].split(":"))[1].replaceAll("\"", "");
-//						region = decodeUnicode(region);            // 省份
-//						break;
-//					case 7:
-//						city = (temp[i].split(":"))[1].replaceAll("\"", "");
-//						city = decodeUnicode(city);                // 市区
-//						break;
-//					case 9:
-//						county = (temp[i].split(":"))[1].replaceAll("\"", "");
-//						county = decodeUnicode(county);            // 地区
-//						break;
-//					case 11:
-//						isp = (temp[i].split(":"))[1].replaceAll("\"", "");
-//						isp = decodeUnicode(isp);                 // ISP公司
-//						break;
-//				}
-//			}
-////			System.out.println(country+"="+area+"="+region+"="+city+"="+county+"="+isp);
-//			return region;
-//		}
-//		return null;
-//	}
-
 	public String getAddressResult(String ip)  {
 
 		StringBuilder url = new StringBuilder();
@@ -262,17 +208,21 @@ public class GeoIPUtil {
 
 	public IpInfo getAddressMapResult(String ip)  {
 
-
-
-
+//			ip = "117.158.148.162";
+//			geoData_ = this.geoIPFilter.handleIp(ip);
+		if(ip2Region != null){
+			IpInfo ipInfo = ip2Region.getAddressMapResult(ip);
+			if(ipInfo != null){
+				return ipInfo;
+			}
+		}
 
 //			ip = "240e:c0:f450:cb84:5dc4:928c:cd42:342b";
 		//从geolite2获取ip地址信息
-		Map<String,Object> geoData_ = this.geoIPFilter.handleIp(ip);
+		Map<String,Object> geoData_ = geoIPFilter != null ?this.geoIPFilter.handleIp(ip):new HashMap<String, Object>();
 //			Map<String,Object> taobaodata = HttpRequestUtil.httpGetforString(url.toString(),header,new MapResponseHandler());
 
-//			ip = "117.158.148.162";
-//			geoData_ = this.geoIPFilter.handleIp(ip);
+
 
 
 		if(geoData_ != null && geoData_.size() > 0) {//处理从geolite2获取ip地址信息
@@ -376,78 +326,6 @@ public class GeoIPUtil {
 	}
 
 
-//	/**
-//	 * unicode 转换成 中文
-//	 *
-//	 * @author fanhui 2007-3-15
-//	 * @param theString
-//	 * @return
-//	 */
-//	public static String decodeUnicode(String theString) {
-//		char aChar;
-//		int len = theString.length();
-//		StringBuffer outBuffer = new StringBuffer(len);
-//		for (int x = 0; x < len;) {
-//			aChar = theString.charAt(x++);
-//			if (aChar == '\\') {
-//				aChar = theString.charAt(x++);
-//				if (aChar == 'u') {
-//					int value = 0;
-//					for (int i = 0; i < 4; i++) {
-//						aChar = theString.charAt(x++);
-//						switch (aChar) {
-//							case '0':
-//							case '1':
-//							case '2':
-//							case '3':
-//							case '4':
-//							case '5':
-//							case '6':
-//							case '7':
-//							case '8':
-//							case '9':
-//								value = (value << 4) + aChar - '0';
-//								break;
-//							case 'a':
-//							case 'b':
-//							case 'c':
-//							case 'd':
-//							case 'e':
-//							case 'f':
-//								value = (value << 4) + 10 + aChar - 'a';
-//								break;
-//							case 'A':
-//							case 'B':
-//							case 'C':
-//							case 'D':
-//							case 'E':
-//							case 'F':
-//								value = (value << 4) + 10 + aChar - 'A';
-//								break;
-//							default:
-//								throw new IllegalArgumentException(
-//										"Malformed  encoding.");
-//						}
-//					}
-//					outBuffer.append((char) value);
-//				} else {
-//					if (aChar == 't') {
-//						aChar = '\t';
-//					} else if (aChar == 'r') {
-//						aChar = '\r';
-//					} else if (aChar == 'n') {
-//						aChar = '\n';
-//					} else if (aChar == 'f') {
-//						aChar = '\f';
-//					}
-//					outBuffer.append(aChar);
-//				}
-//			} else {
-//				outBuffer.append(aChar);
-//			}
-//		}
-//		return outBuffer.toString();
-//	}
 	private static Logger logger = LoggerFactory.getLogger(GeoIPUtil.class);
 	private static boolean getGeoIPUtil ;
 	public static GeoIPUtil getGeoIPUtil(Map<String, String> geoipConfig) {
@@ -468,6 +346,7 @@ public class GeoIPUtil {
 					GeoIPUtil geoIPUtil = new GeoIPUtil();
 					geoIPUtil.setDatabase(geoipConfig.get("ip.database"));
 					geoIPUtil.setAsnDatabase(geoipConfig.get("ip.asnDatabase"));
+					geoIPUtil.setIp2regionDatabase(geoipConfig.get("ip.ip2regionDatabase"));
 					String _cachsize = geoipConfig.get("ip.cachesize");
 					if (_cachsize != null) {
 						try {
@@ -491,4 +370,12 @@ public class GeoIPUtil {
 
 
 	private static GeoIPUtil geoIPUtil;
+
+	public String getIp2regionDatabase() {
+		return ip2regionDatabase;
+	}
+
+	public void setIp2regionDatabase(String ip2regionDatabase) {
+		this.ip2regionDatabase = ip2regionDatabase;
+	}
 }

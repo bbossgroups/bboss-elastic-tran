@@ -253,6 +253,7 @@ public abstract class BaseImportBuilder {
 	}
 	private String geoipDatabase;
 	private String geoipAsnDatabase;
+	private String geoip2regionDatabase;
 	private Integer geoipCachesize;
 	private String geoipTaobaoServiceURL;
 	protected void buildGeoipConfig(){
@@ -265,6 +266,10 @@ public abstract class BaseImportBuilder {
 			if(geoipAsnDatabase != null)
 				geoipConfig.put("ip.asnDatabase",
 					geoipAsnDatabase);
+			if(geoip2regionDatabase != null)
+				geoipConfig.put("ip.ip2regionDatabase",
+						geoip2regionDatabase);
+
 			if(geoipCachesize != null)
 				geoipConfig.put("ip.cachesize",
 						geoipCachesize+"");
@@ -1461,6 +1466,11 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setGeoipAsnDatabase(String geoipAsnDatabase) {
 		this.geoipAsnDatabase = geoipAsnDatabase;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoip2regionDatabase(String geoip2regionDatabase) {
+		this.geoip2regionDatabase = geoip2regionDatabase;
 		return this;
 	}
 

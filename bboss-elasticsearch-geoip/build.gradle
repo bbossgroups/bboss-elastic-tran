@@ -33,5 +33,4 @@ dependencies {
 			[group: "com.maxmind.db", name: "maxmind-db", version: "1.4.0",transitive: false],
 			[group: "com.maxmind.geoip2", name: "geoip2", version: "2.14.0",transitive: false]
 	)
-     
 }
