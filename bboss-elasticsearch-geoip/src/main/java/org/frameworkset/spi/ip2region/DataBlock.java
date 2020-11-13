@@ -3,7 +3,7 @@ package org.frameworkset.spi.ip2region;
 /**
  * data block class
  * 
- * @author	chenxin<chenxin619315@gmail.com>
+ * @author	chenxin<chenxin619315@gmail.com>,yinbp<yin-bp@163.com>
 */
 public class DataBlock 
 {
@@ -27,7 +27,7 @@ public class DataBlock
 	 * 
 	 * @param  city_id
 	 * @param  region  region string
-	 * @param  ptr data ptr
+	 * @param  dataPtr data ptr
 	*/
 	public DataBlock( int city_id, String region, int dataPtr )
 	{

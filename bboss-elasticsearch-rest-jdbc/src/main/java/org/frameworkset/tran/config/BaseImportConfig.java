@@ -713,7 +713,7 @@ public abstract class BaseImportConfig {
 	public void setStatusDbConfig(DBConfig statusDbConfig) {
 		this.statusDbConfig = statusDbConfig;
 	}
-	public static GeoIPUtil getGeoIPUtil(Map<String, String> geoipConfig){
+	public static GeoIPUtil getGeoIPUtil(Map<String, Object> geoipConfig){
 		return GeoIPUtil.getGeoIPUtil(geoipConfig);
 	}
 

@@ -29,19 +29,40 @@ public class DefaultIspConverter implements IspConverter {
 		if(isp == null ){
 			return "未知";
 		}
-		if(isp.indexOf("Mobile") > 0){
+		if(isp.indexOf("Mobile") >= 0){
 			return "移动";
 		}
-		else if(isp.indexOf("Chinanet") > 0 || isp.indexOf("CHINATELECOM") > 0 || isp.indexOf("Telecom") > 0){
+		else if(isp.indexOf("Chinanet") >= 0
+				|| isp.indexOf("CHINATELECOM") >= 0
+				|| isp.indexOf("Chinatelecom") >= 0
+				|| isp.indexOf("Telecom") >= 0
+				|| isp.indexOf("CHINANET") >= 0){
 			return "电信";
 		}
-		else if(isp.indexOf("UNICOM") > 0 || isp.indexOf("Unicom") > 0 ){
+		else if(isp.indexOf("UNICOM") >= 0 || isp.indexOf("Unicom") >= 0 ){
 			return "联通";
 		}
-		else if(isp.indexOf("TieTong") > 0){
+
+		else if(isp.indexOf("TieTong") >= 0){
 			return "铁通";
 		}
-
+		else if(isp.indexOf("Tencent") >= 0 ){
+			return "腾讯";
+		}
+		else if(isp.indexOf("YAHOO") >= 0){
+			return "雅虎";
+		}
+		else if(isp.indexOf("Huashu") >= 0){
+			return "华数传媒";
+		}
+		else if(isp.indexOf("Huawei") >= 0){
+			return "华为";
+		}
+		else if(isp.indexOf("CERNET2") >= 0){
+			return "第二代中国教育和科研计算机网";
+		}else if(isp.indexOf("Baidu") >= 0){
+			return "百度";
+		}
 
 		return isp;
 	}

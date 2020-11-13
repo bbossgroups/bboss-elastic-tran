@@ -3,7 +3,7 @@ package org.frameworkset.spi.ip2region;
 /**
  * header block class
  * 
- * @author chenxin<chenxin619315@gmail.com>
+ * @author chenxin<chenxin619315@gmail.com>,yinbp<yin-bp@163.com>
 */
 public class HeaderBlock 
 {

@@ -20,7 +20,7 @@ package org.frameworkset.spi.ip2region;
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2020/11/12 17:07
- * @author biaoping.yin
+ * @author yinbp<yin-bp@163.com>
  * @version 1.0
  */
 public class IP2RegionException extends RuntimeException{

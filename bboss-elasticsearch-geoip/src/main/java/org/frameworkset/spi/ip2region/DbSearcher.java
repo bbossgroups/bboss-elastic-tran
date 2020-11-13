@@ -10,11 +10,11 @@ import java.io.RandomAccessFile;
 /**
  * ip db searcher class (Not thread safe)
  * 
- * @author chenxin<chenxin619315@gmail.com>
+ * @author chenxin<chenxin619315@gmail.com>,yinbp<yin-bp@163.com>
 */
 public class DbSearcher 
 {
-    private static Logger logger = LoggerFactory.getLogger(DbSearcher.class);
+    private static final Logger logger = LoggerFactory.getLogger(DbSearcher.class);
     public static final int BTREE_ALGORITHM  = 1;
     public static final int BINARY_ALGORITHM = 2;
     public static final int MEMORY_ALGORITYM = 3;

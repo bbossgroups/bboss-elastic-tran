@@ -36,58 +36,58 @@ import java.util.Map;
  * @version 1.0
  */
 public interface Context {
-	public Map<String, String> getGeoipConfig();
-	public void afterRefactor();
-	public void setClientOptions(ClientOptions clientOptions);
-	public Context addFieldValue(String fieldName, Object value);
-	public Context addFieldValue(String fieldName, String dateFormat, Object value);
-	public Context addFieldValue(String fieldName, String dateFormat, Object value, String locale, String timeZone);
-	public Context addIgnoreFieldMapping(String dbColumnName);
-	public ESIndexWrapper getESIndexWrapper();
-	public Object getVersion() throws Exception;
+	Map<String, Object> getGeoipConfig();
+	void afterRefactor();
+	void setClientOptions(ClientOptions clientOptions);
+	Context addFieldValue(String fieldName, Object value);
+	Context addFieldValue(String fieldName, String dateFormat, Object value);
+	Context addFieldValue(String fieldName, String dateFormat, Object value, String locale, String timeZone);
+	Context addIgnoreFieldMapping(String dbColumnName);
+	ESIndexWrapper getESIndexWrapper();
+	Object getVersion() throws Exception;
 //	public Object getEsVersionType();
-	public void refactorData() throws Exception;
-	public TranMeta getMetaData();
-	public DateFormat getDateFormat();
-	public Boolean getUseJavaName();
-	public Boolean getUseLowcase();
+void refactorData() throws Exception;
+	TranMeta getMetaData();
+	DateFormat getDateFormat();
+	Boolean getUseJavaName();
+	Boolean getUseLowcase();
 //	public Boolean getEsDocAsUpsert();
 //	public Object getEsDetectNoop();
 //	public Boolean getEsReturnSource();
-	public List<FieldMeta> getESJDBCFieldValues();
-	public Object getValue(int i, String colName, int sqlType) throws Exception;
-	public ImportContext getImportContext();
-	public String getDBName();
-	public Object getValue(String fieldName) throws Exception;
-	public Object getMetaValue(String fieldName) throws Exception;
-	public String getStringValue(String fieldName) throws Exception;
-	public Object getParentId() throws Exception;
-	public Object getRouting() throws Exception;
+List<FieldMeta> getESJDBCFieldValues();
+	Object getValue(int i, String colName, int sqlType) throws Exception;
+	ImportContext getImportContext();
+	String getDBName();
+	Object getValue(String fieldName) throws Exception;
+	Object getMetaValue(String fieldName) throws Exception;
+	String getStringValue(String fieldName) throws Exception;
+	Object getParentId() throws Exception;
+	Object getRouting() throws Exception;
 //	public Object getEsRetryOnConflict();
-	public long getLongValue(String fieldName) throws Exception;
-	public String getStringValue(String fieldName,String defaultValue) throws Exception;
-	public boolean getBooleanValue(String fieldName) throws Exception;
-	public boolean getBooleanValue(String fieldName,boolean defaultValue) throws Exception;
-	public double getDoubleValue(String fieldName) throws Exception;
-	public float getFloatValue(String fieldName) throws Exception;
-	public int getIntegerValue(String fieldName) throws Exception;
-	public Date getDateValue(String fieldName) throws Exception;
-	public Date getDateValue(String fieldName,DateFormat dateFormat) throws Exception;
-	public List<FieldMeta> getFieldValues();
-	public Map<String,FieldMeta> getFieldMetaMap();
-	public FieldMeta getMappingName(String colName);
+long getLongValue(String fieldName) throws Exception;
+	String getStringValue(String fieldName, String defaultValue) throws Exception;
+	boolean getBooleanValue(String fieldName) throws Exception;
+	boolean getBooleanValue(String fieldName, boolean defaultValue) throws Exception;
+	double getDoubleValue(String fieldName) throws Exception;
+	float getFloatValue(String fieldName) throws Exception;
+	int getIntegerValue(String fieldName) throws Exception;
+	Date getDateValue(String fieldName) throws Exception;
+	Date getDateValue(String fieldName, DateFormat dateFormat) throws Exception;
+	List<FieldMeta> getFieldValues();
+	Map<String,FieldMeta> getFieldMetaMap();
+	FieldMeta getMappingName(String colName);
 	Object getEsId() throws Exception;
-	public ClientOptions getClientOptions();
+	ClientOptions getClientOptions();
 //	ESField getEsIdField();
-	public boolean isDrop();
+boolean isDrop();
 
 	/**
 	 * 设置是否过滤掉记录，true过滤，false 不过滤（默认值）
 	 * @param drop
 	 */
-	public void setDrop(boolean drop);
-	public IpInfo getIpInfo(String fieldName) throws Exception;
-	public IpInfo getIpInfoByIp(String ip) ;
+	void setDrop(boolean drop);
+	IpInfo getIpInfo(String fieldName) throws Exception;
+	IpInfo getIpInfoByIp(String ip) ;
 
 	/**
 	 * 重命名字段和修改字段值
@@ -96,76 +96,76 @@ public interface Context {
 	 * @param newFieldValue
 	 * @throws Exception
 	 */
-	public void newName2ndData(String fieldName, String newFieldName, Object newFieldValue)throws Exception;
+	void newName2ndData(String fieldName, String newFieldName, Object newFieldValue)throws Exception;
 
-	public BatchContext getBatchContext();
+	BatchContext getBatchContext();
 
 	/**
 	 * 获取原始记录对象
 	 * @return
 	 */
-	public Object getRecord();
+	Object getRecord();
 
 	/**
 	 * 标识记录状态为insert操作（增加），默认值
 
 	 */
-	public void markRecoredInsert();
+	void markRecoredInsert();
 	/**
 	 * 标识记录状态为update操作（修改）
 
 	 */
-	public void markRecoredUpdate();
+	void markRecoredUpdate();
 
 	/**
 	 * 标识记录状态为delete操作（删除）
 
 	 */
-	public void markRecoredDelete();
+	void markRecoredDelete();
 
 	/**
 	 * 判断记录是否是新增记录(默认值)
 	 * @return
 	 */
-	public boolean isInsert();
+	boolean isInsert();
 
 	/**
 	 * 判断记录是否是更新操作
 	 * @return
 	 */
-	public boolean isUpdate();
+	boolean isUpdate();
 
 	/**
 	 * 判断记录是否删除操作
 	 * @return
 	 */
-	public boolean isDelete();
+	boolean isDelete();
 
 	/**
 	 * 进行记录级别索引表名称设置
 	 */
-	public void setIndex(String indice);
+	void setIndex(String indice);
 
 	/**
 	 * 进行记录级别索引类型设置
 	 */
-	public void setIndexType(String indiceType);
+	void setIndexType(String indiceType);
 
 	/**
 	 * 获取记录对应的索引表名称
 	 * @return
 	 */
-	public String getIndex();
+	String getIndex();
 
 	/**
 	 * 获取记录对应的索引类型名称
 	 * @return
 	 */
-	public String getIndexType();
+	String getIndexType();
 
-	public String getOperation();
+	String getOperation();
 
-	public boolean isUseBatchContextIndexName() ;
+	boolean isUseBatchContextIndexName() ;
 
-	public void setUseBatchContextIndexName(boolean useBatchContextIndexName) ;
+	void setUseBatchContextIndexName(boolean useBatchContextIndexName) ;
 }

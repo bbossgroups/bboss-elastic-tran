@@ -31,7 +31,7 @@ import java.io.IOException;
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2020/11/12 16:28
- * @author biaoping.yin
+ * @author yinbp<yin-bp@163.com>
  * @version 1.0
  */
 public class IP2Region {

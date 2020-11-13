@@ -83,7 +83,7 @@ public class ContextImpl implements Context {
 	public String getIndexType() {
 		return indexType;
 	}
-	public Map<String,String> getGeoipConfig(){
+	public Map<String,Object> getGeoipConfig(){
 		return baseImportConfig.getGeoipConfig();
 	}
 	public void afterRefactor(){
@@ -331,16 +331,16 @@ public class ContextImpl implements Context {
 		if(_ip == null){
 			return null;
 		}
-		if(baseImportConfig.getGeoIPUtil(getGeoipConfig()) != null) {
-			return baseImportConfig.getGeoIPUtil(getGeoipConfig()).getAddressMapResult(String.valueOf(_ip));
+		if(BaseImportConfig.getGeoIPUtil(getGeoipConfig()) != null) {
+			return BaseImportConfig.getGeoIPUtil(getGeoipConfig()).getAddressMapResult(String.valueOf(_ip));
 		}
 		return null;
 	}
 
 	@Override
 	public IpInfo getIpInfoByIp(String ip) {
-		if(baseImportConfig.getGeoIPUtil(getGeoipConfig()) != null) {
-			return baseImportConfig.getGeoIPUtil(getGeoipConfig()).getAddressMapResult(ip);
+		if(BaseImportConfig.getGeoIPUtil(getGeoipConfig()) != null) {
+			return BaseImportConfig.getGeoIPUtil(getGeoipConfig()).getAddressMapResult(ip);
 		}
 		return null;
 	}

@@ -56,6 +56,9 @@ public class IPDBTest {
 				System.out.println(address);
 				address = addressUtils.getAddressMapResult("2408:84e2:1db:c9ec:4062:61d4:9340:85f7");
 				System.out.println(address);
+				address = addressUtils.getAddressMapResult("172.168.22.26");
+				System.out.println(address);
+
 
 			} catch (Exception e) {
 				e.printStackTrace();

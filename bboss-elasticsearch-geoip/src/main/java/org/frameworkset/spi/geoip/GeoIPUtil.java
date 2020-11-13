@@ -310,7 +310,7 @@ public class GeoIPUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(GeoIPUtil.class);
 	private static boolean getGeoIPUtil ;
-	public static GeoIPUtil getGeoIPUtil(Map<String, String> geoipConfig) {
+	public static GeoIPUtil getGeoIPUtil(Map<String, Object> geoipConfig) {
 		if(getGeoIPUtil)
 			return  geoIPUtil;
 		synchronized (GeoIPUtil.class){
@@ -326,11 +326,11 @@ public class GeoIPUtil {
 						return null;
 					}
 					GeoIPUtil geoIPUtil = new GeoIPUtil();
-					geoIPUtil.setDatabase(geoipConfig.get("ip.database"));
-					geoIPUtil.setAsnDatabase(geoipConfig.get("ip.asnDatabase"));
-					geoIPUtil.setIp2regionDatabase(geoipConfig.get("ip.ip2regionDatabase"));
+					geoIPUtil.setDatabase((String)geoipConfig.get("ip.database"));
+					geoIPUtil.setAsnDatabase((String)geoipConfig.get("ip.asnDatabase"));
+					geoIPUtil.setIp2regionDatabase((String)geoipConfig.get("ip.ip2regionDatabase"));
 					geoIPUtil.setIspConverter(geoipConfig.get("ip.ispConverter"));
-					String _cachsize = geoipConfig.get("ip.cachesize");
+					String _cachsize = (String)geoipConfig.get("ip.cachesize");
 					if (_cachsize != null) {
 						try {
 							geoIPUtil.setCachesize(Integer.parseInt(_cachsize));
@@ -338,7 +338,7 @@ public class GeoIPUtil {
 							logger.info("getGeoIPUtil ip.cachesize must be a number:" + _cachsize, e);
 						}
 					}
-					geoIPUtil.setIpUrl(geoipConfig.get("ip.serviceUrl"));
+					geoIPUtil.setIpUrl((String)geoipConfig.get("ip.serviceUrl"));
 					geoIPUtil.init();
 					GeoIPUtil.geoIPUtil = geoIPUtil;
 				} catch (Exception e) {

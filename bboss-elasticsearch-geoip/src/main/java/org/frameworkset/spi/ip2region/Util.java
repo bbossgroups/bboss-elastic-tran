@@ -3,7 +3,7 @@ package org.frameworkset.spi.ip2region;
 /**
  * util class 
  * 
- * @author chenxin<chenxin619315@gmail.com>
+ * @author chenxin<chenxin619315@gmail.com>,yinbp<yin-bp@163.com>
 */
 public class Util 
 {
@@ -26,7 +26,7 @@ public class Util
      * write a int to a byte array
      * 
      * @param    b
-     * @param    offet
+     * @param    offset
      * @param    v
     */
     public static void writeIntLong( byte[] b, int offset, long v )

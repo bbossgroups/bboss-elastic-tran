@@ -3,11 +3,11 @@ package org.frameworkset.spi.ip2region;
 /**
  * item index class
  * 
- * @author chenxin<chenxin619315@gmail.com>
+ * @author chenxin<chenxin619315@gmail.com>,yinbp<yin-bp@163.com>
 */
 public class IndexBlock 
 {
-    private static int LENGTH = 12;
+    private static final int LENGTH = 12;
     
     /**
      * start ip address 

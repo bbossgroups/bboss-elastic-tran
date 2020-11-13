@@ -3,7 +3,7 @@ package org.frameworkset.spi.ip2region;
 /**
  * database configuration class
  * 
- * @author chenxin<chenxin619315@gmail.com>
+ * @author chenxin<chenxin619315@gmail.com>,yinbp<yin-bp@163.com>
 */
 public class DbConfig 
 {
@@ -22,8 +22,7 @@ public class DbConfig
      * construct method
      * 
      * @param    totalHeaderSize
-     * @param    dataBlockSize
-     * @throws DbMakerConfigException 
+     * @throws DbMakerConfigException
     */
     public DbConfig( int totalHeaderSize ) throws DbMakerConfigException
     {
