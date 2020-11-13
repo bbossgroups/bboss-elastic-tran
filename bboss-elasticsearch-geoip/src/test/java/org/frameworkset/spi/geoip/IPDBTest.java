@@ -58,14 +58,15 @@ public class IPDBTest {
 				System.out.println(address);
 				address = addressUtils.getAddressMapResult("172.168.22.26");
 				System.out.println(address);
-
+				address = addressUtils.getAddressMapResult("36.148.49.213");
+				System.out.println(address);
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			File database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
 			Reader reader = new Reader(database,new CHMCache(4096));
-			InetAddress address = InetAddress.getByName("183.15.204.103");
+			InetAddress address = InetAddress.getByName("36.148.49.213");
 
 			// get() returns just the data for the associated record
 			JsonNode recordData = reader.get(address);

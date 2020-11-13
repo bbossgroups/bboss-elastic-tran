@@ -179,23 +179,10 @@ public class GeoIPUtil {
 
 	public IpInfo getAddressMapResult(String ip)  {
 
-//			ip = "117.158.148.162";
-//			geoData_ = this.geoIPFilter.handleIp(ip);
+		IpInfo ipInfo = null;
 		if(ip2Region != null){
-			IpInfo ipInfo = ip2Region.getAddressMapResult(ip);
-			if(ipInfo != null){
-				if(ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
-					ipInfo.setIsp("未知");
-				if(ipInfo.getArea() == null || ipInfo.getArea().equals("0"))
-					ipInfo.setArea("未知");
-				if(ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
-					ipInfo.setCountry("未知");
-				if(ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
-					ipInfo.setRegion("未知");
-				if(ipInfo.getCity() == null || ipInfo.getCity().equals("0"))
-					ipInfo.setCity("未知");
-				return ipInfo;
-			}
+			ipInfo = ip2Region.getAddressMapResult(ip);
+
 		}
 
 //			ip = "240e:c0:f450:cb84:5dc4:928c:cd42:342b";
@@ -208,22 +195,33 @@ public class GeoIPUtil {
 
 		if(geoData_ != null && geoData_.size() > 0) {//处理从geolite2获取ip地址信息
 			Map<String, Object> asnData_ = this.geoIPFilter.handleIpAsn(ip);
-			IpInfo ipInfo = new IpInfo();
-			ipInfo.setIp(ip);
-			ipInfo.setRegionId((String)geoData_.get("regionCode"));
-			ipInfo.setArea("");
-			ipInfo.setAreaId("");
-			ipInfo.setCity((String)geoData_.get("cityName"));
-			ipInfo.setCityId("");
-			ipInfo.setCountry((String)geoData_.get("countryName"));
-			ipInfo.setCountryId((String)geoData_.get("countryCode2"));
-			ipInfo.setCounty((String)geoData_.get("regionName"));
-			ipInfo.setCountyId((String)geoData_.get("regionCode"));
-			ipInfo.setIsp((String)asnData_.get("asOrg"));
-			ipInfo.setOrinIsp((String)asnData_.get("orinIsp"));
-			ipInfo.setIspId((Integer)asnData_.get("asn"));
-			ipInfo.setRegion((String)geoData_.get("regionName"));
-			ipInfo.setRegionId((String)geoData_.get("regionCode"));
+			if(ipInfo == null) {
+				ipInfo = new IpInfo();
+				ipInfo.setIp(ip);
+			}
+
+			if(ipInfo.getArea() == null || ipInfo.getArea().equals("0")) {
+				ipInfo.setArea("");
+				ipInfo.setAreaId("");
+			}
+			if(ipInfo.getCity() == null || ipInfo.getCity().equals("0")) {
+				ipInfo.setCity((String) geoData_.get("cityName"));
+				ipInfo.setCityId("");
+			}
+			if(ipInfo.getCountry() == null || ipInfo.getCountry().equals("0")) {
+				ipInfo.setCountry((String) geoData_.get("countryName"));
+
+			}
+			ipInfo.setCountryId((String) geoData_.get("countryCode2"));
+			if(ipInfo.getIsp() == null || ipInfo.getIsp().equals("0")) {
+				ipInfo.setIsp((String) asnData_.get("asOrg"));
+				ipInfo.setOrinIsp((String) asnData_.get("orinIsp"));
+				ipInfo.setIspId((Integer)asnData_.get("asn"));
+			}
+			if(ipInfo.getRegion() == null || ipInfo.getRegion().equals("0")) {
+				ipInfo.setRegion((String) geoData_.get("regionName"));
+				ipInfo.setRegionId((String) geoData_.get("regionCode"));
+			}
 			Double latitude = (Double) geoData_.get("latitude");
 			Double longitude = (Double) geoData_.get("longitude");
 			GeoPoint geoPoint = new GeoPoint();
@@ -232,62 +230,37 @@ public class GeoIPUtil {
 			ipInfo.setGeoPoint(geoPoint);
 			return ipInfo;
 		}
-		else{//如果没有
-//			StringBuilder url = new StringBuilder();
-//			url.append(ipUrl).append("?ip=").append(ip);
-//			try {
-//				Map header = new HashMap();
-////		StringBuilder url = new StringBuilder();
-//				header.put("Content-Type","text/html;charset=UTF-8");
-//				header.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36");
-//				Map<String, Object> data = HttpRequestUtil.httpGetforString(url.toString(), header, new MapResponseHandler());
-//				Integer code = (Integer) data.get("code");
-//				if (code != null && code == 0) {
-//					Map<String, Object> ipdata = (Map<String, Object>) data.get("data");
-//					IpInfo ipInfo = new IpInfo();
-//					ipInfo.setArea((String) ipdata.get("area"));
-//					ipInfo.setAreaId((String) ipdata.get("area_id"));
-//					ipInfo.setCity((String) ipdata.get("city"));
-//					ipInfo.setCityId((String) ipdata.get("city_id"));
-//					ipInfo.setCountry((String) ipdata.get("country"));
-//					ipInfo.setCountryId((String) ipdata.get("country_Id"));
-//					ipInfo.setCounty((String) ipdata.get("county"));
-//					ipInfo.setCountyId((String) ipdata.get("county_id"));
-//					ipInfo.setIp((String) ipdata.get("ip"));
-//					ipInfo.setIsp((String) ipdata.get("isp"));
-//					ipInfo.setIspId((Integer) ipdata.get("isp_id"));
-//					ipInfo.setRegion((String) ipdata.get("region"));
-//					ipInfo.setRegionId((String) ipdata.get("region_id"));
-//					//					Float latitude = (Float) geoData_.get("latitude");
-//					//					Float longitude = (Float) geoData_.get("longitude");
-//					//					ipInfo.setLatitude(latitude);
-//					//					ipInfo.setLongitude(longitude);
-//					return ipInfo;
-//				} else {
-					IpInfo ipInfo = new IpInfo();
-					ipInfo.setArea("");
-					ipInfo.setAreaId("");
-					ipInfo.setCity("未知");
-					ipInfo.setCityId("未知");
-					ipInfo.setCountry("未知");
-					ipInfo.setCountryId("未知");
-					ipInfo.setCounty("未知");
-					ipInfo.setCountyId("未知");
-					ipInfo.setIp(ip);
+		else if(ipInfo == null){//如果没有
+
+				ipInfo = new IpInfo();
+				ipInfo.setArea("");
+				ipInfo.setAreaId("");
+				ipInfo.setCity("未知");
+				ipInfo.setCityId("未知");
+				ipInfo.setCountry("未知");
+				ipInfo.setCountryId("未知");
+				ipInfo.setCounty("未知");
+				ipInfo.setCountyId("未知");
+				ipInfo.setIp(ip);
+				ipInfo.setIsp("未知");
+				ipInfo.setIspId(null);
+				ipInfo.setRegion("未知");
+				ipInfo.setRegionId("未知");
+				return ipInfo;
+
+		}
+		else{
+				if(ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
 					ipInfo.setIsp("未知");
-					ipInfo.setIspId(null);
+				if(ipInfo.getArea() == null || ipInfo.getArea().equals("0"))
+					ipInfo.setArea("未知");
+				if(ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
+					ipInfo.setCountry("未知");
+				if(ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
 					ipInfo.setRegion("未知");
-					ipInfo.setRegionId("未知");
-					return ipInfo;
-//				}
-//			}
-//			 catch (Exception e) {
-//				url.setLength(0);
-//				url.append("获取运营商区域信息异常:").append(ipUrl).append("?ip=").append(ip)
-//						.append(",User-Agent:Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36")
-//						.append(",Content-Type:text/html;charset=UTF-8");
-//				throw new GeoIPHandlerException("获取运营商区域信息异常:"+url.toString(),e);
-//			}
+				if(ipInfo.getCity() == null || ipInfo.getCity().equals("0"))
+					ipInfo.setCity("未知");
+				return ipInfo;
 		}
 	}
 
