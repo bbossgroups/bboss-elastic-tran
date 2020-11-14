@@ -79,7 +79,7 @@ public class GeoIPUtil {
 	}
 
 	private Object ispConverter;
-	private IspConverter _ispConverter;
+	private IPConverter _IPConverter;
 	public GeoIPFilter getGeoIPFilter() {
 		return geoIPFilter;
 	}
@@ -90,35 +90,35 @@ public class GeoIPUtil {
 
 		if(!assertEmpty()){
 			if(ispConverter != null){
-				if(ispConverter instanceof IspConverter){
-					_ispConverter = (IspConverter)ispConverter;
+				if(ispConverter instanceof IPConverter){
+					_IPConverter = (IPConverter)ispConverter;
 				}
 				else {
 					String cls = ((String)ispConverter).trim();
 					if(!cls.equals("")) {
 						try {
-							Class<? extends IspConverter> clazz = (Class<? extends IspConverter>) Class.forName(cls);
-							_ispConverter = clazz.newInstance();
+							Class<? extends IPConverter> clazz = (Class<? extends IPConverter>) Class.forName(cls);
+							_IPConverter = clazz.newInstance();
 						} catch (ClassNotFoundException e) {
 							logger.warn(cls, e);
-							_ispConverter = new DefaultIspConverter();
+							_IPConverter = new DefaultIPConverter();
 						} catch (IllegalAccessException e) {
 							logger.warn(cls, e);
-							_ispConverter = new DefaultIspConverter();
+							_IPConverter = new DefaultIPConverter();
 						} catch (InstantiationException e) {
 							logger.warn(cls, e);
-							_ispConverter = new DefaultIspConverter();
+							_IPConverter = new DefaultIPConverter();
 						}
 					}
 					else{
-						_ispConverter = new DefaultIspConverter();
+						_IPConverter = new DefaultIPConverter();
 					}
 				}
 			}
 			else{
-				_ispConverter = new DefaultIspConverter();
+				_IPConverter = new DefaultIPConverter();
 			}
-			geoIPFilter = new GeoIPFilter(database,asnDatabase,cachesize,_ispConverter);
+			geoIPFilter = new GeoIPFilter(database,asnDatabase,cachesize);
 		}
 
 		if(ip2regionDatabase != null && !ip2regionDatabase.equals("")){
@@ -228,6 +228,7 @@ public class GeoIPUtil {
 			geoPoint.setLat(latitude);
 			geoPoint.setLon(longitude);
 			ipInfo.setGeoPoint(geoPoint);
+			_IPConverter.convert(ipInfo);
 			return ipInfo;
 		}
 		else if(ipInfo == null){//如果没有
@@ -250,18 +251,19 @@ public class GeoIPUtil {
 
 		}
 		else{
-				if(ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
-					ipInfo.setIsp("未知");
-				if(ipInfo.getArea() == null || ipInfo.getArea().equals("0"))
-					ipInfo.setArea("未知");
-				if(ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
-					ipInfo.setCountry("未知");
-				if(ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
-					ipInfo.setRegion("未知");
-				if(ipInfo.getCity() == null || ipInfo.getCity().equals("0"))
-					ipInfo.setCity("未知");
-				return ipInfo;
-		}
+			if(ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
+				ipInfo.setIsp("未知");
+			if(ipInfo.getArea() == null || ipInfo.getArea().equals("0"))
+				ipInfo.setArea("未知");
+			if(ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
+				ipInfo.setCountry("未知");
+			if(ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
+				ipInfo.setRegion("未知");
+			if(ipInfo.getCity() == null || ipInfo.getCity().equals("0"))
+				ipInfo.setCity("未知");
+			_IPConverter.convert(ipInfo);
+			return ipInfo;
+	}
 	}
 
 	public String getDatabase() {

@@ -23,11 +23,17 @@ package org.frameworkset.spi.geoip;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface IspConverter {
+public interface IPConverter {
 	/**
 	 * 对运营商进行转义处理
-	 * @param isp
+	 * 对国家进行转义处理
+	 * 对城市进行转义处理
+	 * 对省份进行转义处理
+	 * 对区域（华南、华北）进行转义处理
+	 * @param ipInfo
 	 * @return
 	 */
-	String convert(String isp);
+	void convert(IpInfo ipInfo);
+
+
 }

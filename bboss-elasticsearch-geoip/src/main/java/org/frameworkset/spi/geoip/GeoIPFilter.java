@@ -64,13 +64,12 @@ public class GeoIPFilter {
   private final String databasePath;
   private final String asnDatabasePath;
   private final int cacheSize;
-  private final IspConverter ispConverter;
   /**
    *
    * @param databasePath
    */
   public GeoIPFilter(String databasePath,String asnDatabasePath){
-      this(databasePath,  asnDatabasePath,4096,new DefaultIspConverter());
+      this(databasePath,  asnDatabasePath,4096);
   }
   private final DaemonThread daemonThread ;
   /**
@@ -78,8 +77,7 @@ public class GeoIPFilter {
    * @param databasePath
    * @param cacheSize 默认值 1000
    */
-  public GeoIPFilter(String databasePath,String asnDatabasePath, int cacheSize,IspConverter _ispConverter) {
-    this.ispConverter= _ispConverter;
+  public GeoIPFilter(String databasePath, String asnDatabasePath, int cacheSize) {
     this.databasePath = databasePath;
     this.asnDatabasePath = asnDatabasePath;
     this.cacheSize = cacheSize;
@@ -463,7 +461,7 @@ public class GeoIPFilter {
         case AUTONOMOUS_SYSTEM_ORGANIZATION:
           String aso = response.getAutonomousSystemOrganization();
           if (aso != null) {
-            geoData.put(Fields.AUTONOMOUS_SYSTEM_ORGANIZATION.fieldName(), ispConverter.convert(aso));
+            geoData.put(Fields.AUTONOMOUS_SYSTEM_ORGANIZATION.fieldName(), aso);
             geoData.put("orinIsp", aso);
           }
           break;
