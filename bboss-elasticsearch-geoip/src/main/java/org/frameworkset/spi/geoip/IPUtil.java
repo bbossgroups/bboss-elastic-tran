@@ -86,7 +86,7 @@ public class IPUtil {
 				ipInfo.setCity("株洲市");
 			} else if (city.equals("常德")) {
 				ipInfo.setCity("常德市");
-			} else if (city.equals("沉阳")) {
+			} else if (city.equals("沉阳市") || city.equals("沉阳")) {
 				ipInfo.setCity("沈阳市");
 			} else if (city.equals("长沙")) {
 				ipInfo.setCity("长沙市");
@@ -104,6 +104,15 @@ public class IPUtil {
 			}else if (city.equals("武汉")) {
 				ipInfo.setCity("武汉市");
 			}
+			else if (city.equals("新北")) {
+				ipInfo.setCity("新北市");
+			}else if (city.equals("台北")) {
+				ipInfo.setCity("台北市");
+			}
+
+
+
+
 		}
 
 		String region = ipInfo.getRegion();
@@ -163,6 +172,16 @@ public class IPUtil {
 			}else if(region.equals("西藏")){
 				ipInfo.setRegion("西藏自治区");
 
+			}
+			else if(region.equals("高雄市")){
+				ipInfo.setRegion("台湾省");
+				ipInfo.setCity("高雄市");
+			}
+			else if(region.equals("新北市")){
+				ipInfo.setRegion("台湾省");
+				ipInfo.setCity("新北市");
+			}else if(region.equals("台湾")){
+				ipInfo.setRegion("台湾省");
 			}
 		}
 	}
