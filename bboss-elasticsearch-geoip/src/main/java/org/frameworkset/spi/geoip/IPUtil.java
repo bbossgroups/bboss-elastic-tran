@@ -91,6 +91,8 @@ public class IPUtil {
 			} else if (city.equals("长沙")) {
 				ipInfo.setCity("长沙市");
 				ipInfo.setRegion("湖南省");
+			} else if (city.indexOf("湘西") >= 0 || city.equals("吉首")) {
+				ipInfo.setCity("吉首市");
 			} else if (city.equals("昆明")) {
 				ipInfo.setCity("昆明市");
 			} else if (city.equals("南昌")) {
