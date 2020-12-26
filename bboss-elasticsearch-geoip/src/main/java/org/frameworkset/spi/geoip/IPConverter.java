@@ -24,6 +24,7 @@ package org.frameworkset.spi.geoip;
  * @version 1.0
  */
 public interface IPConverter {
+
 	/**
 	 * 对运营商进行转义处理
 	 * 对国家进行转义处理
@@ -33,7 +34,7 @@ public interface IPConverter {
 	 * @param ipInfo
 	 * @return
 	 */
-	void convert(IpInfo ipInfo);
+	IpInfo convert(IpInfo ipInfo);
 
 
 }

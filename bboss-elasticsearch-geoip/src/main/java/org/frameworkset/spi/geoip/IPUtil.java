@@ -29,7 +29,7 @@ public class IPUtil {
 		if(isp == null ){
 			ipInfo.setIsp( "未知");
 		}
-		if(isp.indexOf("Mobile") >= 0){
+		else if(isp.indexOf("Mobile") >= 0){
 			ipInfo.setIsp( "移动");
 		}
 		else if(isp.indexOf("Chinanet") >= 0

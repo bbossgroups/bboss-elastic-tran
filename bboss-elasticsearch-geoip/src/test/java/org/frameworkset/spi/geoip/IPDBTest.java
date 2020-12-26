@@ -36,6 +36,9 @@ import java.net.InetAddress;
 public class IPDBTest {
 	@Test
 	public void test() throws IOException {
+				String fieldName = "a.keyword";
+				System.out.println(fieldName.substring(0,fieldName.lastIndexOf(".keyword")));
+
 			// 测试ip 221.232.245.73 湖北武汉
 			try {
 				GeoIPUtil addressUtils = new GeoIPUtil();
@@ -59,6 +62,9 @@ public class IPDBTest {
 				address = addressUtils.getAddressMapResult("172.168.22.26");
 				System.out.println(address);
 				address = addressUtils.getAddressMapResult("36.148.49.213");
+				System.out.println(address);
+				address = addressUtils.getAddressMapResult("10.11.13.12");
+
 				System.out.println(address);
 
 			} catch (Exception e) {

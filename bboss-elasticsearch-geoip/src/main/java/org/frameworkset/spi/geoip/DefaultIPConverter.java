@@ -25,9 +25,10 @@ package org.frameworkset.spi.geoip;
  */
 public class DefaultIPConverter implements IPConverter {
 	@Override
-	public void convert(IpInfo ipInfo) {
+	public IpInfo convert(IpInfo ipInfo) {
 		IPUtil.handleIsp(ipInfo);
 		IPUtil.handleIpInfo(ipInfo);
+		return ipInfo;
 	}
 
 
