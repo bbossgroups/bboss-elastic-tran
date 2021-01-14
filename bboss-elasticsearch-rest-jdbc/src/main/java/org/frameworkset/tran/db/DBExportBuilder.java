@@ -34,6 +34,10 @@ public abstract class DBExportBuilder extends BaseImportBuilder {
 
 	private String insertSqlName;
 	private String insertSql;
+	private String updateSqlName;
+	private String updateSql;
+	private String deleteSqlName;
+	private String deleteSql;
 	public String getInsertSqlName() {
 		return insertSqlName;
 	}
@@ -62,6 +66,10 @@ public abstract class DBExportBuilder extends BaseImportBuilder {
 			dbImportConfig.setSql(this.sql);
 		dbImportConfig.setInsertSqlName(this.insertSqlName);
 		dbImportConfig.setInsertSql(this.insertSql);
+		dbImportConfig.setUpdateSql(updateSql);
+		dbImportConfig.setUpdateSqlName(updateSqlName);
+		dbImportConfig.setDeleteSql(deleteSql);
+		dbImportConfig.setDeleteSqlName(deleteSqlName);
 	}
 
 
@@ -94,6 +102,42 @@ public abstract class DBExportBuilder extends BaseImportBuilder {
 
 	public DBExportBuilder setSqlFilepath(String sqlFilepath) {
 		this.sqlFilepath = sqlFilepath;
+		return this;
+	}
+
+	public String getDeleteSql() {
+		return deleteSql;
+	}
+
+	public DBExportBuilder setDeleteSql(String deleteSql) {
+		this.deleteSql = deleteSql;
+		return this;
+	}
+
+	public String getDeleteSqlName() {
+		return deleteSqlName;
+	}
+
+	public DBExportBuilder setDeleteSqlName(String deleteSqlName) {
+		this.deleteSqlName = deleteSqlName;
+		return this;
+	}
+
+	public String getUpdateSql() {
+		return updateSql;
+	}
+
+	public DBExportBuilder setUpdateSql(String updateSql) {
+		this.updateSql = updateSql;
+		return this;
+	}
+
+	public String getUpdateSqlName() {
+		return updateSqlName;
+	}
+
+	public DBExportBuilder setUpdateSqlName(String updateSqlName) {
+		this.updateSqlName = updateSqlName;
 		return this;
 	}
 }

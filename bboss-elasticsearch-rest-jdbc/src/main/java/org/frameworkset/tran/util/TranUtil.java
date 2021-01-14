@@ -68,14 +68,13 @@ public abstract class TranUtil {
 
 	}*/
 
-	public static ConfigSQLExecutor initTargetSQLInfo(DBOutPutContext dbContext, DBConfig db) throws ESDataImportException {
+	private static  TranSQLInfo buildTranSQLInfo(String sqlName,boolean issql,DBOutPutContext dbContext, DBConfig db){
 		TranSQLInfo sqlInfo = new TranSQLInfo();
 		SQLInfo sqlinfo = null;
-		String sqlName = dbContext.getInsertSqlName();
 		ConfigSQLExecutor configSQLExecutor = null;
 		try {
-			if(sqlName == null) {
-				sqlName = dbContext.getInsertSql();
+			if(issql) {
+
 				if(sqlName != null)
 					sqlinfo = GloableSQLUtil.getGlobalSQLUtil().getSQLInfo(sqlName);
 			}
@@ -85,7 +84,7 @@ public abstract class TranUtil {
 			}
 
 			if(sqlinfo == null){
-				throw new ESDataImportException("Init TargetSQLInfo failed:InsertSqlName="+dbContext.getInsertSqlName() + " and insertSql = "+dbContext.getInsertSql());
+				return null;
 			}
 
 
@@ -98,14 +97,114 @@ public abstract class TranUtil {
 			sqlInfo.setSql(sql);
 			List<VariableHandler.Variable> vars = sqlstruction.getVariables();
 			sqlInfo.setVars(vars);
-			dbContext.setTargetSqlInfo(sqlInfo);
+			return sqlInfo;
 		} catch (SQLException e) {
 			throw new ESDataImportException("Init TargetSQLInfo failed",e);
 		}
+	}
+	private static void assertNull(DBOutPutContext dbContext, DBConfig db){
+		if(dbContext.getTargetSqlInfo() == null && dbContext.getTargetDeleteSqlInfo() == null && dbContext.getTargetDeleteSqlInfo() == null )
+			throw new ESDataImportException("Init TargetSQLInfo  failed:InsertSqlName="+dbContext.getInsertSqlName() + " and insertSql = "+dbContext.getInsertSql());
+	}
+	public static ConfigSQLExecutor initTargetSQLInfo(DBOutPutContext dbContext, DBConfig db) throws ESDataImportException {
+		TranSQLInfo sqlInfo = null;
+		SQLInfo sqlinfo = null;
+		ConfigSQLExecutor configSQLExecutor = null;
+		String sqlName = dbContext.getInsertSqlName();
+
+		if(sqlName == null) {
+			sqlName = dbContext.getInsertSql();
+			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext,   db);
+
+
+		}
+		else{
+			configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
+			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext,   db);
+		}
+
+		if(sqlInfo != null){
+			dbContext.setTargetSqlInfo(sqlInfo);
+		}
+
+		sqlName = dbContext.getUpdateSqlName();
+
+		if(sqlName == null) {
+			sqlName = dbContext.getUpdateSql();
+			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext,   db);
+
+
+		}
+		else{
+			if(configSQLExecutor == null)
+				configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
+			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext,   db);
+		}
+
+		if(sqlInfo != null){
+			dbContext.setTargetUpdateSqlInfo(sqlInfo);
+		}
+		sqlName = dbContext.getDeleteSqlName();
+
+		if(sqlName == null) {
+			sqlName = dbContext.getDeleteSql();
+			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext,   db);
+
+
+		}
+		else{
+			if(configSQLExecutor == null)
+				configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
+			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext,   db);
+		}
+
+		if(sqlInfo != null){
+			dbContext.setTargetDeleteSqlInfo(sqlInfo);
+		}
+		assertNull(dbContext,  db);
 		return configSQLExecutor;
 
 
 	}
+//
+//	public static ConfigSQLExecutor initTargetSQLInfo(DBOutPutContext dbContext, DBConfig db) throws ESDataImportException {
+//		TranSQLInfo sqlInfo = new TranSQLInfo();
+//		SQLInfo sqlinfo = null;
+//		String sqlName = dbContext.getInsertSqlName();
+//		ConfigSQLExecutor configSQLExecutor = null;
+//		try {
+//			if(sqlName == null) {
+//				sqlName = dbContext.getInsertSql();
+//				if(sqlName != null)
+//					sqlinfo = GloableSQLUtil.getGlobalSQLUtil().getSQLInfo(sqlName);
+//			}
+//			else{
+//				configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
+//				sqlinfo = configSQLExecutor.getSqlInfo(db.getDbName(), sqlName);
+//			}
+//
+//			if(sqlinfo == null){
+//				throw new ESDataImportException("Init TargetSQLInfo failed:InsertSqlName="+dbContext.getInsertSqlName() + " and insertSql = "+dbContext.getInsertSql());
+//			}
+//
+//
+//
+//			sqlInfo.setOriginSQL(sqlinfo.getSql());
+//			String sql = parserSQL(  sqlinfo);
+//
+//			VariableHandler.SQLStruction sqlstruction = sqlinfo.getSqlutil().getSQLStruction(sqlinfo,sql);
+//			sql = sqlstruction.getSql();
+//			sqlInfo.setSql(sql);
+//			List<VariableHandler.Variable> vars = sqlstruction.getVariables();
+//			sqlInfo.setVars(vars);
+//			dbContext.setTargetSqlInfo(sqlInfo);
+//		} catch (SQLException e) {
+//			throw new ESDataImportException("Init TargetSQLInfo failed",e);
+//		}
+//		return configSQLExecutor;
+//
+//
+//	}
 	private static VelocityContext buildVelocityContext()
 	{
 

@@ -24,7 +24,10 @@ public class DBImportConfig extends BaseImportConfig {
 	protected String sqlName;
 	protected String insertSql;
 	protected String insertSqlName;
-
+	protected String updateSqlName;
+	protected String updateSql;
+	protected String deleteSqlName;
+	protected String deleteSql;
 
 
 	public void setInsertSqlName(String insertSqlName) {
@@ -87,4 +90,35 @@ public class DBImportConfig extends BaseImportConfig {
 		this.sqlName = sqlName;
 	}
 
+	public String getDeleteSql() {
+		return deleteSql;
+	}
+
+	public void setDeleteSql(String deleteSql) {
+		this.deleteSql = deleteSql;
+	}
+
+	public String getDeleteSqlName() {
+		return deleteSqlName;
+	}
+
+	public void setDeleteSqlName(String deleteSqlName) {
+		this.deleteSqlName = deleteSqlName;
+	}
+
+	public String getUpdateSql() {
+		return updateSql;
+	}
+
+	public void setUpdateSql(String updateSql) {
+		this.updateSql = updateSql;
+	}
+
+	public String getUpdateSqlName() {
+		return updateSqlName;
+	}
+
+	public void setUpdateSqlName(String updateSqlName) {
+		this.updateSqlName = updateSqlName;
+	}
 }

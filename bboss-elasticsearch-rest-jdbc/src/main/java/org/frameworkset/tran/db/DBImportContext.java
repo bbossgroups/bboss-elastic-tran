@@ -37,6 +37,8 @@ public abstract class DBImportContext extends BaseImportContext implements DBOut
 
 
 	private TranSQLInfo targetSqlInfo;
+	private TranSQLInfo targetUpdateSqlInfo;
+	private TranSQLInfo targetDeleteSqlInfo;
 
 	protected void init(BaseImportConfig baseImportConfig){
 		dbImportConfig = (DBImportConfig)baseImportConfig;
@@ -78,6 +80,19 @@ public abstract class DBImportContext extends BaseImportContext implements DBOut
 		return dbImportConfig.getInsertSql();
 	}
 
+	public String getDeleteSqlName() {
+		return dbImportConfig.getDeleteSqlName();
+	}
+	public String getDeleteSql(){
+		return dbImportConfig.getDeleteSql();
+	}
+
+	public String getUpdateSqlName() {
+		return dbImportConfig.getUpdateSqlName();
+	}
+	public String getUpdateSql(){
+		return dbImportConfig.getUpdateSql();
+	}
 
 	public TranSQLInfo getTargetSqlInfo() {
 		return targetSqlInfo;
@@ -86,4 +101,22 @@ public abstract class DBImportContext extends BaseImportContext implements DBOut
 	public void setTargetSqlInfo(TranSQLInfo targetSqlInfo) {
 		this.targetSqlInfo = targetSqlInfo;
 	}
+
+	public TranSQLInfo getTargetUpdateSqlInfo() {
+		return targetUpdateSqlInfo;
+	}
+
+	public void setTargetUpdateSqlInfo(TranSQLInfo sqlInfo) {
+		this.targetUpdateSqlInfo = sqlInfo;
+	}
+	public TranSQLInfo getTargetDeleteSqlInfo() {
+		return targetDeleteSqlInfo;
+	}
+
+	public void setTargetDeleteSqlInfo(TranSQLInfo sqlInfo) {
+		this.targetDeleteSqlInfo = sqlInfo;
+	}
+
+
+
 }

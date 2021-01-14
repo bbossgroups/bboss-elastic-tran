@@ -36,8 +36,22 @@ public interface DBOutPutContext extends DBContext {
 
 	public void setTargetSqlInfo(TranSQLInfo sqlInfo) ;
 
+	public TranSQLInfo getTargetUpdateSqlInfo() ;
+
+	public void setTargetUpdateSqlInfo(TranSQLInfo sqlInfo) ;
+	public TranSQLInfo getTargetDeleteSqlInfo() ;
+
+	public void setTargetDeleteSqlInfo(TranSQLInfo sqlInfo) ;
 	public String getInsertSqlName() ;
 	public String getInsertSql();
+
+	public String getDeleteSqlName() ;
+	public String getDeleteSql();
+
+	public String getUpdateSqlName() ;
+	public String getUpdateSql();
+
+
 
 
 
