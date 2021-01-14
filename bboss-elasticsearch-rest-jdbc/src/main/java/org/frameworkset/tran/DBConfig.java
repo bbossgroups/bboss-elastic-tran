@@ -39,6 +39,8 @@ public class DBConfig {
 
 	public static final String mysql_createStatusTableSQL = "CREATE TABLE $statusTableName ( ID bigint(10) NOT NULL, lasttime bigint(10) NOT NULL, lastvalue bigint(10) NOT NULL, lastvaluetype int(1) NOT NULL, PRIMARY KEY(ID)) ENGINE=InnoDB";
 	public static final String oracle_createStatusTableSQL = "CREATE TABLE $statusTableName ( ID NUMBER(10) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL, lastvaluetype NUMBER(1) NOT NULL,constraint $statusTableName_PK primary key(ID))";
+	public static final String dm_createStatusTableSQL = "CREATE TABLE $statusTableName ( ID NUMBER(10) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL, lastvaluetype NUMBER(1) NOT NULL,constraint $statusTableName_PK primary key(ID))";
+	public static final String sqlserver_createStatusTableSQL = "CREATE TABLE $statusTableName (ID bigint NOT NULL,lasttime bigint NOT NULL,lastvalue bigint NOT NULL,lastvaluetype INT NOT NULL,constraint $statusTableName_PK primary key(ID))";
 
 	/**是否启用sql日志，true启用，false 不启用，*/
 	private boolean showSql;
@@ -67,6 +69,12 @@ public class DBConfig {
 		}
 		else if(dbtype.equals("oracle")){
 			return oracle_createStatusTableSQL;
+		}
+		else if(dbtype.equals("dm")){
+			return dm_createStatusTableSQL;
+		}
+		else if(dbtype.equals("sqlserver")){
+			return sqlserver_createStatusTableSQL;
 		}
 		throw new ESDataImportException("getCreateStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
