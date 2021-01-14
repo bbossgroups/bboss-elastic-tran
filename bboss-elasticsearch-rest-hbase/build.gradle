@@ -1,0 +1,36 @@
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+           
+        }
+        resources {
+			srcDir 'src/main/resources'
+			srcDir 'src/main/java'  exclude '**/*.java'
+        }
+        
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+           
+        }
+        resources {
+			srcDir 'src/test/resources'
+			srcDir 'src/test/java'  exclude '**/*.java'
+        }
+        
+    }
+    
+}
+
+
+dependencies {
+	compile project(':bboss-elasticsearch-rest-jdbc')
+	compileOnly([group: 'org.apache.hbase', name: 'hbase-shaded-client', version: "2.2.3", transitive: true])
+	compile([group: 'io.dropwizard.metrics', name: 'metrics-core', version: "4.1.2", transitive: true])
+	compile([group: 'io.dropwizard.metrics', name: 'metrics-jvm', version: "4.1.2", transitive: true])
+
+
+}
+

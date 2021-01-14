@@ -19,6 +19,7 @@ import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.spi.geoip.GeoIPUtil;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
@@ -46,6 +47,19 @@ public abstract class BaseImportConfig {
 	private long flushInterval;
 	private long asynResultPollTimeOut = 1000;
 
+	public void setTargetElasticsearch(String targetElasticsearch) {
+		this.targetElasticsearch = targetElasticsearch;
+	}
+	private String sourceElasticsearch = "default";
+	private ESConfig esConfig;
+	private String targetElasticsearch;
+	public String getSourceElasticsearch() {
+		return sourceElasticsearch;
+	}
+
+	public void setSourceElasticsearch(String sourceElasticsearch) {
+		this.sourceElasticsearch = sourceElasticsearch;
+	}
 	public boolean isIgnoreNullValueField() {
 		return ignoreNullValueField;
 	}
@@ -207,7 +221,7 @@ public abstract class BaseImportConfig {
 
 	private ScheduleConfig scheduleConfig;
 	private ImportIncreamentConfig importIncreamentConfig;
-
+	private Map<String, Object> geoipConfig;
 
 
 
@@ -541,7 +555,7 @@ public abstract class BaseImportConfig {
 	public ImportIncreamentConfig getImportIncreamentConfig() {
 		return importIncreamentConfig;
 	}
-	public void setStatusTableId(int statusTableId) {
+	public void setStatusTableId(Integer statusTableId) {
 		if(importIncreamentConfig != null)
 			importIncreamentConfig.setStatusTableId(statusTableId);
 	}
@@ -588,7 +602,7 @@ public abstract class BaseImportConfig {
 
 
 	public boolean isFromFirst() {
-		return importIncreamentConfig != null?importIncreamentConfig.isFromFirst():false;
+		return importIncreamentConfig != null && importIncreamentConfig.isFromFirst();
 	}
 
 	public String getLastValueStoreTableName() {
@@ -599,12 +613,10 @@ public abstract class BaseImportConfig {
 		return importIncreamentConfig != null?importIncreamentConfig.getLastValueStorePath():null;
 	}
 
-	public String getDateLastValueColumn() {
-		return importIncreamentConfig != null?importIncreamentConfig.getDateLastValueColumn():null;
+	public String getLastValueColumn() {
+		return importIncreamentConfig != null?importIncreamentConfig.getLastValueColumn():null;
 	}
-	public String getNumberLastValueColumn() {
-		return importIncreamentConfig != null?importIncreamentConfig.getNumberLastValueColumn():null;
-	}
+
 
 	public Integer getLastValueType() {
 		return importIncreamentConfig != null?importIncreamentConfig.getLastValueType():null;
@@ -701,8 +713,8 @@ public abstract class BaseImportConfig {
 	public void setStatusDbConfig(DBConfig statusDbConfig) {
 		this.statusDbConfig = statusDbConfig;
 	}
-	public static GeoIPUtil getGeoIPUtil(){
-		return GeoIPUtil.getGeoIPUtil();
+	public static GeoIPUtil getGeoIPUtil(Map<String, Object> geoipConfig){
+		return GeoIPUtil.getGeoIPUtil(geoipConfig);
 	}
 
 	public void setExternalTimer(boolean externalTimer) {
@@ -857,5 +869,26 @@ public abstract class BaseImportConfig {
 			clientOptions = new ClientOptions();
 		}
 		clientOptions.setRefreshOption(  refreshOption);
+	}
+
+	public String getTargetElasticsearch() {
+		return targetElasticsearch;
+	}
+
+	public ESConfig getESConfig() {
+		return esConfig;
+	}
+
+	public void setEsConfig(ESConfig esConfig) {
+		this.esConfig = esConfig;
+	}
+
+
+	public Map<String, Object> getGeoipConfig() {
+		return geoipConfig;
+	}
+
+	public void setGeoipConfig(Map<String, Object> geoipConfig) {
+		this.geoipConfig = geoipConfig;
 	}
 }

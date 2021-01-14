@@ -147,6 +147,10 @@ public class DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranP
 	}
 
 	private void increamentImportData(ResultSetHandler resultSetHandler) throws Exception {
+		if(importContext.getDbConfig() == null){
+			throw new ESDataImportException("DbConfig is null,please set dbname use importBuilder.setDbName(dbname) and other database configs use importBuilder," +
+					"dbname and other database configs can also been configed in appliction.properties file or other config file bboss supported.");
+		}
 		if(importContext.getDataRefactor() == null || !importContext.getDbConfig().isEnableDBTransaction()){
 			if (executor == null) {
 				SQLExecutor.queryBeanWithDBNameByNullRowHandler(resultSetHandler, importContext.getDbConfig().getDbName(), dbContext.getSql(), getParamValue());

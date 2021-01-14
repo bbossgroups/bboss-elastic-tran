@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class AsynBaseTranResultSet<T extends Data> implements AsynTranResultSet<T> {
+public abstract class AsynBaseTranResultSet<T extends Data> extends  LastValue implements AsynTranResultSet<T> {
 	private Record record;
 	private List<Object> records;
 	private int pos = 0;
@@ -40,7 +40,7 @@ public abstract class AsynBaseTranResultSet<T extends Data> implements AsynTranR
 	public static int STATUS_STOP = 1;
 	private int status;
 	private BlockingQueue<T> queue ;
-	protected ImportContext importContext;
+
 	public AsynBaseTranResultSet(ImportContext importContext) {
 		queue = new ArrayBlockingQueue<T>(importContext.getTranDataBufferQueue());
 		this.importContext = importContext;
@@ -73,6 +73,7 @@ public abstract class AsynBaseTranResultSet<T extends Data> implements AsynTranR
 	public Object getValue(String colName) throws ESDataImportException {
 		return record.getValue(colName);
 	}
+
 
 	@Override
 	public Object getValue(String colName, int sqlType) throws ESDataImportException {

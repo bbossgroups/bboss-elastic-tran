@@ -71,7 +71,7 @@ public class ES2ESDataTranPlugin  extends BaseDataTranPlugin implements DataTran
 	public void initStatusTableId(){
 		if(isIncreamentImport() && es2esContext.getDslFile() != null && !es2esContext.getDslFile().equals("")) {
 			try {
-				ClientInterface clientInterface = ElasticSearchHelper.getConfigRestClientUtil(es2esContext.getDslFile());
+				ClientInterface clientInterface = ElasticSearchHelper.getConfigRestClientUtil(this.importContext.getSourceElasticsearch(),es2esContext.getDslFile());
 				ESInfo esInfo = clientInterface.getESInfo(es2esContext.getDslName());
 				importContext.setStatusTableId(esInfo.getTemplate().hashCode());
 			} catch (Exception e) {
@@ -96,7 +96,7 @@ public class ES2ESDataTranPlugin  extends BaseDataTranPlugin implements DataTran
 		//采用自定义handler函数处理每个scroll的结果集后，response中只会包含总记录数，不会包含记录集合
 		//scroll上下文有效期1分钟；大数据量时可以采用handler函数来处理每次scroll检索的结果，规避数据量大时存在的oom内存溢出风险
 
-		ClientInterface clientUtil = ElasticSearchHelper.getConfigRestClientUtil(es2esContext.getDslFile());
+		ClientInterface clientUtil = ElasticSearchHelper.getConfigRestClientUtil(this.importContext.getSourceElasticsearch(),es2esContext.getDslFile());
 
 		ESDatas<MetaMap> response = null;
 		if(!es2esContext.isSliceQuery()) {
@@ -169,8 +169,5 @@ public class ES2ESDataTranPlugin  extends BaseDataTranPlugin implements DataTran
 
 	}
 
-	@Override
-	public String getLastValueVarName() {
-		return importContext.getLastValueClumnName();
-	}
+
 }

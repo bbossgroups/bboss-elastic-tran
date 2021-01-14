@@ -208,4 +208,21 @@ public class MongoDBImportConfig extends DBImportConfig {
 	public void setFetchFields(DBObject fetchFields) {
 		this.fetchFields = fetchFields;
 	}
+	public String getInsertSqlName() {
+		if(insertSqlName != null) {
+			return insertSqlName;
+		}
+		else{
+			return sqlName;
+		}
+	}
+
+	public String getInsertSql() {
+		if(insertSql != null) {
+			return insertSql;
+		}
+		else{
+			return sql;
+		}
+	}
 }

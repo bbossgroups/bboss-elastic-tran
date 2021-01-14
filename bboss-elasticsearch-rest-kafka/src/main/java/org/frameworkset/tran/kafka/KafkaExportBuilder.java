@@ -54,9 +54,9 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 	 */
 	private String keyCodec;
 	/**
-	 * 并行消费处理消息
+	 * 并行消费处理拒绝消息
 	 */
-	private boolean discardRejectMessage = false ;
+	private String discardRejectMessage  ;
 
 
 	@Override
@@ -68,7 +68,7 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		return kafkaConfigs;
 	}
 
-	public KafkaExportBuilder addKafkaConfig(String key, Object value){
+	public KafkaExportBuilder addKafkaConfig(String key, String value){
 		kafkaConfigs.put(key,value);
 		return this;
 	}
@@ -102,11 +102,11 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		return this;
 	}
 
-	public boolean isDiscardRejectMessage() {
+	public String getDiscardRejectMessage() {
 		return discardRejectMessage;
 	}
 
-	public KafkaExportBuilder setDiscardRejectMessage(boolean discardRejectMessage) {
+	public KafkaExportBuilder setDiscardRejectMessage(String discardRejectMessage) {
 		this.discardRejectMessage = discardRejectMessage;
 		return this;
 	}
@@ -137,7 +137,7 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		KafkaImportConfig es2DBImportConfig = new KafkaImportConfig();
 		super.buildImportConfig(es2DBImportConfig);
 		es2DBImportConfig.setCheckinterval(this.getCheckinterval());
-		es2DBImportConfig.setDiscardRejectMessage(this.isDiscardRejectMessage());
+		es2DBImportConfig.setDiscardRejectMessage(this.getDiscardRejectMessage());
 		es2DBImportConfig.setValueCodec(this.getValueCodec());
 		es2DBImportConfig.setKeyCodec(this.getKeyCodec());
 		preHandlerCodec();
@@ -146,9 +146,32 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		es2DBImportConfig.setPollTimeOut(this.getPollTimeOut());
 		es2DBImportConfig.setConsumerThreads(this.getConsumerThreads());
 		es2DBImportConfig.setValueCodec(this.getValueCodec());
+		es2DBImportConfig.setKafkaWorkQueue(kafkaWorkQueue);
+		es2DBImportConfig.setKafkaWorkThreads(kafkaWorkThreads);
 		DataStream dataStream = createDataStream();//new Kafka2ESDataStreamImpl();
 		dataStream.setImportConfig(es2DBImportConfig);
 		return dataStream;
+	}
+	private Integer kafkaWorkThreads;
+	private Integer kafkaWorkQueue;
+
+
+
+	public Integer getKafkaWorkThreads(){
+		return kafkaWorkThreads;
+	}
+	public Integer getKafkaWorkQueue(){
+		return kafkaWorkQueue;
+	}
+
+	public KafkaExportBuilder setKafkaWorkThreads(Integer kafkaWorkThreads) {
+		this.kafkaWorkThreads = kafkaWorkThreads;
+		return this;
+	}
+
+	public KafkaExportBuilder setKafkaWorkQueue(Integer kafkaWorkQueue) {
+		this.kafkaWorkQueue = kafkaWorkQueue;
+		return this;
 	}
 	private void preHandlerCodec(){
 		Properties properties = this.getKafkaConfigs();

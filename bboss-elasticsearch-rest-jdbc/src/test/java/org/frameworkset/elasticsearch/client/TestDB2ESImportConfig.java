@@ -43,7 +43,7 @@ public class TestDB2ESImportConfig {
 
 
 				JDBCResultSet jdbcResultSet = new JDBCResultSet();
-
+				jdbcResultSet.setImportContext(importContext);
 				jdbcResultSet.setResultSet(resultSet);
 				jdbcResultSet.setMetaData(statementInfo.getMeta());
 				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
@@ -74,7 +74,7 @@ public class TestDB2ESImportConfig {
 			@Override
 			public void handleResult(ResultSet resultSet, StatementInfo statementInfo) throws Exception {
 				JDBCResultSet jdbcResultSet = new JDBCResultSet();
-
+				jdbcResultSet.setImportContext(importContext);
 				jdbcResultSet.setResultSet(resultSet);
 				jdbcResultSet.setMetaData(statementInfo.getMeta());
 				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());

@@ -37,7 +37,7 @@ import org.frameworkset.elasticsearch.entity.geo.GeoPoint;
  * ip
  * 查询的IP地址。</p>
  * <p>Copyright (c) 2018</p>
- * @Date 2019/3/25 18:45
+ * date 2019/3/25 18:45
  * @author biaoping.yin
  * @version 1.0
  */
@@ -67,6 +67,10 @@ public class IpInfo implements java.io.Serializable{
 	private String countyId;
 	// ISP服务商名称（电信/联通/铁通/移动...）。
 	private String isp;
+	/**
+	 * 根据ip获取的原始isp信息
+	 */
+	private String orinIsp;
 	// ISP服务商编号。
 	private Integer ispId;
 	// 查询的IP地址
@@ -191,5 +195,13 @@ public class IpInfo implements java.io.Serializable{
 
 	public void setGeoPoint(GeoPoint geoPoint) {
 		this.geoPoint = geoPoint;
+	}
+
+	public String getOrinIsp() {
+		return orinIsp;
+	}
+
+	public void setOrinIsp(String orinIsp) {
+		this.orinIsp = orinIsp;
 	}
 }

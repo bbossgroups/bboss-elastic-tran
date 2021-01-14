@@ -18,12 +18,13 @@ package org.frameworkset.tran.util;
 import bboss.org.apache.velocity.VelocityContext;
 import com.frameworkset.common.poolman.ConfigSQLExecutor;
 import com.frameworkset.util.VariableHandler;
-import org.frameworkset.tran.DBConfig;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
+import org.frameworkset.persitent.util.GloableSQLUtil;
 import org.frameworkset.persitent.util.SQLInfo;
 import org.frameworkset.soa.BBossStringWriter;
+import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.db.output.TranSQLInfo;
 import org.frameworkset.util.annotations.DateFormateMeta;
@@ -67,13 +68,28 @@ public abstract class TranUtil {
 
 	}*/
 
-	public static void initTargetSQLInfo(DBOutPutContext dbContext, DBConfig db,String sqlName) throws ESDataImportException {
+	public static ConfigSQLExecutor initTargetSQLInfo(DBOutPutContext dbContext, DBConfig db) throws ESDataImportException {
 		TranSQLInfo sqlInfo = new TranSQLInfo();
-
-		ConfigSQLExecutor configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
-
+		SQLInfo sqlinfo = null;
+		String sqlName = dbContext.getInsertSqlName();
+		ConfigSQLExecutor configSQLExecutor = null;
 		try {
-			SQLInfo sqlinfo = configSQLExecutor.getSqlInfo(db.getDbName(), sqlName);
+			if(sqlName == null) {
+				sqlName = dbContext.getInsertSql();
+				if(sqlName != null)
+					sqlinfo = GloableSQLUtil.getGlobalSQLUtil().getSQLInfo(sqlName);
+			}
+			else{
+				configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
+				sqlinfo = configSQLExecutor.getSqlInfo(db.getDbName(), sqlName);
+			}
+
+			if(sqlinfo == null){
+				throw new ESDataImportException("Init TargetSQLInfo failed:InsertSqlName="+dbContext.getInsertSqlName() + " and insertSql = "+dbContext.getInsertSql());
+			}
+
+
+
 			sqlInfo.setOriginSQL(sqlinfo.getSql());
 			String sql = parserSQL(  sqlinfo);
 
@@ -82,10 +98,11 @@ public abstract class TranUtil {
 			sqlInfo.setSql(sql);
 			List<VariableHandler.Variable> vars = sqlstruction.getVariables();
 			sqlInfo.setVars(vars);
-			dbContext.setSqlInfo(sqlInfo);
+			dbContext.setTargetSqlInfo(sqlInfo);
 		} catch (SQLException e) {
-			throw new ESDataImportException("Init SQLInfo failed",e);
+			throw new ESDataImportException("Init TargetSQLInfo failed",e);
 		}
+		return configSQLExecutor;
 
 
 	}

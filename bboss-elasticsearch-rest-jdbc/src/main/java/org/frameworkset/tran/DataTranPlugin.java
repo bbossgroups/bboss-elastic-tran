@@ -41,7 +41,7 @@ public interface DataTranPlugin {
 	ImportContext getImportContext();
 	public void setImportContext(ImportContext importContext);
 
-
+	public Long getTimeRangeLastValue();
 
 	void flushLastValue(Object lastValue);
 

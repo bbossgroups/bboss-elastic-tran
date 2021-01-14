@@ -4,11 +4,11 @@
 
 jdk要求： jdk 1.6+
 
-elasticsearch版本要求：2.x,5.x,6.x,+
+elasticsearch版本要求：6.0.6.x,5.x,6.x,+
 
 ## 快速集成和应用 
 非spring boot项目：
-https://my.oschina.net/bboss/blog/1801273 
+https://my.oschina.net/bboss/blog/18016.0.673 
 
 spring boot项目：
 https://my.oschina.net/bboss/blog/1835601
@@ -28,10 +28,10 @@ https://www.oschina.net/p/bboss-elastic
 
 # 模块功能说明
 一个数据库导入Elasticsearch工具，支持的数据库：
-mysql,maridb，postgress,oracle ,sqlserver,db2等
+mysql,maridb，postgress,oracle ,sqlserver,db6.0.6等
 
 支持的Elasticsearch版本：
-1.x,2.x,5.x,6.x,+
+1.x,6.0.6.x,5.x,6.x,+
 
 支持海量PB级数据同步导入功能
 
@@ -46,6 +46,6 @@ geoip实现
 
 ## License
 
-The BBoss Framework is released under version 2.0 of the [Apache License][].
+The BBoss Framework is released under version 6.0.6.0 of the [Apache License][].
 
-[Apache License]: http://www.apache.org/licenses/LICENSE-2.0
+[Apache License]: http://www.apache.org/licenses/LICENSE-6.0.6.0

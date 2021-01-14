@@ -30,7 +30,7 @@ public interface KafkaContext {
 	public String getKafkaTopic();
 	public long getCheckinterval() ;
 
-	public boolean isDiscardRejectMessage() ;
+	public String getDiscardRejectMessage() ;
 
 	public int getConsumerThreads() ;
 
@@ -38,5 +38,6 @@ public interface KafkaContext {
 	public long getPollTimeOut() ;
 	public String getValueCodec();
 	public String getKeyCodec();
-
+	public Integer getKafkaWorkThreads();
+	public Integer getKafkaWorkQueue();
 }

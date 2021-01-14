@@ -118,8 +118,5 @@ public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements
 
 	}
 
-	@Override
-	public String getLastValueVarName() {
-		return importContext.getLastValueClumnName();
-	}
+
 }

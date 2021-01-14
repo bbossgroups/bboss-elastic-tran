@@ -15,6 +15,7 @@ package org.frameworkset.tran.db;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.db.output.DBOutPutContext;
@@ -30,16 +31,12 @@ import org.frameworkset.tran.db.output.TranSQLInfo;
  */
 public abstract class DBImportContext extends BaseImportContext implements DBOutPutContext {
 	protected DBImportConfig dbImportConfig;
-
-	public TranSQLInfo getSqlInfo() {
-		return sqlInfo;
+	public DBConfig getTargetDBConfig() {
+		return dbImportConfig.getTargetDBConfig();
 	}
 
-	public void setSqlInfo(TranSQLInfo sqlInfo) {
-		this.sqlInfo = sqlInfo;
-	}
 
-	private TranSQLInfo sqlInfo;
+	private TranSQLInfo targetSqlInfo;
 
 	protected void init(BaseImportConfig baseImportConfig){
 		dbImportConfig = (DBImportConfig)baseImportConfig;
@@ -72,8 +69,21 @@ public abstract class DBImportContext extends BaseImportContext implements DBOut
 		dbImportConfig.setSql(sql);
 	}
 
+	@Override
+	public String getInsertSqlName() {
+		return dbImportConfig.getInsertSqlName();
+	}
+	@Override
+	public String getInsertSql() {
+		return dbImportConfig.getInsertSql();
+	}
 
 
+	public TranSQLInfo getTargetSqlInfo() {
+		return targetSqlInfo;
+	}
 
-
+	public void setTargetSqlInfo(TranSQLInfo targetSqlInfo) {
+		this.targetSqlInfo = targetSqlInfo;
+	}
 }

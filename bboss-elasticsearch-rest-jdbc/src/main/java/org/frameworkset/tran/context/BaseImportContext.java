@@ -15,10 +15,12 @@ package org.frameworkset.tran.context;
  * limitations under the License.
  */
 
+import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
+import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.*;
 
@@ -42,9 +44,17 @@ public abstract  class BaseImportContext implements ImportContext {
 	private DataTranPlugin dataTranPlugin;
 	private boolean currentStoped = false;
 
-
 	public BaseImportContext(){
 
+	}
+	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
+		return new ContextImpl(this, jdbcResultSet, batchContext);
+	}
+	public Long getTimeRangeLastValue(){
+		return dataTranPlugin.getTimeRangeLastValue();
+	}
+	public ESConfig getESConfig(){
+		return baseImportConfig.getESConfig();
 	}
 	/**
 	 * 异步消费数据时，强制刷新检测空闲时间间隔，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作
@@ -121,7 +131,12 @@ public abstract  class BaseImportContext implements ImportContext {
 	public void setDataRefactor( DataRefactor dataRefactor){
 		this.baseImportConfig.setDataRefactor(dataRefactor);
 	}
-
+	public String getTargetElasticsearch(){
+		return baseImportConfig.getTargetElasticsearch();
+	}
+	public String getSourceElasticsearch(){
+		return baseImportConfig.getSourceElasticsearch();
+	}
 	@Override
 	public ClientOptions getClientOptions() {
 		return baseImportConfig.getClientOptions();
@@ -197,6 +212,11 @@ public abstract  class BaseImportContext implements ImportContext {
 
 
 	public void flushLastValue(Object lastValue){
+		Long timeLastValue = this.getTimeRangeLastValue();
+		if(timeLastValue != null){
+
+			lastValue = max(lastValue,new Date(timeLastValue));
+		}
 		this.dataTranPlugin.flushLastValue(lastValue);
 	}
 	public boolean isLastValueDateType()
@@ -219,13 +239,13 @@ public abstract  class BaseImportContext implements ImportContext {
 	public boolean isExternalTimer() {
 		return baseImportConfig.isExternalTimer();
 	}
-
-	public String getLastValueClumnName(){
+	public String getLastValueColumn(){
+		return baseImportConfig.getLastValueColumn();
+	}
+	public String getLastValueColumnName(){
 		return dataTranPlugin.getLastValueClumnName();
 	}
-	public String getNumberLastValueColumn(){
-		return baseImportConfig.getNumberLastValueColumn();
-	}
+
 
 	@Override
 	public Object getConfigLastValue() {
@@ -451,10 +471,7 @@ public abstract  class BaseImportContext implements ImportContext {
 		return baseImportConfig.isFromFirst();
 	}
 
-	@Override
-	public String getDateLastValueColumn() {
-		return baseImportConfig.getDateLastValueColumn();
-	}
+
 
 	public void setRefreshOption(String refreshOption){
 		baseImportConfig.setRefreshOption(refreshOption);

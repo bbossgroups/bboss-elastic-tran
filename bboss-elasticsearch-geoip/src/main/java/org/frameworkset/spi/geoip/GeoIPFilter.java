@@ -18,6 +18,8 @@
  */
 package org.frameworkset.spi.geoip;
 
+import com.frameworkset.util.DaemonThread;
+import com.frameworkset.util.ResourceInitial;
 import com.maxmind.db.CHMCache;
 import com.maxmind.db.InvalidDatabaseException;
 import com.maxmind.geoip2.DatabaseReader;
@@ -28,6 +30,7 @@ import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.model.CountryResponse;
 import com.maxmind.geoip2.model.IspResponse;
 import com.maxmind.geoip2.record.*;
+import org.frameworkset.spi.BaseApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +41,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 public class GeoIPFilter {
-  private static Logger logger = LoggerFactory.getLogger(GeoIPFilter.class);
+  private static final Logger logger = LoggerFactory.getLogger(GeoIPFilter.class);
   // The free GeoIP2 databases
   private static final String CITY_LITE_DB_TYPE = "GeoLite2-City";
   private static final String COUNTRY_LITE_DB_TYPE = "GeoLite2-Country";
@@ -56,35 +59,90 @@ public class GeoIPFilter {
 
   private final Set<Fields> desiredFields;
   private final Set<Fields> asnDesiredFields;
-  private final DatabaseReader databaseReader;
-  private final DatabaseReader asnDatabaseReader;
-
+  private DatabaseReader databaseReader;
+  private DatabaseReader asnDatabaseReader;
+  private final String databasePath;
+  private final String asnDatabasePath;
+  private final int cacheSize;
   /**
    *
    * @param databasePath
    */
   public GeoIPFilter(String databasePath,String asnDatabasePath){
-      this(databasePath,  asnDatabasePath,2000);
+      this(databasePath,  asnDatabasePath,4096);
   }
+  private final DaemonThread daemonThread ;
   /**
    *
    * @param databasePath
    * @param cacheSize 默认值 1000
    */
-  public GeoIPFilter(String databasePath,String asnDatabasePath, int cacheSize) {
-
+  public GeoIPFilter(String databasePath, String asnDatabasePath, int cacheSize) {
+    this.databasePath = databasePath;
+    this.asnDatabasePath = asnDatabasePath;
+    this.cacheSize = cacheSize;
     final File database = new File(databasePath);
     final File asnDatabase = new File(asnDatabasePath);
     try {
       this.databaseReader = new DatabaseReader.Builder(database).withCache(new CHMCache(cacheSize)).build();
       this.asnDatabaseReader = new DatabaseReader.Builder(asnDatabase).withCache(new CHMCache(cacheSize)).build();
+      daemonThread = new DaemonThread(5000,"GeoIP-Database-Reload");
+      daemonThread.addFile(database, new ResourceInitial() {
+        @Override
+        public void reinit() {
+          resetDatabaseReader();
+        }
+      });
+      daemonThread.addFile(asnDatabase, new ResourceInitial() {
+        @Override
+        public void reinit() {
+          resetAsnDatabaseReader();
+        }
+      });
+      daemonThread.start();
+      BaseApplicationContext.addShutdownHook(new Runnable() {
+        @Override
+        public void run() {
+          daemonThread.stopped();
+        }
+      });
     } catch (InvalidDatabaseException e) {
       throw new IllegalArgumentException("The database provided is invalid or corrupted.", e);
     } catch (IOException e) {
       throw new IllegalArgumentException("The database provided was not found in the path", e);
     }
+
     this.desiredFields = createDesiredFields();
     this.asnDesiredFields = createAsnDesiredFields();
+  }
+
+  public void resetDatabaseReader(){
+    final File database = new File(databasePath);
+    try {
+      DatabaseReader databaseReader = new DatabaseReader.Builder(database).withCache(new CHMCache(cacheSize)).build();
+      DatabaseReader temp = this.databaseReader;
+      this.databaseReader = databaseReader;
+      temp.close();
+
+    } catch (InvalidDatabaseException e) {
+      throw new IllegalArgumentException("The database provided is invalid or corrupted.", e);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("The database provided was not found in the path", e);
+    }
+  }
+
+  public void resetAsnDatabaseReader(){
+    final File asnDatabase = new File(asnDatabasePath);
+    try {
+      DatabaseReader asnDatabaseReader = new DatabaseReader.Builder(asnDatabase).withCache(new CHMCache(cacheSize)).build();
+      DatabaseReader temp = this.asnDatabaseReader;
+      this.asnDatabaseReader = asnDatabaseReader;
+      temp.close();
+    } catch (InvalidDatabaseException e) {
+      throw new IllegalArgumentException("The database provided is invalid or corrupted.", e);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("The database provided was not found in the path", e);
+    }
   }
 
   private Set<Fields> createDesiredFields() {
@@ -404,6 +462,7 @@ public class GeoIPFilter {
           String aso = response.getAutonomousSystemOrganization();
           if (aso != null) {
             geoData.put(Fields.AUTONOMOUS_SYSTEM_ORGANIZATION.fieldName(), aso);
+            geoData.put("orinIsp", aso);
           }
           break;
       }

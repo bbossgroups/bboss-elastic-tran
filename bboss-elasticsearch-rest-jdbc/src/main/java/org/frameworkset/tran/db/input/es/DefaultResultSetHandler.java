@@ -39,6 +39,7 @@ public class DefaultResultSetHandler extends ResultSetHandler {
 	@Override
 	public void handleResult(ResultSet resultSet, StatementInfo statementInfo) throws Exception {
 		JDBCResultSet jdbcResultSet = new JDBCResultSet();
+		jdbcResultSet.setImportContext(importContext);
 		jdbcResultSet.setResultSet(resultSet);
 		jdbcResultSet.setMetaData(statementInfo.getMeta());
 		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());

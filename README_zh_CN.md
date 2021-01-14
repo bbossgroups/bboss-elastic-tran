@@ -1,10 +1,12 @@
 # Elastic Tran Bboss
 
-数据交换模块
+数据交换模块:
+
+使用文档：<https://esdoc.bbossgroups.com/#/db-es-tool>
 
 Bboss is a good elasticsearch Java rest client. It operates and accesses elasticsearch in a way similar to mybatis.
 
-https://esdoc.bbossgroups.com/#/README
+<https://esdoc.bbossgroups.com/#/README>
 
 # Environmental requirements
 
@@ -21,8 +23,8 @@ gradle install
 
 
 Build from source code guide:
- 
-https://esdoc.bbossgroups.com/#/bboss-build
+
+<https://esdoc.bbossgroups.com/#/bboss-build>
 
 # How to use Elastic Tran Bboss.
 
@@ -32,7 +34,7 @@ First add the maven dependency of BBoss to your pom.xml:
        <dependency>
             <groupId>com.bbossgroups.plugins</groupId>
             <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-            <version>5.9.6</version>
+            <version>6.2.5</version>
         </dependency>
 ```
 
@@ -42,7 +44,7 @@ First add the maven dependency of BBoss to your pom.xml:
 
 增加定时任务，增量导入导出功能，目前提供了全量导入功能
 
-## elasticsearch技术交流群:166471282 
+## elasticsearch技术交流群:**166471282**
 
 ## elasticsearch微信公众号:bbossgroup   
 
@@ -50,6 +52,6 @@ First add the maven dependency of BBoss to your pom.xml:
 
 ## License
 
-The BBoss Framework is released under version 2.0 of the [Apache License][].
+The BBoss Framework is released under version 6.0.6 of the [Apache License][].
 
-[Apache License]: http://www.apache.org/licenses/LICENSE-2.0
+[Apache License]: http://www.apache.org/licenses/LICENSE-6.0.6.0

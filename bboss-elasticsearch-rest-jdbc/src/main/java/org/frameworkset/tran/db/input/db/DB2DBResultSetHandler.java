@@ -40,6 +40,7 @@ public class DB2DBResultSetHandler extends ResultSetHandler {
 	public void handleResult(ResultSet resultSet, StatementInfo statementInfo) throws Exception {
 		JDBCResultSet jdbcResultSet = new JDBCResultSet();
 		jdbcResultSet.setResultSet(resultSet);
+		jdbcResultSet.setImportContext(importContext);
 		jdbcResultSet.setMetaData(statementInfo.getMeta());
 		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
 		DB2DBDataTran db2DBDataTran = new DB2DBDataTran(jdbcResultSet,importContext);

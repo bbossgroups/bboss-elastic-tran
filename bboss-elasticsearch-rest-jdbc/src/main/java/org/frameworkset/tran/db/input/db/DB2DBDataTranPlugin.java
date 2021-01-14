@@ -118,7 +118,7 @@ public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 		this.initDS(db2DBContext.getTargetDBConfig());
 //		initOtherDSes(importContext.getConfigs());
 		this.initSourceSQLInfo();
-		TranUtil.initTargetSQLInfo(db2DBContext,db2DBContext.getTargetDBConfig(),db2DBContext.getInsertSqlName());
+		TranUtil.initTargetSQLInfo(db2DBContext,db2DBContext.getTargetDBConfig());
 	}
 
 	public String getLastValueVarName(){

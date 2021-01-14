@@ -58,8 +58,8 @@ public abstract class KafkaImportContext extends BaseImportContext implements Ka
 
 
 
-	public boolean isDiscardRejectMessage() {
-		return kafkaImportConfig.isDiscardRejectMessage();
+	public String getDiscardRejectMessage() {
+		return kafkaImportConfig.getDiscardRejectMessage();
 	}
 
 
@@ -80,5 +80,11 @@ public abstract class KafkaImportContext extends BaseImportContext implements Ka
 
 	public String getKeyCodec(){
 		return kafkaImportConfig.getKeyCodec();
+	}
+	public Integer getKafkaWorkThreads(){
+		return kafkaImportConfig.getKafkaWorkThreads();
+	}
+	public Integer getKafkaWorkQueue(){
+		return kafkaImportConfig.getKafkaWorkQueue();
 	}
 }

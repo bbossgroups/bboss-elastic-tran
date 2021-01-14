@@ -49,8 +49,13 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public ExportCount getExportCount() {
 		return exportCount;
 	}
-
-
+	@Override
+	public String getLastValueVarName() {
+		return importContext.getLastValueColumn();
+	}
+	public Long getTimeRangeLastValue(){
+		return null;
+	}
 	public BaseDataTranPlugin(ImportContext importContext){
 		this.importContext = importContext;
 		init(importContext);
@@ -132,7 +137,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		initLastValueClumnName();
 		initStatusStore();
 		initDatasource();
-		this.initStatusTableId();
+		if(this.isIncreamentImport() && this.importContext.getStatusTableId() == null) {
+			this.initStatusTableId();
+		}
 		initTableAndStatus();
 		afterInit();
 	}
@@ -223,12 +230,13 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			return ;
 		}
 
-		if (importContext.getDateLastValueColumn() != null) {
-			lastValueClumnName = importContext.getDateLastValueColumn();
-		} else if (importContext.getNumberLastValueColumn() != null) {
-			lastValueClumnName = importContext.getNumberLastValueColumn();
-		} else if (this.getLastValueVarName() != null) {
-
+		if (importContext.getLastValueColumn() != null) {
+			lastValueClumnName = importContext.getLastValueColumn();
+		}
+//		else if (importContext.getNumberLastValueColumn() != null) {
+//			lastValueClumnName = importContext.getNumberLastValueColumn();
+//		}
+		else if (this.getLastValueVarName() != null) {
 			lastValueClumnName =  getLastValueVarName();
 		}
 
@@ -245,18 +253,21 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		currentStatus.setTime(new Date().getTime());
 		if(lastValueType == ImportIncreamentConfig.TIMESTAMP_TYPE) {
 			if(importContext.getConfigLastValue() != null){
-				if(importContext.getConfigLastValue() instanceof Long){
-					currentStatus.setLastValue(new Date((Long)importContext.getConfigLastValue()));
-				}
-				else if(importContext.getConfigLastValue() instanceof Date) {
+
+				if(importContext.getConfigLastValue() instanceof Date) {
 					currentStatus.setLastValue(importContext.getConfigLastValue());
 				}
-
+				else if(importContext.getConfigLastValue() instanceof Long){
+					currentStatus.setLastValue(new Date((Long)importContext.getConfigLastValue()));
+				}
+				else if(importContext.getConfigLastValue() instanceof Integer){
+					currentStatus.setLastValue(new Date((Integer)importContext.getConfigLastValue()));
+				}
 				else{
 					if(logger.isInfoEnabled()) {
-						logger.info("Last Value Illegal:{}", importContext.getConfigLastValue());
+						logger.info("TIMESTAMP TYPE Last Value Illegal:{}", importContext.getConfigLastValue());
 					}
-					throw new ESDataImportException("Last Value Illegal:"+importContext.getConfigLastValue() );
+					throw new ESDataImportException("TIMESTAMP TYPE Last Value Illegal:"+importContext.getConfigLastValue() );
 				}
 			}
 			else {
@@ -290,8 +301,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	protected void initTableAndStatus(){
 		if(this.isIncreamentImport()) {
 			try {
-				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-				initLastDate = dateFormat.parse("1970-01-01");
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				initLastDate = dateFormat.parse("1970-01-01 00:00:00");
 				SQLExecutor.queryObjectWithDBName(int.class, statusDbname, existSQL);
 
 			} catch (Exception e) {
@@ -320,11 +331,26 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				} else {
 					if (importContext.isFromFirst()) {
 						initLastValueStatus(true);
-					} else {
+					}
+					else if(currentStatus.getLastValueType() != this.lastValueType){ //如果当前lastValueType和作业配置的类型不一致，按照配置了类型重置当前类型
+						if(logger.isWarnEnabled()){
+							logger.warn("The config lastValueType is {} but from currentStatus lastValueType is {},and use the config lastValueType to releace currentStatus lastValueType.",lastValueType,currentStatus.getLastValueType());
+						}
+						initLastValueStatus(true);
+					}
+					else {
 						if(currentStatus.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE){
 							Object lastValue = currentStatus.getLastValue();
 							if(lastValue instanceof Long){
 								currentStatus.setLastValue(new Date((Long)lastValue));
+							}
+							else if(lastValue instanceof Integer){
+								currentStatus.setLastValue(new Date(((Integer) lastValue).longValue()));
+							}
+							else{
+								if(logger.isWarnEnabled())
+									logger.warn("initTableAndStatus：增量字段类型为日期类型, But the LastValue from status table is not a long value:{},value type is {}",lastValue,lastValue.getClass().getName());
+								throw new ESDataImportException("InitTableAndStatus：增量字段类型为日期类型, But the LastValue from status table is not a long value:"+lastValue+",value type is "+lastValue.getClass().getName());
 							}
 						}
 						this.firstStatus = (Status) currentStatus.clone();
@@ -441,15 +467,16 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				}
 				createStatusTableSQL = createStatusTableSQL.replace("$statusTableName",statusTableName);
 			}
-
-			if (importContext.getDateLastValueColumn() != null) {
-				this.lastValueType = ImportIncreamentConfig.TIMESTAMP_TYPE;
-			} else if (importContext.getNumberLastValueColumn() != null) {
-				this.lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
-
-			} else if (importContext.getLastValueType() != null) {
+			if (importContext.getLastValueType() != null) {
 				this.lastValueType = importContext.getLastValueType();
-			} else {
+			}
+//			else if (importContext.getDateLastValueColumn() != null) {
+//				this.lastValueType = ImportIncreamentConfig.TIMESTAMP_TYPE;
+//			} else if (importContext.getNumberLastValueColumn() != null) {
+//				this.lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
+//
+//			}
+			else {
 				this.lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
 			}
 			/**
@@ -479,43 +506,78 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	}
 	public void flushLastValue(Object lastValue) {
 		if(lastValue != null) {
-			this.currentStatus.setTime(System.currentTimeMillis());
+			long time = System.currentTimeMillis();
+			this.currentStatus.setTime(time);
 
 			this.currentStatus.setLastValue(lastValue);
-			if (this.isIncreamentImport())
-				this.storeStatus();
+
+			if (this.isIncreamentImport()) {
+				Status temp = new Status();
+				temp.setTime(time);
+				temp.setId(this.currentStatus.getId());
+				temp.setLastValueType(this.currentStatus.getLastValueType());
+				temp.setLastValue(lastValue);
+				this.storeStatus(temp);
+			}
 		}
 	}
-	public void storeStatus()  {
-//		if(!insertedCheck){
-//			try {
-//				insertedCheckLock.lock();
-//				if (!insertedCheck) {
-//					addStatus(currentStatus);
-//					insertedCheck = true;
-//				}
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			} finally {
-//				insertedCheckLock.unlock();
-//			}
-//
-//		}
-//		else{
+	public void storeStatus(Status currentStatus)  {
+
 		try {
 			updateStatus(currentStatus);
-		} catch (Exception e) {
+		}
+		catch (ESDataImportException e) {
+			throw e;
+		}
+		catch (Exception e) {
 			throw new ESDataImportException(e);
 		}
-//		}
 
 	}
 	public void addStatus(Status currentStatus) throws Exception {
-		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
+//		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
+		Object lastValue = currentStatus.getLastValue();
+		if(logger.isInfoEnabled()){
+			logger.info("AddStatus: 增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
+					lastValue.getClass().getName(),lastValue);
+		}
+
+		if(importContext.isLastValueDateType()){
+			if(lastValue instanceof Date) {
+				lastValue = ((Date) lastValue).getTime();
+
+			}
+			else{
+				throw new ESDataImportException("AddStatus: 增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
+			}
+		}
+		if(logger.isInfoEnabled()){
+			logger.info("AddStatus: 增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}",importContext.isLastValueDateType(),
+					lastValue.getClass().getName(),lastValue);
+		}
+
 		SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),lastValue,lastValueType);
 	}
 	public void updateStatus(Status currentStatus) throws Exception {
-		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
+		Object lastValue = currentStatus.getLastValue();
+		if(logger.isDebugEnabled()){
+			logger.debug("UpdateStatus：增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
+					lastValue.getClass().getName(),lastValue);
+		}
+
+		if(importContext.isLastValueDateType()){
+			if(lastValue instanceof Date) {
+				lastValue = ((Date) lastValue).getTime();
+			}
+			else{
+				throw new ESDataImportException("UpdateStatus：增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
+			}
+		}
+		if(logger.isDebugEnabled()){
+			logger.debug("UpdateStatus：增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}",importContext.isLastValueDateType(),
+					lastValue.getClass().getName(),lastValue);
+		}
+//		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
 		SQLExecutor.updateWithDBName(statusDbname,updateSQL, currentStatus.getTime(), lastValue, lastValueType,currentStatus.getId());
 	}
 
@@ -594,6 +656,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	protected void initES(String applicationPropertiesFile){
 		if(SimpleStringUtil.isNotEmpty(applicationPropertiesFile ))
 			ElasticSearchBoot.boot(applicationPropertiesFile);
+		if(this.importContext.getESConfig() != null){
+			ElasticSearchBoot.boot(importContext.getESConfig().getConfigs());
+		}
 	}
 
 	public void initSchedule(){

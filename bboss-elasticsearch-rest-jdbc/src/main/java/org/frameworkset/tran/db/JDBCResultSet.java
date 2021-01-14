@@ -17,13 +17,14 @@ package org.frameworkset.tran.db;/*
 import com.frameworkset.common.poolman.sql.PoolManResultSetMetaData;
 import com.frameworkset.orm.adapter.DB;
 import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.LastValue;
 import org.frameworkset.tran.TranMeta;
 import org.frameworkset.tran.TranResultSet;
 
 import java.sql.ResultSet;
 import java.util.Date;
 
-public class JDBCResultSet implements TranResultSet {
+public class JDBCResultSet extends LastValue implements TranResultSet {
 	protected ResultSet resultSet;
 	protected TranMeta metaData;
 	protected DB dbadapter;
@@ -33,6 +34,9 @@ public class JDBCResultSet implements TranResultSet {
 	public DB getDbadapter(){
 		return dbadapter;
 	}
+
+
+
 	public void setResultSet(ResultSet resultSet) {
 		this.resultSet = resultSet;
 	}

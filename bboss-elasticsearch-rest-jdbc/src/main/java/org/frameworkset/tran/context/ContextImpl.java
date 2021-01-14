@@ -38,21 +38,21 @@ import java.util.*;
  * @version 1.0
  */
 public class ContextImpl implements Context {
-	private List<FieldMeta> fieldValues ;
-	private Map<String,FieldMeta> fieldMetaMap;
-
-	private Map<String,String> newfieldNames;
-	private Map<String,ColumnData> newfieldName2ndColumnDatas;
-	private BaseImportConfig baseImportConfig;
-	private TranResultSet jdbcResultSet;
-	private BatchContext batchContext;
-	private boolean drop;
-	private int status = 0;
-	private String index;
-	private String indexType;
-	private ESIndexWrapper esIndexWrapper;
-	private ClientOptions clientOptions;
-	private ImportContext importContext;
+	protected List<FieldMeta> fieldValues ;
+	protected Map<String,FieldMeta> fieldMetaMap;
+	private boolean useBatchContextIndexName = false;
+	protected Map<String,String> newfieldNames;
+	protected Map<String,ColumnData> newfieldName2ndColumnDatas;
+	protected BaseImportConfig baseImportConfig;
+	protected TranResultSet jdbcResultSet;
+	protected BatchContext batchContext;
+	protected boolean drop;
+	protected int status = 0;
+	protected String index;
+	protected String indexType;
+	protected ESIndexWrapper esIndexWrapper;
+	protected ClientOptions clientOptions;
+	protected ImportContext importContext;
 	public ContextImpl(ImportContext importContext, TranResultSet jdbcResultSet, BatchContext batchContext){
 		this.baseImportConfig = importContext.getImportConfig();
 		this.importContext = importContext;
@@ -83,6 +83,9 @@ public class ContextImpl implements Context {
 	public String getIndexType() {
 		return indexType;
 	}
+	public Map<String,Object> getGeoipConfig(){
+		return baseImportConfig.getGeoipConfig();
+	}
 	public void afterRefactor(){
 		if(index != null && !index.equals("")){
 			if(indexType == null)
@@ -90,6 +93,7 @@ public class ContextImpl implements Context {
 			else{
 				esIndexWrapper = new ESIndexWrapper(index,indexType);
 			}
+//			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);
 		}
 	}
 
@@ -327,16 +331,16 @@ public class ContextImpl implements Context {
 		if(_ip == null){
 			return null;
 		}
-		if(baseImportConfig.getGeoIPUtil() != null) {
-			return baseImportConfig.getGeoIPUtil().getAddressMapResult(String.valueOf(_ip));
+		if(BaseImportConfig.getGeoIPUtil(getGeoipConfig()) != null) {
+			return BaseImportConfig.getGeoIPUtil(getGeoipConfig()).getAddressMapResult(String.valueOf(_ip));
 		}
 		return null;
 	}
 
 	@Override
 	public IpInfo getIpInfoByIp(String ip) {
-		if(baseImportConfig.getGeoIPUtil() != null) {
-			return baseImportConfig.getGeoIPUtil().getAddressMapResult(ip);
+		if(BaseImportConfig.getGeoIPUtil(getGeoipConfig()) != null) {
+			return BaseImportConfig.getGeoIPUtil(getGeoipConfig()).getAddressMapResult(ip);
 		}
 		return null;
 	}
@@ -455,4 +459,11 @@ public class ContextImpl implements Context {
 	}
 
 
+	public boolean isUseBatchContextIndexName() {
+		return useBatchContextIndexName;
+	}
+
+	public void setUseBatchContextIndexName(boolean useBatchContextIndexName) {
+		this.useBatchContextIndexName = useBatchContextIndexName;
+	}
 }

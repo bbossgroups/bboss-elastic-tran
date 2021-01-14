@@ -49,9 +49,9 @@ public class KafkaImportConfig extends BaseImportConfig {
 	 */
 	private String keyCodec;
 	/**
-	 * 并行消费处理消息
+	 * 并行消费处理拒绝消息
 	 */
-	private boolean discardRejectMessage = false ;
+	private String discardRejectMessage ;
 	public void setKafkaConfigs(Properties kafkaConfigs) {
 		this.kafkaConfigs = kafkaConfigs;
 	}
@@ -76,11 +76,11 @@ public class KafkaImportConfig extends BaseImportConfig {
 		this.checkinterval = checkinterval;
 	}
 
-	public boolean isDiscardRejectMessage() {
+	public String getDiscardRejectMessage() {
 		return discardRejectMessage;
 	}
 
-	public void setDiscardRejectMessage(boolean discardRejectMessage) {
+	public void setDiscardRejectMessage(String discardRejectMessage) {
 		this.discardRejectMessage = discardRejectMessage;
 	}
 
@@ -114,5 +114,21 @@ public class KafkaImportConfig extends BaseImportConfig {
 
 	public void setKeyCodec(String keyCodec) {
 		this.keyCodec = keyCodec;
+	}
+	private Integer kafkaWorkThreads;
+	private Integer kafkaWorkQueue;
+	public Integer getKafkaWorkThreads(){
+		return kafkaWorkThreads;
+	}
+	public Integer getKafkaWorkQueue(){
+		return kafkaWorkQueue;
+	}
+
+	public void setKafkaWorkThreads(Integer kafkaWorkThreads) {
+		this.kafkaWorkThreads = kafkaWorkThreads;
+	}
+
+	public void setKafkaWorkQueue(Integer kafkaWorkQueue) {
+		this.kafkaWorkQueue = kafkaWorkQueue;
 	}
 }

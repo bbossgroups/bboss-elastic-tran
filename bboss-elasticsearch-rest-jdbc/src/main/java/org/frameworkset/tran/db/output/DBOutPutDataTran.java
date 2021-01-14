@@ -2,10 +2,8 @@ package org.frameworkset.tran.db.output;
 
 import com.frameworkset.util.VariableHandler;
 import org.frameworkset.elasticsearch.ElasticSearchException;
-import org.frameworkset.tran.FieldMeta;
-import org.frameworkset.tran.TranErrorWrapper;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
@@ -13,9 +11,6 @@ import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.task.TaskCall;
 import org.frameworkset.tran.task.TaskCommand;
-import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.Param;
-import org.frameworkset.tran.TranResultSet;
 import org.slf4j.Logger;
 
 import java.sql.SQLException;
@@ -28,7 +23,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 	@Override
 	public void logTaskStart(Logger logger) {
 		logger.info(new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
-				.append("] dbuser[").append(importContext.getDbConfig().getDbUser()).append(" sql[").append(es2DBContext.getSqlInfo().getOriginSQL()).append("] start.").toString());
+				.append("] dbuser[").append(importContext.getDbConfig().getDbUser()).append("] sql[").append(es2DBContext.getTargetSqlInfo().getOriginSQL()).append("] start.").toString());
 	}
 	protected void init(){
 		es2DBContext = (DBOutPutContext)importContext;
@@ -55,7 +50,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		try {
 
 			//		GetCUDResult CUDResult = null;
-			TranSQLInfo sqlinfo = es2DBContext.getSqlInfo();
+			TranSQLInfo sqlinfo = es2DBContext.getTargetSqlInfo();
 			Object temp = null;
 			Param param = null;
 			List<List<Param>> records = new ArrayList<List<Param>>();
@@ -87,7 +82,8 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					else {
 						lastValue = importContext.max(lastValue, getLastValue());
 					}
-					Context context = new ContextImpl(importContext, jdbcResultSet, null);
+//					Context context = new ContextImpl(importContext, jdbcResultSet, null);
+					Context context = importContext.buildContext(jdbcResultSet, null);
 					context.refactorData();
 					context.afterRefactor();
 					if (context.isDrop()) {
@@ -152,14 +148,23 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		appendFieldValues( record, vars,    fieldValueMetas,  addedFields);
 		fieldValueMetas = context.getESJDBCFieldValues();
 		appendFieldValues(  record, vars,   fieldValueMetas,  addedFields);
+		String varName = null;
 		for(int i = 0;i < vars.size(); i ++)
 		{
 			VariableHandler.Variable var = vars.get(i);
 			if(addedFields.get(var.getVariableName()) != null)
 				continue;
-			temp = jdbcResultSet.getValue(var.getVariableName());
+			varName = var.getVariableName();
+			FieldMeta fieldMeta = context.getMappingName(varName);
+			if(fieldMeta != null) {
+				if(fieldMeta.getIgnore() != null && fieldMeta.getIgnore() == true)
+					continue;
+				varName = fieldMeta.getEsFieldName();
+			}
+			temp = jdbcResultSet.getValue(varName);
 			if(temp == null) {
-				logger.warn("未指定绑定变量的值：{}",var.getVariableName());
+				if(logger.isWarnEnabled())
+					logger.warn("未指定绑定变量的值：{}",var.getVariableName());
 			}
 			param = new Param();
 			param.setVariable(var);
@@ -185,7 +190,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
 		int batchsize = importContext.getStoreBatchSize();
 		try {
-			TranSQLInfo sqlinfo = es2DBContext.getSqlInfo();
+			TranSQLInfo sqlinfo = es2DBContext.getTargetSqlInfo();
 			Object temp = null;
 			Param param = null;
 			List<List<Param>> records = new ArrayList<List<Param>>();
@@ -213,7 +218,8 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
 
-				Context context = new ContextImpl(importContext, jdbcResultSet, null);
+//				Context context = new ContextImpl(importContext, jdbcResultSet, null);
+				Context context = importContext.buildContext(jdbcResultSet, null);
 				context.refactorData();
 				context.afterRefactor();
 				if (context.isDrop()) {
@@ -292,10 +298,9 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		long ignoreTotalCount = 0;
 		ImportCount importCount = new SerialImportCount();
 		int batchsize = importContext.getStoreBatchSize();
-		String refreshOption = importContext.getRefreshOption();
 		try {
 			istart = start;
-			TranSQLInfo sqlinfo = es2DBContext.getSqlInfo();
+			TranSQLInfo sqlinfo = es2DBContext.getTargetSqlInfo();
 			List<List<Param>> records = new ArrayList<List<Param>>();
 			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {
@@ -332,8 +337,10 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 				else{
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
-				Context context = new ContextImpl(importContext, jdbcResultSet, null);
+//				Context context = new ContextImpl(importContext, jdbcResultSet, null);
+				Context context = importContext.buildContext(jdbcResultSet, null);
 				context.refactorData();
+
 				context.afterRefactor();
 				if (context.isDrop()) {
 					importCount.increamentIgnoreTotalCount();

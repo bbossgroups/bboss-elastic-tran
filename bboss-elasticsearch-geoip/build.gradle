@@ -29,8 +29,8 @@ dependencies {
 	compile (
 			//[group: 'joda-time', name: 'joda-time', version: "2.9.5",transitive: false],
 			[group: 'com.bbossgroups.plugins', name: 'bboss-elasticsearch-rest-booter', version: "${bboss_es_version}", transitive: true],
-			[group: "com.maxmind.db", name: "maxmind-db", version: "1.2.2",transitive: false],
-			[group: "com.maxmind.geoip2", name: "geoip2", version: "2.12.0",transitive: false]
+			[group: 'com.bbossgroups.plugins', name: 'bboss-elasticsearch-rest', version: "${bboss_es_version}", transitive: true],
+			[group: "com.maxmind.db", name: "maxmind-db", version: "1.4.0",transitive: false],
+			[group: "com.maxmind.geoip2", name: "geoip2", version: "2.14.0",transitive: false]
 	)
-     
 }

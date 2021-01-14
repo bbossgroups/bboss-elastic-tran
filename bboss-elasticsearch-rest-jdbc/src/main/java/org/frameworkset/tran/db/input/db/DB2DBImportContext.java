@@ -15,7 +15,6 @@ package org.frameworkset.tran.db.input.db;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.db.DBImportContext;
@@ -49,14 +48,5 @@ public class DB2DBImportContext extends DBImportContext implements DB2DBContext{
 	}
 
 
-	@Override
-	public String getInsertSqlName() {
-		return db2DBImportConfig.getInsertSqlName();
-	}
 
-
-	@Override
-	public DBConfig getTargetDBConfig() {
-		return db2DBImportConfig.getTargetDBConfig();
-	}
 }

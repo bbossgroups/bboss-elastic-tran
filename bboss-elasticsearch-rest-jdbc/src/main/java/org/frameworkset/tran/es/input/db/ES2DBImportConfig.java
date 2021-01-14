@@ -38,7 +38,23 @@ public class ES2DBImportConfig extends DBImportConfig {
 	private BatchHandler<Map> batchHandler;
 
 
+	public String getInsertSqlName() {
+		if(insertSqlName != null) {
+			return insertSqlName;
+		}
+		else{
+			return sqlName;
+		}
+	}
 
+	public String getInsertSql() {
+		if(insertSql != null) {
+			return insertSql;
+		}
+		else{
+			return sql;
+		}
+	}
 
 	private boolean sliceQuery;
 	private int sliceSize;

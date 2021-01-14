@@ -74,8 +74,14 @@ public abstract class DataStream {
 	}
 
 	public void destroy() {
-		if(importContext != null)
+		if(importContext != null) {
 			this.importContext.destroy();
+			importContext = null;
+			logger.info("DataStream stopped.");
+		}
+		else{
+			logger.info("DataStream has stopped.");
+		}
 
 
 

@@ -90,4 +90,8 @@ public class ES2DBImportContext extends DBImportContext implements ES2DBContext{
 	public BatchHandler<Map> getBatchHandler(){
 		return es2DBImportConfig.getBatchHandler();
 	}
+
+
+
+
 }

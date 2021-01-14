@@ -18,8 +18,11 @@ package org.frameworkset.tran.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.spi.assemble.PropertiesContainer;
+import org.frameworkset.elasticsearch.boot.ElasticSearchPropertiesFilePlugin;
+import org.frameworkset.spi.DefaultApplicationContext;
+import org.frameworkset.spi.assemble.GetProperties;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
@@ -42,13 +45,19 @@ public abstract class BaseImportBuilder {
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	private DBConfig dbConfig ;
 	private DBConfig statusDbConfig ;
+	private String statusDbname;
+	private String statusTableDML;
 	private Integer fetchSize = 5000;
 	private long flushInterval;
 	private boolean ignoreNullValueField;
-
+	private String targetElasticsearch = "default";
+	private String sourceElasticsearch = "default";
+	private ESConfig esConfig;
 	private ClientOptions clientOptions;
+	private Map<String, Object> geoipConfig;
 
 	private boolean sortLastValue = true;
+	private boolean useBatchContextIndexName = false;
 	/**
 	 * 是否不需要返回响应，不需要的情况下，可以设置为true，
 	 * 提升性能，如果debugResponse设置为true，那么强制返回并打印响应到日志文件中
@@ -57,12 +66,21 @@ public abstract class BaseImportBuilder {
 	/**是否调试bulk响应日志，true启用，false 不启用，*/
 	private boolean debugResponse;
 	private ScheduleConfig scheduleConfig;
-	private ImportIncreamentConfig importIncreamentConfig;
+	protected ImportIncreamentConfig importIncreamentConfig;
 	public boolean isExternalTimer() {
 		return externalTimer;
 	}
 
+	public Map<String, Object> getGeoipConfig() {
+		return geoipConfig;
+	}
 
+	public void setStatusTableId(Integer statusTableId) {
+		if(importIncreamentConfig == null){
+			importIncreamentConfig = new ImportIncreamentConfig();
+		}
+		importIncreamentConfig.setStatusTableId(statusTableId);
+	}
 	/**
 	 * 采用外部定时任务引擎执行定时任务控制变量：
 	 * false 内部引擎，默认值
@@ -178,19 +196,47 @@ public abstract class BaseImportBuilder {
 	public static final String DEFAULT_CONFIG_FILE = "application.properties";
 	protected void buildDBConfig(){
 		if(!freezen) {
-			PropertiesContainer propertiesContainer = new PropertiesContainer();
+//			PropertiesContainer propertiesContainer = new PropertiesContainer();
+//
+//			if(this.applicationPropertiesFile == null) {
+//				propertiesContainer.addConfigPropertiesFile(DEFAULT_CONFIG_FILE);
+//			}
+//			else{
+//				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+//			}
+			if (this.applicationPropertiesFile == null) {
+//					propertiesContainer.addConfigPropertiesFile("application.properties");
 
-			if(this.applicationPropertiesFile == null) {
-				propertiesContainer.addConfigPropertiesFile(DEFAULT_CONFIG_FILE);
+			} else {
+				ElasticSearchPropertiesFilePlugin.init(applicationPropertiesFile);
+//					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
 			}
-			else{
-				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
-			}
-			String dbName  = propertiesContainer.getProperty("db.name");
+			GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
+			String dbName  = propertiesContainer.getExternalProperty("db.name");
 			if(dbName == null || dbName.equals(""))
 				return;
 			dbConfig = new DBConfig();
 			_buildDBConfig(propertiesContainer,dbName,dbConfig, "");
+		}
+	}
+	protected void buildESConfig(){
+		if(!freezen) {
+//			PropertiesContainer propertiesContainer = new PropertiesContainer();
+//
+//			if(this.applicationPropertiesFile == null) {
+//				propertiesContainer.addConfigPropertiesFile(DEFAULT_CONFIG_FILE);
+//			}
+//			else{
+//				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+//			}
+//			String dbName  = propertiesContainer.getProperty("db.name");
+//			if(dbName == null || dbName.equals(""))
+//				return;
+//			dbConfig = new DBConfig();
+//			_buildDBConfig(propertiesContainer,dbName,dbConfig, "");
+//			if(esConfig != null){
+//				ElasticSearchBoot.boot(esConfig.getConfigs());
+//			}
 		}
 	}
 	@JsonIgnore
@@ -205,7 +251,42 @@ public abstract class BaseImportBuilder {
 		}
 		return this;
 	}
+	private String geoipDatabase;
+	private String geoipAsnDatabase;
+	private Object geoipIspConverter;
+	private String geoip2regionDatabase;
+	private Integer geoipCachesize;
+	private String geoipTaobaoServiceURL;
+	protected void buildGeoipConfig(){
+		if(geoipDatabase != null){
+			if(this.geoipConfig == null){
+				geoipConfig = new HashMap<String, Object>();
+			}
+			geoipConfig.put("ip.database",
+					geoipDatabase);
+			if(geoipAsnDatabase != null)
+				geoipConfig.put("ip.asnDatabase",
+					geoipAsnDatabase);
 
+			if(geoipIspConverter != null)
+				geoipConfig.put("ip.ispConverter",
+						geoipIspConverter);
+			if(geoip2regionDatabase != null)
+				geoipConfig.put("ip.ip2regionDatabase",
+						geoip2regionDatabase);
+
+			if(geoipCachesize != null)
+				geoipConfig.put("ip.cachesize",
+						geoipCachesize+"");
+			else{
+				geoipConfig.put("ip.cachesize",
+						"10000");
+			}
+			if(geoipTaobaoServiceURL != null)
+				geoipConfig.put("ip.serviceUrl",
+						geoipTaobaoServiceURL);
+		}
+	}
 
 
 	public BaseImportBuilder setEsIdGenerator(EsIdGenerator esIdGenerator) {
@@ -217,26 +298,40 @@ public abstract class BaseImportBuilder {
 	}
 	protected void buildStatusDBConfig(){
 		if(!statusFreezen) {
-			PropertiesContainer propertiesContainer = new PropertiesContainer();
-			String prefix = "config.";
-			if(this.applicationPropertiesFile == null) {
-				propertiesContainer.addConfigPropertiesFile("application.properties");
+			if(statusDbname == null) {
+				GetProperties propertiesContainer = null;
+				String prefix = "config.";
+				if (this.applicationPropertiesFile == null) {
+//					propertiesContainer.addConfigPropertiesFile("application.properties");
+
+				} else {
+					ElasticSearchPropertiesFilePlugin.init(applicationPropertiesFile);
+//					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+				}
+				propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
+				String dbName = propertiesContainer.getExternalProperty(prefix + "db.name");
+				if (dbName == null || dbName.equals(""))
+					return;
+
+				statusDbConfig = new DBConfig();
+				_buildDBConfig(propertiesContainer, dbName, statusDbConfig, "config.");
 			}
 			else{
-				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+				statusDbConfig = new DBConfig();
+				statusDbConfig.setDbName(statusDbname);
+				if(statusTableDML != null && !statusTableDML.equals("")){
+					statusDbConfig.setStatusTableDML(statusTableDML);
+				}
 			}
-			String dbName  = propertiesContainer.getProperty(prefix+"db.name");
-			if(dbName == null || dbName.equals(""))
-				return;
-
-			statusDbConfig = new DBConfig();
-			_buildDBConfig(propertiesContainer,dbName,statusDbConfig, "config.");
 		}
 	}
 	protected void builderConfig(){
+		this.buildGeoipConfig();
+		this.buildESConfig();
 		this.buildDBConfig();
 		this.buildStatusDBConfig();
 		this.buildOtherDBConfigs();
+
 
 	}
 	/**
@@ -244,90 +339,98 @@ public abstract class BaseImportBuilder {
 	 */
 	protected void buildOtherDBConfigs(){
 
-			PropertiesContainer propertiesContainer = new PropertiesContainer();
+//			PropertiesContainer propertiesContainer = new PropertiesContainer();
 
-			if(this.applicationPropertiesFile == null) {
-				propertiesContainer.addConfigPropertiesFile("application.properties");
-			}
-			else{
-				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
-			}
-			String thirdDatasources = propertiesContainer.getProperty("thirdDatasources");
-			if(thirdDatasources == null || thirdDatasources.equals(""))
-				return;
-			String[] names = thirdDatasources.split(",");
-			List<DBConfig> dbConfigs = new ArrayList<DBConfig>();
-			for(int i = 0; i < names.length; i ++ ) {
-				String prefix = names[i].trim();
-				if(prefix.equals(""))
-					continue;
+//			if(this.applicationPropertiesFile == null) {
+//				propertiesContainer.addConfigPropertiesFile("application.properties");
+//			}
+//			else{
+//				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+//			}
+		if (this.applicationPropertiesFile == null) {
+//					propertiesContainer.addConfigPropertiesFile("application.properties");
+
+		} else {
+			ElasticSearchPropertiesFilePlugin.init(applicationPropertiesFile);
+//					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+		}
+		GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
+		String thirdDatasources = propertiesContainer.getExternalProperty("thirdDatasources");
+		if(thirdDatasources == null || thirdDatasources.equals(""))
+			return;
+		String[] names = thirdDatasources.split(",");
+		List<DBConfig> dbConfigs = new ArrayList<DBConfig>();
+		for(int i = 0; i < names.length; i ++ ) {
+			String prefix = names[i].trim();
+			if(prefix.equals(""))
+				continue;
 
 
-				DBConfig dbConfig = new DBConfig();
-				_buildDBConfig(propertiesContainer, prefix, dbConfig, prefix+".");
-				dbConfigs.add(dbConfig);
-			}
-			this.configs = dbConfigs;
+			DBConfig dbConfig = new DBConfig();
+			_buildDBConfig(propertiesContainer, prefix, dbConfig, prefix+".");
+			dbConfigs.add(dbConfig);
+		}
+		this.configs = dbConfigs;
 
 	}
 
 
-	protected void _buildDBConfig(PropertiesContainer propertiesContainer, String dbName,DBConfig dbConfig,String prefix){
+	protected void _buildDBConfig(GetProperties propertiesContainer, String dbName,DBConfig dbConfig,String prefix){
 
 
 
 		dbConfig.setDbName(dbName);
-		String dbUser  = propertiesContainer.getProperty(prefix+"db.user");
+		String dbUser  = propertiesContainer.getExternalProperty(prefix+"db.user");
 		dbConfig.setDbUser(dbUser);
-		String dbPassword  = propertiesContainer.getProperty(prefix+"db.password");
+		String dbPassword  = propertiesContainer.getExternalProperty(prefix+"db.password");
 		dbConfig.setDbPassword(dbPassword);
-		String dbDriver  = propertiesContainer.getProperty(prefix+"db.driver");
+		String dbDriver  = propertiesContainer.getExternalProperty(prefix+"db.driver");
 		dbConfig.setDbDriver(dbDriver);
 
-		boolean enableDBTransaction = propertiesContainer.getBooleanProperty(prefix+"db.enableDBTransaction",false);
+		boolean enableDBTransaction = propertiesContainer.getExternalBooleanProperty(prefix+"db.enableDBTransaction",false);
 		dbConfig.setEnableDBTransaction(enableDBTransaction);
-		String dbUrl  = propertiesContainer.getProperty(prefix+"db.url");
+		String dbUrl  = propertiesContainer.getExternalProperty(prefix+"db.url");
 		dbConfig.setDbUrl(dbUrl);
-		String _usePool = propertiesContainer.getProperty(prefix+"db.usePool");
+		String _usePool = propertiesContainer.getExternalProperty(prefix+"db.usePool");
 		if(_usePool != null && !_usePool.equals("")) {
 			boolean usePool = Boolean.parseBoolean(_usePool);
 			dbConfig.setUsePool(usePool);
 		}
-		String validateSQL  = propertiesContainer.getProperty(prefix+"db.validateSQL");
+		String validateSQL  = propertiesContainer.getExternalProperty(prefix+"db.validateSQL");
 		dbConfig.setValidateSQL(validateSQL);
 
-		String _showSql = propertiesContainer.getProperty(prefix+"db.showsql");
+		String _showSql = propertiesContainer.getExternalProperty(prefix+"db.showsql");
 		if(_showSql != null && !_showSql.equals("")) {
 			boolean showSql = Boolean.parseBoolean(_showSql);
 			dbConfig.setShowSql(showSql);
 		}
 
-		String _jdbcFetchSize = propertiesContainer.getProperty(prefix+"db.jdbcFetchSize");
+		String _jdbcFetchSize = propertiesContainer.getExternalProperty(prefix+"db.jdbcFetchSize");
 		if(_jdbcFetchSize != null && !_jdbcFetchSize.equals("")) {
 			int jdbcFetchSize = Integer.parseInt(_jdbcFetchSize);
 			dbConfig.setJdbcFetchSize(jdbcFetchSize);
 		}
-		String _initSize = propertiesContainer.getProperty(prefix+"db.initSize");
+		String _initSize = propertiesContainer.getExternalProperty(prefix+"db.initSize");
 		if(_initSize != null && !_initSize.equals("")) {
 			int initSize = Integer.parseInt(_initSize);
 			dbConfig.setInitSize(initSize);
 		}
-		String _minIdleSize = propertiesContainer.getProperty(prefix+"db.minIdleSize");
+		String _minIdleSize = propertiesContainer.getExternalProperty(prefix+"db.minIdleSize");
 		if(_minIdleSize != null && !_minIdleSize.equals("")) {
 			int minIdleSize = Integer.parseInt(_minIdleSize);
 			dbConfig.setMinIdleSize(minIdleSize);
 		}
-		String _maxSize = propertiesContainer.getProperty(prefix+"db.maxSize");
+		String _maxSize = propertiesContainer.getExternalProperty(prefix+"db.maxSize");
 		if(_maxSize != null && !_maxSize.equals("")) {
 			int maxSize = Integer.parseInt(_maxSize);
 			dbConfig.setMaxSize(maxSize);
 		}
-		String statusTableDML  = propertiesContainer.getProperty(prefix+"db.statusTableDML");
+		String statusTableDML  = propertiesContainer.getExternalProperty(prefix+"db.statusTableDML");
 		dbConfig.setStatusTableDML(statusTableDML);
 
-		String dbAdaptor  = propertiesContainer.getProperty(prefix+"db.dbAdaptor");
+		String dbAdaptor  = propertiesContainer.getExternalProperty(prefix+"db.dbAdaptor");
 		dbConfig.setDbAdaptor(dbAdaptor);
-		String dbtype  = propertiesContainer.getProperty(prefix+"db.dbtype");
+		String dbtype  = propertiesContainer.getExternalProperty(prefix+"db.dbtype");
 		dbConfig.setDbtype(dbtype);
 	}
 
@@ -351,6 +454,19 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setDbName(String dbName) {
 		_setDbName(  dbName);
+		return this;
+	}
+
+	public BaseImportBuilder setDbInitSize(int dbInitSize) {
+		_setDbInitSize( dbInitSize);
+		return this;
+	}
+	public BaseImportBuilder setDbMaxSize(int dbMaxSize) {
+		_setDbMaxSize(  dbMaxSize);
+		return this;
+	}
+	public BaseImportBuilder setDbMinIdleSize(int dbMinIdleSize) {
+		_setDbMinIdleSize(  dbMinIdleSize);
 		return this;
 	}
 
@@ -432,8 +548,9 @@ public abstract class BaseImportBuilder {
 		return queue;
 	}
 
-	public void setQueue(int queue) {
+	public BaseImportBuilder setQueue(int queue) {
 		this.queue = queue;
+		return this;
 	}
 
 	public boolean isAsyn() {
@@ -530,21 +647,33 @@ public abstract class BaseImportBuilder {
 		return importIncreamentConfig;
 	}
 
+	/**
+	 * @See use setLastValueColumn(String numberLastValueColumn)
+	 * @param dateLastValueColumn
+	 * @return
+	 */
+	@Deprecated
 	public BaseImportBuilder setDateLastValueColumn(String dateLastValueColumn) {
-		if(importIncreamentConfig == null){
-			importIncreamentConfig = new ImportIncreamentConfig();
-		}
-		this.importIncreamentConfig.setDateLastValueColumn(dateLastValueColumn);
-		return this;
+		return setLastValueColumn(dateLastValueColumn);
 	}
 
 
-	public BaseImportBuilder setNumberLastValueColumn(String numberLastValueColumn) {
+	public BaseImportBuilder setLastValueColumn(String numberLastValueColumn) {
 		if(importIncreamentConfig == null){
 			importIncreamentConfig = new ImportIncreamentConfig();
 		}
-		this.importIncreamentConfig.setNumberLastValueColumn(numberLastValueColumn);
+		this.importIncreamentConfig.setLastValueColumn(numberLastValueColumn);
 		return this;
+	}
+
+	/**
+	 * @See use setLastValueColumn(String numberLastValueColumn)
+	 * @param numberLastValueColumn
+	 * @return
+	 */
+	@Deprecated
+	public BaseImportBuilder setNumberLastValueColumn(String numberLastValueColumn) {
+		return setLastValueColumn(numberLastValueColumn);
 	}
 
 
@@ -656,6 +785,31 @@ public abstract class BaseImportBuilder {
 
 		dbConfig.setDbName(dbName);
 
+	}
+
+	public void _setDbInitSize(int dbInitSize) {
+		freezen = true;
+		if(this.dbConfig == null){
+			this.dbConfig = new DBConfig();
+		}
+
+		dbConfig.setInitSize(dbInitSize);
+	}
+	public void _setDbMaxSize(int dbMaxSize) {
+		freezen = true;
+		if(this.dbConfig == null){
+			this.dbConfig = new DBConfig();
+		}
+
+		dbConfig.setMaxSize(dbMaxSize);
+	}
+	public void _setDbMinIdleSize(int dbMinIdleSize) {
+		freezen = true;
+		if(this.dbConfig == null){
+			this.dbConfig = new DBConfig();
+		}
+
+		dbConfig.setMinIdleSize(dbMinIdleSize);
 	}
 
 	public void _setDbDriver(String dbDriver) {
@@ -778,9 +932,9 @@ public abstract class BaseImportBuilder {
 	/**抽取数据的sql语句*/
 	private String timeZone;
 	private transient EsIdGenerator esIdGenerator = BaseImportConfig.DEFAULT_EsIdGenerator;
-	private Map<String,FieldMeta> fieldMetaMap = new HashMap<String,FieldMeta>();
+	private final Map<String,FieldMeta> fieldMetaMap = new HashMap<String,FieldMeta>();
 	private String esIdGeneratorClass = "org.frameworkset.tran.DefaultEsIdGenerator";
-	private List<FieldMeta> fieldValues = new ArrayList<FieldMeta>();
+	private final List<FieldMeta> fieldValues = new ArrayList<FieldMeta>();
 	private transient DataRefactor dataRefactor;
 	public DateFormateMeta buildDateFormateMeta(String dateFormat){
 		return dateFormat == null?null:DateFormateMeta.buildDateFormateMeta(dateFormat,locale,timeZone);
@@ -915,8 +1069,16 @@ public abstract class BaseImportBuilder {
 		System.out.println("meta:_id".substring(5));//""
 	}
 	protected void buildImportConfig(BaseImportConfig baseImportConfig){
-
-
+		if(getTargetElasticsearch() != null && !getTargetElasticsearch().equals(""))
+			baseImportConfig.setTargetElasticsearch(this.getTargetElasticsearch());
+		if(getSourceElasticsearch() != null && !getSourceElasticsearch().equals(""))
+			baseImportConfig.setSourceElasticsearch(this.getSourceElasticsearch());
+		if(this.esConfig != null){
+			baseImportConfig.setEsConfig(esConfig);
+		}
+		if(geoipConfig != null && geoipConfig.size() > 0){
+			baseImportConfig.setGeoipConfig(geoipConfig);
+		}
 		baseImportConfig.setDateFormat(dateFormat);
 		baseImportConfig.setLocale(locale);
 		baseImportConfig.setTimeZone(this.timeZone);
@@ -937,6 +1099,7 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setBatchSize(this.batchSize);
 		if(index != null) {
 			ESIndexWrapper esIndexWrapper = new ESIndexWrapper(index, indexType);
+//			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);
 			baseImportConfig.setEsIndexWrapper(esIndexWrapper);
 		}
 
@@ -1233,6 +1396,99 @@ public abstract class BaseImportBuilder {
 		}
 		this.clientOptions = clientOptions;
 
+		return this;
+	}
+
+	public String getTargetElasticsearch() {
+		return targetElasticsearch;
+	}
+
+	public BaseImportBuilder setTargetElasticsearch(String targetElasticsearch) {
+		this.targetElasticsearch = targetElasticsearch;
+		return this;
+	}
+
+	public String getSourceElasticsearch() {
+		return sourceElasticsearch;
+	}
+
+	public BaseImportBuilder setSourceElasticsearch(String sourceElasticsearch) {
+		this.sourceElasticsearch = sourceElasticsearch;
+		return this;
+	}
+
+	/**
+	 * 添加es客户端配置属性，具体的配置项参考文档：
+	 * https://esdoc.bbossgroups.com/#/development?id=_2-elasticsearch%e9%85%8d%e7%bd%ae
+	 *
+	 * 如果在代码中指定配置项，就不会去加载application.properties中指定的数据源配置，如果没有配置则去加载applciation.properties中的对应数据源配置
+	 * @param name
+	 * @param value
+	 * @return
+	 */
+	public BaseImportBuilder addElasticsearchProperty(String name,String value){
+		if(this.esConfig == null){
+			esConfig = new ESConfig();
+		}
+		esConfig.addElasticsearchProperty(name,value);
+		return this;
+	}
+
+
+	public boolean isUseBatchContextIndexName() {
+		return useBatchContextIndexName;
+	}
+
+	public BaseImportBuilder setUseBatchContextIndexName(boolean useBatchContextIndexName) {
+		this.useBatchContextIndexName = useBatchContextIndexName;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoipDatabase(String geoipDatabase) {
+		this.geoipDatabase = geoipDatabase;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoipAsnDatabase(String geoipAsnDatabase) {
+		this.geoipAsnDatabase = geoipAsnDatabase;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoip2regionDatabase(String geoip2regionDatabase) {
+		this.geoip2regionDatabase = geoip2regionDatabase;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoipCachesize(int geoipCachesize) {
+		this.geoipCachesize = geoipCachesize;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoipTaobaoServiceURL(String geoipTaobaoServiceURL) {
+		this.geoipTaobaoServiceURL = geoipTaobaoServiceURL;
+		return this;
+	}
+
+	public String getStatusDbname() {
+		return statusDbname;
+	}
+
+	public BaseImportBuilder setStatusDbname(String statusDbname) {
+		this.statusDbname = statusDbname;
+		return this;
+	}
+
+	public String getStatusTableDML() {
+		return statusTableDML;
+	}
+
+	public BaseImportBuilder setStatusTableDML(String statusTableDML) {
+		this.statusTableDML = statusTableDML;
+		return this;
+	}
+
+	public BaseImportBuilder setGeoipIspConverter(Object geoipIspConverter) {
+		this.geoipIspConverter = geoipIspConverter;
 		return this;
 	}
 }

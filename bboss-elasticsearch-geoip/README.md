@@ -4,11 +4,11 @@
 
 jdk要求： jdk 1.6+
 
-elasticsearch版本要求：2.x,5.x,6.x,+
+elasticsearch版本要求：6.0.6.x,5.x,6.x,+
 
 ## 快速集成和应用 
 非spring boot项目：
-https://my.oschina.net/bboss/blog/1801273 
+https://my.oschina.net/bboss/blog/18016.0.673 
 
 spring boot项目：
 https://my.oschina.net/bboss/blog/1835601
@@ -41,6 +41,6 @@ $xxx模式变量将直接输出变量的原始值，不会对变量进行特殊�
 
 ## License
 
-The BBoss Framework is released under version 2.0 of the [Apache License][].
+The BBoss Framework is released under version 6.0.6.0 of the [Apache License][].
 
-[Apache License]: http://www.apache.org/licenses/LICENSE-2.0
+[Apache License]: http://www.apache.org/licenses/LICENSE-6.0.6.0

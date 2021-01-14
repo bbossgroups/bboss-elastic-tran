@@ -3,7 +3,6 @@ package org.frameworkset.tran;
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,25 +200,24 @@ public abstract class BaseDataTran implements DataTran{
 	public Object getLastValue() throws ESDataImportException {
 
 
-		if(importContext.getLastValueClumnName() == null){
+		if(importContext.getLastValueColumnName() == null){
 			return null;
 		}
-
-
-		try {
-			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
-				return jdbcResultSet.getValue(importContext.getLastValueClumnName());
-			else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
-				return jdbcResultSet.getDateTimeValue(importContext.getLastValueClumnName());
-			}
-		}
-		catch (ESDataImportException e){
-			throw (e);
-		}
-		catch (Exception e){
-			throw new ESDataImportException(e);
-		}
-		return null;
+		return jdbcResultSet.getLastValue(importContext.getLastValueColumnName());
+//		try {
+//			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
+//				return jdbcResultSet.getValue(importContext.getLastValueClumnName());
+//			else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
+//				return jdbcResultSet.getDateTimeValue(importContext.getLastValueClumnName());
+//			}
+//		}
+//		catch (ESDataImportException e){
+//			throw (e);
+//		}
+//		catch (Exception e){
+//			throw new ESDataImportException(e);
+//		}
+//		return null;
 
 
 	}
