@@ -19,22 +19,27 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-public abstract class DBOutPutDataTran<T> extends BaseDataTran {
+public class DBOutPutDataTran extends BaseDataTran {
 	protected DBOutPutContext es2DBContext ;
 	@Override
 	public void logTaskStart(Logger logger) {
-		StringBuilder builder = new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
-				.append("] dbuser[").append(importContext.getDbConfig().getDbUser())
-				.append("] insert sql[").append(es2DBContext.getTargetSqlInfo() == null ?"": es2DBContext.getTargetSqlInfo().getOriginSQL()).append("] \r\nupdate sql[")
-					.append(es2DBContext.getTargetUpdateSqlInfo() == null?"":es2DBContext.getTargetUpdateSqlInfo().getOriginSQL()).append("] \r\ndelete sql[")
-					.append(es2DBContext.getTargetDeleteSqlInfo() == null ?"":es2DBContext.getTargetDeleteSqlInfo().getOriginSQL()).append("] start.");
+//		StringBuilder builder = new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
+//				.append("] dbuser[").append(importContext.getDbConfig().getDbUser())
+//				.append("] insert sql[").append(es2DBContext.getTargetSqlInfo() == null ?"": es2DBContext.getTargetSqlInfo().getOriginSQL()).append("] \r\nupdate sql[")
+//					.append(es2DBContext.getTargetUpdateSqlInfo() == null?"":es2DBContext.getTargetUpdateSqlInfo().getOriginSQL()).append("] \r\ndelete sql[")
+//					.append(es2DBContext.getTargetDeleteSqlInfo() == null ?"":es2DBContext.getTargetDeleteSqlInfo().getOriginSQL()).append("] start.");
 		logger.info(taskInfo + " start.");
 	}
 	private String taskInfo ;
 	protected void init(){
-		es2DBContext = (DBOutPutContext)importContext;
-		StringBuilder builder = new StringBuilder().append("Import data to db[").append(importContext.getDbConfig().getDbUrl())
-				.append("] dbuser[").append(importContext.getDbConfig().getDbUser())
+		es2DBContext = targetImportContext == null ?(DBOutPutContext)importContext:(DBOutPutContext)targetImportContext;
+		DBConfig dbConfig = null;
+		if(es2DBContext.getTargetDBConfig() == null)
+			dbConfig = importContext.getDbConfig();
+		else
+			dbConfig = es2DBContext.getTargetDBConfig();
+		StringBuilder builder = new StringBuilder().append("Import data to db[").append(dbConfig.getDbUrl())
+				.append("] dbuser[").append(dbConfig.getDbUser())
 				.append("] insert sql[").append(es2DBContext.getTargetSqlInfo() == null ?"": es2DBContext.getTargetSqlInfo().getOriginSQL()).append("] \r\nupdate sql[")
 				.append(es2DBContext.getTargetUpdateSqlInfo() == null?"":es2DBContext.getTargetUpdateSqlInfo().getOriginSQL()).append("] \r\ndelete sql[")
 				.append(es2DBContext.getTargetDeleteSqlInfo() == null ?"":es2DBContext.getTargetDeleteSqlInfo().getOriginSQL()).append("]");
@@ -42,8 +47,8 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 	}
 
 
-	public DBOutPutDataTran(TranResultSet jdbcResultSet, ImportContext importContext) {
-		super(jdbcResultSet,importContext);
+	public DBOutPutDataTran(TranResultSet jdbcResultSet, ImportContext importContext,ImportContext targetImportContext) {
+		super(jdbcResultSet,importContext, targetImportContext);
 	}
 
 
@@ -61,7 +66,6 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 		try {
 
 			//		GetCUDResult CUDResult = null;
-			TranSQLInfo sqlinfo = es2DBContext.getTargetSqlInfo();
 			Object temp = null;
 			Param param = null;
 			List<DBRecord> records = new ArrayList<DBRecord>();
@@ -70,7 +74,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 				if(hasNext == null){
 					if(records.size() > 0) {
 						taskNo ++;
-						TaskCommand<List<DBRecord>, String> taskCommand = new Base2DBTaskCommandImpl( importCount, importContext, records, taskNo, importCount.getJobNo(),taskInfo,true);
+						TaskCommand<List<DBRecord>, String> taskCommand = new Base2DBTaskCommandImpl( importCount, importContext,targetImportContext, records, taskNo, importCount.getJobNo(),taskInfo,true);
 						TaskCall.call(taskCommand);
 						importContext.flushLastValue(lastValue);
 						records.clear();
@@ -112,7 +116,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 			}
 			if(records.size() > 0) {
 				taskNo ++;
-				TaskCommand<List<DBRecord>, String> taskCommand = new Base2DBTaskCommandImpl(importCount, importContext, records, taskNo, importCount.getJobNo(),taskInfo,true);
+				TaskCommand<List<DBRecord>, String> taskCommand = new Base2DBTaskCommandImpl(importCount, importContext, targetImportContext,records, taskNo, importCount.getJobNo(),taskInfo,true);
 				TaskCall.call(taskCommand);
 				importContext.flushLastValue(lastValue);
 			}
@@ -233,7 +237,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					if(count > 0) {//强制刷新数据
 						count = 0;
 						taskNo++;
-						Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl( totalCount, importContext, records, taskNo, totalCount.getJobNo(),taskInfo,false);
+						Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl( totalCount, importContext, targetImportContext,records, taskNo, totalCount.getJobNo(),taskInfo,false);
 						records = new ArrayList<DBRecord>();
 						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 					}
@@ -264,7 +268,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 
 					count = 0;
 					taskNo ++;
-					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount,importContext,records,taskNo,totalCount.getJobNo(),taskInfo,false);
+					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount,importContext,targetImportContext,records,taskNo,totalCount.getJobNo(),taskInfo,false);
 					records = new ArrayList<DBRecord>();
 					tasks.add(service.submit(new TaskCall(taskCommand,  tranErrorWrapper)));
 
@@ -281,7 +285,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 //					throw error;
 //				}
 				taskNo ++;
-				Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount,importContext,records,taskNo,totalCount.getJobNo(),taskInfo,false);
+				Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount,importContext,targetImportContext,records,taskNo,totalCount.getJobNo(),taskInfo,false);
 				tasks.add(service.submit(new TaskCall(taskCommand,tranErrorWrapper)));
 
 				if(isPrintTaskLog())
@@ -341,7 +345,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 				if(hasNext == null){
 					if(count > 0) {//强制flush数据
 						taskNo++;
-						Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount, importContext, records, taskNo, importCount.getJobNo(),taskInfo,false);
+						Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount, importContext, targetImportContext,records, taskNo, importCount.getJobNo(),taskInfo,false);
 						int temp = count;
 						count = 0;
 						records = new ArrayList<DBRecord>();
@@ -382,7 +386,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 				if (count >= batchsize) {
 
 					taskNo ++;
-					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount,importContext,records,taskNo,importCount.getJobNo(),taskInfo,false);
+					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount,importContext,targetImportContext,records,taskNo,importCount.getJobNo(),taskInfo,false);
 					int temp  = count;
 					count = 0;
 					records = new ArrayList<DBRecord>();
@@ -407,7 +411,7 @@ public abstract class DBOutPutDataTran<T> extends BaseDataTran {
 					tranErrorWrapper.throwError();
 				}
 				taskNo ++;
-				Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount,importContext,records,taskNo,importCount.getJobNo(),taskInfo,false);
+				Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount,importContext,targetImportContext,records,taskNo,importCount.getJobNo(),taskInfo,false);
 				ret = TaskCall.call(taskCommand);
 				importContext.flushLastValue(lastValue);
 				if(isPrintTaskLog())  {

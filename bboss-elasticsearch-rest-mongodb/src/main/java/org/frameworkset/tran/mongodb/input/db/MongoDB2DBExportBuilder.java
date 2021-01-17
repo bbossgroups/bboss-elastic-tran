@@ -15,10 +15,11 @@ package org.frameworkset.tran.mongodb.input.db;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DataStream;
+import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.DefualtExportResultHandler;
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
-import org.frameworkset.tran.DefualtExportResultHandler;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.mongodb.MongoDBExportBuilder;
 
 /**
@@ -34,12 +35,18 @@ public class MongoDB2DBExportBuilder extends MongoDBExportBuilder {
 		return new MongoDB2DBExportBuilder();
 	}
 
-	@Override
-	protected DataStream createDataStream() {
-		return new MongoDB2DBDataStreamImpl();
+
+	public DataTranPlugin buildDataTranPlugin(ImportContext importContext, ImportContext targetImportContext)
+	{
+
+		return new MongoDB2DBInputPlugin(  importContext,   targetImportContext);
+
+
 	}
 	@Override
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
 		return new DefualtExportResultHandler<Object,Object>(exportResultHandler);
 	}
+
+
 }

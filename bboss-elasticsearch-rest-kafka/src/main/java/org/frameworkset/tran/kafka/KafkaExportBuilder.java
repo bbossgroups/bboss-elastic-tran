@@ -16,10 +16,10 @@ package org.frameworkset.tran.kafka;
  */
 
 import org.frameworkset.tran.DataStream;
+import org.frameworkset.tran.DefualtExportResultHandler;
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.BaseImportBuilder;
-import org.frameworkset.tran.DefualtExportResultHandler;
 import org.frameworkset.tran.kafka.codec.CodecUtil;
 
 import java.util.Properties;
@@ -119,7 +119,7 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		this.consumerThreads = consumerThreads;
 		return this;
 	}
-	protected abstract DataStream createDataStream();
+
 	@Override
 	public DataStream builder() {
 		super.builderConfig();
@@ -150,6 +150,8 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		es2DBImportConfig.setKafkaWorkThreads(kafkaWorkThreads);
 		DataStream dataStream = createDataStream();//new Kafka2ESDataStreamImpl();
 		dataStream.setImportConfig(es2DBImportConfig);
+		dataStream.setImportContext(this.buildImportContext(es2DBImportConfig));
+
 		return dataStream;
 	}
 	private Integer kafkaWorkThreads;

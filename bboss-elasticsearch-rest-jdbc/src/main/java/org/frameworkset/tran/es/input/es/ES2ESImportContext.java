@@ -15,10 +15,8 @@ package org.frameworkset.tran.es.input.es;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
-import org.frameworkset.tran.es.input.db.ES2DBDataTranPlugin;
 
 import java.util.Map;
 
@@ -34,9 +32,7 @@ public class ES2ESImportContext extends BaseImportContext implements ES2ESContex
 	private ES2ESImportConfig es2esImportConfig;
 
 
-	protected  DataTranPlugin buildDataTranPlugin(){
-		return new ES2ESDataTranPlugin(this);
-	}
+
 	protected void init(BaseImportConfig baseImportConfig){
 		super.init(baseImportConfig);
 		es2esImportConfig = (ES2ESImportConfig)baseImportConfig;

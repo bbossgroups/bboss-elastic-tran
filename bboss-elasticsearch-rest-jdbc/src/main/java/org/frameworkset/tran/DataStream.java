@@ -22,20 +22,44 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public abstract class DataStream {
+public class DataStream {
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
+	public ImportContext getImportContext() {
+		return importContext;
+	}
+
 	protected ImportContext importContext;
+	protected ImportContext targetImportContext;
 	protected BaseImportConfig importConfig ;
 
+	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
+		this.dataTranPlugin = dataTranPlugin;
+		this.dataTranPlugin.init();
+	}
+
+	private DataTranPlugin dataTranPlugin;
 	private boolean inited;
 	//	public void setExternalTimer(boolean externalTimer) {
 //		this.esjdbc.setExternalTimer(externalTimer);
 //	}
 	private Lock lock = new ReentrantLock();
-	protected abstract ImportContext buildImportContext(BaseImportConfig importConfig);
 	public void setImportConfig(BaseImportConfig importConfig){
 		this.importConfig = importConfig;
 	}
+
+	public void setTargetImportContext(ImportContext targetImportContext) {
+		this.targetImportContext = targetImportContext;
+	}
+	public void setImportContext(ImportContext importContext) {
+		this.importContext = importContext;
+	}
+
+	public ImportContext getTargetImportContext() {
+		return targetImportContext;
+	}
+
 	/**
 	 *
 	 * @throws ESDataImportException
@@ -44,7 +68,11 @@ public abstract class DataStream {
 
 		try {
 			this.init();
-			importContext.importData();
+//			importContext.importData();
+			DataTranPlugin dataTranPlugin = importContext.getDataTranPlugin();
+			if(dataTranPlugin != null){
+				dataTranPlugin.importData();
+			}
 //			if(this.scheduleService == null) {//一次性执行数据导入操作
 //
 //				long importStartTime = System.currentTimeMillis();
@@ -110,8 +138,13 @@ public abstract class DataStream {
 
 		try {
 			lock.lock();
+			/** 1122
 			this.importContext = this.buildImportContext(importConfig);
+			 */
+			/**
+			dataTranPlugin = importContext.buildDataTranPlugin();
 
+			dataTranPlugin.init();*/
 
 //			this.initES(esjdbc.getApplicationPropertiesFile());
 //			this.initDS(esjdbc.getDbConfig());

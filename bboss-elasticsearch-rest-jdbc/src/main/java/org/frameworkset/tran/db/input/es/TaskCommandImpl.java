@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
 public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 //	private String refreshOption;
 
-	public TaskCommandImpl(ImportCount importCount, ImportContext importContext, long dataSize, int taskNo, String jobNo) {
-		super(importCount,importContext,  dataSize,  taskNo,  jobNo);
+	public TaskCommandImpl(ImportCount importCount, ImportContext importContext,ImportContext targetImportContext, long dataSize, int taskNo, String jobNo) {
+		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo);
 	}
 
 

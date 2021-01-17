@@ -15,13 +15,10 @@ package org.frameworkset.tran.kafka.input;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.BaseDataTranPlugin;
-import org.frameworkset.tran.DataTranPlugin;
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.KafkaContext;
 import org.frameworkset.tran.kafka.KafkaResultSet;
-import org.frameworkset.tran.kafka.input.es.Kafka2ESDataTran;
 
 /**
  * <p>Description: </p>
@@ -43,11 +40,12 @@ public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements
 	public void initStatusTableId() {
 
 	}
-	public BaseKafkaInputPlugin(ImportContext importContext){
-		super(importContext);
+	public BaseKafkaInputPlugin(ImportContext importContext,ImportContext targetImportContext){
+		super(  importContext,  targetImportContext);
 
 
 	}
+
 	@Override
 	public void importData() throws ESDataImportException {
 
@@ -83,12 +81,14 @@ public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements
 	public void afterInit(){
 	}
 
-	protected abstract void initKafkaTranBatchConsumer2ndStore(Kafka2ESDataTran kafka2ESDataTran) throws Exception;
+	protected abstract void initKafkaTranBatchConsumer2ndStore(BaseDataTran kafka2ESDataTran) throws Exception;
+
+	protected abstract BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet);
 
 	public void doImportData()  throws ESDataImportException{
 		KafkaResultSet kafkaResultSet = new KafkaResultSet(this.importContext);
 //		final CountDownLatch countDownLatch = new CountDownLatch(1);
-		final Kafka2ESDataTran kafka2ESDataTran = new Kafka2ESDataTran(kafkaResultSet,importContext);
+		final BaseDataTran kafka2ESDataTran = createBaseDataTran(kafkaResultSet);
 
 		Thread tranThread = null;
 		try {

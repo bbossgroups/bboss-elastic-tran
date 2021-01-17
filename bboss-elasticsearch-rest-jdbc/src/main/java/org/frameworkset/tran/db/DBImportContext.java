@@ -29,12 +29,15 @@ import org.frameworkset.tran.db.output.TranSQLInfo;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class DBImportContext extends BaseImportContext implements DBOutPutContext {
+public  class DBImportContext extends BaseImportContext implements DBOutPutContext {
 	protected DBImportConfig dbImportConfig;
 	public DBConfig getTargetDBConfig() {
 		return dbImportConfig.getTargetDBConfig();
 	}
-
+	public boolean optimize()
+	{
+		return dbImportConfig.optimize();
+	}
 
 	private TranSQLInfo targetSqlInfo;
 	private TranSQLInfo targetUpdateSqlInfo;
@@ -49,6 +52,7 @@ public abstract class DBImportContext extends BaseImportContext implements DBOut
 		super(baseImportConfig);
 
 	}
+
 
 	@Override
 	public String getSql() {

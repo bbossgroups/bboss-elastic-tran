@@ -50,10 +50,7 @@ public class HBaseContextImpl extends BaseImportContext implements HBaseContext{
 	public boolean isIncrementByTimeRange() {
 		return hBaseImportConfig.isIncrementByTimeRange();
 	}
-	@Override
-	protected DataTranPlugin buildDataTranPlugin() {
-		return new HBase2ESInputPlugin(this);
-	}
+
 
 	public Map<String, String> getHbaseClientProperties() {
 		return hBaseImportConfig.getHbaseClientProperties();

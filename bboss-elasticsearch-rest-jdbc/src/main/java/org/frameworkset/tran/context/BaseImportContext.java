@@ -40,13 +40,19 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract  class BaseImportContext implements ImportContext {
 	protected BaseImportConfig baseImportConfig;
-//	private JDBCResultSet jdbcResultSet;
+
+	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
+		this.dataTranPlugin = dataTranPlugin;
+	}
+
+	//	private JDBCResultSet jdbcResultSet;
 	private DataTranPlugin dataTranPlugin;
 	private boolean currentStoped = false;
 
 	public BaseImportContext(){
 
 	}
+
 	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
 		return new ContextImpl(this, jdbcResultSet, batchContext);
 	}
@@ -95,8 +101,7 @@ public abstract  class BaseImportContext implements ImportContext {
 	public BaseImportContext(BaseImportConfig baseImportConfig){
 		this.baseImportConfig = baseImportConfig;
 		init(baseImportConfig);
-		dataTranPlugin = buildDataTranPlugin();
-		dataTranPlugin.init();
+
 	}
 	public ExportCount getExportCount(){
 		return dataTranPlugin.getExportCount();
@@ -122,7 +127,6 @@ public abstract  class BaseImportContext implements ImportContext {
 		return baseImportConfig.getConfigs();
 	}
 
-	protected abstract DataTranPlugin buildDataTranPlugin();
 
 
 	public boolean isPrintTaskLog(){
@@ -150,12 +154,7 @@ public abstract  class BaseImportContext implements ImportContext {
 		stop();
 	}
 
-	@Override
-	public void importData() {
-		if(dataTranPlugin != null){
-			dataTranPlugin.importData();
-		}
-	}
+
 
 	public boolean isContinueOnError(){
 		return baseImportConfig.isContinueOnError();

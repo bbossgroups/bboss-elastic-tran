@@ -30,6 +30,7 @@ import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,15 +45,55 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 	private DBOutPutContext es2DBContext;
 	private String taskInfo;
 	private boolean needBatch;
-	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext,
+	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext,ImportContext targetImportContext,
 								  List<DBRecord> datas, int taskNo, String jobNo,String taskInfo,boolean needBatch) {
-		super(importCount,importContext,datas.size(),  taskNo,  jobNo);
+		super(importCount,importContext, targetImportContext,datas.size(),  taskNo,  jobNo);
 		this.needBatch = needBatch;
 		this.importContext = importContext;
 		this.datas = datas;
-		es2DBContext = (DBOutPutContext )importContext;
+		es2DBContext = (DBOutPutContext )targetImportContext;
 		this.taskInfo = taskInfo;
+		if(es2DBContext.optimize()){
+			sortData();
+		}
 	}
+
+	private void sortData(){
+		List<DBRecord> _idatas = new ArrayList<DBRecord>();
+		List<DBRecord> _udatas = new ArrayList<DBRecord>();
+		List<DBRecord> _ddatas = new ArrayList<DBRecord>();
+		for(int i = 0; datas != null && i < datas.size(); i ++){
+			DBRecord dbRecord = datas.get(i);
+			if(dbRecord.isInsert())
+				_idatas.add(dbRecord);
+			else if(dbRecord.isUpate()){
+				_udatas.add(dbRecord);
+			}
+			else {
+				_ddatas.add(dbRecord);
+			}
+		}
+		if((_udatas.size() == 0 && _ddatas.size() == 0)
+				|| (_idatas.size() == 0 && _ddatas.size() == 0)
+				|| (_idatas.size() == 0 && _udatas.size() == 0)){
+			return;
+		}
+		else {
+			datas.clear();
+			if(_idatas.size() > 0) {
+				datas.addAll(_idatas);
+			}
+
+			if(_udatas.size() > 0) {
+				datas.addAll(_udatas);
+			}
+
+			if(_ddatas.size() > 0) {
+				datas.addAll(_ddatas);
+			}
+		}
+	}
+
 
 
 
@@ -93,12 +134,9 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
 		}
 		this.tryCount ++;
-		long start = System.currentTimeMillis();
 
 		StatementInfo stmtInfo = null;
 		PreparedStatement statement = null;
-		PreparedStatement updateStatement = null;
-		PreparedStatement deleteStatement = null;
 		TranSQLInfo insertSqlinfo = es2DBContext.getTargetSqlInfo();
 		TranSQLInfo updateSqlinfo = es2DBContext.getTargetUpdateSqlInfo();
 		TranSQLInfo deleteSqlinfo = es2DBContext.getTargetDeleteSqlInfo();

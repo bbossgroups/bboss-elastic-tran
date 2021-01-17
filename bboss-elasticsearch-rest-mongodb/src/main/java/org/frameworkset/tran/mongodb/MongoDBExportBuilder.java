@@ -21,6 +21,8 @@ import org.frameworkset.nosql.mongodb.ClientMongoCredential;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
+import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBExportBuilder;
 import org.frameworkset.tran.es.ESExportResultHandler;
 
@@ -66,7 +68,9 @@ public abstract class MongoDBExportBuilder extends DBExportBuilder {
 	public String getName() {
 		return name;
 	}
-
+	protected ImportContext buildImportContext(BaseImportConfig importConfig) {
+		return new MongoDBImportContext((MongoDBImportConfig)importConfig);
+	}
 	public MongoDBExportBuilder buildClientMongoCredential(String database, String userName,
 														   String password, String mechanism){
 		if(credentials == null){
@@ -201,7 +205,7 @@ public abstract class MongoDBExportBuilder extends DBExportBuilder {
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
 		return new ESExportResultHandler(exportResultHandler);
 	}
-	protected abstract DataStream createDataStream();
+
 
 	public DataStream builder(){
 		super.builderConfig();
@@ -249,6 +253,10 @@ public abstract class MongoDBExportBuilder extends DBExportBuilder {
 		super.buildDBImportConfig(es2DBImportConfig);
 		DataStream dataStream = this.createDataStream();
 		dataStream.setImportConfig(es2DBImportConfig);
+		dataStream.setImportContext(this.buildImportContext(es2DBImportConfig));
+		dataStream.setTargetImportContext(dataStream.getImportContext());
+		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
+
 		return dataStream;
 	}
 

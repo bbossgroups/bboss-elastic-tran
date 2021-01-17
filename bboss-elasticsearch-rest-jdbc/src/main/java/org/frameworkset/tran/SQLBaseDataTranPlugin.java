@@ -30,8 +30,8 @@ import org.frameworkset.tran.db.DBContext;
  * @version 1.0
  */
 public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
-	public SQLBaseDataTranPlugin(ImportContext importContext) {
-		super(importContext);
+	public SQLBaseDataTranPlugin(ImportContext importContext,ImportContext targetImportContext) {
+		super(importContext,  targetImportContext);
 	}
 	protected SQLInfo sqlInfo;
 	protected ConfigSQLExecutor executor;

@@ -16,7 +16,11 @@ package org.frameworkset.tran.db.input.db;
  */
 
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBExportBuilder;
+import org.frameworkset.tran.db.DBImportConfig;
+import org.frameworkset.tran.db.DBImportContext;
 
 /**
  * <p>Description: </p>
@@ -37,6 +41,9 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 	public static DB2DBExportBuilder newInstance(){
 		return new DB2DBExportBuilder();
 	}
+	public  DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
+		return new DB2DBDataTranPlugin(  importContext,  targetImportContext);
+	}
 	@Override
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
 		return new DefualtExportResultHandler<String,String>(exportResultHandler);
@@ -45,7 +52,9 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 		if(targetDBConfig == null)
 			targetDBConfig = new DBConfig();
 	}
-
+	protected ImportContext buildImportContext(BaseImportConfig importConfig){
+		return new DBImportContext(importConfig);
+	}
 	public DataStream builder(){
 		super.builderConfig();
 
@@ -58,14 +67,18 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 		catch (Exception e){
 
 		}
-		DB2DBImportConfig db2DBImportConfig = new DB2DBImportConfig();
+		DBImportConfig db2DBImportConfig = new DBImportConfig();
 		super.buildImportConfig(db2DBImportConfig);
 		db2DBImportConfig.setUseJavaName(false);
 		db2DBImportConfig.setTargetDBConfig(this.targetDBConfig);
 		super.buildDBImportConfig(db2DBImportConfig);
 
-		DB2DBDataStreamImpl dataStream = new DB2DBDataStreamImpl();
+		DataStream dataStream = this.createDataStream();
 		dataStream.setImportConfig(db2DBImportConfig);
+		dataStream.setImportContext(this.buildImportContext(db2DBImportConfig));
+//		dataStream.setTargetImportContext(this.buildTargetImportContext(db2DBImportConfig));
+		dataStream.setTargetImportContext(dataStream.getImportContext());
+		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
 		return dataStream;
 	}
 

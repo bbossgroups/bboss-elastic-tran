@@ -15,11 +15,10 @@ package org.frameworkset.tran.es.input.es;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DataStream;
-import org.frameworkset.tran.DefualtExportResultHandler;
-import org.frameworkset.tran.ExportResultHandler;
-import org.frameworkset.tran.WrapedExportResultHandler;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportBuilder;
+import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.context.ImportContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,8 +59,14 @@ public class ES2ESExportBuilder extends BaseImportBuilder {
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
 		return new DefualtExportResultHandler<String,String>(exportResultHandler);
 	}
+	protected ImportContext buildImportContext(BaseImportConfig importConfig){
+		return new ES2ESImportContext(importConfig);
+	}
 
-
+	@Override
+	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
+		return new ES2ESDataTranPlugin(  importContext,  targetImportContext);
+	}
 	public DataStream builder(){
 		super.builderConfig();
 //		this.buildDBConfig();
@@ -93,8 +98,12 @@ public class ES2ESExportBuilder extends BaseImportBuilder {
 
 		es2DBImportConfig.setTargetIndex(this.targetIndex);
 		es2DBImportConfig.setTargetIndexType(this.targetIndexType);
-		ES2ESDataStreamImpl dataStream = new ES2ESDataStreamImpl();
+		DataStream dataStream = createDataStream();
 		dataStream.setImportConfig(es2DBImportConfig);
+		dataStream.setImportContext(buildImportContext(es2DBImportConfig));
+		dataStream.setTargetImportContext(dataStream.getImportContext());
+		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
+
 		return dataStream;
 	}
 

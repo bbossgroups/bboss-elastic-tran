@@ -5,11 +5,11 @@ import com.frameworkset.common.poolman.StatementInfo;
 import com.frameworkset.common.poolman.handle.ResultSetHandler;
 import com.frameworkset.common.poolman.util.SQLUtil;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
+import org.frameworkset.tran.BaseElasticsearchDataTran;
+import org.frameworkset.tran.DataStream;
+import org.frameworkset.tran.db.JDBCResultSet;
 import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
 import org.frameworkset.tran.db.input.es.DB2ESImportContext;
-import org.frameworkset.tran.db.input.es.DB2ESDataTran;
-import org.frameworkset.tran.db.JDBCResultSet;
-import org.frameworkset.tran.DataStream;
 import org.junit.Test;
 
 import java.sql.ResultSet;
@@ -47,7 +47,7 @@ public class TestDB2ESImportConfig {
 				jdbcResultSet.setResultSet(resultSet);
 				jdbcResultSet.setMetaData(statementInfo.getMeta());
 				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-				DB2ESDataTran db2ESDataTran = new DB2ESDataTran(jdbcResultSet,importContext);
+				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(jdbcResultSet,importContext,importContext);
 				db2ESDataTran.tran("dbdemo","dbdemo");
 			}
 		},"select * from td_sm_log");
@@ -78,7 +78,7 @@ public class TestDB2ESImportConfig {
 				jdbcResultSet.setResultSet(resultSet);
 				jdbcResultSet.setMetaData(statementInfo.getMeta());
 				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-				DB2ESDataTran db2ESDataTran = new DB2ESDataTran(jdbcResultSet,importContext);
+				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(jdbcResultSet,importContext,importContext);
 				db2ESDataTran.tran("dbclobdemo","dbclobdemo");
 			}
 		},"select * from td_cms_document");

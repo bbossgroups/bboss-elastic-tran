@@ -18,11 +18,14 @@ package org.frameworkset.tran.hbase;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.frameworkset.tran.DataStream;
+import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.BaseImportBuilder;
+import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.ESExportResultHandler;
-import org.frameworkset.tran.hbase.input.HBase2ESDataStreamImpl;
+import org.frameworkset.tran.hbase.input.HBase2ESInputPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +48,10 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 
 	public Boolean getHbaseAsynMetricsEnable() {
 		return hbaseAsynMetricsEnable;
+	}
+	@Override
+	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
+		return new HBase2ESInputPlugin(  importContext,  targetImportContext);
 	}
 
 	public HBaseExportBuilder setHbaseAsynMetricsEnable(Boolean hbaseAsynMetricsEnable) {
@@ -92,7 +99,9 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		 hbaseClientProperties.put(name,value);
 		return this;
 	 }
-
+	protected ImportContext buildImportContext(BaseImportConfig importConfig) {
+		return new HBaseContextImpl((HBaseImportConfig)importConfig);
+	}
 	public int getHbaseClientThreadCount() {
 		return hbaseClientThreadCount;
 	}
@@ -159,9 +168,6 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 	@Override
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
 		return new ESExportResultHandler(exportResultHandler);
-	}
-	protected DataStream createDataStream(){
-		return new HBase2ESDataStreamImpl();
 	}
 
 	public DataStream builder(){
@@ -245,6 +251,10 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		*/
 		DataStream dataStream = this.createDataStream();
 		dataStream.setImportConfig(hBaseImportConfig);
+		dataStream.setImportContext(this.buildImportContext(hBaseImportConfig));
+		dataStream.setTargetImportContext(dataStream.getImportContext());
+		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
+
 		return dataStream;
 	}
 

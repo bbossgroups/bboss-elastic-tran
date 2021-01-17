@@ -39,8 +39,8 @@ import java.util.List;
  */
 public class DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranPlugin {
 
-	public DBDataTranPlugin(ImportContext importContext){
-		super(importContext);
+	public DBDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
+		super(importContext, targetImportContext);
 
 
 	}
@@ -177,7 +177,7 @@ public class DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranP
 
 	public void doImportData()  throws ESDataImportException {
 
-		ResultSetHandler resultSetHandler = new DefaultResultSetHandler(importContext);
+		ResultSetHandler resultSetHandler = new DefaultResultSetHandler(importContext,targetImportContext);
 
 		try {
 			if (sqlInfo.getParamSize() == 0) {

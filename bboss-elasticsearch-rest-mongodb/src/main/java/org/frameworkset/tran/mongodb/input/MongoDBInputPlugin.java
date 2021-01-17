@@ -47,8 +47,8 @@ public abstract class MongoDBInputPlugin extends BaseDataTranPlugin implements D
 	}
 
 
-	public MongoDBInputPlugin(ImportContext importContext){
-		super(importContext);
+	public MongoDBInputPlugin(ImportContext importContext, ImportContext targetImportContext){
+		super(  importContext,   targetImportContext);
 
 
 	}

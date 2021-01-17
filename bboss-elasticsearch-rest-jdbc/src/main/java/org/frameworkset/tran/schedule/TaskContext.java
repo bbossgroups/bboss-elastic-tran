@@ -26,11 +26,21 @@ import org.frameworkset.tran.context.ImportContext;
  * @version 1.0
  */
 public class TaskContext {
-	public TaskContext(ImportContext importContext){
+	public TaskContext(ImportContext importContext,ImportContext targetImportContext){
 		this.importContext = importContext;
+		this.targetImportContext = targetImportContext;
 	}
 	private ImportContext importContext;
 
+	public ImportContext getTargetImportContext() {
+		return targetImportContext;
+	}
+
+	public void setTargetImportContext(ImportContext targetImportContext) {
+		this.targetImportContext = targetImportContext;
+	}
+
+	private ImportContext targetImportContext;
 	public ImportContext getImportContext() {
 		return importContext;
 	}

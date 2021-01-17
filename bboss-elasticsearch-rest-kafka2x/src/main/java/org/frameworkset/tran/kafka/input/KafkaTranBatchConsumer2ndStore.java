@@ -19,9 +19,10 @@ package org.frameworkset.tran.kafka.input;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.frameworkset.plugin.kafka.KafkaBatchConsumer2ndStore;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.Record;
-import org.frameworkset.tran.es.output.AsynESOutPutDataTran;
 import org.frameworkset.tran.kafka.KafkaContext;
+import org.frameworkset.tran.kafka.KafkaData;
 import org.frameworkset.tran.kafka.KafkaMapRecord;
 import org.frameworkset.tran.kafka.KafkaStringRecord;
 
@@ -39,17 +40,17 @@ import java.util.Map;
  */
 public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 	private KafkaContext kafkaContext;
-	public KafkaTranBatchConsumer2ndStore(AsynESOutPutDataTran asynESOutPutDataTran, KafkaContext kafkaContext) {
+	public KafkaTranBatchConsumer2ndStore(BaseDataTran asynESOutPutDataTran, KafkaContext kafkaContext) {
 		this.asynESOutPutDataTran = asynESOutPutDataTran;
 		this.kafkaContext = kafkaContext;
 	}
 
-	private AsynESOutPutDataTran asynESOutPutDataTran;
+	private BaseDataTran asynESOutPutDataTran;
 	@Override
 	public void store(ConsumerRecords<Object, Object> messages) throws Exception {
 
 		List<Record> records = parserData(messages);
-		asynESOutPutDataTran.appendInData(records);
+		asynESOutPutDataTran.appendData(new KafkaData(records));
 	}
 
 	@Override

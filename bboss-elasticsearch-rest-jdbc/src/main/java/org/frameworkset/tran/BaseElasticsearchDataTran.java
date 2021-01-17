@@ -37,7 +37,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-public abstract class BaseElasticsearchDataTran extends BaseDataTran{
+public class BaseElasticsearchDataTran extends BaseDataTran{
 	private ClientInterface[] clientInterfaces;
 	private boolean versionUpper7;;
 
@@ -64,8 +64,8 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 		if(clientInterfaces != null && clientInterfaces.length > 0)
 			versionUpper7 = clientInterfaces[0].isVersionUpper7();
 	}
-	public BaseElasticsearchDataTran(TranResultSet jdbcResultSet, ImportContext importContext) {
-		super(jdbcResultSet,importContext);
+	public BaseElasticsearchDataTran(TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
+		super(jdbcResultSet,importContext,targetImportContext);
 		String elasticsearch = importContext.getTargetElasticsearch();
 		if(elasticsearch == null)
 			elasticsearch = "default";
@@ -73,8 +73,8 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 //		clientInterface = ElasticSearchHelper.getRestClientUtil(elasticsearch);
 	}
 
-	public BaseElasticsearchDataTran(TranResultSet jdbcResultSet,ImportContext importContext, String esCluster) {
-		super(jdbcResultSet,importContext);
+	public BaseElasticsearchDataTran(TranResultSet jdbcResultSet,ImportContext importContext, ImportContext targetImportContext, String esCluster) {
+		super(jdbcResultSet,importContext,   targetImportContext);
 		initClientInterfaces(esCluster);
 //		clientInterface = ElasticSearchHelper.getRestClientUtil(esCluster);
 	}
@@ -126,7 +126,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 						count = 0;
 						for(ClientInterface clientInterface:clientInterfaces) {
 							taskNo++;
-							TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, _count, taskNo, totalCount.getJobNo());
+							TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext, _count, taskNo, totalCount.getJobNo());
 //						count = 0;
 							taskCommand.setClientInterface(clientInterface);
 							taskCommand.setDatas(datas);
@@ -163,7 +163,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 					count = 0;
 					for(ClientInterface clientInterface:clientInterfaces) {
 						taskNo++;
-						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, _count, taskNo, totalCount.getJobNo());
+						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext, _count, taskNo, totalCount.getJobNo());
 
 						taskCommand.setClientInterface(clientInterface);
 						taskCommand.setDatas(datas);
@@ -183,7 +183,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				String datas = builder.toString();
 				for(ClientInterface clientInterface:clientInterfaces) {
 					taskNo++;
-					TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, count, taskNo, totalCount.getJobNo());
+					TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext, count, taskNo, totalCount.getJobNo());
 					taskCommand.setClientInterface(clientInterface);
 					taskCommand.setDatas(datas);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
@@ -260,7 +260,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 						count = 0;
 						for(ClientInterface clientInterface:clientInterfaces) {
 							taskNo++;
-							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext, _count, taskNo, importCount.getJobNo());
+							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext, _count, taskNo, importCount.getJobNo());
 //						int temp = count;
 //						count = 0;
 
@@ -310,7 +310,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 					count = 0;
 					for(ClientInterface clientInterface:clientInterfaces) {
 						taskNo++;
-						TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext, _count, taskNo, importCount.getJobNo());
+						TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext, _count, taskNo, importCount.getJobNo());
 //					count = 0;
 						taskCommand.setClientInterface(clientInterface);
 						taskCommand.setDatas(datas);
@@ -336,7 +336,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				String datas = builder.toString();
 				for(ClientInterface clientInterface:clientInterfaces) {
 					taskNo++;
-					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext, count, taskNo, importCount.getJobNo());
+					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext, count, taskNo, importCount.getJobNo());
 					taskCommand.setClientInterface(clientInterface);
 					taskCommand.setDatas(datas);
 					ret = TaskCall.call(taskCommand);
@@ -408,7 +408,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 						builder.setLength(0);
 						for(ClientInterface clientInterface:clientInterfaces) {
 
-							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext, totalCount, 1, importCount.getJobNo());
+							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext, totalCount, 1, importCount.getJobNo());
 							taskCommand.setClientInterface(clientInterface);
 							taskCommand.setDatas(_dd);
 							ret = TaskCall.call(taskCommand);
@@ -459,7 +459,7 @@ public abstract class BaseElasticsearchDataTran extends BaseDataTran{
 				builder.setLength(0);
 				for(ClientInterface clientInterface:clientInterfaces) {
 
-					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext, totalCount, 1, importCount.getJobNo());
+					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext, totalCount, 1, importCount.getJobNo());
 					taskCommand.setClientInterface(clientInterface);
 					taskCommand.setDatas(_dd);
 					ret = TaskCall.call(taskCommand);

@@ -30,6 +30,7 @@ import org.frameworkset.tran.metrics.TaskMetrics;
 public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,RESULT> {
 	protected ImportCount importCount;
 	protected ImportContext importContext;
+	protected ImportContext targetImportContext;
 	protected TaskMetrics taskMetrics;
 	protected long dataSize;
 	public long getDataSize(){
@@ -49,9 +50,10 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		return importContext;
 	}
 
-	public BaseTaskCommand(ImportCount importCount, ImportContext importContext,long dataSize,int taskNo,String jobNo){
+	public BaseTaskCommand(ImportCount importCount, ImportContext importContext,ImportContext targetImportContext,long dataSize,int taskNo,String jobNo){
 		this.importCount = importCount;
 		this.importContext =  importContext;
+		this.targetImportContext = targetImportContext;
 		this.dataSize = dataSize;
 		this.taskMetrics = new TaskMetrics();
 		taskMetrics.setTaskNo(taskNo);

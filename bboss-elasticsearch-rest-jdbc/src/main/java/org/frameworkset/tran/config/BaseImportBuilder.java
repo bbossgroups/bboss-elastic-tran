@@ -22,6 +22,8 @@ import org.frameworkset.elasticsearch.boot.ElasticSearchPropertiesFilePlugin;
 import org.frameworkset.spi.DefaultApplicationContext;
 import org.frameworkset.spi.assemble.GetProperties;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.db.input.db.DB2DBDataTranPlugin;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.CallInterceptor;
@@ -58,6 +60,7 @@ public abstract class BaseImportBuilder {
 
 	private boolean sortLastValue = true;
 	private boolean useBatchContextIndexName = false;
+	public abstract DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext);
 	/**
 	 * 是否不需要返回响应，不需要的情况下，可以设置为true，
 	 * 提升性能，如果debugResponse设置为true，那么强制返回并打印响应到日志文件中
@@ -70,7 +73,9 @@ public abstract class BaseImportBuilder {
 	public boolean isExternalTimer() {
 		return externalTimer;
 	}
-
+	protected DataStream createDataStream(){
+		return new DataStream();
+	}
 	public Map<String, Object> getGeoipConfig() {
 		return geoipConfig;
 	}
@@ -1490,5 +1495,9 @@ public abstract class BaseImportBuilder {
 	public BaseImportBuilder setGeoipIspConverter(Object geoipIspConverter) {
 		this.geoipIspConverter = geoipIspConverter;
 		return this;
+	}
+	protected abstract ImportContext buildImportContext(BaseImportConfig importConfig);
+	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig) {
+		return null;
 	}
 }

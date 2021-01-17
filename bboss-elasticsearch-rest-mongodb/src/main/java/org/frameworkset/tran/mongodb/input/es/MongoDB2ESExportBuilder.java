@@ -15,7 +15,8 @@ package org.frameworkset.tran.mongodb.input.es;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DataStream;
+import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.mongodb.MongoDBExportBuilder;
 
 /**
@@ -31,8 +32,11 @@ public class MongoDB2ESExportBuilder extends MongoDBExportBuilder {
 		return new MongoDB2ESExportBuilder();
 	}
 
-	@Override
-	protected DataStream createDataStream() {
-		return new MongoDB2ESDataStreamImpl();
+	public DataTranPlugin buildDataTranPlugin(ImportContext importContext, ImportContext targetImportContext)
+	{
+
+		return new MongoDB2ESInputPlugin(  importContext,   targetImportContext);
+
+
 	}
 }

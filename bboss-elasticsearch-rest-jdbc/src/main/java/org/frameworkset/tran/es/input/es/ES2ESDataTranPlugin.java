@@ -27,6 +27,7 @@ import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.BaseESExporterScrollHandler;
 import org.frameworkset.tran.es.ES2TranResultSet;
+import org.frameworkset.tran.es.output.AsynESOutPutDataTran;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,8 +51,8 @@ public class ES2ESDataTranPlugin  extends BaseDataTranPlugin implements DataTran
 	}
 
 
-	public ES2ESDataTranPlugin(ImportContext importContext){
-		super(importContext);
+	public ES2ESDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
+		super(  importContext,  targetImportContext);
 
 
 	}
@@ -131,7 +132,7 @@ public class ES2ESDataTranPlugin  extends BaseDataTranPlugin implements DataTran
 	public void doImportData()  throws ESDataImportException {
 		AsynBaseTranResultSet jdbcResultSet = new ES2TranResultSet(importContext);
 		final CountDownLatch countDownLatch = new CountDownLatch(1);
-		final ES2ESOutPutDataTran es2DBDataTran = new ES2ESOutPutDataTran(jdbcResultSet,importContext,es2esContext.getTargetElasticsearch(),countDownLatch);
+		final AsynESOutPutDataTran es2DBDataTran = new AsynESOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,es2esContext.getTargetElasticsearch(),countDownLatch);
 		ES2ESExporterScrollHandler<MetaMap> esExporterScrollHandler = new ES2ESExporterScrollHandler<MetaMap>(importContext,
 				es2DBDataTran);
 		try {

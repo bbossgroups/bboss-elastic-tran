@@ -1,4 +1,4 @@
-package org.frameworkset.tran.kafka.input.es;
+package org.frameworkset.tran.kafka.input.db;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -20,6 +20,9 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.db.DBConfigBuilder;
+import org.frameworkset.tran.db.DBImportConfig;
+import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.kafka.KafkaExportBuilder;
 import org.frameworkset.tran.kafka.KafkaImportConfig;
 
@@ -33,18 +36,23 @@ import java.lang.reflect.InvocationTargetException;
  * @author biaoping.yin
  * @version 1.0
  */
-public class Kafka2ESExportBuilder extends KafkaExportBuilder {
-	private static final String Kafka2ESInputPlugin = "org.frameworkset.tran.kafka.input.es.Kafka2ESInputPlugin";
+public class Kafka2DBExportBuilder extends KafkaExportBuilder {
+	private DBConfigBuilder dbConfigBuilder;
+	private static final String Kafka2ESInputPlugin = "org.frameworkset.tran.kafka.input.db.Kafka2DBInputPlugin";
 
-	public static Kafka2ESExportBuilder newInstance(){
-		return new Kafka2ESExportBuilder();
-	}
-	@Override
-	protected ImportContext buildImportContext(BaseImportConfig importConfig) {
-		return new Kafka2ESImportContext((KafkaImportConfig)importConfig);
+	public Kafka2DBExportBuilder(DBConfigBuilder dbConfigBuilder) {
+		super();
+		this.dbConfigBuilder = dbConfigBuilder;
 	}
 
-	public DataTranPlugin buildDataTranPlugin(ImportContext importContext, ImportContext targetImportContext)
+	public static Kafka2DBExportBuilder newInstance(){
+		return new Kafka2DBExportBuilder(new DBConfigBuilder());
+	}
+
+	public DBConfigBuilder getDbConfigBuilder() {
+		return dbConfigBuilder;
+	}
+	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext)
 	{
 
 		try {
@@ -64,14 +72,24 @@ public class Kafka2ESExportBuilder extends KafkaExportBuilder {
 
 
 	}
+	@Override
+	protected ImportContext buildImportContext(BaseImportConfig importConfig) {
+		return new Kafka2DBImportContext((KafkaImportConfig)importConfig);
+	}
+
+	@Override
+	protected ImportContext buildTargetImportContext(BaseImportConfig targetImportConfig) {
+		return new DBImportContext(targetImportConfig);
+	}
 
 	@Override
 	public DataStream builder() {
 
 
 		DataStream dataStream = super.builder();
+		DBImportConfig dbImportConfig = dbConfigBuilder.buildDBImportConfig();
 //		super.buildImportConfig(dbImportConfig);
-		dataStream.setTargetImportContext(dataStream.getImportContext());
+		dataStream.setTargetImportContext(buildTargetImportContext(dbImportConfig));
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
 
 		return dataStream;

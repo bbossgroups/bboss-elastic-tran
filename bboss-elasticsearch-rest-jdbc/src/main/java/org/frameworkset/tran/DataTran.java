@@ -37,6 +37,7 @@ public interface DataTran {
 	 * @return
 	 */
 	String parallelBatchExecute(  );
+	public AsynTranResultSet getAsynTranResultSet();
 	/**
 	 * 串行批处理导入
 

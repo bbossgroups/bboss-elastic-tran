@@ -19,12 +19,9 @@ package org.frameworkset.tran.kafka.input;
 import kafka.message.MessageAndMetadata;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.frameworkset.plugin.kafka.KafkaBatchConsumer2ndStore;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.Record;
-import org.frameworkset.tran.es.output.AsynESOutPutDataTran;
-import org.frameworkset.tran.kafka.KafkaContext;
-import org.frameworkset.tran.kafka.KafkaImportConfig;
-import org.frameworkset.tran.kafka.KafkaMapRecord;
-import org.frameworkset.tran.kafka.KafkaStringRecord;
+import org.frameworkset.tran.kafka.*;
 import org.frameworkset.tran.kafka.codec.CodecObjectUtil;
 
 import java.util.ArrayList;
@@ -44,7 +41,7 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 	private Deserializer valueDeserializer;
 	private Deserializer keyDeserializer;
 
-	public KafkaTranBatchConsumer2ndStore(AsynESOutPutDataTran asynESOutPutDataTran, KafkaContext kafkaContext) {
+	public KafkaTranBatchConsumer2ndStore(BaseDataTran asynESOutPutDataTran, KafkaContext kafkaContext) {
 		this.asynESOutPutDataTran = asynESOutPutDataTran;
 		this.kafkaContext = kafkaContext;
 		if(kafkaContext.getValueCodec() != null) {
@@ -61,12 +58,12 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 		}
 	}
 
-	private AsynESOutPutDataTran asynESOutPutDataTran;
+	private BaseDataTran asynESOutPutDataTran;
 	@Override
 	public void store(List<MessageAndMetadata<byte[], byte[]>> messages) throws Exception {
 
 		List<Record> records = parserData(messages);
-		asynESOutPutDataTran.appendInData(records);
+		asynESOutPutDataTran.appendData(new KafkaData(records));
 	}
 
 	@Override

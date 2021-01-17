@@ -17,7 +17,6 @@ package org.frameworkset.tran.es.input.db;
 
 import com.frameworkset.common.poolman.BatchHandler;
 import org.frameworkset.tran.config.BaseImportConfig;
-import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.db.DBImportContext;
 
 import java.util.Map;
@@ -34,9 +33,7 @@ public class ES2DBImportContext extends DBImportContext implements ES2DBContext{
 	private ES2DBImportConfig es2DBImportConfig;
 
 
-	protected  DataTranPlugin buildDataTranPlugin(){
-		return new ES2DBDataTranPlugin(this);
-	}
+
 	protected void init(BaseImportConfig baseImportConfig){
 		super.init(baseImportConfig);
 		es2DBImportConfig = (ES2DBImportConfig)baseImportConfig;

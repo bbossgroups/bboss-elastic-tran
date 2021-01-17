@@ -25,6 +25,7 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.SQLBaseDataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.es.BaseESExporterScrollHandler;
 import org.frameworkset.tran.es.ES2TranResultSet;
 import org.frameworkset.tran.util.TranUtil;
@@ -51,8 +52,8 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 	}
 
 
-	public ES2DBDataTranPlugin(ImportContext importContext){
-		super(importContext);
+	public ES2DBDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
+		super(  importContext,  targetImportContext);
 
 
 	}
@@ -165,7 +166,7 @@ public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 		else {
 			AsynBaseTranResultSet jdbcResultSet = new ES2TranResultSet(importContext);
 			final CountDownLatch countDownLatch = new CountDownLatch(1);
-			final ES2DBOutPutDataTran es2DBDataTran = new ES2DBOutPutDataTran(jdbcResultSet,importContext,countDownLatch);
+			final AsynDBOutPutDataTran es2DBDataTran = new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,countDownLatch);
 			ESExporterScrollHandler<MetaMap> esExporterScrollHandler = new ESExporterScrollHandler<MetaMap>(importContext,
 					es2DBDataTran);
 			try {

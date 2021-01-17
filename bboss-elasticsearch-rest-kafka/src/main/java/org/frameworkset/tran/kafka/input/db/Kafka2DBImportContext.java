@@ -1,4 +1,4 @@
-package org.frameworkset.tran.db.input.db;
+package org.frameworkset.tran.kafka.input.db;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -16,8 +16,12 @@ package org.frameworkset.tran.db.input.db;
  */
 
 import org.frameworkset.tran.DataTranPlugin;
-import org.frameworkset.tran.config.BaseImportConfig;
-import org.frameworkset.tran.db.DBImportContext;
+import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.kafka.KafkaImportConfig;
+import org.frameworkset.tran.kafka.KafkaImportContext;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * <p>Description: </p>
@@ -27,25 +31,12 @@ import org.frameworkset.tran.db.DBImportContext;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DB2DBImportContext extends DBImportContext implements DB2DBContext{
-	private DB2DBImportConfig db2DBImportConfig;
+public class Kafka2DBImportContext extends KafkaImportContext {
 
+	public Kafka2DBImportContext(KafkaImportConfig importConfig) {
+		super(importConfig);
+	}
 
-	protected  DataTranPlugin buildDataTranPlugin(){
-		return new DB2DBDataTranPlugin(this);
-	}
-	protected void init(BaseImportConfig baseImportConfig){
-		super.init(baseImportConfig);
-		db2DBImportConfig = (DB2DBImportConfig)baseImportConfig;
-	}
-	public DB2DBImportContext(){
-		this(new DB2DBImportConfig());
-
-	}
-	public DB2DBImportContext(BaseImportConfig baseImportConfig){
-		super(baseImportConfig);
-
-	}
 
 
 

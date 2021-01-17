@@ -39,9 +39,12 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0
  */
 public interface ImportContext {
+	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);
+//	DataTranPlugin buildDataTranPlugin();
 	Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext);
 	ESConfig getESConfig();
 	public Long getTimeRangeLastValue();
+	public DataTranPlugin getDataTranPlugin();
 	/**
 	 * 异步消费数据时，强制刷新检测空闲时间间隔，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作
 	 * @return
@@ -61,7 +64,6 @@ public interface ImportContext {
 	public void setEsIdField(String esIdField);
 	void destroy();
 	public ExportCount getExportCount();
-	void importData();
 	public Object max(Object oldValue,Object newValue);
 	boolean isContinueOnError();
 	boolean isCurrentStoped();

@@ -17,6 +17,7 @@ package org.frameworkset.tran.db.input.es;
 
 import com.frameworkset.common.poolman.StatementInfo;
 import com.frameworkset.common.poolman.handle.ResultSetHandler;
+import org.frameworkset.tran.BaseElasticsearchDataTran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.JDBCResultSet;
 
@@ -32,8 +33,10 @@ import java.sql.ResultSet;
  */
 public class DefaultResultSetHandler extends ResultSetHandler {
 	private ImportContext importContext ;
-	public DefaultResultSetHandler(ImportContext importContext){
+	private ImportContext targetImportContext;
+	public DefaultResultSetHandler(ImportContext importContext,ImportContext targetImportContext){
 		this.importContext = importContext;
+		this.targetImportContext = targetImportContext;
 
 	}
 	@Override
@@ -43,7 +46,7 @@ public class DefaultResultSetHandler extends ResultSetHandler {
 		jdbcResultSet.setResultSet(resultSet);
 		jdbcResultSet.setMetaData(statementInfo.getMeta());
 		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-		DB2ESDataTran db2ESDataTran = new DB2ESDataTran(jdbcResultSet,importContext);
+		BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(jdbcResultSet,importContext,targetImportContext);
 
 		db2ESDataTran.tran(  );
 	}

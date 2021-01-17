@@ -33,31 +33,11 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class Kafka2ESImportContext extends KafkaImportContext {
 
-	private static final String Kafka2ESInputPlugin = "org.frameworkset.tran.kafka.input.es.Kafka2ESInputPlugin";
 	public Kafka2ESImportContext(KafkaImportConfig importConfig) {
 		super(importConfig);
 	}
 
-	protected DataTranPlugin buildDataTranPlugin()
-	{
 
-		try {
-			Class<DataTranPlugin> clazz = (Class<DataTranPlugin>) Class.forName(Kafka2ESInputPlugin);
-			return clazz.getConstructor(ImportContext.class).newInstance(this);// Kafka2ESInputPlugin(this);
-		} catch (ClassNotFoundException e) {
-			throw new ESDataImportException(Kafka2ESInputPlugin,e);
-		} catch (InstantiationException e) {
-			throw new ESDataImportException(Kafka2ESInputPlugin,e);
-		} catch (InvocationTargetException e) {
-			throw new ESDataImportException(Kafka2ESInputPlugin,e);
-		} catch (NoSuchMethodException e) {
-			throw new ESDataImportException(Kafka2ESInputPlugin,e);
-		} catch (IllegalAccessException e) {
-			throw new ESDataImportException(Kafka2ESInputPlugin,e);
-		}
-
-
-	}
 
 
 }

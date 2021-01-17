@@ -33,6 +33,7 @@ public interface DBOutPutContext extends DBContext {
 	 * @return
 	 */
 	public TranSQLInfo getTargetSqlInfo() ;
+	public boolean optimize();
 
 	public void setTargetSqlInfo(TranSQLInfo sqlInfo) ;
 

@@ -14,8 +14,8 @@ package org.frameworkset.tran;/*
  *  limitations under the License.
  */
 
-public interface AsynTranResultSet<T extends Data> extends TranResultSet{
+public interface AsynTranResultSet extends TranResultSet{
 
 
-	public void appendData(T datas);
+	public void appendData(Data datas);
 }

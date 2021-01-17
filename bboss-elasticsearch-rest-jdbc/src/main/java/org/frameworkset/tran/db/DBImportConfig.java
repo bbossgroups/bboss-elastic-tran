@@ -28,6 +28,7 @@ public class DBImportConfig extends BaseImportConfig {
 	protected String updateSql;
 	protected String deleteSqlName;
 	protected String deleteSql;
+	protected boolean optimize;
 
 
 	public void setInsertSqlName(String insertSqlName) {
@@ -120,5 +121,13 @@ public class DBImportConfig extends BaseImportConfig {
 
 	public void setUpdateSqlName(String updateSqlName) {
 		this.updateSqlName = updateSqlName;
+	}
+
+	public void setOptimize(boolean optimize) {
+		this.optimize = optimize;
+	}
+
+	public boolean optimize() {
+		return optimize;
 	}
 }

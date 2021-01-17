@@ -32,22 +32,22 @@ import java.util.concurrent.TimeUnit;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class AsynBaseTranResultSet<T extends Data> extends  LastValue implements AsynTranResultSet<T> {
+public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTranResultSet {
 	private Record record;
-	private List<Object> records;
+	private List records;
 	private int pos = 0;
 	private int size;
 	public static int STATUS_STOP = 1;
 	private int status;
-	private BlockingQueue<T> queue ;
+	private BlockingQueue<Data> queue ;
 
 	public AsynBaseTranResultSet(ImportContext importContext) {
-		queue = new ArrayBlockingQueue<T>(importContext.getTranDataBufferQueue());
+		queue = new ArrayBlockingQueue(importContext.getTranDataBufferQueue());
 		this.importContext = importContext;
 	}
 	protected abstract Record buildRecord(Object data);
 
-	public void appendData(T datas){
+	public void appendData(Data datas){
 
 		try {
 			queue.put(datas);
@@ -114,7 +114,7 @@ public abstract class AsynBaseTranResultSet<T extends Data> extends  LastValue i
 			}
 			try {
 
-				T datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
+				Data datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
 				if(status == STATUS_STOP){
 					return false;
 				}

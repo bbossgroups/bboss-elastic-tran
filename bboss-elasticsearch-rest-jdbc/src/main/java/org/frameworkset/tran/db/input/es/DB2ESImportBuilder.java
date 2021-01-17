@@ -16,10 +16,14 @@ package org.frameworkset.tran.db.input.es;/*
 
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.DataStream;
+import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.BaseImportBuilder;
+import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBImportConfig;
+import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.es.ESExportResultHandler;
 
 public class DB2ESImportBuilder extends BaseImportBuilder {
@@ -30,10 +34,15 @@ public class DB2ESImportBuilder extends BaseImportBuilder {
 	protected DB2ESImportBuilder(){
 
 	}
+	@Override
+	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
+		return new DBDataTranPlugin(  importContext,  targetImportContext);
+	}
 
 
-
-
+	protected ImportContext buildImportContext(BaseImportConfig importConfig){
+		return new DBImportContext(importConfig);
+	}
 
 	public DB2ESImportBuilder setShowSql(boolean showSql) {
 		_setShowSql(showSql);
@@ -85,10 +94,14 @@ public class DB2ESImportBuilder extends BaseImportBuilder {
 		importConfig.setSqlName(sqlName);
 		if(SimpleStringUtil.isNotEmpty(sql))
 			importConfig.setSql(this.sql);
-		DB2ESDataStreamImpl  dataStream = new DB2ESDataStreamImpl();
+		DataStream  dataStream = this.createDataStream();
 		dataStream.setImportConfig(importConfig);
 		dataStream.setConfigString(this.toString());
-		dataStream.init();
+		dataStream.setImportContext(this.buildImportContext(importConfig));
+//		dataStream.setTargetImportContext(this.buildTargetImportContext(importConfig));
+		dataStream.setTargetImportContext(dataStream.getImportContext());
+//		dataStream.init();
+		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
 		return dataStream;
 	}
 

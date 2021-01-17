@@ -1,4 +1,4 @@
-package org.frameworkset.tran.mongodb.input.db;
+package org.frameworkset.tran.kafka.input.db;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,12 +15,12 @@ package org.frameworkset.tran.mongodb.input.db;
  * limitations under the License.
  */
 
-import com.mongodb.DBCursor;
+import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.db.output.DBOutPutContext;
-import org.frameworkset.tran.db.output.DBOutPutDataTran;
-import org.frameworkset.tran.mongodb.MongoDBResultSet;
-import org.frameworkset.tran.mongodb.input.MongoDBInputPlugin;
+import org.frameworkset.tran.kafka.input.Kafka2InputPlugin;
 import org.frameworkset.tran.util.TranUtil;
 
 /**
@@ -31,28 +31,25 @@ import org.frameworkset.tran.util.TranUtil;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MongoDB2DBInputPlugin extends MongoDBInputPlugin {
-	public MongoDB2DBInputPlugin(ImportContext importContext, ImportContext targetImportContext) {
-		super(  importContext,   targetImportContext);
-	}
+public class Kafka2DBInputPlugin  extends Kafka2InputPlugin {
+	protected DBOutPutContext dbOutPutContext;
+	public Kafka2DBInputPlugin(ImportContext importContext,ImportContext targetImportContext){
+		super(  importContext,  targetImportContext);
 
-	@Override
-	protected void doTran(DBCursor dbCursor) {
-		MongoDBResultSet mongoDB2DBResultSet = new MongoDBResultSet(importContext,dbCursor);
-		DBOutPutDataTran mongoDB2ESDataTran = new DBOutPutDataTran(mongoDB2DBResultSet,importContext,targetImportContext);
-		mongoDB2ESDataTran.tran();
-	}
 
+	}
 	@Override
 	public void beforeInit() {
-		super.beforeInit();
+//		this.initES(importContext.getApplicationPropertiesFile());
+//		initOtherDSes(importContext.getConfigs());
 		this.initDS(importContext.getDbConfig());
+		this.initDS(dbOutPutContext.getTargetDBConfig());
+//		initOtherDSes(importContext.getConfigs());
+		TranUtil.initTargetSQLInfo(dbOutPutContext,dbOutPutContext.getTargetDBConfig());
+		super.beforeInit();
+	}
+	protected  BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet) {
+		return new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext);
 	}
 
-	@Override
-	public void afterInit(){
-		DBOutPutContext dbOutPutContext = (DBOutPutContext) importContext ;
-		TranUtil.initTargetSQLInfo(dbOutPutContext,importContext.getDbConfig());
-		super.afterInit();
-	}
 }

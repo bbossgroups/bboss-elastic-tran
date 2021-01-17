@@ -18,8 +18,15 @@ public abstract class BaseDataTran implements DataTran{
 	protected  Logger logger = LoggerFactory.getLogger(this.getClass());
 	protected static Object dummy = new Object();
 	protected ImportContext importContext;
+	protected ImportContext targetImportContext;
 	protected TranResultSet jdbcResultSet;
-
+	protected AsynTranResultSet esTranResultSet;
+	public AsynTranResultSet getAsynTranResultSet(){
+		return esTranResultSet;
+	}
+	public void appendData(Data data){
+		getAsynTranResultSet().appendData(data);
+	}
 //	private CountDownLatch countDownLatch;
 	public BreakableScrollHandler getBreakableScrollHandler() {
 		return breakableScrollHandler;
@@ -30,9 +37,10 @@ public abstract class BaseDataTran implements DataTran{
 	}
 
 	private BreakableScrollHandler breakableScrollHandler;
-	public BaseDataTran(TranResultSet jdbcResultSet,ImportContext importContext) {
+	public BaseDataTran(TranResultSet jdbcResultSet,ImportContext importContext,ImportContext targetImportContext) {
 		this.jdbcResultSet = jdbcResultSet;
 		this.importContext = importContext;
+		this.targetImportContext = targetImportContext;
 		init();
 	}
 //	public BaseDataTran(TranResultSet jdbcResultSet,ImportContext importContext,CountDownLatch countDownLatch) {
@@ -43,7 +51,8 @@ public abstract class BaseDataTran implements DataTran{
 //	}
 
 	protected void init(){
-
+		if(jdbcResultSet instanceof AsynTranResultSet)
+			esTranResultSet = (AsynTranResultSet)jdbcResultSet;
 	}
 
 

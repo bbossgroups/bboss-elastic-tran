@@ -26,6 +26,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.nosql.hbase.HBaseHelper;
 import org.frameworkset.nosql.hbase.TableFactory;
 import org.frameworkset.tran.BaseDataTranPlugin;
+import org.frameworkset.tran.BaseElasticsearchDataTran;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.context.ImportContext;
@@ -62,12 +63,12 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 //		MongoDB2ESDataTran mongoDB2ESDataTran = new MongoDB2ESDataTran(mongoDB2ESResultSet,importContext);
 //		mongoDB2ESDataTran.tran();
 		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
-		HBase2ESDataTran hBase2ESDataTran = new HBase2ESDataTran(hBaseResultSet,importContext);
+		BaseElasticsearchDataTran hBase2ESDataTran = new BaseElasticsearchDataTran(hBaseResultSet,importContext,targetImportContext);
 		hBase2ESDataTran.tran();
 	}
 
-	public HBase2ESInputPlugin(ImportContext importContext){
-		super(importContext);
+	public HBase2ESInputPlugin(ImportContext importContext,ImportContext targetImportContext){
+		super(  importContext,  targetImportContext);
 
 
 	}

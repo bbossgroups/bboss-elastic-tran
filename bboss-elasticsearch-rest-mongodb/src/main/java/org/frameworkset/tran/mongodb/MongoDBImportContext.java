@@ -17,9 +17,8 @@ package org.frameworkset.tran.mongodb;
 
 import com.mongodb.DBObject;
 import com.mongodb.client.model.DBCollectionFindOptions;
-import org.frameworkset.tran.config.BaseImportConfig;
-import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.nosql.mongodb.ClientMongoCredential;
+import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.db.DBImportContext;
 
 import java.util.List;
@@ -32,11 +31,11 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class MongoDBImportContext extends DBImportContext implements MongoDBContext{
+public class MongoDBImportContext extends DBImportContext implements MongoDBContext{
 	protected MongoDBImportConfig mongoDBImportConfig;
 
 
-	protected abstract DataTranPlugin buildDataTranPlugin();
+
 //	{
 //		return new MongoDB2ESInputPlugin(this);
 //	}

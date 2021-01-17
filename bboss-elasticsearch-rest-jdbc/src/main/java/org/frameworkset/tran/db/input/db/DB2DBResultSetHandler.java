@@ -19,6 +19,7 @@ import com.frameworkset.common.poolman.StatementInfo;
 import com.frameworkset.common.poolman.handle.ResultSetHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.JDBCResultSet;
+import org.frameworkset.tran.db.output.DBOutPutDataTran;
 
 import java.sql.ResultSet;
 
@@ -32,8 +33,10 @@ import java.sql.ResultSet;
  */
 public class DB2DBResultSetHandler extends ResultSetHandler {
 	private ImportContext importContext ;
-	public DB2DBResultSetHandler(ImportContext importContext){
+	private ImportContext targetImportContext;
+	public DB2DBResultSetHandler(ImportContext importContext,ImportContext targetImportContext){
 		this.importContext = importContext;
+		this.targetImportContext = targetImportContext;
 
 	}
 	@Override
@@ -43,8 +46,7 @@ public class DB2DBResultSetHandler extends ResultSetHandler {
 		jdbcResultSet.setImportContext(importContext);
 		jdbcResultSet.setMetaData(statementInfo.getMeta());
 		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-		DB2DBDataTran db2DBDataTran = new DB2DBDataTran(jdbcResultSet,importContext);
-
+		DBOutPutDataTran db2DBDataTran = new DBOutPutDataTran(jdbcResultSet,importContext,targetImportContext);
 		db2DBDataTran.tran(  );
 	}
 }

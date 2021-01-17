@@ -23,6 +23,7 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.SQLBaseDataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.schedule.SQLInfo;
 import org.frameworkset.tran.util.TranUtil;
 import org.frameworkset.util.tokenizer.TextGrammarParser;
@@ -39,14 +40,14 @@ import java.util.List;
  * @version 1.0
  */
 public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranPlugin {
-	private DB2DBContext db2DBContext;
-	public DB2DBDataTranPlugin(ImportContext importContext){
-		super(importContext);
+	private DBOutPutContext db2DBContext;
+	public DB2DBDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
+		super(importContext,  targetImportContext);
 
 
 	}
 	protected void init(ImportContext importContext){
-		db2DBContext = (DB2DBContext)importContext;
+		db2DBContext = (DBOutPutContext)importContext;
 		super.init(importContext);
 	}
 	@Override
@@ -180,7 +181,7 @@ public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 
 	public void doImportData()  throws ESDataImportException {
 
-		ResultSetHandler resultSetHandler = new DB2DBResultSetHandler(importContext);
+		ResultSetHandler resultSetHandler = new DB2DBResultSetHandler(importContext,targetImportContext);
 
 		try {
 			if (sqlInfo.getParamSize() == 0) {

@@ -18,7 +18,9 @@ package org.frameworkset.tran.es.input.db;
 import org.frameworkset.elasticsearch.entity.ESDatas;
 import org.frameworkset.elasticsearch.scroll.HandlerInfo;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.es.BaseESExporterScrollHandler;
+import org.frameworkset.tran.es.ESDatasWraper;
 
 /**
  * <p>Description: </p>
@@ -30,8 +32,8 @@ import org.frameworkset.tran.es.BaseESExporterScrollHandler;
  */
 public class ESExporterScrollHandler<T>  extends BaseESExporterScrollHandler<T> {
 
-	protected ES2DBOutPutDataTran es2DBDataTran ;
-	public ESExporterScrollHandler(ImportContext importContext,ES2DBOutPutDataTran es2DBDataTran ) {
+	protected AsynDBOutPutDataTran es2DBDataTran ;
+	public ESExporterScrollHandler(ImportContext importContext, AsynDBOutPutDataTran es2DBDataTran ) {
 		super(  importContext);
 		this.es2DBDataTran = es2DBDataTran;
 		this.es2DBDataTran.setBreakableScrollHandler(this);
@@ -40,7 +42,7 @@ public class ESExporterScrollHandler<T>  extends BaseESExporterScrollHandler<T> 
 	public void handle(ESDatas<T> response, HandlerInfo handlerInfo) throws Exception {//自己处理每次scroll的结果
 
 //		ES2DBDataTran es2DBDataTran = new ES2DBDataTran(esTranResultSet,importContext);
-		es2DBDataTran.appendInData(response);
+		es2DBDataTran.appendData(new ESDatasWraper(response));
 
 
 		/**

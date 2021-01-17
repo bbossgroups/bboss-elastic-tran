@@ -56,9 +56,12 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public Long getTimeRangeLastValue(){
 		return null;
 	}
-	public BaseDataTranPlugin(ImportContext importContext){
+	public BaseDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
 		this.importContext = importContext;
+		this.targetImportContext = targetImportContext;
 		init(importContext);
+		importContext.setDataTranPlugin(this);
+		targetImportContext.setDataTranPlugin(this);
 	}
 	protected void init(ImportContext importContext){
 
@@ -73,6 +76,15 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	}
 
 	protected ImportContext importContext;
+	protected ImportContext targetImportContext;
+	public ImportContext getTargetImportContext() {
+		return targetImportContext;
+	}
+
+	public void setTargetImportContext(ImportContext targetImportContext) {
+		this.targetImportContext = targetImportContext;
+	}
+
 	protected volatile Status currentStatus;
 	protected volatile Status firstStatus;
 	protected String updateSQL ;
@@ -105,9 +117,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		else{//定时增量导入数据操作
 			try {
 				if (!this.importContext.isExternalTimer()) {//内部定时任务引擎
-					scheduleService.timeSchedule( importContext);
+					scheduleService.timeSchedule( );
 				} else { //外部定时任务引擎执行的方法，比如quartz之类的
-					scheduleService.externalTimeSchedule( importContext);
+					scheduleService.externalTimeSchedule( );
 				}
 			}
 			catch (ESDataImportException e)
@@ -664,7 +676,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public void initSchedule(){
 		if(importContext.getScheduleConfig() != null) {
 			this.scheduleService = new ScheduleService();
-			this.scheduleService.init(importContext);
+			this.scheduleService.init(importContext,targetImportContext);
 		}
 	}
 

@@ -17,10 +17,9 @@ package org.frameworkset.tran.es.input.db;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.common.poolman.BatchHandler;
-import org.frameworkset.tran.DataStream;
-import org.frameworkset.tran.DefualtExportResultHandler;
-import org.frameworkset.tran.ExportResultHandler;
-import org.frameworkset.tran.WrapedExportResultHandler;
+import org.frameworkset.tran.*;
+import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBExportBuilder;
 
 import java.util.HashMap;
@@ -48,14 +47,19 @@ public class ES2DBExportBuilder extends DBExportBuilder {
 	private boolean sliceQuery;
 	private int sliceSize;
 
-
+	@Override
+	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
+		return new ES2DBDataTranPlugin(  importContext,  targetImportContext);
+	}
 
 	@Override
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
 		return new DefualtExportResultHandler<String,String>(exportResultHandler);
 	}
 
-
+	protected ImportContext buildImportContext(BaseImportConfig importConfig){
+		return new ES2DBImportContext(importConfig);
+	}
 	public DataStream builder(){
 		super.builderConfig();
 //		this.buildDBConfig();
@@ -89,8 +93,12 @@ public class ES2DBExportBuilder extends DBExportBuilder {
 		es2DBImportConfig.setSliceQuery(this.sliceQuery);
 		es2DBImportConfig.setSliceSize(this.sliceSize);
 		es2DBImportConfig.setParams(this.params);
-		ES2DBDataStreamImpl dataStream = new ES2DBDataStreamImpl();
+		DataStream dataStream = this.createDataStream();
 		dataStream.setImportConfig(es2DBImportConfig);
+		dataStream.setImportContext(this.buildImportContext(es2DBImportConfig));
+		dataStream.setTargetImportContext(dataStream.getImportContext());
+		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
+
 		return dataStream;
 	}
 

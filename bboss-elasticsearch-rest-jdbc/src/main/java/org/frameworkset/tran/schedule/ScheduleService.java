@@ -46,14 +46,14 @@ public class ScheduleService {
 
 	private ImportContext importContext;
 
-
+	private ImportContext targetImportContext;
 
 
 
 	private Timer timer ;
 
 
-	private void scheduleImportData(ImportContext importContext) throws Exception {
+	private void scheduleImportData() throws Exception {
 		if(!importContext.assertCondition()) {
 			if(logger.isWarnEnabled())
 				logger.warn(new StringBuilder().append("Task Assert Execute Condition Failed, Ignore").toString());
@@ -110,7 +110,7 @@ public class ScheduleService {
 		}
 
 	}
-	public void timeSchedule(final ImportContext importContext) throws Exception {
+	public void timeSchedule() throws Exception {
 //		scheduleImportData(dataTranPlugin.getBatchSize());
 
 		timer = new Timer();
@@ -127,7 +127,7 @@ public class ScheduleService {
 //					throwException(taskContext,e);
 //					logger.error("scheduleImportData failed:",e);
 //				}
-				externalTimeSchedule( importContext);
+				externalTimeSchedule( );
 			}
 		};
 		ScheduleConfig scheduleConfig = importContext.getScheduleConfig();
@@ -171,16 +171,15 @@ public class ScheduleService {
 
 	/**
 	 * 通过synchronized关键字，控制任务按顺序执行
-	 * @param importContext
 	 */
-	public synchronized void externalTimeSchedule(ImportContext importContext)  {
+	public synchronized void externalTimeSchedule()  {
 
-		TaskContext taskContext = new TaskContext(importContext);
+		TaskContext taskContext = new TaskContext(importContext,targetImportContext);
 		long importStartTime = System.currentTimeMillis();
 		try {
 
 			preCall(taskContext);
-			scheduleImportData(  importContext);
+			scheduleImportData(  );
 			afterCall(taskContext);
 		}
 		catch (Exception e){
@@ -200,8 +199,9 @@ public class ScheduleService {
 //		storeStatusTask = new StoreStatusTask(this);
 //		storeStatusTask.start();
 //	}
-	public void init(ImportContext importContext){
+	public void init(ImportContext importContext,ImportContext targetImportContext){
 		this.importContext = importContext;
+		this.targetImportContext = targetImportContext;
 	}
 
 	public void stop(){
