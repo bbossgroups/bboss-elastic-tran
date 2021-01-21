@@ -35,15 +35,17 @@ public class Kafka2DBInputPlugin  extends Kafka2InputPlugin {
 	protected DBOutPutContext dbOutPutContext;
 	public Kafka2DBInputPlugin(ImportContext importContext,ImportContext targetImportContext){
 		super(  importContext,  targetImportContext);
-
+		dbOutPutContext = (DBOutPutContext) targetImportContext;
 
 	}
 	@Override
 	public void beforeInit() {
 //		this.initES(importContext.getApplicationPropertiesFile());
 //		initOtherDSes(importContext.getConfigs());
-		this.initDS(importContext.getDbConfig());
-		this.initDS(dbOutPutContext.getTargetDBConfig());
+		if(importContext.getDbConfig() != null)
+			this.initDS(importContext.getDbConfig());
+		if(dbOutPutContext.getTargetDBConfig() != null)
+			this.initDS(dbOutPutContext.getTargetDBConfig());
 //		initOtherDSes(importContext.getConfigs());
 		TranUtil.initTargetSQLInfo(dbOutPutContext,dbOutPutContext.getTargetDBConfig());
 		super.beforeInit();

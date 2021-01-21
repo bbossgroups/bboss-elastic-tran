@@ -16,6 +16,8 @@ package org.frameworkset.tran;
  */
 
 import com.frameworkset.common.poolman.SQLExecutor;
+import com.frameworkset.common.poolman.util.DBConf;
+import com.frameworkset.common.poolman.util.SQLManager;
 import com.frameworkset.common.poolman.util.SQLUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.boot.ElasticSearchBoot;
@@ -682,6 +684,30 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 	protected void initDS(DBConfig dbConfig){
 		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbDriver()) && SimpleStringUtil.isNotEmpty(dbConfig.getDbUrl())) {
+			DBConf temConf = new DBConf();
+			temConf.setPoolname(dbConfig.getDbName());
+			temConf.setDriver(dbConfig.getDbDriver());
+			temConf.setJdbcurl(dbConfig.getDbUrl());
+			temConf.setUsername(dbConfig.getDbUser());
+			temConf.setPassword(dbConfig.getDbPassword());
+			temConf.setReadOnly(null);
+			temConf.setTxIsolationLevel(null);
+			temConf.setValidationQuery(dbConfig.getValidateSQL());
+			temConf.setJndiName(dbConfig.getDbName()+"_jndi");
+			temConf.setInitialConnections(dbConfig.getInitSize());
+			temConf.setMinimumSize(dbConfig.getMinIdleSize());
+			temConf.setMaximumSize(dbConfig.getMaxSize());
+			temConf.setUsepool(dbConfig.isUsePool());
+			temConf.setExternal(false);
+			temConf.setExternaljndiName(null);
+			temConf.setShowsql(dbConfig.isShowSql());
+			temConf.setEncryptdbinfo(false);
+			temConf.setQueryfetchsize(dbConfig.getJdbcFetchSize() == null?0:dbConfig.getJdbcFetchSize());
+			temConf.setDbAdaptor(dbConfig.getDbAdaptor());
+			temConf.setDbtype(dbConfig.getDbtype());
+//			temConf.setColumnLableUpperCase(false);
+			SQLManager.startPool(temConf);
+			/**
 			SQLUtil.startPool(dbConfig.getDbName(),//数据源名称
 					dbConfig.getDbDriver(),//oracle驱动
 					dbConfig.getDbUrl(),//mysql链接串
@@ -696,7 +722,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 					dbConfig.isUsePool(),
 					false,
 					null, dbConfig.isShowSql(), false,dbConfig.getJdbcFetchSize() == null?0:dbConfig.getJdbcFetchSize(),dbConfig.getDbtype(),dbConfig.getDbAdaptor()
-			);
+			);*/
 		}
 	}
 	protected void initOtherDSes(List<DBConfig> dbConfigs){

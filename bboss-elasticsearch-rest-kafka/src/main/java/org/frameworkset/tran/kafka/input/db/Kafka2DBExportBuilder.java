@@ -20,11 +20,11 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.DBConfigBuilder;
 import org.frameworkset.tran.db.DBImportConfig;
 import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.kafka.KafkaExportBuilder;
 import org.frameworkset.tran.kafka.KafkaImportConfig;
+import org.frameworkset.tran.kafka.KafkaImportContext;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -37,21 +37,13 @@ import java.lang.reflect.InvocationTargetException;
  * @version 1.0
  */
 public class Kafka2DBExportBuilder extends KafkaExportBuilder {
-	private DBConfigBuilder dbConfigBuilder;
 	private static final String Kafka2ESInputPlugin = "org.frameworkset.tran.kafka.input.db.Kafka2DBInputPlugin";
-
-	public Kafka2DBExportBuilder(DBConfigBuilder dbConfigBuilder) {
-		super();
-		this.dbConfigBuilder = dbConfigBuilder;
+	public void setOutputDBConfig(DBImportConfig dbmportConfig) {
+		this.dbmportConfig = dbmportConfig;
 	}
 
-	public static Kafka2DBExportBuilder newInstance(){
-		return new Kafka2DBExportBuilder(new DBConfigBuilder());
-	}
+	private DBImportConfig dbmportConfig;
 
-	public DBConfigBuilder getDbConfigBuilder() {
-		return dbConfigBuilder;
-	}
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext)
 	{
 
@@ -74,7 +66,7 @@ public class Kafka2DBExportBuilder extends KafkaExportBuilder {
 	}
 	@Override
 	protected ImportContext buildImportContext(BaseImportConfig importConfig) {
-		return new Kafka2DBImportContext((KafkaImportConfig)importConfig);
+		return new KafkaImportContext((KafkaImportConfig)importConfig);
 	}
 
 	@Override
@@ -87,9 +79,11 @@ public class Kafka2DBExportBuilder extends KafkaExportBuilder {
 
 
 		DataStream dataStream = super.builder();
-		DBImportConfig dbImportConfig = dbConfigBuilder.buildDBImportConfig();
 //		super.buildImportConfig(dbImportConfig);
-		dataStream.setTargetImportContext(buildTargetImportContext(dbImportConfig));
+		if(dbmportConfig != null)
+			dataStream.setTargetImportContext(buildTargetImportContext(dbmportConfig) );
+		else
+			dataStream.setTargetImportContext(dataStream.getImportContext());
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
 
 		return dataStream;

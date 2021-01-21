@@ -28,7 +28,7 @@ import java.util.Properties;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class KafkaImportContext extends BaseImportContext implements KafkaContext {
+public  class KafkaImportContext extends BaseImportContext implements KafkaContext {
 	private KafkaImportConfig kafkaImportConfig;
 
 	@Override

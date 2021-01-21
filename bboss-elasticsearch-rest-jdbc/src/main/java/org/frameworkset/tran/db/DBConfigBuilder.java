@@ -1,6 +1,6 @@
 package org.frameworkset.tran.db;
 /**
- * Copyright 2008 biaoping.yin
+ * Copyright 2020 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ import org.frameworkset.tran.DBConfig;
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2018</p>
- * @Date 2019/1/11 21:29
+ * <p>Copyright (c) 2020</p>
+ * @Date 2021/1/21 10:15
  * @author biaoping.yin
  * @version 1.0
  */
 public class DBConfigBuilder {
-
+	private DBConfig targetDBConfig;
+	private String dbName;
 	protected String sqlFilepath;
 	protected String sqlName;
 	protected String sql;
@@ -39,92 +40,11 @@ public class DBConfigBuilder {
 	private String updateSql;
 	private String deleteSqlName;
 	private String deleteSql;
-	private DBConfig targetDBConfig;
 
-
-	private String targetValidateSQL;
+	 
 	private void checkTargetDBConfig(){
 		if(targetDBConfig == null)
 			targetDBConfig = new DBConfig();
-	}
-	public DBConfigBuilder setTargetDbDriver(String targetDbDriver) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setDbDriver(targetDbDriver);
-		return this;
-	}
-
-	public DBConfigBuilder setTargetDbUrl(String targetDbUrl) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setDbUrl(targetDbUrl);
-		return this;
-	}
-
-	public DBConfigBuilder setTargetDbUser(String targetDbUser) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setDbUser(targetDbUser);
-		return this;
-	}
-
-	public DBConfigBuilder setTargetDbPassword(String targetDbPassword) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setDbPassword(targetDbPassword);
-		return this;
-	}
-
-	public DBConfigBuilder setTargetInitSize(int targetInitSize) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setInitSize(targetInitSize);
-		return this;
-	}
-
-	public DBConfigBuilder setTargetMinIdleSize(int targetMinIdleSize) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setMinIdleSize(targetMinIdleSize);
-		return this;
-	}
-
-	public DBConfigBuilder setTargetMaxSize(int targetMaxSize) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setMaxSize(targetMaxSize);
-		return this;
-	}
-
-	public DBConfigBuilder setTargetDbName(String targetDbName) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setDbName(targetDbName);
-		return this;
-	}
-
-	public DBConfigBuilder setTargetShowSql(boolean targetShowSql) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setShowSql(targetShowSql);
-		return this;
-	}
-
-	public DBConfigBuilder setTargetUsePool(boolean targetUsePool) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setUsePool(targetUsePool);
-		return this;
-	}
-
-	public DBConfigBuilder setTargetDbtype(String targetDbtype) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setDbtype(targetDbtype);
-		return this;
-	}
-
-	public DBConfigBuilder setTargetDbAdaptor(String targetDbAdaptor) {
-		this.checkTargetDBConfig();
-		this.targetDBConfig.setDbAdaptor(targetDbAdaptor);
-		return this;
-	}
-
-
-
-
-	public DBConfigBuilder setTargetValidateSQL(String validateSQL) {
-		this.targetValidateSQL = validateSQL;
-		return this;
 	}
 	public String getInsertSqlName() {
 		return insertSqlName;
@@ -148,6 +68,8 @@ public class DBConfigBuilder {
 //		dbImportConfig.setSql(this.sql);
 //		dbImportConfig.setInsertSql(this.insert);
 		DBImportConfig dbImportConfig = new DBImportConfig();
+		dbImportConfig.setUseJavaName(false);
+		dbImportConfig.setTargetDBConfig(this.targetDBConfig);
 		dbImportConfig.setSqlFilepath(this.sqlFilepath);
 		dbImportConfig.setSqlName(sqlName);
 		if(SimpleStringUtil.isNotEmpty(sql))
@@ -159,6 +81,7 @@ public class DBConfigBuilder {
 		dbImportConfig.setDeleteSql(deleteSql);
 		dbImportConfig.setDeleteSqlName(deleteSqlName);
 		dbImportConfig.setOptimize(optimize);
+
 		return dbImportConfig;
 	}
 
@@ -244,6 +167,86 @@ public class DBConfigBuilder {
 	 */
 	public DBConfigBuilder setOptimize(boolean optimize) {
 		this.optimize = optimize;
+		return this;
+	}
+	public DBConfigBuilder setTargetDbDriver(String targetDbDriver) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setDbDriver(targetDbDriver);
+		return this;
+	}
+
+	public DBConfigBuilder setTargetDbUrl(String targetDbUrl) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setDbUrl(targetDbUrl);
+		return this;
+	}
+
+	public DBConfigBuilder setTargetDbUser(String targetDbUser) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setDbUser(targetDbUser);
+		return this;
+	}
+
+	public DBConfigBuilder setTargetDbPassword(String targetDbPassword) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setDbPassword(targetDbPassword);
+		return this;
+	}
+
+	public DBConfigBuilder setTargetInitSize(int targetInitSize) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setInitSize(targetInitSize);
+		return this;
+	}
+
+	public DBConfigBuilder setTargetMinIdleSize(int targetMinIdleSize) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setMinIdleSize(targetMinIdleSize);
+		return this;
+	}
+
+	public DBConfigBuilder setTargetMaxSize(int targetMaxSize) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setMaxSize(targetMaxSize);
+		return this;
+	}
+
+	public DBConfigBuilder setTargetDbName(String targetDbName) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setDbName(targetDbName);
+		return this;
+	}
+
+	public DBConfigBuilder setTargetShowSql(boolean targetShowSql) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setShowSql(targetShowSql);
+		return this;
+	}
+
+	public DBConfigBuilder setTargetUsePool(boolean targetUsePool) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setUsePool(targetUsePool);
+		return this;
+	}
+
+	public DBConfigBuilder setTargetDbtype(String targetDbtype) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setDbtype(targetDbtype);
+		return this;
+	}
+
+	public DBConfigBuilder setTargetDbAdaptor(String targetDbAdaptor) {
+		this.checkTargetDBConfig();
+		this.targetDBConfig.setDbAdaptor(targetDbAdaptor);
+		return this;
+	}
+
+
+
+
+	public DBConfigBuilder setTargetValidateSQL(String validateSQL) {
+		this.checkTargetDBConfig();
+		targetDBConfig.setValidateSQL(validateSQL);
 		return this;
 	}
 }

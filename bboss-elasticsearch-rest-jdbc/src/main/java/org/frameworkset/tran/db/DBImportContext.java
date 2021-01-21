@@ -47,11 +47,13 @@ public  class DBImportContext extends BaseImportContext implements DBOutPutConte
 		dbImportConfig = (DBImportConfig)baseImportConfig;
 	}
 	public DBImportContext(){
+		super(new DBImportConfig());
 	}
 	public DBImportContext(BaseImportConfig baseImportConfig){
 		super(baseImportConfig);
 
 	}
+
 
 
 	@Override

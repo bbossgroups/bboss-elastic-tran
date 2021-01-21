@@ -35,7 +35,6 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 	private DBConfig targetDBConfig;
 
 
-	private String targetValidateSQL;
 
 
 	public static DB2DBExportBuilder newInstance(){
@@ -161,7 +160,8 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 
 
 	public DB2DBExportBuilder setTargetValidateSQL(String validateSQL) {
-		this.targetValidateSQL = validateSQL;
+		this.checkTargetDBConfig();
+		targetDBConfig.setValidateSQL(validateSQL);
 		return this;
 	}
 
