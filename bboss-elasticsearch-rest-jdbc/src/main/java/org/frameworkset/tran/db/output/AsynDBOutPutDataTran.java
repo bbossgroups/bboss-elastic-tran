@@ -8,10 +8,6 @@ import java.util.concurrent.CountDownLatch;
 
 public class AsynDBOutPutDataTran extends DBOutPutDataTran {
 	private CountDownLatch countDownLatch;
-	protected void init(){
-		super.init();
-
-	}
 
 
 	public AsynDBOutPutDataTran(TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {

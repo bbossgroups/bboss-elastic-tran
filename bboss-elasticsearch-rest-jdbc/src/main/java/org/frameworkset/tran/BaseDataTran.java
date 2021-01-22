@@ -39,20 +39,15 @@ public abstract class BaseDataTran implements DataTran{
 	private BreakableScrollHandler breakableScrollHandler;
 	public BaseDataTran(TranResultSet jdbcResultSet,ImportContext importContext,ImportContext targetImportContext) {
 		this.jdbcResultSet = jdbcResultSet;
+		if(jdbcResultSet instanceof AsynTranResultSet)
+			esTranResultSet = (AsynTranResultSet)jdbcResultSet;
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
 		init();
 	}
-//	public BaseDataTran(TranResultSet jdbcResultSet,ImportContext importContext,CountDownLatch countDownLatch) {
-//		this.jdbcResultSet = jdbcResultSet;
-//		this.importContext = importContext;
-//		this.countDownLatch = countDownLatch;
-//		init();
-//	}
 
 	protected void init(){
-		if(jdbcResultSet instanceof AsynTranResultSet)
-			esTranResultSet = (AsynTranResultSet)jdbcResultSet;
+
 	}
 
 

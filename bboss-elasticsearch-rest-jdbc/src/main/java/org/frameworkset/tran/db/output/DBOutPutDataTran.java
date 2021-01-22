@@ -32,6 +32,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 	}
 	private String taskInfo ;
 	protected void init(){
+		super.init();
 		es2DBContext = targetImportContext == null ?(DBOutPutContext)importContext:(DBOutPutContext)targetImportContext;
 		DBConfig dbConfig = null;
 		if(es2DBContext.getTargetDBConfig() == null)

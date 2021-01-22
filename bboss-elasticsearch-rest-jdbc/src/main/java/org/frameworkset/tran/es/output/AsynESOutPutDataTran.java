@@ -14,11 +14,7 @@ public class AsynESOutPutDataTran extends BaseElasticsearchDataTran {
 		this.countDownLatch = countDownLatch;
 	}
 
-	protected void init(){
-		super.init();
 
-
-	}
 
 
 

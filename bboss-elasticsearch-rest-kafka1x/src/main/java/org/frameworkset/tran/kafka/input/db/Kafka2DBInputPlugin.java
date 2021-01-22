@@ -1,4 +1,4 @@
-package org.frameworkset.tran.kafka.input.es;
+package org.frameworkset.tran.kafka.input.db;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -18,8 +18,10 @@ package org.frameworkset.tran.kafka.input.es;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.es.output.AsynESOutPutDataTran;
+import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
+import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.kafka.input.Kafka2InputPlugin;
+import org.frameworkset.tran.util.TranUtil;
 
 /**
  * <p>Description: </p>
@@ -29,23 +31,27 @@ import org.frameworkset.tran.kafka.input.Kafka2InputPlugin;
  * @author biaoping.yin
  * @version 1.0
  */
-public class Kafka2ESInputPlugin extends Kafka2InputPlugin {
-	public Kafka2ESInputPlugin(ImportContext importContext,ImportContext targetImportContext){
+public class Kafka2DBInputPlugin extends Kafka2InputPlugin {
+	protected DBOutPutContext dbOutPutContext;
+	public Kafka2DBInputPlugin(ImportContext importContext, ImportContext targetImportContext){
 		super(  importContext,  targetImportContext);
-
+		dbOutPutContext = (DBOutPutContext) targetImportContext;
 
 	}
 	@Override
 	public void beforeInit() {
-		this.initES(importContext.getApplicationPropertiesFile());
-		initOtherDSes(importContext.getConfigs());
+//		this.initES(importContext.getApplicationPropertiesFile());
+//		initOtherDSes(importContext.getConfigs());
+		if(importContext.getDbConfig() != null)
+			this.initDS(importContext.getDbConfig());
+		if(dbOutPutContext.getTargetDBConfig() != null)
+			this.initDS(dbOutPutContext.getTargetDBConfig());
+//		initOtherDSes(importContext.getConfigs());
+		TranUtil.initTargetSQLInfo(dbOutPutContext,dbOutPutContext.getTargetDBConfig());
 		super.beforeInit();
 	}
-
 	protected  BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet) {
-		return new AsynESOutPutDataTran(jdbcResultSet,importContext,targetImportContext);
+		return new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext);
 	}
-
-
 
 }
