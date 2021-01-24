@@ -23,7 +23,6 @@ import org.frameworkset.spi.DefaultApplicationContext;
 import org.frameworkset.spi.assemble.GetProperties;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.input.db.DB2DBDataTranPlugin;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.CallInterceptor;
@@ -462,6 +461,11 @@ public abstract class BaseImportBuilder {
 		return this;
 	}
 
+	public BaseImportBuilder setColumnLableUpperCase(boolean columnLableUpperCase) {
+		_setColumnLableUpperCase(columnLableUpperCase);
+		return this;
+	}
+
 	public BaseImportBuilder setDbInitSize(int dbInitSize) {
 		_setDbInitSize( dbInitSize);
 		return this;
@@ -791,7 +795,14 @@ public abstract class BaseImportBuilder {
 		dbConfig.setDbName(dbName);
 
 	}
+	public void _setColumnLableUpperCase(boolean columnLableUpperCase) {
+		freezen = true;
+		if(this.dbConfig == null){
+			this.dbConfig = new DBConfig();
+		}
 
+		dbConfig.setColumnLableUpperCase(columnLableUpperCase);
+	}
 	public void _setDbInitSize(int dbInitSize) {
 		freezen = true;
 		if(this.dbConfig == null){

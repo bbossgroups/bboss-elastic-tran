@@ -241,12 +241,16 @@ public class DBConfigBuilder {
 		return this;
 	}
 
-
-
-
 	public DBConfigBuilder setTargetValidateSQL(String validateSQL) {
 		this.checkTargetDBConfig();
 		targetDBConfig.setValidateSQL(validateSQL);
+		return this;
+	}
+
+
+	public DBConfigBuilder setColumnLableUpperCase(boolean columnLableUpperCase) {
+		this.checkTargetDBConfig();
+		targetDBConfig.setColumnLableUpperCase(columnLableUpperCase);
 		return this;
 	}
 }

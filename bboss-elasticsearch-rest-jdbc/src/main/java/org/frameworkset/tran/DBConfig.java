@@ -55,6 +55,7 @@ public class DBConfig {
 	 * dbAdaptor必须继承自com.frameworkset.orm.adapter.DB或者其继承DB的类
 	 */
 	private String dbAdaptor;
+	private boolean columnLableUpperCase ;
 	/**
 	 * 事务管理机制只有在一次性全量单线程导入的情况下才有用
 	 */
@@ -205,5 +206,13 @@ public class DBConfig {
 
 	public void setEnableDBTransaction(boolean enableDBTransaction) {
 		this.enableDBTransaction = enableDBTransaction;
+	}
+
+	public boolean isColumnLableUpperCase() {
+		return columnLableUpperCase;
+	}
+
+	public void setColumnLableUpperCase(boolean columnLableUpperCase) {
+		this.columnLableUpperCase = columnLableUpperCase;
 	}
 }
