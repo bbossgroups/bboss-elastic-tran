@@ -15,6 +15,7 @@ package org.frameworkset.tran.db;
  * limitations under the License.
  */
 
+import com.frameworkset.common.poolman.BatchHandler;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
@@ -38,7 +39,9 @@ public  class DBImportContext extends BaseImportContext implements DBOutPutConte
 	{
 		return dbImportConfig.optimize();
 	}
-
+	public BatchHandler getBatchHandler(){
+		return dbImportConfig.getBatchHandler();
+	}
 	private TranSQLInfo targetSqlInfo;
 	private TranSQLInfo targetUpdateSqlInfo;
 	private TranSQLInfo targetDeleteSqlInfo;

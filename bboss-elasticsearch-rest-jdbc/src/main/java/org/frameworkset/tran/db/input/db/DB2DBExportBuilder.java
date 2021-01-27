@@ -43,6 +43,7 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 	public  DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
 		return new DB2DBDataTranPlugin(  importContext,  targetImportContext);
 	}
+
 	@Override
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
 		return new DefualtExportResultHandler<String,String>(exportResultHandler);
@@ -54,6 +55,7 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 	protected ImportContext buildImportContext(BaseImportConfig importConfig){
 		return new DBImportContext(importConfig);
 	}
+
 	public DataStream builder(){
 		super.builderConfig();
 

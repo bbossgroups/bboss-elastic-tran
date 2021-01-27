@@ -27,6 +27,8 @@ public abstract class BaseDataTran implements DataTran{
 	public void appendData(Data data){
 		getAsynTranResultSet().appendData(data);
 	}
+
+
 //	private CountDownLatch countDownLatch;
 	public BreakableScrollHandler getBreakableScrollHandler() {
 		return breakableScrollHandler;

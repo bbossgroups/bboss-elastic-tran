@@ -15,23 +15,17 @@ package org.frameworkset.tran.es.input.db;
  * limitations under the License.
  */
 
-import org.frameworkset.elasticsearch.ElasticSearchHelper;
-import org.frameworkset.elasticsearch.client.ClientInterface;
-import org.frameworkset.elasticsearch.entity.ESDatas;
-import org.frameworkset.elasticsearch.entity.MetaMap;
-import org.frameworkset.elasticsearch.template.ESInfo;
-import org.frameworkset.tran.AsynBaseTranResultSet;
+import com.frameworkset.common.poolman.ConfigSQLExecutor;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
-import org.frameworkset.tran.SQLBaseDataTranPlugin;
+import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
-import org.frameworkset.tran.es.BaseESExporterScrollHandler;
-import org.frameworkset.tran.es.ES2TranResultSet;
+import org.frameworkset.tran.db.output.DBOutPutContext;
+import org.frameworkset.tran.es.input.ESInputPlugin;
 import org.frameworkset.tran.util.TranUtil;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -42,167 +36,66 @@ import java.util.concurrent.CountDownLatch;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ES2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranPlugin {
+public class ES2DBDataTranPlugin extends ESInputPlugin implements DataTranPlugin {
 
-	private ES2DBContext es2DBContext;
-	protected void init(ImportContext importContext){
-		super.init(importContext);
-		es2DBContext = (ES2DBContext)importContext;
+	protected ConfigSQLExecutor executor;
 
-	}
-
-
+	protected DBOutPutContext dbOutPutContext;
 	public ES2DBDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
 		super(  importContext,  targetImportContext);
 
-
+		dbOutPutContext = (DBOutPutContext) targetImportContext;
 	}
 
 	@Override
 	public void beforeInit() {
-		this.initES(importContext.getApplicationPropertiesFile());
-		this.initDS(importContext.getDbConfig());
+		super.beforeInit();
+		if(dbOutPutContext.getTargetDBConfig() != null)
+		{
+			this.initDS(dbOutPutContext.getTargetDBConfig());
+		}
+		if(importContext.getDbConfig() != null) {
+			this.initDS(importContext.getDbConfig());
+		}
 		initOtherDSes(importContext.getConfigs());
 
 	}
 	@Override
 	public void afterInit(){
-		executor = TranUtil.initTargetSQLInfo(es2DBContext,importContext.getDbConfig());
+		executor = TranUtil.initTargetSQLInfo(dbOutPutContext,dbOutPutContext.getTargetDBConfig() != null?dbOutPutContext.getTargetDBConfig():importContext.getDbConfig());
 
 	}
-	public void initStatusTableId(){
-		if(isIncreamentImport() && es2DBContext.getDslFile() != null && !es2DBContext.getDslFile().equals("")) {
-			try {
-				ClientInterface clientInterface = ElasticSearchHelper.getConfigRestClientUtil(importContext.getSourceElasticsearch(),es2DBContext.getDslFile());
-				ESInfo esInfo = clientInterface.getESInfo(es2DBContext.getDslName());
-				importContext.setStatusTableId(esInfo.getTemplate().hashCode());
-			} catch (Exception e) {
-				throw new ESDataImportException(e);
-			}
-		}
+	protected  BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet,CountDownLatch countDownLatch){
+		return new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,countDownLatch);
 	}
-
-
-
-	private void commonImportData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
-		Map params = es2DBContext.getParams() != null ?es2DBContext.getParams():new HashMap();
-		params.put("size", importContext.getFetchSize());//每页5000条记录
-		if(es2DBContext.isSliceQuery()){
-			params.put("sliceMax",es2DBContext.getSliceSize());
-		}
-		exportESData(  esExporterScrollHandler,  params);
-	}
-
-	private void exportESData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,Map params){
-
-		//采用自定义handler函数处理每个scroll的结果集后，response中只会包含总记录数，不会包含记录集合
-		//scroll上下文有效期1分钟；大数据量时可以采用handler函数来处理每次scroll检索的结果，规避数据量大时存在的oom内存溢出风险
-
-		ClientInterface clientUtil = ElasticSearchHelper.getConfigRestClientUtil(importContext.getSourceElasticsearch(),es2DBContext.getDslFile());
-
-		ESDatas<MetaMap> response = null;
-		if(!es2DBContext.isSliceQuery()) {
-
-			if(importContext.isParallel() && esExporterScrollHandler instanceof ESDirectExporterScrollHandler) {
-				response = clientUtil.scrollParallel(es2DBContext.getQueryUrl(),
-						es2DBContext.getDslName(), es2DBContext.getScrollLiveTime(),
-						params, MetaMap.class, esExporterScrollHandler);
-			}
-			else
-			{
-				response = clientUtil.scroll(es2DBContext.getQueryUrl(),
-						es2DBContext.getDslName(), es2DBContext.getScrollLiveTime(),
-						params, MetaMap.class, esExporterScrollHandler);
-			}
+	public void doImportData()  throws ESDataImportException{
+		if(dbOutPutContext.getBatchHandler() != null){
+			doBatchHandler();
 		}
 		else{
-			response = clientUtil.scrollSliceParallel(es2DBContext.getQueryUrl(), es2DBContext.getDslName(),
-					params, es2DBContext.getScrollLiveTime(),MetaMap.class, esExporterScrollHandler);
-		}
-		if(logger.isInfoEnabled()) {
-			if(response != null) {
-				logger.info("Export compoleted and export total {} records.", response.getTotalSize());
-			}
-			else{
-				logger.info("Export compoleted and export no records or failed.");
-			}
+			super.doImportData();
 		}
 	}
-	private void increamentImportData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
-		Map params = es2DBContext.getParams() != null ?es2DBContext.getParams():new HashMap();
-		params.put("size", importContext.getFetchSize());//每页5000条记录
-		if(es2DBContext.isSliceQuery()){
-			params.put("sliceMax",es2DBContext.getSliceSize());
-		}
-		putLastParamValue(params);
-		exportESData(  esExporterScrollHandler,  params);
+	protected  void doBatchHandler(){
+		ESDirectExporterScrollHandler esDirectExporterScrollHandler = new ESDirectExporterScrollHandler(importContext,targetImportContext,
+				executor);
+		try {
+			if (!isIncreamentImport()) {
 
-	}
+				commonImportData(esDirectExporterScrollHandler);
 
-	public void doImportData()  throws ESDataImportException {
+			} else {
 
+				increamentImportData(esDirectExporterScrollHandler);
 
-		if(es2DBContext.getBatchHandler() != null)
-		{
-
-			ESDirectExporterScrollHandler esDirectExporterScrollHandler = new ESDirectExporterScrollHandler(importContext,
-					executor);
-			try {
-				if (!isIncreamentImport()) {
-
-					commonImportData(esDirectExporterScrollHandler);
-
-				} else {
-
-					increamentImportData(esDirectExporterScrollHandler);
-
-				}
-			} catch (ESDataImportException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new ESDataImportException(e);
 			}
-		}
-		else {
-			AsynBaseTranResultSet jdbcResultSet = new ES2TranResultSet(importContext);
-			final CountDownLatch countDownLatch = new CountDownLatch(1);
-			final AsynDBOutPutDataTran es2DBDataTran = new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,countDownLatch);
-			ESExporterScrollHandler<MetaMap> esExporterScrollHandler = new ESExporterScrollHandler<MetaMap>(importContext,
-					es2DBDataTran);
-			try {
-				Thread tranThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						es2DBDataTran.tran();
-					}
-				},"Elasticsearch-DB-Tran");
-				tranThread.start();
-				if (!isIncreamentImport()) {
-
-					commonImportData(esExporterScrollHandler);
-
-				} else {
-
-					increamentImportData(esExporterScrollHandler);
-
-				}
-			} catch (ESDataImportException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new ESDataImportException(e);
-			}
-			finally {
-				jdbcResultSet.reachEend();
-				try {
-					countDownLatch.await();
-				} catch (InterruptedException e) {
-					if(logger.isErrorEnabled())
-						logger.error("",e);
-				}
-			}
-
+		} catch (ESDataImportException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ESDataImportException(e);
 		}
 	}
+
 
 
 }

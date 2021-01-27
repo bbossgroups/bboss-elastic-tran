@@ -50,6 +50,16 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		return importContext;
 	}
 
+	/**
+	 * 获取任务执行耗时
+	 * -1 表示没有执行耗时
+	 * @return
+	 */
+	public long getElapsed(){
+		if (taskMetrics != null && taskMetrics.getTaskStartTime() != null && taskMetrics.getTaskEndTime() != null)
+			return taskMetrics.getTaskEndTime().getTime() - taskMetrics.getTaskStartTime().getTime();
+		return -1;
+	}
 	public BaseTaskCommand(ImportCount importCount, ImportContext importContext,ImportContext targetImportContext,long dataSize,int taskNo,String jobNo){
 		this.importCount = importCount;
 		this.importContext =  importContext;

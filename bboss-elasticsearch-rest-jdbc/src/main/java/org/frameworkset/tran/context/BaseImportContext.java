@@ -54,7 +54,7 @@ public abstract  class BaseImportContext implements ImportContext {
 	}
 
 	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
-		return new ContextImpl(this, jdbcResultSet, batchContext);
+		return dataTranPlugin.buildContext(jdbcResultSet,batchContext);
 	}
 	public Long getTimeRangeLastValue(){
 		return dataTranPlugin.getTimeRangeLastValue();

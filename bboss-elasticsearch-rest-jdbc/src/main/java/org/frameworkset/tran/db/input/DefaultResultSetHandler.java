@@ -1,4 +1,4 @@
-package org.frameworkset.tran.db.input.db;
+package org.frameworkset.tran.db.input;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -17,9 +17,9 @@ package org.frameworkset.tran.db.input.db;
 
 import com.frameworkset.common.poolman.StatementInfo;
 import com.frameworkset.common.poolman.handle.ResultSetHandler;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.JDBCResultSet;
-import org.frameworkset.tran.db.output.DBOutPutDataTran;
 
 import java.sql.ResultSet;
 
@@ -31,22 +31,25 @@ import java.sql.ResultSet;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DB2DBResultSetHandler extends ResultSetHandler {
+public class DefaultResultSetHandler extends ResultSetHandler {
 	private ImportContext importContext ;
 	private ImportContext targetImportContext;
-	public DB2DBResultSetHandler(ImportContext importContext,ImportContext targetImportContext){
+	private SQLBaseDataTranPlugin sqlBaseDataTranPlugin ;
+	public DefaultResultSetHandler(ImportContext importContext,ImportContext targetImportContext,SQLBaseDataTranPlugin sqlBaseDataTranPlugin){
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
+		this.sqlBaseDataTranPlugin = sqlBaseDataTranPlugin;
 
 	}
 	@Override
 	public void handleResult(ResultSet resultSet, StatementInfo statementInfo) throws Exception {
 		JDBCResultSet jdbcResultSet = new JDBCResultSet();
-		jdbcResultSet.setResultSet(resultSet);
 		jdbcResultSet.setImportContext(importContext);
+		jdbcResultSet.setResultSet(resultSet);
 		jdbcResultSet.setMetaData(statementInfo.getMeta());
 		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-		DBOutPutDataTran db2DBDataTran = new DBOutPutDataTran(jdbcResultSet,importContext,targetImportContext);
-		db2DBDataTran.tran(  );
+//		BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(jdbcResultSet,importContext,targetImportContext);
+		BaseDataTran baseDataTran = sqlBaseDataTranPlugin.createBaseDataTran(jdbcResultSet,importContext,targetImportContext);
+		baseDataTran.tran(  );
 	}
 }

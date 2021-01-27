@@ -53,9 +53,11 @@ public class ContextImpl implements Context {
 	protected ESIndexWrapper esIndexWrapper;
 	protected ClientOptions clientOptions;
 	protected ImportContext importContext;
-	public ContextImpl(ImportContext importContext, TranResultSet jdbcResultSet, BatchContext batchContext){
+	protected ImportContext targetImportContext;
+	public ContextImpl(ImportContext importContext,ImportContext targetImportContext, TranResultSet jdbcResultSet, BatchContext batchContext){
 		this.baseImportConfig = importContext.getImportConfig();
 		this.importContext = importContext;
+		this.targetImportContext = targetImportContext;
 		this.jdbcResultSet = jdbcResultSet;
 		this.batchContext = batchContext;
 	}
@@ -89,7 +91,7 @@ public class ContextImpl implements Context {
 	public void afterRefactor(){
 		if(index != null && !index.equals("")){
 			if(indexType == null)
-				esIndexWrapper = new ESIndexWrapper(index,baseImportConfig.getEsIndexWrapper().getType());
+				esIndexWrapper = new ESIndexWrapper(index,targetImportContext.getEsIndexWrapper().getType());
 			else{
 				esIndexWrapper = new ESIndexWrapper(index,indexType);
 			}
@@ -101,8 +103,8 @@ public class ContextImpl implements Context {
 	public void setClientOptions(ClientOptions clientOptions) {
 
 		this.clientOptions = clientOptions;
-		if(baseImportConfig.getClientOptions() != null && clientOptions != null){
-			clientOptions.setParentClientOptions(baseImportConfig.getClientOptions());
+		if(targetImportContext.getClientOptions() != null && clientOptions != null){
+			clientOptions.setParentClientOptions(targetImportContext.getClientOptions());
 		}
 	}
 
@@ -111,7 +113,7 @@ public class ContextImpl implements Context {
 			return clientOptions;
 		}
 		else{
-			return baseImportConfig.getClientOptions();
+			return targetImportContext.getClientOptions();
 		}
 	}
 	public String getOperation(){
@@ -436,7 +438,7 @@ public class ContextImpl implements Context {
 
 	public ESIndexWrapper getESIndexWrapper(){
 		if(esIndexWrapper == null)
-			return baseImportConfig.getEsIndexWrapper();
+			return targetImportContext.getEsIndexWrapper();
 		else
 			return esIndexWrapper;
 	}

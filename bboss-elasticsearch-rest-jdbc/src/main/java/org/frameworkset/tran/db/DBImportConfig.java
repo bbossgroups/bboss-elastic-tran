@@ -14,6 +14,7 @@ package org.frameworkset.tran.db;/*
  *  limitations under the License.
  */
 
+import com.frameworkset.common.poolman.BatchHandler;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.config.BaseImportConfig;
 
@@ -29,7 +30,7 @@ public class DBImportConfig extends BaseImportConfig {
 	protected String deleteSqlName;
 	protected String deleteSql;
 	protected boolean optimize;
-
+	protected BatchHandler batchHandler;
 
 	public void setInsertSqlName(String insertSqlName) {
 		this.insertSqlName = insertSqlName;
@@ -129,5 +130,13 @@ public class DBImportConfig extends BaseImportConfig {
 
 	public boolean optimize() {
 		return optimize;
+	}
+
+	public void setBatchHandler(BatchHandler batchHandler) {
+		this.batchHandler = batchHandler;
+	}
+
+	public BatchHandler getBatchHandler() {
+		return batchHandler;
 	}
 }

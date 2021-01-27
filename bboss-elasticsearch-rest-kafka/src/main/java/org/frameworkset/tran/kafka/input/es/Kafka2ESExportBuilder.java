@@ -18,11 +18,8 @@ package org.frameworkset.tran.kafka.input.es;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
-import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.KafkaExportBuilder;
-import org.frameworkset.tran.kafka.KafkaImportConfig;
-import org.frameworkset.tran.kafka.KafkaImportContext;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -39,10 +36,6 @@ public class Kafka2ESExportBuilder extends KafkaExportBuilder {
 
 	public static Kafka2ESExportBuilder newInstance(){
 		return new Kafka2ESExportBuilder();
-	}
-	@Override
-	protected ImportContext buildImportContext(BaseImportConfig importConfig) {
-		return new KafkaImportContext((KafkaImportConfig)importConfig);
 	}
 
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext, ImportContext targetImportContext)

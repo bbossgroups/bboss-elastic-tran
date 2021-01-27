@@ -1,4 +1,4 @@
-package org.frameworkset.tran.es.input.es;
+package org.frameworkset.tran.es.input;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -28,20 +28,22 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ES2ESImportContext extends BaseImportContext implements ES2ESContext{
-	private ES2ESImportConfig es2esImportConfig;
+public class ESImportContext extends BaseImportContext implements ESInputContext {
+	private ESImportConfig es2esImportConfig;
 
 
 
 	protected void init(BaseImportConfig baseImportConfig){
 		super.init(baseImportConfig);
-		es2esImportConfig = (ES2ESImportConfig)baseImportConfig;
+		es2esImportConfig = (ESImportConfig)baseImportConfig;
 	}
-	public ES2ESImportContext(){
-		this(new ES2ESImportConfig());
+
+
+	public ESImportContext(){
+		this(new ESImportConfig());
 
 	}
-	public ES2ESImportContext(BaseImportConfig baseImportConfig){
+	public ESImportContext(BaseImportConfig baseImportConfig){
 		super(baseImportConfig);
 
 	}
@@ -84,18 +86,7 @@ public class ES2ESImportContext extends BaseImportContext implements ES2ESContex
 		return es2esImportConfig.getDsl2ndSqlFile();
 	}
 
-	@Override
-	public String getTargetElasticsearch() {
-		return es2esImportConfig.getTargetElasticsearch();
-	}
-
-	public String getTargetIndexType() {
-		return es2esImportConfig.getTargetIndexType();
-	}
 
 
-	public String getTargetIndex() {
-		return es2esImportConfig.getTargetIndex();
-	}
 
 }

@@ -15,6 +15,7 @@ package org.frameworkset.tran.db;
  * limitations under the License.
  */
 
+import com.frameworkset.common.poolman.BatchHandler;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.DBConfig;
 
@@ -28,7 +29,6 @@ import org.frameworkset.tran.DBConfig;
  */
 public class DBConfigBuilder {
 	private DBConfig targetDBConfig;
-	private String dbName;
 	protected String sqlFilepath;
 	protected String sqlName;
 	protected String sql;
@@ -41,7 +41,15 @@ public class DBConfigBuilder {
 	private String deleteSqlName;
 	private String deleteSql;
 
-	 
+	public BatchHandler getBatchHandler() {
+		return batchHandler;
+	}
+
+	public void setBatchHandler(BatchHandler batchHandler) {
+		this.batchHandler = batchHandler;
+	}
+
+	private BatchHandler batchHandler;
 	private void checkTargetDBConfig(){
 		if(targetDBConfig == null)
 			targetDBConfig = new DBConfig();
@@ -81,7 +89,7 @@ public class DBConfigBuilder {
 		dbImportConfig.setDeleteSql(deleteSql);
 		dbImportConfig.setDeleteSqlName(deleteSqlName);
 		dbImportConfig.setOptimize(optimize);
-
+		dbImportConfig.setBatchHandler(batchHandler);
 		return dbImportConfig;
 	}
 

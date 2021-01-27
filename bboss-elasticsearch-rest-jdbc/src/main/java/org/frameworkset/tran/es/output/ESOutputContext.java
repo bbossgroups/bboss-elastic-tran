@@ -1,4 +1,4 @@
-package org.frameworkset.tran.task;
+package org.frameworkset.tran.es.output;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,40 +15,22 @@ package org.frameworkset.tran.task;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.metrics.TaskMetrics;
+import com.frameworkset.orm.annotation.ESIndexWrapper;
 
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- * @Date 2019/3/1 11:32
+ * @Date 2019/10/28 14:11
  * @author biaoping.yin
  * @version 1.0
  */
-public interface TaskCommand<DATA,RESULT> {
+public interface ESOutputContext {
+	public String getTargetElasticsearch();
+	public String getTargetIndex() ;
 
-	public DATA getDatas() ;
-
-	public TaskMetrics getTaskMetrics();
-	public void setDatas(DATA datas) ;
-
-
-	public RESULT execute();
-
-	public int getTryCount() ;
-	public ImportContext getImportContext();
-	public ImportCount getImportCount();
-	public long getDataSize();
-	public int getTaskNo();
-	public String getJobNo();
-	/**
-	 * 获取任务执行耗时
-	 * -1 表示没有执行耗时
-	 * @return
-	 */
-	public long getElapsed();
+	public String getTargetIndexType() ;
+	ESIndexWrapper getEsIndexWrapper();
 
 
 }

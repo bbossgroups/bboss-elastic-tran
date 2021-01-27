@@ -1,4 +1,4 @@
-package org.frameworkset.tran.db.input.es;
+package org.frameworkset.tran.task;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -21,9 +21,6 @@ import org.frameworkset.elasticsearch.client.ClientUtil;
 import org.frameworkset.elasticsearch.handler.ESVoidResponseHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.task.BaseTaskCommand;
-import org.frameworkset.tran.task.TaskCommand;
-import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +87,7 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 		this.tryCount ++;
 		if(importContext.isDebugResponse()) {
 
-			data = clientInterface.executeHttp(BuildTool.buildActionUrl(importContext.getClientOptions()), datas, ClientUtil.HTTP_POST);
+			data = clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions()), datas, ClientUtil.HTTP_POST);
 			if(logger.isInfoEnabled())
 				logger.info(data);
 
@@ -98,13 +95,13 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 		else{
 			if(importContext.isDiscardBulkResponse() && importContext.getExportResultHandler() == null) {
 				ESVoidResponseHandler esVoidResponseHandler = new ESVoidResponseHandler();
-				clientInterface.executeHttp(BuildTool.buildActionUrl(importContext.getClientOptions()), datas, ClientUtil.HTTP_POST,esVoidResponseHandler);
+				clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions()), datas, ClientUtil.HTTP_POST,esVoidResponseHandler);
 				if(esVoidResponseHandler.getElasticSearchException() != null)
 					throw esVoidResponseHandler.getElasticSearchException();
 				return null;
 			}
 			else{
-				data = clientInterface.executeHttp(BuildTool.buildActionUrl(importContext.getClientOptions()), datas, ClientUtil.HTTP_POST);
+				data = clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions()), datas, ClientUtil.HTTP_POST);
 			}
 		}
 		return data;

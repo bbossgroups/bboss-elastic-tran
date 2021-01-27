@@ -35,8 +35,8 @@ import java.util.Date;
  */
 public class HBaseRecordContextImpl extends ContextImpl {
 
-	public HBaseRecordContextImpl(ImportContext importContext, TranResultSet jdbcResultSet, BatchContext batchContext){
-		super(importContext,jdbcResultSet,batchContext);
+	public HBaseRecordContextImpl(ImportContext importContext, ImportContext targetImportContext,TranResultSet jdbcResultSet, BatchContext batchContext){
+		super(importContext,targetImportContext,jdbcResultSet,batchContext);
 	}
 
 	@Override

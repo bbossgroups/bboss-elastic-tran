@@ -15,6 +15,8 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
+import com.frameworkset.orm.annotation.BatchContext;
+import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ScheduleService;
 import org.frameworkset.tran.schedule.Status;
@@ -28,9 +30,10 @@ import org.frameworkset.tran.schedule.Status;
  * @version 1.0
  */
 public interface DataTranPlugin {
+	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext);
 
 
-	boolean assertCondition();
+		boolean assertCondition();
 
 	void setErrorWrapper(TranErrorWrapper tranErrorWrapper);
 

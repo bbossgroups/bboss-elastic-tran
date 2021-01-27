@@ -103,8 +103,8 @@ public abstract class BaseImportBuilder {
 	private transient List<String> callInterceptorClasses;
 
 	private String applicationPropertiesFile;
-	private boolean freezen;
-	private boolean statusFreezen;
+//	private boolean freezen;
+//	private boolean statusFreezen;
 	private List<DBConfig> configs;
 
 
@@ -197,9 +197,10 @@ public abstract class BaseImportBuilder {
 		return exportResultHandlerClass;
 	}
 
+	private Map<String,Object> customDBConfigs = new HashMap<String, Object>();
 	public static final String DEFAULT_CONFIG_FILE = "application.properties";
 	protected void buildDBConfig(){
-		if(!freezen) {
+
 //			PropertiesContainer propertiesContainer = new PropertiesContainer();
 //
 //			if(this.applicationPropertiesFile == null) {
@@ -221,27 +222,10 @@ public abstract class BaseImportBuilder {
 				return;
 			dbConfig = new DBConfig();
 			_buildDBConfig(propertiesContainer,dbName,dbConfig, "");
-		}
+
 	}
 	protected void buildESConfig(){
-		if(!freezen) {
-//			PropertiesContainer propertiesContainer = new PropertiesContainer();
-//
-//			if(this.applicationPropertiesFile == null) {
-//				propertiesContainer.addConfigPropertiesFile(DEFAULT_CONFIG_FILE);
-//			}
-//			else{
-//				propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
-//			}
-//			String dbName  = propertiesContainer.getProperty("db.name");
-//			if(dbName == null || dbName.equals(""))
-//				return;
-//			dbConfig = new DBConfig();
-//			_buildDBConfig(propertiesContainer,dbName,dbConfig, "");
-//			if(esConfig != null){
-//				ElasticSearchBoot.boot(esConfig.getConfigs());
-//			}
-		}
+
 	}
 	@JsonIgnore
 	public ExportResultHandler getExportResultHandler() {
@@ -301,7 +285,7 @@ public abstract class BaseImportBuilder {
 		return this;
 	}
 	protected void buildStatusDBConfig(){
-		if(!statusFreezen) {
+
 			if(statusDbname == null) {
 				GetProperties propertiesContainer = null;
 				String prefix = "config.";
@@ -327,7 +311,7 @@ public abstract class BaseImportBuilder {
 					statusDbConfig.setStatusTableDML(statusTableDML);
 				}
 			}
-		}
+
 	}
 	protected void builderConfig(){
 		this.buildGeoipConfig();
@@ -379,79 +363,120 @@ public abstract class BaseImportBuilder {
 	}
 
 
+
 	protected void _buildDBConfig(GetProperties propertiesContainer, String dbName,DBConfig dbConfig,String prefix){
 
 
-
-		dbConfig.setDbName(dbName);
-		String dbUser  = propertiesContainer.getExternalProperty(prefix+"db.user");
-		dbConfig.setDbUser(dbUser);
-		String dbPassword  = propertiesContainer.getExternalProperty(prefix+"db.password");
-		dbConfig.setDbPassword(dbPassword);
-		String dbDriver  = propertiesContainer.getExternalProperty(prefix+"db.driver");
-		dbConfig.setDbDriver(dbDriver);
-
-		boolean enableDBTransaction = propertiesContainer.getExternalBooleanProperty(prefix+"db.enableDBTransaction",false);
-		dbConfig.setEnableDBTransaction(enableDBTransaction);
-		String dbUrl  = propertiesContainer.getExternalProperty(prefix+"db.url");
-		dbConfig.setDbUrl(dbUrl);
-		String _usePool = propertiesContainer.getExternalProperty(prefix+"db.usePool");
-		if(_usePool != null && !_usePool.equals("")) {
-			boolean usePool = Boolean.parseBoolean(_usePool);
-			dbConfig.setUsePool(usePool);
+		if(!customDBConfigs.containsKey(prefix+"db.name")) {
+			dbConfig.setDbName(dbName);
 		}
-		String validateSQL  = propertiesContainer.getExternalProperty(prefix+"db.validateSQL");
-		dbConfig.setValidateSQL(validateSQL);
-
-		String _showSql = propertiesContainer.getExternalProperty(prefix+"db.showsql");
-		if(_showSql != null && !_showSql.equals("")) {
-			boolean showSql = Boolean.parseBoolean(_showSql);
-			dbConfig.setShowSql(showSql);
+		if(!customDBConfigs.containsKey(prefix+"db.user")) {
+			String dbUser  = propertiesContainer.getExternalProperty(prefix+"db.user");
+			dbConfig.setDbUser(dbUser);
+		}
+		if(!customDBConfigs.containsKey(prefix+"db.password")) {
+			String dbPassword  = propertiesContainer.getExternalProperty(prefix+"db.password");
+			dbConfig.setDbPassword(dbPassword);
+		}
+		if(!customDBConfigs.containsKey(prefix+"db.driver")) {
+			String dbDriver  = propertiesContainer.getExternalProperty(prefix+"db.driver");
+			dbConfig.setDbDriver(dbDriver);
 		}
 
-		String _jdbcFetchSize = propertiesContainer.getExternalProperty(prefix+"db.jdbcFetchSize");
-		if(_jdbcFetchSize != null && !_jdbcFetchSize.equals("")) {
-			int jdbcFetchSize = Integer.parseInt(_jdbcFetchSize);
-			dbConfig.setJdbcFetchSize(jdbcFetchSize);
+		if(!customDBConfigs.containsKey(prefix+"db.enableDBTransaction")) {
+			boolean enableDBTransaction = propertiesContainer.getExternalBooleanProperty(prefix+"db.enableDBTransaction",false);
+			dbConfig.setEnableDBTransaction(enableDBTransaction);
 		}
-		String _initSize = propertiesContainer.getExternalProperty(prefix+"db.initSize");
-		if(_initSize != null && !_initSize.equals("")) {
-			int initSize = Integer.parseInt(_initSize);
-			dbConfig.setInitSize(initSize);
+		if(!customDBConfigs.containsKey(prefix+"db.url")) {
+			String dbUrl  = propertiesContainer.getExternalProperty(prefix+"db.url");
+			dbConfig.setDbUrl(dbUrl);
 		}
-		String _minIdleSize = propertiesContainer.getExternalProperty(prefix+"db.minIdleSize");
-		if(_minIdleSize != null && !_minIdleSize.equals("")) {
-			int minIdleSize = Integer.parseInt(_minIdleSize);
-			dbConfig.setMinIdleSize(minIdleSize);
+		if(!customDBConfigs.containsKey(prefix+"db.usePool")) {
+			String _usePool = propertiesContainer.getExternalProperty(prefix+"db.usePool");
+			if(_usePool != null && !_usePool.equals("")) {
+				boolean usePool = Boolean.parseBoolean(_usePool);
+				dbConfig.setUsePool(usePool);
+			}
 		}
-		String _maxSize = propertiesContainer.getExternalProperty(prefix+"db.maxSize");
-		if(_maxSize != null && !_maxSize.equals("")) {
-			int maxSize = Integer.parseInt(_maxSize);
-			dbConfig.setMaxSize(maxSize);
+		if(!customDBConfigs.containsKey(prefix+"db.validateSQL")) {
+			String validateSQL  = propertiesContainer.getExternalProperty(prefix+"db.validateSQL");
+			dbConfig.setValidateSQL(validateSQL);
 		}
-		String statusTableDML  = propertiesContainer.getExternalProperty(prefix+"db.statusTableDML");
-		dbConfig.setStatusTableDML(statusTableDML);
 
-		String dbAdaptor  = propertiesContainer.getExternalProperty(prefix+"db.dbAdaptor");
-		dbConfig.setDbAdaptor(dbAdaptor);
-		String dbtype  = propertiesContainer.getExternalProperty(prefix+"db.dbtype");
-		dbConfig.setDbtype(dbtype);
+		if(!customDBConfigs.containsKey(prefix+"db.showsql")) {
+			String _showSql = propertiesContainer.getExternalProperty(prefix+"db.showsql");
+			if(_showSql != null && !_showSql.equals("")) {
+				boolean showSql = Boolean.parseBoolean(_showSql);
+				dbConfig.setShowSql(showSql);
+			}
+		}
+
+		if(!customDBConfigs.containsKey(prefix+"db.jdbcFetchSize")) {
+			String _jdbcFetchSize = propertiesContainer.getExternalProperty(prefix+"db.jdbcFetchSize");
+			if(_jdbcFetchSize != null && !_jdbcFetchSize.equals("")) {
+				int jdbcFetchSize = Integer.parseInt(_jdbcFetchSize);
+				dbConfig.setJdbcFetchSize(jdbcFetchSize);
+			}
+		}
+		if(!customDBConfigs.containsKey(prefix+"db.initSize")) {
+			String _initSize = propertiesContainer.getExternalProperty(prefix+"db.initSize");
+			if(_initSize != null && !_initSize.equals("")) {
+				int initSize = Integer.parseInt(_initSize);
+				dbConfig.setInitSize(initSize);
+			}
+		}
+		if(!customDBConfigs.containsKey(prefix+"db.minIdleSize")) {
+			String _minIdleSize = propertiesContainer.getExternalProperty(prefix+"db.minIdleSize");
+			if(_minIdleSize != null && !_minIdleSize.equals("")) {
+				int minIdleSize = Integer.parseInt(_minIdleSize);
+				dbConfig.setMinIdleSize(minIdleSize);
+			}
+		}
+		if(!customDBConfigs.containsKey(prefix+"db.maxSize")) {
+			String _maxSize = propertiesContainer.getExternalProperty(prefix+"db.maxSize");
+			if(_maxSize != null && !_maxSize.equals("")) {
+				int maxSize = Integer.parseInt(_maxSize);
+				dbConfig.setMaxSize(maxSize);
+			}
+		}
+		if(!customDBConfigs.containsKey(prefix+"db.statusTableDML")) {
+			String statusTableDML  = propertiesContainer.getExternalProperty(prefix+"db.statusTableDML");
+			dbConfig.setStatusTableDML(statusTableDML);
+		}
+		if(!customDBConfigs.containsKey(prefix+"db.dbAdaptor")) {
+			String dbAdaptor  = propertiesContainer.getExternalProperty(prefix+"db.dbAdaptor");
+			dbConfig.setDbAdaptor(dbAdaptor);
+		}
+		if(!customDBConfigs.containsKey(prefix+"db.dbtype")) {
+			String dbtype  = propertiesContainer.getExternalProperty(prefix+"db.dbtype");
+			dbConfig.setDbtype(dbtype);
+		}
+		if(!customDBConfigs.containsKey(prefix+"db.columnLableUpperCase")) {
+			String columnLableUpperCase  = propertiesContainer.getExternalProperty(prefix+"db.columnLableUpperCase");
+			if(columnLableUpperCase != null){
+				boolean _columnLableUpperCase = Boolean.parseBoolean(columnLableUpperCase);
+				dbConfig.setColumnLableUpperCase(_columnLableUpperCase);
+			}
+
+		}
+
+
 	}
 
 	protected void _setJdbcFetchSize(Integer jdbcFetchSize) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_jdbcFetchSize_key,1);
+		checkDBConfig();
 		dbConfig.setJdbcFetchSize(jdbcFetchSize);
 
 	}
-
-	public void _setDbPassword(String dbPassword) {
-		freezen = true;
+	protected void checkDBConfig(){
 		if(this.dbConfig == null){
 			this.dbConfig = new DBConfig();
 		}
+	}
+	public void _setDbPassword(String dbPassword) {
+		this.customDBConfigs.put(DBConfig.db_password_key,1);
+		checkDBConfig();
 		dbConfig.setDbPassword(dbPassword);
 
 	}
@@ -777,117 +802,89 @@ public abstract class BaseImportBuilder {
 	}
 
 	public void _setShowSql(boolean showSql) {
-		this.freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_showsql_key,1);
+		checkDBConfig();
 		dbConfig.setShowSql(showSql);
 
 
 	}
 
 	public void _setDbName(String dbName) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_name_key,1);
+		checkDBConfig();
 
 		dbConfig.setDbName(dbName);
 
 	}
 	public void _setColumnLableUpperCase(boolean columnLableUpperCase) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_columnLableUpperCase_key,1);
+		checkDBConfig();
 
 		dbConfig.setColumnLableUpperCase(columnLableUpperCase);
 	}
 	public void _setDbInitSize(int dbInitSize) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_initSize_key,1);
+		checkDBConfig();
 
 		dbConfig.setInitSize(dbInitSize);
 	}
 	public void _setDbMaxSize(int dbMaxSize) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_maxSize_key,1);
+		checkDBConfig();
 
 		dbConfig.setMaxSize(dbMaxSize);
 	}
 	public void _setDbMinIdleSize(int dbMinIdleSize) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_minIdleSize_key,1);
+		checkDBConfig();
 
 		dbConfig.setMinIdleSize(dbMinIdleSize);
 	}
 
 	public void _setDbDriver(String dbDriver) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_driver_key,1);
+		checkDBConfig();
 		this.dbConfig.setDbDriver(dbDriver);
 	}
 	public void _setEnableDBTransaction(boolean enableDBTransaction) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_enableDBTransaction_key,1);
+		checkDBConfig();
 		dbConfig.setEnableDBTransaction(enableDBTransaction);
 	}
 
 	public void _setDbAdaptor(String dbAdaptor) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_dbAdaptor_key,1);
+		checkDBConfig();
 		this.dbConfig.setDbAdaptor(dbAdaptor);
 	}
 
 	public void _setDbtype(String dbtype) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_dbtype_key,1);
+		checkDBConfig();
 		this.dbConfig.setDbtype(dbtype);
 	}
 
 	public void _setDbUrl(String dbUrl) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_url_key,1);
+		checkDBConfig();
 		dbConfig.setDbUrl(dbUrl);
 	}
 
 	public void _setDbUser(String dbUser) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_user_key,1);
+		checkDBConfig();
 		this.dbConfig.setDbUser(dbUser);
 	}
 
 	public void _setValidateSQL(String validateSQL) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_validateSQL_key,1);
+		checkDBConfig();
 		dbConfig.setValidateSQL(validateSQL);
 	}
 
 	public void _setUsePool(boolean usePool) {
-		freezen = true;
-		if(this.dbConfig == null){
-			this.dbConfig = new DBConfig();
-		}
+		this.customDBConfigs.put(DBConfig.db_usePool_key,1);
+		checkDBConfig();
 		dbConfig.setUsePool(usePool);
 	}
 
@@ -1215,13 +1212,7 @@ public abstract class BaseImportBuilder {
 	}
 
 
-	public boolean isFreezen() {
-		return freezen;
-	}
 
-	public void setFreezen(boolean freezen) {
-		this.freezen = freezen;
-	}
 
 
 

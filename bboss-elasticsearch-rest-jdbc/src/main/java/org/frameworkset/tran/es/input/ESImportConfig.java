@@ -1,4 +1,4 @@
-package org.frameworkset.tran.es.input.db;
+package org.frameworkset.tran.es.input;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,8 +15,7 @@ package org.frameworkset.tran.es.input.db;
  * limitations under the License.
  */
 
-import com.frameworkset.common.poolman.BatchHandler;
-import org.frameworkset.tran.db.DBImportConfig;
+import org.frameworkset.tran.config.BaseImportConfig;
 
 import java.util.Map;
 
@@ -28,33 +27,17 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ES2DBImportConfig extends DBImportConfig {
+public class ESImportConfig extends BaseImportConfig {
 
 
 	private String queryUrl;// = "demo/_search";
 	private String dslName ;//= "scrollQuery";
 	private String dsl2ndSqlFile;// = "esmapper/dsl2ndSqlFile.xml";
 	private String scrollLiveTime ;//= "100m";
-	private BatchHandler<Map> batchHandler;
 
 
-	public String getInsertSqlName() {
-		if(insertSqlName != null) {
-			return insertSqlName;
-		}
-		else{
-			return sqlName;
-		}
-	}
 
-	public String getInsertSql() {
-		if(insertSql != null) {
-			return insertSql;
-		}
-		else{
-			return sql;
-		}
-	}
+
 
 	private boolean sliceQuery;
 	private int sliceSize;
@@ -94,14 +77,6 @@ public class ES2DBImportConfig extends DBImportConfig {
 
 	public void setScrollLiveTime(String scrollLiveTime) {
 		this.scrollLiveTime = scrollLiveTime;
-	}
-
-	public BatchHandler getBatchHandler() {
-		return batchHandler;
-	}
-
-	public void setBatchHandler(BatchHandler batchHandler) {
-		this.batchHandler = batchHandler;
 	}
 //
 //	public void exportData2DB(){
@@ -167,7 +142,6 @@ public class ES2DBImportConfig extends DBImportConfig {
 //	public ConfigSQLExecutor getConfigSQLExecutor(){
 //		return this.configSQLExecutor;
 //	}
-
 
 
 

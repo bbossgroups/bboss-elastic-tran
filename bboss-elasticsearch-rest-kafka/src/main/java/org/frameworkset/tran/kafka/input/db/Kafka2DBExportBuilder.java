@@ -23,8 +23,6 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBImportConfig;
 import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.kafka.KafkaExportBuilder;
-import org.frameworkset.tran.kafka.KafkaImportConfig;
-import org.frameworkset.tran.kafka.KafkaImportContext;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -64,10 +62,7 @@ public class Kafka2DBExportBuilder extends KafkaExportBuilder {
 
 
 	}
-	@Override
-	protected ImportContext buildImportContext(BaseImportConfig importConfig) {
-		return new KafkaImportContext((KafkaImportConfig)importConfig);
-	}
+
 
 	@Override
 	protected ImportContext buildTargetImportContext(BaseImportConfig targetImportConfig) {

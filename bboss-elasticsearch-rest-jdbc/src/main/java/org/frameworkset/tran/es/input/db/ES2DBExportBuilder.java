@@ -16,14 +16,12 @@ package org.frameworkset.tran.es.input.db;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.frameworkset.common.poolman.BatchHandler;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.DBExportBuilder;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.frameworkset.tran.db.DBImportConfig;
+import org.frameworkset.tran.db.DBImportContext;
+import org.frameworkset.tran.es.input.ESExportBuilder;
 
 /**
  * <p>Description: </p>
@@ -33,35 +31,24 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ES2DBExportBuilder extends DBExportBuilder {
-
-	private String scrollLiveTime = "100m";
-
-	private transient BatchHandler<Map> batchHandler;
-	private String batchHandlerClass;
-	private Map params;
-	/**indexName/_search*/
-	private String queryUrl;
-	private String dsl2ndSqlFile;
-	private String dslName;
-	private boolean sliceQuery;
-	private int sliceSize;
+public class ES2DBExportBuilder extends ESExportBuilder {
+	@JsonIgnore
+	private DBImportConfig dbmportConfig;
+	public void setOutputDBConfig(DBImportConfig dbmportConfig) {
+		this.dbmportConfig = dbmportConfig;
+	}
 
 	@Override
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
 		return new ES2DBDataTranPlugin(  importContext,  targetImportContext);
 	}
 
-	@Override
-	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		return new DefualtExportResultHandler<String,String>(exportResultHandler);
-	}
 
-	protected ImportContext buildImportContext(BaseImportConfig importConfig){
-		return new ES2DBImportContext(importConfig);
+	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
+		return new DBImportContext(importConfig);
 	}
 	public DataStream builder(){
-		super.builderConfig();
+		DataStream dataStream = super.builder();
 //		this.buildDBConfig();
 //		this.buildStatusDBConfig();
 		try {
@@ -73,112 +60,15 @@ public class ES2DBExportBuilder extends DBExportBuilder {
 		catch (Exception e){
 
 		}
-		ES2DBImportConfig es2DBImportConfig = new ES2DBImportConfig();
-		super.buildImportConfig(es2DBImportConfig);
-		es2DBImportConfig.setDsl2ndSqlFile(this.dsl2ndSqlFile);
-		if(this.getSqlFilepath() == null){
-			this.setSqlFilepath(this.dsl2ndSqlFile);
-		}
-//		es2DBImportConfig.setSqlFilepath(dsl2ndSqlFile);
-//		es2DBImportConfig.setSqlName(sqlName);
-//		es2DBImportConfig.setSql(this.sql);
-		super.buildDBImportConfig(es2DBImportConfig);
-
-		es2DBImportConfig.setQueryUrl(this.queryUrl);
-		es2DBImportConfig.setScrollLiveTime(this.scrollLiveTime);
 
 
-		es2DBImportConfig.setBatchHandler(this.batchHandler);
-		es2DBImportConfig.setDslName(this.dslName);
-		es2DBImportConfig.setSliceQuery(this.sliceQuery);
-		es2DBImportConfig.setSliceSize(this.sliceSize);
-		es2DBImportConfig.setParams(this.params);
-		DataStream dataStream = this.createDataStream();
-		dataStream.setImportConfig(es2DBImportConfig);
-		dataStream.setImportContext(this.buildImportContext(es2DBImportConfig));
-		dataStream.setTargetImportContext(dataStream.getImportContext());
+		if(dbmportConfig != null)
+			dataStream.setTargetImportContext(buildTargetImportContext(dbmportConfig) );
+		else
+			dataStream.setTargetImportContext(dataStream.getImportContext());
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
 
 		return dataStream;
-	}
-
-
-
-
-	public String getQueryUrl() {
-		return queryUrl;
-	}
-
-	public ES2DBExportBuilder setQueryUrl(String queryUrl) {
-		this.queryUrl = queryUrl;
-		return this;
-	}
-	@JsonIgnore
-	public BatchHandler<Map> getBatchHandler() {
-		return batchHandler;
-	}
-
-	public ES2DBExportBuilder setBatchHandler(BatchHandler<Map> batchHandler) {
-		this.batchHandler = batchHandler;
-		if(batchHandler != null){
-			batchHandlerClass = batchHandler.getClass().getName();
-		}
-		return this;
-	}
-
-	public String getDsl2ndSqlFile() {
-		return dsl2ndSqlFile;
-	}
-
-	public ES2DBExportBuilder setDsl2ndSqlFile(String dsl2ndSqlFile) {
-		this.dsl2ndSqlFile = dsl2ndSqlFile;
-		return this;
-	}
-
-	public String getDslName() {
-		return dslName;
-	}
-
-	public ES2DBExportBuilder setDslName(String dslName) {
-		this.dslName = dslName;
-		return this;
-	}
-
-	public String getScrollLiveTime() {
-		return scrollLiveTime;
-	}
-
-	public ES2DBExportBuilder setScrollLiveTime(String scrollLiveTime) {
-		this.scrollLiveTime = scrollLiveTime;
-		return this;
-	}
-
-	public boolean isSliceQuery() {
-		return sliceQuery;
-	}
-
-	public ES2DBExportBuilder setSliceQuery(boolean sliceQuery) {
-		this.sliceQuery = sliceQuery;
-		return this;
-	}
-
-	public int getSliceSize() {
-		return sliceSize;
-	}
-
-	public ES2DBExportBuilder setSliceSize(int sliceSize) {
-		this.sliceSize = sliceSize;
-		return this;
-	}
-	public ES2DBExportBuilder addParam(String key, Object value){
-		if(params == null)
-			params = new HashMap();
-		this.params.put(key,value);
-		return this;
-	}
-
-	public String getBatchHandlerClass() {
-		return batchHandlerClass;
 	}
 
 

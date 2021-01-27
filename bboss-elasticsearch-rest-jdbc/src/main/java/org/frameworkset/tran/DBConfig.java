@@ -215,4 +215,39 @@ public class DBConfig {
 	public void setColumnLableUpperCase(boolean columnLableUpperCase) {
 		this.columnLableUpperCase = columnLableUpperCase;
 	}
+
+	public static final String db_name_key = "db.name";
+	public static final String db_user_key = "db.user";
+
+	public static final String db_password_key = "db.password";
+
+	public static final String db_driver_key = "db.driver";
+
+	public static final String db_enableDBTransaction_key = "db.enableDBTransaction";
+
+	public static final String db_url_key = "db.url";
+
+	public static final String db_usePool_key = "db.usePool";
+
+	public static final String db_validateSQL_key = "db.validateSQL";
+
+	public static final String db_showsql_key = "db.showsql";
+
+	public static final String db_jdbcFetchSize_key = "db.jdbcFetchSize";
+
+
+	public static final String db_initSize_key = "db.initSize";
+
+	public static final String db_minIdleSize_key = "db.minIdleSize";
+
+	public static final String db_maxSize_key = "db.maxSize";
+
+	public static final String db_statusTableDML_key = "db.statusTableDML";
+
+	public static final String db_dbAdaptor_key = "db.dbAdaptor";
+
+	public static final String db_dbtype_key = "db.dbtype";
+	public static final String db_columnLableUpperCase_key = "db.columnLableUpperCase";
+
+
 }

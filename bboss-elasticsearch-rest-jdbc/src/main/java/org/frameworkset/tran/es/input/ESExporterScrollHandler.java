@@ -1,4 +1,4 @@
-package org.frameworkset.tran.es.input.db;
+package org.frameworkset.tran.es.input;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -17,8 +17,8 @@ package org.frameworkset.tran.es.input.db;
 
 import org.frameworkset.elasticsearch.entity.ESDatas;
 import org.frameworkset.elasticsearch.scroll.HandlerInfo;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.es.BaseESExporterScrollHandler;
 import org.frameworkset.tran.es.ESDatasWraper;
 
@@ -32,9 +32,9 @@ import org.frameworkset.tran.es.ESDatasWraper;
  */
 public class ESExporterScrollHandler<T>  extends BaseESExporterScrollHandler<T> {
 
-	protected AsynDBOutPutDataTran es2DBDataTran ;
-	public ESExporterScrollHandler(ImportContext importContext, AsynDBOutPutDataTran es2DBDataTran ) {
-		super(  importContext);
+	protected BaseDataTran es2DBDataTran ;
+	public ESExporterScrollHandler(ImportContext importContext, ImportContext targetImportContext, BaseDataTran es2DBDataTran ) {
+		super(  importContext,targetImportContext);
 		this.es2DBDataTran = es2DBDataTran;
 		this.es2DBDataTran.setBreakableScrollHandler(this);
 	}

@@ -15,6 +15,7 @@ package org.frameworkset.tran.config;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.spi.geoip.GeoIPUtil;
@@ -104,7 +105,7 @@ public abstract class BaseImportConfig {
 //	protected String masterTimeout = "30s";
 //	protected Integer waitForActiveShards;
 	public static EsIdGenerator DEFAULT_EsIdGenerator = new DefaultEsIdGenerator();
-	private EsIdGenerator esIdGenerator = DEFAULT_EsIdGenerator;
+	private transient EsIdGenerator esIdGenerator = DEFAULT_EsIdGenerator;
 	private ClientOptions clientOptions;
 	private DBConfig dbConfig;
 	/**
@@ -653,11 +654,11 @@ public abstract class BaseImportConfig {
 	}
 
 
-
+	@JsonIgnore
 	public EsIdGenerator getEsIdGenerator() {
 		return esIdGenerator;
 	}
-
+	@JsonIgnore
 	public void setEsIdGenerator(EsIdGenerator esIdGenerator) {
 		if(esIdGenerator != null)
 			this.esIdGenerator = esIdGenerator;
@@ -776,7 +777,7 @@ public abstract class BaseImportConfig {
 	}
 
 	public boolean isLastValueDateType() {
-		return this.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE;
+		return this.getLastValueType() != null && this.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE;
 	}
 
 	public boolean isSortLastValue() {

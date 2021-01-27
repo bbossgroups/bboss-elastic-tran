@@ -9,7 +9,7 @@ import org.frameworkset.tran.BaseElasticsearchDataTran;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.db.JDBCResultSet;
 import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
-import org.frameworkset.tran.db.input.es.DB2ESImportContext;
+import org.frameworkset.tran.es.input.ESImportContext;
 import org.junit.Test;
 
 import java.sql.ResultSet;
@@ -34,7 +34,7 @@ public class TestDB2ESImportConfig {
 		catch (Exception e){
 
 		}
-		final DB2ESImportContext importContext = new DB2ESImportContext();
+		final ESImportContext importContext = new ESImportContext();
 		importContext.setBatchSize(10);
 		importContext.setRefreshOption("refresh=true");
 		SQLExecutor.queryByNullRowHandler(new ResultSetHandler() {
@@ -67,7 +67,7 @@ public class TestDB2ESImportConfig {
 		catch (Exception e){
 
 		}
-		final DB2ESImportContext importContext = new DB2ESImportContext();
+		final ESImportContext importContext = new ESImportContext();
 		importContext.setBatchSize(10);
 		importContext.setRefreshOption("refresh=true");
 		SQLExecutor.queryByNullRowHandler(new ResultSetHandler() {

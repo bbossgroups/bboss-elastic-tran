@@ -1,4 +1,4 @@
-package org.frameworkset.tran.es.input.db;
+package org.frameworkset.tran.db;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,35 +15,33 @@ package org.frameworkset.tran.es.input.db;
  * limitations under the License.
  */
 
-import com.frameworkset.common.poolman.BatchHandler;
-import org.frameworkset.tran.db.output.DBOutPutContext;
-
-import java.util.Map;
+import com.frameworkset.orm.annotation.BaseESGetVariableValue;
+import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.context.Context;
 
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- * @Date 2019/10/28 14:11
+ * @Date 2019/5/6 21:36
  * @author biaoping.yin
  * @version 1.0
  */
-public interface ES2DBContext extends DBOutPutContext {
-	Map getParams();
+public class JDBCGetVariableValue extends BaseESGetVariableValue {
+	private Context context;
+	public JDBCGetVariableValue(Context context){
+		this.context = context;
+		this.batchContext = context.getBatchContext();
+	}
+	@Override
+	public Object getValue(String field) {
 
-	boolean isSliceQuery();
-
-	int getSliceSize();
-
-
-	String getQueryUrl();
-
-	String getDslName();
-
-	String getScrollLiveTime();
-
-	String getDslFile();
-
-	BatchHandler getBatchHandler();
-
+		try {
+			return context.getValue(field);
+		} catch (Exception e) {
+			throw new ESDataImportException(new StringBuilder()
+											.append("JDBCGetVariableValue getValue failed:")
+											.append(field).toString(),e);
+		}
+	}
 }

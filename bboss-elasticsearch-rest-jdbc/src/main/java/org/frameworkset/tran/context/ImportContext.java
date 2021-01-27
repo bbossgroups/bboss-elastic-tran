@@ -41,6 +41,7 @@ import java.util.concurrent.ExecutorService;
 public interface ImportContext {
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);
 //	DataTranPlugin buildDataTranPlugin();
+	public String getTargetElasticsearch();
 	Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext);
 	ESConfig getESConfig();
 	public Long getTimeRangeLastValue();
@@ -169,6 +170,5 @@ public interface ImportContext {
 
 	ClientOptions getClientOptions();
 
-	String getTargetElasticsearch();
 	String getSourceElasticsearch();
 }

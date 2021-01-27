@@ -1,4 +1,4 @@
-package org.frameworkset.tran.es.input.es;
+package org.frameworkset.tran.es.input;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -25,7 +25,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface ES2ESContext  {
+public interface ESInputContext  {
 	Map getParams();
 
 	boolean isSliceQuery();
@@ -40,10 +40,6 @@ public interface ES2ESContext  {
 	String getScrollLiveTime();
 
 	String getDslFile();
-	public String getTargetElasticsearch();
-	public String getTargetIndexType();
 
-
-	public String getTargetIndex();
 
 }

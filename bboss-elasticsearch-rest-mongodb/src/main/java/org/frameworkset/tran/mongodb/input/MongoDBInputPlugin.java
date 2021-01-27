@@ -40,8 +40,8 @@ import java.util.Date;
 public abstract class MongoDBInputPlugin extends BaseDataTranPlugin implements DataTranPlugin {
 
 	private MongoDBContext es2DBContext;
-	protected void init(ImportContext importContext){
-		super.init(importContext);
+	protected void init(ImportContext importContext,ImportContext targetImportContext){
+		super.init(importContext,targetImportContext);
 		es2DBContext = (MongoDBContext)importContext;
 
 	}

@@ -15,8 +15,8 @@ import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.input.es.JDBCGetVariableValue;
-import org.frameworkset.tran.db.input.es.TaskCommandImpl;
+import org.frameworkset.tran.db.JDBCGetVariableValue;
+import org.frameworkset.tran.task.TaskCommandImpl;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
@@ -40,12 +40,10 @@ import java.util.concurrent.Future;
 public class BaseElasticsearchDataTran extends BaseDataTran{
 	private ClientInterface[] clientInterfaces;
 	private boolean versionUpper7;;
-
+	protected String taskInfo;
 	@Override
 	public void logTaskStart(Logger logger) {
-		logger.info(new StringBuilder().append("import data to IndexName[").append(importContext.getEsIndexWrapper().getIndex())
-				.append("] IndexType[").append(importContext.getEsIndexWrapper().getType())
-				.append("] start.").toString());
+		logger.info(taskInfo);
 	}
 
 	private void initClientInterfaces(String elasticsearchs){
@@ -66,9 +64,14 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 	}
 	public BaseElasticsearchDataTran(TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
 		super(jdbcResultSet,importContext,targetImportContext);
-		String elasticsearch = importContext.getTargetElasticsearch();
+
+		String elasticsearch =  targetImportContext.getTargetElasticsearch();
 		if(elasticsearch == null)
 			elasticsearch = "default";
+		taskInfo = new StringBuilder().append("import data to elasticsearch[").append(elasticsearch).append("] ")
+				.append(" IndexName[").append(targetImportContext.getEsIndexWrapper().getIndex())
+				.append("] IndexType[").append(targetImportContext.getEsIndexWrapper().getType())
+				.append("] start.").toString();
 		initClientInterfaces(elasticsearch);
 //		clientInterface = ElasticSearchHelper.getRestClientUtil(elasticsearch);
 	}
@@ -76,6 +79,10 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 	public BaseElasticsearchDataTran(TranResultSet jdbcResultSet,ImportContext importContext, ImportContext targetImportContext, String esCluster) {
 		super(jdbcResultSet,importContext,   targetImportContext);
 		initClientInterfaces(esCluster);
+		taskInfo = new StringBuilder().append("import data to elasticsearch[").append(esCluster).append("] ")
+				.append(" IndexName[").append(targetImportContext.getEsIndexWrapper().getIndex())
+				.append("] IndexType[").append(targetImportContext.getEsIndexWrapper().getType())
+				.append("] start.").toString();
 //		clientInterface = ElasticSearchHelper.getRestClientUtil(esCluster);
 	}
 
@@ -494,7 +501,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 	}
 	public String tran(String indexName,String indexType) throws ElasticSearchException{
 		ESIndexWrapper esIndexWrapper = new ESIndexWrapper(indexName,indexType);
-		importContext.setEsIndexWrapper(esIndexWrapper);
+		targetImportContext.setEsIndexWrapper(esIndexWrapper);
 		return tran();
 	}
 

@@ -19,8 +19,11 @@ import com.frameworkset.common.poolman.SQLExecutor;
 import com.frameworkset.common.poolman.util.DBConf;
 import com.frameworkset.common.poolman.util.SQLManager;
 import com.frameworkset.common.poolman.util.SQLUtil;
+import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.boot.ElasticSearchBoot;
+import org.frameworkset.tran.context.Context;
+import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.ScheduleService;
@@ -51,6 +54,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public ExportCount getExportCount() {
 		return exportCount;
 	}
+	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
+		return new ContextImpl(importContext,targetImportContext, jdbcResultSet, batchContext);
+	}
 	@Override
 	public String getLastValueVarName() {
 		return importContext.getLastValueColumn();
@@ -61,11 +67,11 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public BaseDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
-		init(importContext);
+		init(importContext,targetImportContext);
 		importContext.setDataTranPlugin(this);
 		targetImportContext.setDataTranPlugin(this);
 	}
-	protected void init(ImportContext importContext){
+	protected void init(ImportContext importContext,ImportContext targetImportContext){
 
 	}
 	@Override

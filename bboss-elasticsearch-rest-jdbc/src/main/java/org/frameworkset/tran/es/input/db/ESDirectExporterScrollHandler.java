@@ -20,6 +20,7 @@ import com.frameworkset.common.poolman.SQLExecutor;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.elasticsearch.entity.ESDatas;
 import org.frameworkset.elasticsearch.scroll.HandlerInfo;
+import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.es.BaseESExporterScrollHandler;
 
 import java.util.List;
@@ -34,12 +35,13 @@ import java.util.List;
  */
 public class ESDirectExporterScrollHandler<T> extends BaseESExporterScrollHandler<T> {
 	protected ConfigSQLExecutor configSQLExecutor;
-	protected ES2DBContext es2DBContext ;
+	protected DBImportContext es2DBContext ;
+
 //	private ESTranResultSet esTranResultSet ;
-	public ESDirectExporterScrollHandler(ImportContext importContext, ConfigSQLExecutor configSQLExecutor ) {
-		super(  importContext);
+	public ESDirectExporterScrollHandler(ImportContext importContext,ImportContext targetImportContext, ConfigSQLExecutor configSQLExecutor ) {
+		super(  importContext,targetImportContext);
 		this.configSQLExecutor = configSQLExecutor;
-		this.es2DBContext = (ES2DBContext)importContext;
+		this.es2DBContext = (DBImportContext)targetImportContext;
 	}
 
 	public void handle(ESDatas<T> response, HandlerInfo handlerInfo) throws Exception {//自己处理每次scroll的结果

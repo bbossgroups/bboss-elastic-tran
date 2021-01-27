@@ -30,8 +30,8 @@ import org.frameworkset.tran.kafka.KafkaResultSet;
  */
 public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements DataTranPlugin {
 	protected KafkaContext kafkaContext;
-	protected void init(ImportContext importContext){
-		super.init(importContext);
+	protected void init(ImportContext importContext,ImportContext targetImportContext){
+		super.init(importContext,  targetImportContext);
 		kafkaContext = (KafkaContext)importContext;
 
 	}
@@ -61,22 +61,11 @@ public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements
 
 	@Override
 	public void beforeInit() {
-		initKafkaInputPlugin();
+
 
 	}
 
-	protected void initKafkaInputPlugin(){
-		/**
-		 * 	<property name="kafkabatchconsumerstore"
-		 * 			  class="org.frameworkset.plugin.kafka.TestKafkaBatchConsumer2ndStore" init-method="init"
-		 * 			  f:batchsize="1000"
-		 * 			  f:checkinterval="10000"
-		 * 			  f:pollTimeOut="2000"
-		 * 			  f:consumerPropes="attr:consumerPropes" f:topic="blackcatbatchstore"
-		 * 			  f:partitions="4" />
-		 */
 
-	}
 	@Override
 	public void afterInit(){
 	}

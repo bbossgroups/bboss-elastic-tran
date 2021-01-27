@@ -20,6 +20,8 @@ import org.frameworkset.tran.DefualtExportResultHandler;
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.BaseImportBuilder;
+import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.codec.CodecUtil;
 
 import java.util.Properties;
@@ -58,7 +60,10 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 	 */
 	private String discardRejectMessage  ;
 
-
+	@Override
+	protected ImportContext buildImportContext(BaseImportConfig importConfig) {
+		return new KafkaImportContext((KafkaImportConfig)importConfig);
+	}
 	@Override
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
 		return new DefualtExportResultHandler(exportResultHandler);

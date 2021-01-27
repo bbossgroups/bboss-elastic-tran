@@ -15,6 +15,7 @@ package org.frameworkset.tran.hbase.input;
  * limitations under the License.
  */
 
+import com.frameworkset.orm.annotation.BatchContext;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -25,13 +26,12 @@ import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.nosql.hbase.HBaseHelper;
 import org.frameworkset.nosql.hbase.TableFactory;
-import org.frameworkset.tran.BaseDataTranPlugin;
-import org.frameworkset.tran.BaseElasticsearchDataTran;
-import org.frameworkset.tran.DataTranPlugin;
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.*;
+import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.hbase.HBaseContext;
 import org.frameworkset.tran.hbase.HBaseRecord;
+import org.frameworkset.tran.hbase.HBaseRecordContextImpl;
 import org.frameworkset.tran.hbase.HBaseResultSet;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 
@@ -52,11 +52,14 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 	private HBaseContext hbaseContext;
 	private byte[] incrementFamily;
 	private byte[] incrementColumn;
-	protected void init(ImportContext importContext){
-		super.init(importContext);
+	protected void init(ImportContext importContext,ImportContext targetImportContext){
+		super.init(importContext,  targetImportContext);
 		hbaseContext = (HBaseContext)importContext;
 
 
+	}
+	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
+		return new HBaseRecordContextImpl(importContext,targetImportContext, jdbcResultSet, batchContext);
 	}
 	protected void doTran(ResultScanner rs) {
 //		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);

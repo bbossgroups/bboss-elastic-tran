@@ -15,6 +15,7 @@ package org.frameworkset.tran.db.output;
  * limitations under the License.
  */
 
+import com.frameworkset.common.poolman.BatchHandler;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.db.DBContext;
 
@@ -51,7 +52,7 @@ public interface DBOutPutContext extends DBContext {
 
 	public String getUpdateSqlName() ;
 	public String getUpdateSql();
-
+	BatchHandler getBatchHandler();
 
 
 

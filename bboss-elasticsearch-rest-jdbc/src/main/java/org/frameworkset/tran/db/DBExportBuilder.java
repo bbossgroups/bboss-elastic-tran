@@ -39,6 +39,12 @@ public abstract class DBExportBuilder extends BaseImportBuilder {
 	private String updateSql;
 	private String deleteSqlName;
 	private String deleteSql;
+	public DBExportBuilder setShowSql(boolean showSql) {
+		_setShowSql(showSql);
+
+		return this;
+	}
+
 	public String getInsertSqlName() {
 		return insertSqlName;
 	}

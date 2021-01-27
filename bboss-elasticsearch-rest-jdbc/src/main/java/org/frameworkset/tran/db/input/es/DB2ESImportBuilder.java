@@ -14,23 +14,25 @@ package org.frameworkset.tran.db.input.es;/*
  *  limitations under the License.
  */
 
-import com.frameworkset.util.SimpleStringUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
-import org.frameworkset.tran.config.BaseImportBuilder;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.db.DBExportBuilder;
 import org.frameworkset.tran.db.DBImportConfig;
 import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.es.ESExportResultHandler;
+import org.frameworkset.tran.es.output.ESOutputConfig;
+import org.frameworkset.tran.es.output.ESOutputContextImpl;
 
-public class DB2ESImportBuilder extends BaseImportBuilder {
-	protected String sqlFilepath;
-	protected String sql;
-	protected String sqlName;
+public class DB2ESImportBuilder extends DBExportBuilder {
 
+	@JsonIgnore
+	private ESOutputConfig esOutputConfig;
 	protected DB2ESImportBuilder(){
 
 	}
@@ -44,18 +46,9 @@ public class DB2ESImportBuilder extends BaseImportBuilder {
 		return new DBImportContext(importConfig);
 	}
 
-	public DB2ESImportBuilder setShowSql(boolean showSql) {
-		_setShowSql(showSql);
-
-		return this;
-	}
 
 
 
-
-	public String getSql() {
-		return sql;
-	}
 
 
 
@@ -64,14 +57,21 @@ public class DB2ESImportBuilder extends BaseImportBuilder {
 		return new DB2ESImportBuilder();
 	}
 
+	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
+		ESOutputContextImpl esOutputContext = new ESOutputContextImpl(importConfig);
 
 
-
-
-	public DB2ESImportBuilder setSql(String sql) {
-		this.sql = sql;
-		return this;
+		return esOutputContext;
 	}
+	public ESOutputConfig getEsOutputConfig() {
+		return esOutputConfig;
+	}
+
+	public void setEsOutputConfig(ESOutputConfig esOutputConfig) {
+		this.esOutputConfig = esOutputConfig;
+	}
+
+
 
 	public DataStream builder(){
 		super.builderConfig();
@@ -90,16 +90,23 @@ public class DB2ESImportBuilder extends BaseImportBuilder {
 //		esjdbcResultSet.setMetaData(statementInfo.getMeta());
 //		esjdbcResultSet.setResultSet(resultSet);
 
-		importConfig.setSqlFilepath(this.sqlFilepath);
-		importConfig.setSqlName(sqlName);
-		if(SimpleStringUtil.isNotEmpty(sql))
-			importConfig.setSql(this.sql);
+		super.buildDBImportConfig(importConfig);
 		DataStream  dataStream = this.createDataStream();
 		dataStream.setImportConfig(importConfig);
 		dataStream.setConfigString(this.toString());
 		dataStream.setImportContext(this.buildImportContext(importConfig));
 //		dataStream.setTargetImportContext(this.buildTargetImportContext(importConfig));
-		dataStream.setTargetImportContext(dataStream.getImportContext());
+		if(esOutputConfig != null) {
+			if(esOutputConfig.getTargetIndex() != null) {
+				ESIndexWrapper esIndexWrapper = new ESIndexWrapper(esOutputConfig.getTargetIndex(), esOutputConfig.getTargetIndexType());
+//			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);
+				esOutputConfig.setEsIndexWrapper(esIndexWrapper);
+			}
+			dataStream.setTargetImportContext(buildTargetImportContext(esOutputConfig));
+		}
+		else {
+			dataStream.setTargetImportContext(dataStream.getImportContext());
+		}
 //		dataStream.init();
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
 		return dataStream;
@@ -108,19 +115,6 @@ public class DB2ESImportBuilder extends BaseImportBuilder {
 
 
 
-	public DB2ESImportBuilder setSqlFilepath(String sqlFilepath) {
-		this.sqlFilepath = sqlFilepath;
-		return this;
-	}
-
-	public String getSqlName() {
-		return sqlName;
-	}
-
-	public DB2ESImportBuilder setSqlName(String sqlName) {
-		this.sqlName = sqlName;
-		return this;
-	}
 
 	@Override
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
@@ -129,23 +123,6 @@ public class DB2ESImportBuilder extends BaseImportBuilder {
 	}
 
 
-//	private IndexPattern splitIndexName(String indexPattern){
-//		int idx = indexPattern.indexOf("{");
-//		int end = -1;
-//		if(idx > 0){
-//			end = indexPattern.indexOf("}");
-//			IndexPattern _indexPattern = new IndexPattern();
-//			_indexPattern.setIndexPrefix(indexPattern.substring(0,idx));
-//			_indexPattern.setDateFormat(indexPattern.substring(idx + 1,end));
-//			if(end < indexPattern.length()){
-//				_indexPattern.setIndexEnd(indexPattern.substring(end+1));
-//			}
-//			return _indexPattern;
-//		}
-//		return null;
-//
-//
-//	}
 
 
 }
