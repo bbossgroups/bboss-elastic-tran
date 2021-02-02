@@ -42,6 +42,7 @@ public class FileUtil {
 	private String transferFailedFileDir;
 	private String transferSuccessFileDir;
 	private String taskInfo;
+	private File file;
 	private FileFtpOupputContext fileFtpOupputContext;
 	public FileUtil(String taskInfo,FileFtpOupputContext fileFtpOupputContext,String dir,String filePath,String remoteFilePath,int buffsize) throws IOException {
 		this.fileFtpOupputContext = fileFtpOupputContext;
@@ -57,7 +58,7 @@ public class FileUtil {
 		}
 		this.filePath = filePath;
 		this.remoteFilePath = remoteFilePath;
-		File file = new File(filePath);
+		file = new File(filePath);
 		transferFailedFileDir = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferFailedFileDir/"+file.getName());
 		path = new File(transferFailedFileDir).getParentFile();
 		if(!path.exists())
@@ -82,7 +83,7 @@ public class FileUtil {
 	}
 
 	private boolean sended;
-	public void sendFile(FileFtpOupputContext fileFtpOupputContext){
+	public void sendFile(){
 		if(sended)
 			return;
 		sended = true;
@@ -90,13 +91,26 @@ public class FileUtil {
 			if(bw != null)
 				bw.flush();
 			this.close();
-			if(fileFtpOupputContext.getTransferProtocol() == FileFtpOupputContext.TRANSFER_PROTOCOL_FTP){
-				FtpTransfer.sendFile(fileFtpOupputContext,filePath,remoteFilePath);
+			if(file.length() <= 0) {
+				if (fileFtpOupputContext.transferEmptyFiles()) {
+					if (fileFtpOupputContext.getTransferProtocol() == FileFtpOupputContext.TRANSFER_PROTOCOL_FTP) {
+						FtpTransfer.sendFile(fileFtpOupputContext, filePath, remoteFilePath);
+					} else {
+						SFTPTransfer.sendFile(fileFtpOupputContext, this.filePath);
+					}
+				}
 			}
 			else{
-				SFTPTransfer.sendFile(fileFtpOupputContext,this.filePath);
+				if (fileFtpOupputContext.getTransferProtocol() == FileFtpOupputContext.TRANSFER_PROTOCOL_FTP) {
+					FtpTransfer.sendFile(fileFtpOupputContext, filePath, remoteFilePath);
+				} else {
+					SFTPTransfer.sendFile(fileFtpOupputContext, this.filePath);
+				}
 			}
-			com.frameworkset.util.FileUtil.renameFile(filePath,transferSuccessFileDir);//如果文件发送成功，将文件移除到成功目录，保留一天，过期自动清理
+			if(fileFtpOupputContext.backupSuccessFiles())
+				com.frameworkset.util.FileUtil.renameFile(filePath,transferSuccessFileDir);//如果文件发送成功，将文件移除到成功目录，保留一天，过期自动清理
+			else
+				com.frameworkset.util.FileUtil.deleteFile(filePath);
 		}
 		catch (IOException e){
 			//com.frameworkset.util.FileUtil.renameFile(filePath,transferFailedFileDir);//如果文件发送失败，将文件移除到失败目录，定时重发

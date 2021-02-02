@@ -61,6 +61,8 @@ public interface FileFtpOupputContext {
 	public boolean localActive();
 	public boolean useEpsvWithIPv4();
 	public int getTransferProtocol();
+	public boolean transferEmptyFiles();
+	public boolean backupSuccessFiles();
 
 
 }

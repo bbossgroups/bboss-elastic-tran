@@ -19,8 +19,6 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Writer;
 import java.util.List;
@@ -34,7 +32,6 @@ import java.util.List;
  * @version 1.0
  */
 public class FileFtpOupputContextImpl extends BaseImportContext implements FileFtpOupputContext {
-	private Logger logger = LoggerFactory.getLogger(FileFtpOupputContextImpl.class);
 	private FileFtpOupputConfig fileFtpOupputConfig;
 	public FileFtpOupputContextImpl(FileFtpOupputConfig fileFtpOupputConfig){
 		super(fileFtpOupputConfig);
@@ -44,9 +41,15 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 		super.init(baseImportConfig);
 		this.fileFtpOupputConfig = (FileFtpOupputConfig)baseImportConfig;
 		if(fileFtpOupputConfig.getReocordGenerator() == null){
-
+			fileFtpOupputConfig.setReocordGenerator(new JsonReocordGenerator());
 		}
 
+	}
+	public boolean backupSuccessFiles(){
+		return fileFtpOupputConfig.isBackupSuccessFiles();
+	}
+	public boolean transferEmptyFiles(){
+		return fileFtpOupputConfig.isTransferEmptyFiles();
 	}
 	public List<String> getHostKeyVerifiers(){
 		return fileFtpOupputConfig.getHostKeyVerifiers();

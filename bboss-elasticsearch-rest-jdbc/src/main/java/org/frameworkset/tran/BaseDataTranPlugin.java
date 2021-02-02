@@ -189,27 +189,30 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	}
 
 
-	public void putLastParamValue(Map params){
+	public Object putLastParamValue(Map params){
+		Object lastValue = this.currentStatus.getLastValue();
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
-			params.put(getLastValueVarName(), this.currentStatus.getLastValue());
+			params.put(getLastValueVarName(), lastValue);
+
 
 		}
 		else{
+			if(lastValue instanceof Date) {
+				params.put(getLastValueVarName(), lastValue);
 
-			if(this.currentStatus.getLastValue() instanceof Date)
-				params.put(getLastValueVarName(), this.currentStatus.getLastValue());
+			}
 			else {
-				if(this.currentStatus.getLastValue() instanceof Long) {
-					params.put(getLastValueVarName(), new Date((Long)this.currentStatus.getLastValue()));
+				if(lastValue instanceof Long) {
+					params.put(getLastValueVarName(), new Date((Long)lastValue));
 				}
-				else if(this.currentStatus.getLastValue() instanceof Integer){
-					params.put(getLastValueVarName(), new Date(((Integer) this.currentStatus.getLastValue()).longValue()));
+				else if(lastValue instanceof Integer){
+					params.put(getLastValueVarName(), new Date(((Integer) lastValue).longValue()));
 				}
-				else if(this.currentStatus.getLastValue() instanceof Short){
-					params.put(getLastValueVarName(), new Date(((Short) this.currentStatus.getLastValue()).longValue()));
+				else if(lastValue instanceof Short){
+					params.put(getLastValueVarName(), new Date(((Short) lastValue).longValue()));
 				}
 				else{
-					params.put(getLastValueVarName(), new Date(((Number) this.currentStatus.getLastValue()).longValue()));
+					params.put(getLastValueVarName(), new Date(((Number) lastValue).longValue()));
 				}
 			}
 
@@ -221,30 +224,32 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		if(isPrintTaskLog()){
 			logger.info(new StringBuilder().append("Current values: ").append(params).toString());
 		}
+		return lastValue;
 	}
 
 
 
 	public Map getParamValue(){
+		Object lastValue = this.currentStatus.getLastValue();
 		Map params = new HashMap();
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
-			params.put(getLastValueVarName(), this.currentStatus.getLastValue());
+			params.put(getLastValueVarName(), lastValue);
 		}
 		else{
-			if(this.currentStatus.getLastValue() instanceof Date)
-				params.put(getLastValueVarName(), this.currentStatus.getLastValue());
+			if(lastValue instanceof Date)
+				params.put(getLastValueVarName(), lastValue);
 			else {
-				if(this.currentStatus.getLastValue() instanceof Long) {
-					params.put(getLastValueVarName(), new Date((Long)this.currentStatus.getLastValue()));
+				if(lastValue instanceof Long) {
+					params.put(getLastValueVarName(), new Date((Long)lastValue));
 				}
-				else if(this.currentStatus.getLastValue() instanceof Integer){
-					params.put(getLastValueVarName(), new Date(((Integer) this.currentStatus.getLastValue()).longValue()));
+				else if(lastValue instanceof Integer){
+					params.put(getLastValueVarName(), new Date(((Integer) lastValue).longValue()));
 				}
-				else if(this.currentStatus.getLastValue() instanceof Short){
-					params.put(getLastValueVarName(), new Date(((Short) this.currentStatus.getLastValue()).longValue()));
+				else if(lastValue instanceof Short){
+					params.put(getLastValueVarName(), new Date(((Short) lastValue).longValue()));
 				}
 				else{
-					params.put(getLastValueVarName(), new Date(((Number) this.currentStatus.getLastValue()).longValue()));
+					params.put(getLastValueVarName(), new Date(((Number) lastValue).longValue()));
 				}
 			}
 			if(importContext.increamentEndOffset() != null){
@@ -537,24 +542,25 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		return this.currentStatus;
 	}
 
-	public synchronized void flushLastValue(Object lastValue) {
+	public void flushLastValue(Object lastValue) {
 		if(lastValue != null) {
+			synchronized (currentStatus) {
+				Object oldLastValue = currentStatus.getLastValue();
+				if (!importContext.needUpdate(oldLastValue, lastValue))
+					return;
+				long time = System.currentTimeMillis();
+				this.currentStatus.setTime(time);
 
-			Object oldLastValue = currentStatus.getLastValue();
-			if(!importContext.needUpdate(oldLastValue,lastValue))
-				return;
-			long time = System.currentTimeMillis();
-			this.currentStatus.setTime(time);
+				this.currentStatus.setLastValue(lastValue);
 
-			this.currentStatus.setLastValue(lastValue);
-
-			if (this.isIncreamentImport()) {
-				Status temp = new Status();
-				temp.setTime(time);
-				temp.setId(this.currentStatus.getId());
-				temp.setLastValueType(this.currentStatus.getLastValueType());
-				temp.setLastValue(lastValue);
-				this.storeStatus(temp);
+				if (this.isIncreamentImport()) {
+					Status temp = new Status();
+					temp.setTime(time);
+					temp.setId(this.currentStatus.getId());
+					temp.setLastValueType(this.currentStatus.getLastValueType());
+					temp.setLastValue(lastValue);
+					this.storeStatus(temp);
+				}
 			}
 		}
 	}

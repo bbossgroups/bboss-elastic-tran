@@ -15,6 +15,8 @@ package org.frameworkset.tran.es.input;
  * limitations under the License.
  */
 
+import java.util.Date;
+
 /**
  * <p>Description: 动态生成查询的请求地址</p>
  * <p></p>
@@ -24,5 +26,5 @@ package org.frameworkset.tran.es.input;
  * @version 1.0
  */
 public interface QueryUrlFunction {
-	public String queryUrl();
+	public String queryUrl(Date lastTime);
 }

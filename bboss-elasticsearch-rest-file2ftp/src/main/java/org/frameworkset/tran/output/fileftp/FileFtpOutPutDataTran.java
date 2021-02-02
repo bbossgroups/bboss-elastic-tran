@@ -211,7 +211,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 						taskCommand.setDatas(_dd);
 						TaskCall.call(taskCommand);
 						taskNo ++;
-						fileUtil.sendFile(fileFtpOupputContext);
+						fileUtil.sendFile();
 						fileUtil = this.initFileUtil();
 					}
 				} catch (Exception e) {
@@ -228,11 +228,11 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 				TaskCall.call(taskCommand);
 
 //				importContext.flushLastValue(lastValue);
-				fileUtil.sendFile(fileFtpOupputContext);//传输文件
+				fileUtil.sendFile();//传输文件
 			}
 			else{
 				if(!fileUtil.isSended()){
-					fileUtil.sendFile(fileFtpOupputContext);
+					fileUtil.sendFile();
 				}
 			}
 			if(isPrintTaskLog()) {
@@ -392,7 +392,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 			waitTasksComplete(tasks, service, exception, lastValue, totalCount, tranErrorWrapper, new WaitTasksCompleteCallBack() {
 				@Override
 				public void call() {
-					fileUtil.sendFile(fileFtpOupputContext);//传输文件
+					fileUtil.sendFile();//传输文件
 				}
 			});
 			try {
@@ -517,7 +517,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 						totalCount += count;
 						taskNo++;
 					}
-					fileUtil.sendFile(fileFtpOupputContext);
+					fileUtil.sendFile();
 					fileUtil = this.initFileUtil();
 				}
 
@@ -538,11 +538,11 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 
 				}
 				totalCount += count;
-				fileUtil.sendFile(fileFtpOupputContext);
+				fileUtil.sendFile();
 			}
 			else{
 				if(!fileUtil.isSended()){
-					fileUtil.sendFile(fileFtpOupputContext);
+					fileUtil.sendFile();
 				}
 			}
 			if(isPrintTaskLog()) {

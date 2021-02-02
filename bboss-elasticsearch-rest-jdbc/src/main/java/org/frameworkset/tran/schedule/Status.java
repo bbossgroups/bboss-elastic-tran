@@ -58,11 +58,11 @@ public class Status implements java.lang.Cloneable{
 	}
 
 
-	public Object getLastValue() {
+	public synchronized Object getLastValue() {
 		return lastValue;
 	}
 
-	public void setLastValue(Object lastValue) {
+	public synchronized void setLastValue(Object lastValue) {
 		this.lastValue = lastValue;
 	}
 

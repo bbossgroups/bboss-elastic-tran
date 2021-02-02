@@ -38,6 +38,8 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 	 *  导出文件名称生成接口实现类型（必须指定）：org.frameworkset.tran.kafka.output.fileftp.FilenameGenerator
 	 */
 	private FilenameGenerator filenameGenerator;
+	private boolean backupSuccessFiles;
+	private boolean transferEmptyFiles;
 	private String fileDir;
 	private int fileWriterBuffsize ;
 	private int maxFileRecordSize;
@@ -289,5 +291,21 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 
 	public void setTransferProtocol(int transferProtocol) {
 		this.transferProtocol = transferProtocol;
+	}
+
+	public boolean isBackupSuccessFiles() {
+		return backupSuccessFiles;
+	}
+
+	public void setBackupSuccessFiles(boolean backupSuccessFiles) {
+		this.backupSuccessFiles = backupSuccessFiles;
+	}
+
+	public boolean isTransferEmptyFiles() {
+		return transferEmptyFiles;
+	}
+
+	public void setTransferEmptyFiles(boolean transferEmptyFiles) {
+		this.transferEmptyFiles = transferEmptyFiles;
 	}
 }

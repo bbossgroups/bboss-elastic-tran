@@ -26,6 +26,7 @@ import org.frameworkset.tran.es.BaseESExporterScrollHandler;
 import org.frameworkset.tran.es.ES2TranResultSet;
 import org.frameworkset.tran.es.input.db.ESDirectExporterScrollHandler;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -84,20 +85,20 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 		if(esInputContext.isSliceQuery()){
 			params.put("sliceMax",esInputContext.getSliceSize());
 		}
-		exportESData(  esExporterScrollHandler,  params);
+		exportESData(  esExporterScrollHandler,  params,new Date());
 	}
 
-	protected String getQueryUrl(){
+	protected String getQueryUrl(Date lastTime){
 		if(esInputContext.getQueryUrl() != null){
 			return esInputContext.getQueryUrl();
 		}
 		else if(esInputContext.getQueryUrlFunction() != null){
-			return esInputContext.getQueryUrlFunction().queryUrl();
+			return esInputContext.getQueryUrlFunction().queryUrl(lastTime);
 		}
 		throw new DataImportException("query url or query url function not setted.");
 	}
 
-	protected void exportESData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,Map params){
+	protected void exportESData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,Map params,Date lastValue){
 
 		//采用自定义handler函数处理每个scroll的结果集后，response中只会包含总记录数，不会包含记录集合
 		//scroll上下文有效期1分钟；大数据量时可以采用handler函数来处理每次scroll检索的结果，规避数据量大时存在的oom内存溢出风险
@@ -108,19 +109,19 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 		if(!esInputContext.isSliceQuery()) {
 
 			if(importContext.isParallel() && esExporterScrollHandler instanceof ESDirectExporterScrollHandler) {
-				response = clientUtil.scrollParallel(getQueryUrl(),
+				response = clientUtil.scrollParallel(getQueryUrl(lastValue),
 						esInputContext.getDslName(), esInputContext.getScrollLiveTime(),
 						params, MetaMap.class, esExporterScrollHandler);
 			}
 			else
 			{
-				response = clientUtil.scroll(getQueryUrl(),
+				response = clientUtil.scroll(getQueryUrl(lastValue),
 						esInputContext.getDslName(), esInputContext.getScrollLiveTime(),
 						params, MetaMap.class, esExporterScrollHandler);
 			}
 		}
 		else{
-			response = clientUtil.scrollSliceParallel(getQueryUrl(), esInputContext.getDslName(),
+			response = clientUtil.scrollSliceParallel(getQueryUrl(lastValue), esInputContext.getDslName(),
 					params, esInputContext.getScrollLiveTime(),MetaMap.class, esExporterScrollHandler);
 		}
 		if(logger.isInfoEnabled()) {
@@ -138,8 +139,13 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 		if(esInputContext.isSliceQuery()){
 			params.put("sliceMax",esInputContext.getSliceSize());
 		}
-		putLastParamValue(params);
-		exportESData(  esExporterScrollHandler,  params);
+		Object lastValue = putLastParamValue(params);
+		if(lastValue instanceof Date) {
+			exportESData(esExporterScrollHandler, params, (Date)lastValue);
+		}
+		else{
+			exportESData(esExporterScrollHandler, params, new Date());
+		}
 
 	}
 	protected abstract BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet,CountDownLatch countDownLatch);
