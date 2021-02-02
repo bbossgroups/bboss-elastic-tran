@@ -76,8 +76,16 @@ public class FileUtil {
 		bw.newLine();
 	}
 	private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
-	public void sendFile(FileFtpOupputContext fileFtpOupputContext){
 
+	public boolean isSended() {
+		return sended;
+	}
+
+	private boolean sended;
+	public void sendFile(FileFtpOupputContext fileFtpOupputContext){
+		if(sended)
+			return;
+		sended = true;
 		try {
 			if(bw != null)
 				bw.flush();

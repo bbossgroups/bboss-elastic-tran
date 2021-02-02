@@ -53,6 +53,8 @@ public class SFTPTransfer {
 			final SFTPClient sftp = ssh.newSFTPClient();
 			try {
 				sftp.put(new FileSystemFile(filePath), fileFtpOupputContext.getRemoteFileDir());
+				if(logger.isInfoEnabled())
+					logger.info("Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success:filePath["+filePath+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"]");
 			} finally {
 				sftp.close();
 			}

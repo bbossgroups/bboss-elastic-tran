@@ -176,8 +176,10 @@ public class FtpTransfer {
 			try   {
 				input = new FileInputStream(filePath);
 				ftp.storeFile(remoteFilePath, input);
+				if(logger.isInfoEnabled())
+					logger.info("Send file to ftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success:filePath["+filePath+"],remote dir["+remoteFilePath+"]");
 			}catch (Exception e){
-				throw new DataImportException("send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed:filePath["+filePath+"],remote dir["+remoteFilePath+"]",e);
+				throw new DataImportException("Send file to ftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed:filePath["+filePath+"],remote dir["+remoteFilePath+"]",e);
 			}
 			finally {
 				if(input != null){

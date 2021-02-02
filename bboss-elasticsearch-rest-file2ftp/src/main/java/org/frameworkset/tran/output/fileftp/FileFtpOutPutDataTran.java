@@ -230,6 +230,11 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 //				importContext.flushLastValue(lastValue);
 				fileUtil.sendFile(fileFtpOupputContext);//传输文件
 			}
+			else{
+				if(!fileUtil.isSended()){
+					fileUtil.sendFile(fileFtpOupputContext);
+				}
+			}
 			if(isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
 				logger.info(new StringBuilder().append("All Take time:").append((end - start)).append("ms")
@@ -534,6 +539,11 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 				}
 				totalCount += count;
 				fileUtil.sendFile(fileFtpOupputContext);
+			}
+			else{
+				if(!fileUtil.isSended()){
+					fileUtil.sendFile(fileFtpOupputContext);
+				}
 			}
 			if(isPrintTaskLog()) {
 				end = System.currentTimeMillis();
