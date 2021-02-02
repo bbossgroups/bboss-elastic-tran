@@ -45,10 +45,10 @@ public abstract class BaseDataTran implements DataTran{
 			esTranResultSet = (AsynTranResultSet)jdbcResultSet;
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
-		init();
+//		init();
 	}
 
-	protected void init(){
+	public void init(){
 
 	}
 
@@ -103,7 +103,8 @@ public abstract class BaseDataTran implements DataTran{
 		return importContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
 	public void waitTasksComplete(final List<Future> tasks,
-								   final ExecutorService service,Exception exception,Object lastValue,final ImportCount totalCount ,final TranErrorWrapper tranErrorWrapper ){
+								   final ExecutorService service,Exception exception,Object lastValue,
+								  final ImportCount totalCount ,final TranErrorWrapper tranErrorWrapper ,final WaitTasksCompleteCallBack waitTasksCompleteCallBack){
 		if(!importContext.isAsyn() || importContext.getScheduleService() != null) {
 			int count = 0;
 			for (Future future : tasks) {
@@ -125,6 +126,8 @@ public abstract class BaseDataTran implements DataTran{
 					if( logger.isErrorEnabled()) logger.error("",e);
 				}
 			}
+			if(waitTasksCompleteCallBack != null)
+				waitTasksCompleteCallBack.call();
 			totalCount.setJobEndTime(new Date());
 			if(isPrintTaskLog()) {
 
@@ -157,6 +160,8 @@ public abstract class BaseDataTran implements DataTran{
 							if( logger.isErrorEnabled()) logger.error("",e);
 						}
 					}
+					if(waitTasksCompleteCallBack != null)
+						waitTasksCompleteCallBack.call();
 					if(isPrintTaskLog()) {
 						logger.info(new StringBuilder().append("Complete tasks:")
 								.append(count).append(",Total success import ")
@@ -164,6 +169,7 @@ public abstract class BaseDataTran implements DataTran{
 								.append(totalCount.getIgnoreTotalCount()).append(" records,failed total ")
 								.append(totalCount.getFailedCount()).append(" records.").toString());
 					}
+
 					jobComplete(  service,null,null,tranErrorWrapper);
 					totalCount.setJobEndTime(new Date());
 				}

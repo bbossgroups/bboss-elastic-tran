@@ -44,6 +44,9 @@ public abstract  class BaseImportContext implements ImportContext {
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;
 	}
+	public String[] getExportColumns(){
+		return  baseImportConfig.getExportColumns();
+	}
 
 	//	private JDBCResultSet jdbcResultSet;
 	private DataTranPlugin dataTranPlugin;
@@ -51,6 +54,14 @@ public abstract  class BaseImportContext implements ImportContext {
 
 	public BaseImportContext(){
 
+	}
+	/**
+	 *  对于有延迟的数据源，指定增量截止时间与当前时间的便宜量
+	 *  增量查询截止时间为：System.currenttime - increamentEndOffset
+	 * @return
+	 */
+	public Integer increamentEndOffset(){
+		return baseImportConfig.getIncreamentEndOffset();
 	}
 
 	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
@@ -285,6 +296,90 @@ public abstract  class BaseImportContext implements ImportContext {
 		return dataTranPlugin;
 	}
 
+	public boolean needUpdate(Object oldValue,Object newValue){
+		if(newValue == null)
+			return false;
+
+		if(oldValue == null)
+			return true;
+//		this.getLastValueType()
+		if(this.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
+			Date oldValueDate = (Date)oldValue;
+			Date newValueDate = (Date)newValue;
+			if(newValueDate.after(oldValueDate))
+				return true;
+			else
+				return false;
+		}
+		else{
+//			Method compareTo = oldValue.getClass().getMethod("compareTo");
+			if(oldValue instanceof Integer && newValue instanceof Integer){
+				int e = ((Integer)oldValue).compareTo ((Integer)newValue);
+				if(e < 0)
+					return true;
+				else
+					return false;
+			}
+			else if(oldValue instanceof Long || newValue instanceof Long){
+				boolean e = ((Number)oldValue).longValue() <= ((Number)newValue).longValue();
+				if(e)
+					return true;
+				else
+					return false;
+			}
+			else if(oldValue instanceof BigDecimal && newValue instanceof BigDecimal){
+				int e = ((BigDecimal)oldValue).compareTo ((BigDecimal)newValue);
+				if(e < 0)
+					return true;
+				else
+					return false;
+			}
+			else if(oldValue instanceof BigDecimal && newValue instanceof Integer){
+				boolean e = ((BigDecimal)oldValue).longValue() > ((Integer)newValue).intValue();
+				if(!e )
+					return true;
+				else
+					return false;
+			}
+			else if(oldValue instanceof Integer && newValue instanceof BigDecimal){
+				boolean e = ((BigDecimal)newValue).longValue() > ((Integer)oldValue).intValue();
+				if(!e )
+					return false;
+				else
+					return true;
+			}
+			else if(oldValue instanceof Double || newValue instanceof Double){
+				int e = Double.compare(((Number)oldValue).doubleValue(), ((Number)newValue).doubleValue());
+				if(e < 0)
+					return true;
+				else
+					return false;
+			}
+			else if(oldValue instanceof Float || newValue instanceof Float){
+				int e = Float.compare(((Number)oldValue).floatValue(), ((Number)newValue).floatValue());
+				if(e < 0)
+					return true;
+				else
+					return false;
+			}
+
+			else if(oldValue instanceof BigDecimal || newValue instanceof BigDecimal){
+				int e = Double.compare(((Number)oldValue).doubleValue(), ((Number)newValue).doubleValue());
+				if(e < 0)
+					return true;
+				else
+					return false;
+			}
+			else {
+				boolean e = ((Number)oldValue).intValue() <= ((Number)newValue).intValue();
+				if(e)
+					return true;
+				else
+					return false;
+			}
+
+		}
+	}
 	public Object max(Object oldValue,Object newValue){
 		if(newValue == null)
 			return oldValue;

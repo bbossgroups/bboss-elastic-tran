@@ -32,7 +32,7 @@ public interface ESInputContext  {
 
 	int getSliceSize();
 
-
+	public QueryUrlFunction getQueryUrlFunction();
 	String getQueryUrl();
 
 	String getDslName();
@@ -40,6 +40,7 @@ public interface ESInputContext  {
 	String getScrollLiveTime();
 
 	String getDslFile();
+
 
 
 }

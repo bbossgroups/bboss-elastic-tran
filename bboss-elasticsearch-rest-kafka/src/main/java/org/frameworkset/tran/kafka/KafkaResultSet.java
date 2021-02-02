@@ -15,9 +15,9 @@ package org.frameworkset.tran.kafka;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.AsynBaseTranResultSet;
 import org.frameworkset.tran.Record;
+import org.frameworkset.tran.context.ImportContext;
 
 /**
  * <p>Description: </p>

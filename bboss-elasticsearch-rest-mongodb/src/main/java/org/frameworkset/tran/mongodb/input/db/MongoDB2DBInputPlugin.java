@@ -40,6 +40,7 @@ public class MongoDB2DBInputPlugin extends MongoDBInputPlugin {
 	protected void doTran(DBCursor dbCursor) {
 		MongoDBResultSet mongoDB2DBResultSet = new MongoDBResultSet(importContext,dbCursor);
 		DBOutPutDataTran mongoDB2ESDataTran = new DBOutPutDataTran(mongoDB2DBResultSet,importContext,targetImportContext);
+		mongoDB2ESDataTran.init();
 		mongoDB2ESDataTran.tran();
 	}
 

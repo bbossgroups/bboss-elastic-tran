@@ -16,6 +16,7 @@ package org.frameworkset.tran;/*
 
 
 import java.util.Date;
+import java.util.Set;
 
 public interface TranResultSet {
 
@@ -39,6 +40,6 @@ public interface TranResultSet {
 	Object getRecord();
 
 	void stop();
-
+	public Set<String> getKeys();
 	Object getMetaValue(String fieldName);
 }

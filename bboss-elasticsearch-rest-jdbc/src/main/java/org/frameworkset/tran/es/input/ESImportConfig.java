@@ -15,6 +15,7 @@ package org.frameworkset.tran.es.input;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.frameworkset.tran.config.BaseImportConfig;
 
 import java.util.Map;
@@ -35,7 +36,8 @@ public class ESImportConfig extends BaseImportConfig {
 	private String dsl2ndSqlFile;// = "esmapper/dsl2ndSqlFile.xml";
 	private String scrollLiveTime ;//= "100m";
 
-
+	@JsonIgnore
+	private QueryUrlFunction queryUrlFunction;
 
 
 
@@ -124,6 +126,8 @@ public class ESImportConfig extends BaseImportConfig {
 		this.queryUrl = queryUrl;
 	}
 
+
+
 	public boolean isSliceQuery() {
 		return sliceQuery;
 	}
@@ -138,6 +142,14 @@ public class ESImportConfig extends BaseImportConfig {
 
 	public void setSliceSize(int sliceSize) {
 		this.sliceSize = sliceSize;
+	}
+
+	public QueryUrlFunction getQueryUrlFunction() {
+		return queryUrlFunction;
+	}
+
+	public void setQueryUrlFunction(QueryUrlFunction queryUrlFunction) {
+		this.queryUrlFunction = queryUrlFunction;
 	}
 //	public ConfigSQLExecutor getConfigSQLExecutor(){
 //		return this.configSQLExecutor;

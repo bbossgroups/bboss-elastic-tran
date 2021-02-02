@@ -70,7 +70,9 @@ public class ESImportContext extends BaseImportContext implements ESInputContext
 	public String getQueryUrl() {
 		return es2esImportConfig.getQueryUrl();
 	}
-
+	public QueryUrlFunction getQueryUrlFunction(){
+		return es2esImportConfig.getQueryUrlFunction();
+	}
 	@Override
 	public String getDslName() {
 		return es2esImportConfig.getDslName();

@@ -23,6 +23,7 @@ import org.frameworkset.tran.TranResultSet;
 
 import java.sql.ResultSet;
 import java.util.Date;
+import java.util.Set;
 
 public class JDBCResultSet extends LastValue implements TranResultSet {
 	protected ResultSet resultSet;
@@ -103,7 +104,9 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 
 	}
 
-
+	public Set<String> getKeys(){
+		return  null;
+	}
 	public Object getValue( String colName,int sqlType) throws ESDataImportException
 	{
 		if(colName == null)

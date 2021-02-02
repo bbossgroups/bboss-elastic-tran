@@ -66,7 +66,9 @@ public class ES2DBDataTranPlugin extends ESInputPlugin implements DataTranPlugin
 
 	}
 	protected  BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet,CountDownLatch countDownLatch){
-		return new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,countDownLatch);
+		AsynDBOutPutDataTran asynDBOutPutDataTran = new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,countDownLatch);
+		asynDBOutPutDataTran.init();
+		return asynDBOutPutDataTran;
 	}
 	public void doImportData()  throws ESDataImportException{
 		if(dbOutPutContext.getBatchHandler() != null){

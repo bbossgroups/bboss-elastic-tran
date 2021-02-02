@@ -138,6 +138,13 @@ public abstract class BaseImportBuilder {
 	 * 并行执行过程中出现异常终端后续作业处理，已经创建的作业会执行完毕
 	 */
 	private boolean continueOnError;
+	/**
+	 *  对于有延迟的数据源，指定增量截止时间与当前时间的便宜量
+	 *  增量查询截止时间值为：System.currenttime - increamentEndOffset
+	 *  对应的变量名称：getLastValueVarName()+"__endTime"
+	 * @return
+	 */
+	private Integer increamentEndOffset;
 
 	public long getAsynResultPollTimeOut() {
 		return asynResultPollTimeOut;
@@ -145,6 +152,16 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setAsynResultPollTimeOut(long asynResultPollTimeOut) {
 		this.asynResultPollTimeOut = asynResultPollTimeOut;
+		return this;
+	}
+	/**
+	 *  对于有延迟的数据源，指定增量截止时间与当前时间的便宜量
+	 *  增量查询截止时间为：System.currenttime - increamentEndOffset
+	 *  对应的变量名称：getLastValueVarName()+"__endTime"
+	 * @return
+	 */
+	public BaseImportBuilder setIncreamentEndOffset(Integer increamentEndOffset) {
+		this.increamentEndOffset = increamentEndOffset;
 		return this;
 	}
 
@@ -1150,6 +1167,7 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setTranDataBufferQueue(this.tranDataBufferQueue);
 		baseImportConfig.setFlushInterval(this.flushInterval);
 		baseImportConfig.setIgnoreNullValueField(this.ignoreNullValueField);
+		baseImportConfig.setIncreamentEndOffset(this.increamentEndOffset);
 //		baseImportConfig.setEsDetectNoop(this.esDetectNoop);
 
 	}

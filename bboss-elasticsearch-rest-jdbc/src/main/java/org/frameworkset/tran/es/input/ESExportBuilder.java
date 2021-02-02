@@ -15,6 +15,7 @@ package org.frameworkset.tran.es.input;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.DefualtExportResultHandler;
 import org.frameworkset.tran.ExportResultHandler;
@@ -41,6 +42,8 @@ public abstract class ESExportBuilder extends BaseImportBuilder {
 	private Map params;
 	/**indexName/_search*/
 	private String queryUrl;
+	@JsonIgnore
+	private QueryUrlFunction queryUrlFunction;
 	private String dsl2ndSqlFile;
 	private String dslName;
 	private boolean sliceQuery;
@@ -80,6 +83,7 @@ public abstract class ESExportBuilder extends BaseImportBuilder {
 //		es2DBImportConfig.setSql(this.sql);
 
 		es2DBImportConfig.setQueryUrl(this.queryUrl);
+		es2DBImportConfig.setQueryUrlFunction(queryUrlFunction);
 		es2DBImportConfig.setScrollLiveTime(this.scrollLiveTime);
 
 
@@ -105,6 +109,11 @@ public abstract class ESExportBuilder extends BaseImportBuilder {
 
 	public ESExportBuilder setQueryUrl(String queryUrl) {
 		this.queryUrl = queryUrl;
+		return this;
+	}
+
+	public ESExportBuilder setQueryUrlFunction(QueryUrlFunction queryUrlFunction) {
+		this.queryUrlFunction = queryUrlFunction;
 		return this;
 	}
 

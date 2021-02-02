@@ -20,6 +20,7 @@ import org.frameworkset.tran.util.TranUtil;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +47,9 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 		this.importContext = importContext;
 	}
 	protected abstract Record buildRecord(Object data);
-
+	public Set<String> getKeys(){
+		return record.getKeys();
+	}
 	public void appendData(Data datas){
 
 		try {

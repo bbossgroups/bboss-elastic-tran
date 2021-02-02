@@ -67,6 +67,7 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 //		mongoDB2ESDataTran.tran();
 		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
 		BaseElasticsearchDataTran hBase2ESDataTran = new BaseElasticsearchDataTran(hBaseResultSet,importContext,targetImportContext);
+		hBase2ESDataTran.init();
 		hBase2ESDataTran.tran();
 	}
 

@@ -46,8 +46,8 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 	private String taskInfo;
 	private boolean needBatch;
 	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext,ImportContext targetImportContext,
-								  List<DBRecord> datas, int taskNo, String jobNo,String taskInfo,boolean needBatch) {
-		super(importCount,importContext, targetImportContext,datas.size(),  taskNo,  jobNo);
+								  List<DBRecord> datas, int taskNo, String jobNo,String taskInfo,boolean needBatch,Object lastValue) {
+		super(importCount,importContext, targetImportContext,datas.size(),  taskNo,  jobNo,lastValue);
 		this.needBatch = needBatch;
 		this.importContext = importContext;
 		this.datas = datas;
@@ -93,14 +93,6 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 			}
 		}
 	}
-
-
-
-
-
-
-
-
 
 	public List<DBRecord> getDatas() {
 		return datas;
@@ -180,6 +172,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 					else if(!oldSql.equals(sql)){
 						try {
 							statement.executeBatch();
+							finishTask();
 						}
 						catch (Exception e){
 
@@ -213,6 +206,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 				}
 				if(statement != null) {
 					statement.executeBatch();
+					finishTask();
 				}
 			}
 			else
@@ -238,8 +232,10 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 					else if(!oldSql.equals(sql)){
 
 						try {
-							if(count > 0)
+							if(count > 0) {
 								statement.executeBatch();
+								finishTask();
+							}
 						}
 						catch (Exception e){
 
@@ -265,14 +261,17 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 					statement.addBatch();
 					if ((count > 0 && count % point == 0)) {
 						statement.executeBatch();
+						finishTask();
 						statement.clearBatch();
 						count = 0;
 						continue;
 					}
 					count++;
 				}
-				if(count > 0)
+				if(count > 0) {
 					statement.executeBatch();
+					finishTask();
+				}
 			}
 
 		}

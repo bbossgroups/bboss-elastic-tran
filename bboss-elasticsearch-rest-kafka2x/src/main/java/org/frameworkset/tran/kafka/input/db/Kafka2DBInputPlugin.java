@@ -51,7 +51,10 @@ public class Kafka2DBInputPlugin  extends Kafka2InputPlugin {
 		super.beforeInit();
 	}
 	protected  BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet) {
-		return new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext);
+		AsynDBOutPutDataTran asynDBOutPutDataTran = new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext);
+		asynDBOutPutDataTran.init();
+		return asynDBOutPutDataTran;
+
 	}
 
 }

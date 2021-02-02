@@ -33,10 +33,9 @@ import org.slf4j.LoggerFactory;
  * @version 1.0
  */
 public class TaskCommandImpl extends BaseTaskCommand<String,String> {
-//	private String refreshOption;
 
-	public TaskCommandImpl(ImportCount importCount, ImportContext importContext,ImportContext targetImportContext, long dataSize, int taskNo, String jobNo) {
-		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo);
+	public TaskCommandImpl(ImportCount importCount, ImportContext importContext,ImportContext targetImportContext, long dataSize, int taskNo, String jobNo,Object lastValue) {
+		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,  lastValue);
 	}
 
 
@@ -44,9 +43,7 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 
 	private ClientInterface clientInterface;
 
-//	public String getRefreshOption() {
-//		return refreshOption;
-//	}
+
 
 	public ClientInterface getClientInterface() {
 		return clientInterface;
@@ -60,9 +57,7 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 	private String datas;
 	private int tryCount;
 
-//	public void setRefreshOption(String refreshOption) {
-//		this.refreshOption = refreshOption;
-//	}
+
 
 	public void setClientInterface(ClientInterface clientInterface) {
 		this.clientInterface = clientInterface;
@@ -71,9 +66,6 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 	public void setDatas(String datas) {
 		this.datas = datas;
 	}
-
-
-
 
 
 	private static Logger logger = LoggerFactory.getLogger(TaskCommand.class);
@@ -88,6 +80,7 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 		if(importContext.isDebugResponse()) {
 
 			data = clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions()), datas, ClientUtil.HTTP_POST);
+			finishTask();
 			if(logger.isInfoEnabled())
 				logger.info(data);
 
@@ -98,10 +91,12 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 				clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions()), datas, ClientUtil.HTTP_POST,esVoidResponseHandler);
 				if(esVoidResponseHandler.getElasticSearchException() != null)
 					throw esVoidResponseHandler.getElasticSearchException();
+				finishTask();
 				return null;
 			}
 			else{
 				data = clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions()), datas, ClientUtil.HTTP_POST);
+				finishTask();
 			}
 		}
 		return data;

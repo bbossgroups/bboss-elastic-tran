@@ -48,6 +48,7 @@ public class TestDB2ESImportConfig {
 				jdbcResultSet.setMetaData(statementInfo.getMeta());
 				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
 				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(jdbcResultSet,importContext,importContext);
+				db2ESDataTran.init();
 				db2ESDataTran.tran("dbdemo","dbdemo");
 			}
 		},"select * from td_sm_log");
@@ -79,6 +80,7 @@ public class TestDB2ESImportConfig {
 				jdbcResultSet.setMetaData(statementInfo.getMeta());
 				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
 				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(jdbcResultSet,importContext,importContext);
+				db2ESDataTran.init();
 				db2ESDataTran.tran("dbclobdemo","dbclobdemo");
 			}
 		},"select * from td_cms_document");

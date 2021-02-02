@@ -40,12 +40,20 @@ import java.util.concurrent.ExecutorService;
  */
 public interface ImportContext {
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);
+	public String[] getExportColumns();
 //	DataTranPlugin buildDataTranPlugin();
 	public String getTargetElasticsearch();
 	Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext);
 	ESConfig getESConfig();
 	public Long getTimeRangeLastValue();
 	public DataTranPlugin getDataTranPlugin();
+	/**
+	 *  对于有延迟的数据源，指定增量截止时间与当前时间的便宜量
+	 *  增量查询截止时间为：System.currenttime - increamentEndOffset
+	 * @return
+	 */
+	Integer increamentEndOffset();
+
 	/**
 	 * 异步消费数据时，强制刷新检测空闲时间间隔，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作
 	 * @return
@@ -129,7 +137,7 @@ public interface ImportContext {
 	BaseImportConfig getImportConfig();
 
 	void flushLastValue(Object lastValue);
-
+	public boolean needUpdate(Object oldValue,Object newValue);
 	void stop();
 
 	void setEsIndexWrapper(ESIndexWrapper esIndexWrapper);

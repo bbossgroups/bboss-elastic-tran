@@ -47,6 +47,24 @@ public abstract class BaseImportConfig {
 	private boolean sortLastValue ;
 	private long flushInterval;
 	private long asynResultPollTimeOut = 1000;
+	private Integer increamentEndOffset;
+	public String[] getExportColumns() {
+		return exportColumns;
+	}
+
+	public void setIncreamentEndOffset(Integer increamentEndOffset) {
+		this.increamentEndOffset = increamentEndOffset;
+	}
+
+	public Integer getIncreamentEndOffset() {
+		return increamentEndOffset;
+	}
+
+	public void setExportColumns(String[] exportColumns) {
+		this.exportColumns = exportColumns;
+	}
+
+	private String[] exportColumns;
 
 	public void setTargetElasticsearch(String targetElasticsearch) {
 		this.targetElasticsearch = targetElasticsearch;

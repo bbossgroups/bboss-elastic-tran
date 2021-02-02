@@ -32,6 +32,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	protected ImportContext importContext;
 	protected ImportContext targetImportContext;
 	protected TaskMetrics taskMetrics;
+	protected Object lastValue;
 	protected long dataSize;
 	public long getDataSize(){
 		return dataSize;
@@ -49,6 +50,9 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	public ImportContext getImportContext() {
 		return importContext;
 	}
+	protected void finishTask(){
+		importContext.flushLastValue(lastValue);
+	}
 
 	/**
 	 * 获取任务执行耗时
@@ -60,7 +64,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 			return taskMetrics.getTaskEndTime().getTime() - taskMetrics.getTaskStartTime().getTime();
 		return -1;
 	}
-	public BaseTaskCommand(ImportCount importCount, ImportContext importContext,ImportContext targetImportContext,long dataSize,int taskNo,String jobNo){
+	public BaseTaskCommand(ImportCount importCount, ImportContext importContext,ImportContext targetImportContext,long dataSize,int taskNo,String jobNo,Object lastValue){
 		this.importCount = importCount;
 		this.importContext =  importContext;
 		this.targetImportContext = targetImportContext;
@@ -68,6 +72,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		this.taskMetrics = new TaskMetrics();
 		taskMetrics.setTaskNo(taskNo);
 		taskMetrics.setJobNo(jobNo);
+		this.lastValue = lastValue;
 	}
 	public ImportCount getImportCount(){
 		return this.importCount;

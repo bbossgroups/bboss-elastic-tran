@@ -15,9 +15,7 @@ package org.frameworkset.tran.db;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.Param;
-
-import java.util.List;
+import org.frameworkset.tran.CommonRecord;
 
 /**
  * <p>Description: </p>
@@ -27,11 +25,10 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DBRecord {
+public class DBRecord extends CommonRecord {
 	public static final int INSERT = 0;
 	public static final int DELETE = 2;
 	public static final int UPDATE = 1;
-	private List<Param> params;
 
 
 	private int action = INSERT;
@@ -46,19 +43,8 @@ public class DBRecord {
 	public boolean isUpate(){
 		return action ==  UPDATE;
 	}
-	public List<Param> getParams() {
-		return params;
-	}
-	public int size(){
-		return params.size();
-	}
-	public Param get(int idx){
-		return params.get(idx);
-	}
 
-	public void setParams(List<Param> params) {
-		this.params = params;
-	}
+
 	public int getAction() {
 		return action;
 	}

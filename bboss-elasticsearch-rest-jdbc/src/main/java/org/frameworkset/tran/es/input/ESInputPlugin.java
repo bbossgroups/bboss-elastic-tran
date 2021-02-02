@@ -87,6 +87,16 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 		exportESData(  esExporterScrollHandler,  params);
 	}
 
+	protected String getQueryUrl(){
+		if(esInputContext.getQueryUrl() != null){
+			return esInputContext.getQueryUrl();
+		}
+		else if(esInputContext.getQueryUrlFunction() != null){
+			return esInputContext.getQueryUrlFunction().queryUrl();
+		}
+		throw new DataImportException("query url or query url function not setted.");
+	}
+
 	protected void exportESData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,Map params){
 
 		//采用自定义handler函数处理每个scroll的结果集后，response中只会包含总记录数，不会包含记录集合
@@ -98,19 +108,19 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 		if(!esInputContext.isSliceQuery()) {
 
 			if(importContext.isParallel() && esExporterScrollHandler instanceof ESDirectExporterScrollHandler) {
-				response = clientUtil.scrollParallel(esInputContext.getQueryUrl(),
+				response = clientUtil.scrollParallel(getQueryUrl(),
 						esInputContext.getDslName(), esInputContext.getScrollLiveTime(),
 						params, MetaMap.class, esExporterScrollHandler);
 			}
 			else
 			{
-				response = clientUtil.scroll(esInputContext.getQueryUrl(),
+				response = clientUtil.scroll(getQueryUrl(),
 						esInputContext.getDslName(), esInputContext.getScrollLiveTime(),
 						params, MetaMap.class, esExporterScrollHandler);
 			}
 		}
 		else{
-			response = clientUtil.scrollSliceParallel(esInputContext.getQueryUrl(), esInputContext.getDslName(),
+			response = clientUtil.scrollSliceParallel(getQueryUrl(), esInputContext.getDslName(),
 					params, esInputContext.getScrollLiveTime(),MetaMap.class, esExporterScrollHandler);
 		}
 		if(logger.isInfoEnabled()) {
@@ -133,7 +143,9 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 
 	}
 	protected abstract BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet,CountDownLatch countDownLatch);
-	protected abstract void doBatchHandler();
+	protected void doBatchHandler(){
+
+	}
 	public void doImportData()  throws ESDataImportException {
 
 

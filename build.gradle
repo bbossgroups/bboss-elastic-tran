@@ -92,7 +92,8 @@ configure(subprojects) { subproject ->
 configure([project(":bboss-elasticsearch-rest-jdbc"),project(":bboss-elasticsearch-geoip"),project(":bboss-elasticsearch-rest-mongodb"),
 			project(":bboss-elasticsearch-rest-kafka"),project(":bboss-elasticsearch-rest-kafka1x"),
 		   project(":bboss-elasticsearch-rest-kafka2x"),
-		   project(":bboss-elasticsearch-rest-hbase")]) { subproject ->
+		   project(":bboss-elasticsearch-rest-hbase"),
+		   project(":bboss-elasticsearch-rest-file2ftp")]) { subproject ->
 	ext.uploadtocenter=uploadArchivesToMavenCenter.equals("true")
 	if(uploadtocenter)
 	{

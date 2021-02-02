@@ -28,6 +28,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.ScheduleService;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -191,8 +192,10 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public void putLastParamValue(Map params){
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 			params.put(getLastValueVarName(), this.currentStatus.getLastValue());
+
 		}
 		else{
+
 			if(this.currentStatus.getLastValue() instanceof Date)
 				params.put(getLastValueVarName(), this.currentStatus.getLastValue());
 			else {
@@ -208,6 +211,11 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				else{
 					params.put(getLastValueVarName(), new Date(((Number) this.currentStatus.getLastValue()).longValue()));
 				}
+			}
+
+			if(importContext.increamentEndOffset() != null){
+				Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
+				params.put(getLastValueVarName()+"__endTime", lastOffsetValue);
 			}
 		}
 		if(isPrintTaskLog()){
@@ -238,6 +246,10 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				else{
 					params.put(getLastValueVarName(), new Date(((Number) this.currentStatus.getLastValue()).longValue()));
 				}
+			}
+			if(importContext.increamentEndOffset() != null){
+				Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
+				params.put(getLastValueVarName()+"__endTime", lastOffsetValue);
 			}
 		}
 		if(isPrintTaskLog()){
@@ -524,8 +536,13 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public Status getCurrentStatus(){
 		return this.currentStatus;
 	}
-	public void flushLastValue(Object lastValue) {
+
+	public synchronized void flushLastValue(Object lastValue) {
 		if(lastValue != null) {
+
+			Object oldLastValue = currentStatus.getLastValue();
+			if(!importContext.needUpdate(oldLastValue,lastValue))
+				return;
 			long time = System.currentTimeMillis();
 			this.currentStatus.setTime(time);
 
