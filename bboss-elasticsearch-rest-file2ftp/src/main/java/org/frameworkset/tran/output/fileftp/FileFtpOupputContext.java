@@ -63,6 +63,6 @@ public interface FileFtpOupputContext {
 	public int getTransferProtocol();
 	public boolean transferEmptyFiles();
 	public boolean backupSuccessFiles();
-
+	public boolean disableftp();
 
 }

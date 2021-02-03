@@ -60,6 +60,9 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 	public int getTransferProtocol(){
 		return fileFtpOupputConfig.getTransferProtocol();
 	}
+	public boolean disableftp(){
+		return fileFtpOupputConfig.isDisableftp();
+	}
 
 
 

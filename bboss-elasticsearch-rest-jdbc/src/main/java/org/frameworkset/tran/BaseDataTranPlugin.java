@@ -554,12 +554,12 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				this.currentStatus.setLastValue(lastValue);
 
 				if (this.isIncreamentImport()) {
-					Status temp = new Status();
-					temp.setTime(time);
-					temp.setId(this.currentStatus.getId());
-					temp.setLastValueType(this.currentStatus.getLastValueType());
-					temp.setLastValue(lastValue);
-					this.storeStatus(temp);
+//					Status temp = new Status();
+//					temp.setTime(time);
+//					temp.setId(this.currentStatus.getId());
+//					temp.setLastValueType(this.currentStatus.getLastValueType());
+//					temp.setLastValue(lastValue);
+					this.storeStatus(currentStatus);
 				}
 			}
 		}

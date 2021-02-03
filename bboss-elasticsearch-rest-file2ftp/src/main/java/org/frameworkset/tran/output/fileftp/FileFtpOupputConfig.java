@@ -45,6 +45,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 	private int maxFileRecordSize;
 	private List<String> hostKeyVerifiers;
 	private int transferProtocol;
+	private boolean disableftp;
 
 	public FileFtpOupputConfig addHostKeyVerifier(String hostKeyVerifier) {
 		if(hostKeyVerifiers  == null){
@@ -307,5 +308,13 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 
 	public void setTransferEmptyFiles(boolean transferEmptyFiles) {
 		this.transferEmptyFiles = transferEmptyFiles;
+	}
+
+	public boolean isDisableftp() {
+		return disableftp;
+	}
+
+	public void setDisableftp(boolean disableftp) {
+		this.disableftp = disableftp;
 	}
 }
