@@ -16,6 +16,7 @@ import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.JDBCGetVariableValue;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCommandImpl;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
@@ -42,6 +43,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 	private boolean versionUpper7;;
 	protected String taskInfo;
 	private String elasticsearch;
+
 	@Override
 	public void logTaskStart(Logger logger) {
 
@@ -64,8 +66,8 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 		if(clientInterfaces != null && clientInterfaces.length > 0)
 			versionUpper7 = clientInterfaces[0].isVersionUpper7();
 	}
-	public BaseElasticsearchDataTran(TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
-		super(jdbcResultSet,importContext,targetImportContext);
+	public BaseElasticsearchDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
+		super(taskContext,jdbcResultSet,importContext,targetImportContext);
 
 		String elasticsearch =  targetImportContext.getTargetElasticsearch();
 		if(elasticsearch == null)
@@ -85,8 +87,8 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 				.append("] start.").toString();
 	}
 
-	public BaseElasticsearchDataTran(TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, String esCluster) {
-		super(jdbcResultSet,importContext,   targetImportContext);
+	public BaseElasticsearchDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, String esCluster) {
+		super(  taskContext,jdbcResultSet,importContext,   targetImportContext);
 		this.elasticsearch = esCluster;
 //		clientInterface = ElasticSearchHelper.getRestClientUtil(esCluster);
 	}
@@ -155,7 +157,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 				else{
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
-				Context context = importContext.buildContext(jdbcResultSet, batchContext);
+				Context context = importContext.buildContext(taskContext,jdbcResultSet, batchContext);
 //				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
 				context.refactorData();
 				context.afterRefactor();
@@ -301,7 +303,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 				else{
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
-				Context context = importContext.buildContext(jdbcResultSet, batchContext);
+				Context context = importContext.buildContext(taskContext,jdbcResultSet, batchContext);
 //				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
 				context.refactorData();
 				context.afterRefactor();
@@ -450,7 +452,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 						lastValue = importContext.max(lastValue,getLastValue());
 					}
 //					Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
-					Context context = importContext.buildContext(jdbcResultSet, batchContext);
+					Context context = importContext.buildContext(taskContext,jdbcResultSet, batchContext);
 					context.refactorData();
 					context.afterRefactor();
 					if (context.isDrop()) {

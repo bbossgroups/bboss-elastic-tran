@@ -22,6 +22,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.input.ESInputPlugin;
 import org.frameworkset.tran.output.fileftp.FileFtpOupputContext;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -54,8 +55,8 @@ public class ES2FileFtpDataTranPlugin extends ESInputPlugin implements DataTranP
 	public void afterInit(){
 
 	}
-	protected  BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet,CountDownLatch countDownLatch){
-		FileFtpOutPutDataTran fileFtpOutPutDataTran = new FileFtpOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,  countDownLatch);
+	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch){
+		FileFtpOutPutDataTran fileFtpOutPutDataTran = new FileFtpOutPutDataTran(taskContext,jdbcResultSet,importContext,   targetImportContext,  countDownLatch);
 		fileFtpOutPutDataTran.init();
 		return fileFtpOutPutDataTran;
 	}

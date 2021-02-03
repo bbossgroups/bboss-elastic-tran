@@ -22,10 +22,7 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
-import org.frameworkset.tran.schedule.CallInterceptor;
-import org.frameworkset.tran.schedule.ScheduleConfig;
-import org.frameworkset.tran.schedule.ScheduleService;
-import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.*;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -43,7 +40,7 @@ public interface ImportContext {
 	public String[] getExportColumns();
 //	DataTranPlugin buildDataTranPlugin();
 	public String getTargetElasticsearch();
-	Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext);
+	Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext);
 	ESConfig getESConfig();
 	public Long getTimeRangeLastValue();
 	public DataTranPlugin getDataTranPlugin();
@@ -84,7 +81,7 @@ public interface ImportContext {
 
 	List<CallInterceptor> getCallInterceptors();
 
-	void doImportData();
+	void doImportData(TaskContext taskContext);
 
 	Integer getStatusTableId();
 

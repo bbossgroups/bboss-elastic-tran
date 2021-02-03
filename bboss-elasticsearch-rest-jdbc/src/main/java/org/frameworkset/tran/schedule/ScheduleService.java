@@ -53,13 +53,13 @@ public class ScheduleService {
 	private Timer timer ;
 
 
-	private void scheduleImportData() throws Exception {
+	private void scheduleImportData(TaskContext taskContext) throws Exception {
 		if(!importContext.assertCondition()) {
 			if(logger.isWarnEnabled())
 				logger.warn(new StringBuilder().append("Task Assert Execute Condition Failed, Ignore").toString());
 			return;
 		}
-		importContext.doImportData();
+		importContext.doImportData(  taskContext);
 //		SQLInfo sqlInfo = getLastValueSQL();
 
 
@@ -179,7 +179,7 @@ public class ScheduleService {
 		try {
 
 			preCall(taskContext);
-			scheduleImportData(  );
+			scheduleImportData( taskContext );
 			afterCall(taskContext);
 		}
 		catch (Exception e){

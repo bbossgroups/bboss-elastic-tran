@@ -17,6 +17,9 @@ package org.frameworkset.tran.schedule;
 
 import org.frameworkset.tran.context.ImportContext;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -26,16 +29,24 @@ import org.frameworkset.tran.context.ImportContext;
  * @version 1.0
  */
 public class TaskContext {
+	private Map<String,Object> taskDatas;
 	public TaskContext(ImportContext importContext,ImportContext targetImportContext){
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
+		taskDatas = new HashMap<String, Object>();
 	}
 	private ImportContext importContext;
 
 	public ImportContext getTargetImportContext() {
 		return targetImportContext;
 	}
-
+	public TaskContext addTaskData(String name,Object value){
+		taskDatas.put(name,value);
+		return this;
+	}
+	public Object getTaskData(String name){
+		return taskDatas.get(name);
+	}
 	public void setTargetImportContext(ImportContext targetImportContext) {
 		this.targetImportContext = targetImportContext;
 	}
@@ -43,5 +54,9 @@ public class TaskContext {
 	private ImportContext targetImportContext;
 	public ImportContext getImportContext() {
 		return importContext;
+	}
+	public void release(){
+		this.taskDatas.clear();
+		this.taskDatas = null;
 	}
 }

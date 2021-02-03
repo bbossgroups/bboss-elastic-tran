@@ -21,6 +21,7 @@ import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -35,8 +36,8 @@ import java.util.Date;
  */
 public class HBaseRecordContextImpl extends ContextImpl {
 
-	public HBaseRecordContextImpl(ImportContext importContext, ImportContext targetImportContext,TranResultSet jdbcResultSet, BatchContext batchContext){
-		super(importContext,targetImportContext,jdbcResultSet,batchContext);
+	public HBaseRecordContextImpl(TaskContext taskContext, ImportContext importContext, ImportContext targetImportContext, TranResultSet jdbcResultSet, BatchContext batchContext){
+		super(  taskContext,importContext,targetImportContext,jdbcResultSet,batchContext);
 	}
 
 	@Override

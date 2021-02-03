@@ -34,6 +34,7 @@ import org.frameworkset.tran.hbase.HBaseRecord;
 import org.frameworkset.tran.hbase.HBaseRecordContextImpl;
 import org.frameworkset.tran.hbase.HBaseResultSet;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.io.IOException;
 import java.util.Date;
@@ -58,15 +59,15 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 
 
 	}
-	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
-		return new HBaseRecordContextImpl(importContext,targetImportContext, jdbcResultSet, batchContext);
+	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext){
+		return new HBaseRecordContextImpl(  taskContext,importContext,targetImportContext, jdbcResultSet, batchContext);
 	}
-	protected void doTran(ResultScanner rs) {
+	protected void doTran(ResultScanner rs,TaskContext taskContext) {
 //		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);
 //		MongoDB2ESDataTran mongoDB2ESDataTran = new MongoDB2ESDataTran(mongoDB2ESResultSet,importContext);
 //		mongoDB2ESDataTran.tran();
 		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
-		BaseElasticsearchDataTran hBase2ESDataTran = new BaseElasticsearchDataTran(hBaseResultSet,importContext,targetImportContext);
+		BaseElasticsearchDataTran hBase2ESDataTran = new BaseElasticsearchDataTran(taskContext,hBaseResultSet,importContext,targetImportContext);
 		hBase2ESDataTran.init();
 		hBase2ESDataTran.tran();
 	}
@@ -164,7 +165,7 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 
 	}
 
-	private void exportESData(){
+	private void exportESData(TaskContext taskContext){
 //		MongoDB mogodb = MongoDBHelper.getMongoDB(es2DBContext.getName());
 //		DB db = mogodb.getDB(es2DBContext.getDB());
 //		DBCollection dbCollection = db.getCollection(es2DBContext.getDBCollection());
@@ -230,7 +231,7 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 			}
 
 			ResultScanner rs = table.getScanner(scan);
-			doTran(rs);
+			doTran(rs,taskContext);
 		}
 		catch (Exception e){
 			throw new ESDataImportException(e);
@@ -347,12 +348,12 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 			logger.info(new StringBuilder().append("Current values: ").append(currentStatus.getLastValue()).toString());
 		}
 	}
-
-	public void doImportData()  throws ESDataImportException {
+	@Override
+	public void doImportData(TaskContext taskContext)  throws ESDataImportException {
 
 
 			try {
-				exportESData();
+				exportESData(  taskContext);
 			} catch (ESDataImportException e) {
 				throw e;
 			} catch (Exception e) {

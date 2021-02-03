@@ -2,6 +2,7 @@ package org.frameworkset.tran.es.output;
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -9,8 +10,8 @@ public class AsynESOutPutDataTran extends BaseElasticsearchDataTran {
 
 	private CountDownLatch countDownLatch;
 
-	public AsynESOutPutDataTran(TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, String esCluster, CountDownLatch countDownLatch) {
-		super(jdbcResultSet, importContext,   targetImportContext, esCluster);
+	public AsynESOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, String esCluster, CountDownLatch countDownLatch) {
+		super(  taskContext,jdbcResultSet, importContext,   targetImportContext, esCluster);
 		this.countDownLatch = countDownLatch;
 	}
 
@@ -18,14 +19,14 @@ public class AsynESOutPutDataTran extends BaseElasticsearchDataTran {
 
 
 
-	public AsynESOutPutDataTran(TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
-		super(jdbcResultSet,importContext,   targetImportContext);
+	public AsynESOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
+		super(  taskContext,jdbcResultSet,importContext,   targetImportContext);
 	}
-	public AsynESOutPutDataTran(TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,String cluster) {
-		super(jdbcResultSet,importContext,   targetImportContext,cluster);
+	public AsynESOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,String cluster) {
+		super(  taskContext,jdbcResultSet,importContext,   targetImportContext,cluster);
 	}
-	public AsynESOutPutDataTran(TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch) {
-		super(jdbcResultSet,importContext,   targetImportContext);
+	public AsynESOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch) {
+		super(  taskContext,jdbcResultSet,importContext,   targetImportContext);
 		this.countDownLatch = countDownLatch;
 	}
 //	public void appendData(ESDatas datas){

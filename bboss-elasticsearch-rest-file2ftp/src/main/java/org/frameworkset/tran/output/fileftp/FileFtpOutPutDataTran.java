@@ -11,6 +11,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCall;
 import org.slf4j.Logger;
 
@@ -63,8 +64,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 	}
 	public void init(){
 		super.init();
-		lineSeparator = java.security.AccessController.doPrivileged(
-				new sun.security.action.GetPropertyAction("line.separator"));
+		lineSeparator = "\r\n";
 		fileFtpOupputContext = (FileFtpOupputContext)targetImportContext;
 
 		fileUtil = initFileUtil();
@@ -84,8 +84,8 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 		}
 	}
 
-	public FileFtpOutPutDataTran(TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch) {
-		super(jdbcResultSet,importContext, targetImportContext);
+	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch) {
+		super(taskContext,jdbcResultSet,importContext, targetImportContext);
 		this.countDownLatch = countDownLatch;
 	}
 	private CommonRecord buildRecord(Context context){
@@ -186,7 +186,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 						lastValue = importContext.max(lastValue, getLastValue());
 					}
 //					Context context = new ContextImpl(importContext, jdbcResultSet, null);
-					Context context = importContext.buildContext(jdbcResultSet, null);
+					Context context = importContext.buildContext(taskContext,jdbcResultSet, null);
 					context.refactorData();
 					context.afterRefactor();
 					if (context.isDrop()) {
@@ -322,7 +322,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 				else{
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
-				Context context = importContext.buildContext(jdbcResultSet, batchContext);
+				Context context = importContext.buildContext(taskContext,jdbcResultSet, batchContext);
 //				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
 				context.refactorData();
 				context.afterRefactor();
@@ -463,7 +463,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 				else{
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
-				Context context = importContext.buildContext(jdbcResultSet, batchContext);
+				Context context = importContext.buildContext(taskContext,jdbcResultSet, batchContext);
 //				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
 				context.refactorData();
 				context.afterRefactor();

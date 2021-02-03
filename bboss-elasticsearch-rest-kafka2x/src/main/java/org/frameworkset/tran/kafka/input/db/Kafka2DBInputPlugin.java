@@ -21,6 +21,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.kafka.input.Kafka2InputPlugin;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
 
 /**
@@ -50,8 +51,8 @@ public class Kafka2DBInputPlugin  extends Kafka2InputPlugin {
 		TranUtil.initTargetSQLInfo(dbOutPutContext,dbOutPutContext.getTargetDBConfig());
 		super.beforeInit();
 	}
-	protected  BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet) {
-		AsynDBOutPutDataTran asynDBOutPutDataTran = new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext);
+	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet) {
+		AsynDBOutPutDataTran asynDBOutPutDataTran = new AsynDBOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext);
 		asynDBOutPutDataTran.init();
 		return asynDBOutPutDataTran;
 

@@ -26,6 +26,7 @@ import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBContext;
 import org.frameworkset.tran.schedule.SQLInfo;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskFailedException;
 import org.frameworkset.util.tokenizer.TextGrammarParser;
 
@@ -193,9 +194,10 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 			}
 		}
 	}
-	public abstract BaseDataTran createBaseDataTran(TranResultSet tranResultSet, ImportContext importContext, ImportContext targetImportContext);
-	public void doImportData()  throws ESDataImportException {
-		ResultSetHandler resultSetHandler = new DefaultResultSetHandler(importContext,targetImportContext,this);
+	public abstract BaseDataTran createBaseDataTran(TaskContext taskContext,TranResultSet tranResultSet, ImportContext importContext, ImportContext targetImportContext);
+	@Override
+	public void doImportData( TaskContext taskContext)  throws ESDataImportException {
+		ResultSetHandler resultSetHandler = new DefaultResultSetHandler( taskContext,importContext,targetImportContext,this);
 
 		try {
 			if (sqlInfo.getParamSize() == 0) {

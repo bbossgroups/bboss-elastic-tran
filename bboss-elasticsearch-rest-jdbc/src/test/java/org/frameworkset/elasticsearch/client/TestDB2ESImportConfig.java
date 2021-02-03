@@ -10,6 +10,7 @@ import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.db.JDBCResultSet;
 import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
 import org.frameworkset.tran.es.input.ESImportContext;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.junit.Test;
 
 import java.sql.ResultSet;
@@ -37,6 +38,7 @@ public class TestDB2ESImportConfig {
 		final ESImportContext importContext = new ESImportContext();
 		importContext.setBatchSize(10);
 		importContext.setRefreshOption("refresh=true");
+		final TaskContext taskContext = new TaskContext(importContext,importContext);
 		SQLExecutor.queryByNullRowHandler(new ResultSetHandler() {
 			@Override
 			public void handleResult(ResultSet resultSet, StatementInfo statementInfo) throws Exception {
@@ -47,7 +49,7 @@ public class TestDB2ESImportConfig {
 				jdbcResultSet.setResultSet(resultSet);
 				jdbcResultSet.setMetaData(statementInfo.getMeta());
 				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(jdbcResultSet,importContext,importContext);
+				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(taskContext,jdbcResultSet,importContext,importContext);
 				db2ESDataTran.init();
 				db2ESDataTran.tran("dbdemo","dbdemo");
 			}
@@ -71,6 +73,7 @@ public class TestDB2ESImportConfig {
 		final ESImportContext importContext = new ESImportContext();
 		importContext.setBatchSize(10);
 		importContext.setRefreshOption("refresh=true");
+		final TaskContext taskContext = new TaskContext(importContext,importContext);
 		SQLExecutor.queryByNullRowHandler(new ResultSetHandler() {
 			@Override
 			public void handleResult(ResultSet resultSet, StatementInfo statementInfo) throws Exception {
@@ -79,7 +82,7 @@ public class TestDB2ESImportConfig {
 				jdbcResultSet.setResultSet(resultSet);
 				jdbcResultSet.setMetaData(statementInfo.getMeta());
 				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(jdbcResultSet,importContext,importContext);
+				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(taskContext,jdbcResultSet,importContext,importContext);
 				db2ESDataTran.init();
 				db2ESDataTran.tran("dbclobdemo","dbclobdemo");
 			}

@@ -21,6 +21,7 @@ import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.input.ESInputPlugin;
 import org.frameworkset.tran.es.output.AsynESOutPutDataTran;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -38,8 +39,8 @@ public class ES2ESDataTranPlugin  extends ESInputPlugin implements DataTranPlugi
 		super.init(importContext,targetImportContext);
 	}
 	@Override
-	protected BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet, CountDownLatch countDownLatch){
-		return new AsynESOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,
+	protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch){
+		return new AsynESOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,
 				targetImportContext.getTargetElasticsearch(),countDownLatch);
 	}
 	@Override

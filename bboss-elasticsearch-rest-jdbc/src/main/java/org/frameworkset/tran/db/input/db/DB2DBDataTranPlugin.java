@@ -22,6 +22,7 @@ import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.db.output.DBOutPutDataTran;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
 
 /**
@@ -51,8 +52,8 @@ public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 		TranUtil.initTargetSQLInfo(db2DBContext,db2DBContext.getTargetDBConfig());
 	}
 
-	public BaseDataTran createBaseDataTran(TranResultSet tranResultSet, ImportContext importContext, ImportContext targetImportContext){
-		DBOutPutDataTran db2DBDataTran = new DBOutPutDataTran(tranResultSet,importContext,targetImportContext);
+	public BaseDataTran createBaseDataTran(TaskContext taskContext,TranResultSet tranResultSet, ImportContext importContext, ImportContext targetImportContext){
+		DBOutPutDataTran db2DBDataTran = new DBOutPutDataTran(   taskContext ,tranResultSet,importContext,targetImportContext);
 		db2DBDataTran.init();
 		return db2DBDataTran;
 	}

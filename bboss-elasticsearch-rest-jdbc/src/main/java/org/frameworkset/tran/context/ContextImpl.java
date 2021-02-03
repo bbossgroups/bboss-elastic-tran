@@ -24,6 +24,7 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
 import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -54,16 +55,22 @@ public class ContextImpl implements Context {
 	protected ClientOptions clientOptions;
 	protected ImportContext importContext;
 	protected ImportContext targetImportContext;
-	public ContextImpl(ImportContext importContext,ImportContext targetImportContext, TranResultSet jdbcResultSet, BatchContext batchContext){
+	protected TaskContext taskContext;
+	public ContextImpl(TaskContext taskContext,ImportContext importContext,ImportContext targetImportContext, TranResultSet jdbcResultSet, BatchContext batchContext){
 		this.baseImportConfig = importContext.getImportConfig();
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
 		this.jdbcResultSet = jdbcResultSet;
 		this.batchContext = batchContext;
+		this.taskContext = taskContext;
 	}
 	public TranMeta getMetaData(){
 		return jdbcResultSet.getMetaData();
 
+	}
+
+	public TaskContext getTaskContext() {
+		return taskContext;
 	}
 
 	@Override

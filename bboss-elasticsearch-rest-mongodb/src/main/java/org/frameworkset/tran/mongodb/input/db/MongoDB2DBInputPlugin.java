@@ -21,6 +21,7 @@ import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.db.output.DBOutPutDataTran;
 import org.frameworkset.tran.mongodb.MongoDBResultSet;
 import org.frameworkset.tran.mongodb.input.MongoDBInputPlugin;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
 
 /**
@@ -37,9 +38,9 @@ public class MongoDB2DBInputPlugin extends MongoDBInputPlugin {
 	}
 
 	@Override
-	protected void doTran(DBCursor dbCursor) {
+	protected void doTran(DBCursor dbCursor, TaskContext taskContext) {
 		MongoDBResultSet mongoDB2DBResultSet = new MongoDBResultSet(importContext,dbCursor);
-		DBOutPutDataTran mongoDB2ESDataTran = new DBOutPutDataTran(mongoDB2DBResultSet,importContext,targetImportContext);
+		DBOutPutDataTran mongoDB2ESDataTran = new DBOutPutDataTran(   taskContext,mongoDB2DBResultSet,importContext,targetImportContext);
 		mongoDB2ESDataTran.init();
 		mongoDB2ESDataTran.tran();
 	}

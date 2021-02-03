@@ -64,8 +64,8 @@ public abstract  class BaseImportContext implements ImportContext {
 		return baseImportConfig.getIncreamentEndOffset();
 	}
 
-	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
-		return dataTranPlugin.buildContext(jdbcResultSet,batchContext);
+	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext){
+		return dataTranPlugin.buildContext( taskContext,jdbcResultSet,batchContext);
 	}
 	public Long getTimeRangeLastValue(){
 		return dataTranPlugin.getTimeRangeLastValue();
@@ -182,9 +182,9 @@ public abstract  class BaseImportContext implements ImportContext {
 		return this.currentStoped;
 	}
 	@Override
-	public void doImportData() {
+	public void doImportData(TaskContext taskContext) {
 		if(dataTranPlugin != null)
-			dataTranPlugin.doImportData();
+			dataTranPlugin.doImportData(  taskContext);
 	}
 
 	public ScheduleConfig getScheduleConfig(){

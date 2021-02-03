@@ -24,6 +24,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.es.input.ESInputPlugin;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
 
 import java.util.concurrent.CountDownLatch;
@@ -65,17 +66,17 @@ public class ES2DBDataTranPlugin extends ESInputPlugin implements DataTranPlugin
 		executor = TranUtil.initTargetSQLInfo(dbOutPutContext,dbOutPutContext.getTargetDBConfig() != null?dbOutPutContext.getTargetDBConfig():importContext.getDbConfig());
 
 	}
-	protected  BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet,CountDownLatch countDownLatch){
-		AsynDBOutPutDataTran asynDBOutPutDataTran = new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,countDownLatch);
+	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch){
+		AsynDBOutPutDataTran asynDBOutPutDataTran = new AsynDBOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,countDownLatch);
 		asynDBOutPutDataTran.init();
 		return asynDBOutPutDataTran;
 	}
-	public void doImportData()  throws ESDataImportException{
+	public void doImportData(TaskContext taskContext)  throws ESDataImportException{
 		if(dbOutPutContext.getBatchHandler() != null){
 			doBatchHandler();
 		}
 		else{
-			super.doImportData();
+			super.doImportData( taskContext);
 		}
 	}
 	protected  void doBatchHandler(){

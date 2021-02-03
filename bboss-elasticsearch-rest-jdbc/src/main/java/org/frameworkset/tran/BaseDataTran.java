@@ -3,6 +3,7 @@ package org.frameworkset.tran;
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,7 @@ public abstract class BaseDataTran implements DataTran{
 	protected ImportContext targetImportContext;
 	protected TranResultSet jdbcResultSet;
 	protected AsynTranResultSet esTranResultSet;
+	protected TaskContext taskContext;
 	public AsynTranResultSet getAsynTranResultSet(){
 		return esTranResultSet;
 	}
@@ -39,7 +41,8 @@ public abstract class BaseDataTran implements DataTran{
 	}
 
 	private BreakableScrollHandler breakableScrollHandler;
-	public BaseDataTran(TranResultSet jdbcResultSet,ImportContext importContext,ImportContext targetImportContext) {
+	public BaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
+		this.taskContext = taskContext;
 		this.jdbcResultSet = jdbcResultSet;
 		if(jdbcResultSet instanceof AsynTranResultSet)
 			esTranResultSet = (AsynTranResultSet)jdbcResultSet;

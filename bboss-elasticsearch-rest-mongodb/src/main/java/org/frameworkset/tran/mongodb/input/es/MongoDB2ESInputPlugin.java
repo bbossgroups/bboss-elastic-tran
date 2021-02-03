@@ -20,6 +20,7 @@ import org.frameworkset.tran.BaseElasticsearchDataTran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.mongodb.MongoDBResultSet;
 import org.frameworkset.tran.mongodb.input.MongoDBInputPlugin;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
@@ -35,9 +36,9 @@ public class MongoDB2ESInputPlugin extends MongoDBInputPlugin {
 	}
 
 	@Override
-	protected void doTran(DBCursor dbCursor) {
+	protected void doTran(DBCursor dbCursor, TaskContext taskContext) {
 		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);
-		BaseElasticsearchDataTran mongoDB2ESDataTran = new BaseElasticsearchDataTran(mongoDB2ESResultSet,importContext,targetImportContext);
+		BaseElasticsearchDataTran mongoDB2ESDataTran = new BaseElasticsearchDataTran( taskContext,mongoDB2ESResultSet,importContext,targetImportContext);
 		mongoDB2ESDataTran.init();
 		mongoDB2ESDataTran.tran();
 	}

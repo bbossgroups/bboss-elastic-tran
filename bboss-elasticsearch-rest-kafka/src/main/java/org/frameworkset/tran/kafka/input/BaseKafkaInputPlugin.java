@@ -19,6 +19,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.KafkaContext;
 import org.frameworkset.tran.kafka.KafkaResultSet;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
@@ -51,7 +52,7 @@ public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements
 
 
 			long importStartTime = System.currentTimeMillis();
-			this.doImportData();
+			this.doImportData(null);
 			long importEndTime = System.currentTimeMillis();
 			if( isPrintTaskLog())
 				logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
@@ -72,12 +73,12 @@ public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements
 
 	protected abstract void initKafkaTranBatchConsumer2ndStore(BaseDataTran kafka2ESDataTran) throws Exception;
 
-	protected abstract BaseDataTran createBaseDataTran(TranResultSet jdbcResultSet);
+	protected abstract BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet);
 
-	public void doImportData()  throws ESDataImportException{
+	public void doImportData(TaskContext taskContext)  throws ESDataImportException{
 		KafkaResultSet kafkaResultSet = new KafkaResultSet(this.importContext);
 //		final CountDownLatch countDownLatch = new CountDownLatch(1);
-		final BaseDataTran kafka2ESDataTran = createBaseDataTran(kafkaResultSet);
+		final BaseDataTran kafka2ESDataTran = createBaseDataTran( taskContext,kafkaResultSet);
 
 		Thread tranThread = null;
 		try {

@@ -25,9 +25,7 @@ import org.frameworkset.elasticsearch.boot.ElasticSearchBoot;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.schedule.ImportIncreamentConfig;
-import org.frameworkset.tran.schedule.ScheduleService;
-import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.*;
 import org.frameworkset.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +53,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public ExportCount getExportCount() {
 		return exportCount;
 	}
-	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext){
-		return new ContextImpl(importContext,targetImportContext, jdbcResultSet, batchContext);
+
+	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext){
+		return new ContextImpl(  taskContext,importContext,targetImportContext, jdbcResultSet, batchContext);
 	}
 	@Override
 	public String getLastValueVarName() {
@@ -112,16 +111,75 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	protected boolean isPrintTaskLog(){
 		return importContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
+
+	public void preCall(TaskContext taskContext){
+		List<CallInterceptor> callInterceptors = importContext.getCallInterceptors();
+		if(callInterceptors == null || callInterceptors.size() == 0)
+			return;
+		for(CallInterceptor callInterceptor: callInterceptors){
+			try{
+				callInterceptor.preCall(taskContext);
+			}
+			catch (Exception e){
+				logger.error("preCall failed:",e);
+			}
+		}
+
+	}
+	public void afterCall(TaskContext taskContext){
+		List<CallInterceptor> callInterceptors = importContext.getCallInterceptors();
+		if(callInterceptors == null || callInterceptors.size() == 0)
+			return;
+		CallInterceptor callInterceptor = null;
+		for(int j = callInterceptors.size() - 1; j >= 0; j --){
+			callInterceptor = callInterceptors.get(j);
+			try{
+				callInterceptor.afterCall(taskContext);
+			}
+			catch (Exception e){
+				logger.error("afterCall failed:",e);
+			}
+		}
+	}
+
+	public void throwException(TaskContext taskContext,Exception e){
+		List<CallInterceptor> callInterceptors = importContext.getCallInterceptors();
+		if(callInterceptors == null || callInterceptors.size() == 0)
+			return;
+		CallInterceptor callInterceptor = null;
+		for(int j = callInterceptors.size() - 1; j >= 0; j --){
+			callInterceptor = callInterceptors.get(j);
+			try{
+				callInterceptor.throwException(taskContext,e);
+			}
+			catch (Exception e1){
+				logger.error("afterCall failed:",e1);
+			}
+		}
+
+	}
 	@Override
 	public void importData() throws ESDataImportException {
 
 		if(this.scheduleService == null) {//一次性执行数据导入操作
 
 			long importStartTime = System.currentTimeMillis();
-			this.doImportData();
-			long importEndTime = System.currentTimeMillis();
-			if( isPrintTaskLog())
-				logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
+
+			TaskContext taskContext = new TaskContext(importContext,targetImportContext);
+			try {
+
+				preCall(taskContext);
+				this.doImportData(taskContext);
+				afterCall(taskContext);
+				long importEndTime = System.currentTimeMillis();
+				if( isPrintTaskLog())
+					logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
+			}
+			catch (Exception e){
+				throwException(taskContext,e);
+				logger.error("scheduleImportData failed:",e);
+			}
+
 		}
 		else{//定时增量导入数据操作
 			try {

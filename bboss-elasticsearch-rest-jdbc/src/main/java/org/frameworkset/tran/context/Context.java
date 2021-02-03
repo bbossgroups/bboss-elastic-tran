@@ -21,6 +21,7 @@ import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.tran.FieldMeta;
 import org.frameworkset.tran.TranMeta;
 import org.frameworkset.tran.config.ClientOptions;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -37,6 +38,7 @@ import java.util.Map;
  */
 public interface Context {
 	Map<String, Object> getGeoipConfig();
+	public TaskContext getTaskContext();
 	void afterRefactor();
 	void setClientOptions(ClientOptions clientOptions);
 	Context addFieldValue(String fieldName, Object value);

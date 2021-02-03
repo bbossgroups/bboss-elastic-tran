@@ -20,6 +20,7 @@ import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ScheduleService;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
@@ -30,14 +31,17 @@ import org.frameworkset.tran.schedule.Status;
  * @version 1.0
  */
 public interface DataTranPlugin {
-	public Context buildContext(TranResultSet jdbcResultSet, BatchContext batchContext);
+	public void preCall(TaskContext taskContext);
+	public void afterCall(TaskContext taskContext);
+	public void throwException(TaskContext taskContext,Exception e);
+	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext);
 
 
 		boolean assertCondition();
 
 	void setErrorWrapper(TranErrorWrapper tranErrorWrapper);
 
-	void doImportData()  throws ESDataImportException;
+	void doImportData(TaskContext taskContext)  throws ESDataImportException;
 	void importData() throws ESDataImportException;
 	public String getLastValueVarName();
 	ScheduleService getScheduleService();

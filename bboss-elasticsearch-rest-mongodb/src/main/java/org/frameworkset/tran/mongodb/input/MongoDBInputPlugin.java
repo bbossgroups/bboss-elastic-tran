@@ -26,6 +26,7 @@ import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.mongodb.MongoDBContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Date;
 
@@ -105,13 +106,13 @@ public abstract class MongoDBInputPlugin extends BaseDataTranPlugin implements D
 
 	}
 
-	private void commonImportData() throws Exception {
+	private void commonImportData( TaskContext taskContext) throws Exception {
 
 		DBObject dbObject = es2DBContext.getQuery();
 		if(dbObject == null)
 			dbObject = new BasicDBObject();
 
-		exportESData(  dbObject);
+		exportESData(  dbObject, taskContext);
 		/**
 		 * JDBCResultSet jdbcResultSet = new JDBCResultSet();
 		 * 		jdbcResultSet.setResultSet(resultSet);
@@ -123,7 +124,7 @@ public abstract class MongoDBInputPlugin extends BaseDataTranPlugin implements D
 		 */
 	}
 
-	private void exportESData(DBObject dbObject){
+	private void exportESData(DBObject dbObject, TaskContext taskContext){
 		MongoDB mogodb = MongoDBHelper.getMongoDB(es2DBContext.getName());
 		DB db = mogodb.getDB(es2DBContext.getDB());
 		DBCollection dbCollection = db.getCollection(es2DBContext.getDBCollection());
@@ -147,17 +148,17 @@ public abstract class MongoDBInputPlugin extends BaseDataTranPlugin implements D
 //		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);
 //		MongoDB2ESDataTran mongoDB2ESDataTran = new MongoDB2ESDataTran(mongoDB2ESResultSet,importContext);
 //		mongoDB2ESDataTran.tran();
-		doTran(  dbCursor);
+		doTran(  dbCursor, taskContext);
 
 	}
-	protected abstract void doTran(DBCursor dbCursor);
-	private void increamentImportData() throws Exception {
+	protected abstract void doTran(DBCursor dbCursor, TaskContext taskContext);
+	private void increamentImportData( TaskContext taskContext) throws Exception {
 
 		DBObject dbObject = es2DBContext.getQuery();
 		if(dbObject == null)
 			dbObject = new BasicDBObject();
 		putLastParamValue((BasicDBObject)dbObject);
-		exportESData(  dbObject);
+		exportESData(  dbObject, taskContext);
 	}
 	public void putLastParamValue(BasicDBObject query){
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
@@ -193,17 +194,17 @@ public abstract class MongoDBInputPlugin extends BaseDataTranPlugin implements D
 		}
 	}
 
-	public void doImportData()  throws ESDataImportException {
+	public void doImportData( TaskContext taskContext)  throws ESDataImportException {
 
 
 			try {
 				if (!isIncreamentImport()) {
 
-					commonImportData( );
+					commonImportData(   taskContext );
 
 				} else {
 
-					increamentImportData( );
+					increamentImportData(   taskContext );
 
 				}
 			} catch (ESDataImportException e) {

@@ -10,6 +10,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCall;
 import org.frameworkset.tran.task.TaskCommand;
 import org.slf4j.Logger;
@@ -48,8 +49,8 @@ public class DBOutPutDataTran extends BaseDataTran {
 	}
 
 
-	public DBOutPutDataTran(TranResultSet jdbcResultSet, ImportContext importContext,ImportContext targetImportContext) {
-		super(jdbcResultSet,importContext, targetImportContext);
+	public DBOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
+		super(   taskContext,jdbcResultSet,importContext, targetImportContext);
 	}
 
 
@@ -109,7 +110,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 						lastValue = importContext.max(lastValue, getLastValue());
 					}
 //					Context context = new ContextImpl(importContext, jdbcResultSet, null);
-					Context context = importContext.buildContext(jdbcResultSet, null);
+					Context context = importContext.buildContext(taskContext,jdbcResultSet, null);
 					context.refactorData();
 					context.afterRefactor();
 					if (context.isDrop()) {
@@ -266,7 +267,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 				}
 
 //				Context context = new ContextImpl(importContext, jdbcResultSet, null);
-				Context context = importContext.buildContext(jdbcResultSet, null);
+				Context context = importContext.buildContext(taskContext,jdbcResultSet, null);
 				context.refactorData();
 				context.afterRefactor();
 				if (context.isDrop()) {
@@ -388,7 +389,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
 //				Context context = new ContextImpl(importContext, jdbcResultSet, null);
-				Context context = importContext.buildContext(jdbcResultSet, null);
+				Context context = importContext.buildContext(taskContext,jdbcResultSet, null);
 				context.refactorData();
 
 				context.afterRefactor();
