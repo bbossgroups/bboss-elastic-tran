@@ -118,9 +118,11 @@ public class FileUtil {
 			logger.error(taskInfo,e);
 		}
 		catch (DataImportException e){
+			logger.error(taskInfo,e);
 			com.frameworkset.util.FileUtil.renameFile(filePath,transferFailedFileDir);//如果文件发送失败，将文件移除到失败目录，定时重发
 		}
 		catch (Throwable e){
+			logger.error(taskInfo,e);
 			com.frameworkset.util.FileUtil.renameFile(filePath,transferFailedFileDir);//如果文件发送失败，将文件移除到失败目录，定时重发
 		}
 
