@@ -87,8 +87,15 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 
 	private boolean useEpsvWithIPv4;
 	private String remoteFileDir;
+	private long failedFileResendInterval = 300000l;
 
+	public void setFailedFileResendInterval(long failedFileResendInterval) {
+		this.failedFileResendInterval = failedFileResendInterval;
+	}
 
+	public long getFailedFileResendInterval() {//300000l
+		return failedFileResendInterval;
+	}
 	public String getFtpProtocol() {
 		return ftpProtocol;
 	}

@@ -26,10 +26,10 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 	protected FileFtpOupputContext fileFtpOupputContext ;
 //	protected String fileName;
 //	protected String remoteFileName;
-	protected FileUtil fileUtil;
+	protected FileTransfer fileTransfer;
 	protected String path;
 	protected int fileSeq = 1;
-	protected String lineSeparator;
+	protected  String lineSeparator = "\r\n";
 	protected CountDownLatch countDownLatch;
 	@Override
 	public void logTaskStart(Logger logger) {
@@ -41,7 +41,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 		logger.info(taskInfo + " start.");
 	}
 	private String taskInfo ;
-	private FileUtil initFileUtil(){
+	private FileTransfer initFileTransfer(){
 		path = fileFtpOupputContext.getFileDir();
 		String name = fileFtpOupputContext.generateFileName(  fileSeq);
 		String fileName = SimpleStringUtil.getPath(path,name);
@@ -55,27 +55,39 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 		taskInfo = builder.toString();
 
 		try {
-			FileUtil fileUtil = new FileUtil(taskInfo,fileFtpOupputContext,path,fileName,remoteFileName,fileFtpOupputContext.getFileWriterBuffsize());
-			return fileUtil;
+			FileTransfer fileTransfer = new FileTransfer(taskInfo,fileFtpOupputContext,path,fileName,remoteFileName,fileFtpOupputContext.getFileWriterBuffsize());
+			return fileTransfer;
 		} catch (IOException e) {
 			throw new ESDataImportException("init file writer failed:"+fileName,e);
 		}
 
 	}
+	private static FailedResend failedResend;
 	public void init(){
 		super.init();
-		lineSeparator = "\r\n";
+		lineSeparator = java.security.AccessController.doPrivileged(
+				new sun.security.action.GetPropertyAction("line.separator"));
 		fileFtpOupputContext = (FileFtpOupputContext)targetImportContext;
 
-		fileUtil = initFileUtil();
+		fileTransfer = initFileTransfer();
+		if(fileFtpOupputContext.getFailedFileResendInterval() > 0) {
+			if (failedResend == null) {
+				synchronized (FileFtpOutPutDataTran.class) {
+					if (failedResend == null) {
+						failedResend = new FailedResend(fileFtpOupputContext);
+						failedResend.start();
+					}
+				}
+			}
+		}
 
 	}
 	@Override
 	public String tran() throws ESDataImportException {
 		try {
 			String ret = super.tran();
-			fileUtil.close();
-			fileUtil = null;
+			fileTransfer.close();
+			fileTransfer = null;
 			return ret;
 		}
 		finally {
@@ -157,7 +169,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 						String _dd =  builder.toString();
 						builder.setLength(0);
 						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-								totalCount, taskNo, importCount.getJobNo(),fileUtil,lastValue);
+								totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue);
 						taskCommand.setDatas(_dd);
 						ret = TaskCall.call(taskCommand);
 						taskNo ++;
@@ -194,11 +206,9 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 						continue;
 					}
 					CommonRecord record = buildRecord(  context );
-					if(builder.length() > 0){
-						builder.append(lineSeparator);
 
-					}
 					fileFtpOupputContext.generateReocord(context,record, writer);
+					writer.write(lineSeparator);
 //					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));
 //					//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 					totalCount++;
@@ -207,12 +217,12 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 						String _dd =  builder.toString();
 						builder.setLength(0);
 						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-								totalCount, taskNo, importCount.getJobNo(),fileUtil,lastValue);
+								totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue);
 						taskCommand.setDatas(_dd);
 						TaskCall.call(taskCommand);
 						taskNo ++;
-						fileUtil.sendFile();
-						fileUtil = this.initFileUtil();
+						fileTransfer.sendFile();
+						fileTransfer = this.initFileTransfer();
 					}
 				} catch (Exception e) {
 					throw new DataImportException(e);
@@ -221,18 +231,18 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 			if(builder.length() > 0) {
 
 				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-						totalCount, taskNo, importCount.getJobNo(),fileUtil,lastValue);
+						totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue);
 				taskNo ++;
 				taskCommand.setDatas(builder.toString());
 				builder.setLength(0);
 				TaskCall.call(taskCommand);
 
 //				importContext.flushLastValue(lastValue);
-				fileUtil.sendFile();//传输文件
+				fileTransfer.sendFile();//传输文件
 			}
 			else{
-				if(!fileUtil.isSended()){
-					fileUtil.sendFile();
+				if(!fileTransfer.isSended()){
+					fileTransfer.sendFile();
 				}
 			}
 			if(isPrintTaskLog()) {
@@ -306,7 +316,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 						int _count = count;
 						count = 0;
 						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-								_count, taskNo, totalCount.getJobNo(),fileUtil,lastValue);
+								_count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue);
 						taskCommand.setDatas(datas);
 						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 						taskNo++;
@@ -332,11 +342,9 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 				}
 //				evalBuilk(this.jdbcResultSet,  batchContext,writer, context, versionUpper7);
 				CommonRecord record = buildRecord(  context );
-				if(builder.length() > 0){
-					builder.append(lineSeparator);
 
-				}
 				fileFtpOupputContext.generateReocord(context,record, writer);
+				writer.write(lineSeparator);
 //					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));
 //					//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 				count++;
@@ -347,7 +355,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 					int _count = count;
 					count = 0;
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-							_count, taskNo, totalCount.getJobNo(),fileUtil,lastValue);
+							_count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue);
 					taskCommand.setDatas(datas);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 					taskNo++;
@@ -363,7 +371,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 //				}
 				String datas = builder.toString();
 				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-						count, taskNo, totalCount.getJobNo(),fileUtil,lastValue);
+						count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue);
 				taskCommand.setDatas(datas);
 				tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 				builder.setLength(0);
@@ -392,7 +400,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 			waitTasksComplete(tasks, service, exception, lastValue, totalCount, tranErrorWrapper, new WaitTasksCompleteCallBack() {
 				@Override
 				public void call() {
-					fileUtil.sendFile();//传输文件
+					fileTransfer.sendFile();//传输文件
 				}
 			});
 			try {
@@ -439,7 +447,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 						int _count = count;
 						count = 0;
 						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-								_count, taskNo, importCount.getJobNo(),fileUtil,lastValue);
+								_count, taskNo, importCount.getJobNo(), fileTransfer,lastValue);
 						taskCommand.setDatas(_dd);
 						ret = TaskCall.call(taskCommand);
 
@@ -472,11 +480,9 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 					continue;
 				}
 				CommonRecord record = buildRecord(  context );
-				if(builder.length() > 0){
-					builder.append(lineSeparator);
 
-				}
 				fileFtpOupputContext.generateReocord(context,record, writer);
+				writer.write(lineSeparator);
 				count++;
 				if (count >= batchsize) {
 					writer.flush();
@@ -488,7 +494,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 					int _count = count;
 					count = 0;
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-							_count, taskNo, importCount.getJobNo(),fileUtil,lastValue);
+							_count, taskNo, importCount.getJobNo(), fileTransfer,lastValue);
 					taskCommand.setDatas(datas);
 					ret = TaskCall.call(taskCommand);
 
@@ -511,14 +517,14 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 						String _dd = builder.toString();
 						builder.setLength(0);
 						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext, targetImportContext,
-								count, taskNo, importCount.getJobNo(), fileUtil, lastValue);
+								count, taskNo, importCount.getJobNo(), fileTransfer, lastValue);
 						taskCommand.setDatas(_dd);
 						TaskCall.call(taskCommand);
 						totalCount += count;
 						taskNo++;
 					}
-					fileUtil.sendFile();
-					fileUtil = this.initFileUtil();
+					fileTransfer.sendFile();
+					fileTransfer = this.initFileTransfer();
 				}
 
 			}
@@ -527,7 +533,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 				String datas = builder.toString();
 
 				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext, targetImportContext,
-						count, taskNo, importCount.getJobNo(), fileUtil, lastValue);
+						count, taskNo, importCount.getJobNo(), fileTransfer, lastValue);
 				taskCommand.setDatas(datas);
 				TaskCall.call(taskCommand);
 				if(isPrintTaskLog())  {
@@ -538,11 +544,11 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 
 				}
 				totalCount += count;
-				fileUtil.sendFile();
+				fileTransfer.sendFile();
 			}
 			else{
-				if(!fileUtil.isSended()){
-					fileUtil.sendFile();
+				if(!fileTransfer.isSended()){
+					fileTransfer.sendFile();
 				}
 			}
 			if(isPrintTaskLog()) {

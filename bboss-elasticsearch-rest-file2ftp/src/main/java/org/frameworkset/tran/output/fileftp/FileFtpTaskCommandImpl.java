@@ -36,12 +36,12 @@ import java.io.IOException;
  */
 public class FileFtpTaskCommandImpl extends BaseTaskCommand<String,String> {
 //	private String refreshOption;
-	private FileUtil fileUtil;
+	private FileTransfer fileTransfer;
 
 	public FileFtpTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
-								  long dataSize, int taskNo, String jobNo,FileUtil fileUtil,Object lastValue) {
+								  long dataSize, int taskNo, String jobNo, FileTransfer fileTransfer, Object lastValue) {
 		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,lastValue);
-		this.fileUtil = fileUtil;
+		this.fileTransfer = fileTransfer;
 	}
 
 
@@ -75,7 +75,7 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String,String> {
 		this.tryCount ++;
 		if(importContext.isDebugResponse()) {
 			try {
-				fileUtil.writeData(datas);
+				fileTransfer.writeData(datas);
 				finishTask();
 			} catch (IOException e) {
 				throw new DataImportException(datas,e);
@@ -85,7 +85,7 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String,String> {
 		}
 		else{
 			try {
-				fileUtil.writeData(datas);
+				fileTransfer.writeData(datas);
 				finishTask();
 			} catch (IOException e) {
 				throw new DataImportException(datas,e);

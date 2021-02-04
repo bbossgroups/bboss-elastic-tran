@@ -37,8 +37,8 @@ import java.util.Arrays;
  * @version 1.0
  */
 public class FtpTransfer {
-	private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
-	public static void sendFile(FileFtpOupputContext fileFtpOupputContext, String filePath,
+	private static Logger logger = LoggerFactory.getLogger(FileTransfer.class);
+	public static synchronized void sendFile(FileFtpOupputContext fileFtpOupputContext, String filePath,
 			               String remoteFilePath){
 		final FTPClient ftp;
 		if (fileFtpOupputContext.getFtpProtocol() == null ) {

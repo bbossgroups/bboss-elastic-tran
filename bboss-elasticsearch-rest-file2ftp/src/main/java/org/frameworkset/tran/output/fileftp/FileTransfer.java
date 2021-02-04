@@ -15,6 +15,7 @@ package org.frameworkset.tran.output.fileftp;
  * limitations under the License.
  */
 
+import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.DataImportException;
 import org.slf4j.Logger;
@@ -33,18 +34,18 @@ import java.io.IOException;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FileUtil {
+public class FileTransfer {
 	private BufferedWriter bw = null;
 	private FileWriter fw = null;
 	private String filePath;
 	private String fileDir;
 	private String remoteFilePath;
-	private String transferFailedFileDir;
-	private String transferSuccessFileDir;
+	private String transferFailedFile;
+	private String transferSuccessFile;
 	private String taskInfo;
 	private File file;
 	private FileFtpOupputContext fileFtpOupputContext;
-	public FileUtil(String taskInfo,FileFtpOupputContext fileFtpOupputContext,String dir,String filePath,String remoteFilePath,int buffsize) throws IOException {
+	public FileTransfer(String taskInfo, FileFtpOupputContext fileFtpOupputContext, String dir, String filePath, String remoteFilePath, int buffsize) throws IOException {
 		this.fileFtpOupputContext = fileFtpOupputContext;
 		this.fileDir = dir;
 		this.taskInfo  = taskInfo;
@@ -59,13 +60,13 @@ public class FileUtil {
 		this.filePath = filePath;
 		this.remoteFilePath = remoteFilePath;
 		file = new File(filePath);
-		transferFailedFileDir = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferFailedFileDir/"+file.getName());
-		path = new File(transferFailedFileDir).getParentFile();
+		transferFailedFile = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferFailedFileDir/"+file.getName());
+		path = new File(transferFailedFile).getParentFile();
 		if(!path.exists())
 			path.mkdirs();
 
-		transferSuccessFileDir = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferSuccessFileDir/"+file.getName());
-		path = new File(transferSuccessFileDir).getParentFile();
+		transferSuccessFile = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferSuccessFileDir/"+file.getName());
+		path = new File(transferSuccessFile).getParentFile();
 		if(!path.exists())
 			path.mkdirs();
 
@@ -74,9 +75,8 @@ public class FileUtil {
 	}
 	public synchronized void writeData(String data) throws IOException {
 		bw.write(data);
-		bw.newLine();
 	}
-	private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
+	private static Logger logger = LoggerFactory.getLogger(FileTransfer.class);
 
 	public boolean isSended() {
 		return sended;
@@ -108,22 +108,23 @@ public class FileUtil {
 					}
 				}
 				if (fileFtpOupputContext.backupSuccessFiles())
-					com.frameworkset.util.FileUtil.renameFile(filePath, transferSuccessFileDir);//如果文件发送成功，将文件移除到成功目录，保留一天，过期自动清理
+					FileUtil.renameFile(filePath, transferSuccessFile);//如果文件发送成功，将文件移除到成功目录，保留一天，过期自动清理
 				else
-					com.frameworkset.util.FileUtil.deleteFile(filePath);
+					FileUtil.deleteFile(filePath);
 			}
 		}
 		catch (IOException e){
-			//com.frameworkset.util.FileUtil.renameFile(filePath,transferFailedFileDir);//如果文件发送失败，将文件移除到失败目录，定时重发
+			if(file.exists() && file.length() > 0)
+				FileUtil.renameFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
 			logger.error(taskInfo,e);
 		}
 		catch (DataImportException e){
 			logger.error(taskInfo,e);
-			com.frameworkset.util.FileUtil.renameFile(filePath,transferFailedFileDir);//如果文件发送失败，将文件移除到失败目录，定时重发
+			FileUtil.renameFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
 		}
 		catch (Throwable e){
 			logger.error(taskInfo,e);
-			com.frameworkset.util.FileUtil.renameFile(filePath,transferFailedFileDir);//如果文件发送失败，将文件移除到失败目录，定时重发
+			FileUtil.renameFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
 		}
 
 

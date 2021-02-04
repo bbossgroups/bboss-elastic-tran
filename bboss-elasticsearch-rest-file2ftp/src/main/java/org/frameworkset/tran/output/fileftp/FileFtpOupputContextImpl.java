@@ -33,10 +33,12 @@ import java.util.List;
  */
 public class FileFtpOupputContextImpl extends BaseImportContext implements FileFtpOupputContext {
 	private FileFtpOupputConfig fileFtpOupputConfig;
+	public static final String lineSeparator = "\r\n";
 	public FileFtpOupputContextImpl(FileFtpOupputConfig fileFtpOupputConfig){
 		super(fileFtpOupputConfig);
 
 	}
+
 	protected void init(BaseImportConfig baseImportConfig){
 		super.init(baseImportConfig);
 		this.fileFtpOupputConfig = (FileFtpOupputConfig)baseImportConfig;
@@ -72,6 +74,12 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 	public void generateReocord(Context taskContext, CommonRecord record, Writer builder){
 		fileFtpOupputConfig.getReocordGenerator().buildRecord(  taskContext, record,  builder);
 	}
+
+	@Override
+	public long getFailedFileResendInterval() {//300000l
+		return fileFtpOupputConfig.getFailedFileResendInterval();
+	}
+
 	public int getFileWriterBuffsize(){
 		return fileFtpOupputConfig.getFileWriterBuffsize();
 	}
