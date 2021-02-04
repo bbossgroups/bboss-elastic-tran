@@ -38,7 +38,6 @@ public class FileTransfer {
 	private BufferedWriter bw = null;
 	private FileWriter fw = null;
 	private String filePath;
-	private String fileDir;
 	private String remoteFilePath;
 	private String transferFailedFile;
 	private String transferSuccessFile;
@@ -47,7 +46,6 @@ public class FileTransfer {
 	private FileFtpOupputContext fileFtpOupputContext;
 	public FileTransfer(String taskInfo, FileFtpOupputContext fileFtpOupputContext, String dir, String filePath, String remoteFilePath, int buffsize) throws IOException {
 		this.fileFtpOupputContext = fileFtpOupputContext;
-		this.fileDir = dir;
 		this.taskInfo  = taskInfo;
 		File path = new File(dir);
 		if(!path.exists())
