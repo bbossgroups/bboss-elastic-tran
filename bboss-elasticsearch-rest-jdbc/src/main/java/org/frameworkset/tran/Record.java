@@ -15,8 +15,6 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import java.util.Set;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -28,7 +26,7 @@ import java.util.Set;
 public interface Record {
 
 	Object getValue(String colName);
-	public Set<String> getKeys();
+	public Object getKeys();
 	public Object getData();
 
 	public Object getMetaValue(String metaName);

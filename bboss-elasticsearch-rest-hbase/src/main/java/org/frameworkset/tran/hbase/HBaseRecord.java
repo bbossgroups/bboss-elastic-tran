@@ -23,7 +23,6 @@ import org.frameworkset.tran.Record;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>Description: </p>
@@ -79,7 +78,7 @@ public class HBaseRecord implements Record {
 	}
 
 	@Override
-	public Set<String> getKeys() {
+	public Object getKeys() {
 		return null;
 	}
 	public Object getData(){

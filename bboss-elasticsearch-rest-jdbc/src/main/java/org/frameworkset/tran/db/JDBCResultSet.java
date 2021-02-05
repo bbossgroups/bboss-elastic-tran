@@ -23,11 +23,10 @@ import org.frameworkset.tran.TranResultSet;
 
 import java.sql.ResultSet;
 import java.util.Date;
-import java.util.Set;
 
 public class JDBCResultSet extends LastValue implements TranResultSet {
 	protected ResultSet resultSet;
-	protected TranMeta metaData;
+	protected JDBCTranMetaData metaData;
 	protected DB dbadapter;
 	public ResultSet getResultSet() {
 		return resultSet;
@@ -104,8 +103,9 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 
 	}
 
-	public Set<String> getKeys(){
-		return  null;
+	public Object getKeys(){
+
+		return  metaData.getPoolManResultSetMetaData().get_columnLabel();
 	}
 	public Object getValue( String colName,int sqlType) throws ESDataImportException
 	{

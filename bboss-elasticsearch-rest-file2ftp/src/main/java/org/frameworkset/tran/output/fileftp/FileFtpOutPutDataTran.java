@@ -43,7 +43,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 	private String taskInfo ;
 	private FileTransfer initFileTransfer(){
 		path = fileFtpOupputContext.getFileDir();
-		String name = fileFtpOupputContext.generateFileName(  fileSeq);
+		String name = fileFtpOupputContext.generateFileName(   taskContext, fileSeq);
 		String fileName = SimpleStringUtil.getPath(path,name);
 		String remoteFileName = SimpleStringUtil.getPath(fileFtpOupputContext.getRemoteFileDir(),name);
 		fileSeq ++;
@@ -95,7 +95,9 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 				countDownLatch.countDown();
 		}
 	}
-
+	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
+		super(taskContext,jdbcResultSet,importContext, targetImportContext);
+	}
 	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch) {
 		super(taskContext,jdbcResultSet,importContext, targetImportContext);
 		this.countDownLatch = countDownLatch;
@@ -103,8 +105,19 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 	private CommonRecord buildRecord(Context context){
 		String[] columns = targetImportContext.getExportColumns();
 		if (columns == null){
-			Set<String> keys = jdbcResultSet.getKeys();
-			columns = keys.toArray(new String[keys.size()]);
+			Object  keys = jdbcResultSet.getKeys();
+			if(keys != null) {
+				if(keys instanceof Set) {
+					Set<String> _keys = (Set<String>) keys;
+					columns = _keys.toArray(new String[_keys.size()]);
+				}
+				else{
+					columns = (String[])keys;
+				}
+			}
+			else{
+				throw new DataImportException("Export Columns is null,Please set Export Columns in importconfig.");
+			}
 		}
 		Object temp = null;
 		CommonRecord dbRecord = new CommonRecord();
@@ -143,6 +156,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 	}
 
 	public String serialExecute(){
+		logger.info("serial import data Execute started.");
 		StringBuilder builder = new StringBuilder();
 		BBossStringWriter writer = new BBossStringWriter(builder);
 		Object lastValue = null;
@@ -247,7 +261,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 			}
 			if(isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("All Take time:").append((end - start)).append("ms")
+				logger.info(new StringBuilder().append("Serial import Take time:").append((end - start)).append("ms")
 						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
 						.append(importCount.getIgnoreTotalCount()).append(" records.").toString());
 
@@ -340,13 +354,10 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 					totalCount.increamentIgnoreTotalCount();
 					continue;
 				}
-//				evalBuilk(this.jdbcResultSet,  batchContext,writer, context, versionUpper7);
 				CommonRecord record = buildRecord(  context );
 
 				fileFtpOupputContext.generateReocord(context,record, writer);
 				writer.write(lineSeparator);
-//					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));
-//					//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 				count++;
 				if(count >= batchsize ){
 					String datas = builder.toString();
@@ -366,9 +377,6 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 				if(!tranErrorWrapper.assertCondition()) {
 					tranErrorWrapper.throwError();
 				}
-//				if(this.error != null && !importContext.isContinueOnError()) {
-//					throw error;
-//				}
 				String datas = builder.toString();
 				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
 						count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue);
@@ -376,12 +384,12 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 				tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 				builder.setLength(0);
 				if(isPrintTaskLog())
-					logger.info(new StringBuilder().append("submit tasks:").append(taskNo).toString());
+					logger.info(new StringBuilder().append("Pararrel batch submit tasks:").append(taskNo).toString());
 
 			}
 			else{
 				if(isPrintTaskLog())
-					logger.info(new StringBuilder().append("submit tasks:").append(taskNo).toString());
+					logger.info(new StringBuilder().append("Pararrel batch submit tasks:").append(taskNo).toString());
 			}
 
 
@@ -454,12 +462,12 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 
 						if (isPrintTaskLog()) {
 							end = System.currentTimeMillis();
-							logger.info(new StringBuilder().append("Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+							logger.info(new StringBuilder().append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
 									.append(",import ").append(_count).append(" records.").toString());
 							istart = end;
 						}
 						taskNo ++;
-						totalCount += _count;
+
 					}
 					continue;
 				}
@@ -484,6 +492,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 				fileFtpOupputContext.generateReocord(context,record, writer);
 				writer.write(lineSeparator);
 				count++;
+				totalCount ++;
 				if (count >= batchsize) {
 					writer.flush();
 					String datas = builder.toString();
@@ -502,11 +511,10 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 
 					if(isPrintTaskLog())  {
 						end = System.currentTimeMillis();
-						logger.info(new StringBuilder().append("Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+						logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
 								.append(",import ").append(batchsize).append(" records.").toString());
 						istart = end;
 					}
-					totalCount += count;
 					taskNo ++;
 
 				}
@@ -520,7 +528,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 								count, taskNo, importCount.getJobNo(), fileTransfer, lastValue);
 						taskCommand.setDatas(_dd);
 						TaskCall.call(taskCommand);
-						totalCount += count;
+						count = 0;
 						taskNo++;
 					}
 					fileTransfer.sendFile();
@@ -538,12 +546,11 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 				TaskCall.call(taskCommand);
 				if(isPrintTaskLog())  {
 					end = System.currentTimeMillis();
-					logger.info(new StringBuilder().append("Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+					logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
 							.append(",import ").append(count).append(" records,IgnoreTotalCount ")
 							.append(ignoreTotalCount).append(" records.").toString());
 
 				}
-				totalCount += count;
 				fileTransfer.sendFile();
 			}
 			else{
@@ -553,7 +560,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 			}
 			if(isPrintTaskLog()) {
 				end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("Execute Tasks:").append(taskNo).append(",All Take time:").append((end - start)).append("ms")
+				logger.info(new StringBuilder().append("Batch import Execute Tasks:").append(taskNo).append(",All Take time:").append((end - start)).append("ms")
 						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
 						.append(ignoreTotalCount).append(" records.").toString());
 

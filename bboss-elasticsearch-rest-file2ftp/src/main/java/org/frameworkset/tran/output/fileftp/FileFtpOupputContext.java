@@ -16,6 +16,7 @@ package org.frameworkset.tran.output.fileftp;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.io.Writer;
 import java.util.List;
@@ -32,7 +33,7 @@ public interface FileFtpOupputContext {
 	public final int TRANSFER_PROTOCOL_FTP = 1;
 	public final int TRANSFER_PROTOCOL_SFTP = 2;
 
-	public String generateFileName(int fileSeq);
+	public String generateFileName(TaskContext taskContext, int fileSeq);
 	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder);
 	public long getFailedFileResendInterval();
 	public String getFtpIP();

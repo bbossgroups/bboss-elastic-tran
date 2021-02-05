@@ -18,7 +18,6 @@ package org.frameworkset.tran.kafka;
 import org.frameworkset.tran.Record;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>Description: </p>
@@ -40,7 +39,7 @@ public class KafkaMapRecord implements Record {
 
 		return record.get(colName);
 	}
-	public Set getKeys(){
+	public Object getKeys(){
 		return record.keySet();
 	}
 	public Object getData(){

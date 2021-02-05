@@ -23,7 +23,6 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.util.TranUtil;
 
 import java.util.Date;
-import java.util.Set;
 
 /**
  * <p>Description: </p>
@@ -88,7 +87,7 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 		return new DefaultTranMetaData(record.keySet());
 	}
 
-	public Set<String> getKeys(){
+	public Object getKeys(){
 		return  record.keySet();
 	}
 	@Override

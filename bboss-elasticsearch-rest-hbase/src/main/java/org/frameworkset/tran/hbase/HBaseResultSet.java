@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>Description: </p>
@@ -101,8 +100,8 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 	public TranMeta getMetaData() {
 		return new DefaultTranMetaData(null);
 	}
-	public Set<String> getKeys(){
-		return  null;
+	public Object getKeys(){
+		return  record.getKeys();
 	}
 	@Override
 	public Object getRecord() {

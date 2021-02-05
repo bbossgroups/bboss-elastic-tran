@@ -19,6 +19,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.Context;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.io.Writer;
 import java.util.List;
@@ -68,8 +69,8 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 
 
 
-	public String generateFileName(int fileSeq){
-		return fileFtpOupputConfig.getFilenameGenerator().genName( fileSeq);
+	public String generateFileName(TaskContext taskContext, int fileSeq){
+		return fileFtpOupputConfig.getFilenameGenerator().genName(   taskContext,fileSeq);
 	}
 	public void generateReocord(Context taskContext, CommonRecord record, Writer builder){
 		fileFtpOupputConfig.getReocordGenerator().buildRecord(  taskContext, record,  builder);

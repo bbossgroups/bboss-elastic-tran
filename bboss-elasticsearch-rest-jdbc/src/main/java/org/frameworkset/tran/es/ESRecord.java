@@ -20,8 +20,6 @@ import org.frameworkset.elasticsearch.entity.MetaMap;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.Record;
 
-import java.util.Set;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -118,7 +116,7 @@ public class ESRecord implements Record {
 	}
 
 	@Override
-	public Set<String> getKeys() {
+	public Object getKeys() {
 		return data.keySet();
 	}
 	public Object getData(){

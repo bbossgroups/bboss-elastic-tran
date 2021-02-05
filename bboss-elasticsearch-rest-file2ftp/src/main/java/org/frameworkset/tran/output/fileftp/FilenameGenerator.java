@@ -15,6 +15,8 @@ package org.frameworkset.tran.output.fileftp;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.schedule.TaskContext;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -24,5 +26,5 @@ package org.frameworkset.tran.output.fileftp;
  * @version 1.0
  */
 public interface FilenameGenerator {
-	public String genName( int fileSeq);
+	public String genName(TaskContext taskContext, int fileSeq);
 }

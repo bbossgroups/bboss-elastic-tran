@@ -35,6 +35,11 @@ public class JDBCTranMetaData implements TranMeta {
 	}
 
 	private PoolManResultSetMetaData poolManResultSetMetaData;
+
+	public PoolManResultSetMetaData getPoolManResultSetMetaData() {
+		return poolManResultSetMetaData;
+	}
+
 	@Override
 	public int getColumnCount()  throws ESDataImportException {
 		try {

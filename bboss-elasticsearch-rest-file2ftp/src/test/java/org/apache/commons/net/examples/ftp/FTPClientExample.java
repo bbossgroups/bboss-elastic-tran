@@ -227,7 +227,7 @@ public final class FTPClientExample
 //			System.exit(1);
 //		}
 		username = "test";
-		String server = "192.168.137.1";//args[base++];
+		String server = "127.0.0.1";//args[base++];
 		int port = 222;
 //		final String parts[] = server.split(":");
 //		if (parts.length == 2){
@@ -239,7 +239,7 @@ public final class FTPClientExample
 //			password = args[base++];
 //		}
 		password = "123456";
-		String remote = "/tmp/1.xlsx";
+		String remote = "/1.xlsx";
 		/**
 		String remote = null;
 		if (args.length - base > 0) {

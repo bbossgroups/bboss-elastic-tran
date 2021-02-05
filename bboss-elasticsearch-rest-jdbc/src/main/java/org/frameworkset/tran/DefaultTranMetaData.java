@@ -27,10 +27,14 @@ import java.util.Set;
  * @version 1.0
  */
 public class DefaultTranMetaData implements TranMeta {
-	public DefaultTranMetaData(Set<String> keys) {
-		if(keys != null)
-			this.keys = keys.toArray(new String[0]);
-		else{
+	public DefaultTranMetaData(Object keys) {
+		if(keys != null) {
+			if (keys instanceof Set )
+				this.keys = ((Set<String> )keys).toArray(new String[0]);
+			else
+				this.keys = ((String[])keys);
+		}
+		else {
 			this.keys = new String[0];
 		}
 	}

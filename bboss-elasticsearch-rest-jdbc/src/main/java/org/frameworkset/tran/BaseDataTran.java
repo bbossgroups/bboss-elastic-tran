@@ -134,7 +134,7 @@ public abstract class BaseDataTran implements DataTran{
 			totalCount.setJobEndTime(new Date());
 			if(isPrintTaskLog()) {
 
-				logger.info(new StringBuilder().append("Complete tasks:")
+				logger.info(new StringBuilder().append("Parallel batch import Complete tasks:")
 						.append(count).append(",Total success import ")
 						.append(totalCount.getSuccessCount()).append(" records,Ignore Total ")
 						.append(totalCount.getIgnoreTotalCount()).append(" records,failed total ")
@@ -166,7 +166,7 @@ public abstract class BaseDataTran implements DataTran{
 					if(waitTasksCompleteCallBack != null)
 						waitTasksCompleteCallBack.call();
 					if(isPrintTaskLog()) {
-						logger.info(new StringBuilder().append("Complete tasks:")
+						logger.info(new StringBuilder().append("Parallel batch import Complete tasks:")
 								.append(count).append(",Total success import ")
 								.append(totalCount.getSuccessCount()).append(" records,Ignore Total ")
 								.append(totalCount.getIgnoreTotalCount()).append(" records,failed total ")

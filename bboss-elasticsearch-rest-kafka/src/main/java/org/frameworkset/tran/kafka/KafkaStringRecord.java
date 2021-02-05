@@ -17,8 +17,6 @@ package org.frameworkset.tran.kafka;
 
 import org.frameworkset.tran.Record;
 
-import java.util.Set;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -40,7 +38,7 @@ public class KafkaStringRecord implements Record {
 
 		return record;
 	}
-	public Set<String> getKeys(){
+	public Object getKeys(){
 		return null;
 	}
 	public Object getData(){

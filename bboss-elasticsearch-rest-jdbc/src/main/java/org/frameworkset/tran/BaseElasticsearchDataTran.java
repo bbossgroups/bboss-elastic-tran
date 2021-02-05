@@ -204,12 +204,12 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 
 				}
 				if(isPrintTaskLog())
-					logger.info(new StringBuilder().append("submit tasks:").append(taskNo).toString());
+					logger.info(new StringBuilder().append("Pararrel batchsubmit tasks:").append(taskNo).toString());
 
 			}
 			else{
 				if(isPrintTaskLog())
-					logger.info(new StringBuilder().append("submit tasks:").append(taskNo).toString());
+					logger.info(new StringBuilder().append("Pararrel batchsubmit tasks:").append(taskNo).toString());
 			}
 
 		} catch (SQLException e) {
@@ -287,7 +287,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 
 						if (isPrintTaskLog()) {
 							end = System.currentTimeMillis();
-							logger.info(new StringBuilder().append("Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+							logger.info(new StringBuilder().append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
 									.append(",import ").append(_count).append(" records.").toString());
 							istart = end;
 						}
@@ -335,7 +335,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 
 					if(isPrintTaskLog())  {
 						end = System.currentTimeMillis();
-						logger.info(new StringBuilder().append("Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+						logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
 								.append(",import ").append(batchsize).append(" records.").toString());
 						istart = end;
 					}
@@ -358,7 +358,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 //				importContext.flushLastValue(lastValue);
 				if(isPrintTaskLog())  {
 					end = System.currentTimeMillis();
-					logger.info(new StringBuilder().append("Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+					logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
 							.append(",import ").append(count).append(" records,IgnoreTotalCount ")
 							.append(ignoreTotalCount).append(" records.").toString());
 
@@ -367,7 +367,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 			}
 			if(isPrintTaskLog()) {
 				end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("Execute Tasks:").append(taskNo).append(",All Take time:").append((end - start)).append("ms")
+				logger.info(new StringBuilder().append("Batch import Execute Tasks:").append(taskNo).append(",All Take time:").append((end - start)).append("ms")
 						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
 						.append(ignoreTotalCount).append(" records.").toString());
 
@@ -435,7 +435,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 					if(isPrintTaskLog()) {
 
 						long end = System.currentTimeMillis();
-						logger.info(new StringBuilder().append("Force flush datas Take time:").append((end - start)).append("ms")
+						logger.info(new StringBuilder().append("Serial import Force flush datas Take time:").append((end - start)).append("ms")
 								.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
 								.append(ignoreTotalCount).append(" records.").toString());
 
@@ -486,7 +486,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 			if(isPrintTaskLog()) {
 
 				long end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("All Take time:").append((end - start)).append("ms")
+				logger.info(new StringBuilder().append("Serial import All Take time:").append((end - start)).append("ms")
 						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
 						.append(ignoreTotalCount).append(" records.").toString());
 
