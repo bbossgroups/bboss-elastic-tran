@@ -106,23 +106,36 @@ public class FileTransfer {
 					}
 				}
 				if (fileFtpOupputContext.backupSuccessFiles())
-					FileUtil.renameFile(filePath, transferSuccessFile);//如果文件发送成功，将文件移除到成功目录，保留一天，过期自动清理
+					FileUtil.bakFile(filePath, transferSuccessFile);//如果文件发送成功，将文件移除到成功目录，保留一天，过期自动清理
 				else
 					FileUtil.deleteFile(filePath);
 			}
 		}
 		catch (IOException e){
-			if(file.exists() && file.length() > 0)
-				FileUtil.renameFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
+			if(file.exists() && file.length() > 0) {
+				try {
+					FileUtil.bakFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
+				} catch (IOException ioException) {
+					logger.error(taskInfo,ioException);
+				}
+			}
 			logger.error(taskInfo,e);
 		}
 		catch (DataImportException e){
 			logger.error(taskInfo,e);
-			FileUtil.renameFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
+			try {
+				FileUtil.bakFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
+			} catch (IOException ioException) {
+				logger.error(taskInfo,ioException);
+			}
 		}
 		catch (Throwable e){
 			logger.error(taskInfo,e);
-			FileUtil.renameFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
+			try {
+				FileUtil.bakFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
+			} catch (IOException ioException) {
+				logger.error(taskInfo,ioException);
+			}
 		}
 
 
