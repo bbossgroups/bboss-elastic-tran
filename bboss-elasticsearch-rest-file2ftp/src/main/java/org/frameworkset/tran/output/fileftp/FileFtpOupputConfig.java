@@ -73,7 +73,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 	private String ftpProxyPassword;
 	private String ftpProxyUser;
 	private boolean printHash;
- 	private boolean binaryTransfer;
+ 	private boolean binaryTransfer = true;
 
 	/**
 	 * 毫秒为单位
