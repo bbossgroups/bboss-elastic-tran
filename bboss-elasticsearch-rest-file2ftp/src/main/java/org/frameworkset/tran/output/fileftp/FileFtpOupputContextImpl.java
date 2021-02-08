@@ -34,7 +34,6 @@ import java.util.List;
  */
 public class FileFtpOupputContextImpl extends BaseImportContext implements FileFtpOupputContext {
 	private FileFtpOupputConfig fileFtpOupputConfig;
-	public static final String lineSeparator = "\r\n";
 	public FileFtpOupputContextImpl(FileFtpOupputConfig fileFtpOupputConfig){
 		super(fileFtpOupputConfig);
 
@@ -67,7 +66,9 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 		return fileFtpOupputConfig.isDisableftp();
 	}
 
-
+	public long getSuccessFilesCleanInterval(){
+		return fileFtpOupputConfig.getSuccessFilesCleanInterval();
+	}
 
 	public String generateFileName(TaskContext taskContext, int fileSeq){
 		return fileFtpOupputConfig.getFilenameGenerator().genName(   taskContext,fileSeq);
@@ -189,6 +190,8 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 	public String getRemoteFileDir() {
 		return fileFtpOupputConfig.getRemoteFileDir();
 	}
-
+	public int getFileLiveTime() {
+		return fileFtpOupputConfig.getFileLiveTime();
+	}
 
 }

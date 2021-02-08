@@ -63,6 +63,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 
 	}
 	private static FailedResend failedResend;
+	private static SuccessFilesClean successFilesClean;
 	public void init(){
 		super.init();
 		lineSeparator = java.security.AccessController.doPrivileged(
@@ -72,10 +73,20 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 		fileTransfer = initFileTransfer();
 		if(fileFtpOupputContext.getFailedFileResendInterval() > 0) {
 			if (failedResend == null) {
-				synchronized (FileFtpOutPutDataTran.class) {
+				synchronized (FailedResend.class) {
 					if (failedResend == null) {
 						failedResend = new FailedResend(fileFtpOupputContext);
 						failedResend.start();
+					}
+				}
+			}
+		}
+		if(fileFtpOupputContext.getSuccessFilesCleanInterval() > 0){
+			if(successFilesClean == null){
+				synchronized (SuccessFilesClean.class) {
+					if (successFilesClean == null) {
+						successFilesClean = new SuccessFilesClean(fileFtpOupputContext);
+						successFilesClean.start();
 					}
 				}
 			}

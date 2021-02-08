@@ -40,7 +40,11 @@ public class FailedResend extends Thread{
 		this.fileFtpOupputContext = fileFtpOupputContext;
 		transferFailedFileDir = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferFailedFileDir");
 		transferSuccessFileDir = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferSuccessFileDir");
+
+	}
+	public void start(){
 		this.setDaemon(true);
+		super.start();
 	}
 	public void run(){
 		File transferFailedFileDir_ = new File(transferFailedFileDir);
@@ -50,6 +54,8 @@ public class FailedResend extends Thread{
 				File[] files = transferFailedFileDir_.listFiles();
 				for(int i =0 ; i < files.length; i ++){
 					File file = files[i];
+					if(!file.isFile())
+						continue;
 					try {
 						String remoteFilePath = SimpleStringUtil.getPath(fileFtpOupputContext.getRemoteFileDir(), file.getName());
 						if (file.length() <= 0) {

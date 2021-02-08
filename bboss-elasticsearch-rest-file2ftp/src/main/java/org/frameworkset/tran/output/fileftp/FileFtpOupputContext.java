@@ -36,6 +36,8 @@ public interface FileFtpOupputContext {
 	public String generateFileName(TaskContext taskContext, int fileSeq);
 	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder);
 	public long getFailedFileResendInterval();
+	public long getSuccessFilesCleanInterval();
+	public int getFileLiveTime();
 	public String getFtpIP();
 	public int getFtpPort();
 	public String getFtpUser() ;
