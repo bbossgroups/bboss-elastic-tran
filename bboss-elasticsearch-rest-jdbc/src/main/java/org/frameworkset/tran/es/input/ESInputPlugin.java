@@ -86,20 +86,21 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 		if(esInputContext.isSliceQuery()){
 			params.put("sliceMax",esInputContext.getSliceSize());
 		}
-		exportESData(  esExporterScrollHandler,  params,new Date());
+		Date date = new Date();
+		exportESData(  esExporterScrollHandler,  params,date,date);
 	}
 
-	protected String getQueryUrl(Date lastTime){
+	protected String getQueryUrl(Date lastStartValue,Date lastEndValue){
 		if(esInputContext.getQueryUrl() != null){
 			return esInputContext.getQueryUrl();
 		}
 		else if(esInputContext.getQueryUrlFunction() != null){
-			return esInputContext.getQueryUrlFunction().queryUrl(lastTime);
+			return esInputContext.getQueryUrlFunction().queryUrl(  lastStartValue,  lastEndValue);
 		}
 		throw new DataImportException("query url or query url function not setted.");
 	}
 
-	protected void exportESData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,Map params,Date lastValue){
+	protected void exportESData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,Map params,Date lastStartValue,Date lastEndValue){
 
 		//采用自定义handler函数处理每个scroll的结果集后，response中只会包含总记录数，不会包含记录集合
 		//scroll上下文有效期1分钟；大数据量时可以采用handler函数来处理每次scroll检索的结果，规避数据量大时存在的oom内存溢出风险
@@ -110,19 +111,19 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 		if(!esInputContext.isSliceQuery()) {
 
 			if(importContext.isParallel() && esExporterScrollHandler instanceof ESDirectExporterScrollHandler) {
-				response = clientUtil.scrollParallel(getQueryUrl(lastValue),
+				response = clientUtil.scrollParallel(getQueryUrl(lastStartValue,lastEndValue),
 						esInputContext.getDslName(), esInputContext.getScrollLiveTime(),
 						params, MetaMap.class, esExporterScrollHandler);
 			}
 			else
 			{
-				response = clientUtil.scroll(getQueryUrl(lastValue),
+				response = clientUtil.scroll(getQueryUrl(lastStartValue,lastEndValue),
 						esInputContext.getDslName(), esInputContext.getScrollLiveTime(),
 						params, MetaMap.class, esExporterScrollHandler);
 			}
 		}
 		else{
-			response = clientUtil.scrollSliceParallel(getQueryUrl(lastValue), esInputContext.getDslName(),
+			response = clientUtil.scrollSliceParallel(getQueryUrl(lastStartValue,lastEndValue), esInputContext.getDslName(),
 					params, esInputContext.getScrollLiveTime(),MetaMap.class, esExporterScrollHandler);
 		}
 		if(logger.isInfoEnabled()) {
@@ -141,11 +142,17 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 			params.put("sliceMax",esInputContext.getSliceSize());
 		}
 		Object lastValue = putLastParamValue(params);
+
 		if(lastValue instanceof Date) {
-			exportESData(esExporterScrollHandler, params, (Date)lastValue);
+			Date lastEndValue = null;
+			if(importContext.increamentEndOffset() != null){
+				lastEndValue = (Date)params.get(getLastValueVarName()+"__endTime");
+			}
+			exportESData(esExporterScrollHandler, params, (Date)lastValue,lastEndValue);
 		}
 		else{
-			exportESData(esExporterScrollHandler, params, new Date());
+			Date date = new Date();
+			exportESData(esExporterScrollHandler, params, date,date);
 		}
 
 	}

@@ -26,5 +26,11 @@ import java.util.Date;
  * @version 1.0
  */
 public interface QueryUrlFunction {
-	public String queryUrl(Date lastTime);
+	/**
+	 * 根据数据检索起始时间获取elasticsearch检索数据索引名称范围，适用于按照时间维度分表的场景
+	 * @param lastStartValue
+	 * @param lastEndValue
+	 * @return
+	 */
+	public String queryUrl(Date lastStartValue,Date lastEndValue);
 }
