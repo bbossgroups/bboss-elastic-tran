@@ -45,7 +45,7 @@ public class SuccessFilesClean extends Thread{
 	}
 	public void run(){
 		File transferSuccessFileDir_ = new File(transferSuccessFileDir);
-		logger.info("SuccessFilesClean-Thread started,transferSuccessFileDir["+transferSuccessFileDir+"]");
+		logger.info("SuccessFilesClean-Thread started,transferSuccessFileDir["+transferSuccessFileDir+"],FileLiveTime["+fileFtpOupputContext.getFileLiveTime() +"]秒");
 		while(true){
 			long lastArchtime = System.currentTimeMillis() - fileFtpOupputContext.getFileLiveTime() * 1000L;
 
@@ -57,9 +57,11 @@ public class SuccessFilesClean extends Thread{
 						continue;
 					try {
 						long filetime = file.lastModified();
-						if(filetime <= lastArchtime)
+						if(filetime <= lastArchtime) {
 							file.delete();
-						logger.error("Delete success file "+ file.getPath() + " complete.");
+							if (logger.isInfoEnabled())
+								logger.info("Delete success file " + file.getPath() + " complete.");
+						}
 					}
 					catch (Exception e){
 						logger.error("Delete success file "+ file.getPath() + " failed:",e);

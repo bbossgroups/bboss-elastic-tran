@@ -44,7 +44,7 @@ public class ES2ESDataTranPlugin  extends ESInputPlugin implements DataTranPlugi
 				targetImportContext.getTargetElasticsearch(),countDownLatch);
 	}
 	@Override
-	protected void doBatchHandler(){
+	protected void doBatchHandler(TaskContext taskContext){
 
 	}
 

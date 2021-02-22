@@ -73,23 +73,23 @@ public class ES2DBDataTranPlugin extends ESInputPlugin implements DataTranPlugin
 	}
 	public void doImportData(TaskContext taskContext)  throws ESDataImportException{
 		if(dbOutPutContext.getBatchHandler() != null){
-			doBatchHandler();
+			doBatchHandler(  taskContext);
 		}
 		else{
 			super.doImportData( taskContext);
 		}
 	}
-	protected  void doBatchHandler(){
+	protected  void doBatchHandler(TaskContext taskContext){
 		ESDirectExporterScrollHandler esDirectExporterScrollHandler = new ESDirectExporterScrollHandler(importContext,targetImportContext,
 				executor);
 		try {
 			if (!isIncreamentImport()) {
 
-				commonImportData(esDirectExporterScrollHandler);
+				commonImportData(  taskContext,esDirectExporterScrollHandler);
 
 			} else {
 
-				increamentImportData(esDirectExporterScrollHandler);
+				increamentImportData( taskContext,esDirectExporterScrollHandler);
 
 			}
 		} catch (ESDataImportException e) {

@@ -48,7 +48,7 @@ public class FailedResend extends Thread{
 	}
 	public void run(){
 		File transferFailedFileDir_ = new File(transferFailedFileDir);
-		logger.info("FailedFileResend-Thread started,transferFailedFileDir["+transferFailedFileDir+"]");
+		logger.info("FailedFileResend-Thread started,transferFailedFileDir["+transferFailedFileDir+"],failedFileResendInterval:"+fileFtpOupputContext.getFailedFileResendInterval()+"毫秒");
 		while(true){
 			if(transferFailedFileDir_.exists()){
 				File[] files = transferFailedFileDir_.listFiles();

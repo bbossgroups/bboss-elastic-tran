@@ -80,27 +80,27 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 
 
 
-	protected void commonImportData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
+	protected void commonImportData(TaskContext taskContext,BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
 		Map params = esInputContext.getParams() != null ?esInputContext.getParams():new HashMap();
 		params.put("size", importContext.getFetchSize());//每页5000条记录
 		if(esInputContext.isSliceQuery()){
 			params.put("sliceMax",esInputContext.getSliceSize());
 		}
 		Date date = new Date();
-		exportESData(  esExporterScrollHandler,  params,date,date);
+		exportESData(  taskContext,  esExporterScrollHandler,  params,date,date);
 	}
 
-	protected String getQueryUrl(Date lastStartValue,Date lastEndValue){
+	protected String getQueryUrl(TaskContext taskContext,Date lastStartValue,Date lastEndValue){
 		if(esInputContext.getQueryUrl() != null){
 			return esInputContext.getQueryUrl();
 		}
 		else if(esInputContext.getQueryUrlFunction() != null){
-			return esInputContext.getQueryUrlFunction().queryUrl(  lastStartValue,  lastEndValue);
+			return esInputContext.getQueryUrlFunction().queryUrl(  taskContext,  lastStartValue,  lastEndValue);
 		}
 		throw new DataImportException("query url or query url function not setted.");
 	}
 
-	protected void exportESData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,Map params,Date lastStartValue,Date lastEndValue){
+	protected void exportESData(TaskContext taskContext,BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,Map params,Date lastStartValue,Date lastEndValue){
 
 		//采用自定义handler函数处理每个scroll的结果集后，response中只会包含总记录数，不会包含记录集合
 		//scroll上下文有效期1分钟；大数据量时可以采用handler函数来处理每次scroll检索的结果，规避数据量大时存在的oom内存溢出风险
@@ -111,19 +111,19 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 		if(!esInputContext.isSliceQuery()) {
 
 			if(importContext.isParallel() && esExporterScrollHandler instanceof ESDirectExporterScrollHandler) {
-				response = clientUtil.scrollParallel(getQueryUrl(lastStartValue,lastEndValue),
+				response = clientUtil.scrollParallel(getQueryUrl(  taskContext,lastStartValue,lastEndValue),
 						esInputContext.getDslName(), esInputContext.getScrollLiveTime(),
 						params, MetaMap.class, esExporterScrollHandler);
 			}
 			else
 			{
-				response = clientUtil.scroll(getQueryUrl(lastStartValue,lastEndValue),
+				response = clientUtil.scroll(getQueryUrl(  taskContext,lastStartValue,lastEndValue),
 						esInputContext.getDslName(), esInputContext.getScrollLiveTime(),
 						params, MetaMap.class, esExporterScrollHandler);
 			}
 		}
 		else{
-			response = clientUtil.scrollSliceParallel(getQueryUrl(lastStartValue,lastEndValue), esInputContext.getDslName(),
+			response = clientUtil.scrollSliceParallel(getQueryUrl(  taskContext,lastStartValue,lastEndValue), esInputContext.getDslName(),
 					params, esInputContext.getScrollLiveTime(),MetaMap.class, esExporterScrollHandler);
 		}
 		if(logger.isInfoEnabled()) {
@@ -135,7 +135,7 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 			}
 		}
 	}
-	protected void increamentImportData(BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
+	protected void increamentImportData(TaskContext taskContext,BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
 		Map params = esInputContext.getParams() != null ?esInputContext.getParams():new HashMap();
 		params.put("size", importContext.getFetchSize());//每页5000条记录
 		if(esInputContext.isSliceQuery()){
@@ -148,16 +148,18 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 			if(importContext.increamentEndOffset() != null){
 				lastEndValue = (Date)params.get(getLastValueVarName()+"__endTime");
 			}
-			exportESData(esExporterScrollHandler, params, (Date)lastValue,lastEndValue);
+			else
+				lastEndValue = new Date();
+			exportESData(  taskContext,esExporterScrollHandler, params, (Date)lastValue,lastEndValue);
 		}
 		else{
 			Date date = new Date();
-			exportESData(esExporterScrollHandler, params, date,date);
+			exportESData(  taskContext,esExporterScrollHandler, params, date,date);
 		}
 
 	}
 	protected abstract BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch);
-	protected void doBatchHandler(){
+	protected void doBatchHandler(TaskContext taskContext){
 
 	}
 	public void doImportData(TaskContext taskContext)  throws ESDataImportException {
@@ -178,11 +180,11 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 			tranThread.start();
 			if (!isIncreamentImport()) {
 
-				commonImportData(esExporterScrollHandler);
+				commonImportData(  taskContext,esExporterScrollHandler);
 
 			} else {
 
-				increamentImportData(esExporterScrollHandler);
+				increamentImportData(  taskContext,esExporterScrollHandler);
 
 			}
 		} catch (ESDataImportException e) {

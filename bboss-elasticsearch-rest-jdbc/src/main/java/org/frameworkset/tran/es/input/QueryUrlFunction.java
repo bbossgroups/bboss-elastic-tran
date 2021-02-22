@@ -15,6 +15,8 @@ package org.frameworkset.tran.es.input;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.schedule.TaskContext;
+
 import java.util.Date;
 
 /**
@@ -32,5 +34,5 @@ public interface QueryUrlFunction {
 	 * @param lastEndValue
 	 * @return
 	 */
-	public String queryUrl(Date lastStartValue,Date lastEndValue);
+	public String queryUrl(TaskContext taskContext,Date lastStartValue, Date lastEndValue);
 }
