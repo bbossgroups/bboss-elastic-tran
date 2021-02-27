@@ -1,4 +1,4 @@
-package org.frameworkset.tran.output.fileftp;
+package org.frameworkset.tran.kafka.output;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -15,15 +15,18 @@ package org.frameworkset.tran.output.fileftp;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.ExportResultHandler;
+import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.TaskCommand;
+
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/1/28 16:52
+ * @Date 2021/2/26 15:45
  * @author biaoping.yin
  * @version 1.0
- * @see org.frameworkset.tran.util.ReocordGenerator
  */
-@Deprecated
-public interface ReocordGenerator extends org.frameworkset.tran.util.ReocordGenerator{
+public interface KafkaSend {
+	void send(  TaskCommand taskCommand,TaskContext taskContext, Object key, Object data,   ExportResultHandler exportResultHandler);
 }

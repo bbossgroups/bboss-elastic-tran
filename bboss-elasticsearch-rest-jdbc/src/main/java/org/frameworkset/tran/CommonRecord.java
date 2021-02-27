@@ -29,6 +29,7 @@ import java.util.Map;
  */
 public class CommonRecord {
 	private List<Param> params;
+	private Object recordKey;
 
 	public Map<String, Object> getDatas() {
 		return datas;
@@ -71,4 +72,11 @@ public class CommonRecord {
 		return false;
 	}
 
+	public Object getRecordKey() {
+		return recordKey;
+	}
+
+	public void setRecordKey(Object recordKey) {
+		this.recordKey = recordKey;
+	}
 }

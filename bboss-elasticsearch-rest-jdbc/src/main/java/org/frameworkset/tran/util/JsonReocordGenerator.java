@@ -1,4 +1,4 @@
-package org.frameworkset.tran.output.fileftp;
+package org.frameworkset.tran.util;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -15,6 +15,11 @@ package org.frameworkset.tran.output.fileftp;
  * limitations under the License.
  */
 
+import org.frameworkset.elasticsearch.serial.SerialUtil;
+import org.frameworkset.tran.CommonRecord;
+
+import java.io.Writer;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -22,8 +27,9 @@ package org.frameworkset.tran.output.fileftp;
  * @Date 2021/1/28 16:52
  * @author biaoping.yin
  * @version 1.0
- * @see org.frameworkset.tran.util.ReocordGenerator
  */
-@Deprecated
-public interface ReocordGenerator extends org.frameworkset.tran.util.ReocordGenerator{
+public class JsonReocordGenerator implements ReocordGenerator{
+	public void buildRecord(org.frameworkset.tran.context.Context context,CommonRecord record, Writer builder){
+		SerialUtil.normalObject2json(record.getDatas(),builder);
+	}
 }

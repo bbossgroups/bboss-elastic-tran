@@ -1,4 +1,4 @@
-package org.frameworkset.tran.output.fileftp;
+package org.frameworkset.tran.kafka.output;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -15,15 +15,23 @@ package org.frameworkset.tran.output.fileftp;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.CommonRecord;
+
+import java.io.Writer;
+import java.util.Properties;
+
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/1/28 16:52
+ * @Date 2021/2/25 15:18
  * @author biaoping.yin
  * @version 1.0
- * @see org.frameworkset.tran.util.ReocordGenerator
  */
-@Deprecated
-public interface ReocordGenerator extends org.frameworkset.tran.util.ReocordGenerator{
+public interface KafkaOutputContext {
+	public String getTopic();
+	public Properties getKafkaConfigs();
+	public boolean kafkaAsynSend();
+	public KafkaSend getKafkaSend();
+	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder);
 }

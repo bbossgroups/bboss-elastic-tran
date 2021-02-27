@@ -33,7 +33,7 @@ public interface TaskCommand<DATA,RESULT> {
 
 	public TaskMetrics getTaskMetrics();
 	public void setDatas(DATA datas) ;
-
+	public void finishTask();
 
 	public RESULT execute();
 

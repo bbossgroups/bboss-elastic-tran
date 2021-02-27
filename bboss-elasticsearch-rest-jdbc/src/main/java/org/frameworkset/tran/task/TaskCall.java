@@ -74,6 +74,24 @@ public class TaskCall implements Runnable {
 	protected boolean isPrintTaskLog(){
 		return db2ESImportContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
+	public static void asynCall(TaskCommand taskCommand){
+		ImportCount importCount = taskCommand.getImportCount();
+		TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
+		taskMetrics.setJobStartTime(importCount.getJobStartTime());
+		taskMetrics.setTaskStartTime(new Date());
+		try {
+			taskCommand.execute();
+
+		}
+		catch (ElasticSearchException e){
+
+			throw e;
+		}
+		catch (Exception e){
+
+			throw new ElasticSearchException(e);
+		}
+	}
 	public static <DATA,RESULT> RESULT call(TaskCommand<DATA,RESULT> taskCommand){
 		ImportContext importContext = taskCommand.getImportContext();
 		ImportCount importCount = taskCommand.getImportCount();
@@ -184,7 +202,6 @@ public class TaskCall implements Runnable {
 		}
 		catch (Exception e){
 			errorWrapper.setError(e);
-
 			if(!db2ESImportContext.isContinueOnError()) {
 				if (isPrintTaskLog()) {
 					long end = System.currentTimeMillis();

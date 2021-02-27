@@ -62,6 +62,11 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 		}
 
 	}
+	public void stop(){
+		if(esTranResultSet != null)
+			esTranResultSet.stop();
+		super.stop();
+	}
 	private static FailedResend failedResend;
 	private static SuccessFilesClean successFilesClean;
 	public void init(){

@@ -40,8 +40,10 @@ public class ES2ESDataTranPlugin  extends ESInputPlugin implements DataTranPlugi
 	}
 	@Override
 	protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch){
-		return new AsynESOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,
+		AsynESOutPutDataTran asynESOutPutDataTran = new AsynESOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,
 				targetImportContext.getTargetElasticsearch(),countDownLatch);
+		asynESOutPutDataTran.init();
+		return asynESOutPutDataTran;
 	}
 	@Override
 	protected void doBatchHandler(TaskContext taskContext){

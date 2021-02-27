@@ -48,7 +48,7 @@ public class IPDBTest {
 				addressUtils.setCachesize(2000);
 				addressUtils.init();
 				addressUtils.setIpUrl("http://ip.taobao.com/service/getIpInfo.php");
-				IpInfo address = addressUtils.getAddressMapResult("240e:380:f13f:5c00:789b:f01a:a157:1757");
+				IpInfo address = addressUtils.getAddressMapResult("223.104.130.11");
 				System.out.println(address);
 
 				address = addressUtils.getAddressMapResult("185.180.222.151");

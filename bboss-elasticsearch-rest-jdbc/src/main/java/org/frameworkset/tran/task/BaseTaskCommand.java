@@ -18,6 +18,7 @@ package org.frameworkset.tran.task;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
@@ -32,6 +33,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	protected ImportContext importContext;
 	protected ImportContext targetImportContext;
 	protected TaskMetrics taskMetrics;
+	protected TaskContext taskContext;
 	protected Object lastValue;
 	protected long dataSize;
 	public long getDataSize(){
@@ -50,7 +52,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	public ImportContext getImportContext() {
 		return importContext;
 	}
-	protected void finishTask(){
+	public void finishTask(){
 		importContext.flushLastValue(lastValue);
 	}
 
