@@ -15,7 +15,6 @@ package org.frameworkset.tran.kafka.output;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCommand;
 
@@ -28,5 +27,5 @@ import org.frameworkset.tran.task.TaskCommand;
  * @version 1.0
  */
 public interface KafkaSend {
-	void send(  TaskCommand taskCommand,TaskContext taskContext, Object key, Object data,   ExportResultHandler exportResultHandler);
+	void send(  TaskCommand taskCommand,TaskContext taskContext, Object key, Object data);
 }

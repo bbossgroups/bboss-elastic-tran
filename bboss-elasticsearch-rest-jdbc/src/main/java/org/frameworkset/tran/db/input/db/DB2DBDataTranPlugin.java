@@ -52,7 +52,7 @@ public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 		TranUtil.initTargetSQLInfo(db2DBContext,db2DBContext.getTargetDBConfig());
 	}
 
-	public BaseDataTran createBaseDataTran(TaskContext taskContext,TranResultSet tranResultSet, ImportContext importContext, ImportContext targetImportContext){
+	public BaseDataTran createBaseDataTran(TaskContext taskContext,TranResultSet tranResultSet){
 		DBOutPutDataTran db2DBDataTran = new DBOutPutDataTran(   taskContext ,tranResultSet,importContext,targetImportContext);
 		db2DBDataTran.init();
 		return db2DBDataTran;

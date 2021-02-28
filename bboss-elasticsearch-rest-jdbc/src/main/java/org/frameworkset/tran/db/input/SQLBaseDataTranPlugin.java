@@ -194,7 +194,7 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 			}
 		}
 	}
-	public abstract BaseDataTran createBaseDataTran(TaskContext taskContext,TranResultSet tranResultSet, ImportContext importContext, ImportContext targetImportContext);
+	public abstract BaseDataTran createBaseDataTran(TaskContext taskContext,TranResultSet tranResultSet);
 	@Override
 	public void doImportData( TaskContext taskContext)  throws ESDataImportException {
 		ResultSetHandler resultSetHandler = new DefaultResultSetHandler( taskContext,importContext,targetImportContext,this);

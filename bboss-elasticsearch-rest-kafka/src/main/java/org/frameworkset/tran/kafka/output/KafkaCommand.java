@@ -50,7 +50,7 @@ public class KafkaCommand  extends BaseTaskCommand {
 
 	@Override
 	public Object execute() {
-		 ((KafkaOutputContext)targetImportContext).getKafkaSend().send(this,taskContext,key,datas,importContext.getExportResultHandler());
+		 ((KafkaOutputContext)targetImportContext).getKafkaSend().send(this,taskContext,key,datas);
 		 return null;
 	}
 

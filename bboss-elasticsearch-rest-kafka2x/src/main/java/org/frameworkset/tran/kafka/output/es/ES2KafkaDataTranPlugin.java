@@ -15,25 +15,20 @@ package org.frameworkset.tran.kafka.output.es;
  * limitations under the License.
  */
 
-import org.apache.kafka.clients.producer.Callback;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.frameworkset.plugin.kafka.KafkaProductor;
-import org.frameworkset.tran.*;
+import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.input.ESInputPlugin;
 import org.frameworkset.tran.kafka.output.KafkaOutputContext;
 import org.frameworkset.tran.kafka.output.KafkaOutputDataTran;
 import org.frameworkset.tran.kafka.output.KafkaSend;
-import org.frameworkset.tran.kafka.output.KafkaSendException;
-import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.kafka.output.KafkaSendImpl;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCommand;
 
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * <p>Description: </p>
@@ -78,7 +73,7 @@ public class ES2KafkaDataTranPlugin extends ESInputPlugin implements DataTranPlu
 
 
 	@Override
-	public void send(final TaskCommand taskCommand,TaskContext taskContext, Object key, Object data, final ExportResultHandler exportResultHandler) {
+	public void send(final TaskCommand taskCommand,TaskContext taskContext, Object key, Object data) {
 		if(kafkaProductor == null){
 			synchronized (this) {
 				if(kafkaProductor == null) {
@@ -89,60 +84,7 @@ public class ES2KafkaDataTranPlugin extends ESInputPlugin implements DataTranPlu
 				}
 			}
 		}
-		Callback callback = new Callback() {
-			@Override
-			public void onCompletion(RecordMetadata metadata, Exception exception) {
-				ImportContext importContext = taskCommand.getImportContext();
-				ImportCount importCount = taskCommand.getImportCount();
-				TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
-				if(exception == null) {
-					taskCommand.finishTask();
-					long[] metrics = importCount.increamentSuccessCount((long)taskCommand.getDataSize());
-					taskMetrics.setTotalSuccessRecords(metrics[0]);
-					taskMetrics.setTotalRecords(metrics[1]);
-					taskMetrics.setSuccessRecords((long)taskCommand.getDataSize());
-					taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
-					taskMetrics.setTaskEndTime(new Date());
-					if (importContext.getExportResultHandler() != null) {//处理返回值
-						try {
-							importContext.getExportResultHandler().handleResult(taskCommand, metadata);
-						}
-						catch (Exception e){
-							logger.warn("",e);
-						}
-					}
-//					exportResultHandler.success(taskCommand, metadata);
-				}
-				else{
-//					exportResultHandler.exception(taskCommand,new KafkaSendException(metadata,exception));
-					long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
-					taskMetrics.setFailedRecords(taskCommand.getDataSize());
-					taskMetrics.setTotalRecords(metrics[1]);
-					taskMetrics.setTotalFailedRecords(metrics[0]);
-					taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
-					taskMetrics.setTaskEndTime(new Date());
-					if (importContext.getExportResultHandler() != null) {
-						try {
-							importContext.getExportResultHandler().handleException(taskCommand,new KafkaSendException(metadata,exception));
-						}
-						catch (Exception ee){
-							logger.warn("",ee);
-						}
-					}
-//					throw new ElasticSearchException(e);
-				}
-			}
-		};
+		KafkaSendImpl.send(kafkaProductor,kafkaOutputContext,taskCommand,taskContext,key,data);
 
-		Future<RecordMetadata> future = kafkaProductor.send(kafkaOutputContext.getTopic(),key,data,callback);
-		if(!kafkaOutputContext.kafkaAsynSend()){
-			try {
-				future.get();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				throw new DataImportException(e.getCause() != null?e.getCause():e);
-			}
-		}
 	}
 }

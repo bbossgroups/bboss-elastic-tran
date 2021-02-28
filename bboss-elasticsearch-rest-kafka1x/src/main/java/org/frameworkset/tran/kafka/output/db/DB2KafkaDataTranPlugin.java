@@ -1,4 +1,4 @@
-package org.frameworkset.tran.kafka.output.es;
+package org.frameworkset.tran.kafka.output.db;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -20,7 +20,7 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.es.input.ESInputPlugin;
+import org.frameworkset.tran.db.input.SQLBaseDataTranPlugin;
 import org.frameworkset.tran.kafka.output.KafkaOutputContext;
 import org.frameworkset.tran.kafka.output.KafkaOutputDataTran;
 import org.frameworkset.tran.kafka.output.KafkaSend;
@@ -38,38 +38,28 @@ import java.util.concurrent.CountDownLatch;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ES2KafkaDataTranPlugin extends ESInputPlugin implements DataTranPlugin, KafkaSend {
+public class DB2KafkaDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranPlugin, KafkaSend {
 	private KafkaProductor kafkaProductor;
 	private KafkaOutputContext kafkaOutputContext;
 	protected void init(ImportContext importContext,ImportContext targetImportContext){
 		super.init(importContext,targetImportContext);
 		kafkaOutputContext = (KafkaOutputContext) targetImportContext;
 	}
-	@Override
-	protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch){
-		KafkaOutputDataTran kafkaOutputDataTran = new KafkaOutputDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,countDownLatch);
+
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet){
+		KafkaOutputDataTran kafkaOutputDataTran = new KafkaOutputDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,(CountDownLatch)null);
 		kafkaOutputDataTran.init();
 		return kafkaOutputDataTran;
 	}
-	@Override
-	protected void doBatchHandler(TaskContext taskContext){
 
-	}
 
-	public ES2KafkaDataTranPlugin(ImportContext importContext, ImportContext targetImportContext){
+	public DB2KafkaDataTranPlugin(ImportContext importContext, ImportContext targetImportContext){
 		super(  importContext,  targetImportContext);
 
 
 	}
 
-	@Override
-	public void beforeInit() {
-		super.beforeInit();
-//		this.initDS(importContext.getDbConfig());
-//		initOtherDSes(importContext.getConfigs());
 
-
-	}
 
 
 	@Override

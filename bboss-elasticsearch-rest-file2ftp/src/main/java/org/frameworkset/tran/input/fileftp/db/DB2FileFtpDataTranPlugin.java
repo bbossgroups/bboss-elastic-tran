@@ -45,13 +45,8 @@ public class DB2FileFtpDataTranPlugin extends SQLBaseDataTranPlugin implements D
 
 	}
 
-	@Override
-	public void beforeInit() {
-		super.beforeInit();
 
-	}
-
-	public BaseDataTran createBaseDataTran(TaskContext taskContext,TranResultSet tranResultSet, ImportContext importContext, ImportContext targetImportContext){
+	public BaseDataTran createBaseDataTran(TaskContext taskContext,TranResultSet tranResultSet){
 		FileFtpOutPutDataTran fileFtpOutPutDataTran = new FileFtpOutPutDataTran(taskContext,tranResultSet,importContext,   targetImportContext);
 		fileFtpOutPutDataTran.init();
 		return fileFtpOutPutDataTran;
