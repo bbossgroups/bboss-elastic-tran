@@ -22,7 +22,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-public class FileFtpOutPutDataTran extends BaseDataTran {
+public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	protected FileFtpOupputContext fileFtpOupputContext ;
 //	protected String fileName;
 //	protected String remoteFileName;
@@ -118,58 +118,7 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 		super(taskContext,jdbcResultSet,importContext, targetImportContext);
 		this.countDownLatch = countDownLatch;
 	}
-	private CommonRecord buildRecord(Context context){
-		String[] columns = targetImportContext.getExportColumns();
-		if (columns == null){
-			Object  keys = jdbcResultSet.getKeys();
-			if(keys != null) {
-				if(keys instanceof Set) {
-					Set<String> _keys = (Set<String>) keys;
-					columns = _keys.toArray(new String[_keys.size()]);
-				}
-				else{
-					columns = (String[])keys;
-				}
-			}
-			else{
-				throw new DataImportException("Export Columns is null,Please set Export Columns in importconfig.");
-			}
-		}
-		Object temp = null;
-		CommonRecord dbRecord = new CommonRecord();
 
-		Map<String,Object> addedFields = new HashMap<String,Object>();
-
-		List<FieldMeta> fieldValueMetas = context.getFieldValues();//context优先级高于，全局配置，全局配置高于字段值
-
-		appendFieldValues( dbRecord, columns,    fieldValueMetas,  addedFields);
-		fieldValueMetas = context.getESJDBCFieldValues();
-		appendFieldValues(  dbRecord, columns,   fieldValueMetas,  addedFields);
-		String varName = null;
-		for(int i = 0;i < columns.length; i ++)
-		{
-			varName = columns[i];
-			if(addedFields.get(varName) != null)
-				continue;
-			FieldMeta fieldMeta = context.getMappingName(varName);
-			if(fieldMeta != null) {
-				if(fieldMeta.getIgnore() != null && fieldMeta.getIgnore() == true)
-					continue;
-				varName = fieldMeta.getEsFieldName();
-			}
-			temp = jdbcResultSet.getValue(varName);
-			if(temp == null) {
-				if(logger.isWarnEnabled())
-					logger.warn("未指定绑定变量的值：{}",varName);
-			}
-			dbRecord.addData(varName,temp);
-
-
-		}
-
-
-		return dbRecord;
-	}
 
 	public String serialExecute(){
 		logger.info("serial import data Execute started.");
@@ -608,28 +557,6 @@ public class FileFtpOutPutDataTran extends BaseDataTran {
 		return ret;
 	}
 
-
-	private void appendFieldValues(CommonRecord record,
-								   String[] columns ,
-			List<FieldMeta> fieldValueMetas,
-			Map<String, Object> addedFields) {
-		if(fieldValueMetas ==  null || fieldValueMetas.size() == 0){
-			return;
-		}
-		int i = 0;
-		Param param = null;
-		for(String name:columns){
-			if(addedFields.containsKey(name))
-				continue;
-			for(FieldMeta fieldMeta:fieldValueMetas){
-				if(name.equals(fieldMeta.getEsFieldName())){
-					record.addData(name,fieldMeta.getValue());
-					addedFields.put(name,dummy);
-					break;
-				}
-			}
-		}
-	}
 
 
 
