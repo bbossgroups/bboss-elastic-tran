@@ -42,9 +42,12 @@ public class KafkaOutputDataTran extends BaseDataTran {
 
 	private CommonRecord buildRecord(Context context){
 		String[] columns = targetImportContext.getExportColumns();
+		//如果采用结果集中的字段集，就需要考虑全局添加或者记录级别添加的字段，通过配置设置导出的字段集不需要考虑全局添加或者记录级别添加的字段
+		boolean useResultKeys = false;
 		if (columns == null){
 			Object  keys = jdbcResultSet.getKeys();
 			if(keys != null) {
+				useResultKeys = true;
 				if(keys instanceof Set) {
 					Set<String> _keys = (Set<String>) keys;
 					columns = _keys.toArray(new String[_keys.size()]);
@@ -61,12 +64,14 @@ public class KafkaOutputDataTran extends BaseDataTran {
 		CommonRecord dbRecord = new CommonRecord();
 
 		Map<String,Object> addedFields = new HashMap<String,Object>();
+		//计算记录级别字段配置值
+		List<FieldMeta> fieldValueMetas = context.getFieldValues();//context优先级高于全局配置，全局配置高于数据源级别字段值
 
-		List<FieldMeta> fieldValueMetas = context.getFieldValues();//context优先级高于，全局配置，全局配置高于字段值
-
-		appendFieldValues( dbRecord, columns,    fieldValueMetas,  addedFields);
-		fieldValueMetas = context.getESJDBCFieldValues();
-		appendFieldValues(  dbRecord, columns,   fieldValueMetas,  addedFields);
+		appendFieldValues( dbRecord, columns,    fieldValueMetas,  addedFields, useResultKeys);
+		//计算全局级别字段配置值
+		fieldValueMetas = context.getESJDBCFieldValues();//全局配置
+		appendFieldValues(  dbRecord, columns,   fieldValueMetas,  addedFields,  useResultKeys);
+		//计算数据源级别字段值
 		String varName = null;
 		for(int i = 0;i < columns.length; i ++)
 		{
@@ -205,21 +210,27 @@ public class KafkaOutputDataTran extends BaseDataTran {
 	private void appendFieldValues(CommonRecord record,
 								   String[] columns ,
 								   List<FieldMeta> fieldValueMetas,
-								   Map<String, Object> addedFields) {
+								   Map<String, Object> addedFields,boolean useResultKeys) {
 		if(fieldValueMetas ==  null || fieldValueMetas.size() == 0){
 			return;
 		}
-		int i = 0;
-		Param param = null;
-		for(String name:columns){
-			if(addedFields.containsKey(name))
+
+		for(FieldMeta fieldMeta:fieldValueMetas){
+			String fieldName = fieldMeta.getEsFieldName();
+			if(addedFields.containsKey(fieldName))
 				continue;
-			for(FieldMeta fieldMeta:fieldValueMetas){
-				if(name.equals(fieldMeta.getEsFieldName())){
+			boolean matched = false;
+			for(String name:columns){
+				if(name.equals(fieldName)){
 					record.addData(name,fieldMeta.getValue());
 					addedFields.put(name,dummy);
+					matched = true;
 					break;
 				}
+			}
+			if(useResultKeys && !matched){
+				record.addData(fieldName,fieldMeta.getValue());
+				addedFields.put(fieldName,dummy);
 			}
 		}
 	}
