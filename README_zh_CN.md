@@ -34,7 +34,7 @@ First add the maven dependency of BBoss to your pom.xml:
        <dependency>
             <groupId>com.bbossgroups.plugins</groupId>
             <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-            <version>6.2.5</version>
+            <version>6.2.8</version>
         </dependency>
 ```
 
@@ -52,6 +52,6 @@ First add the maven dependency of BBoss to your pom.xml:
 
 ## License
 
-The BBoss Framework is released under version 6.0.6 of the [Apache License][].
+The BBoss Framework is released under version of 2.0 the [Apache License][].
 
-[Apache License]: http://www.apache.org/licenses/LICENSE-6.0.6.0
+[Apache License]: http://www.apache.org/licenses/LICENSE-2.0
