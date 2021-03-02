@@ -1,0 +1,36 @@
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+           
+        }
+        resources {
+			srcDir 'src/main/resources'
+			srcDir 'src/main/java'  exclude '**/*.java'
+        }
+        
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+           
+        }
+        resources {
+			srcDir 'src/test/resources'
+			srcDir 'src/test/java'  exclude '**/*.java'
+        }
+        
+    }
+    
+}
+
+
+dependencies {
+	compile project(':bboss-elasticsearch-rest-jdbc')
+
+	// https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
+	compile group: 'commons-net', name: 'commons-net', version: '3.7.2',transitive: true
+//	implementation 'com.jcraft:jsch:0.1.55'
+	compile 'com.hierynomus:sshj:0.30.0'
+}
+
