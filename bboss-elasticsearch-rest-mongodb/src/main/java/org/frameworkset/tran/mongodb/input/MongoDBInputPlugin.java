@@ -27,6 +27,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.mongodb.MongoDBContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.util.TimeUtil;
 
 import java.util.Date;
 
@@ -186,8 +187,19 @@ public abstract class MongoDBInputPlugin extends BaseDataTranPlugin implements D
 					lv =  new Date(((Number) this.currentStatus.getLastValue()).longValue());
 				}
 			}
-			query.append(getLastValueVarName(),
-					new BasicDBObject("$gt", lv));
+
+			if(importContext.increamentEndOffset() != null){
+				Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
+				BasicDBObject basicDBObject = new BasicDBObject();
+				basicDBObject.put("$gt", lv);
+				basicDBObject.put("$lte",lastOffsetValue);
+
+				query.append(getLastValueVarName(), basicDBObject);
+			}
+			else{
+				query.append(getLastValueVarName(),
+						new BasicDBObject("$gt", lv));
+			}
 		}
 		if(isPrintTaskLog()){
 			logger.info(new StringBuilder().append("Current values: ").append(query).toString());
