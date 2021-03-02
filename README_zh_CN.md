@@ -4,7 +4,7 @@
 
 使用文档：<https://esdoc.bbossgroups.com/#/db-es-tool>
 
-Bboss is a good elasticsearch Java rest client. It operates and accesses elasticsearch in a way similar to mybatis.
+Bboss is a good elasticsearch Java rest client. It operates and accesses elasticsearch like mybatis to relation database.
 
 <https://esdoc.bbossgroups.com/#/README>
 
@@ -37,12 +37,12 @@ First add the maven dependency of BBoss to your pom.xml:
             <version>6.2.8</version>
         </dependency>
 ```
+and more see:
+
+https://esdoc.bbossgroups.com/#/db-es-tool
 
 
 
-# 数据导入导出
-
-增加定时任务，增量导入导出功能，目前提供了全量导入功能
 
 ## elasticsearch技术交流群:**166471282**
 
