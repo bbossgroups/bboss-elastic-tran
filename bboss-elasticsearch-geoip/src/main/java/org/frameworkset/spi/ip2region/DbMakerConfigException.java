@@ -3,7 +3,7 @@ package org.frameworkset.spi.ip2region;
 /**
  * configuration exception
  * 
- * @author chenxin<chenxin619315@gmail.com>,yinbp<yin-bp@163.com>
+ * @author chenxin<chenxin619315@gmail.com>
 */
 public class DbMakerConfigException extends Exception
 {

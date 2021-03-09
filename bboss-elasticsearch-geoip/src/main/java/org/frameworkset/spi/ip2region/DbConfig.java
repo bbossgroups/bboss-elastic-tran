@@ -3,7 +3,7 @@ package org.frameworkset.spi.ip2region;
 /**
  * database configuration class
  * 
- * @author chenxin<chenxin619315@gmail.com>,yinbp<yin-bp@163.com>
+ * @author chenxin<chenxin619315@gmail.com>
 */
 public class DbConfig 
 {

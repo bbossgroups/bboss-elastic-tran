@@ -28,6 +28,7 @@ public class DbSearcher
      * db file access handler
     */
     private RandomAccessFile raf = null;
+    private boolean enableBtree;
 
     /**
      * header blocks buffer 
@@ -49,6 +50,7 @@ public class DbSearcher
     */
     private byte[] dbBinStr = null;
     private String ip2regionDatabase;
+
     /**
      * construct class
      * 
@@ -56,23 +58,26 @@ public class DbSearcher
      * @param   ip2regionDatabase
      * @throws  FileNotFoundException 
     */
-    public DbSearcher( DbConfig dbConfig, String ip2regionDatabase ) throws FileNotFoundException
+    public DbSearcher( DbConfig dbConfig, String ip2regionDatabase,boolean enableBtree ) throws FileNotFoundException
     {
         this.dbConfig = dbConfig;
         this.ip2regionDatabase = ip2regionDatabase;
-        raf = new RandomAccessFile(ip2regionDatabase, "r");
+        this.enableBtree = enableBtree;
         init();
     }
     private  void init(){
         if ( dbBinStr == null ) {
             synchronized(this) {
                 if ( dbBinStr == null ) {
+                    RandomAccessFile raf = null;
                     try {
                         int blen = IndexBlock.getIndexBlockLength();
                         byte[] dbBinStr = new byte[(int) raf.length()];
+                        raf = new RandomAccessFile(ip2regionDatabase, "r");
                         raf.seek(0L);
                         raf.readFully(dbBinStr, 0, dbBinStr.length);
-
+                        if(enableBtree)
+                            this.raf = raf;
                         //initialize the global vars
                         firstIndexPtr = Util.getIntLong(dbBinStr, 0);
                         lastIndexPtr = Util.getIntLong(dbBinStr, 4);
@@ -82,11 +87,20 @@ public class DbSearcher
                     catch (Exception e){
                         throw new IP2RegionException("Init ip2regionDatabase failed:"+ip2regionDatabase,e);
                     }
+                    finally {
+                        if(!enableBtree && raf != null){
+                            try {
+                                raf.close();
+                            } catch (IOException e) {
+                                logger.error("Close ip2regionDatabase RandomAccessFile failed:"+ip2regionDatabase,e);
+                            }
+                        }
+
+                    }
                 }
             }
         }
     }
-
     /**
      * construct method with self-define std ip2region binary string support
      * Thanks to the issue from Wendal at https://gitee.com/lionsoul/ip2region/issues/IILFL.

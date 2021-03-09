@@ -39,16 +39,18 @@ public class IP2Region {
 	private DbSearcher searcher;
 	private DaemonThread daemonThread ;
 	private String ip2regionDatabase;
-	public  void init(String ip2regionDatabase){
+	private boolean enableBtree;
+	public  void init(String ip2regionDatabase,boolean enableBtree){
 		if(searcher != null){
 			return;
 		}
+		this.enableBtree = enableBtree;
 		synchronized (this) {
 			if(searcher == null) {
 				try {
 					this.ip2regionDatabase = ip2regionDatabase;
 					DbConfig config = new DbConfig();
-					DbSearcher searcher = new DbSearcher(config, ip2regionDatabase);
+					DbSearcher searcher = new DbSearcher(config, ip2regionDatabase,enableBtree);
 					this.searcher = searcher;
 				} catch (Exception e) {
 					if (logger.isErrorEnabled())
@@ -61,7 +63,7 @@ public class IP2Region {
 			daemonThread.addFile(new File(ip2regionDatabase), new ResourceInitial() {
 				@Override
 				public void reinit() {
-					reinit();
+					_reinit();
 				}
 			});
 			daemonThread.start();
@@ -84,22 +86,47 @@ public class IP2Region {
 			searcher = null;
 		}
 	}
-	private synchronized void reinit(){
-		DbSearcher oldSearcher = searcher;
+	private synchronized void _reinit(){
+		final DbSearcher oldSearcher = searcher;
 		try {
 			DbConfig config = new DbConfig();
-			DbSearcher searcher = new DbSearcher(config, ip2regionDatabase);
+			DbSearcher searcher = new DbSearcher(config, ip2regionDatabase,  enableBtree);
 			this.searcher = searcher;
-			if(oldSearcher != null)
-				oldSearcher.close();
+
+			Thread t = new Thread(){
+				@Override
+				public void run() {
+					synchronized (this){
+						try {
+							sleep(60000l);//延迟60秒关闭老对象
+
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					if(oldSearcher != null) {
+						try {
+							logger.info("Delay 60s and close old ip2region searcher database.");
+							oldSearcher.close();
+						}
+						catch (Exception e){
+							if (logger.isErrorEnabled())
+								logger.error("Reinit ip2region searcher database "+ip2regionDatabase + " failed:", e);
+						}
+					}
+
+				}
+			};
+			t.start();
+
 		} catch (Exception e) {
 			if (logger.isErrorEnabled())
-				logger.error(ip2regionDatabase, e);
+				logger.error("Reinit ip2region searcher database "+ip2regionDatabase + " failed:", e);
 		}
 	}
 	public void assertInit(){
 		if(searcher == null)
-			throw new IP2RegionException("searcher not inited.");
+			throw new IP2RegionException("ip2region searcher database "+ip2regionDatabase + " not inited.");
 	}
 
 	public IpInfo getAddressMapResult(String ip){

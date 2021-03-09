@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.maxmind.db.CHMCache;
 import com.maxmind.db.Reader;
 import com.maxmind.db.Record;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,8 +33,11 @@ import java.net.InetAddress;
  * @version 1.0
  */
 public class IPDBTest {
-	@Test
-	public void test() throws IOException {
+	public static void main(String[] args)  throws IOException{
+		test() ;
+	}
+//	@Test
+	public static void test() throws IOException {
 				String fieldName = "a.keyword";
 				System.out.println(fieldName.substring(0,fieldName.lastIndexOf(".keyword")));
 
@@ -44,11 +46,13 @@ public class IPDBTest {
 				GeoIPUtil addressUtils = new GeoIPUtil();
 				addressUtils.setAsnDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
 				addressUtils.setDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
-				addressUtils.setIp2regionDatabase("E:\\workspace\\ip2region-master\\data\\ip2region.db");
+				addressUtils.setIp2regionDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\ip2region.db");
 				addressUtils.setCachesize(2000);
 				addressUtils.init();
 				addressUtils.setIpUrl("http://ip.taobao.com/service/getIpInfo.php");
 				IpInfo address = addressUtils.getAddressMapResult("223.104.130.11");
+				System.out.println(address);
+				address = addressUtils.getAddressMapResult("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");
 				System.out.println(address);
 
 				address = addressUtils.getAddressMapResult("185.180.222.151");

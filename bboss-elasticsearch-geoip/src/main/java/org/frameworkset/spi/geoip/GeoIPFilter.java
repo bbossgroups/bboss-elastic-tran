@@ -120,10 +120,33 @@ public class GeoIPFilter {
     final File database = new File(databasePath);
     try {
       DatabaseReader databaseReader = new DatabaseReader.Builder(database).withCache(new CHMCache(cacheSize)).build();
-      DatabaseReader temp = this.databaseReader;
+      final DatabaseReader temp = this.databaseReader;
       this.databaseReader = databaseReader;
-      temp.close();
+      Thread t = new Thread(){
+        @Override
+        public void run() {
+          synchronized (this){
+            try {
+              sleep(60000l);//延迟60秒关闭老对象
 
+            } catch (InterruptedException e) {
+              e.printStackTrace();
+            }
+            if(temp != null) {
+              try {
+                logger.info("Delay 60s and close old geoip city database.");
+                temp.close();
+              }
+              catch (Exception e){
+                if (logger.isErrorEnabled())
+                  logger.error("Reinit geoip city database "+databasePath + " failed:", e);
+              }
+            }
+          }
+
+        }
+      };
+      t.start();
     } catch (InvalidDatabaseException e) {
       throw new IllegalArgumentException("The database provided is invalid or corrupted.", e);
     } catch (IOException e) {
@@ -135,9 +158,34 @@ public class GeoIPFilter {
     final File asnDatabase = new File(asnDatabasePath);
     try {
       DatabaseReader asnDatabaseReader = new DatabaseReader.Builder(asnDatabase).withCache(new CHMCache(cacheSize)).build();
-      DatabaseReader temp = this.asnDatabaseReader;
+      final DatabaseReader temp = this.asnDatabaseReader;
       this.asnDatabaseReader = asnDatabaseReader;
-      temp.close();
+
+      Thread t = new Thread(){
+        @Override
+        public void run() {
+          synchronized (this){
+            try {
+              sleep(60000l);//延迟60秒关闭老对象
+
+            } catch (InterruptedException e) {
+              e.printStackTrace();
+            }
+            if(temp != null) {
+              try {
+                logger.info("Delay 60s and close old geoip asn database.");
+                temp.close();
+              }
+              catch (Exception e){
+                if (logger.isErrorEnabled())
+                  logger.error("Reinit geoip asn database "+asnDatabasePath + " failed:", e);
+              }
+            }
+          }
+
+        }
+      };
+      t.start();
     } catch (InvalidDatabaseException e) {
       throw new IllegalArgumentException("The database provided is invalid or corrupted.", e);
     } catch (IOException e) {

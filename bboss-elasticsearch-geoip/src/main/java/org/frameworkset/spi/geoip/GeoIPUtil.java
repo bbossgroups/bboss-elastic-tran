@@ -123,7 +123,7 @@ public class GeoIPUtil {
 
 		if(ip2regionDatabase != null && !ip2regionDatabase.equals("")){
 			IP2Region ip2Region = new IP2Region();
-			ip2Region.init(ip2regionDatabase);
+			ip2Region.init(ip2regionDatabase,false);
 			this.ip2Region = ip2Region;
 		}
 	}
