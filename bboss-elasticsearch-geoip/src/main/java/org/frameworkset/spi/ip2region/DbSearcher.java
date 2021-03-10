@@ -71,9 +71,9 @@ public class DbSearcher
                 if ( dbBinStr == null ) {
                     RandomAccessFile raf = null;
                     try {
+                        raf = new RandomAccessFile(ip2regionDatabase, "r");
                         int blen = IndexBlock.getIndexBlockLength();
                         byte[] dbBinStr = new byte[(int) raf.length()];
-                        raf = new RandomAccessFile(ip2regionDatabase, "r");
                         raf.seek(0L);
                         raf.readFully(dbBinStr, 0, dbBinStr.length);
                         if(enableBtree)
