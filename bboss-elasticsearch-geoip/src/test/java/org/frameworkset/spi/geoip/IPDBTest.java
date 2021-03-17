@@ -19,6 +19,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.maxmind.db.CHMCache;
 import com.maxmind.db.Reader;
 import com.maxmind.db.Record;
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.model.CityResponse;
+import com.maxmind.geoip2.record.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,11 +52,21 @@ public class IPDBTest {
 				addressUtils.setIp2regionDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\ip2region.db");
 				addressUtils.setCachesize(2000);
 				addressUtils.init();
-				addressUtils.setIpUrl("http://ip.taobao.com/service/getIpInfo.php");
+//				addressUtils.setIpUrl("http://ip.taobao.com/service/getIpInfo.php");
 				IpInfo address = addressUtils.getAddressMapResult("223.104.130.11");
 				System.out.println(address);
 				address = addressUtils.getAddressMapResult("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");
 				System.out.println(address);
+				DatabaseReader databaseReader = new DatabaseReader.Builder(new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb"))
+																  .withCache(new CHMCache(2000)).build();
+				final InetAddress ipAddress = InetAddress.getByName("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");
+				CityResponse response = databaseReader.city(ipAddress);
+				Country country = response.getCountry();
+				City city = response.getCity();
+				Location location = response.getLocation();
+				Continent continent = response.getContinent();
+				Postal postal = response.getPostal();
+				Subdivision subdivision = response.getMostSpecificSubdivision();
 
 				address = addressUtils.getAddressMapResult("185.180.222.151");
 				System.out.println(address);
