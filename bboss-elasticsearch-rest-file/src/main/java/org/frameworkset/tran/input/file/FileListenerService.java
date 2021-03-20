@@ -33,6 +33,10 @@ public class FileListenerService {
         }
     }
 
+    public FileImportContext getFileImportContext() {
+        return fileImportContext;
+    }
+
     private String getHeadLineReg(String filePath) {
         filePath = FileInodeHandler.change(filePath).toLowerCase();
         List<FileConfig> list = fileImportContext.getFileImportConfig().getFileConfigList();
@@ -82,7 +86,7 @@ public class FileListenerService {
             fileReader = new FileReader(file);
             reader = new BufferedReader(fileReader);
             StringBuilder builder = new StringBuilder();
-            String line;
+            String line = null;
             while ((line = reader.readLine())!=null){
                 builder.append(line);
             }

@@ -1,9 +1,13 @@
 package org.frameworkset.tran.input.file;
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +41,7 @@ public class FileReaderTask {
      * 文件开始行标识正则
      */
     private Pattern pattern;
+    private boolean rootLevel;
     public FileReaderTask(File file,String fileId,String fileHeadLineRegular,FileListenerService fileListenerService) {
         this.file = file;
         this.pointer = 0;
@@ -46,6 +51,7 @@ public class FileReaderTask {
         if(StringUtils.isNotEmpty(this.fileHeadLineRegular)){
             pattern = Pattern.compile(this.fileHeadLineRegular);
         }
+        rootLevel = this.fileListenerService.getFileImportContext().getFileImportConfig().isRootLevel();
     }
     public FileReaderTask(File file,String fileId,String fileHeadLineRegular,long pointer,FileListenerService fileListenerService) {
         this(file,fileId,fileHeadLineRegular,fileListenerService);
@@ -64,7 +70,7 @@ public class FileReaderTask {
                     if(null != pattern){
                         Matcher m=pattern.matcher(line);
                         if(m.find() && builder.length()>0){
-                            System.out.println(file.getAbsoluteFile()+":"+builder.toString());
+                            result(file,pointer,builder.toString());
                             pointer = raf.getFilePointer();
                             fileListenerService.flush();
                             builder = new StringBuilder();
@@ -74,7 +80,7 @@ public class FileReaderTask {
                         }
                         builder.append(line);
                     }else{
-                        System.out.println(file.getAbsoluteFile()+":"+line);
+                        result(file,pointer,line);
                         pointer = raf.getFilePointer();
                         fileListenerService.flush();
                     }
@@ -82,9 +88,40 @@ public class FileReaderTask {
                 raf.close();
             }
         }catch (Exception e){
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
     }
+
+    private void result(File file, long pointer, String line) {
+        Map result = new HashMap();
+        try{
+            //json
+            Map json = SimpleStringUtil.json2Object(line, Map.class);
+            //同级
+            if(rootLevel){
+                result = json;
+            }else{//不同级
+                result.put("json",json);
+            }
+            common(file,pointer,result);
+        }catch (Exception e){
+            // not json
+            common(file,pointer,result);
+            result.put("message",line);
+        }
+        System.out.println(SimpleStringUtil.object2json(result));
+    }
+    //公共数据
+    private void common(File file, long pointer, Map result) {
+        Map common = new HashMap();
+        common.put("hostip","");
+        common.put("hostname","");
+        common.put("path",file.getAbsoluteFile());
+        common.put("timestamp",new Date());
+        common.put("pointer",pointer);
+        result.put("@common",common);
+    }
+
     public String getFileId() {
         return fileId;
     }

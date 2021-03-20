@@ -13,14 +13,22 @@ import java.util.List;
 public class FileImportConfig extends BaseImportConfig {
     //监听间隔
     private Long interval;
+    //自定义的数据是否和采集的数据平级，true则直接在原先的json串中存放数据
+    //false则定义一个json存放数据，若不是json则是message
+    private boolean rootLevel;
     private List<FileConfig> fileConfigList;
 
-    public FileImportConfig(Long interval) {
+    public FileImportConfig(Long interval,boolean rootLevel) {
         this.interval = interval;
+        this.rootLevel = rootLevel;
     }
 
     public FileImportConfig() {
-        this(1000L);
+        this.interval = 1000L;
+    }
+    public FileImportConfig(boolean rootLevel) {
+        this();
+        this.rootLevel = rootLevel;
     }
 
     public List<FileConfig> getFileConfigList() {
@@ -47,5 +55,9 @@ public class FileImportConfig extends BaseImportConfig {
 
     public Long getInterval() {
         return interval;
+    }
+
+    public boolean isRootLevel() {
+        return rootLevel;
     }
 }
