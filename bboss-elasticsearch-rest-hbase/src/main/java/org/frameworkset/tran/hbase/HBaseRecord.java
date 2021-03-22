@@ -78,6 +78,11 @@ public class HBaseRecord implements Record {
 	}
 
 	@Override
+	public long getOffset() {
+		return 0;
+	}
+
+	@Override
 	public Object getKeys() {
 		return null;
 	}
