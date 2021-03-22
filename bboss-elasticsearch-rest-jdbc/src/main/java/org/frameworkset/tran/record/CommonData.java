@@ -1,4 +1,4 @@
-package org.frameworkset.tran.kafka;
+package org.frameworkset.tran.record;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,29 +15,25 @@ package org.frameworkset.tran.kafka;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.AsynBaseTranResultSet;
-import org.frameworkset.tran.Record;
-import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.Data;
+
+import java.util.List;
 
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- * @Date 2019/8/3 12:27
+ * @Date 2019/11/17 22:39
  * @author biaoping.yin
  * @version 1.0
  */
-public class KafkaResultSet extends AsynBaseTranResultSet {
-//	protected KafkaContext kafkaContext;
-	public KafkaResultSet(ImportContext importContext) {
-		super(importContext);
-//		kafkaContext = (KafkaContext)importContext;
-	}
-
-	@Override
-	protected Record buildRecord(Object data) {
-		 return (Record)data;
-	}
-
-
+public class CommonData implements Data {
+		private List datas;
+		public CommonData(List datas){
+			this.datas = datas;
+		}
+		@Override
+		public List getDatas() {
+			return datas;
+		}
 }

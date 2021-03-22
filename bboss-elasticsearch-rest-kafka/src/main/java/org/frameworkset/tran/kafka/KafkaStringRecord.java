@@ -15,7 +15,7 @@ package org.frameworkset.tran.kafka;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.Record;
+import org.frameworkset.tran.record.CommonStringRecord;
 
 /**
  * <p>Description: </p>
@@ -25,36 +25,10 @@ import org.frameworkset.tran.Record;
  * @author biaoping.yin
  * @version 1.0
  */
-public class KafkaStringRecord implements Record {
-	private Object key;
-	private String record;
-	public KafkaStringRecord(Object key,String record){
-		this.record = record;
-		this.key = key;
-	}
-	@Override
-	public Object getValue(String colName) {
+public class KafkaStringRecord extends CommonStringRecord {
 
-
-		return record;
-	}
-	public Object getKeys(){
-		return null;
-	}
-	public Object getData(){
-		return this;
+	public KafkaStringRecord(Object key,String record,long offset){
+		super(key,record,offset);
 	}
 
-	@Override
-	public Object getMetaValue(String metaName) {
-		return null;
-	}
-
-	public Object getKey() {
-		return key;
-	}
-
-	public String getRecord() {
-		return record;
-	}
 }

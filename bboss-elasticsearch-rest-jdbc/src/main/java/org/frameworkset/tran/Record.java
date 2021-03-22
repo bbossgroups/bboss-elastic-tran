@@ -30,4 +30,5 @@ public interface Record {
 	public Object getData();
 
 	public Object getMetaValue(String metaName);
+	public long getOffset();
 }

@@ -44,6 +44,11 @@ import java.util.List;
  * @version 1.0
  */
 public abstract class TranUtil {
+	public static final String lineSeparator;
+	static{
+		lineSeparator = java.security.AccessController.doPrivileged(
+				new sun.security.action.GetPropertyAction("line.separator"));
+	}
 /**
 	public static void initSQLInfo(DBOutPutContext dbContext, ImportContext importContext) throws ESDataImportException {
 		TranSQLInfo sqlInfo = new TranSQLInfo();
@@ -281,4 +286,5 @@ public abstract class TranUtil {
 			throw new ESDataImportException("Illegment colName["+colName+"] date value:"+(String)value);
 		}
 	}
+
 }

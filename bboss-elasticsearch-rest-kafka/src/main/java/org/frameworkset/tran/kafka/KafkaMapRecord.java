@@ -15,7 +15,7 @@ package org.frameworkset.tran.kafka;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.Record;
+import org.frameworkset.tran.record.CommonMapRecord;
 
 import java.util.Map;
 
@@ -27,35 +27,10 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class KafkaMapRecord implements Record {
-	private Object key;
-	private Map<String,Object> record;
-	public KafkaMapRecord(Object key, Map<String,Object> record){
-		this.record = record;
-		this.key = key;
-	}
-	@Override
-	public Object getValue(String colName) {
+public class KafkaMapRecord extends CommonMapRecord {
 
-		return record.get(colName);
-	}
-	public Object getKeys(){
-		return record.keySet();
-	}
-	public Object getData(){
-		return this;
+	public KafkaMapRecord(Object key, Map<String, Object> record,long offset) {
+		super(key, record,offset);
 	}
 
-	@Override
-	public Object getMetaValue(String metaName) {
-		return null;
-	}
-
-	public Object getKey() {
-		return key;
-	}
-
-	public Map<String, Object> getRecord() {
-		return record;
-	}
 }

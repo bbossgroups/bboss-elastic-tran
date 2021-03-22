@@ -29,7 +29,7 @@ dependencies {
 	compile project(':bboss-elasticsearch-rest-jdbc')
 
 	// https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
-	compile group: 'commons-net', name: 'commons-net', version: '3.7.2',transitive: true
+	compile group: 'commons-net', name: 'commons-net', version: '3.8.0',transitive: true
 //	implementation 'com.jcraft:jsch:0.1.55'
 	compile 'com.hierynomus:sshj:0.30.0'
 }

@@ -5,8 +5,10 @@ import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.BaseDataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -22,7 +24,7 @@ import java.util.regex.Pattern;
  * @description
  * @create 2021/3/12
  */
-public class FileBaseDataTranPlugin extends BaseDataTranPlugin {
+public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     protected FileImportContext fileImportContext;
     protected FileListener fileListener;
     protected List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
@@ -33,12 +35,30 @@ public class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         this.fileImportContext = (FileImportContext) importContext;
         this.fileListener = fileListener;
     }
+
+    protected abstract BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet);
     @Override
     public void beforeInit() {
+
+    }
+    protected void initFileListener(TaskContext taskContext){
         if(fileImportContext.getFileImportConfig() != null)
         {
             this.init(fileImportContext.getFileImportConfig());
             fileAlterationMonitor =  new FileAlterationMonitor(fileImportContext.getFileImportConfig().getInterval(), observerList.toArray(new FileAlterationObserver[observerList.size()]));
+            try {
+                fileListener.reload();
+                Iterator<FileAlterationObserver> iterator = fileAlterationMonitor.getObservers().iterator();
+                while (iterator.hasNext()){
+                    iterator.next().checkAndNotify();
+                }
+                fileAlterationMonitor.start();
+                while(true){
+                    Thread.sleep(10000);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
     //初始化监听器
@@ -68,19 +88,7 @@ public class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 
     @Override
     public void afterInit(){
-        try {
-            fileListener.reload();
-            Iterator<FileAlterationObserver> iterator = fileAlterationMonitor.getObservers().iterator();
-            while (iterator.hasNext()){
-                iterator.next().checkAndNotify();
-            }
-            fileAlterationMonitor.start();
-            while(true){
-                Thread.sleep(10000);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
     @Override
     public void initStatusTableId() {
@@ -90,5 +98,10 @@ public class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     @Override
     public void doImportData(TaskContext taskContext) throws ESDataImportException {
 
+        initFileListener(taskContext);
+
+    }
+    public void initSchedule(){
+        logger.info("Ignore initSchedule for plugin {}",this.getClass().getName());
     }
 }

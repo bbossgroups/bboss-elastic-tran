@@ -2,12 +2,19 @@ package org.frameworkset.tran.input.file;
 
 import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.lang.StringUtils;
+import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.Record;
+import org.frameworkset.tran.record.CommonData;
+import org.frameworkset.tran.record.CommonMapRecord;
+import org.frameworkset.tran.util.TranUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +24,7 @@ import java.util.regex.Pattern;
  * @create 2021/3/15
  */
 public class FileReaderTask {
+    private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
     /**
      * 文件
      */
@@ -42,7 +50,9 @@ public class FileReaderTask {
      */
     private Pattern pattern;
     private boolean rootLevel;
-    public FileReaderTask(File file,String fileId,String fileHeadLineRegular,FileListenerService fileListenerService) {
+    private BaseDataTran fileDataTran;
+    private RandomAccessFile raf ;
+    public FileReaderTask(File file, String fileId, String fileHeadLineRegular, FileListenerService fileListenerService, BaseDataTran fileDataTran ) {
         this.file = file;
         this.pointer = 0;
         this.fileId = fileId;
@@ -52,47 +62,68 @@ public class FileReaderTask {
             pattern = Pattern.compile(this.fileHeadLineRegular);
         }
         rootLevel = this.fileListenerService.getFileImportContext().getFileImportConfig().isRootLevel();
+        this.fileDataTran = fileDataTran;
+
     }
-    public FileReaderTask(File file,String fileId,String fileHeadLineRegular,long pointer,FileListenerService fileListenerService) {
-        this(file,fileId,fileHeadLineRegular,fileListenerService);
+    public FileReaderTask(File file,String fileId,String fileHeadLineRegular,long pointer,FileListenerService fileListenerService, BaseDataTran fileDataTran ) {
+        this(file,fileId,fileHeadLineRegular,fileListenerService,fileDataTran);
         this.pointer = pointer;
     }
     public void start() {
         try {
             synchronized (file){
-                RandomAccessFile raf = new RandomAccessFile(file,"r");
-                raf.seek(pointer);
+                if(raf == null) {
+                    RandomAccessFile raf = new RandomAccessFile(file, "r");
+                    raf.seek(pointer);
+                    this.raf = raf;
+                }
                 //缓存
                 StringBuilder builder = new StringBuilder();
                 String line;
+                List<Record> recordList = new ArrayList<>();
                 while((line = raf.readLine())!=null){
                     line = new String(line.getBytes("ISO-8859-1"),"utf-8");
                     if(null != pattern){
                         Matcher m=pattern.matcher(line);
                         if(m.find() && builder.length()>0){
-                            result(file,pointer,builder.toString());
+                            result(file,pointer,builder.toString(), recordList);
                             pointer = raf.getFilePointer();
-                            fileListenerService.flush();
+//                            fileListenerService.flush();
                             builder = new StringBuilder();
                         }
                         if(builder.length() > 0){
-                            builder.append("\r\n");
+                            builder.append(TranUtil.lineSeparator);
                         }
                         builder.append(line);
                     }else{
-                        result(file,pointer,line);
+                        result(file,pointer,line, recordList);
                         pointer = raf.getFilePointer();
-                        fileListenerService.flush();
+//                        fileListenerService.flush();
                     }
                 }
-                raf.close();
+                if(recordList.size() > 0 ){
+                    fileDataTran.appendData(new CommonData(recordList));
+                }
+
             }
         }catch (Exception e){
-            e.printStackTrace();
+            logger.error("",e);
+            throw new DataImportException("",e);
         }
     }
 
-    private void result(File file, long pointer, String line) {
+    public void destroy(){
+        if(raf != null){
+            try {
+                raf.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            raf = null;
+        }
+    }
+
+    private void result(File file, long pointer, String line,List<Record> recordList) {
         Map result = new HashMap();
         try{
             //json
@@ -109,7 +140,8 @@ public class FileReaderTask {
             common(file,pointer,result);
             result.put("message",line);
         }
-        System.out.println(SimpleStringUtil.object2json(result));
+        recordList.add(new CommonMapRecord(result,pointer));
+//        System.out.println(SimpleStringUtil.object2json(result));
     }
     //公共数据
     private void common(File file, long pointer, Map result) {

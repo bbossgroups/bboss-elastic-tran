@@ -81,22 +81,22 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 			for (int i = 0; i < rs.size(); i++) {
 				Object v = rs.get(i);
 				if (v instanceof Map) {
-					results.add(new KafkaMapRecord(key, (Map<String, Object>) v));
+					results.add(new KafkaMapRecord(key, (Map<String, Object>) v,consumerRecord.offset()));
 				} else {
-					results.add(new KafkaStringRecord(key, (String) v));
+					results.add(new KafkaStringRecord(key, (String) v,consumerRecord.offset()));
 				}
 			}
 			//return new KafkaMapRecord((ConsumerRecord<Object, List<Map<String, Object>>>) data);
 		} else if (value instanceof Map) {
-			results.add( new KafkaMapRecord(key, (Map<String, Object>) value));
+			results.add( new KafkaMapRecord(key, (Map<String, Object>) value,consumerRecord.offset()));
 		} else if (value instanceof String) {
-			results.add(new KafkaStringRecord(key, (String) value));
+			results.add(new KafkaStringRecord(key, (String) value,consumerRecord.offset()));
 		}
 		else{
 			if(logger.isWarnEnabled()){
 				logger.warn("unknown value type:{}",value.getClass().getName());
 			}
-			results.add(new KafkaStringRecord(key, String.valueOf( value)));
+			results.add(new KafkaStringRecord(key, String.valueOf( value),consumerRecord.offset()));
 		}
 //		throw new IllegalArgumentException(new StringBuilder().append("unknown consumerRecord").append(consumerRecord.toString()).toString());
 	}

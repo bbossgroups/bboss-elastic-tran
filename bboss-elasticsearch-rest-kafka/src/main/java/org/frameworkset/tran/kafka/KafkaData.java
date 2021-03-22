@@ -15,7 +15,7 @@ package org.frameworkset.tran.kafka;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.Data;
+import org.frameworkset.tran.record.CommonData;
 
 import java.util.List;
 
@@ -27,13 +27,9 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class KafkaData implements Data {
-		private List datas;
-		public KafkaData(List datas){
-			this.datas = datas;
-		}
-		@Override
-		public List getDatas() {
-			return datas;
-		}
+public class KafkaData extends CommonData {
+
+	public KafkaData(List datas) {
+		super(datas);
+	}
 }

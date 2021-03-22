@@ -13,6 +13,7 @@ import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCall;
+import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	protected FileTransfer fileTransfer;
 	protected String path;
 	protected int fileSeq = 1;
-	protected  String lineSeparator = "\r\n";
+
 	protected CountDownLatch countDownLatch;
 	@Override
 	public void logTaskStart(Logger logger) {
@@ -71,8 +72,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	private static SuccessFilesClean successFilesClean;
 	public void init(){
 		super.init();
-		lineSeparator = java.security.AccessController.doPrivileged(
-				new sun.security.action.GetPropertyAction("line.separator"));
+
 		fileFtpOupputContext = (FileFtpOupputContext)targetImportContext;
 
 		fileTransfer = initFileTransfer();
@@ -187,7 +187,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 					CommonRecord record = buildRecord(  context );
 
 					fileFtpOupputContext.generateReocord(context,record, writer);
-					writer.write(lineSeparator);
+					writer.write(TranUtil.lineSeparator);
 //					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));
 //					//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 					totalCount++;
@@ -322,7 +322,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 				CommonRecord record = buildRecord(  context );
 
 				fileFtpOupputContext.generateReocord(context,record, writer);
-				writer.write(lineSeparator);
+				writer.write(TranUtil.lineSeparator);
 				count++;
 				if(count >= batchsize ){
 					String datas = builder.toString();
@@ -455,7 +455,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 				CommonRecord record = buildRecord(  context );
 
 				fileFtpOupputContext.generateReocord(context,record, writer);
-				writer.write(lineSeparator);
+				writer.write(TranUtil.lineSeparator);
 				count++;
 				totalCount ++;
 				if (count >= batchsize) {
