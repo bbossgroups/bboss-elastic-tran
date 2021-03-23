@@ -32,13 +32,23 @@ public class FileListenerService {
         if(!fileConfigMap.containsKey(fileId)){
             FileResultSet kafkaResultSet = new FileResultSet(this.fileImportContext);
 //		final CountDownLatch countDownLatch = new CountDownLatch(1);
-//            final BaseDataTran fileDataTran = ((FileBaseDataTranPlugin)baseDataTranPlugin).createBaseDataTran((TaskContext)null,kafkaResultSet);
+            final BaseDataTran fileDataTran = ((FileBaseDataTranPlugin)baseDataTranPlugin).createBaseDataTran((TaskContext)null,kafkaResultSet);
 
             Thread tranThread = null;
             try {
-                FileReaderTask task = new FileReaderTask(file,fileId,getHeadLineReg(file.getAbsolutePath()),this,null);
-                fileConfigMap.put(fileId,task);
-                task.start();
+                if(fileDataTran != null) {
+                    tranThread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fileDataTran.tran();
+                        }
+                    }, "file-log-tran");
+                    tranThread.setDaemon(true);
+                    tranThread.start();
+                    FileReaderTask task = new FileReaderTask(file,fileId,getHeadLineReg(file.getAbsolutePath()),this,fileDataTran);
+                    fileConfigMap.put(fileId,task);
+                    task.start();
+                }
             } catch (ESDataImportException e) {
                 throw e;
             } catch (Exception e) {

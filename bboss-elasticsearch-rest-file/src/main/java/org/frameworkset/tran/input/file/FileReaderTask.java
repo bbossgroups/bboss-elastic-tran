@@ -107,7 +107,7 @@ public class FileReaderTask {
                     }
                 }
                 if(recordList.size() > 0 ){
-//                    fileDataTran.appendData(new CommonData(recordList));
+                    fileDataTran.appendData(new CommonData(recordList));
                 }
 
             }
@@ -148,7 +148,7 @@ public class FileReaderTask {
             result.put("message",line);
         }
         recordList.add(new CommonMapRecord(result,pointer));
-        System.out.println(SimpleStringUtil.object2json(result));
+//        System.out.println(SimpleStringUtil.object2json(result));
     }
     //公共数据
     private void common(File file, long pointer, Map result) {
