@@ -1,7 +1,10 @@
 package org.frameworkset.tran.input.file;
 
-import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
-import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.frameworkset.tran.file.monitor.FileAlterationListenerAdaptor;
+import org.frameworkset.tran.file.monitor.FileAlterationObserver;
+import org.frameworkset.tran.file.monitor.FileEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -11,6 +14,8 @@ import java.io.File;
  * @create 2021/3/15
  */
 public class FileListener extends FileAlterationListenerAdaptor {
+
+    private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
 
     private FileListenerService fileListenerService;
     // 采用构造函数注入服务
@@ -36,9 +41,16 @@ public class FileListener extends FileAlterationListenerAdaptor {
 
     // 文件创建删除
     @Override
-    public void onFileDelete(File file) {
-        System.out.println(file.getAbsoluteFile()+":onFileDelete");
-        // 删除不处理
+    public void onFileDelete(FileEntry entry) {
+        System.out.println(entry.getFile().getAbsoluteFile()+":onFileDelete");
+        // 文件删除了
+        fileListenerService.doDelete(entry);
+    }
+    //文件移动
+    @Override
+    public void onFileMove(File oldFile, File newFile) {
+        System.out.println(oldFile.getAbsoluteFile()+"->"+newFile.getAbsolutePath()+":onFileMove");
+        fileListenerService.onFileMove(oldFile, newFile);
     }
 
     // 目录创建

@@ -1,4 +1,4 @@
-package org.frameworkset.tran.input.file;
+package org.frameworkset.tran.file.monitor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class FileInodeHandler {
                     fileId = dev+"|"+ino;
                 }
             } catch (IOException e) {
-                System.err.println(e.getMessage());
+                logger.error("inode error",e);
             }
         }
         return fileId;

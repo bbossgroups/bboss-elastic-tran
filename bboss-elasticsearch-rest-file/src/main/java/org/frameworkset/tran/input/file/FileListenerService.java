@@ -4,6 +4,8 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.BaseDataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.file.monitor.FileEntry;
+import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.io.*;
@@ -30,25 +32,13 @@ public class FileListenerService {
         if(!fileConfigMap.containsKey(fileId)){
             FileResultSet kafkaResultSet = new FileResultSet(this.fileImportContext);
 //		final CountDownLatch countDownLatch = new CountDownLatch(1);
-            final BaseDataTran fileDataTran = ((FileBaseDataTranPlugin)baseDataTranPlugin).createBaseDataTran((TaskContext)null,kafkaResultSet);
+//            final BaseDataTran fileDataTran = ((FileBaseDataTranPlugin)baseDataTranPlugin).createBaseDataTran((TaskContext)null,kafkaResultSet);
 
             Thread tranThread = null;
             try {
-                if(fileDataTran != null) {
-                    tranThread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            fileDataTran.tran();
-                        }
-                    }, "file-log-tran");
-                    tranThread.setDaemon(true);
-                    tranThread.start();
-                    FileReaderTask task = new FileReaderTask(file,fileId,getHeadLineReg(file.getAbsolutePath()),this,fileDataTran);
-                    fileConfigMap.put(fileId,task);
-                    task.start();
-                }
-
-
+                FileReaderTask task = new FileReaderTask(file,fileId,getHeadLineReg(file.getAbsolutePath()),this,null);
+                fileConfigMap.put(fileId,task);
+                task.start();
             } catch (ESDataImportException e) {
                 throw e;
             } catch (Exception e) {
@@ -70,7 +60,21 @@ public class FileListenerService {
             task.start();
         }
     }
-
+    //文件删除linux环境 文件删除了确实是文件删除了
+    //window 环境无法判断 直接remove调
+    public void doDelete(FileEntry entry) {
+        fileConfigMap.remove(entry.getFileId());
+    }
+    //文件移动 linux环境才能根据inode判断文件移动了
+    public void onFileMove(File oldFile, File newFile) {
+        String fileId = FileInodeHandler.inode(newFile);
+        //不存在的不处理，会有创建事件去处理了
+        if(fileConfigMap.containsKey(fileId)){
+            FileReaderTask task = fileConfigMap.get(fileId);
+            task.setFile(newFile);
+            task.start();
+        }
+    }
     public FileImportContext getFileImportContext() {
         return fileImportContext;
     }

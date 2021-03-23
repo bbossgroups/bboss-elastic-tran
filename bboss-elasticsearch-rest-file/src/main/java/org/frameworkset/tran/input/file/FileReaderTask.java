@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
+import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.record.CommonData;
 import org.frameworkset.tran.record.CommonMapRecord;
 import org.frameworkset.tran.util.TranUtil;
@@ -52,6 +53,10 @@ public class FileReaderTask {
     private boolean rootLevel;
     private BaseDataTran fileDataTran;
     private RandomAccessFile raf ;
+    //状态 0启用 1失效
+    public static final int STATUS_OK = 0;
+    public static final int STATUS_NO = 1;
+    private int status = STATUS_OK;
     public FileReaderTask(File file, String fileId, String fileHeadLineRegular, FileListenerService fileListenerService, BaseDataTran fileDataTran ) {
         this.file = file;
         this.pointer = 0;
@@ -102,13 +107,15 @@ public class FileReaderTask {
                     }
                 }
                 if(recordList.size() > 0 ){
-                    fileDataTran.appendData(new CommonData(recordList));
+//                    fileDataTran.appendData(new CommonData(recordList));
                 }
 
             }
         }catch (Exception e){
             logger.error("",e);
             throw new DataImportException("",e);
+        }finally {
+            destroy();
         }
     }
 
@@ -141,7 +148,7 @@ public class FileReaderTask {
             result.put("message",line);
         }
         recordList.add(new CommonMapRecord(result,pointer));
-//        System.out.println(SimpleStringUtil.object2json(result));
+        System.out.println(SimpleStringUtil.object2json(result));
     }
     //公共数据
     private void common(File file, long pointer, Map result) {
@@ -151,6 +158,7 @@ public class FileReaderTask {
         common.put("path",file.getAbsoluteFile());
         common.put("timestamp",new Date());
         common.put("pointer",pointer);
+        common.put("fileId",fileId);
         result.put("@common",common);
     }
 
@@ -161,8 +169,17 @@ public class FileReaderTask {
     public void setFile(File file) {
         this.file = file;
     }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
-        return "{\"file\":\""+FileInodeHandler.change(file.getAbsolutePath())+"\",\"fileId\":\""+fileId+"\",\"pointer\":"+pointer+"}";
+        return "{\"file\":\""+ FileInodeHandler.change(file.getAbsolutePath())+"\",\"fileId\":\""+fileId+"\",\"pointer\":"+pointer+"}";
     }
 }

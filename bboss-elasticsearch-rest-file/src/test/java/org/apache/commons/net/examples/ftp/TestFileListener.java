@@ -1,5 +1,7 @@
 package org.apache.commons.net.examples.ftp;
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.BaseDataTranPlugin;
+import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.es.input.ESImportContext;
 import org.frameworkset.tran.input.file.*;
@@ -19,10 +21,10 @@ public class TestFileListener {
     public void start() throws Exception {
         FileImportConfig config = new FileImportConfig();
         //.*.txt.[0-9]+$
-//        config.addConfig("E:\\ELK\\data\\data1",".*.txt","");
-//        config.addConfig("E:\\ELK\\data\\data2",".*.txt","");
-//        config.addConfig("E:\\ELK\\data\\data3",".*.txt","^[0-9]{4}-[0-9]{2}-[0-9]{2}");
-        config.addConfig("D:\\ecslog\\",".*.20201022230056","");
+        config.addConfig("E:\\ELK\\data\\data1",".*.txt","");
+        config.addConfig("E:\\ELK\\data\\data2",".*.txt","");
+        config.addConfig("E:\\ELK\\data\\data3",".*.txt","^[0-9]{4}-[0-9]{2}-[0-9]{2}");
+//        config.addConfig("D:\\ecslog\\",".*.20201022230056","");
         FileImportContext context = new FileImportContext(config);
         FileBaseDataTranPlugin fileBaseDataTranPlugin = new FileBaseDataTranPlugin(context,
                 new ESImportContext(),
