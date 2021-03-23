@@ -79,6 +79,10 @@ public class FileReaderTask {
             synchronized (file){
                 if(raf == null) {
                     RandomAccessFile raf = new RandomAccessFile(file, "r");
+                    //文件重新写了，则需要重新读取
+                    if(this.pointer > raf.length()){
+                        this.pointer = 0;
+                    }
                     raf.seek(pointer);
                     this.raf = raf;
                 }
