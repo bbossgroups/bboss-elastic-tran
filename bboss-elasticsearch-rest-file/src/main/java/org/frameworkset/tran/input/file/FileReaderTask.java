@@ -8,6 +8,7 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.record.CommonData;
 import org.frameworkset.tran.record.CommonMapRecord;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,13 +52,19 @@ public class FileReaderTask {
      */
     private Pattern pattern;
     private boolean rootLevel;
+    private String charsetEncode;
     private BaseDataTran fileDataTran;
     private RandomAccessFile raf ;
     //状态 0启用 1失效
     public static final int STATUS_OK = 0;
     public static final int STATUS_NO = 1;
     private int status = STATUS_OK;
-    public FileReaderTask(File file, String fileId, String fileHeadLineRegular, FileListenerService fileListenerService, BaseDataTran fileDataTran ) {
+    private Status currentStatus;
+    /**
+     * jsondata：标识文本记录是json格式的数据，true 将值解析为json对象，false - 不解析，这样值将作为一个完整的message字段存放到上报数据中
+     */
+    private boolean jsondata ;
+    public FileReaderTask(File file, String fileId, String fileHeadLineRegular, FileListenerService fileListenerService, BaseDataTran fileDataTran,Status currentStatus ) {
         this.file = file;
         this.pointer = 0;
         this.fileId = fileId;
@@ -67,14 +74,17 @@ public class FileReaderTask {
             pattern = Pattern.compile(this.fileHeadLineRegular);
         }
         rootLevel = this.fileListenerService.getFileImportContext().getFileImportConfig().isRootLevel();
+        jsondata = this.fileListenerService.getFileImportContext().getFileImportConfig().isJsondata();
+        charsetEncode = this.fileListenerService.getFileImportContext().getFileImportConfig().getCharsetEncode();
         this.fileDataTran = fileDataTran;
+        this.currentStatus = currentStatus;
 
     }
-    public FileReaderTask(File file,String fileId,String fileHeadLineRegular,long pointer,FileListenerService fileListenerService, BaseDataTran fileDataTran ) {
-        this(file,fileId,fileHeadLineRegular,fileListenerService,fileDataTran);
+    public FileReaderTask(File file,String fileId,String fileHeadLineRegular,long pointer,FileListenerService fileListenerService, BaseDataTran fileDataTran,Status currentStatus ) {
+        this(file,fileId,fileHeadLineRegular,fileListenerService,fileDataTran,currentStatus);
         this.pointer = pointer;
     }
-    public void start() {
+    public void execute() {
         try {
             synchronized (file){
                 if(raf == null) {
@@ -91,12 +101,14 @@ public class FileReaderTask {
                 String line;
                 List<Record> recordList = new ArrayList<>();
                 while((line = raf.readLine())!=null){
-                    line = new String(line.getBytes("ISO-8859-1"),"utf-8");
+                    if(charsetEncode != null)
+                        line = new String(line.getBytes("ISO-8859-1"),charsetEncode);
                     if(null != pattern){
                         Matcher m=pattern.matcher(line);
                         if(m.find() && builder.length()>0){
-                            result(file,pointer,builder.toString(), recordList);
                             pointer = raf.getFilePointer();
+                            result(file,pointer,builder.toString(), recordList);
+//                            pointer = raf.getFilePointer();
 //                            fileListenerService.flush();
                             builder = new StringBuilder();
                         }
@@ -105,8 +117,9 @@ public class FileReaderTask {
                         }
                         builder.append(line);
                     }else{
-                        result(file,pointer,line, recordList);
                         pointer = raf.getFilePointer();
+                        result(file,pointer,line, recordList);
+//                        pointer = raf.getFilePointer();
 //                        fileListenerService.flush();
                     }
                 }
@@ -116,7 +129,7 @@ public class FileReaderTask {
 
             }
         }catch (Exception e){
-            logger.error("",e);
+//            logger.error("",e);
             throw new DataImportException("",e);
         }finally {
             destroy();
@@ -137,20 +150,25 @@ public class FileReaderTask {
     private void result(File file, long pointer, String line,List<Record> recordList) {
         Map result = new HashMap();
         try{
-            //json
-            Map json = SimpleStringUtil.json2Object(line, Map.class);
-            //同级
-            if(rootLevel){
-                result = json;
-            }else{//不同级
-                result.put("json",json);
+            if(jsondata) {
+                //json
+                Map json = SimpleStringUtil.json2Object(line, Map.class);
+                //同级
+                if (rootLevel) {
+                    result = json;
+                } else {//不同级
+                    result.put("json", json);
+                }
             }
-            common(file,pointer,result);
+            else{
+                result.put("message",line);
+            }
+
         }catch (Exception e){
             // not json
-            common(file,pointer,result);
             result.put("message",line);
         }
+        common(file,pointer,result);
         recordList.add(new CommonMapRecord(result,pointer));
 //        System.out.println(SimpleStringUtil.object2json(result));
     }
@@ -172,6 +190,12 @@ public class FileReaderTask {
 
     public void setFile(File file) {
         this.file = file;
+    }
+
+    public void changeFile(File file){
+        this.file = file;
+        if(currentStatus != null)
+            currentStatus.setFilePath(FileInodeHandler.change(file.getAbsolutePath()));
     }
 
     public int getStatus() {

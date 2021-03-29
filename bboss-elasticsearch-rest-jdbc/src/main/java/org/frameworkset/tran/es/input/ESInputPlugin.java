@@ -25,6 +25,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.BaseESExporterScrollHandler;
 import org.frameworkset.tran.es.ES2TranResultSet;
 import org.frameworkset.tran.es.input.db.ESDirectExporterScrollHandler;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Date;
@@ -158,7 +159,7 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 		}
 
 	}
-	protected abstract BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch);
+	protected abstract BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch, Status currentStatus);
 	protected void doBatchHandler(TaskContext taskContext){
 
 	}
@@ -167,7 +168,7 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 
 		AsynBaseTranResultSet jdbcResultSet = new ES2TranResultSet(importContext);
 		final CountDownLatch countDownLatch = new CountDownLatch(1);
-		final BaseDataTran es2DBDataTran = createBaseDataTran(  taskContext,jdbcResultSet,countDownLatch);//new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,countDownLatch);
+		final BaseDataTran es2DBDataTran = createBaseDataTran(  taskContext,jdbcResultSet,countDownLatch,  currentStatus);//new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,countDownLatch);
 		ESExporterScrollHandler<MetaMap> esExporterScrollHandler = new ESExporterScrollHandler<MetaMap>(importContext,
 				targetImportContext,es2DBDataTran);
 		try {

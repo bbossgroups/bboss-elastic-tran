@@ -2,6 +2,7 @@ package org.frameworkset.tran.es.output;
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.concurrent.CountDownLatch;
@@ -10,8 +11,8 @@ public class AsynESOutPutDataTran extends BaseElasticsearchDataTran {
 
 	private CountDownLatch countDownLatch;
 
-	public AsynESOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, String esCluster, CountDownLatch countDownLatch) {
-		super(  taskContext,jdbcResultSet, importContext,   targetImportContext, esCluster);
+	public AsynESOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, String esCluster, CountDownLatch countDownLatch, Status currentStatus) {
+		super(  taskContext,jdbcResultSet, importContext,   targetImportContext, esCluster,  currentStatus);
 		this.countDownLatch = countDownLatch;
 	}
 
@@ -19,14 +20,14 @@ public class AsynESOutPutDataTran extends BaseElasticsearchDataTran {
 
 
 
-	public AsynESOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
-		super(  taskContext,jdbcResultSet,importContext,   targetImportContext);
+	public AsynESOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,Status currentStatus) {
+		super(  taskContext,jdbcResultSet,importContext,   targetImportContext,  currentStatus);
 	}
-	public AsynESOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,String cluster) {
-		super(  taskContext,jdbcResultSet,importContext,   targetImportContext,cluster);
+	public AsynESOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,String cluster,Status currentStatus) {
+		super(  taskContext,jdbcResultSet,importContext,   targetImportContext,cluster,  currentStatus);
 	}
-	public AsynESOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch) {
-		super(  taskContext,jdbcResultSet,importContext,   targetImportContext);
+	public AsynESOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch,Status currentStatus) {
+		super(  taskContext,jdbcResultSet,importContext,   targetImportContext,  currentStatus);
 		this.countDownLatch = countDownLatch;
 	}
 //	public void appendData(ESDatas datas){

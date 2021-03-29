@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,6 +55,14 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		return exportCount;
 	}
 
+	/**
+	 * 识别任务是否已经完成
+	 * @param status
+	 * @return
+	 */
+	public boolean isComplete(Status status){
+		return status.getStatus() == ImportIncreamentConfig.STATUS_COMPLETE;
+	}
 	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext){
 		return new ContextImpl(  taskContext,importContext,targetImportContext, jdbcResultSet, batchContext);
 	}
@@ -97,14 +106,19 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	protected volatile Status firstStatus;
 	protected String updateSQL ;
 	protected String insertSQL;
+	protected String insertHistorySQL;
 	protected String createStatusTableSQL;
+	protected String createHistoryStatusTableSQL;
 	protected String selectSQL;
+	protected String deleteSQL;
+	protected String selectAllSQL;
 	protected String existSQL;
-	protected int lastValueType = 0;
+	protected int lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
 
 	protected Date initLastDate = null;
 	protected String statusDbname;
 	protected String statusTableName;
+	protected String historyStatusTableName;
 	protected String statusStorePath;
 	protected String lastValueClumnName;
 	protected ScheduleService scheduleService;
@@ -389,9 +403,65 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			logger.info("Init LastValue Status: {}",currentStatus.toString());
 	}
 
+	protected  void handleCompletedTasks(List<Status> completed ,boolean needSyn){
+		deleteSQL = new StringBuilder().append("delete from ")
+				.append(statusTableName).append(" where id=?").toString();
+		insertHistorySQL = new StringBuilder().append("insert into ").append(statusTableName)
+				.append(" (id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status) values(?,?,?,?,?,?,?)").toString();
+		try {
+			for (Status status : completed) {
+				SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
+						status.getLastValue(), status.getLastValueType(), status.getFilePath(), status.getFileId(), status.getStatus());
+				SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId());
+			}
+		}
+		catch (Exception e){
+			logger.error("handleCompletedTasks failed:"+SimpleStringUtil.object2json(completed),e);
+		}
 
+
+	}
 	
-
+	protected void loadCurrentStatus(){
+		try {
+			/**
+			 * 初始化数据检索起始状态信息
+			 */
+			currentStatus = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectSQL, importContext.getStatusTableId());
+			if (currentStatus == null) {
+				initLastValueStatus(false);
+			} else {
+				if (importContext.isFromFirst()) {
+					initLastValueStatus(true);
+				}
+				else if(currentStatus.getLastValueType() != this.lastValueType){ //如果当前lastValueType和作业配置的类型不一致，按照配置了类型重置当前类型
+					if(logger.isWarnEnabled()){
+						logger.warn("The config lastValueType is {} but from currentStatus lastValueType is {},and use the config lastValueType to releace currentStatus lastValueType.",lastValueType,currentStatus.getLastValueType());
+					}
+					initLastValueStatus(true);
+				}
+				else {
+					if(currentStatus.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE){
+						Object lastValue = currentStatus.getLastValue();
+						if(lastValue instanceof Long){
+							currentStatus.setLastValue(new Date((Long)lastValue));
+						}
+						else if(lastValue instanceof Integer){
+							currentStatus.setLastValue(new Date(((Integer) lastValue).longValue()));
+						}
+						else{
+							if(logger.isWarnEnabled())
+								logger.warn("initTableAndStatus：增量字段类型为日期类型, But the LastValue from status table is not a long value:{},value type is {}",lastValue,lastValue.getClass().getName());
+							throw new ESDataImportException("InitTableAndStatus：增量字段类型为日期类型, But the LastValue from status table is not a long value:"+lastValue+",value type is "+lastValue.getClass().getName());
+						}
+					}
+					this.firstStatus = (Status) currentStatus.clone();
+				}
+			}
+		} catch (Exception e) {
+			throw new ESDataImportException(e);
+		}
+	}
 
 	protected void initTableAndStatus(){
 		if(this.isIncreamentImport()) {
@@ -415,45 +485,19 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 					throw new ESDataImportException(e1);
 
 				}
-			}
-			try {
-				/**
-				 * 初始化数据检索起始状态信息
-				 */
-				currentStatus = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectSQL, importContext.getStatusTableId());
-				if (currentStatus == null) {
-					initLastValueStatus(false);
-				} else {
-					if (importContext.isFromFirst()) {
-						initLastValueStatus(true);
-					}
-					else if(currentStatus.getLastValueType() != this.lastValueType){ //如果当前lastValueType和作业配置的类型不一致，按照配置了类型重置当前类型
-						if(logger.isWarnEnabled()){
-							logger.warn("The config lastValueType is {} but from currentStatus lastValueType is {},and use the config lastValueType to releace currentStatus lastValueType.",lastValueType,currentStatus.getLastValueType());
-						}
-						initLastValueStatus(true);
-					}
-					else {
-						if(currentStatus.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE){
-							Object lastValue = currentStatus.getLastValue();
-							if(lastValue instanceof Long){
-								currentStatus.setLastValue(new Date((Long)lastValue));
-							}
-							else if(lastValue instanceof Integer){
-								currentStatus.setLastValue(new Date(((Integer) lastValue).longValue()));
-							}
-							else{
-								if(logger.isWarnEnabled())
-									logger.warn("initTableAndStatus：增量字段类型为日期类型, But the LastValue from status table is not a long value:{},value type is {}",lastValue,lastValue.getClass().getName());
-								throw new ESDataImportException("InitTableAndStatus：增量字段类型为日期类型, But the LastValue from status table is not a long value:"+lastValue+",value type is "+lastValue.getClass().getName());
-							}
-						}
-						this.firstStatus = (Status) currentStatus.clone();
-					}
+				try {
+					SQLExecutor.updateWithDBName(statusDbname, createHistoryStatusTableSQL);
+					if(logger.isInfoEnabled())
+						logger.info("table " + historyStatusTableName + " create success：" + createHistoryStatusTableSQL + ".");
+
+				} catch (Exception e1) {
+					if(logger.isInfoEnabled())
+						logger.info("table " + historyStatusTableName + " create success：" + createHistoryStatusTableSQL + ".", e1);
+					throw new ESDataImportException(e1);
+
 				}
-			} catch (Exception e) {
-				throw new ESDataImportException(e);
 			}
+			this.loadCurrentStatus();
 		}
 		else{
 
@@ -483,6 +527,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			} else {
 				statusStorePath = importContext.getLastValueStorePath();
 			}
+			historyStatusTableName = statusTableName + "_his";
 		}
 
 
@@ -504,7 +549,24 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				String dbJNDIName ="_status_datasource_jndi";
 				try {
 					createStatusTableSQL = new StringBuilder().append("create table " ).append( statusTableName)
-							.append( " (ID number(10),lasttime number(10),lastvalue number(10),lastvaluetype number(1),PRIMARY KEY (ID))").toString();
+							.append( " (ID number(10),")  //记录标识
+							.append( "lasttime number(10),") //最后更新时间
+							.append( "lastvalue number(10),")  //增量字段值，值可能是日期类型，也可能是数字类型
+							.append( "lastvaluetype number(1),") //值类型 0-数字 1-日期
+							.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+							.append( "filePath varchar(500) ,")  //日志文件路径
+							.append( "fileId varchar(500) ,")  //日志文件indoe标识
+							.append( "PRIMARY KEY (ID))").toString();
+					createHistoryStatusTableSQL = new StringBuilder().append("create table " ).append( historyStatusTableName)
+							.append( " (ID varchar(100),")  //记录标识
+							.append( "lasttime number(10),") //最后更新时间
+							.append( "lastvalue number(10),")  //增量字段值，值可能是日期类型，也可能是数字类型
+							.append( "lastvaluetype number(1),") //值类型 0-数字 1-日期
+							.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+							.append( "filePath varchar(500) ,")  //日志文件路径
+							.append( "fileId varchar(500) ,")  //日志文件indoe标识
+							.append( "statusId number(10) ,")  //状态表中使用的主键标识
+							.append( "PRIMARY KEY (ID))").toString();
 					File dbpath = new File(statusStorePath);
 					logger.info("initDatasource dbpath:" + dbpath.getCanonicalPath());
 					SQLUtil.startPool(statusDbname,
@@ -560,7 +622,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				if(createStatusTableSQL == null){
 					createStatusTableSQL = statusDBConfig.getCreateStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
 				}
+				createHistoryStatusTableSQL = statusDBConfig.getCreateHistoryStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
 				createStatusTableSQL = createStatusTableSQL.replace("$statusTableName",statusTableName);
+				createHistoryStatusTableSQL = createHistoryStatusTableSQL.replace("$historyStatusTableName",historyStatusTableName);
 			}
 			if (importContext.getLastValueType() != null) {
 				this.lastValueType = importContext.getLastValueType();
@@ -581,12 +645,20 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 
 			existSQL = new StringBuilder().append("select 1 from ").append(statusTableName).toString();
-			selectSQL = new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype from ")
+			selectSQL = new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status from ")
 					.append(statusTableName).append(" where id=?").toString();
+
+
+			selectAllSQL =  new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status from ")
+					.append(statusTableName).toString();
 			updateSQL = new StringBuilder().append("update ").append(statusTableName)
-					.append(" set lasttime = ?,lastvalue = ? ,lastvaluetype= ? where id=?").toString();
+					.append(" set lasttime = ?,lastvalue = ? ,lastvaluetype= ? , filePath = ?,fileId = ? ,status = ? where id=?").toString();
 			insertSQL = new StringBuilder().append("insert into ").append(statusTableName)
-					.append(" (id,lasttime,lastvalue,lastvaluetype) values(?,?,?,?)").toString();
+					.append(" (id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status) values(?,?,?,?,?,?,?)").toString();
+			deleteSQL = new StringBuilder().append("delete from ")
+					.append(statusTableName).append(" where id=?").toString();
+			insertHistorySQL = new StringBuilder().append("insert into ").append(statusTableName)
+					.append(" (id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status) values(?,?,?,?,?,?,?)").toString();
 		}
 	}
 
@@ -600,16 +672,16 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		return this.currentStatus;
 	}
 
-	public void flushLastValue(Object lastValue) {
+	public void flushLastValue(Object lastValue,Status currentStatus) {
 		if(lastValue != null) {
 			synchronized (currentStatus) {
 				Object oldLastValue = currentStatus.getLastValue();
 				if (!importContext.needUpdate(oldLastValue, lastValue))
 					return;
 				long time = System.currentTimeMillis();
-				this.currentStatus.setTime(time);
+				currentStatus.setTime(time);
 
-				this.currentStatus.setLastValue(lastValue);
+				currentStatus.setLastValue(lastValue);
 
 				if (this.isIncreamentImport()) {
 //					Status temp = new Status();
@@ -635,7 +707,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		}
 
 	}
-	public void addStatus(Status currentStatus) throws Exception {
+	public void addStatus(Status currentStatus) throws ESDataImportException {
 //		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
 		Object lastValue = currentStatus.getLastValue();
 		if(logger.isInfoEnabled()){
@@ -657,7 +729,11 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 					lastValue.getClass().getName(),lastValue);
 		}
 
-		SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),lastValue,lastValueType);
+		try {
+			SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),lastValue,lastValueType,currentStatus.getFilePath(),currentStatus.getFileId(),currentStatus.getStatus());
+		} catch (SQLException throwables) {
+			throw new ESDataImportException("Add Status failed:"+currentStatus.toString(),throwables);
+		}
 	}
 	public void updateStatus(Status currentStatus) throws Exception {
 		Object lastValue = currentStatus.getLastValue();
@@ -679,7 +755,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 					lastValue.getClass().getName(),lastValue);
 		}
 //		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
-		SQLExecutor.updateWithDBName(statusDbname,updateSQL, currentStatus.getTime(), lastValue, lastValueType,currentStatus.getId());
+		SQLExecutor.updateWithDBName(statusDbname,updateSQL, currentStatus.getTime(), lastValue,
+									lastValueType,currentStatus.getFilePath(),currentStatus.getFileId(),
+									currentStatus.getStatus(),currentStatus.getId());
 	}
 
 

@@ -52,7 +52,7 @@ public class DefaultResultSetHandler extends ResultSetHandler {
 		jdbcResultSet.setMetaData(statementInfo.getMeta());
 		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
 //		BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(jdbcResultSet,importContext,targetImportContext);
-		BaseDataTran baseDataTran = sqlBaseDataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet);
+		BaseDataTran baseDataTran = sqlBaseDataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet,sqlBaseDataTranPlugin.getCurrentStatus());
 		baseDataTran.tran(  );
 	}
 }

@@ -15,7 +15,7 @@ import java.io.File;
  */
 public class FileListener extends FileAlterationListenerAdaptor {
 
-    private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
+    private static Logger logger = LoggerFactory.getLogger(FileListener.class);
 
     private FileListenerService fileListenerService;
     // 采用构造函数注入服务
@@ -26,7 +26,8 @@ public class FileListener extends FileAlterationListenerAdaptor {
     // 文件创建执行
     @Override
     public void onFileCreate(File file) {
-        System.out.println(file.getAbsoluteFile()+":onFileCreate");
+        if(logger.isInfoEnabled())
+            logger.info(file.getAbsoluteFile()+":onFileCreate");
         // 触发业务
         fileListenerService.doChange(file);
     }
@@ -34,7 +35,8 @@ public class FileListener extends FileAlterationListenerAdaptor {
     // 文件创建修改
     @Override
     public void onFileChange(File file) {
-        System.out.println(file.getAbsoluteFile()+":onFileChange");
+        if(logger.isInfoEnabled())
+            logger.info(file.getAbsoluteFile()+":onFileChange");
         // 触发业务
         fileListenerService.doChange(file);
     }
@@ -42,14 +44,16 @@ public class FileListener extends FileAlterationListenerAdaptor {
     // 文件创建删除
     @Override
     public void onFileDelete(FileEntry entry) {
-        System.out.println(entry.getFile().getAbsoluteFile()+":onFileDelete");
+        if(logger.isInfoEnabled())
+            logger.info(entry.getFile().getAbsoluteFile()+":onFileDelete");
         // 文件删除了
         fileListenerService.doDelete(entry);
     }
     //文件移动
     @Override
     public void onFileMove(File oldFile, File newFile) {
-        System.out.println(oldFile.getAbsoluteFile()+"->"+newFile.getAbsolutePath()+":onFileMove");
+        if(logger.isInfoEnabled())
+            logger.info(oldFile.getAbsoluteFile()+"->"+newFile.getAbsolutePath()+":onFileMove");
         fileListenerService.onFileMove(oldFile, newFile);
     }
 
@@ -62,13 +66,15 @@ public class FileListener extends FileAlterationListenerAdaptor {
     // 目录修改
     @Override
     public void onDirectoryChange(File directory) {
-        System.out.println(directory.getAbsoluteFile()+":onDirectoryChange");
+        if(logger.isInfoEnabled())
+            logger.info(directory.getAbsoluteFile()+":onDirectoryChange");
     }
 
     // 目录删除
     @Override
     public void onDirectoryDelete(File directory) {
-        System.out.println(directory.getAbsoluteFile()+":onDirectoryDelete");
+        if(logger.isInfoEnabled())
+            logger.info(directory.getAbsoluteFile()+":onDirectoryDelete");
     }
 
 
@@ -84,7 +90,11 @@ public class FileListener extends FileAlterationListenerAdaptor {
 //        System.out.println("onStop");
     }
 
-    public void reload(){
-        fileListenerService.reload();
+//    public void reload(){
+//        fileListenerService.reload();
+//    }
+
+    public FileListenerService getFileListenerService() {
+        return fileListenerService;
     }
 }

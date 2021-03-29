@@ -20,6 +20,7 @@ import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.output.AsynESOutPutDataTran;
 import org.frameworkset.tran.kafka.input.Kafka2InputPlugin;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -42,8 +43,8 @@ public class Kafka2ESInputPlugin extends Kafka2InputPlugin {
 		initOtherDSes(importContext.getConfigs());
 		super.beforeInit();
 	}
-	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet) {
-		AsynESOutPutDataTran asynESOutPutDataTran = new AsynESOutPutDataTran( taskContext,jdbcResultSet,importContext,targetImportContext);
+	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, Status currentStatus) {
+		AsynESOutPutDataTran asynESOutPutDataTran = new AsynESOutPutDataTran( taskContext,jdbcResultSet,importContext,targetImportContext,  currentStatus);
 		asynESOutPutDataTran.init();
 		return asynESOutPutDataTran;
 	}

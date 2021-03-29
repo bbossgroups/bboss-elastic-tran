@@ -25,6 +25,7 @@ import org.frameworkset.tran.kafka.output.KafkaOutputContext;
 import org.frameworkset.tran.kafka.output.KafkaOutputDataTran;
 import org.frameworkset.tran.kafka.output.KafkaSend;
 import org.frameworkset.tran.kafka.output.KafkaSendImpl;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCommand;
 
@@ -46,8 +47,8 @@ public class DB2KafkaDataTranPlugin extends SQLBaseDataTranPlugin implements Dat
 		kafkaOutputContext = (KafkaOutputContext) targetImportContext;
 	}
 
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet){
-		KafkaOutputDataTran kafkaOutputDataTran = new KafkaOutputDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,(CountDownLatch)null);
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, Status currentStatus){
+		KafkaOutputDataTran kafkaOutputDataTran = new KafkaOutputDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,(CountDownLatch)null,  currentStatus);
 		kafkaOutputDataTran.init();
 		return kafkaOutputDataTran;
 	}

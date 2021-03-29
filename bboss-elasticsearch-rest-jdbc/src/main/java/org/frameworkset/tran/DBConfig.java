@@ -37,10 +37,51 @@ public class DBConfig {
 	private int minIdleSize = 10;
 	private int maxSize = 20;
 
-	public static final String mysql_createStatusTableSQL = "CREATE TABLE $statusTableName ( ID bigint(10) NOT NULL, lasttime bigint(10) NOT NULL, lastvalue bigint(10) NOT NULL, lastvaluetype int(1) NOT NULL, PRIMARY KEY(ID)) ENGINE=InnoDB";
-	public static final String oracle_createStatusTableSQL = "CREATE TABLE $statusTableName ( ID NUMBER(10) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL, lastvaluetype NUMBER(1) NOT NULL,constraint $statusTableName_PK primary key(ID))";
-	public static final String dm_createStatusTableSQL = "CREATE TABLE $statusTableName ( ID NUMBER(10) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL, lastvaluetype NUMBER(1) NOT NULL,constraint $statusTableName_PK primary key(ID))";
-	public static final String sqlserver_createStatusTableSQL = "CREATE TABLE $statusTableName (ID bigint NOT NULL,lasttime bigint NOT NULL,lastvalue bigint NOT NULL,lastvaluetype INT NOT NULL,constraint $statusTableName_PK primary key(ID))";
+	public static final String mysql_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName ( ID bigint(10) NOT NULL, lasttime bigint(10) NOT NULL, lastvalue bigint(10) NOT NULL, lastvaluetype int(1) NOT NULL,")
+							.append( "status int(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+							.append( "filePath varchar(500) ,")  //日志文件路径
+							.append( "fileId varchar(500) ,")   //日志文件indoe标识
+							.append( "PRIMARY KEY(ID)) ENGINE=InnoDB").toString();
+	public static final String oracle_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName ( ID NUMBER(10) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL, lastvaluetype NUMBER(1) NOT NULL,")
+							.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+							.append( "filePath varchar(500) ,")  //日志文件路径
+							.append( "fileId varchar(500) ,")   //日志文件indoe标识
+							.append( "constraint $statusTableName_PK primary key(ID))").toString();
+	public static final String dm_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName ( ID NUMBER(10) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL, lastvaluetype NUMBER(1) NOT NULL,")
+							.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+							.append( "filePath varchar(500) ,")  //日志文件路径
+							.append( "fileId varchar(500) ,")   //日志文件indoe标识
+							.append( "constraint $statusTableName_PK primary key(ID))").toString();
+	public static final String sqlserver_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName (ID bigint NOT NULL,lasttime bigint NOT NULL,lastvalue bigint NOT NULL,lastvaluetype INT NOT NULL,")
+							.append( "status INT ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+							.append( "filePath varchar(500) ,")  //日志文件路径
+							.append( "fileId varchar(500) ,")   //日志文件indoe标识
+							.append( "constraint $statusTableName_PK primary key(ID))").toString();
+
+	public static final String mysql_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName ( ID varchar(100) NOT NULL, lasttime bigint(10) NOT NULL, lastvalue bigint(10) NOT NULL, lastvaluetype int(1) NOT NULL,")
+			.append( "status int(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+			.append( "filePath varchar(500) ,")  //日志文件路径
+			.append( "fileId varchar(500) ,")   //日志文件indoe标识
+			.append( "statusId number(10) ,")  //状态表中使用的主键标识
+			.append( "PRIMARY KEY(ID)) ENGINE=InnoDB").toString();
+	public static final String oracle_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName ( ID varchar(100) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL, lastvaluetype NUMBER(1) NOT NULL,")
+			.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+			.append( "filePath varchar(500) ,")  //日志文件路径
+			.append( "fileId varchar(500) ,")   //日志文件indoe标识
+			.append( "statusId number(10) ,")  //状态表中使用的主键标识
+			.append( "constraint $historyStatusTableName_PK primary key(ID))").toString();
+	public static final String dm_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName ( ID varchar(100) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL, lastvaluetype NUMBER(1) NOT NULL,")
+			.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+			.append( "filePath varchar(500) ,")  //日志文件路径
+			.append( "fileId varchar(500) ,")   //日志文件indoe标识
+			.append( "statusId number(10) ,")  //状态表中使用的主键标识
+			.append( "constraint $historyStatusTableName_PK primary key(ID))").toString();
+	public static final String sqlserver_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName (ID varchar(100),lasttime bigint NOT NULL,lastvalue bigint NOT NULL,lastvaluetype INT NOT NULL,")
+			.append( "status INT ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+			.append( "filePath varchar(500) ,")  //日志文件路径
+			.append( "fileId varchar(500) ,")   //日志文件indoe标识
+			.append( "statusId number(10) ,")  //状态表中使用的主键标识
+			.append( "constraint $historyStatusTableName_PK primary key(ID))").toString();
 
 	/**是否启用sql日志，true启用，false 不启用，*/
 	private boolean showSql;
@@ -79,6 +120,22 @@ public class DBConfig {
 		}
 		throw new ESDataImportException("getCreateStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
+	public String getCreateHistoryStatusTableSQL(String dbtype){
+		if(dbtype.equals("mysql")){
+			return mysql_createHistoryStatusTableSQL;
+		}
+		else if(dbtype.equals("oracle")){
+			return oracle_createHistoryStatusTableSQL;
+		}
+		else if(dbtype.equals("dm")){
+			return dm_createHistoryStatusTableSQL;
+		}
+		else if(dbtype.equals("sqlserver")){
+			return sqlserver_createHistoryStatusTableSQL;
+		}
+		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+	}
+
 	public void setDbDriver(String dbDriver) {
 		this.dbDriver = dbDriver;
 	}

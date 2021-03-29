@@ -28,6 +28,9 @@ public class ImportIncreamentConfig {
 //	private String numberLastValueColumn;
 	public static final int NUMBER_TYPE = 0;
 	public static final int TIMESTAMP_TYPE = 1;
+
+	public static final int STATUS_COLLECTING = 0;
+	public static final int STATUS_COMPLETE = 1;
 	/**
 	 * 设置起始值，如果lastValueType为
 	 */

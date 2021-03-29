@@ -23,6 +23,7 @@ public interface TranResultSet {
 
 	public Object getValue( String colName) throws ESDataImportException;
 	public Object getLastValue(String colName) throws ESDataImportException;
+	public Object getLastOffsetValue() throws ESDataImportException;
 
 	public Object getValue( String colName,int sqlType) throws ESDataImportException;
 

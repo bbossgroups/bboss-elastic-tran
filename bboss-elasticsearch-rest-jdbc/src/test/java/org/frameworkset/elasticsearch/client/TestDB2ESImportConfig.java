@@ -10,6 +10,7 @@ import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.db.JDBCResultSet;
 import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
 import org.frameworkset.tran.es.input.ESImportContext;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.junit.Test;
 
@@ -49,7 +50,7 @@ public class TestDB2ESImportConfig {
 				jdbcResultSet.setResultSet(resultSet);
 				jdbcResultSet.setMetaData(statementInfo.getMeta());
 				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(taskContext,jdbcResultSet,importContext,importContext);
+				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(taskContext,jdbcResultSet,importContext,importContext,(Status)null);
 				db2ESDataTran.init();
 				db2ESDataTran.tran("dbdemo","dbdemo");
 			}
@@ -82,7 +83,7 @@ public class TestDB2ESImportConfig {
 				jdbcResultSet.setResultSet(resultSet);
 				jdbcResultSet.setMetaData(statementInfo.getMeta());
 				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(taskContext,jdbcResultSet,importContext,importContext);
+				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(taskContext,jdbcResultSet,importContext,importContext,(Status) null);
 				db2ESDataTran.init();
 				db2ESDataTran.tran("dbclobdemo","dbclobdemo");
 			}

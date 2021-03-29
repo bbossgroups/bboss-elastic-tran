@@ -34,6 +34,10 @@ public abstract class LastValue implements TranResultSet{
 	public Object getLastValue(String colName) throws ESDataImportException{
 		return getLastValue(this,importContext,colName);
 	}
+	public Object getLastOffsetValue() throws ESDataImportException{
+		Record record = (Record) this.getRecord();
+		return record.getOffset();
+	}
 	public Object getLastValue(TranResultSet tranResultSet,ImportContext importContext,String colName) throws ESDataImportException{
 		try {
 			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)

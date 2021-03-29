@@ -23,6 +23,7 @@ import org.frameworkset.tran.Param;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBRecord;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskFailedException;
 
@@ -45,9 +46,10 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 	private DBOutPutContext es2DBContext;
 	private String taskInfo;
 	private boolean needBatch;
-	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext,ImportContext targetImportContext,
-								  List<DBRecord> datas, int taskNo, String jobNo,String taskInfo,boolean needBatch,Object lastValue) {
-		super(importCount,importContext, targetImportContext,datas.size(),  taskNo,  jobNo,lastValue);
+	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
+								  List<DBRecord> datas, int taskNo, String jobNo, String taskInfo,
+								  boolean needBatch, Object lastValue, Status currentStatus) {
+		super(importCount,importContext, targetImportContext,datas.size(),  taskNo,  jobNo,lastValue,  currentStatus);
 		this.needBatch = needBatch;
 		this.importContext = importContext;
 		this.datas = datas;

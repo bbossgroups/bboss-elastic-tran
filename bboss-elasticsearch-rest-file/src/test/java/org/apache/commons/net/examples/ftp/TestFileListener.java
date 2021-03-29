@@ -1,10 +1,9 @@
 package org.apache.commons.net.examples.ftp;
 import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.BaseDataTranPlugin;
-import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.es.input.ESImportContext;
 import org.frameworkset.tran.input.file.*;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,10 +26,12 @@ public class TestFileListener {
 //        config.addConfig("D:\\ecslog\\",".*.20201022230056","");
         FileImportContext context = new FileImportContext(config);
         FileBaseDataTranPlugin fileBaseDataTranPlugin = new FileBaseDataTranPlugin(context,
-                new ESImportContext(),
-                new FileListener(new FileListenerService(context,null))){
+                new ESImportContext()
+                ){
+
+
             @Override
-            protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet) {
+            protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, Status currentStatus) {
                 return null;
             }
         };

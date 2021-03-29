@@ -34,6 +34,9 @@ public class Status implements java.lang.Cloneable{
 	 */
 	private int lastValueType;
 	private Object lastValue;
+	private String filePath = "";
+	private String fileId = "";
+	private int status = ImportIncreamentConfig.STATUS_COLLECTING;
 	public long getTime() {
 		return time;
 	}
@@ -53,7 +56,11 @@ public class Status implements java.lang.Cloneable{
 		StringBuilder ret = new StringBuilder();
 		ret.append("id:").append(id)
 				.append(",time:").append(new Date(time))
-				.append(",lastValue:").append(this.lastValue);
+				.append(",lastValue:").append(this.lastValue)
+				.append(",filePath:").append(filePath)
+				.append(",fileId:").append(fileId)
+				.append(",type:").append(lastValueType)
+				.append(",status:").append(status);
 		return ret.toString();
 	}
 
@@ -75,5 +82,31 @@ public class Status implements java.lang.Cloneable{
 	}
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
+	}
+
+	public String getFilePath() {
+		return filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		if(filePath != null)
+			this.filePath = filePath;
+	}
+
+	public String getFileId() {
+		return fileId;
+	}
+
+	public void setFileId(String fileId) {
+		if(fileId != null)
+			this.fileId = fileId;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
 	}
 }

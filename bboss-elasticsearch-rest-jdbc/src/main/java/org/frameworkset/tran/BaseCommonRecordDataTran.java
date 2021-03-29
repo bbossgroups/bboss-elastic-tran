@@ -2,6 +2,7 @@ package org.frameworkset.tran;
 
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.HashMap;
@@ -11,8 +12,8 @@ import java.util.Set;
 
 public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 
-	public BaseCommonRecordDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
-		super(taskContext, jdbcResultSet, importContext, targetImportContext);
+	public BaseCommonRecordDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, Status currentStatus) {
+		super(taskContext, jdbcResultSet, importContext, targetImportContext,  currentStatus);
 	}
 
 	protected CommonRecord buildRecord(Context context){

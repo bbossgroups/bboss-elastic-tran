@@ -50,7 +50,7 @@ public interface DataTranPlugin {
 
 	public Long getTimeRangeLastValue();
 
-	void flushLastValue(Object lastValue);
+	void flushLastValue(Object lastValue,Status currentStatus);
 
 
 

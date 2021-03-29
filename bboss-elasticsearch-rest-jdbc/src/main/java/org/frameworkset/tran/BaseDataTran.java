@@ -3,6 +3,7 @@ package org.frameworkset.tran;
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,10 @@ public abstract class BaseDataTran implements DataTran{
 	protected TranResultSet jdbcResultSet;
 	protected AsynTranResultSet esTranResultSet;
 	protected TaskContext taskContext;
+	/**
+	 * 当前作业处理的增量状态信息
+	 */
+	protected Status currentStatus;
 	public AsynTranResultSet getAsynTranResultSet(){
 		return esTranResultSet;
 	}
@@ -31,7 +36,11 @@ public abstract class BaseDataTran implements DataTran{
 	}
 
 
-//	private CountDownLatch countDownLatch;
+	public Status getCurrentStatus() {
+		return currentStatus;
+	}
+
+	//	private CountDownLatch countDownLatch;
 	public BreakableScrollHandler getBreakableScrollHandler() {
 		return breakableScrollHandler;
 	}
@@ -41,7 +50,8 @@ public abstract class BaseDataTran implements DataTran{
 	}
 
 	private BreakableScrollHandler breakableScrollHandler;
-	public BaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
+	public BaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,Status currentStatus) {
+		this.currentStatus = currentStatus;
 		this.taskContext = taskContext;
 		this.jdbcResultSet = jdbcResultSet;
 		if(jdbcResultSet instanceof AsynTranResultSet)
@@ -88,13 +98,13 @@ public abstract class BaseDataTran implements DataTran{
 
 
 	}
-	protected void jobComplete(ExecutorService service,Exception exception,Object lastValue ,TranErrorWrapper tranErrorWrapper){
+	protected void jobComplete(ExecutorService service,Exception exception,Object lastValue ,TranErrorWrapper tranErrorWrapper,Status currentStatus){
 		if (importContext.getScheduleService() == null) {//作业定时调度执行的话，需要关闭线程池
 			service.shutdown();
 		}
 		else{
 			if(tranErrorWrapper.assertCondition(exception)){
-				importContext.flushLastValue( lastValue );
+				importContext.flushLastValue( lastValue,  currentStatus );
 			}
 			else{
 				service.shutdown();
@@ -140,7 +150,7 @@ public abstract class BaseDataTran implements DataTran{
 						.append(totalCount.getIgnoreTotalCount()).append(" records,failed total ")
 						.append(totalCount.getFailedCount()).append(" records.").toString());
 			}
-			jobComplete(  service,exception,lastValue ,tranErrorWrapper);
+			jobComplete(  service,exception,lastValue ,tranErrorWrapper,this.currentStatus);
 			totalCount.setJobEndTime(new Date());
 		}
 		else{
@@ -173,7 +183,7 @@ public abstract class BaseDataTran implements DataTran{
 								.append(totalCount.getFailedCount()).append(" records.").toString());
 					}
 
-					jobComplete(  service,null,null,tranErrorWrapper);
+					jobComplete(  service,null,null,tranErrorWrapper,currentStatus);
 					totalCount.setJobEndTime(new Date());
 				}
 			});
@@ -214,11 +224,15 @@ public abstract class BaseDataTran implements DataTran{
 
 	public Object getLastValue() throws ESDataImportException {
 
-
-		if(importContext.getLastValueColumnName() == null){
-			return null;
+		if(!importContext.useFilePointer()) {
+			if (importContext.getLastValueColumnName() == null) {
+				return null;
+			}
+			return jdbcResultSet.getLastValue(importContext.getLastValueColumnName());
 		}
-		return jdbcResultSet.getLastValue(importContext.getLastValueColumnName());
+		else{
+			return jdbcResultSet.getLastOffsetValue();
+		}
 //		try {
 //			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
 //				return jdbcResultSet.getValue(importContext.getLastValueClumnName());

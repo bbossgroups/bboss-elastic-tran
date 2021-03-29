@@ -18,6 +18,7 @@ package org.frameworkset.tran.db.input.es;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.input.SQLBaseDataTranPlugin;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -46,8 +47,8 @@ public class DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranP
 	}
 
 
-	public BaseDataTran createBaseDataTran(TaskContext taskContext,TranResultSet tranResultSet){
-		BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran( taskContext,tranResultSet,importContext,targetImportContext);
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
+		BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran( taskContext,tranResultSet,importContext,targetImportContext,currentStatus);
 		db2ESDataTran.init();
 		return db2ESDataTran;
 	}

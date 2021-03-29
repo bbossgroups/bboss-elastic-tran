@@ -13,9 +13,14 @@ import java.util.List;
 public class FileImportConfig extends BaseImportConfig {
     //监听间隔
     private Long interval;
-    //自定义的数据是否和采集的数据平级，true则直接在原先的json串中存放数据
+    //jsondata = true时，自定义的数据是否和采集的数据平级，true则直接在原先的json串中存放数据
     //false则定义一个json存放数据，若不是json则是message
     private boolean rootLevel;
+    /**
+     * jsondata：标识文本记录是json格式的数据，true 将值解析为json对象，false - 不解析，这样值将作为一个完整的message字段存放到上报数据中
+     */
+    private boolean jsondata ;
+    private String charsetEncode;
     private List<FileConfig> fileConfigList;
 
     public FileImportConfig(Long interval,boolean rootLevel) {
@@ -59,5 +64,21 @@ public class FileImportConfig extends BaseImportConfig {
 
     public boolean isRootLevel() {
         return rootLevel;
+    }
+
+    public boolean isJsondata() {
+        return jsondata;
+    }
+
+    public void setJsondata(boolean jsondata) {
+        this.jsondata = jsondata;
+    }
+
+    public String getCharsetEncode() {
+        return charsetEncode;
+    }
+
+    public void setCharsetEncode(String charsetEncode) {
+        this.charsetEncode = charsetEncode;
     }
 }

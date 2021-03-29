@@ -127,13 +127,12 @@ public interface ImportContext {
 
 	int getQueue();
 
-	Status getCurrentStatus();
 
 	String getRefreshOption();
 
 	BaseImportConfig getImportConfig();
 
-	void flushLastValue(Object lastValue);
+	void flushLastValue(Object lastValue,Status currentStatus);
 	public boolean needUpdate(Object oldValue,Object newValue);
 	void stop();
 
@@ -152,7 +151,7 @@ public interface ImportContext {
 	 * @return
 	 */
 	String getLastValueColumnName();
-
+	boolean useFilePointer();
 	boolean isParallel();
 
 	ScheduleService getScheduleService();

@@ -18,6 +18,7 @@ package org.frameworkset.tran.output.fileftp;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommand;
 import org.frameworkset.tran.task.TaskFailedException;
@@ -39,8 +40,9 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String,String> {
 	private FileTransfer fileTransfer;
 
 	public FileFtpTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
-								  long dataSize, int taskNo, String jobNo, FileTransfer fileTransfer, Object lastValue) {
-		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,lastValue);
+								  long dataSize, int taskNo, String jobNo, FileTransfer fileTransfer,
+								  Object lastValue, Status currentStatus) {
+		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,lastValue,  currentStatus);
 		this.fileTransfer = fileTransfer;
 	}
 

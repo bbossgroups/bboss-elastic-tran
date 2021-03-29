@@ -22,6 +22,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.input.SQLBaseDataTranPlugin;
 import org.frameworkset.tran.output.fileftp.FileFtpOupputContext;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -46,8 +47,8 @@ public class DB2FileFtpDataTranPlugin extends SQLBaseDataTranPlugin implements D
 	}
 
 
-	public BaseDataTran createBaseDataTran(TaskContext taskContext,TranResultSet tranResultSet){
-		FileFtpOutPutDataTran fileFtpOutPutDataTran = new FileFtpOutPutDataTran(taskContext,tranResultSet,importContext,   targetImportContext);
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
+		FileFtpOutPutDataTran fileFtpOutPutDataTran = new FileFtpOutPutDataTran(taskContext,tranResultSet,importContext,   targetImportContext,  currentStatus);
 		fileFtpOutPutDataTran.init();
 		return fileFtpOutPutDataTran;
 	}

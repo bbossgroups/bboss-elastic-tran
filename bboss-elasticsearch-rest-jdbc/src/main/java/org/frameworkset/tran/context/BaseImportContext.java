@@ -47,7 +47,9 @@ public abstract  class BaseImportContext implements ImportContext {
 	public String[] getExportColumns(){
 		return  baseImportConfig.getExportColumns();
 	}
-
+	public boolean useFilePointer(){
+		return false;
+	}
 	//	private JDBCResultSet jdbcResultSet;
 	private DataTranPlugin dataTranPlugin;
 	private boolean currentStoped = false;
@@ -221,13 +223,13 @@ public abstract  class BaseImportContext implements ImportContext {
 
 
 
-	public void flushLastValue(Object lastValue){
+	public void flushLastValue(Object lastValue,Status currentStatus){
 		Long timeLastValue = this.getTimeRangeLastValue();
 		if(timeLastValue != null){
 
 			lastValue = max(lastValue,new Date(timeLastValue));
 		}
-		this.dataTranPlugin.flushLastValue(lastValue);
+		this.dataTranPlugin.flushLastValue(lastValue,currentStatus);
 	}
 	public boolean isLastValueDateType()
 	{
@@ -235,9 +237,6 @@ public abstract  class BaseImportContext implements ImportContext {
 	}
 	public Integer getLastValueType() {
 		return baseImportConfig.getLastValueType();
-	}
-	public Status getCurrentStatus(){
-		return this.dataTranPlugin.getCurrentStatus();
 	}
 
 	@Override

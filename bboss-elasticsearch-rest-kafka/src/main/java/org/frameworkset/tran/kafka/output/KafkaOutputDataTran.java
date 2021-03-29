@@ -33,8 +33,8 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 				.append(kafkaOutputContext.getTopic()).append("] start.").toString();
 	}
 
-	public KafkaOutputDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch) {
-		super(  taskContext,jdbcResultSet,importContext,   targetImportContext);
+	public KafkaOutputDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch,Status currentStatus) {
+		super(  taskContext,jdbcResultSet,importContext,   targetImportContext,  currentStatus);
 		this.countDownLatch = countDownLatch;
 	}
 
@@ -47,7 +47,8 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 		Object lastValue = null;
 		Exception exception = null;
 		long start = System.currentTimeMillis();
-		Status currentStatus = importContext.getCurrentStatus();
+//		Status currentStatus = importContext.getCurrentStatus();
+		Status currentStatus = this.currentStatus;
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
 		ImportCount importCount = new SerialImportCount();
 		long totalCount = 0;
@@ -86,7 +87,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 					BBossStringWriter writer = new BBossStringWriter(builder);
 					kafkaOutputContext.generateReocord(context,record, writer);
 					KafkaCommand kafkaCommand = new KafkaCommand(importCount, importContext,targetImportContext,
-							1, -1, importCount.getJobNo(), lastValue,taskContext);
+							1, -1, importCount.getJobNo(), lastValue,taskContext,  currentStatus);
 					kafkaCommand.setDatas(builder.toString());
 					kafkaCommand.setKey(record.getRecordKey());
 					TaskCall.asynCall(kafkaCommand);

@@ -24,6 +24,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.es.input.ESInputPlugin;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
 
@@ -66,8 +67,8 @@ public class ES2DBDataTranPlugin extends ESInputPlugin implements DataTranPlugin
 		executor = TranUtil.initTargetSQLInfo(dbOutPutContext,dbOutPutContext.getTargetDBConfig() != null?dbOutPutContext.getTargetDBConfig():importContext.getDbConfig());
 
 	}
-	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch){
-		AsynDBOutPutDataTran asynDBOutPutDataTran = new AsynDBOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,countDownLatch);
+	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch, Status currentStatus){
+		AsynDBOutPutDataTran asynDBOutPutDataTran = new AsynDBOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,countDownLatch,  currentStatus);
 		asynDBOutPutDataTran.init();
 		return asynDBOutPutDataTran;
 	}

@@ -31,4 +31,7 @@ public class FileImportContext extends BaseImportContext {
     public void setFileImportConfig(FileImportConfig fileImportConfig) {
         this.fileImportConfig = fileImportConfig;
     }
+    public boolean useFilePointer(){
+        return true;
+    }
 }

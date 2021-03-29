@@ -49,8 +49,8 @@ public class DBOutPutDataTran extends BaseDataTran {
 	}
 
 
-	public DBOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext) {
-		super(   taskContext,jdbcResultSet,importContext, targetImportContext);
+	public DBOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,Status currentStatus) {
+		super(   taskContext,jdbcResultSet,importContext, targetImportContext,  currentStatus);
 	}
 
 
@@ -58,7 +58,8 @@ public class DBOutPutDataTran extends BaseDataTran {
 		Object lastValue = null;
 		Exception exception = null;
 		long start = System.currentTimeMillis();
-		Status currentStatus = importContext.getCurrentStatus();
+//		Status currentStatus = importContext.getCurrentStatus();
+		Status currentStatus = this.currentStatus;
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
 		ImportCount importCount = new SerialImportCount();
 		int taskNo = 0;
@@ -76,7 +77,8 @@ public class DBOutPutDataTran extends BaseDataTran {
 				if(hasNext == null){
 					if(records.size() > 0) {
 						taskNo ++;
-						TaskCommand<List<DBRecord>, String> taskCommand = new Base2DBTaskCommandImpl( importCount, importContext,targetImportContext, records, taskNo, importCount.getJobNo(),taskInfo,true,lastValue);
+						TaskCommand<List<DBRecord>, String> taskCommand = new Base2DBTaskCommandImpl( importCount, importContext,targetImportContext, records,
+								taskNo, importCount.getJobNo(),taskInfo,true,lastValue,   currentStatus);
 						TaskCall.call(taskCommand);
 //						importContext.flushLastValue(lastValue);
 						records.clear();
@@ -129,7 +131,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 			if(records.size() > 0) {
 				taskNo ++;
 				TaskCommand<List<DBRecord>, String> taskCommand = new Base2DBTaskCommandImpl(importCount, importContext, targetImportContext,records,
-						taskNo, importCount.getJobNo(),taskInfo,true,lastValue);
+						taskNo, importCount.getJobNo(),taskInfo,true,lastValue,   currentStatus);
 				TaskCall.call(taskCommand);
 //				importContext.flushLastValue(lastValue);
 			}
@@ -231,7 +233,8 @@ public class DBOutPutDataTran extends BaseDataTran {
 		int taskNo = 0;
 		ImportCount totalCount = new ParallImportCount();
 		Exception exception = null;
-		Status currentStatus = importContext.getCurrentStatus();
+//		Status currentStatus = importContext.getCurrentStatus();
+		Status currentStatus = this.currentStatus;
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
 		Object lastValue = null;
 		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
@@ -251,7 +254,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 						count = 0;
 						taskNo++;
 						Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl( totalCount, importContext, targetImportContext,records,
-								taskNo, totalCount.getJobNo(),taskInfo,false,lastValue);
+								taskNo, totalCount.getJobNo(),taskInfo,false,lastValue,  currentStatus);
 						records = new ArrayList<DBRecord>();
 						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 					}
@@ -283,7 +286,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 					count = 0;
 					taskNo ++;
 					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount,importContext,targetImportContext,records,taskNo,
-							totalCount.getJobNo(),taskInfo,false,lastValue);
+							totalCount.getJobNo(),taskInfo,false,lastValue,  currentStatus);
 					records = new ArrayList<DBRecord>();
 					tasks.add(service.submit(new TaskCall(taskCommand,  tranErrorWrapper)));
 
@@ -301,7 +304,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 //				}
 				taskNo ++;
 				Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount,importContext,targetImportContext,
-						records,taskNo,totalCount.getJobNo(),taskInfo,false,lastValue);
+						records,taskNo,totalCount.getJobNo(),taskInfo,false,lastValue,  currentStatus);
 				tasks.add(service.submit(new TaskCall(taskCommand,tranErrorWrapper)));
 
 				if(isPrintTaskLog())
@@ -337,7 +340,8 @@ public class DBOutPutDataTran extends BaseDataTran {
 		String ret = null;
 		int taskNo = 0;
 		Exception exception = null;
-		Status currentStatus = importContext.getCurrentStatus();
+//		Status currentStatus = importContext.getCurrentStatus();
+		Status currentStatus = this.currentStatus;
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
 		Object lastValue = null;
 		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
@@ -362,7 +366,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 					if(count > 0) {//强制flush数据
 						taskNo++;
 						Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount, importContext, targetImportContext,records,
-								taskNo, importCount.getJobNo(),taskInfo,false,lastValue);
+								taskNo, importCount.getJobNo(),taskInfo,false,lastValue,  currentStatus);
 						int temp = count;
 						count = 0;
 						records = new ArrayList<DBRecord>();
@@ -404,7 +408,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 
 					taskNo ++;
 					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount,importContext,targetImportContext,records,taskNo,
-							importCount.getJobNo(),taskInfo,false,lastValue);
+							importCount.getJobNo(),taskInfo,false,lastValue,  currentStatus);
 					int temp  = count;
 					count = 0;
 					records = new ArrayList<DBRecord>();
@@ -430,7 +434,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 				}
 				taskNo ++;
 				Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount,importContext,targetImportContext,
-						records,taskNo,importCount.getJobNo(),taskInfo,false,lastValue);
+						records,taskNo,importCount.getJobNo(),taskInfo,false,lastValue,  currentStatus);
 				ret = TaskCall.call(taskCommand);
 //				importContext.flushLastValue(lastValue);
 				if(isPrintTaskLog())  {

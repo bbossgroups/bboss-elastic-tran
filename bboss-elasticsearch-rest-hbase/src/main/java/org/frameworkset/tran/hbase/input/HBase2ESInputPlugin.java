@@ -67,7 +67,7 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 //		MongoDB2ESDataTran mongoDB2ESDataTran = new MongoDB2ESDataTran(mongoDB2ESResultSet,importContext);
 //		mongoDB2ESDataTran.tran();
 		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
-		BaseElasticsearchDataTran hBase2ESDataTran = new BaseElasticsearchDataTran(taskContext,hBaseResultSet,importContext,targetImportContext);
+		BaseElasticsearchDataTran hBase2ESDataTran = new BaseElasticsearchDataTran(taskContext,hBaseResultSet,importContext,targetImportContext,this.currentStatus);
 		hBase2ESDataTran.init();
 		hBase2ESDataTran.tran();
 	}
@@ -292,7 +292,8 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 		else{
 			if(hbaseContext.isIncrementByTimeRange()){
 				if(lastValue == null){
-					lastValue = ((Date)importContext.getCurrentStatus().getLastValue()).getTime();
+
+					lastValue = ((Date)this.currentStatus.getLastValue()).getTime();
 				}
 				long temp = System.currentTimeMillis();
 				scan.setTimeRange(lastValue,temp);

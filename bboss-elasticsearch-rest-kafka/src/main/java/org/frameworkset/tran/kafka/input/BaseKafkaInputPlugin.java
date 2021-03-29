@@ -19,6 +19,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.KafkaContext;
 import org.frameworkset.tran.kafka.KafkaResultSet;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -73,12 +74,12 @@ public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements
 
 	protected abstract void initKafkaTranBatchConsumer2ndStore(BaseDataTran kafka2ESDataTran) throws Exception;
 
-	protected abstract BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet);
+	protected abstract BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, Status currentStatus);
 
 	public void doImportData(TaskContext taskContext)  throws ESDataImportException{
 		KafkaResultSet kafkaResultSet = new KafkaResultSet(this.importContext);
 //		final CountDownLatch countDownLatch = new CountDownLatch(1);
-		final BaseDataTran kafka2ESDataTran = createBaseDataTran( taskContext,kafkaResultSet);
+		final BaseDataTran kafka2ESDataTran = createBaseDataTran( taskContext,kafkaResultSet,  currentStatus);
 
 		Thread tranThread = null;
 		try {

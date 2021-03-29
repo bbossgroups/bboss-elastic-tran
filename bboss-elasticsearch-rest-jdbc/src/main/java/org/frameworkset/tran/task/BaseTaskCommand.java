@@ -18,6 +18,7 @@ package org.frameworkset.tran.task;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -36,6 +37,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	protected TaskContext taskContext;
 	protected Object lastValue;
 	protected long dataSize;
+	protected Status currentStatus;
 	public long getDataSize(){
 		return dataSize;
 	}
@@ -53,7 +55,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		return importContext;
 	}
 	public void finishTask(){
-		importContext.flushLastValue(lastValue);
+		importContext.flushLastValue(lastValue,   currentStatus);
 	}
 
 	/**
@@ -66,7 +68,9 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 			return taskMetrics.getTaskEndTime().getTime() - taskMetrics.getTaskStartTime().getTime();
 		return -1;
 	}
-	public BaseTaskCommand(ImportCount importCount, ImportContext importContext,ImportContext targetImportContext,long dataSize,int taskNo,String jobNo,Object lastValue){
+	public BaseTaskCommand(ImportCount importCount,
+						   ImportContext importContext,ImportContext targetImportContext,
+						   long dataSize,int taskNo,String jobNo,Object lastValue,Status currentStatus){
 		this.importCount = importCount;
 		this.importContext =  importContext;
 		this.targetImportContext = targetImportContext;
@@ -75,6 +79,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		taskMetrics.setTaskNo(taskNo);
 		taskMetrics.setJobNo(jobNo);
 		this.lastValue = lastValue;
+		this.currentStatus = currentStatus;
 	}
 	public ImportCount getImportCount(){
 		return this.importCount;

@@ -38,7 +38,7 @@ public class MongoDB2ESInputPlugin extends MongoDBInputPlugin {
 	@Override
 	protected void doTran(DBCursor dbCursor, TaskContext taskContext) {
 		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);
-		BaseElasticsearchDataTran mongoDB2ESDataTran = new BaseElasticsearchDataTran( taskContext,mongoDB2ESResultSet,importContext,targetImportContext);
+		BaseElasticsearchDataTran mongoDB2ESDataTran = new BaseElasticsearchDataTran( taskContext,mongoDB2ESResultSet,importContext,targetImportContext,this.currentStatus);
 		mongoDB2ESDataTran.init();
 		mongoDB2ESDataTran.tran();
 	}
