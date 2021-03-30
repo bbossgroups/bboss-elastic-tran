@@ -180,16 +180,16 @@ public class FileReaderTask {
                 }
             }
             else{
-                result.put("message",line);
+                result.put("@message",line);
             }
 
         }catch (Exception e){
             // not json
-            result.put("message",line);
+            result.put("@message",line);
         }
         Map common = common(file,pointer,result);
         if(enableMeta)
-            result.put("@common",common);
+            result.put("@filemeta",common);
         recordList.add(new FileLogRecord(common,result,pointer));
 //        System.out.println(SimpleStringUtil.object2json(result));
     }
