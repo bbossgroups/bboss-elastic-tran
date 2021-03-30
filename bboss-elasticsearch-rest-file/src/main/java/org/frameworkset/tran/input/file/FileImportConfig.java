@@ -20,7 +20,7 @@ public class FileImportConfig extends BaseImportConfig {
      * jsondata：标识文本记录是json格式的数据，true 将值解析为json对象，false - 不解析，这样值将作为一个完整的message字段存放到上报数据中
      */
     private boolean jsondata ;
-    private String charsetEncode;
+    private String charsetEncode = "UTF-8";
     private List<FileConfig> fileConfigList;
 
     public FileImportConfig(Long interval,boolean rootLevel) {

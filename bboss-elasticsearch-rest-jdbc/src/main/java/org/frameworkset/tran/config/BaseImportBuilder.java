@@ -49,7 +49,10 @@ public abstract class BaseImportBuilder {
 	private String statusDbname;
 	private String statusTableDML;
 	private Integer fetchSize = 5000;
-	private long flushInterval;
+	/**
+	 * 设置强制刷新检测空闲时间间隔，单位：毫秒，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作，默认8秒,为0时关闭本机制
+	 */
+	private long flushInterval = 8000l;
 	private boolean ignoreNullValueField;
 	private String targetElasticsearch = "default";
 	private String sourceElasticsearch = "default";
@@ -1371,6 +1374,11 @@ public abstract class BaseImportBuilder {
 		return flushInterval;
 	}
 
+	/**
+	 * 设置强制刷新检测空闲时间间隔，单位：毫秒，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作，默认8秒,为0时关闭本机制
+	 * @param flushInterval
+	 * @return
+	 */
 	public BaseImportBuilder setFlushInterval(long flushInterval) {
 		this.flushInterval = flushInterval;
 		return this;

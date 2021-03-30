@@ -99,7 +99,9 @@ public class FileReaderTask {
                 //缓存
                 StringBuilder builder = new StringBuilder();
                 String line;
-                List<Record> recordList = new ArrayList<>();
+                List<Record> recordList = new ArrayList<Record>();
+                //批量处理记录数
+                int fetchSize = this.fileListenerService.getFileImportContext().getFetchSize();
                 while((line = raf.readLine())!=null){
                     if(charsetEncode != null)
                         line = new String(line.getBytes("ISO-8859-1"),charsetEncode);
@@ -108,9 +110,13 @@ public class FileReaderTask {
                         if(m.find() && builder.length()>0){
                             pointer = raf.getFilePointer();
                             result(file,pointer,builder.toString(), recordList);
-//                            pointer = raf.getFilePointer();
-//                            fileListenerService.flush();
-                            builder = new StringBuilder();
+                            //分批处理数据
+                            if(fetchSize > 0 && recordList.size() >= fetchSize) {
+                                fileDataTran.appendData(new CommonData(recordList));
+                                recordList = new ArrayList<Record>();
+                            }
+
+                            builder.setLength(0);
                         }
                         if(builder.length() > 0){
                             builder.append(TranUtil.lineSeparator);
@@ -119,9 +125,19 @@ public class FileReaderTask {
                     }else{
                         pointer = raf.getFilePointer();
                         result(file,pointer,line, recordList);
-//                        pointer = raf.getFilePointer();
-//                        fileListenerService.flush();
+                        //分批处理数据
+                        if(fetchSize > 0 && recordList.size() >= fetchSize) {
+                            fileDataTran.appendData(new CommonData(recordList));
+                            recordList = new ArrayList<Record>();
+                        }
+
                     }
+                }
+                if(builder.length() > 0 ){
+                    pointer = raf.getFilePointer();
+                    result(file,pointer,builder.toString(), recordList);
+                    builder.setLength(0);
+                    builder = null;
                 }
                 if(recordList.size() > 0 ){
                     fileDataTran.appendData(new CommonData(recordList));
