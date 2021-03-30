@@ -1,5 +1,6 @@
 package org.frameworkset.tran.input.file;
 
+import com.frameworkset.util.BaseSimpleStringUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.frameworkset.tran.BaseDataTran;
@@ -7,7 +8,6 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.record.CommonData;
-import org.frameworkset.tran.record.CommonMapRecord;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
@@ -187,21 +187,22 @@ public class FileReaderTask {
             // not json
             result.put("message",line);
         }
+        Map common = common(file,pointer,result);
         if(enableMeta)
-            common(file,pointer,result);
-        recordList.add(new CommonMapRecord(result,pointer));
+            result.put("@common",common);
+        recordList.add(new FileLogRecord(common,result,pointer));
 //        System.out.println(SimpleStringUtil.object2json(result));
     }
     //公共数据
-    private void common(File file, long pointer, Map result) {
+    private Map common(File file, long pointer, Map result) {
         Map common = new HashMap();
-        common.put("hostip","");
-        common.put("hostname","");
-        common.put("path",file.getAbsoluteFile());
+        common.put("hostIp", BaseSimpleStringUtil.getIp());
+        common.put("hostName",BaseSimpleStringUtil.getHostName());
+        common.put("filePath",FileInodeHandler.change(file.getAbsolutePath()));
         common.put("timestamp",new Date());
         common.put("pointer",pointer);
         common.put("fileId",fileId);
-        result.put("@common",common);
+        return common;
     }
 
     public String getFileId() {
