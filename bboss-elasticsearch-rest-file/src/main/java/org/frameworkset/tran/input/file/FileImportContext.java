@@ -4,7 +4,7 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
 
 /**
- * @author xutengfei
+ * @author xutengfei,yin-bp@163.com
  * @description
  * @create 2021/3/12
  */

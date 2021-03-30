@@ -28,7 +28,7 @@ import org.frameworkset.tran.schedule.TaskContext;
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2021/3/29 11:25
- * @author biaoping.yin
+ * @author yin-bp@163.com
  * @version 1.0
  */
 public class FileLog2ESDataTranPlugin extends FileBaseDataTranPlugin {
