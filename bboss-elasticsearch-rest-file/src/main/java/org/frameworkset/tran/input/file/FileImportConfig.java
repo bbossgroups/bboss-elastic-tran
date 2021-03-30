@@ -15,11 +15,12 @@ public class FileImportConfig extends BaseImportConfig {
     private Long interval;
     //jsondata = true时，自定义的数据是否和采集的数据平级，true则直接在原先的json串中存放数据
     //false则定义一个json存放数据，若不是json则是message
-    private boolean rootLevel;
+    private boolean rootLevel = true;
     /**
      * jsondata：标识文本记录是json格式的数据，true 将值解析为json对象，false - 不解析，这样值将作为一个完整的message字段存放到上报数据中
      */
     private boolean jsondata ;
+    private boolean enableMeta;
     private String charsetEncode = "UTF-8";
     private List<FileConfig> fileConfigList;
 
@@ -80,5 +81,13 @@ public class FileImportConfig extends BaseImportConfig {
 
     public void setCharsetEncode(String charsetEncode) {
         this.charsetEncode = charsetEncode;
+    }
+
+    public boolean isEnableMeta() {
+        return enableMeta;
+    }
+
+    public void setEnableMeta(boolean enableMeta) {
+        this.enableMeta = enableMeta;
     }
 }

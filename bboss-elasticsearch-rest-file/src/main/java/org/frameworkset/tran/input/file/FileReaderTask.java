@@ -52,6 +52,7 @@ public class FileReaderTask {
      */
     private Pattern pattern;
     private boolean rootLevel;
+    private boolean enableMeta;
     private String charsetEncode;
     private BaseDataTran fileDataTran;
     private RandomAccessFile raf ;
@@ -76,6 +77,7 @@ public class FileReaderTask {
         rootLevel = this.fileListenerService.getFileImportContext().getFileImportConfig().isRootLevel();
         jsondata = this.fileListenerService.getFileImportContext().getFileImportConfig().isJsondata();
         charsetEncode = this.fileListenerService.getFileImportContext().getFileImportConfig().getCharsetEncode();
+        enableMeta = this.fileListenerService.getFileImportContext().getFileImportConfig().isEnableMeta();
         this.fileDataTran = fileDataTran;
         this.currentStatus = currentStatus;
 
@@ -92,6 +94,7 @@ public class FileReaderTask {
                     //文件重新写了，则需要重新读取
                     if(this.pointer > raf.length()){
                         this.pointer = 0;
+                        this.currentStatus.setLastValue(0);
                     }
                     raf.seek(pointer);
                     this.raf = raf;
@@ -184,7 +187,8 @@ public class FileReaderTask {
             // not json
             result.put("message",line);
         }
-        common(file,pointer,result);
+        if(enableMeta)
+            common(file,pointer,result);
         recordList.add(new CommonMapRecord(result,pointer));
 //        System.out.println(SimpleStringUtil.object2json(result));
     }
