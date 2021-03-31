@@ -388,7 +388,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			currentStatus.setLastValue(importContext.getConfigLastValue());
 		}
 		else{
-			currentStatus.setLastValue(0);
+			currentStatus.setLastValue(0l);
 		}
 
 

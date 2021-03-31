@@ -149,7 +149,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                             }
                         }
                         else{
-                            status.setLastValue(0);
+                            status.setLastValue(0l);
                         }
                         FileListenerService fileListenerService = fileListener.getFileListenerService();
                         FileReaderTask task = new FileReaderTask(new File(filePath)

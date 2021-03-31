@@ -36,7 +36,7 @@ public class FileListenerService {
             currentStatus.setFileId(fileId);
             currentStatus.setFilePath(FileInodeHandler.change(file.getAbsolutePath()));
             currentStatus.setStatus(ImportIncreamentConfig.STATUS_COLLECTING);
-            currentStatus.setLastValue(0);
+            currentStatus.setLastValue(0l);
             baseDataTranPlugin.addStatus( currentStatus);
             baseDataTranPlugin.initFileTask(currentStatus,file);
 //            FileResultSet kafkaResultSet = new FileResultSet(this.fileImportContext);

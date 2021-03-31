@@ -94,7 +94,7 @@ public class FileReaderTask {
                     //文件重新写了，则需要重新读取
                     if(this.pointer > raf.length()){
                         this.pointer = 0;
-                        this.currentStatus.setLastValue(0);
+                        this.currentStatus.setLastValue(0l);
                     }
                     raf.seek(pointer);
                     this.raf = raf;
