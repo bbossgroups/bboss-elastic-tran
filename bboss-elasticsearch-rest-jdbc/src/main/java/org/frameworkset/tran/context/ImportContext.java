@@ -68,7 +68,7 @@ public interface ImportContext {
 	public Integer getFetchSize() ;
 	public void setEsIdField(ESField esIdField);
 	public void setEsIdField(String esIdField);
-	void destroy();
+	void destroy(boolean waitTranStop);
 	public ExportCount getExportCount();
 	public Object max(Object oldValue,Object newValue);
 	boolean isContinueOnError();
@@ -132,9 +132,8 @@ public interface ImportContext {
 
 	BaseImportConfig getImportConfig();
 
-	void flushLastValue(Object lastValue,Status currentStatus);
+	void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed);
 	public boolean needUpdate(Object oldValue,Object newValue);
-	void stop();
 
 	void setEsIndexWrapper(ESIndexWrapper esIndexWrapper);
 

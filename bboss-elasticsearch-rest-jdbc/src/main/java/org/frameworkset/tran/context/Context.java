@@ -56,7 +56,7 @@ void refactorData() throws Exception;
 //	public Boolean getEsDocAsUpsert();
 //	public Object getEsDetectNoop();
 //	public Boolean getEsReturnSource();
-List<FieldMeta> getESJDBCFieldValues();
+	List<FieldMeta> getESJDBCFieldValues();
 	Object getValue(int i, String colName, int sqlType) throws Exception;
 	ImportContext getImportContext();
 	String getDBName();
@@ -66,7 +66,7 @@ List<FieldMeta> getESJDBCFieldValues();
 	Object getParentId() throws Exception;
 	Object getRouting() throws Exception;
 //	public Object getEsRetryOnConflict();
-long getLongValue(String fieldName) throws Exception;
+	long getLongValue(String fieldName) throws Exception;
 	String getStringValue(String fieldName, String defaultValue) throws Exception;
 	boolean getBooleanValue(String fieldName) throws Exception;
 	boolean getBooleanValue(String fieldName, boolean defaultValue) throws Exception;
@@ -81,7 +81,7 @@ long getLongValue(String fieldName) throws Exception;
 	Object getEsId() throws Exception;
 	ClientOptions getClientOptions();
 //	ESField getEsIdField();
-boolean isDrop();
+	boolean isDrop();
 
 	/**
 	 * 设置是否过滤掉记录，true过滤，false 不过滤（默认值）
@@ -170,4 +170,12 @@ boolean isDrop();
 	boolean isUseBatchContextIndexName() ;
 
 	void setUseBatchContextIndexName(boolean useBatchContextIndexName) ;
+
+	/**
+	 * 数据预校验，true 继续后续处理，false 忽略当前记录处理
+	 * @return
+	 */
+	boolean removed();
+
+	boolean reachEOFClosed();
 }

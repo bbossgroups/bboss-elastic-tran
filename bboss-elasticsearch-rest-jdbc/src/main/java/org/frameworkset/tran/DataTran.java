@@ -52,5 +52,6 @@ public interface DataTran {
 	String serialExecute(   ) throws ESDataImportException;
 	public BreakableScrollHandler getBreakableScrollHandler();
 	void waitTasksComplete(final List<Future> tasks,
-						   final ExecutorService service, Exception exception, Object lastValue, final ImportCount totalCount , final TranErrorWrapper tranErrorWrapper ,WaitTasksCompleteCallBack waitTasksCompleteCallBack);
+						   final ExecutorService service, Exception exception, Object lastValue, final ImportCount totalCount ,
+						   final TranErrorWrapper tranErrorWrapper ,WaitTasksCompleteCallBack waitTasksCompleteCallBack,boolean reachEOFClosed);
 }

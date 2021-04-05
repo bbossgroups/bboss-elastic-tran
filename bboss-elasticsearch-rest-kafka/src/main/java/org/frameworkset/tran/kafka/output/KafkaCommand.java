@@ -32,8 +32,8 @@ import org.frameworkset.tran.task.BaseTaskCommand;
 public class KafkaCommand  extends BaseTaskCommand {
 
 	public KafkaCommand(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
-						long dataSize, int taskNo, String jobNo, Object lastValue, TaskContext context, Status currentStatus) {
-		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,lastValue,  currentStatus);
+						long dataSize, int taskNo, String jobNo, Object lastValue, TaskContext context, Status currentStatus,boolean reachEOFClosed) {
+		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed);
 		this.taskContext = context;
 	}
 	private Object key;

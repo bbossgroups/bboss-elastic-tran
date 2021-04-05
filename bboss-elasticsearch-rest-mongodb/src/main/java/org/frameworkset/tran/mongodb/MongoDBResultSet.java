@@ -99,9 +99,18 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 	public void stop() {
 
 	}
+	@Override
+	public void stopTranOnly(){}
 
 	@Override
 	public Object getMetaValue(String fieldName) {
 		return null;
+	}
+	@Override
+	public boolean removed() {
+		return false;
+	}
+	public boolean reachEOFClosed(){
+		return false ;
 	}
 }

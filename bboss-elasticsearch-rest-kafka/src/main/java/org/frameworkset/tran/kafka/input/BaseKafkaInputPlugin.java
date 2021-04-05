@@ -80,7 +80,7 @@ public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements
 		KafkaResultSet kafkaResultSet = new KafkaResultSet(this.importContext);
 //		final CountDownLatch countDownLatch = new CountDownLatch(1);
 		final BaseDataTran kafka2ESDataTran = createBaseDataTran( taskContext,kafkaResultSet,  currentStatus);
-
+		this.setHasTran();
 		Thread tranThread = null;
 		try {
 			tranThread = new Thread(new Runnable() {

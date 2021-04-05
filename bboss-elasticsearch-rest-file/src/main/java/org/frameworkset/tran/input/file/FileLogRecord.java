@@ -37,15 +37,33 @@ public class FileLogRecord extends CommonMapRecord {
 	 *         common.put("fileId"
 	 */
 	private Map meta;
-	public FileLogRecord(Map meta,Object key, Map<String,Object> record, long offset){
+	private boolean removed;
+	private boolean reachEOFClosed;
+	public FileLogRecord( Map meta,Object key, Map<String,Object> record, long offset,boolean reachEOFClosed){
 		super(  key,   record,   offset);
 		this.meta = meta;
+		this.reachEOFClosed = reachEOFClosed;
 
 	}
-	public FileLogRecord(Map meta,Map<String,Object> record, long offset){
+	@Override
+	public boolean reachEOFClosed(){
+		return reachEOFClosed;
+	}
+	public FileLogRecord(Map meta,Map<String,Object> record, long offset,boolean reachEOFClosed){
 		super(    record,   offset);
 		this.meta = meta;
+		this.reachEOFClosed = reachEOFClosed;
 	}
+	public FileLogRecord(boolean removed, long offset,boolean reachEOFClosed){
+		super(    (Map<String,Object>)null,   offset);
+		this.removed = removed;
+		this.reachEOFClosed = reachEOFClosed;
+	}
+	@Override
+	public boolean removed() {
+		return removed;
+	}
+
 
 
 	@Override

@@ -40,6 +40,10 @@ public interface TranResultSet {
 	Object getRecord();
 
 	void stop();
+	public void stopTranOnly();
 	public Object getKeys();
 	Object getMetaValue(String fieldName);
+
+	boolean removed();
+	boolean reachEOFClosed();
 }

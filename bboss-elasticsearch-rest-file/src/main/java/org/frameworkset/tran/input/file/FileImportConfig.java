@@ -13,6 +13,7 @@ import java.util.List;
 public class FileImportConfig extends BaseImportConfig {
     //监听间隔
     private Long interval;
+    private Long registLiveTime;
     //jsondata = true时，自定义的数据是否和采集的数据平级，true则直接在原先的json串中存放数据
     //false则定义一个json存放数据，若不是json则是message
     private boolean rootLevel = true;
@@ -40,23 +41,27 @@ public class FileImportConfig extends BaseImportConfig {
     public List<FileConfig> getFileConfigList() {
         return fileConfigList;
     }
-    public void addConfig(FileConfig fileConfig){
+    public FileImportConfig addConfig(FileConfig fileConfig){
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
+        fileConfig.init();
         fileConfigList.add(fileConfig);
+        return this;
     }
-    public void addConfig(String sourcePath,String fileNameRegular,String fileHeadLine){
+    public FileImportConfig addConfig(String sourcePath,String fileNameRegular,String fileHeadLine){
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
-        fileConfigList.add(new FileConfig(sourcePath,fileNameRegular,fileHeadLine));
+        fileConfigList.add(new FileConfig(sourcePath,fileNameRegular,fileHeadLine).init());
+        return this;
     }
-    public void addConfig(String sourcePath,String fileNameRegular,String fileHeadLine,boolean scanChild){
+    public FileImportConfig addConfig(String sourcePath,String fileNameRegular,String fileHeadLine,boolean scanChild){
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
-        fileConfigList.add(new FileConfig(sourcePath,fileNameRegular,fileHeadLine,scanChild));
+        fileConfigList.add(new FileConfig(sourcePath,fileNameRegular,fileHeadLine,scanChild).init());
+        return this;
     }
 
     public Long getInterval() {
@@ -71,23 +76,35 @@ public class FileImportConfig extends BaseImportConfig {
         return jsondata;
     }
 
-    public void setJsondata(boolean jsondata) {
+    public FileImportConfig setJsondata(boolean jsondata) {
         this.jsondata = jsondata;
+        return this;
     }
 
     public String getCharsetEncode() {
         return charsetEncode;
     }
 
-    public void setCharsetEncode(String charsetEncode) {
+    public FileImportConfig setCharsetEncode(String charsetEncode) {
         this.charsetEncode = charsetEncode;
+        return this;
     }
 
     public boolean isEnableMeta() {
         return enableMeta;
     }
 
-    public void setEnableMeta(boolean enableMeta) {
+    public FileImportConfig setEnableMeta(boolean enableMeta) {
         this.enableMeta = enableMeta;
+        return this;
+    }
+
+    public Long getRegistLiveTime() {
+        return registLiveTime;
+    }
+
+    public FileImportConfig setRegistLiveTime(Long registLiveTime) {
+        this.registLiveTime = registLiveTime;
+        return this;
     }
 }

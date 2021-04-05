@@ -39,6 +39,14 @@ public class CommonStringRecord implements Record {
 		this.offset = offset;
 	}
 	@Override
+	public boolean reachEOFClosed(){
+		return false;
+	}
+	@Override
+	public boolean removed() {
+		return false;
+	}
+	@Override
 	public Object getValue(String colName) {
 
 

@@ -77,8 +77,9 @@ public class HBase2ESInputPlugin extends BaseDataTranPlugin implements DataTranP
 
 
 	}
-	public void destroy(){
-		super.destroy();
+	@Override
+	public void destroy(boolean waitTranStop){
+		super.destroy( waitTranStop);
 		HBaseHelper.destroy();
 
 	}

@@ -38,6 +38,7 @@ public class FileLog2ESDataTranPlugin extends FileBaseDataTranPlugin {
 
 	@Override
 	protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, Status currentStatus) {
+
 		AsynESOutPutDataTran asynESOutPutDataTran = new AsynESOutPutDataTran( taskContext,jdbcResultSet,importContext,targetImportContext,  currentStatus);
 		asynESOutPutDataTran.init();
 		return asynESOutPutDataTran;

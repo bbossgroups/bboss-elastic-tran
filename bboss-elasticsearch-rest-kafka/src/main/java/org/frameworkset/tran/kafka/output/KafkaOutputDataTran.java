@@ -52,7 +52,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
 		ImportCount importCount = new SerialImportCount();
 		long totalCount = 0;
-
+		boolean reachEOFClosed = false;
 		try {
 
 			//		GetCUDResult CUDResult = null;
@@ -76,6 +76,14 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 					}
 //					Context context = new ContextImpl(importContext, jdbcResultSet, null);
 					Context context = importContext.buildContext(taskContext,jdbcResultSet, null);
+
+
+					if(!reachEOFClosed)
+						reachEOFClosed = context.reachEOFClosed();
+					if(context.removed()){
+						importCount.increamentIgnoreTotalCount();
+						continue;
+					}
 					context.refactorData();
 					context.afterRefactor();
 					if (context.isDrop()) {
@@ -87,7 +95,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 					BBossStringWriter writer = new BBossStringWriter(builder);
 					kafkaOutputContext.generateReocord(context,record, writer);
 					KafkaCommand kafkaCommand = new KafkaCommand(importCount, importContext,targetImportContext,
-							1, -1, importCount.getJobNo(), lastValue,taskContext,  currentStatus);
+							1, -1, importCount.getJobNo(), lastValue,taskContext,  currentStatus,reachEOFClosed);
 					kafkaCommand.setDatas(builder.toString());
 					kafkaCommand.setKey(record.getRecordKey());
 					TaskCall.asynCall(kafkaCommand);
@@ -154,11 +162,25 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 
 
-
+	@Override
 	public void stop(){
-		if(esTranResultSet != null)
+		if(esTranResultSet != null) {
+
 			esTranResultSet.stop();
+			esTranResultSet = null;
+		}
 		super.stop();
+	}
+	/**
+	 * 只停止转换作业
+	 */
+	@Override
+	public void stopTranOnly(){
+		if(esTranResultSet != null) {
+			esTranResultSet.stopTranOnly();
+			esTranResultSet = null;
+		}
+		super.stopTranOnly();
 	}
 
 	@Override

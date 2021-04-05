@@ -26,6 +26,7 @@ import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.*;
+import org.frameworkset.tran.util.TranConstant;
 import org.frameworkset.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.lang.Thread.sleep;
 
 /**
  * <p>Description: </p>
@@ -105,6 +108,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	protected volatile Status currentStatus;
 	protected volatile Status firstStatus;
 	protected String updateSQL ;
+	protected String updateStatusSQL;
 	protected String insertSQL;
 	protected String insertHistorySQL;
 	protected String createStatusTableSQL;
@@ -243,8 +247,53 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		return this.importContext.isContinueOnError();
 	}
 
+	/**
+	 * 插件运行状态
+	 */
+	protected volatile int status ;
+	protected volatile boolean hasTran = false;
+	public void setHasTran(){
+		this.hasTran = true;
+	}
+	public void setNoTran(){
+		this.hasTran = false;
+		this.status = TranConstant.PLUGIN_STOPREADY;
+	}
+	public boolean isPluginStopAppending(){
+		return status == TranConstant.PLUGIN_STOPAPPENDING;
+	}
+	public void setStatus(int status){
+		this.status = status;
+	}
+
 	@Override
-	public void destroy() {
+	public void destroy(boolean waitTranStop) {
+//
+//		this.status = TranConstant.PLUGIN_STOPAPPENDING;
+//		do{
+//			if(status == TranConstant.PLUGIN_STOPREADY){
+//				break;
+//			}
+//			try {
+//				sleep(1000l);
+//			} catch (InterruptedException e) {
+//
+//			}
+//		}while(true);
+
+		this.status = TranConstant.PLUGIN_STOPAPPENDING;
+		if(waitTranStop) {
+			do {
+				if (status == TranConstant.PLUGIN_STOPREADY || !hasTran) {
+					break;
+				}
+				try {
+					sleep(1000l);
+				} catch (InterruptedException e) {
+
+				}
+			} while (true);
+		}
 		if(scheduleService != null){
 			scheduleService.stop();
 		}
@@ -403,20 +452,44 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			logger.info("Init LastValue Status: {}",currentStatus.toString());
 	}
 
-	protected  void handleCompletedTasks(List<Status> completed ,boolean needSyn){
-		deleteSQL = new StringBuilder().append("delete from ")
-				.append(statusTableName).append(" where id=?").toString();
-		insertHistorySQL = new StringBuilder().append("insert into ").append(statusTableName)
-				.append(" (id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status) values(?,?,?,?,?,?,?)").toString();
+	protected  void handleCompletedTasks(List<Status> completed ,boolean needSyn,long registLiveTime){
+
+
 		try {
+			long now = System.currentTimeMillis();
+			long deletedTime = now - registLiveTime;
 			for (Status status : completed) {
-				SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
-						status.getLastValue(), status.getLastValueType(), status.getFilePath(), status.getFileId(), status.getStatus());
-				SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId());
+				long lastTime = status.getTime();
+				if(lastTime <= deletedTime){
+					SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
+							status.getLastValue(), status.getLastValueType(), status.getFilePath(), status.getFileId(), status.getStatus());
+					SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId());
+				}
+
 			}
 		}
 		catch (Exception e){
 			logger.error("handleCompletedTasks failed:"+SimpleStringUtil.object2json(completed),e);
+		}
+
+
+	}
+
+	protected  void handleOldedTasks(List<Status> olded ){
+
+//		String updateStatusSQL = new StringBuilder().append("update ")
+//				.append(statusTableName).append(" set status = ?, lasttime= ?").append(" where id=?").toString();
+
+		try {
+
+			for (Status status : olded) {
+					status.setTime(System.currentTimeMillis());
+					status.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
+					SQLExecutor.updateWithDBName(statusDbname, updateStatusSQL, status.getStatus(), status.getTime(),status.getId());
+			}
+		}
+		catch (Exception e){
+			logger.error("handleCompletedTasks failed:"+SimpleStringUtil.object2json(olded),e);
 		}
 
 
@@ -653,6 +726,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 					.append(statusTableName).toString();
 			updateSQL = new StringBuilder().append("update ").append(statusTableName)
 					.append(" set lasttime = ?,lastvalue = ? ,lastvaluetype= ? , filePath = ?,fileId = ? ,status = ? where id=?").toString();
+			updateStatusSQL = new StringBuilder().append("update ")
+					.append(statusTableName).append(" set status = ?, lasttime= ?").append(" where id=?").toString();
 			insertSQL = new StringBuilder().append("insert into ").append(statusTableName)
 					.append(" (id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status) values(?,?,?,?,?,?,?)").toString();
 			deleteSQL = new StringBuilder().append("delete from ")
@@ -671,8 +746,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public Status getCurrentStatus(){
 		return this.currentStatus;
 	}
-
-	public void flushLastValue(Object lastValue,Status currentStatus) {
+	@Override
+	public void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed) {
 		if(lastValue != null) {
 			synchronized (currentStatus) {
 				Object oldLastValue = currentStatus.getLastValue();
@@ -682,6 +757,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				currentStatus.setTime(time);
 
 				currentStatus.setLastValue(lastValue);
+				if(reachEOFClosed){
+					currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
+				}
 
 				if (this.isIncreamentImport()) {
 //					Status temp = new Status();

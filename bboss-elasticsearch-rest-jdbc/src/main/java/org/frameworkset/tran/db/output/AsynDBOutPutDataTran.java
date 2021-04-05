@@ -24,10 +24,20 @@ public class AsynDBOutPutDataTran extends DBOutPutDataTran {
 //	}
 
 
-
+	@Override
 	public void stop(){
 		esTranResultSet.stop();
+		esTranResultSet = null;
 		super.stop();
+	}
+	/**
+	 * 只停止转换作业，没有处理完成的数据会继续处理完成
+	 */
+	@Override
+	public void stopTranOnly(){
+		esTranResultSet.stopTranOnly();
+		esTranResultSet = null;
+		super.stopTranOnly();
 	}
 
 	@Override
@@ -39,5 +49,6 @@ public class AsynDBOutPutDataTran extends DBOutPutDataTran {
 			if(this.countDownLatch != null)
 				countDownLatch.countDown();
 		}
+
 	}
 }

@@ -24,6 +24,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import static org.frameworkset.tran.util.TranConstant.STATUS_STOP;
+import static org.frameworkset.tran.util.TranConstant.STATUS_STOPTRANONLY;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -37,8 +40,8 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	private List records;
 	private int pos = 0;
 	private int size;
-	public static int STATUS_STOP = 1;
-	private int status;
+
+	private volatile int status;
 	private BlockingQueue<Data> queue ;
 
 	public AsynBaseTranResultSet(ImportContext importContext) {
@@ -95,8 +98,13 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 		return TranUtil.getDateTimeValue(colName,value,importContext);
 
 	}
+	@Override
 	public void stop(){
 		status = STATUS_STOP;
+	}
+	@Override
+	public void stopTranOnly(){
+		status = STATUS_STOPTRANONLY;
 	}
 	private boolean reachEnd;
 	public void reachEend(){
@@ -105,15 +113,18 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 
 	@Override
 	public Boolean next() throws ESDataImportException {
+		if(status == STATUS_STOP){
+			return false;
+		}
 		if( pos < size){
+
 			record = buildRecord(records.get(pos));
 			pos ++;
+
 			return true;
 		}
 		else{
-			if(status == STATUS_STOP){
-				return false;
-			}
+
 			try {
 
 				Data datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
@@ -129,6 +140,9 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 
 				if(datas == null || size == 0)
 				{
+					if(status == STATUS_STOPTRANONLY || importContext.getDataTranPlugin().isPluginStopAppending()){
+						return false;
+					}
 					long pollStartTime = System.currentTimeMillis();
 					do{
 						datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
@@ -138,6 +152,8 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 						if(datas == null){
 							if(reachEnd)
 								break;
+							if(status == STATUS_STOPTRANONLY || importContext.getDataTranPlugin().isPluginStopAppending())
+								return false;
 							if(importContext.getFlushInterval() > 0) {
 								long interval = System.currentTimeMillis() - pollStartTime;
 								if (interval > importContext.getFlushInterval()){
@@ -150,6 +166,10 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 						size = records != null ? records.size():0;
 						if(size > 0)
 							break;
+						else{
+							if(status == STATUS_STOPTRANONLY || importContext.getDataTranPlugin().isPluginStopAppending())
+								return false;
+						}
 					}while (true);
 					if(datas == null && reachEnd){
 						return false;
@@ -159,6 +179,9 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 				pos = 0;
 				record = buildRecord(records.get(pos));
 				pos ++;
+				if(status == STATUS_STOP){
+					return false;
+				}
 				return true;
 			} catch (InterruptedException e) {
 				return false;
@@ -172,5 +195,12 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	}
 	public Object getRecord(){
 		return record.getData();
+	}
+
+	public boolean removed(){
+		return record.removed();
+	}
+	public boolean reachEOFClosed(){
+		return this.record.reachEOFClosed() ;
 	}
 }

@@ -123,6 +123,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 		Object lastValue = null;
 		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
 		int batchsize = importContext.getStoreBatchSize();
+		boolean reachEOFClosed = false;
 		try {
 
 			BatchContext batchContext = new BatchContext();
@@ -144,7 +145,8 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 						count = 0;
 						for(ClientInterface clientInterface:clientInterfaces) {
 							taskNo++;
-							TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext, _count, taskNo, totalCount.getJobNo(),lastValue,  currentStatus);
+							TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext,
+									_count, taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
 //						count = 0;
 							taskCommand.setClientInterface(clientInterface);
 							taskCommand.setDatas(datas);
@@ -162,7 +164,14 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 					lastValue = importContext.max(lastValue,getLastValue());
 				}
 				Context context = importContext.buildContext(taskContext,jdbcResultSet, batchContext);
+
+				if(!reachEOFClosed)
+					reachEOFClosed = context.reachEOFClosed();
 //				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
+				if(context.removed()){
+					totalCount.increamentIgnoreTotalCount();
+					continue;
+				}
 				context.refactorData();
 				context.afterRefactor();
 				if (context.isDrop()) {
@@ -181,7 +190,8 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 					count = 0;
 					for(ClientInterface clientInterface:clientInterfaces) {
 						taskNo++;
-						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext, _count, taskNo, totalCount.getJobNo(),lastValue,  currentStatus);
+						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext, _count,
+								taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
 
 						taskCommand.setClientInterface(clientInterface);
 						taskCommand.setDatas(datas);
@@ -201,7 +211,8 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 				String datas = builder.toString();
 				for(ClientInterface clientInterface:clientInterfaces) {
 					taskNo++;
-					TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext, count, taskNo, totalCount.getJobNo(),lastValue,  currentStatus);
+					TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext,
+							count, taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
 					taskCommand.setClientInterface(clientInterface);
 					taskCommand.setDatas(datas);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
@@ -228,7 +239,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 			throw new ElasticSearchException(e);
 		}
 		finally {
-			waitTasksComplete(   tasks,  service,exception,  lastValue,totalCount ,tranErrorWrapper,(WaitTasksCompleteCallBack)null);
+			waitTasksComplete(   tasks,  service,exception,  lastValue,totalCount ,tranErrorWrapper,(WaitTasksCompleteCallBack)null,reachEOFClosed);
 			try {
 				writer.close();
 			} catch (Exception e) {
@@ -262,6 +273,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 
 		ImportCount importCount = new SerialImportCount();
 		int batchsize = importContext.getStoreBatchSize();
+		boolean reachEOFClosed = false;
 		try {
 			istart = start;
 			BatchContext batchContext = new BatchContext();
@@ -279,7 +291,8 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 						count = 0;
 						for(ClientInterface clientInterface:clientInterfaces) {
 							taskNo++;
-							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext, _count, taskNo, importCount.getJobNo(),lastValue,  currentStatus);
+							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
+									_count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
 //						int temp = count;
 //						count = 0;
 
@@ -310,6 +323,12 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 				}
 				Context context = importContext.buildContext(taskContext,jdbcResultSet, batchContext);
 //				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
+				if(!reachEOFClosed)
+					reachEOFClosed = context.reachEOFClosed();
+				if(context.removed()){
+					importCount.increamentIgnoreTotalCount();
+					continue;
+				}
 				context.refactorData();
 				context.afterRefactor();
 				if (context.isDrop()) {
@@ -329,7 +348,8 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 					count = 0;
 					for(ClientInterface clientInterface:clientInterfaces) {
 						taskNo++;
-						TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext, _count, taskNo, importCount.getJobNo(),lastValue,  currentStatus);
+						TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
+								_count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
 //					count = 0;
 						taskCommand.setClientInterface(clientInterface);
 						taskCommand.setDatas(datas);
@@ -355,7 +375,8 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 				String datas = builder.toString();
 				for(ClientInterface clientInterface:clientInterfaces) {
 					taskNo++;
-					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext, count, taskNo, importCount.getJobNo(),lastValue,  currentStatus);
+					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
+							count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
 					taskCommand.setClientInterface(clientInterface);
 					taskCommand.setDatas(datas);
 					ret = TaskCall.call(taskCommand);
@@ -416,6 +437,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 		long totalCount = 0;
 		ImportCount importCount = new SerialImportCount();
 		long ignoreTotalCount = 0;
+		boolean reachEOFClosed = false;
 		try {
 			BatchContext batchContext =  new BatchContext();
 			while (true) {
@@ -428,7 +450,8 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 						builder.setLength(0);
 						for(ClientInterface clientInterface:clientInterfaces) {
 
-							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext, totalCount, 1, importCount.getJobNo(),lastValue,  currentStatus);
+							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
+									totalCount, 1, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
 							taskCommand.setClientInterface(clientInterface);
 							taskCommand.setDatas(_dd);
 							ret = TaskCall.call(taskCommand);
@@ -459,6 +482,12 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 					}
 //					Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
 					Context context = importContext.buildContext(taskContext,jdbcResultSet, batchContext);
+					if(!reachEOFClosed)
+						reachEOFClosed = context.reachEOFClosed();
+					if(context.removed()){
+						importCount.increamentIgnoreTotalCount();
+						continue;
+					}
 					context.refactorData();
 					context.afterRefactor();
 					if (context.isDrop()) {
@@ -479,7 +508,8 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 				builder.setLength(0);
 				for(ClientInterface clientInterface:clientInterfaces) {
 
-					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext, totalCount, 1, importCount.getJobNo(),lastValue,  currentStatus);
+					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
+							totalCount, 1, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
 					taskCommand.setClientInterface(clientInterface);
 					taskCommand.setDatas(_dd);
 					ret = TaskCall.call(taskCommand);

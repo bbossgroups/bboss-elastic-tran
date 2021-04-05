@@ -36,9 +36,14 @@ public class CommonMapRecord implements Record {
 		this.key = key;
 		this.offset = offset;
 	}
+
 	public CommonMapRecord( Map<String,Object> record,long offset){
 		this.record = record;
 		this.offset = offset;
+	}
+	@Override
+	public boolean reachEOFClosed(){
+		return false;
 	}
 	@Override
 	public Object getValue(String colName) {
@@ -60,6 +65,11 @@ public class CommonMapRecord implements Record {
 	@Override
 	public long getOffset() {
 		return offset;
+	}
+
+	@Override
+	public boolean removed() {
+		return false;
 	}
 
 	public Object getKey() {

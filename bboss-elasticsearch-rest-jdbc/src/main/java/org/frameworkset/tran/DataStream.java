@@ -102,8 +102,20 @@ public class DataStream {
 	}
 
 	public void destroy() {
+		destroy(false);
+
+
+
+//		this.esjdbc.stop();
+	}
+
+	/**
+	 *
+	 * @param waitTranStopped true 等待同步作业处理完成后停止作业 false 不等待
+	 */
+	public void destroy(boolean waitTranStopped) {
 		if(importContext != null) {
-			this.importContext.destroy();
+			this.importContext.destroy(waitTranStopped);
 			importContext = null;
 			logger.info("DataStream stopped.");
 		}

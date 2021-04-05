@@ -160,11 +160,20 @@ public abstract  class BaseImportContext implements ImportContext {
 	}
 
 	@Override
-	public void destroy() {
+	public void destroy(boolean waitTranStop) {
 //		if(dataTranPlugin != null){
 //			dataTranPlugin.destroy();
 //		}
-		stop();
+		this.dataTranPlugin.destroy(  waitTranStop);
+		try {
+			if (blockedExecutor != null) {
+				blockedExecutor.shutdown();
+			}
+		}
+		catch(Exception e){
+
+		}
+		currentStoped = true;
 	}
 
 
@@ -222,14 +231,14 @@ public abstract  class BaseImportContext implements ImportContext {
 	}
 
 
-
-	public void flushLastValue(Object lastValue,Status currentStatus){
+	@Override
+	public void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed){
 		Long timeLastValue = this.getTimeRangeLastValue();
 		if(timeLastValue != null){
 
 			lastValue = max(lastValue,new Date(timeLastValue));
 		}
-		this.dataTranPlugin.flushLastValue(lastValue,currentStatus);
+		this.dataTranPlugin.flushLastValue(lastValue,currentStatus,  reachEOFClosed);
 	}
 	public boolean isLastValueDateType()
 	{
@@ -473,18 +482,7 @@ public abstract  class BaseImportContext implements ImportContext {
 	public boolean isParallel(){
 		return baseImportConfig.isParallel();
 	}
-	public void stop(){
-		this.dataTranPlugin.destroy();
-		try {
-			if (blockedExecutor != null) {
-				blockedExecutor.shutdown();
-			}
-		}
-		catch(Exception e){
 
-		}
-		currentStoped = true;
-	}
 	public int getQueue(){
 		return baseImportConfig.getQueue();
 	}

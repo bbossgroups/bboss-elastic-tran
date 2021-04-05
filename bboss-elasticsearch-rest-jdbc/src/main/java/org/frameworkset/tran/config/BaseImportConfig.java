@@ -49,7 +49,7 @@ public abstract class BaseImportConfig {
 	 * 设置强制刷新检测空闲时间间隔，单位：毫秒，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作，默认8秒,为0时关闭本机制
 	 */
 	private long flushInterval = 8000l;
-	private long asynResultPollTimeOut = 1000l;
+	private long asynResultPollTimeOut = 3000l;
 	private Integer increamentEndOffset;
 	public String[] getExportColumns() {
 		return exportColumns;

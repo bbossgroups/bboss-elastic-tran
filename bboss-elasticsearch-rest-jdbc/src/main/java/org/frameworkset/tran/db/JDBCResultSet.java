@@ -34,7 +34,9 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	public DB getDbadapter(){
 		return dbadapter;
 	}
-
+	public boolean reachEOFClosed(){
+		return false ;
+	}
 
 
 	public void setResultSet(ResultSet resultSet) {
@@ -54,10 +56,17 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	public void stop() {
 
 	}
+	@Override
+	public void stopTranOnly(){}
 
 	@Override
 	public Object getMetaValue(String fieldName) {
 		return getValue(  fieldName);
+	}
+
+	@Override
+	public boolean removed() {
+		return false;
 	}
 
 	public void setMetaData(PoolManResultSetMetaData metaData) {

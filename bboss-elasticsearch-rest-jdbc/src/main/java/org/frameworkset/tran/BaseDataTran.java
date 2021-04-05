@@ -28,11 +28,14 @@ public abstract class BaseDataTran implements DataTran{
 	 * 当前作业处理的增量状态信息
 	 */
 	protected Status currentStatus;
+	protected volatile boolean tranFinished;
 	public AsynTranResultSet getAsynTranResultSet(){
 		return esTranResultSet;
 	}
 	public void appendData(Data data){
-		getAsynTranResultSet().appendData(data);
+
+		if(esTranResultSet != null)
+			esTranResultSet.appendData(data);
 	}
 
 
@@ -66,45 +69,62 @@ public abstract class BaseDataTran implements DataTran{
 	}
 
 
-
-
-
-
-	protected void stop(){
+	/**
+	 * 停止转换作业及释放作业相关资源，关闭插件资源
+	 */
+	public void stop(){
 		if(breakableScrollHandler != null) {
 			breakableScrollHandler.setBreaked(true);
 		}
-		importContext.stop();
+		importContext.destroy(false);
 
 	}
+
+	/**
+	 * 只停止转换作业
+	 */
+	public void stopTranOnly(){
+		if(breakableScrollHandler != null) {
+			breakableScrollHandler.setBreaked(true);
+		}
+	}
+
 	public abstract void logTaskStart(Logger logger);
 	public String tran() throws ESDataImportException {
-		if (jdbcResultSet == null)
-			return null;
-		if (isPrintTaskLog()) {
-			logTaskStart(logger);
+		try {
+			this.getDataTranPlugin().setHasTran();
+			if (jdbcResultSet == null)
+				return null;
+			if (isPrintTaskLog()) {
+				logTaskStart(logger);
 
-		}
-		if (importContext.getStoreBatchSize() <= 0) {
-			return serialExecute();
-		} else {
-			if (importContext.getThreadCount() > 0 && importContext.isParallel()) {
-				return this.parallelBatchExecute();
-			} else {
-				return this.batchExecute();
 			}
+			if (importContext.getStoreBatchSize() <= 0) {
+				return serialExecute();
+			} else {
+				if (importContext.getThreadCount() > 0 && importContext.isParallel()) {
+					return this.parallelBatchExecute();
+				} else {
+					return this.batchExecute();
+				}
+
+			}
+		}
+		finally {
+			tranFinished = true;
+			this.getDataTranPlugin().setNoTran();
 
 		}
-
 
 	}
-	protected void jobComplete(ExecutorService service,Exception exception,Object lastValue ,TranErrorWrapper tranErrorWrapper,Status currentStatus){
+
+	protected void jobComplete(ExecutorService service,Exception exception,Object lastValue ,TranErrorWrapper tranErrorWrapper,Status currentStatus,boolean reachEOFClosed){
 		if (importContext.getScheduleService() == null) {//作业定时调度执行的话，需要关闭线程池
 			service.shutdown();
 		}
 		else{
 			if(tranErrorWrapper.assertCondition(exception)){
-				importContext.flushLastValue( lastValue,  currentStatus );
+				importContext.flushLastValue( lastValue,  currentStatus ,reachEOFClosed);
 			}
 			else{
 				service.shutdown();
@@ -117,7 +137,8 @@ public abstract class BaseDataTran implements DataTran{
 	}
 	public void waitTasksComplete(final List<Future> tasks,
 								   final ExecutorService service,Exception exception,Object lastValue,
-								  final ImportCount totalCount ,final TranErrorWrapper tranErrorWrapper ,final WaitTasksCompleteCallBack waitTasksCompleteCallBack){
+								  final ImportCount totalCount ,final TranErrorWrapper tranErrorWrapper ,final WaitTasksCompleteCallBack waitTasksCompleteCallBack,
+								  final boolean reachEOFClosed){
 		if(!importContext.isAsyn() || importContext.getScheduleService() != null) {
 			int count = 0;
 			for (Future future : tasks) {
@@ -150,7 +171,7 @@ public abstract class BaseDataTran implements DataTran{
 						.append(totalCount.getIgnoreTotalCount()).append(" records,failed total ")
 						.append(totalCount.getFailedCount()).append(" records.").toString());
 			}
-			jobComplete(  service,exception,lastValue ,tranErrorWrapper,this.currentStatus);
+			jobComplete(  service,exception,lastValue ,tranErrorWrapper,this.currentStatus,reachEOFClosed);
 			totalCount.setJobEndTime(new Date());
 		}
 		else{
@@ -183,7 +204,7 @@ public abstract class BaseDataTran implements DataTran{
 								.append(totalCount.getFailedCount()).append(" records.").toString());
 					}
 
-					jobComplete(  service,null,null,tranErrorWrapper,currentStatus);
+					jobComplete(  service,null,null,tranErrorWrapper,currentStatus,reachEOFClosed);
 					totalCount.setJobEndTime(new Date());
 				}
 			});
@@ -221,7 +242,9 @@ public abstract class BaseDataTran implements DataTran{
 
 
 
-
+	public DataTranPlugin getDataTranPlugin(){
+		return importContext.getDataTranPlugin();
+	}
 	public Object getLastValue() throws ESDataImportException {
 
 		if(!importContext.useFilePointer()) {
@@ -251,4 +274,7 @@ public abstract class BaseDataTran implements DataTran{
 
 	}
 
+	public boolean isTranFinished() {
+		return tranFinished;
+	}
 }

@@ -112,6 +112,8 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 	public void stop() {
 
 	}
+	@Override
+	public void stopTranOnly(){}
 
 	@Override
 	public Object getMetaValue(String fieldName) {
@@ -138,5 +140,12 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 			throw new ESDataImportException(e);
 		}
 		throw new ESDataImportException("Unsupport last value type:"+importContext.getLastValueType().intValue());
+	}
+	@Override
+	public boolean removed() {
+		return record.removed();
+	}
+	public boolean reachEOFClosed(){
+		return this.record.reachEOFClosed() ;
 	}
 }

@@ -50,14 +50,16 @@ public interface DataTranPlugin {
 
 	public Long getTimeRangeLastValue();
 
-	void flushLastValue(Object lastValue,Status currentStatus);
+	void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed);
 
 
 
 
-	void destroy();
+	void destroy(boolean waitTranStop);
 
-
+	public void setHasTran();
+	public void setNoTran();
+	public boolean isPluginStopAppending();
 	void init();
 
 //	Object getValue(String columnName) throws ESDataImportException;

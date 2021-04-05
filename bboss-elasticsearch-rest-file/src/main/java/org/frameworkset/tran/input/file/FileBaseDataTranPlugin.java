@@ -14,13 +14,14 @@ import org.frameworkset.tran.file.monitor.FileAlterationObserver;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.util.TranConstant;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * @author xutengfei,yin-bp@163.com
@@ -50,18 +51,34 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     public Status getCurrentStatus(){
         throw new UnsupportedOperationException("getCurrentStatus");
     }
+    private FileConfig getFileConfig(String filePath) {
+        filePath = FileInodeHandler.change(filePath).toLowerCase();
+        List<FileConfig> list = fileImportContext.getFileImportConfig().getFileConfigList();
+        for(FileConfig config : list){
+            String source = config.getNormalSourcePath();
+            if(filePath.startsWith(source)){
+                return config;
+            }
+        }
+        return null;
+    }
     private String getHeadLineReg(String filePath) {
         filePath = FileInodeHandler.change(filePath).toLowerCase();
         List<FileConfig> list = fileImportContext.getFileImportConfig().getFileConfigList();
         for(FileConfig config : list){
-            String source = FileInodeHandler.change(config.getSourcePath()).toLowerCase();
+            String source = config.getNormalSourcePath();
             if(filePath.startsWith(source)){
                 return config.getFileHeadLineRegular();
             }
         }
         return null;
     }
-    public void initFileTask(Status status,File file){
+    public boolean initFileTask(Status status,File file){
+        FileConfig fileConfig = getFileConfig(file.getAbsolutePath());
+        if(fileConfig == null){
+            return false;
+        }
+        addStatus( status);
         FileResultSet kafkaResultSet = new FileResultSet(this.fileImportContext);
 //		final CountDownLatch countDownLatch = new CountDownLatch(1);
         final BaseDataTran fileDataTran = createBaseDataTran((TaskContext)null,kafkaResultSet,status);
@@ -78,25 +95,29 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                 tranThread.setDaemon(true);
                 tranThread.start();
                 String fileId = FileInodeHandler.inode(file);
-                FileReaderTask task = new FileReaderTask(file,fileId,getHeadLineReg(file.getAbsolutePath()),fileListenerService,fileDataTran,status);
+                FileReaderTask task = new FileReaderTask(file,fileId,fileConfig,fileListenerService,fileDataTran,status);
 //                fileConfigMap.put(fileId,task);
                 fileListenerService.addFileTask(fileId,task);
                 task.execute();
             }
+            return true;
         } catch (ESDataImportException e) {
             throw e;
         } catch (Exception e) {
             throw new ESDataImportException(e);
         }
-        finally {
-//			kafkaResultSet.reachEend();
-//			try {
-//				countDownLatch.await();
-//			} catch (InterruptedException e) {
-//				if(logger.isErrorEnabled())
-//					logger.error("",e);
-//			}
+
+    }
+    private boolean isOlded(Status status,FileConfig fileConfig){
+        if(fileConfig.getIgnoreOlderTime() == null)
+            return false;
+        long lastTime = status.getTime();
+        long oldedTime = fileConfig.getIgnoreOlderTime();
+        long stopTime = System.currentTimeMillis() - oldedTime;
+        if(lastTime <= stopTime){
+            return true;
         }
+        return false;
     }
     @Override
     protected void loadCurrentStatus(){
@@ -112,15 +133,38 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
             }
             boolean fromFirst = importContext.isFromFirst();
 
-
+            FileListenerService fileListenerService = fileListener.getFileListenerService();
+            /**
+             * 已经完成的任务
+             */
             List<Status> completed = new ArrayList<Status>();
+            /**
+             * 已经过期的任务，修改状态为已完成
+             */
+            List<Status> olded = new ArrayList<Status>();
             for(Status status : statuses){
                 //判断任务是否已经完成，如果完成，则对任务进行相应处理
                 if(isComplete(status)){
                     completed.add(status);
+                    fileListenerService.addCompletedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
+                            ,status));
                     continue;
                 }
+
                 String filePath = status.getFilePath();
+                FileConfig fileConfig = getFileConfig(filePath);
+                if(fileConfig == null) {
+                    completed.add(status);
+                    fileListenerService.addCompletedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
+                            ,status));
+                    continue;
+                }
+                if(isOlded(status,fileConfig)){
+                    olded.add(status);
+                    fileListenerService.addOldedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
+                            ,status));
+                    continue;
+                }
                 //需判断文件是否存在，不存在需清除记录
                 //创建一个文件对应的交换通道
                 FileResultSet kafkaResultSet = new FileResultSet(this.fileImportContext);
@@ -151,10 +195,10 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                         else{
                             status.setLastValue(0l);
                         }
-                        FileListenerService fileListenerService = fileListener.getFileListenerService();
+
                         FileReaderTask task = new FileReaderTask(new File(filePath)
                                 ,status.getFileId()
-                                ,getHeadLineReg(filePath)
+                                ,fileConfig
                                 ,pointer
                                 ,fileListenerService,fileDataTran,status);
                         fileListenerService.addFileTask(task.getFileId(),task);
@@ -166,11 +210,12 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                 } catch (Exception e) {
                     throw new ESDataImportException(e);
                 }
-
-
             }
-            if(completed != null){
-                handleCompletedTasks(completed ,false);
+            if(completed.size() > 0 && fileImportContext.getFileImportConfig().getRegistLiveTime() != null){
+                handleCompletedTasks(completed ,false,fileImportContext.getFileImportConfig().getRegistLiveTime());
+            }
+            if(olded.size() > 0){
+                handleOldedTasks(olded);
             }
         } catch (ESDataImportException e) {
             throw e;
@@ -179,7 +224,19 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         }
 
     }
+    @Override
+    public void destroy(boolean waitTranStop){
 
+        try {
+            fileAlterationMonitor.stop();
+        } catch (Exception e) {
+            logger.warn("fileAlterationMonitor stop error:",e);
+        }
+        this.status = TranConstant.PLUGIN_STOPAPPENDING;
+        fileListener.checkTranFinished();//检查所有的作业是否已经结束，并等待作业结束
+        super.destroy( false);
+       // todo
+    }
 
     protected abstract BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet,Status currentStatus);
     @Override
@@ -198,9 +255,9 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     iterator.next().checkAndNotify();
                 }
                 fileAlterationMonitor.start();
-                while(true){
-                    Thread.sleep(10000);
-                }
+//                while(true){
+//                    Thread.sleep(10000);
+//                }
             } catch (Exception e) {
                 throw new ESDataImportException(e);
             }
@@ -216,7 +273,9 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     FileFilterUtils.asFileFilter(new FilenameFilter() {
                         @Override
                         public boolean accept(File dir, String name) {
-                            return Pattern.matches(fileConfig.getFileNameRegular(), name);
+                            Matcher m = fileConfig.getFileNameRexPattern().matcher(name);
+                            return m.matches();
+//                            return Pattern.matches(fileConfig.getFileNameRegular(), name);
                         }
                     })
             );

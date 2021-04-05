@@ -48,8 +48,8 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 	private boolean needBatch;
 	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
 								  List<DBRecord> datas, int taskNo, String jobNo, String taskInfo,
-								  boolean needBatch, Object lastValue, Status currentStatus) {
-		super(importCount,importContext, targetImportContext,datas.size(),  taskNo,  jobNo,lastValue,  currentStatus);
+								  boolean needBatch, Object lastValue, Status currentStatus,boolean reachEOFClosed) {
+		super(importCount,importContext, targetImportContext,datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed);
 		this.needBatch = needBatch;
 		this.importContext = importContext;
 		this.datas = datas;

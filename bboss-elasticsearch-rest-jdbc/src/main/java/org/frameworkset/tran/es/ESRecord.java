@@ -38,8 +38,14 @@ public class ESRecord implements Record {
 	public Object getValue(String colName) {
 		return data.get(colName);
 	}
-
-
+	@Override
+	public boolean reachEOFClosed(){
+		return false;
+	}
+	@Override
+	public boolean removed() {
+		return false;
+	}
 	public Object getMetaValue(String colName) {
 		/**文档_id*/
 //		private String id;

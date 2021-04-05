@@ -39,6 +39,14 @@ public class HBaseRecord implements Record {
 		this.familys = familys;
 		this.data = data;
 	}
+	@Override
+	public boolean removed() {
+		return false;
+	}
+	@Override
+	public boolean reachEOFClosed(){
+		return false;
+	}
 	private byte[][] parser(String colName){
 		byte[][] cs = familys.get(colName);
 		if(cs != null){

@@ -1,6 +1,6 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.util;
 /**
- * Copyright 2008 biaoping.yin
+ * Copyright 2020 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,25 @@ package org.frameworkset.tran;
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2018</p>
- * @Date 2019/11/19 10:29
+ * <p>Copyright (c) 2020</p>
+ * @Date 2021/4/5 10:45
  * @author biaoping.yin
  * @version 1.0
  */
-public interface Record {
+public class TranConstant {
+	/**
+	 * 插件停止中
+	 */
+	public static final int PLUGIN_STOPPING = 1;
+	/**
+	 * 插件准备停止
+	 */
+	public static final int PLUGIN_STOPAPPENDING = 2;
+	/**
+	 * 插件准备停止条件具备，可以停止
+	 */
+	public static final int PLUGIN_STOPREADY = 3;
 
-	Object getValue(String colName);
-	public Object getKeys();
-	public Object getData();
-
-	public Object getMetaValue(String metaName);
-	public long getOffset();
-
-	boolean removed();
-	boolean reachEOFClosed();
+	public static final int STATUS_STOP = 1;
+	public static final int STATUS_STOPTRANONLY = 2;
 }

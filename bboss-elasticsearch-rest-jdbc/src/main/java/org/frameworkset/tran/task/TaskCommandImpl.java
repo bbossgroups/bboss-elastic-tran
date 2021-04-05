@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 
 	public TaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
-						   long dataSize, int taskNo, String jobNo, Object lastValue, Status currentStatus) {
-		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,  lastValue,  currentStatus);
+						   long dataSize, int taskNo, String jobNo, Object lastValue, Status currentStatus,boolean reachEOFClosed) {
+		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,  lastValue,  currentStatus,reachEOFClosed);
 	}
 
 

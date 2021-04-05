@@ -475,4 +475,14 @@ public class ContextImpl implements Context {
 	public void setUseBatchContextIndexName(boolean useBatchContextIndexName) {
 		this.useBatchContextIndexName = useBatchContextIndexName;
 	}
+
+	@Override
+	public boolean removed() {
+		return this.jdbcResultSet.removed() ;
+	}
+
+
+	public boolean reachEOFClosed(){
+		return this.jdbcResultSet.reachEOFClosed() ;
+	}
 }

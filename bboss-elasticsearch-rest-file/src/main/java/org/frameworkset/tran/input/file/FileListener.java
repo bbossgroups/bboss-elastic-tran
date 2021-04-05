@@ -97,4 +97,8 @@ public class FileListener extends FileAlterationListenerAdaptor {
     public FileListenerService getFileListenerService() {
         return fileListenerService;
     }
+
+    public void checkTranFinished() {
+        fileListenerService.checkTranFinished();
+    }
 }

@@ -34,10 +34,20 @@ public class AsynESOutPutDataTran extends BaseElasticsearchDataTran {
 //		esTranResultSet.appendData(new ESDatasWraper(datas));
 //	}
 
-
+	@Override
 	public void stop(){
 		esTranResultSet.stop();
+		esTranResultSet = null;
 		super.stop();
+	}
+	/**
+	 * 只停止转换作业
+	 */
+	@Override
+	public void stopTranOnly(){
+		esTranResultSet.stopTranOnly();
+		esTranResultSet = null;
+		super.stopTranOnly();
 	}
 
 	@Override
