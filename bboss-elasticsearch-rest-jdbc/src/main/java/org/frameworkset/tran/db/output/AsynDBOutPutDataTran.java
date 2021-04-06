@@ -26,8 +26,10 @@ public class AsynDBOutPutDataTran extends DBOutPutDataTran {
 
 	@Override
 	public void stop(){
-		esTranResultSet.stop();
-		esTranResultSet = null;
+		if(esTranResultSet != null) {
+			esTranResultSet.stop();
+			esTranResultSet = null;
+		}
 		super.stop();
 	}
 	/**
@@ -35,8 +37,10 @@ public class AsynDBOutPutDataTran extends DBOutPutDataTran {
 	 */
 	@Override
 	public void stopTranOnly(){
-		esTranResultSet.stopTranOnly();
-		esTranResultSet = null;
+		if(esTranResultSet != null) {
+			esTranResultSet.stopTranOnly();
+			esTranResultSet = null;
+		}
 		super.stopTranOnly();
 	}
 

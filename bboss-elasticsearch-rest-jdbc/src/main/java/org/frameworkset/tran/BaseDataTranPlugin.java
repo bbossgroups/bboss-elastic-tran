@@ -240,6 +240,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		initTableAndStatus();
 		afterInit();
 	}
+	public boolean isMultiTran(){
+		return false;
+	}
 	public String getLastValueClumnName(){
 		return this.lastValueClumnName;
 	}
@@ -459,11 +462,14 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			long now = System.currentTimeMillis();
 			long deletedTime = now - registLiveTime;
 			for (Status status : completed) {
-				long lastTime = status.getTime();
-				if(lastTime <= deletedTime){
-					SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
-							status.getLastValue(), status.getLastValueType(), status.getFilePath(), status.getFileId(), status.getStatus());
-					SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId());
+				File file = new File(status.getFilePath());
+				if(!file.exists()) {
+					long lastTime = status.getTime();
+					if (lastTime <= deletedTime) {
+						SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
+								status.getLastValue(), status.getLastValueType(), status.getFilePath(), status.getFileId(), status.getStatus());
+						SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId());
+					}
 				}
 
 			}
@@ -771,6 +777,16 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void forceflushLastValue(Status currentStatus) {
+		synchronized (currentStatus) {
+			currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
+			currentStatus.setTime(System.currentTimeMillis());
+			this.storeStatus(currentStatus);
+		}
+
 	}
 	public void storeStatus(Status currentStatus)  {
 

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author xutengfei,yin-bp@163.com
@@ -39,7 +40,9 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         this.fileImportContext = (FileImportContext) importContext;
 
     }
-
+    public boolean isMultiTran(){
+        return true;
+    }
     public void setFileListener(FileListener fileListener) {
         this.fileListener = fileListener;
     }
@@ -55,24 +58,14 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         filePath = FileInodeHandler.change(filePath).toLowerCase();
         List<FileConfig> list = fileImportContext.getFileImportConfig().getFileConfigList();
         for(FileConfig config : list){
-            String source = config.getNormalSourcePath();
-            if(filePath.startsWith(source)){
+            Pattern source = config.getNormalSourcePathPattern();
+            if(source.matcher(filePath).find()){
                 return config;
             }
         }
         return null;
     }
-    private String getHeadLineReg(String filePath) {
-        filePath = FileInodeHandler.change(filePath).toLowerCase();
-        List<FileConfig> list = fileImportContext.getFileImportConfig().getFileConfigList();
-        for(FileConfig config : list){
-            String source = config.getNormalSourcePath();
-            if(filePath.startsWith(source)){
-                return config.getFileHeadLineRegular();
-            }
-        }
-        return null;
-    }
+
     public boolean initFileTask(Status status,File file){
         FileConfig fileConfig = getFileConfig(file.getAbsolutePath());
         if(fileConfig == null){
@@ -247,7 +240,8 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         if(fileImportContext.getFileImportConfig() != null)
         {
             this.init(fileImportContext.getFileImportConfig());
-            fileAlterationMonitor =  new FileAlterationMonitor(fileImportContext.getFileImportConfig().getInterval(), observerList.toArray(new FileAlterationObserver[observerList.size()]));
+            fileAlterationMonitor =  new FileAlterationMonitor(fileImportContext.getFileImportConfig().getInterval(),
+                    observerList.toArray(new FileAlterationObserver[observerList.size()]));
             try {
 //                fileListener.reload();
                 Iterator<FileAlterationObserver> iterator = fileAlterationMonitor.getObservers().iterator();

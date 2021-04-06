@@ -35,6 +35,13 @@ public class FileListenerService {
         this.fileImportContext = fileImportContext;
         this.baseDataTranPlugin = baseDataTranPlugin;
     }
+
+    public void moveTaskToComplete(FileReaderTask fileReaderTask){
+        synchronized(fileConfigMap) {
+            fileConfigMap.remove(fileReaderTask.getFileId());
+        }
+        this.completedTasks.put(fileReaderTask.getFileId(), fileReaderTask);
+    }
     public void doChange(File file){
         String fileId = FileInodeHandler.inode(file);
         if(completedTasks.containsKey(fileId)){ // 已经采集过的文件直接返回
@@ -127,9 +134,25 @@ public class FileListenerService {
             fileReaderTask = fileConfigMap.remove(entry.getFileId());
         }
         if(fileReaderTask != null){
+            this.completedTasks.put(entry.getFileId(), fileReaderTask);
             fileReaderTask.taskEnded();
+            final FileReaderTask fileReaderTask_ = fileReaderTask;
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        sleep(5000l);//延迟5秒后存储状态
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Status currentStatus = fileReaderTask_.getCurrentStatus();
+                    baseDataTranPlugin.forceflushLastValue(currentStatus);
+                }
+            });
+            thread.start();
+            // todo 删除文件状态更新
         }
-        // todo 删除文件状态更新
+
     }
     //文件移动 linux环境才能根据inode判断文件移动了
     public void onFileMove(File oldFile, File newFile) {

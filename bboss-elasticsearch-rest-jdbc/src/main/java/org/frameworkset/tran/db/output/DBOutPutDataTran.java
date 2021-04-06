@@ -163,10 +163,14 @@ public class DBOutPutDataTran extends BaseDataTran {
 		} finally {
 
 			if(!TranErrorWrapper.assertCondition(exception ,importContext)){
-				stop();
+				if(!importContext.getDataTranPlugin().isMultiTran()) {
+					this.stop();
+				} else{
+					this.stopTranOnly();
+				}
 			}
 			if(importContext.isCurrentStoped()){
-				stop();
+				this.stopTranOnly();
 			}
 			importCount.setJobEndTime(new Date());
 		}
@@ -483,7 +487,11 @@ public class DBOutPutDataTran extends BaseDataTran {
 		}
 		finally {
 			if(!tranErrorWrapper.assertCondition(exception)){
-				stop();
+				if(!importContext.getDataTranPlugin().isMultiTran()) {
+					this.stop();
+				} else{
+					this.stopTranOnly();
+				}
 			}
 			importCount.setJobEndTime(new Date());
 		}

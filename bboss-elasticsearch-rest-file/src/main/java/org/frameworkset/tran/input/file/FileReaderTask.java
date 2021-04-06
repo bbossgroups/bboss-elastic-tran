@@ -92,7 +92,10 @@ public class FileReaderTask {
         this.currentStatus = currentStatus;
 
     }
-    public FileReaderTask(File file,String fileId,FileConfig fileConfig,long pointer,FileListenerService fileListenerService, BaseDataTran fileDataTran,Status currentStatus ) {
+
+
+
+    public FileReaderTask(File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran, Status currentStatus ) {
         this(file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus);
         this.pointer = pointer;
     }
@@ -116,6 +119,9 @@ public class FileReaderTask {
         }
 
 
+    }
+    public Status getCurrentStatus() {
+        return currentStatus;
     }
     /**
      * Reads the next line of text from this file.  This method successively
@@ -267,6 +273,7 @@ public class FileReaderTask {
                 if(reachEOFClosed){
                     if(logger.isInfoEnabled())
                         logger.info("{} reached eof and will be closed.",toString());
+                    fileListenerService.moveTaskToComplete(this);
                     this.taskEnded();
                 }
             }

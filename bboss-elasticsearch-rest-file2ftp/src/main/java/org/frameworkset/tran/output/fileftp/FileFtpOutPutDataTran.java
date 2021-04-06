@@ -269,10 +269,16 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		} finally {
 
 			if(!TranErrorWrapper.assertCondition(exception ,importContext)){
-				stop();
+				if(!importContext.getDataTranPlugin().isMultiTran()) {
+					this.stop();
+				} else{
+					this.stopTranOnly();
+				}
 			}
 			if(importContext.isCurrentStoped()){
-				stop();
+
+					this.stopTranOnly();
+
 			}
 			importCount.setJobEndTime(new Date());
 		}
@@ -584,7 +590,11 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		finally {
 
 			if(!TranErrorWrapper.assertCondition(exception ,importContext)){
-				stop();
+				if(!importContext.getDataTranPlugin().isMultiTran()) {
+					this.stop();
+				} else{
+					this.stopTranOnly();
+				}
 			}
 			try {
 				writer.close();

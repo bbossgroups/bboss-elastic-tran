@@ -412,7 +412,11 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 		finally {
 
 			if(!TranErrorWrapper.assertCondition(exception ,importContext)){
-				stop();
+				if(!importContext.getDataTranPlugin().isMultiTran()) {
+					this.stop();
+				} else{
+					this.stopTranOnly();
+				}
 			}
 			try {
 				writer.close();
@@ -537,7 +541,11 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 		}
 		finally {
 			if(!TranErrorWrapper.assertCondition(exception ,importContext)){
-				stop();
+				if(!importContext.getDataTranPlugin().isMultiTran()) {
+					this.stop();
+				} else{
+					this.stopTranOnly();
+				}
 			}
 			importCount.setJobEndTime(new Date());
 		}

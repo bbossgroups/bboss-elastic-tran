@@ -35,7 +35,7 @@ public interface DataTranPlugin {
 	public void afterCall(TaskContext taskContext);
 	public void throwException(TaskContext taskContext,Exception e);
 	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext);
-
+	public void forceflushLastValue(Status currentStatus);
 
 		boolean assertCondition();
 
@@ -76,4 +76,6 @@ public interface DataTranPlugin {
 	Status getCurrentStatus();
 
 	ExportCount getExportCount();
+
+	boolean isMultiTran();
 }

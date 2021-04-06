@@ -36,8 +36,10 @@ public class AsynESOutPutDataTran extends BaseElasticsearchDataTran {
 
 	@Override
 	public void stop(){
-		esTranResultSet.stop();
-		esTranResultSet = null;
+		if(esTranResultSet != null) {
+			esTranResultSet.stop();
+			esTranResultSet = null;
+		}
 		super.stop();
 	}
 	/**
@@ -45,8 +47,11 @@ public class AsynESOutPutDataTran extends BaseElasticsearchDataTran {
 	 */
 	@Override
 	public void stopTranOnly(){
-		esTranResultSet.stopTranOnly();
-		esTranResultSet = null;
+		if(esTranResultSet != null) {
+			esTranResultSet.stopTranOnly();
+			esTranResultSet = null;
+		}
+
 		super.stopTranOnly();
 	}
 

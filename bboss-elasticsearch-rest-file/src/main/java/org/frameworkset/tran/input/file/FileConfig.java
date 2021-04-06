@@ -1,5 +1,6 @@
 package org.frameworkset.tran.input.file;
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 
@@ -19,6 +20,8 @@ public class FileConfig {
 
     //规范路径
     private String normalSourcePath;
+    //规范路径
+    private Pattern normalSourcePathPattern;
     //文件名称正则匹配
     private String fileNameRegular;
     private Pattern fileNameRexPattern;
@@ -105,13 +108,13 @@ public class FileConfig {
     }
     public FileConfig(String sourcePath, String fileNameRegular, String fileHeadLineRegular) {
         this.sourcePath = sourcePath;
-        normalSourcePath = FileInodeHandler.change(sourcePath).toLowerCase();
+        normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
         this.fileNameRegular = fileNameRegular;
         this.fileHeadLineRegular = fileHeadLineRegular;
     }
     public FileConfig(String sourcePath, String fileNameRegular, String fileHeadLineRegular, boolean scanChild) {
         this.sourcePath = sourcePath;
-        normalSourcePath = FileInodeHandler.change(sourcePath).toLowerCase();
+        normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
         this.fileNameRegular = fileNameRegular;
         this.fileHeadLineRegular = fileHeadLineRegular;
         this.scanChild = scanChild;
@@ -235,7 +238,7 @@ public class FileConfig {
         if(inited )
             return this;
         inited = true;
-
+        normalSourcePathPattern = Pattern.compile(normalSourcePath);
         if(StringUtils.isNotEmpty(this.fileHeadLineRegular)){
             fileHeadLineRexPattern = Pattern.compile(this.fileHeadLineRegular);
         }
@@ -258,4 +261,10 @@ public class FileConfig {
         return this;
 
     }
+
+    public Pattern getNormalSourcePathPattern() {
+        return normalSourcePathPattern;
+    }
+
+
 }
