@@ -355,25 +355,46 @@ public class FileReaderTask {
             recordList.add(new FileLogRecord(true,pointer,reachEOFClosed));
         }
         else {
-            line = checkMaxLength(line);
+
             Map result = new HashMap();
             try {
                 if (jsondata) {
                     //json
                     Map json = SimpleStringUtil.json2Object(line, Map.class);
+                    Map addFields = fileConfig.getAddFields();
+                    if(addFields != null && addFields.size() > 0){
+                        json.putAll(addFields);
+                    }
+                    Map<String, Object> ignoreFields = fileConfig.getIgnoreFields();
+                    if(ignoreFields != null && ignoreFields.size() > 0){
+                        Iterator iterator = ignoreFields.keySet().iterator();
+                        while (iterator.hasNext()){
+                            json.remove(iterator.next());
+                        }
+                    }
                     //同级
                     if (rootLevel) {
+
                         result = json;
                     } else {//不同级
                         result.put("json", json);
                     }
                 } else {
+                    line = checkMaxLength(line);
                     result.put("@message", line);
+                    Map addFields = fileConfig.getAddFields();
+                    if(addFields != null && addFields.size() > 0){
+                        result.putAll(addFields);
+                    }
                 }
 
             } catch (Exception e) {
                 // not json
                 result.put("@message", line);
+                Map addFields = fileConfig.getAddFields();
+                if(addFields != null && addFields.size() > 0){
+                    result.putAll(addFields);
+                }
             }
             Map common = common(file, pointer, result);
             if (enableMeta)

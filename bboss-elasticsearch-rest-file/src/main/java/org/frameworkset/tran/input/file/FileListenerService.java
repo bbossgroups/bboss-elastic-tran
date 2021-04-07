@@ -42,6 +42,7 @@ public class FileListenerService {
         }
         this.completedTasks.put(fileReaderTask.getFileId(), fileReaderTask);
     }
+
     public void doChange(File file){
         String fileId = FileInodeHandler.inode(file);
         if(completedTasks.containsKey(fileId)){ // 已经采集过的文件直接返回
@@ -53,16 +54,19 @@ public class FileListenerService {
             return;
         }
         if(!fileConfigMap.containsKey(fileId) ){
-
+            FileConfig fileConfig = baseDataTranPlugin.getFileConfig(file.getAbsolutePath());
+            if(fileConfig == null)
+                return;
             Status currentStatus = new Status();
             currentStatus.setId(fileId.hashCode());
             currentStatus.setTime(new Date().getTime());
             currentStatus.setFileId(fileId);
             currentStatus.setFilePath(FileInodeHandler.change(file.getAbsolutePath()));
             currentStatus.setStatus(ImportIncreamentConfig.STATUS_COLLECTING);
-            currentStatus.setLastValue(0l);
+            long pointer = fileConfig.getStartPointer() !=null && fileConfig.getStartPointer() > 0l ?fileConfig.getStartPointer():0l;
+            currentStatus.setLastValue(pointer);
 
-            boolean successed = baseDataTranPlugin.initFileTask(currentStatus,file);
+            boolean successed = baseDataTranPlugin.initFileTask(fileConfig,currentStatus,file,pointer);
 
 
 //            FileResultSet kafkaResultSet = new FileResultSet(this.fileImportContext);

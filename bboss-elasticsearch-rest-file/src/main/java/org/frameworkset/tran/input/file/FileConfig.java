@@ -54,7 +54,7 @@ public class FileConfig {
     /**
      *  指定开始采集位置
      */
-    private long startPointer;
+    private Long startPointer;
 
     public Long getIgnoreOlderTime() {
         return ignoreOlderTime;
@@ -124,6 +124,14 @@ public class FileConfig {
             addFields = new HashMap<>();
         addFields.put(name,value);
         return this;
+    }
+
+    public Map<String, Object> getAddFields() {
+        return addFields;
+    }
+
+    public Map<String, Object> getIgnoreFields() {
+        return ignoreFields;
     }
 
     public FileConfig ignoreField(String name){
@@ -224,11 +232,11 @@ public class FileConfig {
         return this;
     }
 
-    public long getStartPointer() {
+    public Long getStartPointer() {
         return startPointer;
     }
 
-    public FileConfig setStartPointer(long startPointer) {
+    public FileConfig setStartPointer(Long startPointer) {
         this.startPointer = startPointer;
         return this;
     }

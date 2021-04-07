@@ -54,20 +54,20 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     public Status getCurrentStatus(){
         throw new UnsupportedOperationException("getCurrentStatus");
     }
-    private FileConfig getFileConfig(String filePath) {
+    public FileConfig getFileConfig(String filePath) {
         filePath = FileInodeHandler.change(filePath).toLowerCase();
         List<FileConfig> list = fileImportContext.getFileImportConfig().getFileConfigList();
         for(FileConfig config : list){
             Pattern source = config.getNormalSourcePathPattern();
-            if(source.matcher(filePath).find()){
+            if(source.matcher(filePath).matches()){
                 return config;
             }
         }
         return null;
     }
 
-    public boolean initFileTask(Status status,File file){
-        FileConfig fileConfig = getFileConfig(file.getAbsolutePath());
+    public boolean initFileTask(FileConfig fileConfig,Status status,File file,long pointer){
+
         if(fileConfig == null){
             return false;
         }
@@ -88,7 +88,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                 tranThread.setDaemon(true);
                 tranThread.start();
                 String fileId = FileInodeHandler.inode(file);
-                FileReaderTask task = new FileReaderTask(file,fileId,fileConfig,fileListenerService,fileDataTran,status);
+                FileReaderTask task = new FileReaderTask(file,fileId,fileConfig,pointer,fileListenerService,fileDataTran,status);
 //                fileConfigMap.put(fileId,task);
                 fileListenerService.addFileTask(fileId,task);
                 task.execute();
