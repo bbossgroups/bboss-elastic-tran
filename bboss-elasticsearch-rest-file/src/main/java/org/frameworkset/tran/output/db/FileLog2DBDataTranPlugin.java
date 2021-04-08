@@ -1,4 +1,4 @@
-package org.frameworkset.tran.output.es;
+package org.frameworkset.tran.output.db;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -18,29 +18,30 @@ package org.frameworkset.tran.output.es;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.es.output.AsynESOutPutDataTran;
+import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.input.file.FileBaseDataTranPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
- * <p>Description:采集日志数据并导入到elasticsearch插件，支持增量和全量导入 </p>
+ * <p>Description: 采集日志数据并导入Database插件，支持增量和全量导入</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2021/3/29 11:25
  * @author yin-bp@163.com
  * @version 1.0
  */
-public class FileLog2ESDataTranPlugin extends FileBaseDataTranPlugin {
-	public FileLog2ESDataTranPlugin(ImportContext importContext, ImportContext targetImportContext) {
+public class FileLog2DBDataTranPlugin extends FileBaseDataTranPlugin {
+	public FileLog2DBDataTranPlugin(ImportContext importContext, ImportContext targetImportContext) {
 		super(importContext, targetImportContext);
 	}
 
 	@Override
 	protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, Status currentStatus) {
 
-		AsynESOutPutDataTran asynESOutPutDataTran = new AsynESOutPutDataTran( taskContext,jdbcResultSet,importContext,targetImportContext,  currentStatus);
-		asynESOutPutDataTran.init();
-		return asynESOutPutDataTran;
+		AsynDBOutPutDataTran asynDBOutPutDataTran = new AsynDBOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,  currentStatus);
+		asynDBOutPutDataTran.init();
+		return asynDBOutPutDataTran;
+
 	}
 }

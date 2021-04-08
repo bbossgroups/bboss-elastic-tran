@@ -15,82 +15,25 @@ package org.frameworkset.tran.output.es;
  * limitations under the License.
  */
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.frameworkset.tran.*;
-import org.frameworkset.tran.config.BaseImportBuilder;
-import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.input.file.FileImportConfig;
-import org.frameworkset.tran.input.file.FileImportContext;
-import org.frameworkset.tran.input.file.FileListener;
-import org.frameworkset.tran.input.file.FileListenerService;
+import org.frameworkset.tran.input.file.FileBaseDataTranPlugin;
+import org.frameworkset.tran.output.FileLogBaseImportBuilder;
 
 /**
- * <p>Description: </p>
+ * <p>Description: 采集日志数据并导入elasticsearch插件构建器</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2021/3/29 11:21
  * @author yin-bp@163.com
  * @version 1.0
  */
-public class FileLog2ESImportBuilder extends BaseImportBuilder {
+public class FileLog2ESImportBuilder extends FileLogBaseImportBuilder {
 
-	@JsonIgnore
-	private FileImportConfig fileImportConfig;
 
 	@Override
-	public DataTranPlugin buildDataTranPlugin(ImportContext importContext, ImportContext targetImportContext){
-
-		FileLog2ESDataTranPlugin file2ESDataTranPlugin = new FileLog2ESDataTranPlugin(  importContext,  targetImportContext);
-		FileListener fileListener = new FileListener(new FileListenerService((FileImportContext) importContext,file2ESDataTranPlugin));
-		file2ESDataTranPlugin.setFileListener(fileListener);
-		return file2ESDataTranPlugin;
+	protected FileBaseDataTranPlugin createFileBaseDataTranPlugin(ImportContext importContext, ImportContext targetImportContext){
+		return new FileLog2ESDataTranPlugin(  importContext,  targetImportContext);
 	}
 
-	@Override
-	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		return new DefualtExportResultHandler<String,String>(exportResultHandler);
-	}
-
-	protected ImportContext buildImportContext(BaseImportConfig importConfig){
-		return new FileImportContext(importConfig);
-	}
-//	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-//		return new ESImportContext(importConfig);
-//	}
-	public DataStream builder(){
-		super.builderConfig();
-		super.buildImportConfig(fileImportConfig);
-		DataStream dataStream = createDataStream();
-		dataStream.setImportConfig(fileImportConfig);
-		dataStream.setImportContext(buildImportContext(fileImportConfig));
-
-		try {
-			if(logger.isInfoEnabled()) {
-				logger.info("FileLog2Elasticsearch Import Configs:");
-				logger.info(this.toString());
-			}
-		}
-		catch (Exception e){
-
-		}
-
-
-//		if(fileImportConfig != null)
-//			dataStream.setTargetImportContext(buildTargetImportContext(fileImportConfig) );
-//		else
-//			dataStream.setTargetImportContext(dataStream.getImportContext());
-		dataStream.setTargetImportContext(dataStream.getImportContext());
-		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
-
-		return dataStream;
-	}
-	public FileImportConfig getFileImportConfig() {
-		return fileImportConfig;
-	}
-
-	public void setFileImportConfig(FileImportConfig fileImportConfig) {
-		this.fileImportConfig = fileImportConfig;
-	}
 
 }
