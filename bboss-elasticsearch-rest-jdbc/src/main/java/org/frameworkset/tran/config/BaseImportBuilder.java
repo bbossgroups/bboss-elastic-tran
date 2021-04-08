@@ -993,16 +993,16 @@ public abstract class BaseImportBuilder {
 		fieldMeta.setIgnore(true);
 		return fieldMeta;
 	}
-	private FieldMeta buildFieldMeta(String dbColumnName,String esFieldName ,String dateFormat,String locale,String timeZone){
+	private FieldMeta buildFieldMeta(String toColumnName,String srcFieldName ,String dateFormat,String locale,String timeZone){
 		FieldMeta fieldMeta = new FieldMeta();
-		fieldMeta.setDbColumnName(dbColumnName);
-		fieldMeta.setEsFieldName(esFieldName);
+		fieldMeta.setDbColumnName(toColumnName);
+		fieldMeta.setEsFieldName(srcFieldName);
 		fieldMeta.setIgnore(false);
 		fieldMeta.setDateFormateMeta(dateFormat == null?null:DateFormateMeta.buildDateFormateMeta(dateFormat,locale,timeZone));
 		return fieldMeta;
 	}
-	public BaseImportBuilder addFieldMapping(String dbColumnName, String esFieldName){
-		this.fieldMetaMap.put(dbColumnName.toLowerCase(),buildFieldMeta(  dbColumnName,  esFieldName,null ));
+	public BaseImportBuilder addFieldMapping(String toColumnName, String srcFieldName){
+		this.fieldMetaMap.put(toColumnName.toLowerCase(),buildFieldMeta(  toColumnName,  srcFieldName,null ));
 		return this;
 	}
 

@@ -85,7 +85,6 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                         fileDataTran.tran();
                     }
                 }, "file-log-tran");
-                tranThread.setDaemon(true);
                 tranThread.start();
                 String fileId = FileInodeHandler.inode(file);
                 FileReaderTask task = new FileReaderTask(file,fileId,fileConfig,pointer,fileListenerService,fileDataTran,status);
@@ -172,7 +171,6 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                                 fileDataTran.tran();
                             }
                         }, "file-log-tran");
-                        tranThread.setDaemon(true);
                         tranThread.start();
                         Object lastValue = status.getLastValue();
                         long pointer = 0;

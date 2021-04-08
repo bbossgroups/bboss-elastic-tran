@@ -119,7 +119,6 @@ public class FileAlterationMonitor  implements Runnable{
         } else {
             thread = new Thread(this,"File-Log-Change-monitor");
         }
-        thread.setDaemon(true);
         thread.start();
     }
 

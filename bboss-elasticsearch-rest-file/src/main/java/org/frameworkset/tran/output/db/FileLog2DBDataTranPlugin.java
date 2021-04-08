@@ -19,9 +19,11 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
+import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.input.file.FileBaseDataTranPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.util.TranUtil;
 
 /**
  * <p>Description: 采集日志数据并导入Database插件，支持增量和全量导入</p>
@@ -32,10 +34,20 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public class FileLog2DBDataTranPlugin extends FileBaseDataTranPlugin {
+	protected DBOutPutContext dbOutPutContext;
 	public FileLog2DBDataTranPlugin(ImportContext importContext, ImportContext targetImportContext) {
 		super(importContext, targetImportContext);
+		dbOutPutContext = (DBOutPutContext) targetImportContext;
 	}
-
+	@Override
+	public void beforeInit() {
+		if(importContext.getDbConfig() != null)
+			this.initDS(importContext.getDbConfig());
+		if(dbOutPutContext.getTargetDBConfig() != null)
+			this.initDS(dbOutPutContext.getTargetDBConfig());
+		TranUtil.initTargetSQLInfo(dbOutPutContext,dbOutPutContext.getTargetDBConfig());
+		super.beforeInit();
+	}
 	@Override
 	protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, Status currentStatus) {
 

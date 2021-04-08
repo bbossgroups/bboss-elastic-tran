@@ -89,7 +89,6 @@ public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements
 					kafka2ESDataTran.tran();
 				}
 			},"kafka-elasticsearch-Tran");
-			tranThread.setDaemon(true);
 			tranThread.start();
 
 			this.initKafkaTranBatchConsumer2ndStore(kafka2ESDataTran);
