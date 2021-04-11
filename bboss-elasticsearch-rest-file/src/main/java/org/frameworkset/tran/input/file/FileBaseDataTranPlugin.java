@@ -1,26 +1,19 @@
 package org.frameworkset.tran.input.file;
 
 import com.frameworkset.common.poolman.SQLExecutor;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.HiddenFileFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.BaseDataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.file.monitor.FileAlterationMonitor;
-import org.frameworkset.tran.file.monitor.FileAlterationObserver;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranConstant;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -30,9 +23,9 @@ import java.util.regex.Pattern;
  */
 public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     protected FileImportContext fileImportContext;
-    protected FileListener fileListener;
+    protected FileListenerService fileListenerService;
+//    protected FileListener fileListener;
 //    protected List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
-    protected List<FileAlterationMonitor> fileAlterationMonitors;
     public FileBaseDataTranPlugin(ImportContext importContext,
                                   ImportContext targetImportContext) {
         super(importContext, targetImportContext);
@@ -42,8 +35,17 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     public boolean isMultiTran(){
         return true;
     }
-    public void setFileListener(FileListener fileListener) {
-        this.fileListener = fileListener;
+//    public void setFileListener(FileListener fileListener) {
+//        this.fileListener = fileListener;
+//    }
+
+
+    public void setFileListenerService(FileListenerService fileListenerService) {
+        this.fileListenerService = fileListenerService;
+    }
+
+    public FileListenerService getFileListenerService() {
+        return fileListenerService;
     }
 
     @Override
@@ -74,7 +76,6 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         FileResultSet kafkaResultSet = new FileResultSet(this.fileImportContext);
 //		final CountDownLatch countDownLatch = new CountDownLatch(1);
         final BaseDataTran fileDataTran = createBaseDataTran((TaskContext)null,kafkaResultSet,status);
-        FileListenerService fileListenerService = fileListener.getFileListenerService();
         Thread tranThread = null;
         try {
             if(fileDataTran != null) {
@@ -87,10 +88,10 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                 tranThread.start();
                 String fileId = FileInodeHandler.inode(file);
                 FileReaderTask task = new FileReaderTask(file,fileId,fileConfig,pointer,
-                        fileListenerService,fileDataTran,status,fileImportContext.getFileTaskWorkQueue());
+                        fileListenerService,fileDataTran,status);
 //                fileConfigMap.put(fileId,task);
                 fileListenerService.addFileTask(fileId,task);
-                task.dataChange();
+                task.start();
             }
             return true;
         } catch (ESDataImportException e) {
@@ -125,7 +126,6 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
             }
             boolean fromFirst = importContext.isFromFirst();
 
-            FileListenerService fileListenerService = fileListener.getFileListenerService();
             /**
              * 已经完成的任务
              */
@@ -191,8 +191,9 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                                 ,status.getFileId()
                                 ,fileConfig
                                 ,pointer
-                                ,fileListenerService,fileDataTran,status,fileImportContext.getFileTaskWorkQueue());
+                                ,fileListenerService,fileDataTran,status);
                         fileListenerService.addFileTask(task.getFileId(),task);
+                        task.start();
                     }
 
 
@@ -217,17 +218,8 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     }
     @Override
     public void destroy(boolean waitTranStop){
-
-        for(int i = 0; fileAlterationMonitors != null && i < fileAlterationMonitors.size(); i ++) {
-            FileAlterationMonitor fileAlterationMonitor = fileAlterationMonitors.get(i);
-            try {
-                fileAlterationMonitor.stop();
-            } catch (Exception e) {
-                logger.warn("fileAlterationMonitor stop error:", e);
-            }
-        }
         this.status = TranConstant.PLUGIN_STOPAPPENDING;
-        fileListener.checkTranFinished();//检查所有的作业是否已经结束，并等待作业结束
+        fileListenerService.checkTranFinished();//检查所有的作业是否已经结束，并等待作业结束
         super.destroy( false);
        // todo
     }
@@ -240,6 +232,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     protected void initFileListener(TaskContext taskContext){
         if(fileImportContext.getFileImportConfig() != null)
         {
+            /**
             // 一个目录一个FileAlterationObserver 一个FileAlterationObserver一个线程进行监听扫描，有文件变化交给监听器进行处理
             //每个线程再开启5（可配置）个工作线程的线程池，用于多线程采集日志数据
             List<FileAlterationObserver> observerList = this.init(fileImportContext.getFileImportConfig());
@@ -261,37 +254,17 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                 } catch (Exception e) {
                     throw new ESDataImportException(e);
                 }
+            }*/
+            List<FileConfig> fileConfigs = this.fileImportContext.getFileConfigList();
+            for(FileConfig fileConfig:fileConfigs) {
+                LogDirScanThread logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getInterval(),
+                        fileConfig,getFileListenerService());
+
+                logDirScanThread.start();
             }
         }
     }
-    //初始化监听器
-    protected List<FileAlterationObserver> init(final FileImportConfig fileImportConfig){
-        List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
-        IOFileFilter dir = FileFilterUtils.and(FileFilterUtils.directoryFileFilter(),
-                HiddenFileFilter.VISIBLE);
-        for(final FileConfig fileConfig:fileImportConfig.getFileConfigList()){
-            IOFileFilter filter = FileFilterUtils.and(
-                    FileFilterUtils.fileFileFilter(),
-                    FileFilterUtils.asFileFilter(new FilenameFilter() {
-                        @Override
-                        public boolean accept(File dir, String name) {
-                            Matcher m = fileConfig.getFileNameRexPattern().matcher(name);
-                            return m.matches();
-//                            return Pattern.matches(fileConfig.getFileNameRegular(), name);
-                        }
-                    })
-            );
-            if(fileConfig.isScanChild()){
-                filter = FileFilterUtils.or(filter,dir);
-            }
-            // 装配过滤器
-            FileAlterationObserver observer = new FileAlterationObserver(fileConfig.getSourcePath(), filter);
-            // 向监听者添加监听器，并注入业务服务
-            observer.addListener(fileListener);
-            observerList.add(observer);
-        }
-        return observerList;
-    }
+
 
     @Override
     public void afterInit(){

@@ -4,8 +4,11 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -95,7 +98,8 @@ public class FileConfig {
     private Long closeOlderTime ;
     //是否检测子目录
     private boolean scanChild;
-
+    private FilenameFilter filter ;
+    private File logDir;
     /**
      * 需要添加的字段
      */
@@ -104,13 +108,13 @@ public class FileConfig {
      * 需要添加的字段
      */
     private Map<String,Object> ignoreFields;
-    public FileConfig() {
-    }
+
     public FileConfig(String sourcePath, String fileNameRegular, String fileHeadLineRegular) {
         this.sourcePath = sourcePath;
         normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
         this.fileNameRegular = fileNameRegular;
         this.fileHeadLineRegular = fileHeadLineRegular;
+
     }
     public FileConfig(String sourcePath, String fileNameRegular, String fileHeadLineRegular, boolean scanChild) {
         this.sourcePath = sourcePath;
@@ -118,6 +122,7 @@ public class FileConfig {
         this.fileNameRegular = fileNameRegular;
         this.fileHeadLineRegular = fileHeadLineRegular;
         this.scanChild = scanChild;
+
     }
     public FileConfig addField(String name,Object value){
         if(addFields == null)
@@ -266,8 +271,25 @@ public class FileConfig {
                 excludeLinesRexPattern[i] = Pattern.compile(this.excludeLines[i]);
             }
         }
+        logDir  = new File(sourcePath);
+        filter = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                Matcher m = getFileNameRexPattern().matcher(name);
+                return m.matches();
+//                            return Pattern.matches(fileConfig.getFileNameRegular(), name);
+            }
+        };
         return this;
 
+    }
+
+    public File getLogDir() {
+        return logDir;
+    }
+
+    public FilenameFilter getFilter() {
+        return filter;
     }
 
     public Pattern getNormalSourcePathPattern() {

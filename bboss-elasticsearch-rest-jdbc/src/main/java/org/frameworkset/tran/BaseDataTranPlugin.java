@@ -265,6 +265,11 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public boolean isPluginStopAppending(){
 		return status == TranConstant.PLUGIN_STOPAPPENDING;
 	}
+
+	public boolean checkTranToStop(){
+		return status == TranConstant.PLUGIN_STOPAPPENDING
+				|| status == TranConstant.PLUGIN_STOPREADY || hasTran == false;
+	}
 	public void setStatus(int status){
 		this.status = status;
 	}

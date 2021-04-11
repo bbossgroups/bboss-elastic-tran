@@ -13,14 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.lang.Thread.sleep;
 
 /**
  * @author xutengfei,yin-bp@163.com
@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
  */
 public class FileReaderTask {
     private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
-    private BlockingQueue<Integer> blockingQueue;
     /**
      * 文件
      */
@@ -57,7 +56,7 @@ public class FileReaderTask {
     private boolean rootLevel;
     private boolean enableMeta;
     private String charsetEncode;
-
+    private String filePath;
 
     private BaseDataTran fileDataTran;
     private RandomAccessFile raf ;
@@ -74,9 +73,12 @@ public class FileReaderTask {
     private FileConfig fileConfig;
     private Thread worker ;
     private Integer token = new Integer(0);
+    private long oldLastModifyTime = -1;
+    private long checkInterval = 3000l;
     public FileReaderTask(File file, String fileId, FileConfig fileConfig, FileListenerService fileListenerService, BaseDataTran fileDataTran,
-                          Status currentStatus ,int workQueue) {
+                          Status currentStatus ) {
         this.file = file;
+        this.filePath = FileInodeHandler.change(file.getAbsolutePath());
         this.pointer = 0;
         this.fileId = fileId;
         this.fileListenerService = fileListenerService;
@@ -91,10 +93,7 @@ public class FileReaderTask {
         this.fileDataTran = fileDataTran;
         this.currentStatus = currentStatus;
         this.fileConfig = fileConfig;
-        this.blockingQueue = new ArrayBlockingQueue<Integer>(workQueue);
-        worker = new Thread(new Work(),"FileReaderTask-Thread");
-//        worker.setDaemon(true);
-        worker.start();
+
 
     }
     public FileReaderTask(String fileId,  Status currentStatus ) {
@@ -104,47 +103,106 @@ public class FileReaderTask {
 
     }
 
+    /**
+     * 1 文件被删除
+     * 2 文件被重命名
+     * -1 未知状态
+     * @param logFileId
+     * @return
+     */
+    public int fileExist(String logFileId){
+        File logDir = fileConfig.getLogDir();
+        FilenameFilter filter = fileConfig.getFilter();
+        try {
+            if (logDir.isDirectory() && logDir.exists()) {
+                File[] files = logDir.listFiles(filter);
+                File file = null;
+                for (int i = 0; files != null && i < files.length; i++) {
+                    file = files[i];
+                    String fileId = FileInodeHandler.inode(file);
+                    if(fileId.equals(logFileId) ){
+                        //文件存在，被重命名了
+                        return 2;
+                    }
+                }
+            }
+            //文件被删除了
+            return 1;
+        }
+        catch(Exception e){
+            //判断过程中出错了，返回未知状态
+            return -1;
+        }
 
-
-    public FileReaderTask(File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
-                          Status currentStatus  ,int workQueue) {
-        this(file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus,workQueue);
-        this.pointer = pointer;
     }
 
-    /**
-     * 传递令牌，快速返回
-     */
-    public void dataChange(){
-        try {
-            this.blockingQueue.offer(token,500l,TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public FileReaderTask(File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
+                          Status currentStatus   ) {
+        this(file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus);
+        this.pointer = pointer;
+    }
+    public void start(){
+        worker = new Thread(new Work(),"FileReaderTask-Thread");
+//        worker.setDaemon(true);
+        worker.start();
+    }
+    public String getFilePath() {
+        return filePath;
     }
     class Work implements Runnable{
 
         @Override
         public void run() {
+            boolean delete = false;
             do {
-                if(taskEnded){
+                if(taskEnded || fileListenerService.getBaseDataTranPlugin().checkTranToStop()){
                     break;
                 }
-                try {
-                    Integer token = blockingQueue.poll(5000l, TimeUnit.MILLISECONDS);//等待信号令过来，如果有信号令过来就执行采集操作
-                    if(token == null){
+                if(file.exists()){
+                    long lastModifyTime = file.lastModified();
+                    if(oldLastModifyTime == -1){
+                        oldLastModifyTime = lastModifyTime;
+                        execute();
                         continue;
                     }
-                } catch (InterruptedException e) {
-                    break;
+                    else if(oldLastModifyTime == lastModifyTime){
+                        try {
+                            sleep(checkInterval);
+                        } catch (InterruptedException e) {
+                            break;
+                        }
+                        continue;
+                    }
+                    else{
+                        oldLastModifyTime = lastModifyTime;
+                        execute();
+                        continue;
+                    }
                 }
-                if(taskEnded){
-                    break;
+                else{ //可能的删除文件，待处理
+                    int lable = fileExist(fileId);//根据文件号识别文件是否被删除
+                    if(lable == 1)//文件被删除
+                    {
+                        fileListenerService.doDelete(fileId);
+                        delete = true;
+                        break;
+                    }
+                    try {
+                        sleep(checkInterval);
+                    } catch (InterruptedException e) {
+                        break;
+                    }
+                    continue;
                 }
-                execute();
+
+
 
             }while(true);
+            if(delete){
+                taskEnded();
+            }
         }
+
     }
     class Line{
         private String line;
@@ -518,12 +576,7 @@ public class FileReaderTask {
             this.taskEnded = true;
 //            this.currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
             this.fileDataTran.stopTranOnly();
-            worker.interrupt();
-            try {
-                worker.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
         }
     }
     public BaseDataTran getFileDataTran() {
