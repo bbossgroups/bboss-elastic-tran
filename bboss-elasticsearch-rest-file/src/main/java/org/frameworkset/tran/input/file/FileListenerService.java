@@ -69,45 +69,12 @@ public class FileListenerService {
             boolean successed = baseDataTranPlugin.initFileTask(fileConfig,currentStatus,file,pointer);
 
 
-//            FileResultSet kafkaResultSet = new FileResultSet(this.fileImportContext);
-////		final CountDownLatch countDownLatch = new CountDownLatch(1);
-//            final BaseDataTran fileDataTran = baseDataTranPlugin).createBaseDataTran((TaskContext)null,kafkaResultSet);
-//
-//            Thread tranThread = null;
-//            try {
-//                if(fileDataTran != null) {
-//                    tranThread = new Thread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            fileDataTran.tran();
-//                        }
-//                    }, "file-log-tran");
-//                    tranThread.setDaemon(true);
-//                    tranThread.start();
-//                    FileReaderTask task = new FileReaderTask(file,fileId,getHeadLineReg(file.getAbsolutePath()),this,fileDataTran);
-//                    fileConfigMap.put(fileId,task);
-//                    task.start();
-//                }
-//            } catch (ESDataImportException e) {
-//                throw e;
-//            } catch (Exception e) {
-//                throw new ESDataImportException(e);
-//            }
-//            finally {
-////			kafkaResultSet.reachEend();
-////			try {
-////				countDownLatch.await();
-////			} catch (InterruptedException e) {
-////				if(logger.isErrorEnabled())
-////					logger.error("",e);
-////			}
-//            }
 
         }else{
 
             FileReaderTask task = fileConfigMap.get(fileId);
             task.setFile(file);
-            task.execute();
+            task.dataChange();
         }
     }
 
@@ -168,8 +135,8 @@ public class FileListenerService {
         //不存在的不处理，会有创建事件去处理了
         if(fileReaderTask != null){
             fileReaderTask.changeFile(newFile);
-
-            fileReaderTask.execute();
+            //文件移到不需要执行采集操作
+//            fileReaderTask.execute();
         }
     }
     public FileImportContext getFileImportContext() {

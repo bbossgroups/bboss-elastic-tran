@@ -25,6 +25,9 @@ public class FileImportConfig extends BaseImportConfig {
     private String charsetEncode = "UTF-8";
     private List<FileConfig> fileConfigList;
 
+
+
+    private int fileTaskWorkQueue = 1000;
     public FileImportConfig(Long interval,boolean rootLevel) {
         this.interval = interval;
         this.rootLevel = rootLevel;
@@ -107,4 +110,13 @@ public class FileImportConfig extends BaseImportConfig {
         this.registLiveTime = registLiveTime;
         return this;
     }
+    public int getFileTaskWorkQueue() {
+        return fileTaskWorkQueue;
+    }
+
+    public FileImportConfig setFileTaskWorkQueue(int fileTaskWorkQueue) {
+        this.fileTaskWorkQueue = fileTaskWorkQueue;
+        return this;
+    }
+
 }

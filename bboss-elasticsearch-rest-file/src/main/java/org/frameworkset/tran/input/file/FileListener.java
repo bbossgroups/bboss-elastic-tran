@@ -35,8 +35,8 @@ public class FileListener extends FileAlterationListenerAdaptor {
     // 文件创建修改
     @Override
     public void onFileChange(File file) {
-        if(logger.isInfoEnabled())
-            logger.info(file.getAbsoluteFile()+":onFileChange");
+        if(logger.isDebugEnabled())
+            logger.debug(file.getAbsoluteFile()+":onFileChange");
         // 触发业务
         fileListenerService.doChange(file);
     }

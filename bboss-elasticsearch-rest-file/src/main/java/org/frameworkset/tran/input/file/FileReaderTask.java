@@ -16,6 +16,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +29,7 @@ import java.util.regex.Pattern;
  */
 public class FileReaderTask {
     private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
+    private BlockingQueue<Integer> blockingQueue;
     /**
      * 文件
      */
@@ -68,7 +72,10 @@ public class FileReaderTask {
      */
     private boolean jsondata ;
     private FileConfig fileConfig;
-    public FileReaderTask(File file, String fileId, FileConfig fileConfig, FileListenerService fileListenerService, BaseDataTran fileDataTran,Status currentStatus ) {
+    private Thread worker ;
+    private Integer token = new Integer(0);
+    public FileReaderTask(File file, String fileId, FileConfig fileConfig, FileListenerService fileListenerService, BaseDataTran fileDataTran,
+                          Status currentStatus ,int workQueue) {
         this.file = file;
         this.pointer = 0;
         this.fileId = fileId;
@@ -84,6 +91,10 @@ public class FileReaderTask {
         this.fileDataTran = fileDataTran;
         this.currentStatus = currentStatus;
         this.fileConfig = fileConfig;
+        this.blockingQueue = new ArrayBlockingQueue<Integer>(workQueue);
+        worker = new Thread(new Work(),"FileReaderTask-Thread");
+//        worker.setDaemon(true);
+        worker.start();
 
     }
     public FileReaderTask(String fileId,  Status currentStatus ) {
@@ -95,17 +106,54 @@ public class FileReaderTask {
 
 
 
-    public FileReaderTask(File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran, Status currentStatus ) {
-        this(file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus);
+    public FileReaderTask(File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
+                          Status currentStatus  ,int workQueue) {
+        this(file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus,workQueue);
         this.pointer = pointer;
     }
-    static class Line{
+
+    /**
+     * 传递令牌，快速返回
+     */
+    public void dataChange(){
+        try {
+            this.blockingQueue.offer(token,500l,TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    class Work implements Runnable{
+
+        @Override
+        public void run() {
+            do {
+                if(taskEnded){
+                    break;
+                }
+                try {
+                    Integer token = blockingQueue.poll(5000l, TimeUnit.MILLISECONDS);//等待信号令过来，如果有信号令过来就执行采集操作
+                    if(token == null){
+                        continue;
+                    }
+                } catch (InterruptedException e) {
+                    break;
+                }
+                if(taskEnded){
+                    break;
+                }
+                execute();
+
+            }while(true);
+        }
+    }
+    class Line{
         private String line;
         private boolean eof;
-
-        Line(String line, boolean eof) {
+        private boolean eol;
+        Line(String line, boolean eof,boolean eol) {
             this.line = line;
             this.eof = eof;
+            this.eol = eol;
         }
 
         public String getLine() {
@@ -116,6 +164,10 @@ public class FileReaderTask {
 
         public boolean isEof() {
             return eof;
+        }
+
+        public boolean isRollbackPreLine(){
+            return eof && !eol && !fileConfig.isCloseEOF();
         }
 
 
@@ -147,7 +199,7 @@ public class FileReaderTask {
      * @exception  IOException  if an I/O error occurs.
      */
 
-    public final Line readLine() throws IOException {
+    public final Line readLine(long startPointer) throws IOException {
         StringBuilder input = new StringBuilder();
         int c = -1;
         boolean eol = false;
@@ -173,13 +225,18 @@ public class FileReaderTask {
 
         if ((c == -1) ) {
             if(input.length() == 0)
-                return new Line(null,true);
+                return new Line(null,true,eol);
             else{
-                return new Line(input.toString(),true);
+                if(fileConfig.isCloseEOF())
+                    return new Line(input.toString(),true,eol);
+                else{ // 需要结束本次采集
+                    raf.seek(startPointer);
+                    return new Line(null,true,eol);
+                }
             }
         }
         else
-            return new Line(input.toString(),false);
+            return new Line(input.toString(),false,eol);
     }
 
     private boolean reachEOFClosed(Line line){
@@ -188,11 +245,11 @@ public class FileReaderTask {
         }
         return false;
     }
-    public void execute() {
+    private void execute() {
         try {
             if(taskEnded)
                 return;
-            synchronized (this){
+//            synchronized (this){  单线程处理，无需同步处理
                 if(raf == null) {
                     RandomAccessFile raf = new RandomAccessFile(file, "r");
                     //文件重新写了，则需要重新读取
@@ -211,8 +268,9 @@ public class FileReaderTask {
                 //批量处理记录数
                 int fetchSize = this.fileListenerService.getFileImportContext().getFetchSize();
                 boolean reachEOFClosed = false;
+                long startPointer = pointer;
                 while(true){
-                    line_ = readLine();
+                    line_ = readLine( startPointer);
                     reachEOFClosed = reachEOFClosed(line_);
                     if(line_.getLine() != null) {
                         line = line_.getLine();
@@ -224,7 +282,7 @@ public class FileReaderTask {
                             if (m.find() && builder.length() > 0) {
                                 pointer = raf.getFilePointer();
                                 result(file, pointer, builder.toString(), recordList,reachEOFClosed);
-
+                                startPointer =  pointer;
                                 //分批处理数据
                                 if (fetchSize > 0 && ( recordList.size() >= fetchSize)) {
                                     fileDataTran.appendData(new CommonData(recordList));
@@ -240,12 +298,15 @@ public class FileReaderTask {
                             if(reachEOFClosed){
                                 pointer = raf.getFilePointer();
                                 result(file,pointer,builder.toString(), recordList,reachEOFClosed);
+                                startPointer =  pointer;
+
                                 builder.setLength(0);
                                 break;
                             }
                         } else {
                             pointer = raf.getFilePointer();
                             result(file, pointer, line, recordList,reachEOFClosed);
+                            startPointer =  pointer;
                             //分批处理数据
                             if (fetchSize > 0 && recordList.size() >= fetchSize) {
                                 fileDataTran.appendData(new CommonData(recordList));
@@ -261,8 +322,10 @@ public class FileReaderTask {
                     }
                 }
                 if(builder.length() > 0 ){
-                    pointer = raf.getFilePointer();
-                    result(file,pointer,builder.toString(), recordList,reachEOFClosed);
+                    if(!line_.isRollbackPreLine()) {
+                        pointer = raf.getFilePointer();
+                        result(file, pointer, builder.toString(), recordList, reachEOFClosed);
+                    }
                     builder.setLength(0);
                     builder = null;
                 }
@@ -276,7 +339,7 @@ public class FileReaderTask {
                     fileListenerService.moveTaskToComplete(this);
                     this.taskEnded();
                 }
-            }
+//            }
         }catch (Exception e){
 //            logger.error("",e);
             throw new DataImportException("",e);
@@ -455,6 +518,12 @@ public class FileReaderTask {
             this.taskEnded = true;
 //            this.currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
             this.fileDataTran.stopTranOnly();
+            worker.interrupt();
+            try {
+                worker.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
     public BaseDataTran getFileDataTran() {

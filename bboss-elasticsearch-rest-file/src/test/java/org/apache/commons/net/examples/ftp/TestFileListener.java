@@ -18,6 +18,7 @@ public class TestFileListener {
     }
     @Test
     public void start() throws Exception {
+        System.out.println("a\nb");
         FileImportConfig config = new FileImportConfig();
         //.*.txt.[0-9]+$
         config.addConfig("E:\\ELK\\data\\data1",".*.txt","");

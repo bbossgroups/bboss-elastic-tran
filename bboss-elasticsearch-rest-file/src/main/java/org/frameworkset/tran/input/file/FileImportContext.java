@@ -3,6 +3,8 @@ package org.frameworkset.tran.input.file;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
 
+import java.util.List;
+
 /**
  * @author xutengfei,yin-bp@163.com
  * @description
@@ -33,5 +35,12 @@ public class FileImportContext extends BaseImportContext {
     }
     public boolean useFilePointer(){
         return true;
+    }
+    public int getFileTaskWorkQueue(){
+        return fileImportConfig.getFileTaskWorkQueue();
+    }
+
+    public List<FileConfig> getFileConfigList(){
+        return fileImportConfig.getFileConfigList();
     }
 }

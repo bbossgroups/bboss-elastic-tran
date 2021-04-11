@@ -19,7 +19,6 @@ import org.frameworkset.tran.util.TranConstant;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,8 +31,8 @@ import java.util.regex.Pattern;
 public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     protected FileImportContext fileImportContext;
     protected FileListener fileListener;
-    protected List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
-    protected FileAlterationMonitor fileAlterationMonitor;
+//    protected List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
+    protected List<FileAlterationMonitor> fileAlterationMonitors;
     public FileBaseDataTranPlugin(ImportContext importContext,
                                   ImportContext targetImportContext) {
         super(importContext, targetImportContext);
@@ -56,7 +55,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     }
     public FileConfig getFileConfig(String filePath) {
         filePath = FileInodeHandler.change(filePath).toLowerCase();
-        List<FileConfig> list = fileImportContext.getFileImportConfig().getFileConfigList();
+        List<FileConfig> list = fileImportContext.getFileConfigList();
         for(FileConfig config : list){
             Pattern source = config.getNormalSourcePathPattern();
             if(source.matcher(filePath).matches()){
@@ -87,10 +86,11 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                 }, "file-log-tran");
                 tranThread.start();
                 String fileId = FileInodeHandler.inode(file);
-                FileReaderTask task = new FileReaderTask(file,fileId,fileConfig,pointer,fileListenerService,fileDataTran,status);
+                FileReaderTask task = new FileReaderTask(file,fileId,fileConfig,pointer,
+                        fileListenerService,fileDataTran,status,fileImportContext.getFileTaskWorkQueue());
 //                fileConfigMap.put(fileId,task);
                 fileListenerService.addFileTask(fileId,task);
-                task.execute();
+                task.dataChange();
             }
             return true;
         } catch (ESDataImportException e) {
@@ -191,7 +191,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                                 ,status.getFileId()
                                 ,fileConfig
                                 ,pointer
-                                ,fileListenerService,fileDataTran,status);
+                                ,fileListenerService,fileDataTran,status,fileImportContext.getFileTaskWorkQueue());
                         fileListenerService.addFileTask(task.getFileId(),task);
                     }
 
@@ -218,10 +218,13 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     @Override
     public void destroy(boolean waitTranStop){
 
-        try {
-            fileAlterationMonitor.stop();
-        } catch (Exception e) {
-            logger.warn("fileAlterationMonitor stop error:",e);
+        for(int i = 0; fileAlterationMonitors != null && i < fileAlterationMonitors.size(); i ++) {
+            FileAlterationMonitor fileAlterationMonitor = fileAlterationMonitors.get(i);
+            try {
+                fileAlterationMonitor.stop();
+            } catch (Exception e) {
+                logger.warn("fileAlterationMonitor stop error:", e);
+            }
         }
         this.status = TranConstant.PLUGIN_STOPAPPENDING;
         fileListener.checkTranFinished();//检查所有的作业是否已经结束，并等待作业结束
@@ -237,26 +240,33 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     protected void initFileListener(TaskContext taskContext){
         if(fileImportContext.getFileImportConfig() != null)
         {
-            this.init(fileImportContext.getFileImportConfig());
-            fileAlterationMonitor =  new FileAlterationMonitor(fileImportContext.getFileImportConfig().getInterval(),
-                    observerList.toArray(new FileAlterationObserver[observerList.size()]));
-            try {
+            // 一个目录一个FileAlterationObserver 一个FileAlterationObserver一个线程进行监听扫描，有文件变化交给监听器进行处理
+            //每个线程再开启5（可配置）个工作线程的线程池，用于多线程采集日志数据
+            List<FileAlterationObserver> observerList = this.init(fileImportContext.getFileImportConfig());
+            for(int i = 0; observerList != null && i < observerList.size(); i ++) {
+                FileAlterationObserver fileAlterationObserver = observerList.get(i);
+                FileAlterationMonitor fileAlterationMonitor = new FileAlterationMonitor(fileImportContext.getFileImportConfig().getInterval(),
+                        fileAlterationObserver);
+                this.fileAlterationMonitors.add(fileAlterationMonitor);
+                try {
 //                fileListener.reload();
-                Iterator<FileAlterationObserver> iterator = fileAlterationMonitor.getObservers().iterator();
-                while (iterator.hasNext()){
-                    iterator.next().checkAndNotify();
-                }
-                fileAlterationMonitor.start();
+//                    Iterator<FileAlterationObserver> iterator = fileAlterationMonitor.getObservers().iterator();
+//                    while (iterator.hasNext()) {
+//                        iterator.next().checkAndNotify();
+//                    }
+                    fileAlterationMonitor.start();
 //                while(true){
 //                    Thread.sleep(10000);
 //                }
-            } catch (Exception e) {
-                throw new ESDataImportException(e);
+                } catch (Exception e) {
+                    throw new ESDataImportException(e);
+                }
             }
         }
     }
     //初始化监听器
-    protected void init(final FileImportConfig fileImportConfig){
+    protected List<FileAlterationObserver> init(final FileImportConfig fileImportConfig){
+        List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
         IOFileFilter dir = FileFilterUtils.and(FileFilterUtils.directoryFileFilter(),
                 HiddenFileFilter.VISIBLE);
         for(final FileConfig fileConfig:fileImportConfig.getFileConfigList()){
@@ -280,6 +290,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
             observer.addListener(fileListener);
             observerList.add(observer);
         }
+        return observerList;
     }
 
     @Override
