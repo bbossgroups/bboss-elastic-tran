@@ -28,6 +28,6 @@ sourceSets {
 dependencies {
 	compile project(':bboss-elasticsearch-rest-jdbc')
 //	compile 'commons-io:commons-io:2.8.0'
-	compile group: 'commons-io', name: 'commons-io', version: '2.8.0',transitive: true
+//	compile group: 'commons-io', name: 'commons-io', version: '2.8.0',transitive: true
 }
 
