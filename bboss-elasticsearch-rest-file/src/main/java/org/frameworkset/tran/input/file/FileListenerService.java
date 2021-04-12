@@ -218,6 +218,8 @@ public class FileListenerService {
                 FileConfig fileConfig = baseDataTranPlugin.getFileConfig(file.getAbsolutePath());
                 if (fileConfig == null)
                     return;
+                if(logger.isInfoEnabled())
+                    logger.info("Start collect new log file {}",file.getAbsolutePath());
                 Status currentStatus = new Status();
                 currentStatus.setId(fileId.hashCode());
                 currentStatus.setTime(new Date().getTime());
@@ -231,6 +233,8 @@ public class FileListenerService {
                 String oldFilePath = fileReaderTask.getFilePath();
                 String filePath = FileInodeHandler.change(file.getAbsolutePath());
                 if (!oldFilePath.equals(filePath)) {//文件发生了重命名
+                    if(logger.isInfoEnabled())
+                        logger.info("Rename Log file {} to {}",oldFilePath,filePath);
                     fileReaderTask.changeFile(file);
                 }
             }

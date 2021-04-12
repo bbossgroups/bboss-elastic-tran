@@ -115,6 +115,9 @@ public class LogDirScanThread implements Runnable{
      * 识别新增的文件，如果有新增文件，将启动新的文件采集作业
      */
     private void checkAndNotify(){
+        if(logger.isDebugEnabled()){
+            logger.debug("scan new log file in dir {} with filename regex {}.",fileConfig.getLogDir(),fileConfig.getFileNameRegular());
+        }
         File logDir = fileConfig.getLogDir();
         FilenameFilter filter = fileConfig.getFilter();
         if(logDir.isDirectory() && logDir.exists()){

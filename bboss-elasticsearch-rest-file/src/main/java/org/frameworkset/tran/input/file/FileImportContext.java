@@ -22,6 +22,9 @@ public class FileImportContext extends BaseImportContext {
         this(new FileImportConfig());
 
     }
+    public long getCheckFileModifyInterval() {
+        return fileImportConfig.getCheckFileModifyInterval();
+    }
     public FileImportContext(BaseImportConfig baseImportConfig){
         super(baseImportConfig);
     }
@@ -36,9 +39,7 @@ public class FileImportContext extends BaseImportContext {
     public boolean useFilePointer(){
         return true;
     }
-    public int getFileTaskWorkQueue(){
-        return fileImportConfig.getFileTaskWorkQueue();
-    }
+
 
     public List<FileConfig> getFileConfigList(){
         return fileImportConfig.getFileConfigList();

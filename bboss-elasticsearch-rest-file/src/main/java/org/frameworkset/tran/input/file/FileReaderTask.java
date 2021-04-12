@@ -41,10 +41,7 @@ public class FileReaderTask {
      * 文件采集偏移量
      */
     private long pointer;
-    /**
-     * 文件开始行标识，正则表达式
-     */
-    private String fileHeadLineRegular;
+
     /**
      * 文件监听事件服务
      */
@@ -72,9 +69,8 @@ public class FileReaderTask {
     private boolean jsondata ;
     private FileConfig fileConfig;
     private Thread worker ;
-    private Integer token = new Integer(0);
     private long oldLastModifyTime = -1;
-    private long checkInterval = 3000l;
+    private long checkFileModifyInterval = 3000l;
     public FileReaderTask(File file, String fileId, FileConfig fileConfig, FileListenerService fileListenerService, BaseDataTran fileDataTran,
                           Status currentStatus ) {
         this.file = file;
@@ -82,7 +78,6 @@ public class FileReaderTask {
         this.pointer = 0;
         this.fileId = fileId;
         this.fileListenerService = fileListenerService;
-        this.fileHeadLineRegular = fileConfig.getFileHeadLineRegular();
         if(fileConfig.getFileHeadLineRexPattern() != null){
             pattern = fileConfig.getFileHeadLineRexPattern() ;
         }
@@ -90,6 +85,7 @@ public class FileReaderTask {
         jsondata = this.fileListenerService.getFileImportContext().getFileImportConfig().isJsondata();
         charsetEncode = this.fileListenerService.getFileImportContext().getFileImportConfig().getCharsetEncode();
         enableMeta = this.fileListenerService.getFileImportContext().getFileImportConfig().isEnableMeta();
+        checkFileModifyInterval = this.fileListenerService.getFileImportContext().getFileImportConfig().getCheckFileModifyInterval();
         this.fileDataTran = fileDataTran;
         this.currentStatus = currentStatus;
         this.fileConfig = fileConfig;
@@ -167,7 +163,7 @@ public class FileReaderTask {
                     }
                     else if(oldLastModifyTime == lastModifyTime){
                         try {
-                            sleep(checkInterval);
+                            sleep(checkFileModifyInterval);
                         } catch (InterruptedException e) {
                             break;
                         }
@@ -188,7 +184,7 @@ public class FileReaderTask {
                         break;
                     }
                     try {
-                        sleep(checkInterval);
+                        sleep(checkFileModifyInterval);
                     } catch (InterruptedException e) {
                         break;
                     }

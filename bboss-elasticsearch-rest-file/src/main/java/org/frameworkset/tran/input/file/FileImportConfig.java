@@ -11,8 +11,11 @@ import java.util.List;
  * @create 2021/3/12
  */
 public class FileImportConfig extends BaseImportConfig {
-    //监听间隔
-    private Long interval;
+    /**
+     * 扫描新文件和文件名调整时间间隔
+     */
+
+    private Long interval = 5000L;
     private Long registLiveTime;
     //jsondata = true时，自定义的数据是否和采集的数据平级，true则直接在原先的json串中存放数据
     //false则定义一个json存放数据，若不是json则是message
@@ -24,22 +27,14 @@ public class FileImportConfig extends BaseImportConfig {
     private boolean enableMeta;
     private String charsetEncode = "UTF-8";
     private List<FileConfig> fileConfigList;
+    private long checkFileModifyInterval = 3000l;
 
 
 
-    private int fileTaskWorkQueue = 1000;
-    public FileImportConfig(Long interval,boolean rootLevel) {
-        this.interval = interval;
-        this.rootLevel = rootLevel;
-    }
 
     public FileImportConfig() {
-        this.interval = 1000L;
     }
-    public FileImportConfig(boolean rootLevel) {
-        this();
-        this.rootLevel = rootLevel;
-    }
+
 
     public List<FileConfig> getFileConfigList() {
         return fileConfigList;
@@ -67,6 +62,11 @@ public class FileImportConfig extends BaseImportConfig {
         return this;
     }
 
+    public FileImportConfig setInterval(Long interval) {
+        this.interval = interval;
+        return this;
+    }
+
     public Long getInterval() {
         return interval;
     }
@@ -77,6 +77,11 @@ public class FileImportConfig extends BaseImportConfig {
 
     public boolean isJsondata() {
         return jsondata;
+    }
+
+    public FileImportConfig setRootLevel(boolean rootLevel) {
+        this.rootLevel = rootLevel;
+        return this;
     }
 
     public FileImportConfig setJsondata(boolean jsondata) {
@@ -110,13 +115,14 @@ public class FileImportConfig extends BaseImportConfig {
         this.registLiveTime = registLiveTime;
         return this;
     }
-    public int getFileTaskWorkQueue() {
-        return fileTaskWorkQueue;
+
+
+    public long getCheckFileModifyInterval() {
+        return checkFileModifyInterval;
     }
 
-    public FileImportConfig setFileTaskWorkQueue(int fileTaskWorkQueue) {
-        this.fileTaskWorkQueue = fileTaskWorkQueue;
+    public FileImportConfig setCheckFileModifyInterval(long checkFileModifyInterval) {
+        this.checkFileModifyInterval = checkFileModifyInterval;
         return this;
     }
-
 }
