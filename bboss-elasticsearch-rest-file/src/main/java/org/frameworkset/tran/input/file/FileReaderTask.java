@@ -283,13 +283,13 @@ public class FileReaderTask {
 
         if ((c == -1) ) {
             if(input.length() == 0)
-                return new Line(null,true,eol);
+                return new Line(null,true,true);
             else{
                 if(fileConfig.isCloseEOF())
-                    return new Line(input.toString(),true,eol);
+                    return new Line(input.toString(),true,false);
                 else{ // 需要结束本次采集
                     raf.seek(startPointer);
-                    return new Line(null,true,eol);
+                    return new Line(null,true,false);
                 }
             }
         }
