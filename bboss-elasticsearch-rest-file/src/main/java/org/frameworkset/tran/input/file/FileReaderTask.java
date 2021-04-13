@@ -132,6 +132,17 @@ public class FileReaderTask {
 
     }
 
+    /**
+     * 判断文件是否被重命名
+     * @param logFile
+     * @return
+     */
+    public boolean fileRenamed(File logFile){
+        String logFileId = FileInodeHandler.inode(logFile);
+        return  !fileId.equals(logFileId);
+
+    }
+
     public FileReaderTask(File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
                           Status currentStatus   ) {
         this(file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus);
@@ -155,6 +166,7 @@ public class FileReaderTask {
                     break;
                 }
                 if(file.exists()){
+
                     long lastModifyTime = file.lastModified();
                     if(oldLastModifyTime == -1){
                         oldLastModifyTime = lastModifyTime;
@@ -170,6 +182,15 @@ public class FileReaderTask {
                         continue;
                     }
                     else{
+                        if(fileRenamed(file))
+                        {
+                            try {
+                                sleep(checkFileModifyInterval);
+                            } catch (InterruptedException e) {
+                                break;
+                            }
+                            continue;
+                        }
                         oldLastModifyTime = lastModifyTime;
                         execute();
                         continue;

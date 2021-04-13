@@ -653,21 +653,26 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 							.append( "PRIMARY KEY (ID))").toString();
 					File dbpath = new File(statusStorePath);
 					logger.info("initDatasource dbpath:" + dbpath.getCanonicalPath());
-					SQLUtil.startPool(statusDbname,
-							"org.sqlite.JDBC",
-							"jdbc:sqlite://" + dbpath.getCanonicalPath(),
-							"root", "root",
-							null,//"false",
-							null,// "READ_UNCOMMITTED",
-							"select 1",
-							dbJNDIName,
-							10,
-							10,
-							20,
-							true,
-							false,
-							null, false, false
-					);
+					DBConf tempConf = new DBConf();
+					tempConf.setPoolname(statusDbname);
+					tempConf.setDriver("org.sqlite.JDBC");
+					tempConf.setJdbcurl("jdbc:sqlite://" + dbpath.getCanonicalPath());
+					tempConf.setUsername("root");
+					tempConf.setPassword("root");
+					tempConf.setReadOnly((String)null);
+					tempConf.setTxIsolationLevel((String)null);
+					tempConf.setValidationQuery("select 1");
+					tempConf.setJndiName(dbJNDIName);
+					tempConf.setInitialConnections(10);
+					tempConf.setMinimumSize(10);
+					tempConf.setMaximumSize(20);
+					tempConf.setUsepool(true);
+					tempConf.setExternal(false);
+					tempConf.setExternaljndiName((String)null);
+					tempConf.setShowsql(false);
+					tempConf.setEncryptdbinfo(false);
+					tempConf.setQueryfetchsize(null);
+					SQLUtil.startPoolWithDBConf(tempConf);
 				} catch (Exception e) {
 					throw new ESDataImportException(e);
 				}
@@ -683,21 +688,43 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 					String dbJNDIName = statusDbname+"_jndi";
 					try {
 
-						SQLUtil.startPool(statusDbname,
-								statusDBConfig.getDbDriver(),
-								statusDBConfig.getDbUrl(),
-								statusDBConfig.getDbUser(), statusDBConfig.getDbPassword(),
-								null,//"false",
-								null,// "READ_UNCOMMITTED",
-								statusDBConfig.getValidateSQL(),
-								dbJNDIName,
-								10,
-								10,
-								20,
-								true,
-								false,
-								null, false, false
-						);
+//						SQLUtil.startPool(statusDbname,
+//								statusDBConfig.getDbDriver(),
+//								statusDBConfig.getDbUrl(),
+//								statusDBConfig.getDbUser(), statusDBConfig.getDbPassword(),
+//								null,//"false",
+//								null,// "READ_UNCOMMITTED",
+//								statusDBConfig.getValidateSQL(),
+//								dbJNDIName,
+//								10,
+//								10,
+//								20,
+//								true,
+//								false,
+//								null, false, false
+//						);
+
+						DBConf tempConf = new DBConf();
+						tempConf.setPoolname(statusDbname);
+						tempConf.setDriver(statusDBConfig.getDbDriver());
+						tempConf.setJdbcurl(statusDBConfig.getDbUrl());
+						tempConf.setUsername(statusDBConfig.getDbUser());
+						tempConf.setPassword(statusDBConfig.getDbPassword());
+						tempConf.setReadOnly((String)null);
+						tempConf.setTxIsolationLevel((String)null);
+						tempConf.setValidationQuery(statusDBConfig.getValidateSQL());
+						tempConf.setJndiName(dbJNDIName);
+						tempConf.setInitialConnections(10);
+						tempConf.setMinimumSize(10);
+						tempConf.setMaximumSize(20);
+						tempConf.setUsepool(true);
+						tempConf.setExternal(false);
+						tempConf.setExternaljndiName((String)null);
+						tempConf.setShowsql(false);
+						tempConf.setEncryptdbinfo(false);
+						tempConf.setQueryfetchsize(null);
+						tempConf.setDbInfoEncryptClass(statusDBConfig.getDbInfoEncryptClass());
+						SQLUtil.startPoolWithDBConf(tempConf);
 					} catch (Exception e) {
 						throw new ESDataImportException(e);
 					}
@@ -970,6 +997,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			temConf.setDbAdaptor(dbConfig.getDbAdaptor());
 			temConf.setDbtype(dbConfig.getDbtype());
 			temConf.setColumnLableUpperCase(dbConfig.isColumnLableUpperCase());
+			temConf.setDbInfoEncryptClass(dbConfig.getDbInfoEncryptClass());
 			SQLManager.startPool(temConf);
 			/**
 			SQLUtil.startPool(dbConfig.getDbName(),//数据源名称

@@ -1,13 +1,12 @@
 package org.frameworkset.tran.file.monitor;
 
+import org.frameworkset.util.OSInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
@@ -17,13 +16,16 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 public class FileInodeHandler {
     protected static Logger logger = LoggerFactory.getLogger(FileInodeHandler.class);
+
+
+
+
     public static String inode(File file){
-        String fileId = change(file.getAbsolutePath());
-        if(System.getProperty("os.name").indexOf("Linux")>=0){
-            //获取文件号
-            Path path = Paths.get(fileId);
+        String fileId = null;
+        if(!OSInfo.isWindows()){
+
             try {
-                BasicFileAttributes bfa = Files.readAttributes(path,BasicFileAttributes.class);
+                BasicFileAttributes bfa = Files.readAttributes(file.toPath(),BasicFileAttributes.class);
                 fileId = bfa.fileKey().toString();
                 //(dev=810,ino=20)
                 if(fileId !=null){
@@ -43,6 +45,9 @@ public class FileInodeHandler {
             } catch (IOException e) {
                 logger.error("inode error",e);
             }
+        }
+        else{
+            fileId = change(file.getAbsolutePath());
         }
         return fileId;
     }

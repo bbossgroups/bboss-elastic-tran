@@ -479,7 +479,10 @@ public abstract class BaseImportBuilder {
 			}
 
 		}
-
+		if(!customDBConfigs.containsKey(prefix+"db.dbInfoEncryptClass")) {
+			String dbInfoEncryptClass  = propertiesContainer.getExternalProperty(prefix+"db.dbInfoEncryptClass");
+			dbConfig.setDbInfoEncryptClass(dbInfoEncryptClass);
+		}
 
 	}
 
@@ -569,6 +572,11 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setUsePool(boolean usePool) {
 		_setUsePool(  usePool);
+		return this;
+	}
+
+	public BaseImportBuilder setDbInfoEncryptClass(String dbInfoEncryptClass){
+		_setDbInfoEncryptClass(dbInfoEncryptClass);
 		return this;
 	}
 
@@ -908,7 +916,11 @@ public abstract class BaseImportBuilder {
 		dbConfig.setUsePool(usePool);
 	}
 
-
+	public void _setDbInfoEncryptClass(String dbInfoEncryptClass) {
+		this.customDBConfigs.put(DBConfig.db_dbInfoEncryptClass_key,1);
+		checkDBConfig();
+		dbConfig.setDbInfoEncryptClass(dbInfoEncryptClass);
+	}
 	public List<DBConfig> getConfigs() {
 		return configs;
 	}

@@ -101,6 +101,12 @@ public class DBConfig {
 	 * 事务管理机制只有在一次性全量单线程导入的情况下才有用
 	 */
 	private boolean enableDBTransaction = false;
+
+	/**
+	 * https://doc.bbossgroups.com/#/persistent/encrypt
+	 * 同时如果想对账号、口令、url之间的任意两个组合加密的话，用户可以自己继承 com.frameworkset.common.poolman.security.BaseDBInfoEncrypt类，参考默认插件，实现相应的信息加密方法并配置到aop.properties中即可。
+	 */
+	private String dbInfoEncryptClass;
 	public String getDbDriver() {
 		return dbDriver;
 	}
@@ -287,6 +293,8 @@ public class DBConfig {
 	public static final String db_usePool_key = "db.usePool";
 
 	public static final String db_validateSQL_key = "db.validateSQL";
+	public static final String db_dbInfoEncryptClass_key = "db.dbInfoEncryptClass";
+
 
 	public static final String db_showsql_key = "db.showsql";
 
@@ -307,4 +315,11 @@ public class DBConfig {
 	public static final String db_columnLableUpperCase_key = "db.columnLableUpperCase";
 
 
+	public String getDbInfoEncryptClass() {
+		return dbInfoEncryptClass;
+	}
+
+	public void setDbInfoEncryptClass(String dbInfoEncryptClass) {
+		this.dbInfoEncryptClass = dbInfoEncryptClass;
+	}
 }
