@@ -7,8 +7,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 /**
- * Refactor from commons-io
- * @author xutengfei
+ * 扫描新增日志文件和inode机制有效的情况下的重命名日志文件检测
+ * @author biaoping.yin
  * @description
  * @create 2021/3/23
  */

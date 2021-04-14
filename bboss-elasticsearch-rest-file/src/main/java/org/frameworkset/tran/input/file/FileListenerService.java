@@ -150,24 +150,24 @@ public class FileListenerService {
 
 
     }
-    //文件移动 linux环境才能根据inode判断文件移动了
-    public void onFileMove(File oldFile, File newFile) {
-        String fileId = FileInodeHandler.inode(newFile);
-        FileReaderTask fileReaderTask = null;
-        try {
-            lock.lock();
-            fileReaderTask = fileConfigMap.get(fileId);
-        }
-        finally {
-            lock.unlock();
-        }
-        //不存在的不处理，会有创建事件去处理了
-        if(fileReaderTask != null){
-            fileReaderTask.changeFile(newFile);
-            //文件移到不需要执行采集操作
-//            fileReaderTask.execute();
-        }
-    }
+//    //文件移动 linux环境才能根据inode判断文件移动了
+//    public void onFileMove(File oldFile, File newFile) {
+//        String fileId = FileInodeHandler.inode(newFile);
+//        FileReaderTask fileReaderTask = null;
+//        try {
+//            lock.lock();
+//            fileReaderTask = fileConfigMap.get(fileId);
+//        }
+//        finally {
+//            lock.unlock();
+//        }
+//        //不存在的不处理，会有创建事件去处理了
+//        if(fileReaderTask != null){
+//            fileReaderTask.changeFile(newFile);
+//            //文件移到不需要执行采集操作
+////            fileReaderTask.execute();
+//        }
+//    }
     public FileImportContext getFileImportContext() {
         return fileImportContext;
     }
@@ -230,12 +230,14 @@ public class FileListenerService {
                 currentStatus.setLastValue(pointer);
                 boolean successed = baseDataTranPlugin.initFileTask(fileConfig, currentStatus, file, pointer);
             } else { //检查文件是否被重命名
-                String oldFilePath = fileReaderTask.getFilePath();
-                String filePath = FileInodeHandler.change(file.getAbsolutePath());
-                if (!oldFilePath.equals(filePath)) {//文件发生了重命名
-                    if(logger.isInfoEnabled())
-                        logger.info("Rename Log file {} to {}",oldFilePath,filePath);
-                    fileReaderTask.changeFile(file);
+                if(fileReaderTask.isEnableInode()) {
+                    String oldFilePath = fileReaderTask.getFilePath();
+                    String filePath = FileInodeHandler.change(file.getAbsolutePath());
+                    if (!oldFilePath.equals(filePath)) {//文件发生了重命名
+                        if (logger.isInfoEnabled())
+                            logger.info("Rename Log file {} to {}", oldFilePath, filePath);
+                        fileReaderTask.changeFile(file);
+                    }
                 }
             }
 

@@ -3,6 +3,7 @@ package org.frameworkset.tran.input.file;
 import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
+import org.frameworkset.util.OSInfo;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -58,6 +59,10 @@ public class FileConfig {
      *  指定开始采集位置
      */
     private Long startPointer;
+    /**
+     * 是否启用inode文件标识符机制来识别文件重命名操作，linux环境下起作用，windows环境下不起作用（enableInode强制为false）
+     */
+    private boolean enableInode = true;
 
     public Long getIgnoreOlderTime() {
         return ignoreOlderTime;
@@ -280,6 +285,8 @@ public class FileConfig {
 //                            return Pattern.matches(fileConfig.getFileNameRegular(), name);
             }
         };
+        if(OSInfo.isWindows())
+            enableInode = false;
         return this;
 
     }
@@ -297,4 +304,14 @@ public class FileConfig {
     }
 
 
+    public boolean isEnableInode() {
+        return enableInode;
+    }
+    /**
+     * 是否启用inode文件标识符机制来识别文件重命名操作，linux环境下起作用，windows环境下不起作用（enableInode强制为false）
+     */
+    public FileConfig setEnableInode(boolean enableInode) {
+        this.enableInode = enableInode;
+        return this;
+    }
 }

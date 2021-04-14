@@ -100,13 +100,17 @@ public class FileReaderTask {
     }
 
     /**
+     * 检测文件是否被重命名，如果重命名则标识文件还存在
      * 1 文件被删除
      * 2 文件被重命名
-     * -1 未知状态
+     * -1 未知状态  判断过程中出错了，返回未知状态
      * @param logFileId
      * @return
      */
     public int fileExist(String logFileId){
+        if(!fileConfig.isEnableInode()){
+            return 1;
+        }
         File logDir = fileConfig.getLogDir();
         FilenameFilter filter = fileConfig.getFilter();
         try {
@@ -138,6 +142,9 @@ public class FileReaderTask {
      * @return
      */
     public boolean fileRenamed(File logFile){
+        if(!fileConfig.isEnableInode()){
+            return false;
+        }
         String logFileId = FileInodeHandler.inode(logFile);
         return  !fileId.equals(logFileId);
 
@@ -155,6 +162,9 @@ public class FileReaderTask {
     }
     public String getFilePath() {
         return filePath;
+    }
+    public boolean isEnableInode(){
+        return fileConfig.isEnableInode();
     }
     class Work implements Runnable{
 
