@@ -41,10 +41,18 @@ public class DBOutPutDataTran extends BaseDataTran {
 		else
 			dbConfig = es2DBContext.getTargetDBConfig();
 		StringBuilder builder = new StringBuilder().append("Import data to db[").append(dbConfig.getDbUrl())
-				.append("] dbuser[").append(dbConfig.getDbUser())
-				.append("] insert sql[").append(es2DBContext.getTargetSqlInfo() == null ?"": es2DBContext.getTargetSqlInfo().getOriginSQL()).append("] \r\nupdate sql[")
-				.append(es2DBContext.getTargetUpdateSqlInfo() == null?"":es2DBContext.getTargetUpdateSqlInfo().getOriginSQL()).append("] \r\ndelete sql[")
-				.append(es2DBContext.getTargetDeleteSqlInfo() == null ?"":es2DBContext.getTargetDeleteSqlInfo().getOriginSQL()).append("]");
+				.append("] dbuser[").append(dbConfig.getDbUser()).append("]");
+		if(es2DBContext.getTargetSqlInfo() != null ) {
+			builder.append(" insert sql[").append( es2DBContext.getTargetSqlInfo().getOriginSQL()).append("]");
+		}
+		if(es2DBContext.getTargetUpdateSqlInfo() != null ) {
+			builder.append("\r\nupdate sql[")
+					.append(es2DBContext.getTargetUpdateSqlInfo().getOriginSQL()).append("]");
+		}
+		if(es2DBContext.getTargetDeleteSqlInfo() != null ) {
+			builder.append("\r\ndelete sql[")
+					.append(es2DBContext.getTargetDeleteSqlInfo().getOriginSQL()).append("]");
+		}
 		taskInfo = builder.toString();
 	}
 

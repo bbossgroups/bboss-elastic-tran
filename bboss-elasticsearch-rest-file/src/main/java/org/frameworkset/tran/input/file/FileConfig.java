@@ -61,6 +61,7 @@ public class FileConfig {
     private Long startPointer;
     /**
      * 是否启用inode文件标识符机制来识别文件重命名操作，linux环境下起作用，windows环境下不起作用（enableInode强制为false）
+     * linux环境下，在不存在重命名的场景下可以关闭inode文件标识符机制，windows环境下强制关闭inode文件标识符机制
      */
     private boolean enableInode = true;
 
@@ -309,6 +310,7 @@ public class FileConfig {
     }
     /**
      * 是否启用inode文件标识符机制来识别文件重命名操作，linux环境下起作用，windows环境下不起作用（enableInode强制为false）
+     * linux环境下，在不存在重命名的场景下可以关闭inode文件标识符机制，windows环境下强制关闭inode文件标识符机制
      */
     public FileConfig setEnableInode(boolean enableInode) {
         this.enableInode = enableInode;
