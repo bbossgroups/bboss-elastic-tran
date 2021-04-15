@@ -18,11 +18,13 @@ public class FileInodeHandler {
     protected static Logger logger = LoggerFactory.getLogger(FileInodeHandler.class);
 
 
-
-
     public static String inode(File file){
+        return inode(file,true);
+    }
+
+    public static String inode(File file,boolean enableInode){
         String fileId = null;
-        if(!OSInfo.isWindows()){
+        if(!OSInfo.isWindows() && enableInode){
 
             try {
                 BasicFileAttributes bfa = Files.readAttributes(file.toPath(),BasicFileAttributes.class);

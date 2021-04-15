@@ -203,21 +203,22 @@ public class FileListenerService {
 
     }
 
-    public void checkNewFile(File file) {
-        String fileId = FileInodeHandler.inode(file);
+    public void checkNewFile(File file,FileConfig fileConfig) {
+
+        String fileId = FileInodeHandler.inode(file,fileConfig.isEnableInode());
         try {
             lock.lock();
             FileReaderTask fileReaderTask = fileConfigMap.get(fileId);
+
             if (fileReaderTask == null) {
                 if(this.completedTasks.containsKey(fileId))//作业已经完成
                     return;
                 if(this.oldedTasks.containsKey(fileId)){//作业已经被移除到过时作业清单
                     return;
                 }
+
                 //创建新的采集任务
-                FileConfig fileConfig = baseDataTranPlugin.getFileConfig(file.getAbsolutePath());
-                if (fileConfig == null)
-                    return;
+
                 if(logger.isInfoEnabled())
                     logger.info("Start collect new log file {}",file.getAbsolutePath());
                 Status currentStatus = new Status();

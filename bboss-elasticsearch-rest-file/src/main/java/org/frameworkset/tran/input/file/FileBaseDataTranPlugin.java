@@ -86,7 +86,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     }
                 }, "file-log-tran");
                 tranThread.start();
-                String fileId = FileInodeHandler.inode(file);
+                String fileId = FileInodeHandler.inode(file,fileConfig.isEnableInode());
                 FileReaderTask task = new FileReaderTask(file,fileId,fileConfig,pointer,
                         fileListenerService,fileDataTran,status);
 //                fileConfigMap.put(fileId,task);

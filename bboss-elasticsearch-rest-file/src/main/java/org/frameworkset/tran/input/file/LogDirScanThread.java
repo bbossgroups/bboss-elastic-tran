@@ -126,7 +126,7 @@ public class LogDirScanThread implements Runnable{
             for(int i = 0; files != null && i < files.length; i ++){
                 file = files[i];
                 if(file.isFile() && file.exists()) {
-                    fileListenerService.checkNewFile(file);
+                    fileListenerService.checkNewFile(file,fileConfig);
                 }
             }
         }

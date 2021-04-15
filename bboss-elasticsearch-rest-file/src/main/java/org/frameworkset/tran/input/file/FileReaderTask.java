@@ -119,7 +119,7 @@ public class FileReaderTask {
                 File file = null;
                 for (int i = 0; files != null && i < files.length; i++) {
                     file = files[i];
-                    String fileId = FileInodeHandler.inode(file);
+                    String fileId = FileInodeHandler.inode(file,fileConfig.isEnableInode());
                     if(fileId.equals(logFileId) ){
                         //文件存在，被重命名了
                         return 2;
@@ -145,7 +145,7 @@ public class FileReaderTask {
         if(!fileConfig.isEnableInode()){
             return false;
         }
-        String logFileId = FileInodeHandler.inode(logFile);
+        String logFileId = FileInodeHandler.inode(logFile,fileConfig.isEnableInode());
         return  !fileId.equals(logFileId);
 
     }
