@@ -26,11 +26,11 @@ sourceSets {
 
 
 dependencies {
-	compile project(':bboss-elasticsearch-rest-file')
+	api project(':bboss-elasticsearch-rest-file')
 
 	// https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
-	compile group: 'commons-net', name: 'commons-net', version: '3.8.0',transitive: true
+	api group: 'commons-net', name: 'commons-net', version: '3.8.0', transitive: true
 //	implementation 'com.jcraft:jsch:0.1.55'
-	compile 'com.hierynomus:sshj:0.30.0'
+	api 'com.hierynomus:sshj:0.30.0'
 }
 
