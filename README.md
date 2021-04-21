@@ -22,7 +22,7 @@ First Get source code from https://github.com/bbossgroups/bboss-elastic-tran
 Then change to cmd window under directory bboss-elastic-tran and run gradle build command：
 
 ```
-gradle install
+gradle publishToMavenLocal
 ```
 
 Build from source code guide:
@@ -37,7 +37,7 @@ First add the maven dependency of BBoss to your pom.xml:
        <dependency>
             <groupId>com.bbossgroups.plugins</groupId>
             <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-            <version>6.2.8</version>
+            <version>6.2.9</version>
         </dependency>
 ``` 
 
