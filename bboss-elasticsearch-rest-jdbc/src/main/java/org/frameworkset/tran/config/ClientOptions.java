@@ -60,6 +60,7 @@ public class ClientOptions implements BulkActionConfig,Serializable {
 	private Object routing;
 
 	private String pipeline;
+	private String filterPath;
 	private String opType;
 	protected String refreshOption;
 	private ESField detectNoopField;
@@ -496,6 +497,15 @@ public class ClientOptions implements BulkActionConfig,Serializable {
 			return parentClientOptions.getPipeline();
 		}
 		return null;
+	}
+
+	@Override
+	public String getFilterPath() {
+		return this.filterPath;
+	}
+
+	public void setFilterPath(String filterPath) {
+		this.filterPath = filterPath;
 	}
 
 	/**

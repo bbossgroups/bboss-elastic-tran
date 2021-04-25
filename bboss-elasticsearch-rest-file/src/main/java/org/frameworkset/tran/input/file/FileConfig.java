@@ -21,7 +21,8 @@ public class FileConfig {
     //文件监听路径
     private String sourcePath;
 
-
+    //控制是否删除采集完的文件，默认false 不删除，true 删除
+    private boolean deleteEOFFile;
     //规范路径
     private String normalSourcePath;
     //规范路径
@@ -315,5 +316,13 @@ public class FileConfig {
     public FileConfig setEnableInode(boolean enableInode) {
         this.enableInode = enableInode;
         return this;
+    }
+
+    public boolean isDeleteEOFFile() {
+        return deleteEOFFile;
+    }
+
+    public void setDeleteEOFFile(boolean deleteEOFFile) {
+        this.deleteEOFFile = deleteEOFFile;
     }
 }

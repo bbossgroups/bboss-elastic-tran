@@ -331,6 +331,7 @@ public class FileReaderTask {
         return false;
     }
     private void execute() {
+        boolean reachEOFClosed = false;
         try {
             if(taskEnded)
                 return;
@@ -352,7 +353,7 @@ public class FileReaderTask {
                 List<Record> recordList = new ArrayList<Record>();
                 //批量处理记录数
                 int fetchSize = this.fileListenerService.getFileImportContext().getFetchSize();
-                boolean reachEOFClosed = false;
+
                 long startPointer = pointer;
                 while(true){
                     line_ = readLine( startPointer);
@@ -417,12 +418,13 @@ public class FileReaderTask {
                 if(recordList.size() > 0 ){
                     fileDataTran.appendData(new CommonData(recordList));
                 }
-                //如果设置了文件结束，及结束作业，则进行相应处理
+                //如果设置了文件结束，及结束作业，则进行相应处理，需迁移到通道结束处进行归档和删除处理
                 if(reachEOFClosed){
                     if(logger.isInfoEnabled())
                         logger.info("{} reached eof and will be closed.",toString());
                     fileListenerService.moveTaskToComplete(this);
                     this.taskEnded();
+
                 }
 //            }
         }catch (Exception e){
@@ -430,6 +432,14 @@ public class FileReaderTask {
             throw new DataImportException("",e);
         }finally {
             destroy();
+            try {
+                if (reachEOFClosed) {
+                    this.file.delete();
+                }
+            }
+            catch (Exception e){
+
+            }
         }
     }
 

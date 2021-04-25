@@ -15,6 +15,7 @@ package org.frameworkset.tran.task;
  * limitations under the License.
  */
 
+import org.frameworkset.elasticsearch.bulk.BulkConfig;
 import org.frameworkset.elasticsearch.client.BuildTool;
 import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.frameworkset.elasticsearch.client.ClientUtil;
@@ -81,7 +82,7 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 		this.tryCount ++;
 		if(importContext.isDebugResponse()) {
 
-			data = clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions()), datas, ClientUtil.HTTP_POST);
+			data = clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions(), BulkConfig.ERROR_FILTER_PATH), datas, ClientUtil.HTTP_POST);
 			finishTask();
 			if(logger.isInfoEnabled())
 				logger.info(data);
@@ -90,14 +91,14 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 		else{
 			if(importContext.isDiscardBulkResponse() && importContext.getExportResultHandler() == null) {
 				ESVoidResponseHandler esVoidResponseHandler = new ESVoidResponseHandler();
-				clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions()), datas, ClientUtil.HTTP_POST,esVoidResponseHandler);
+				clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions(), BulkConfig.ERROR_FILTER_PATH), datas, ClientUtil.HTTP_POST,esVoidResponseHandler);
 				if(esVoidResponseHandler.getElasticSearchException() != null)
 					throw esVoidResponseHandler.getElasticSearchException();
 				finishTask();
 				return null;
 			}
 			else{
-				data = clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions()), datas, ClientUtil.HTTP_POST);
+				data = clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions(), BulkConfig.ERROR_FILTER_PATH), datas, ClientUtil.HTTP_POST);
 				finishTask();
 			}
 		}

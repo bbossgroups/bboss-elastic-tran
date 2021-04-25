@@ -1318,6 +1318,18 @@ public abstract class BaseImportBuilder {
 		return this;
 	}
 
+	/**
+	 * 设置Elasticsearch批处理入库的filter_path参数
+	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
+	 * @param filterPath
+	 * @return
+	 */
+	public BaseImportBuilder setFilterPath(String filterPath) {
+		checkclientOptions();
+		clientOptions.setFilterPath(filterPath);
+		return this;
+	}
+
 	public BaseImportBuilder setRoutingField(String routingField) {
 		checkclientOptions();
 		if (!routingField.startsWith("meta:"))
