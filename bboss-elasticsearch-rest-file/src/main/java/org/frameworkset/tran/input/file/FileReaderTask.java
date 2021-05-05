@@ -433,7 +433,8 @@ public class FileReaderTask {
         }finally {
             destroy();
             try {
-                if (reachEOFClosed) {
+                //需要删除采集完数据的eof文件，有必要进行优化并在回调函数中处理
+                if (reachEOFClosed && fileConfig.isDeleteEOFFile()) {
                     this.file.delete();
                 }
             }
