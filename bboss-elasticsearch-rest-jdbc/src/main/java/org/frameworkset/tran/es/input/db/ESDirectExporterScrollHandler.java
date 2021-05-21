@@ -17,6 +17,7 @@ package org.frameworkset.tran.es.input.db;
 
 import com.frameworkset.common.poolman.ConfigSQLExecutor;
 import com.frameworkset.common.poolman.SQLExecutor;
+import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.elasticsearch.entity.ESDatas;
 import org.frameworkset.elasticsearch.scroll.HandlerInfo;
@@ -64,12 +65,15 @@ public class ESDirectExporterScrollHandler<T> extends BaseESExporterScrollHandle
 		if(logger.isInfoEnabled()){
 			logger.info("Execute task {} start.",batchNo);
 		}
+		DBConfig targetDB = es2DBContext.getTargetDBConfig();
+		if(targetDB == null)
+			targetDB = importContext.getDbConfig();
 		if(es2DBContext.getSql() == null) {
-			configSQLExecutor.executeBatch(importContext.getDbConfig().getDbName(), es2DBContext.getSqlName(),
+			configSQLExecutor.executeBatch(targetDB.getDbName(), es2DBContext.getSqlName(),
 					datas, batchSize, es2DBContext.getBatchHandler());
 		}
 		else{
-			SQLExecutor.executeBatch(importContext.getDbConfig().getDbName(),
+			SQLExecutor.executeBatch(targetDB.getDbName(),
 					es2DBContext.getSql(), datas, batchSize, es2DBContext.getBatchHandler());
 		}
 		if(logger.isInfoEnabled()){
