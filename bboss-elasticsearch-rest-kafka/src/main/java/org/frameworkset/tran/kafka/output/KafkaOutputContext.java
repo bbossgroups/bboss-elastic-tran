@@ -33,5 +33,5 @@ public interface KafkaOutputContext {
 	public Properties getKafkaConfigs();
 	public boolean kafkaAsynSend();
 	public KafkaSend getKafkaSend();
-	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder);
+	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder) throws Exception;
 }

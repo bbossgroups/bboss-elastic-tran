@@ -36,7 +36,7 @@ public class DummyOupputContextImpl extends BaseImportContext implements DummyOu
 		this.dummyOupputConfig = dummyOupputConfig;
 
 	}
-	public void generateReocord(org.frameworkset.tran.context.Context taskContext, CommonRecord record, Writer builder){
+	public void generateReocord(org.frameworkset.tran.context.Context taskContext, CommonRecord record, Writer builder)  throws Exception{
 		dummyOupputConfig.getReocordGenerator().buildRecord(  taskContext, record,  builder);
 	}
 	@Override

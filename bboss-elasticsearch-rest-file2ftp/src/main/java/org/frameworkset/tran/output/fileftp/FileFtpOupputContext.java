@@ -34,7 +34,7 @@ public interface FileFtpOupputContext {
 	public final int TRANSFER_PROTOCOL_SFTP = 2;
 
 	public String generateFileName(TaskContext taskContext, int fileSeq);
-	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder);
+	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder) throws Exception;
 	public long getFailedFileResendInterval();
 	public long getSuccessFilesCleanInterval();
 	public int getFileLiveTime();

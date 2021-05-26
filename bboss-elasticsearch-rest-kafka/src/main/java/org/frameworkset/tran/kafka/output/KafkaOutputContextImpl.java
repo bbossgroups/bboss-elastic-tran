@@ -72,7 +72,7 @@ public class KafkaOutputContextImpl extends BaseImportContext implements KafkaOu
 	public Properties getKafkaConfigs() {
 		return kafkaOutputConfig.getKafkaConfigs();
 	}
-	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder){
+	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder) throws Exception{
 		kafkaOutputConfig.getReocordGenerator().buildRecord(context,record,builder);
 	}
 }

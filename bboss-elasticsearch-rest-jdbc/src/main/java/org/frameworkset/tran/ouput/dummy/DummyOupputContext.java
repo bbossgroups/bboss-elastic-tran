@@ -30,7 +30,7 @@ import java.io.Writer;
 public interface DummyOupputContext   {
 
 	public boolean isPrintRecord();
-	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder);
+	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder) throws Exception;
 
 
 }

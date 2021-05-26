@@ -72,7 +72,7 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 	public String generateFileName(TaskContext taskContext, int fileSeq){
 		return fileFtpOupputConfig.getFilenameGenerator().genName(   taskContext,fileSeq);
 	}
-	public void generateReocord(Context taskContext, CommonRecord record, Writer builder){
+	public void generateReocord(Context taskContext, CommonRecord record, Writer builder) throws Exception{
 		fileFtpOupputConfig.getReocordGenerator().buildRecord(  taskContext, record,  builder);
 	}
 

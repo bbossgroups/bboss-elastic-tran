@@ -29,5 +29,5 @@ import java.io.Writer;
  * @version 1.0
  */
 public interface ReocordGenerator {
-	public void buildRecord(Context taskContext, CommonRecord record, Writer builder);
+	public void buildRecord(Context taskContext, CommonRecord record, Writer builder) throws Exception;
 }
