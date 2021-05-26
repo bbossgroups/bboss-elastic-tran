@@ -15,7 +15,6 @@ package org.frameworkset.tran.kafka;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
 
 import java.util.Properties;
@@ -32,8 +31,8 @@ public  class KafkaImportContext extends BaseImportContext implements KafkaConte
 	private KafkaImportConfig kafkaImportConfig;
 
 	@Override
-	protected void init(BaseImportConfig baseImportConfig) {
-		super.init(baseImportConfig);
+	public void init() {
+		super.init();
 		this.kafkaImportConfig = (KafkaImportConfig)baseImportConfig;
 	}
 

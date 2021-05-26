@@ -45,8 +45,8 @@ public  class DBImportContext extends BaseImportContext implements DBOutPutConte
 	private TranSQLInfo targetSqlInfo;
 	private TranSQLInfo targetUpdateSqlInfo;
 	private TranSQLInfo targetDeleteSqlInfo;
-
-	protected void init(BaseImportConfig baseImportConfig){
+	@Override
+	public void init(){
 		dbImportConfig = (DBImportConfig)baseImportConfig;
 	}
 	public DBImportContext(){

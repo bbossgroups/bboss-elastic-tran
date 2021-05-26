@@ -16,7 +16,6 @@ package org.frameworkset.tran.output.fileftp;
  */
 
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -38,9 +37,9 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 		super(fileFtpOupputConfig);
 
 	}
-
-	protected void init(BaseImportConfig baseImportConfig){
-		super.init(baseImportConfig);
+	@Override
+	public void init(){
+		super.init();
 		this.fileFtpOupputConfig = (FileFtpOupputConfig)baseImportConfig;
 		if(fileFtpOupputConfig.getReocordGenerator() == null){
 			fileFtpOupputConfig.setReocordGenerator(new JsonReocordGenerator());

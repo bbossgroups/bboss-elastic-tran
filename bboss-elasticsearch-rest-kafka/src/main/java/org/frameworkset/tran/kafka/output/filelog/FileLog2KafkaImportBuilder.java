@@ -67,8 +67,9 @@ public class FileLog2KafkaImportBuilder extends FileLogBaseImportBuilder {
 	}
 	@Override
 	protected ImportContext buildTargetImportContext(BaseImportConfig targetImportConfig) {
-		KafkaOutputContextImpl esOutputContext = new KafkaOutputContextImpl(targetImportConfig);
-		return esOutputContext;
+		KafkaOutputContextImpl kafkaOutputContext = new KafkaOutputContextImpl(targetImportConfig);
+		kafkaOutputContext.init();
+		return kafkaOutputContext;
 	}
 	@Override
 	protected void setTargetImportContext(DataStream dataStream){

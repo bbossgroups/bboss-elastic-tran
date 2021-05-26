@@ -18,7 +18,6 @@ package org.frameworkset.tran.mongodb;
 import com.mongodb.DBObject;
 import com.mongodb.client.model.DBCollectionFindOptions;
 import org.frameworkset.nosql.mongodb.ClientMongoCredential;
-import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.db.DBImportContext;
 
 import java.util.List;
@@ -39,8 +38,9 @@ public class MongoDBImportContext extends DBImportContext implements MongoDBCont
 //	{
 //		return new MongoDB2ESInputPlugin(this);
 //	}
-	protected void init(BaseImportConfig baseImportConfig){
-		super.init(baseImportConfig);
+	@Override
+	public void init(){
+		super.init();
 		mongoDBImportConfig = (MongoDBImportConfig)baseImportConfig;
 	}
 	public MongoDBImportContext(){

@@ -45,7 +45,9 @@ public class ES2DBExportBuilder extends ESExportBuilder {
 
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-		return new DBImportContext(importConfig);
+		DBImportContext dbImportContext = new DBImportContext(importConfig);
+		dbImportContext.init();
+		return dbImportContext;
 	}
 	public DataStream builder(){
 		DataStream dataStream = super.builder();

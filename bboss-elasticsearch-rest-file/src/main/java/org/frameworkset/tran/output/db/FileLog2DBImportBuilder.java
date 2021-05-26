@@ -45,7 +45,9 @@ public class FileLog2DBImportBuilder extends FileLogBaseImportBuilder {
 		return new FileLog2DBDataTranPlugin(  importContext,  targetImportContext);
 	}
 	protected ImportContext buildTargetImportContext(BaseImportConfig targetImportConfig) {
-		return new DBImportContext(targetImportConfig);
+		DBImportContext dbImportContext =  new DBImportContext(targetImportConfig);
+		dbImportContext.init();
+		return dbImportContext;
 	}
 	public void setOutputDBConfig(DBImportConfig dbmportConfig) {
 		this.dbmportConfig = dbmportConfig;

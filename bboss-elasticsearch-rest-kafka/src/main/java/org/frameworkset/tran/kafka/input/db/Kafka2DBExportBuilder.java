@@ -66,7 +66,9 @@ public class Kafka2DBExportBuilder extends KafkaExportBuilder {
 
 	@Override
 	protected ImportContext buildTargetImportContext(BaseImportConfig targetImportConfig) {
-		return new DBImportContext(targetImportConfig);
+		DBImportContext dbImportContext = new DBImportContext(targetImportConfig);
+		dbImportContext.init();
+		return dbImportContext;
 	}
 
 	@Override

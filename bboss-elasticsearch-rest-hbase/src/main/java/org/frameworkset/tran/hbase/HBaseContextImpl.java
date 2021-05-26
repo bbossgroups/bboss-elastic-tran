@@ -17,7 +17,6 @@ package org.frameworkset.tran.hbase;
 
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
-import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
 
 import java.util.Map;
@@ -36,8 +35,9 @@ public class HBaseContextImpl extends BaseImportContext implements HBaseContext{
 		super(importConfig);
 
 	}
-
-	protected void init(BaseImportConfig baseImportConfig){
+	@Override
+	public void init(){
+		super.init();
 		this.hBaseImportConfig = (HBaseImportConfig)baseImportConfig;
 	}
 	public boolean isIncrementByTimeRange() {

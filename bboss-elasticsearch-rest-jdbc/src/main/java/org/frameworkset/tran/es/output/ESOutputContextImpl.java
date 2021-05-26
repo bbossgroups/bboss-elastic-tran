@@ -30,9 +30,9 @@ public class ESOutputContextImpl extends BaseImportContext implements ESOutputCo
 	private ESOutputConfig es2esImportConfig;
 
 
-
-	protected void init(BaseImportConfig baseImportConfig){
-		super.init(baseImportConfig);
+	@Override
+	public void init(){
+		super.init();
 		es2esImportConfig = (ESOutputConfig)baseImportConfig;
 	}
 

@@ -47,8 +47,9 @@ public class KafkaOutputContextImpl extends BaseImportContext implements KafkaOu
 	public boolean kafkaAsynSend(){
 		return kafkaOutputConfig.isKafkaAsynSend();
 	}
-	protected void init(BaseImportConfig baseImportConfig){
-		super.init(baseImportConfig);
+	@Override
+	public void init(){
+		super.init();
 		this.kafkaOutputConfig = (KafkaOutputConfig)baseImportConfig;
 		if(kafkaOutputConfig.getReocordGenerator() == null){
 			kafkaOutputConfig.setReocordGenerator(new JsonReocordGenerator());

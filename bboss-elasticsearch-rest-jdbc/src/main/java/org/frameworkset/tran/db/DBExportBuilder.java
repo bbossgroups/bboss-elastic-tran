@@ -17,6 +17,8 @@ package org.frameworkset.tran.db;
 
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.config.BaseImportBuilder;
+import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.context.ImportContext;
 
 /**
  * <p>Description: </p>
@@ -44,7 +46,11 @@ public abstract class DBExportBuilder extends BaseImportBuilder {
 
 		return this;
 	}
-
+	protected ImportContext buildImportContext(BaseImportConfig importConfig){
+		DBImportContext dbImportContext = new DBImportContext(importConfig);
+		dbImportContext.init();
+		return dbImportContext;
+	}
 	public String getInsertSqlName() {
 		return insertSqlName;
 	}

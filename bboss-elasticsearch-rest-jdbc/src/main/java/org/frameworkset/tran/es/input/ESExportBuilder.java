@@ -66,7 +66,9 @@ public abstract class ESExportBuilder extends BaseImportBuilder {
 		return new DefualtExportResultHandler<String,String>(exportResultHandler);
 	}
 	protected ImportContext buildImportContext(BaseImportConfig importConfig){
-		return new ESImportContext(importConfig);
+		ESImportContext esImportContext = new ESImportContext(importConfig);
+		esImportContext.init();
+		return esImportContext;
 	}
 
 

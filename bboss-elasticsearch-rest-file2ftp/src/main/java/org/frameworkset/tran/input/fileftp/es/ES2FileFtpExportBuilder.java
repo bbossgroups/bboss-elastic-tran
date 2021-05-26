@@ -46,7 +46,9 @@ public class ES2FileFtpExportBuilder extends ESExportBuilder {
 
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-		return new FileFtpOupputContextImpl((FileFtpOupputConfig)importConfig);
+		FileFtpOupputContextImpl fileFtpOupputContext = new FileFtpOupputContextImpl(fileFtpOupputConfig);
+		fileFtpOupputContext.init();
+		return fileFtpOupputContext;
 	}
 	public DataStream builder(){
 		DataStream dataStream = super.builder();

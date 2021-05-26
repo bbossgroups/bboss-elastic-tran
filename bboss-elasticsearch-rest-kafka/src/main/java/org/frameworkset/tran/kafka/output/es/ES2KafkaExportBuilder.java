@@ -65,10 +65,10 @@ public class ES2KafkaExportBuilder extends ESExportBuilder {
 		}
 	}
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-		KafkaOutputContextImpl esOutputContext = new KafkaOutputContextImpl(importConfig);
+		KafkaOutputContextImpl kafkaOutputContext = new KafkaOutputContextImpl(importConfig);
 
-
-		return esOutputContext;
+		kafkaOutputContext.init();
+		return kafkaOutputContext;
 	}
 	public DataStream builder(){
 		DataStream dataStream = super.builder();

@@ -105,7 +105,7 @@ public abstract  class BaseImportContext implements ImportContext {
 	public Integer getFetchSize() {
 		return baseImportConfig.getFetchSize();
 	}
-	protected void init(BaseImportConfig baseImportConfig){
+	public void init(){
 
 	}
 	public int getTranDataBufferQueue(){
@@ -113,7 +113,7 @@ public abstract  class BaseImportContext implements ImportContext {
 	}
 	public BaseImportContext(BaseImportConfig baseImportConfig){
 		this.baseImportConfig = baseImportConfig;
-		init(baseImportConfig);
+//		init(baseImportConfig);
 
 	}
 	public ExportCount getExportCount(){

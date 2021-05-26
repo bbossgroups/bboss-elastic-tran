@@ -26,8 +26,11 @@ public class TestFileListener {
         config.addConfig("E:\\ELK\\data\\data3",".*.txt","^[0-9]{4}-[0-9]{2}-[0-9]{2}");
 //        config.addConfig("D:\\ecslog\\",".*.20201022230056","");
         FileImportContext context = new FileImportContext(config);
+        context.init();
+        ESImportContext esImportContext = new ESImportContext();
+        esImportContext.init();
         FileBaseDataTranPlugin fileBaseDataTranPlugin = new FileBaseDataTranPlugin(context,
-                new ESImportContext()
+                esImportContext
                 ){
 
 

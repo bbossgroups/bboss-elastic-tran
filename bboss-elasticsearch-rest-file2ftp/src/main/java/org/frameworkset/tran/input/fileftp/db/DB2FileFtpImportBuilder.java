@@ -20,7 +20,6 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBExportBuilder;
 import org.frameworkset.tran.db.DBImportConfig;
-import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.output.fileftp.FileFtpOupputConfig;
 import org.frameworkset.tran.output.fileftp.FileFtpOupputContextImpl;
 
@@ -40,13 +39,12 @@ public class DB2FileFtpImportBuilder extends DBExportBuilder {
 	}
 
 
-	protected ImportContext buildImportContext(BaseImportConfig importConfig){
-		return new DBImportContext(importConfig);
-	}
 
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-		return new FileFtpOupputContextImpl(fileFtpOupputConfig);
+		FileFtpOupputContextImpl fileFtpOupputContext = new FileFtpOupputContextImpl(fileFtpOupputConfig);
+		fileFtpOupputContext.init();
+		return fileFtpOupputContext;
 	}
 
 

@@ -13,9 +13,9 @@ import java.util.List;
 public class FileImportContext extends BaseImportContext {
 
     private FileImportConfig fileImportConfig;
-
-    protected void init(BaseImportConfig baseImportConfig){
-        super.init(baseImportConfig);
+    @Override
+    public void init(){
+        super.init();
         fileImportConfig = (FileImportConfig)baseImportConfig;
     }
     public FileImportContext(){

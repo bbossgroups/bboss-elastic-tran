@@ -37,6 +37,7 @@ public class TestDB2ESImportConfig {
 
 		}
 		final ESImportContext importContext = new ESImportContext();
+		importContext.init();
 		importContext.setBatchSize(10);
 		importContext.setRefreshOption("refresh=true");
 		final TaskContext taskContext = new TaskContext(importContext,importContext);
@@ -72,6 +73,7 @@ public class TestDB2ESImportConfig {
 
 		}
 		final ESImportContext importContext = new ESImportContext();
+		importContext.init();
 		importContext.setBatchSize(10);
 		importContext.setRefreshOption("refresh=true");
 		final TaskContext taskContext = new TaskContext(importContext,importContext);

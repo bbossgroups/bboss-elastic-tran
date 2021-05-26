@@ -43,7 +43,9 @@ public abstract class FileLogBaseImportBuilder extends BaseImportBuilder {
 	}
 
 	protected ImportContext buildImportContext(BaseImportConfig importConfig){
-		return new FileImportContext(importConfig);
+		FileImportContext fileImportContext = new FileImportContext(importConfig);
+		fileImportContext.init();
+		return fileImportContext;
 	}
 //	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
 //		return new ESImportContext(importConfig);

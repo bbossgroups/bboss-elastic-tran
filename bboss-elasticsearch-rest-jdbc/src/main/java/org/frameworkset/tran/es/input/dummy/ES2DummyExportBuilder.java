@@ -1,4 +1,4 @@
-package org.frameworkset.tran.es.input.es;
+package org.frameworkset.tran.es.input.dummy;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -16,14 +16,13 @@ package org.frameworkset.tran.es.input.es;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.input.ESExportBuilder;
-import org.frameworkset.tran.es.output.ESOutputConfig;
-import org.frameworkset.tran.es.output.ESOutputContextImpl;
+import org.frameworkset.tran.ouput.dummy.DummyOupputConfig;
+import org.frameworkset.tran.ouput.dummy.DummyOupputContextImpl;
 
 /**
  * <p>Description: </p>
@@ -33,18 +32,18 @@ import org.frameworkset.tran.es.output.ESOutputContextImpl;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ES2ESExportBuilder extends ESExportBuilder {
+public class ES2DummyExportBuilder extends ESExportBuilder {
+
 	@JsonIgnore
-	private ESOutputConfig esOutputConfig;
+	private DummyOupputConfig dummyOupputConfig;
 	@Override
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
-		return new ES2ESDataTranPlugin(  importContext,  targetImportContext);
+		return new ES2EDummyDataTranPlugin(  importContext,  targetImportContext);
 	}
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-		ESOutputContextImpl esOutputContext = new ESOutputContextImpl(importConfig);
-		esOutputContext.init();
-
-		return esOutputContext;
+		DummyOupputContextImpl dummyOupputContext = new DummyOupputContextImpl((DummyOupputConfig) importConfig);
+		dummyOupputContext.init();
+		return dummyOupputContext;
 	}
 	public DataStream builder(){
 		DataStream dataStream = super.builder();
@@ -52,7 +51,7 @@ public class ES2ESExportBuilder extends ESExportBuilder {
 //		this.buildStatusDBConfig();
 		try {
 			if(logger.isInfoEnabled()) {
-				logger.info("ES2ES Import Configs:");
+				logger.info("ES2Log Import Configs:");
 				logger.info(this.toString());
 			}
 		}
@@ -61,13 +60,9 @@ public class ES2ESExportBuilder extends ESExportBuilder {
 		}
 
 
-		if(esOutputConfig != null) {
-			if(esOutputConfig.getTargetIndex() != null) {
-				ESIndexWrapper esIndexWrapper = new ESIndexWrapper(esOutputConfig.getTargetIndex(), esOutputConfig.getTargetIndexType());
-//			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);
-				esOutputConfig.setEsIndexWrapper(esIndexWrapper);
-			}
-			dataStream.setTargetImportContext(buildTargetImportContext(esOutputConfig));
+		if(dummyOupputConfig != null) {
+
+			dataStream.setTargetImportContext(buildTargetImportContext(dummyOupputConfig));
 		}
 		else
 			dataStream.setTargetImportContext(dataStream.getImportContext());
@@ -76,13 +71,16 @@ public class ES2ESExportBuilder extends ESExportBuilder {
 		return dataStream;
 
 	}
-
-
-	public ESOutputConfig getEsOutputConfig() {
-		return esOutputConfig;
+	public DummyOupputConfig getDummyOupputConfig() {
+		return dummyOupputConfig;
 	}
 
-	public void setEsOutputConfig(ESOutputConfig esOutputConfig) {
-		this.esOutputConfig = esOutputConfig;
+	public ES2DummyExportBuilder setDummyOupputConfig(DummyOupputConfig dummyOupputConfig) {
+		this.dummyOupputConfig = dummyOupputConfig;
+
+		return this;
 	}
+
+
+
 }

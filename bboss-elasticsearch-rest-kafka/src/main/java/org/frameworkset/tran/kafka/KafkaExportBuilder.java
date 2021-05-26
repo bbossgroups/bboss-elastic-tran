@@ -62,7 +62,9 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 
 	@Override
 	protected ImportContext buildImportContext(BaseImportConfig importConfig) {
-		return new KafkaImportContext((KafkaImportConfig)importConfig);
+		KafkaImportContext kafkaImportContext = new KafkaImportContext((KafkaImportConfig)importConfig);
+		kafkaImportContext.init();
+		return kafkaImportContext;
 	}
 	@Override
 	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {

@@ -21,7 +21,6 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBExportBuilder;
 import org.frameworkset.tran.db.DBImportConfig;
-import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.kafka.output.KafkaOutputConfig;
 import org.frameworkset.tran.kafka.output.KafkaOutputContextImpl;
 
@@ -65,12 +64,10 @@ public class DB2KafkaExportBuilder extends DBExportBuilder {
 			throw new ESDataImportException(DB2KafkaDataTranPlugin,e);
 		}
 	}
-	protected ImportContext buildImportContext(BaseImportConfig importConfig){
-		return new DBImportContext(importConfig);
-	}
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
 		KafkaOutputContextImpl esOutputContext = new KafkaOutputContextImpl(importConfig);
+		esOutputContext.init();
 		return esOutputContext;
 	}
 

@@ -32,9 +32,9 @@ public class ESImportContext extends BaseImportContext implements ESInputContext
 	private ESImportConfig es2esImportConfig;
 
 
-
-	protected void init(BaseImportConfig baseImportConfig){
-		super.init(baseImportConfig);
+	@Override
+	public void init(){
+		super.init();
 		es2esImportConfig = (ESImportConfig)baseImportConfig;
 	}
 

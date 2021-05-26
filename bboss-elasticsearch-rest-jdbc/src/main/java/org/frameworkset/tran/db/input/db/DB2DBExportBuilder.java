@@ -16,11 +16,9 @@ package org.frameworkset.tran.db.input.db;
  */
 
 import org.frameworkset.tran.*;
-import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBExportBuilder;
 import org.frameworkset.tran.db.DBImportConfig;
-import org.frameworkset.tran.db.DBImportContext;
 
 /**
  * <p>Description: </p>
@@ -52,9 +50,7 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 		if(targetDBConfig == null)
 			targetDBConfig = new DBConfig();
 	}
-	protected ImportContext buildImportContext(BaseImportConfig importConfig){
-		return new DBImportContext(importConfig);
-	}
+
 
 	public DataStream builder(){
 		super.builderConfig();

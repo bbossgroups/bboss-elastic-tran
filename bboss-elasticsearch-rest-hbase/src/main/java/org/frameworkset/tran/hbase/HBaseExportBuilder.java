@@ -100,7 +100,9 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		return this;
 	 }
 	protected ImportContext buildImportContext(BaseImportConfig importConfig) {
-		return new HBaseContextImpl((HBaseImportConfig)importConfig);
+		HBaseContextImpl hBaseContext = new HBaseContextImpl((HBaseImportConfig)importConfig);
+		hBaseContext.init();
+		return hBaseContext;
 	}
 	public int getHbaseClientThreadCount() {
 		return hbaseClientThreadCount;

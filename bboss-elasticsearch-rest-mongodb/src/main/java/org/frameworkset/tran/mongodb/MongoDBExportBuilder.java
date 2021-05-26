@@ -69,7 +69,9 @@ public abstract class MongoDBExportBuilder extends DBExportBuilder {
 		return name;
 	}
 	protected ImportContext buildImportContext(BaseImportConfig importConfig) {
-		return new MongoDBImportContext((MongoDBImportConfig)importConfig);
+		MongoDBImportContext mongoDBImportContext = new MongoDBImportContext((MongoDBImportConfig)importConfig);
+		mongoDBImportContext.init();
+		return mongoDBImportContext;
 	}
 	public MongoDBExportBuilder buildClientMongoCredential(String database, String userName,
 														   String password, String mechanism){
