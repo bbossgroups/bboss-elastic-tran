@@ -1,4 +1,4 @@
-package org.frameworkset.tran.util;
+package org.frameworkset.tran.output.fileftp;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -28,7 +28,7 @@ import java.io.Writer;
  * @author biaoping.yin
  * @version 1.0
  */
-public class JsonReocordGenerator implements ReocordGenerator{
+public class JsonRecordGenerator implements RecordGenerator {
 	public void buildRecord(org.frameworkset.tran.context.Context context,CommonRecord record, Writer builder){
 		SerialUtil.normalObject2json(record.getDatas(),builder);
 	}

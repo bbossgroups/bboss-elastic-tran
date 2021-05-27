@@ -22,8 +22,8 @@ package org.frameworkset.tran.output.fileftp;
  * @Date 2021/1/28 16:52
  * @author biaoping.yin
  * @version 1.0
- * @see org.frameworkset.tran.util.ReocordGenerator
+ * @see org.frameworkset.tran.util.RecordGenerator
  */
 @Deprecated
-public interface ReocordGenerator extends org.frameworkset.tran.util.ReocordGenerator{
+public interface RecordGenerator extends org.frameworkset.tran.util.RecordGenerator {
 }

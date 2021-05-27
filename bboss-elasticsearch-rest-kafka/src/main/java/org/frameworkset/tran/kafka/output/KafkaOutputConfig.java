@@ -16,7 +16,7 @@ package org.frameworkset.tran.kafka.output;
  */
 
 import org.frameworkset.tran.config.BaseImportConfig;
-import org.frameworkset.tran.util.ReocordGenerator;
+import org.frameworkset.tran.util.RecordGenerator;
 
 import java.util.Properties;
 
@@ -41,19 +41,19 @@ public class KafkaOutputConfig  extends BaseImportConfig {
 	}
 
 	private boolean kafkaAsynSend = true;
-	public ReocordGenerator getReocordGenerator() {
-		return reocordGenerator;
+	public RecordGenerator getRecordGenerator() {
+		return recordGenerator;
 	}
 
-	public KafkaOutputConfig setReocordGenerator(ReocordGenerator reocordGenerator) {
-		this.reocordGenerator = reocordGenerator;
+	public KafkaOutputConfig setRecordGenerator(RecordGenerator recordGenerator) {
+		this.recordGenerator = recordGenerator;
 		return this;
 	}
 
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.util.ReocordGenerator
 	 */
-	private ReocordGenerator reocordGenerator;
+	private RecordGenerator recordGenerator;
 	public String getTopic() {
 		return topic;
 	}

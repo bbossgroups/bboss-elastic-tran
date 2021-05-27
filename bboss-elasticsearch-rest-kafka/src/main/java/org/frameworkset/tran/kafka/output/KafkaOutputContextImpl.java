@@ -19,7 +19,8 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
-import org.frameworkset.tran.util.JsonReocordGenerator;
+import org.frameworkset.tran.util.JsonRecordGenerator;
+import org.frameworkset.tran.util.RecordGenerator;
 
 import java.io.Writer;
 import java.util.Properties;
@@ -51,8 +52,8 @@ public class KafkaOutputContextImpl extends BaseImportContext implements KafkaOu
 	public void init(){
 		super.init();
 		this.kafkaOutputConfig = (KafkaOutputConfig)baseImportConfig;
-		if(kafkaOutputConfig.getReocordGenerator() == null){
-			kafkaOutputConfig.setReocordGenerator(new JsonReocordGenerator());
+		if(kafkaOutputConfig.getRecordGenerator() == null){
+			kafkaOutputConfig.setRecordGenerator(new JsonRecordGenerator());
 		}
 
 
@@ -73,6 +74,9 @@ public class KafkaOutputContextImpl extends BaseImportContext implements KafkaOu
 		return kafkaOutputConfig.getKafkaConfigs();
 	}
 	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder) throws Exception{
-		kafkaOutputConfig.getReocordGenerator().buildRecord(context,record,builder);
+		if(builder == null){
+			builder = RecordGenerator.tranDummyWriter;
+		}
+		kafkaOutputConfig.getRecordGenerator().buildRecord(context,record,builder);
 	}
 }

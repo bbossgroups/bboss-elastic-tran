@@ -41,8 +41,8 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 	public void init(){
 		super.init();
 		this.fileFtpOupputConfig = (FileFtpOupputConfig)baseImportConfig;
-		if(fileFtpOupputConfig.getReocordGenerator() == null){
-			fileFtpOupputConfig.setReocordGenerator(new JsonReocordGenerator());
+		if(fileFtpOupputConfig.getRecordGenerator() == null){
+			fileFtpOupputConfig.setRecordGenerator(new JsonRecordGenerator());
 		}
 
 	}
@@ -73,7 +73,10 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 		return fileFtpOupputConfig.getFilenameGenerator().genName(   taskContext,fileSeq);
 	}
 	public void generateReocord(Context taskContext, CommonRecord record, Writer builder) throws Exception{
-		fileFtpOupputConfig.getReocordGenerator().buildRecord(  taskContext, record,  builder);
+		if(builder == null){
+			builder = RecordGenerator.tranDummyWriter;
+		}
+		fileFtpOupputConfig.getRecordGenerator().buildRecord(  taskContext, record,  builder);
 	}
 
 	@Override
@@ -92,8 +95,8 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 		return fileFtpOupputConfig.getFileDir();
 	}
 
-	public ReocordGenerator getReocordGenerator() {
-		return fileFtpOupputConfig.getReocordGenerator();
+	public RecordGenerator getRecordGenerator() {
+		return fileFtpOupputConfig.getRecordGenerator();
 	}
 
 	@Override

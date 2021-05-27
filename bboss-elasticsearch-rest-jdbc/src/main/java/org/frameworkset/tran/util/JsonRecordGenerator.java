@@ -15,8 +15,8 @@ package org.frameworkset.tran.util;
  * limitations under the License.
  */
 
+import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.context.Context;
 
 import java.io.Writer;
 
@@ -28,6 +28,9 @@ import java.io.Writer;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface ReocordGenerator {
-	public void buildRecord(Context taskContext, CommonRecord record, Writer builder) throws Exception;
+public class JsonRecordGenerator implements RecordGenerator {
+	public void buildRecord(org.frameworkset.tran.context.Context context,CommonRecord record, Writer builder){
+		if(builder != null)
+			SerialUtil.normalObject2json(record.getDatas(),builder);
+	}
 }

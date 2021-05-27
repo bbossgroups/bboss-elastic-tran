@@ -32,7 +32,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.kafka.output.fileftp.ReocordGenerator
 	 */
-	private ReocordGenerator reocordGenerator;
+	private RecordGenerator recordGenerator;
 
 	/**
 	 *  导出文件名称生成接口实现类型（必须指定）：org.frameworkset.tran.kafka.output.fileftp.FilenameGenerator
@@ -303,13 +303,13 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return  this;
 	}
 
-	public ReocordGenerator getReocordGenerator() {
-		return reocordGenerator;
+	public RecordGenerator getRecordGenerator() {
+		return recordGenerator;
 	}
 
 
-	public FileFtpOupputConfig setReocordGenerator(ReocordGenerator reocordGenerator) {
-		this.reocordGenerator = reocordGenerator;
+	public FileFtpOupputConfig setRecordGenerator(RecordGenerator recordGenerator) {
+		this.recordGenerator = recordGenerator;
 		return  this;
 	}
 

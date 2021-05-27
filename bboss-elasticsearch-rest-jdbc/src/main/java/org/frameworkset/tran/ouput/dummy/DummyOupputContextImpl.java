@@ -17,7 +17,8 @@ package org.frameworkset.tran.ouput.dummy;
 
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.BaseImportContext;
-import org.frameworkset.tran.util.JsonReocordGenerator;
+import org.frameworkset.tran.util.JsonRecordGenerator;
+import org.frameworkset.tran.util.RecordGenerator;
 
 import java.io.Writer;
 
@@ -37,13 +38,16 @@ public class DummyOupputContextImpl extends BaseImportContext implements DummyOu
 
 	}
 	public void generateReocord(org.frameworkset.tran.context.Context taskContext, CommonRecord record, Writer builder)  throws Exception{
-		dummyOupputConfig.getReocordGenerator().buildRecord(  taskContext, record,  builder);
+		if(builder == null){
+			builder = RecordGenerator.tranDummyWriter;
+		}
+		dummyOupputConfig.getRecordGenerator().buildRecord(  taskContext, record,  builder);
 	}
 	@Override
 	public void init(){
 		super.init();
-		if(dummyOupputConfig.getReocordGenerator() == null){
-			dummyOupputConfig.setReocordGenerator(new JsonReocordGenerator());
+		if(dummyOupputConfig.getRecordGenerator() == null){
+			dummyOupputConfig.setRecordGenerator(new JsonRecordGenerator());
 		}
 
 	}

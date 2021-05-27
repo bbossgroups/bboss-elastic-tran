@@ -16,7 +16,7 @@ package org.frameworkset.tran.ouput.dummy;
  */
 
 import org.frameworkset.tran.config.BaseImportConfig;
-import org.frameworkset.tran.util.ReocordGenerator;
+import org.frameworkset.tran.util.RecordGenerator;
 
 /**
  * <p>Description: </p>
@@ -31,7 +31,7 @@ public class DummyOupputConfig extends BaseImportConfig {
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.util.ReocordGenerator
 	 */
-	private ReocordGenerator reocordGenerator;
+	private RecordGenerator recordGenerator;
 	public boolean isPrintRecord() {
 		return printRecord;
 	}
@@ -41,12 +41,12 @@ public class DummyOupputConfig extends BaseImportConfig {
 		return this;
 	}
 
-	public ReocordGenerator getReocordGenerator() {
-		return reocordGenerator;
+	public RecordGenerator getRecordGenerator() {
+		return recordGenerator;
 	}
 
-	public DummyOupputConfig setReocordGenerator(ReocordGenerator reocordGenerator) {
-		this.reocordGenerator = reocordGenerator;
+	public DummyOupputConfig setRecordGenerator(RecordGenerator recordGenerator) {
+		this.recordGenerator = recordGenerator;
 		return this;
 	}
 }
