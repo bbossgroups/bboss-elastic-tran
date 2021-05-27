@@ -19,6 +19,8 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.util.JsonRecordGenerator;
+import org.frameworkset.tran.util.RecordGenerator;
 
 import java.io.Writer;
 import java.util.List;

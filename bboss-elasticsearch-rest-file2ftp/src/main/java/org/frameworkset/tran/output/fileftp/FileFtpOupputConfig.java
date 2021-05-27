@@ -16,6 +16,7 @@ package org.frameworkset.tran.output.fileftp;
  */
 
 import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.util.RecordGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
