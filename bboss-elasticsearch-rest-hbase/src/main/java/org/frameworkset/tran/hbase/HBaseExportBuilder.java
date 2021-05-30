@@ -104,6 +104,10 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		hBaseContext.init();
 		return hBaseContext;
 	}
+	protected void setTargetImportContext(DataStream dataStream){
+
+		dataStream.setTargetImportContext(dataStream.getImportContext());
+	}
 	public int getHbaseClientThreadCount() {
 		return hbaseClientThreadCount;
 	}
@@ -254,7 +258,7 @@ public class HBaseExportBuilder extends BaseImportBuilder {
 		DataStream dataStream = this.createDataStream();
 		dataStream.setImportConfig(hBaseImportConfig);
 		dataStream.setImportContext(this.buildImportContext(hBaseImportConfig));
-		dataStream.setTargetImportContext(dataStream.getImportContext());
+		setTargetImportContext(  dataStream);
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
 
 		return dataStream;
