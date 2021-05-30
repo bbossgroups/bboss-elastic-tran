@@ -1,4 +1,4 @@
-package org.frameworkset.tran.kafka.input.db;
+package org.frameworkset.tran.kafka.input.dummy;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,14 +15,15 @@ package org.frameworkset.tran.kafka.input.db;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.DBImportConfig;
-import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.kafka.KafkaExportBuilder;
+import org.frameworkset.tran.ouput.dummy.DummyOupputConfig;
+import org.frameworkset.tran.ouput.dummy.DummyOupputContextImpl;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -34,50 +35,61 @@ import java.lang.reflect.InvocationTargetException;
  * @author biaoping.yin
  * @version 1.0
  */
-public class Kafka2DBExportBuilder extends KafkaExportBuilder {
-	private static final String Kafka2ESInputPlugin = "org.frameworkset.tran.kafka.input.db.Kafka2DBInputPlugin";
-	public Kafka2DBExportBuilder setOutputDBConfig(DBImportConfig dbmportConfig) {
-		this.dbmportConfig = dbmportConfig;
+public class Kafka2DummyExportBuilder extends KafkaExportBuilder {
+	private static final String Kafka2DummyInputPlugin = "org.frameworkset.tran.kafka.input.dummy.Kafka2DummyInputPlugin";
+
+	public Kafka2DummyExportBuilder setDummyOupputConfig(DummyOupputConfig dummyOupputConfig) {
+		this.dummyOupputConfig = dummyOupputConfig;
 		return this;
 	}
 
-	private DBImportConfig dbmportConfig;
+	@JsonIgnore
+	private DummyOupputConfig dummyOupputConfig;
+
+
+
+
+	protected void setTargetImportContext(DataStream dataStream){
+
+		if(dummyOupputConfig != null)
+			dataStream.setTargetImportContext(buildTargetImportContext(dummyOupputConfig) );
+		else
+			dataStream.setTargetImportContext(dataStream.getImportContext());
+	}
+
+
+
+	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
+		DummyOupputContextImpl dummyOupputContext = new DummyOupputContextImpl((DummyOupputConfig) importConfig);
+		dummyOupputContext.init();
+		return dummyOupputContext;
+	}
+
+
 
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext)
 	{
 
 		try {
-			Class<DataTranPlugin> clazz = (Class<DataTranPlugin>) Class.forName(Kafka2ESInputPlugin);
+			Class<DataTranPlugin> clazz = (Class<DataTranPlugin>) Class.forName(Kafka2DummyInputPlugin);
 			return clazz.getConstructor(ImportContext.class,ImportContext.class).newInstance( importContext, targetImportContext);// Kafka2ESInputPlugin(this);
 		} catch (ClassNotFoundException e) {
-			throw new ESDataImportException(Kafka2ESInputPlugin,e);
+			throw new ESDataImportException(Kafka2DummyInputPlugin,e);
 		} catch (InstantiationException e) {
-			throw new ESDataImportException(Kafka2ESInputPlugin,e);
+			throw new ESDataImportException(Kafka2DummyInputPlugin,e);
 		} catch (InvocationTargetException e) {
-			throw new ESDataImportException(Kafka2ESInputPlugin,e);
+			throw new ESDataImportException(Kafka2DummyInputPlugin,e);
 		} catch (NoSuchMethodException e) {
-			throw new ESDataImportException(Kafka2ESInputPlugin,e);
+			throw new ESDataImportException(Kafka2DummyInputPlugin,e);
 		} catch (IllegalAccessException e) {
-			throw new ESDataImportException(Kafka2ESInputPlugin,e);
+			throw new ESDataImportException(Kafka2DummyInputPlugin,e);
 		}
 
 
 	}
 
 
-	@Override
-	protected ImportContext buildTargetImportContext(BaseImportConfig targetImportConfig) {
-		DBImportContext dbImportContext = new DBImportContext(targetImportConfig);
-		dbImportContext.init();
-		return dbImportContext;
-	}
-	protected void setTargetImportContext(DataStream dataStream){
 
-		if(dbmportConfig != null)
-			dataStream.setTargetImportContext(buildTargetImportContext(dbmportConfig) );
-		else
-			dataStream.setTargetImportContext(dataStream.getImportContext());
-	}
 //	@Override
 //	public DataStream builder() {
 //

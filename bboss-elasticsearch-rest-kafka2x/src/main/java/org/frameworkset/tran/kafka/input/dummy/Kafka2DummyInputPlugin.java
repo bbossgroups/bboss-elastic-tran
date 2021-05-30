@@ -1,4 +1,4 @@
-package org.frameworkset.tran.db.input.dummy;
+package org.frameworkset.tran.kafka.input.dummy;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -16,10 +16,9 @@ package org.frameworkset.tran.db.input.dummy;
  */
 
 import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.input.SQLBaseDataTranPlugin;
+import org.frameworkset.tran.kafka.input.Kafka2InputPlugin;
 import org.frameworkset.tran.ouput.dummy.DummyOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -28,30 +27,22 @@ import org.frameworkset.tran.schedule.TaskContext;
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- * @Date 2019/10/9 14:35
+ * @Date 2019/11/15 22:22
  * @author biaoping.yin
  * @version 1.0
  */
-public class DB2DummyDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranPlugin {
+public class Kafka2DummyInputPlugin extends Kafka2InputPlugin {
 
-	public DB2DummyDataTranPlugin(ImportContext importContext, ImportContext targetImportContext){
-		super(importContext, targetImportContext);
-
+	public Kafka2DummyInputPlugin(ImportContext importContext, ImportContext targetImportContext){
+		super(  importContext,  targetImportContext);
 
 	}
-
-
-
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
 		DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,tranResultSet,importContext,   targetImportContext, currentStatus);
 		dummyOutPutDataTran.init();
 		return dummyOutPutDataTran;
 	}
-
-
-
-
 
 
 }
