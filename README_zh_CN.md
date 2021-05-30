@@ -2,6 +2,7 @@
 
 数据交换模块:
 
+![](arch.png)
 使用文档：<https://esdoc.bbossgroups.com/#/db-es-tool>
 
 Bboss is a good elasticsearch Java rest client. It operates and accesses elasticsearch like mybatis to relation database.
