@@ -27,8 +27,9 @@ sourceSets {
 
 dependencies {
 	api project(':bboss-elasticsearch-rest-jdbc')
-	compileOnly project(':bboss-elasticsearch-rest-file')
-	compileOnly project(':bboss-elasticsearch-rest-hbase')
-	compileOnly project(':bboss-elasticsearch-rest-mongodb')
+	api project(':bboss-elasticsearch-rest-file')
+	api project(':bboss-elasticsearch-rest-hbase')
+	api project(':bboss-elasticsearch-rest-mongodb')
+
 }
 
