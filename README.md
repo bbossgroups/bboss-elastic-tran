@@ -2,6 +2,8 @@
 
 数据交换模块
 
+![](arch.png)
+
 使用文档：<https://esdoc.bbossgroups.com/#/db-es-tool>
 
 Bboss is a good elasticsearch Java rest client. It operates and accesses elasticsearch like mybatis to relation database.
@@ -39,7 +41,7 @@ First add the maven dependency of BBoss to your pom.xml:
             <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
             <version>6.2.9</version>
         </dependency>
-``` 
+```
 
 ## Elasticsearch技术交流群:166471282 
 
