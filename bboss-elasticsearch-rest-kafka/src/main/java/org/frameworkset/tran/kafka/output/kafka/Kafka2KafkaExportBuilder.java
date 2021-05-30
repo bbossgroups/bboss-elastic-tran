@@ -1,4 +1,4 @@
-package org.frameworkset.tran.kafka.output.db;
+package org.frameworkset.tran.kafka.output.kafka;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -16,13 +16,14 @@ package org.frameworkset.tran.kafka.output.db;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.frameworkset.tran.*;
+import org.frameworkset.tran.DataStream;
+import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.DBExportBuilder;
-import org.frameworkset.tran.db.DBImportConfig;
+import org.frameworkset.tran.kafka.KafkaExportBuilder;
 import org.frameworkset.tran.kafka.output.KafkaOutputConfig;
 import org.frameworkset.tran.kafka.output.KafkaOutputContextImpl;
+import org.frameworkset.tran.kafka.output.KafkaSendException;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -34,8 +35,8 @@ import java.lang.reflect.InvocationTargetException;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DB2KafkaExportBuilder extends DBExportBuilder {
-	private static final String DB2KafkaDataTranPlugin = "org.frameworkset.tran.kafka.output.db.DB2KafkaDataTranPlugin";
+public class Kafka2KafkaExportBuilder  extends KafkaExportBuilder {
+	private static final String Kafka2KafkaDataTranPlugin = "org.frameworkset.tran.kafka.output.kafka.Kafka2KafkaDataTranPlugin";
 
 
 	@JsonIgnore
@@ -44,64 +45,41 @@ public class DB2KafkaExportBuilder extends DBExportBuilder {
 		return kafkaOutputConfig;
 	}
 
-	public DB2KafkaExportBuilder setKafkaOutputConfig(KafkaOutputConfig kafkaOutputConfig) {
+	public Kafka2KafkaExportBuilder setKafkaOutputConfig(KafkaOutputConfig kafkaOutputConfig) {
 		this.kafkaOutputConfig = kafkaOutputConfig;
 		return this;
 	}
 	@Override
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
 		try {
-			Class<DataTranPlugin> clazz = (Class<DataTranPlugin>) Class.forName(DB2KafkaDataTranPlugin);
+			Class<DataTranPlugin> clazz = (Class<DataTranPlugin>) Class.forName(Kafka2KafkaDataTranPlugin);
 			return clazz.getConstructor(ImportContext.class,ImportContext.class).newInstance( importContext, targetImportContext);// ES2KafkaDataTranPlugin(this);
 		} catch (ClassNotFoundException e) {
-			throw new ESDataImportException(DB2KafkaDataTranPlugin,e);
+			throw new KafkaSendException(e);
 		} catch (InstantiationException e) {
-			throw new ESDataImportException(DB2KafkaDataTranPlugin,e);
+			throw new KafkaSendException(e);
 		} catch (InvocationTargetException e) {
-			throw new ESDataImportException(DB2KafkaDataTranPlugin,e);
+			throw new KafkaSendException(e);
 		} catch (NoSuchMethodException e) {
-			throw new ESDataImportException(DB2KafkaDataTranPlugin,e);
+			throw new KafkaSendException(e);
 		} catch (IllegalAccessException e) {
-			throw new ESDataImportException(DB2KafkaDataTranPlugin,e);
+			throw new KafkaSendException(e);
 		}
 	}
-
+	@Override
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
 		KafkaOutputContextImpl esOutputContext = new KafkaOutputContextImpl(importConfig);
 		esOutputContext.init();
 		return esOutputContext;
 	}
-
-	public DataStream builder(){
-		super.builderConfig();
-		try {
-			if(logger.isInfoEnabled()) {
-				logger.info("DB2Kafka Import Configs:");
-				logger.info(this.toString());
-			}
-		}
-		catch (Exception e){
-
-		}
-		DBImportConfig importConfig = new DBImportConfig();
-
-		super.buildImportConfig(importConfig);
-
-		super.buildDBImportConfig(importConfig);
-		DataStream  dataStream = this.createDataStream();
-		dataStream.setImportConfig(importConfig);
-		dataStream.setConfigString(this.toString());
-		dataStream.setImportContext(this.buildImportContext(importConfig));
-		dataStream.setTargetImportContext(buildTargetImportContext(kafkaOutputConfig));
-		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
-		return dataStream;
-	}
-
-
 	@Override
-	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		return new DefualtExportResultHandler(exportResultHandler);
+	protected void setTargetImportContext(DataStream dataStream){
+
+		dataStream.setTargetImportContext(buildTargetImportContext(kafkaOutputConfig));
 	}
+
+
+
 
 
 

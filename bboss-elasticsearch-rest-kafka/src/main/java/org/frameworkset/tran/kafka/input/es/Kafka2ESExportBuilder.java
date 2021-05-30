@@ -15,7 +15,6 @@ package org.frameworkset.tran.kafka.input.es;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.context.ImportContext;
@@ -59,17 +58,17 @@ public class Kafka2ESExportBuilder extends KafkaExportBuilder {
 
 	}
 
-	@Override
-	public DataStream builder() {
-
-
-		DataStream dataStream = super.builder();
-//		super.buildImportConfig(dbImportConfig);
-		dataStream.setTargetImportContext(dataStream.getImportContext());
-		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
-
-		return dataStream;
-	}
+//	@Override
+//	public DataStream builder() {
+//
+//
+//		DataStream dataStream = super.builder();
+////		super.buildImportConfig(dbImportConfig);
+//		dataStream.setTargetImportContext(dataStream.getImportContext());
+//		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
+//
+//		return dataStream;
+//	}
 
 
 }

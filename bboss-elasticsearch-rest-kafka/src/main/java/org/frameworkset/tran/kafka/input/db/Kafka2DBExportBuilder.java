@@ -70,21 +70,27 @@ public class Kafka2DBExportBuilder extends KafkaExportBuilder {
 		dbImportContext.init();
 		return dbImportContext;
 	}
+	protected void setTargetImportContext(DataStream dataStream){
 
-	@Override
-	public DataStream builder() {
-
-
-		DataStream dataStream = super.builder();
-//		super.buildImportConfig(dbImportConfig);
 		if(dbmportConfig != null)
 			dataStream.setTargetImportContext(buildTargetImportContext(dbmportConfig) );
 		else
 			dataStream.setTargetImportContext(dataStream.getImportContext());
-		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
-
-		return dataStream;
 	}
+//	@Override
+//	public DataStream builder() {
+//
+//
+//		DataStream dataStream = super.builder();
+////		super.buildImportConfig(dbImportConfig);
+//		if(dbmportConfig != null)
+//			dataStream.setTargetImportContext(buildTargetImportContext(dbmportConfig) );
+//		else
+//			dataStream.setTargetImportContext(dataStream.getImportContext());
+//		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
+//
+//		return dataStream;
+//	}
 
 
 }

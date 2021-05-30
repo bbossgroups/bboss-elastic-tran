@@ -19,7 +19,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ShutdownHookManagerProxy;
 import org.frameworkset.nosql.hbase.metrics.CollectorMetric;
 import org.frameworkset.spi.BaseApplicationContext;
-import org.frameworkset.tran.hbase.input.HBaseTranException;
+import org.frameworkset.tran.hbase.HBaseTranException;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

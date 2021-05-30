@@ -16,8 +16,7 @@ package org.frameworkset.tran.hbase.input.db;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.frameworkset.tran.DataStream;
-import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBImportConfig;
@@ -46,17 +45,21 @@ public class HBase2DBExportBuilder extends HBaseExportBuilder {
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
 		return new HBase2DBInputPlugin(  importContext,  targetImportContext);
 	}
+	@Override
 	protected ImportContext buildTargetImportContext(BaseImportConfig targetImportConfig) {
 		DBImportContext dbImportContext =  new DBImportContext(targetImportConfig);
 		dbImportContext.init();
 		return dbImportContext;
 	}
-
+	@Override
 	protected void setTargetImportContext(DataStream dataStream){
 		if(dboutputImportConfig != null)
 			dataStream.setTargetImportContext(buildTargetImportContext(dboutputImportConfig) );
 		else
 			dataStream.setTargetImportContext(dataStream.getImportContext());
 	}
-
+	@Override
+	protected WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
+		return new DefualtExportResultHandler(exportResultHandler);
+	}
 }

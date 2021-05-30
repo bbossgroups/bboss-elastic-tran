@@ -158,8 +158,14 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 		DataStream dataStream = createDataStream();//new Kafka2ESDataStreamImpl();
 		dataStream.setImportConfig(es2DBImportConfig);
 		dataStream.setImportContext(this.buildImportContext(es2DBImportConfig));
+		setTargetImportContext( dataStream);
+		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
 
 		return dataStream;
+	}
+	protected void setTargetImportContext(DataStream dataStream){
+
+		dataStream.setTargetImportContext(dataStream.getImportContext());
 	}
 	private Integer kafkaWorkThreads;
 	private Integer kafkaWorkQueue;

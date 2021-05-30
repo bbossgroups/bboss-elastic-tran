@@ -1,4 +1,4 @@
-package org.frameworkset.tran.hbase.input;
+package org.frameworkset.tran.hbase;
 /**
  * Copyright 2008 biaoping.yin
  * <p>

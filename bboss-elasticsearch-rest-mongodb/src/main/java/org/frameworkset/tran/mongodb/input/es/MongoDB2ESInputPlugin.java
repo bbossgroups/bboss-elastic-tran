@@ -34,7 +34,15 @@ public class MongoDB2ESInputPlugin extends MongoDBInputPlugin {
 	public MongoDB2ESInputPlugin(ImportContext importContext, ImportContext targetImportContext) {
 		super(  importContext,   targetImportContext);
 	}
+	@Override
+	public void beforeInit() {
+		this.initES(importContext.getApplicationPropertiesFile());
+		initOtherDSes(importContext.getConfigs());
+		super.beforeInit();
 
+
+
+	}
 	@Override
 	protected void doTran(DBCursor dbCursor, TaskContext taskContext) {
 		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);

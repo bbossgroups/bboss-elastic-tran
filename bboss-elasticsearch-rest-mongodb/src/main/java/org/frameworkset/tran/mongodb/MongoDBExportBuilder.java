@@ -86,7 +86,10 @@ public abstract class MongoDBExportBuilder extends DBExportBuilder {
 		credentials.add(clientMongoCredential);
 		return this;
 	}
+	protected void setTargetImportContext(DataStream dataStream){
 
+		dataStream.setTargetImportContext(dataStream.getImportContext());
+	}
 	public MongoDBExportBuilder setName(String name) {
 		this.name = name;
 		return this;
@@ -256,7 +259,8 @@ public abstract class MongoDBExportBuilder extends DBExportBuilder {
 		DataStream dataStream = this.createDataStream();
 		dataStream.setImportConfig(es2DBImportConfig);
 		dataStream.setImportContext(this.buildImportContext(es2DBImportConfig));
-		dataStream.setTargetImportContext(dataStream.getImportContext());
+//		dataStream.setTargetImportContext(dataStream.getImportContext());
+		setTargetImportContext( dataStream);
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
 
 		return dataStream;

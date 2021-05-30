@@ -49,5 +49,11 @@ dependencies {
 		exclude group: 'log4j', module: 'log4j'
 		exclude group: 'org.slf4j', module: 'slf4j-log4j12'
 	}
+
+	compileOnly project(':bboss-elasticsearch-rest-file')
+	compileOnly project(':bboss-elasticsearch-rest-hbase')
+	compileOnly project(':bboss-elasticsearch-rest-mongodb')
+	compileOnly([group: 'org.apache.hbase', name: 'hbase-shaded-client', version: "2.2.3", transitive: true])
+
 }
 

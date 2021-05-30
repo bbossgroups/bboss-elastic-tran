@@ -25,7 +25,7 @@ import org.frameworkset.tran.config.BaseImportBuilder;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.ESExportResultHandler;
-import org.frameworkset.tran.hbase.input.HBase2ESInputPlugin;
+import org.frameworkset.tran.hbase.input.es.HBase2ESInputPlugin;
 
 import java.util.HashMap;
 import java.util.Map;

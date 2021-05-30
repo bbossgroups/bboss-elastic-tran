@@ -51,6 +51,8 @@ public class MongoDB2DBInputPlugin extends MongoDBInputPlugin {
 		this.initDS(importContext.getDbConfig());
 	}
 
+
+
 	@Override
 	public void afterInit(){
 		DBOutPutContext dbOutPutContext = (DBOutPutContext) importContext ;

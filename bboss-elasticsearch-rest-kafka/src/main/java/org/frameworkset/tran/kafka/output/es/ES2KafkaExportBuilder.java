@@ -41,8 +41,9 @@ public class ES2KafkaExportBuilder extends ESExportBuilder {
 		return kafkaOutputConfig;
 	}
 
-	public void setKafkaOutputConfig(KafkaOutputConfig kafkaOutputConfig) {
+	public ES2KafkaExportBuilder setKafkaOutputConfig(KafkaOutputConfig kafkaOutputConfig) {
 		this.kafkaOutputConfig = kafkaOutputConfig;
+		return this;
 	}
 
 	@JsonIgnore

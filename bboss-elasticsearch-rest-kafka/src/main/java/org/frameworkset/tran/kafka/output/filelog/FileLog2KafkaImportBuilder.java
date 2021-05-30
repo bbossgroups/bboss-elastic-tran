@@ -41,8 +41,9 @@ public class FileLog2KafkaImportBuilder extends FileLogBaseImportBuilder {
 		return kafkaOutputConfig;
 	}
 
-	public void setKafkaOutputConfig(KafkaOutputConfig kafkaOutputConfig) {
+	public FileLog2KafkaImportBuilder setKafkaOutputConfig(KafkaOutputConfig kafkaOutputConfig) {
 		this.kafkaOutputConfig = kafkaOutputConfig;
+		return this;
 	}
 
 	@JsonIgnore

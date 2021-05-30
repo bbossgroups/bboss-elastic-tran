@@ -57,9 +57,7 @@ public abstract class MongoDBInputPlugin extends BaseDataTranPlugin implements D
 
 	@Override
 	public void beforeInit() {
-		this.initES(importContext.getApplicationPropertiesFile());
 		initMongoDB();
-		initOtherDSes(importContext.getConfigs());
 
 
 	}
