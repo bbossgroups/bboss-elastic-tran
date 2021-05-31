@@ -27,6 +27,7 @@ sourceSets {
 
 dependencies {
 	api project(':bboss-elasticsearch-rest-jdbc')
+	api project(':bboss-elasticsearch-rest-file2ftp')
 	compileOnly([group: 'org.apache.hbase', name: 'hbase-shaded-client', version: "2.2.3", transitive: true])
 	api([group: 'io.dropwizard.metrics', name: 'metrics-core', version: "4.1.2", transitive: true])
 	api([group: 'io.dropwizard.metrics', name: 'metrics-jvm', version: "4.1.2", transitive: true])
