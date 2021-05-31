@@ -63,7 +63,7 @@ public class DummyOutPutDataTran extends BaseCommonRecordDataTran {
 		super.init();
 
 		dummyOupputContext = (DummyOupputContext)targetImportContext;
-
+		taskInfo = new StringBuilder().append("import data to dummy.").toString();
 
 
 	}
