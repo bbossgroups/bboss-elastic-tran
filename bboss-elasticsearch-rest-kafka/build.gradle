@@ -27,7 +27,7 @@ sourceSets {
 
 dependencies {
 	api project(':bboss-elasticsearch-rest-jdbc')
-	api project(':bboss-elasticsearch-rest-file')
+	api project(':bboss-elasticsearch-rest-file2ftp')
 	api project(':bboss-elasticsearch-rest-hbase')
 	api project(':bboss-elasticsearch-rest-mongodb')
 

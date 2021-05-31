@@ -30,8 +30,10 @@ public class DB2FileFtpImportBuilder extends DBExportBuilder {
 	public DB2FileFtpImportBuilder(){
 
 	}
-	public void setFileFtpOupputConfig(FileFtpOupputConfig fileFtpOupputConfig) {
+	public DB2FileFtpImportBuilder setFileFtpOupputConfig(FileFtpOupputConfig fileFtpOupputConfig) {
 		this.fileFtpOupputConfig = fileFtpOupputConfig;
+		return this;
+
 	}
 	@Override
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){

@@ -1,4 +1,4 @@
-package org.frameworkset.tran.input.fileftp.es;
+package org.frameworkset.tran.input.fileftp.file;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -16,44 +16,35 @@ package org.frameworkset.tran.input.fileftp.es;
  */
 
 import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.es.input.ESInputPlugin;
+import org.frameworkset.tran.input.file.FileBaseDataTranPlugin;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
-import java.util.concurrent.CountDownLatch;
-
 /**
- * <p>Description: </p>
+ * <p>Description: file Log to file and ftp data tran plugin </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
  * @Date 2019/10/9 14:35
  * @author biaoping.yin
  * @version 1.0
  */
-public class ES2FileFtpDataTranPlugin extends ESInputPlugin implements DataTranPlugin {
-
-
-
-	public ES2FileFtpDataTranPlugin(ImportContext importContext, ImportContext targetImportContext){
-		super(  importContext,  targetImportContext);
+public class FileLog2FileFtpDataTranPlugin  extends FileBaseDataTranPlugin {
+	public FileLog2FileFtpDataTranPlugin(ImportContext importContext, ImportContext targetImportContext){
+		super(importContext,  targetImportContext);
 
 	}
 
 
-	@Override
-	public void afterInit(){
 
-
-	}
-	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch, Status currentStatus){
-		FileFtpOutPutDataTran fileFtpOutPutDataTran = new FileFtpOutPutDataTran(taskContext,jdbcResultSet,importContext,   targetImportContext,  countDownLatch,  currentStatus);
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
+		FileFtpOutPutDataTran fileFtpOutPutDataTran = new FileFtpOutPutDataTran(taskContext,tranResultSet,importContext,   targetImportContext,  currentStatus);
 		fileFtpOutPutDataTran.init();
 		return fileFtpOutPutDataTran;
 	}
+
 
 
 

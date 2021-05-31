@@ -1,4 +1,4 @@
-package org.frameworkset.tran.input.fileftp.es;
+package org.frameworkset.tran.input.fileftp.file;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -17,33 +17,34 @@ package org.frameworkset.tran.input.fileftp.es;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.frameworkset.tran.DataStream;
-import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.es.input.ESExportBuilder;
+import org.frameworkset.tran.input.file.FileBaseDataTranPlugin;
+import org.frameworkset.tran.output.FileLogBaseImportBuilder;
 import org.frameworkset.tran.output.fileftp.FileFtpOupputConfig;
 import org.frameworkset.tran.output.fileftp.FileFtpOupputContextImpl;
 
 /**
- * <p>Description: </p>
+ * <p>Description: file Log to file and ftp data tran plugin builder</p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
  * @Date 2019/1/11 21:29
  * @author biaoping.yin
  * @version 1.0
  */
-public class ES2FileFtpExportBuilder extends ESExportBuilder {
+public class FileLog2FileFtpExportBuilder extends FileLogBaseImportBuilder {
+
+
 	@JsonIgnore
 	private FileFtpOupputConfig fileFtpOupputConfig;
-	public ES2FileFtpExportBuilder setFileFtpOupputConfig(FileFtpOupputConfig fileFtpOupputConfig) {
+
+	public FileLog2FileFtpExportBuilder setFileFtpOupputConfig(FileFtpOupputConfig fileFtpOupputConfig) {
 		this.fileFtpOupputConfig = fileFtpOupputConfig;
 		return this;
+
 	}
 
-	@Override
-	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
-		return new ES2FileFtpDataTranPlugin(  importContext,  targetImportContext);
-	}
+
 
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
@@ -51,29 +52,17 @@ public class ES2FileFtpExportBuilder extends ESExportBuilder {
 		fileFtpOupputContext.init();
 		return fileFtpOupputContext;
 	}
-	public DataStream builder(){
-		DataStream dataStream = super.builder();
-//		this.buildDBConfig();
-//		this.buildStatusDBConfig();
-		try {
-			if(logger.isInfoEnabled()) {
-				logger.info("ES2FileFtp Import Configs:");
-				logger.info(this.toString());
-			}
-		}
-		catch (Exception e){
-
-		}
 
 
-		if(fileFtpOupputConfig != null)
+	protected void setTargetImportContext(DataStream dataStream){
 			dataStream.setTargetImportContext(buildTargetImportContext(fileFtpOupputConfig) );
-		else
-			dataStream.setTargetImportContext(dataStream.getImportContext());
-		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
-
-		return dataStream;
 	}
+
+	@Override
+	protected FileBaseDataTranPlugin createFileBaseDataTranPlugin(ImportContext importContext, ImportContext targetImportContext) {
+		return new FileLog2FileFtpDataTranPlugin(importContext,targetImportContext);
+	}
+
 
 
 }

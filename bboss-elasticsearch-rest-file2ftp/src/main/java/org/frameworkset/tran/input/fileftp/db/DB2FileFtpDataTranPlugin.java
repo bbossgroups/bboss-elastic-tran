@@ -20,7 +20,6 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.input.SQLBaseDataTranPlugin;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputContext;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -34,11 +33,9 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public class DB2FileFtpDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranPlugin {
-	protected FileFtpOupputContext fileFtpOupputContext;
 	public DB2FileFtpDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
 		super(importContext,  targetImportContext);
 
-		fileFtpOupputContext = (FileFtpOupputContext) targetImportContext;
 	}
 	protected void init(ImportContext importContext,ImportContext targetImportContext){
 
