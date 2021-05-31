@@ -44,7 +44,13 @@ public class FileLog2FileFtpExportBuilder extends FileLogBaseImportBuilder {
 
 	}
 
-
+	@Override
+	public DataStream builder() {
+		if(fileFtpOupputConfig.getMaxFileRecordSize() == 0){//默认1万条记录一个文件
+			fileFtpOupputConfig.setMaxFileRecordSize(10000);
+		}
+		return super.builder();
+	}
 
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){

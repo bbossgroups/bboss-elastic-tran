@@ -49,7 +49,13 @@ public class Kafka2FileFtpExportBuilder  extends KafkaExportBuilder {
 	}
 
 
-
+	@Override
+	public DataStream builder() {
+		if(fileFtpOupputConfig.getMaxFileRecordSize() == 0){//默认1万条记录一个文件
+			fileFtpOupputConfig.setMaxFileRecordSize(10000);
+		}
+		return super.builder();
+	}
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
 		FileFtpOupputContextImpl fileFtpOupputContext = new FileFtpOupputContextImpl(fileFtpOupputConfig);
