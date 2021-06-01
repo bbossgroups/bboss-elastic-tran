@@ -34,13 +34,13 @@ import org.frameworkset.tran.hbase.HBaseExportBuilder;
 public class HBase2DBExportBuilder extends HBaseExportBuilder {
 
 
-	public HBase2DBExportBuilder setDboutputImportConfig(DBImportConfig dboutputImportConfig) {
-		this.dboutputImportConfig = dboutputImportConfig;
+	public HBase2DBExportBuilder setOutputDBConfig(DBImportConfig dboutputImportConfig) {
+		this.outputDBConfig = dboutputImportConfig;
 		return this;
 	}
 
 	@JsonIgnore
-	private DBImportConfig dboutputImportConfig;
+	private DBImportConfig outputDBConfig;
 	@Override
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
 		return new HBase2DBInputPlugin(  importContext,  targetImportContext);
@@ -53,8 +53,8 @@ public class HBase2DBExportBuilder extends HBaseExportBuilder {
 	}
 	@Override
 	protected void setTargetImportContext(DataStream dataStream){
-		if(dboutputImportConfig != null)
-			dataStream.setTargetImportContext(buildTargetImportContext(dboutputImportConfig) );
+		if(outputDBConfig != null)
+			dataStream.setTargetImportContext(buildTargetImportContext(outputDBConfig) );
 		else
 			dataStream.setTargetImportContext(dataStream.getImportContext());
 	}

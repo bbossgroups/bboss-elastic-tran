@@ -18,6 +18,7 @@ package org.frameworkset.tran.hbase;
 
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.Record;
 
@@ -52,16 +53,22 @@ public class HBaseRecord implements Record {
 		if(cs != null){
 			return cs;
 		}
+
 		cs = parserColumn( colName);
 		familys.put(colName,cs);
 		return cs;
 	}
 	public static byte[][] parserColumn(String colName){
-		String[] infos = colName.split(":");
-		byte[] f = Bytes.toBytes(infos[0]);
-		byte[] c = Bytes.toBytes(infos[1]);
-		byte[][] cs = new byte[][]{f,c};
-		return cs;
+		try {
+			String[] infos = colName.split(":");
+			byte[] f = Bytes.toBytes(infos[0]);
+			byte[] c = Bytes.toBytes(infos[1]);
+			byte[][] cs = new byte[][]{f, c};
+			return cs;
+		}
+		catch (Exception e){
+			throw new DataImportException("Parser Column failed: ["+colName+"] is not a hbase colname like c:name",e);
+		}
 	}
 	@Override
 	public Object getValue(String colName) {
