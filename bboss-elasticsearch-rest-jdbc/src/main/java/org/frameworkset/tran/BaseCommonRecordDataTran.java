@@ -16,6 +16,11 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 		super(taskContext, jdbcResultSet, importContext, targetImportContext,  currentStatus);
 	}
 
+	protected void logColumnsInfo(){
+		if(logger.isDebugEnabled())
+			logger.debug("Export Columns is null,you can set Export Columns in importconfig or not.");
+//				throw new DataImportException("Export Columns is null,Please set Export Columns in importconfig.");
+	}
 	protected CommonRecord buildRecord(Context context){
 		String[] columns = targetImportContext.getExportColumns();
 		//如果采用结果集中的字段集，就需要考虑全局添加或者记录级别添加的字段，通过配置设置导出的字段集不需要考虑全局添加或者记录级别添加的字段
@@ -33,7 +38,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 				}
 			}
 			else{
-				throw new DataImportException("Export Columns is null,Please set Export Columns in importconfig.");
+				logColumnsInfo();
 			}
 		}
 		Object temp = null;
@@ -49,7 +54,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 		appendFieldValues(  dbRecord, columns,   fieldValueMetas,  addedFields,  useResultKeys);
 		//计算数据源级别字段值
 		String varName = null;
-		for(int i = 0;i < columns.length; i ++)
+		for(int i = 0;columns !=null && i < columns.length; i ++)
 		{
 			varName = columns[i];
 			if(addedFields.get(varName) != null)
@@ -81,22 +86,34 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 			return;
 		}
 
-		for(FieldMeta fieldMeta:fieldValueMetas){
-			String fieldName = fieldMeta.getEsFieldName();
-			if(addedFields.containsKey(fieldName))
-				continue;
-			boolean matched = false;
-			for(String name:columns){
-				if(name.equals(fieldName)){
-					record.addData(name,fieldMeta.getValue());
-					addedFields.put(name,dummy);
-					matched = true;
-					break;
+		if(columns != null && columns.length > 0) {
+			for (FieldMeta fieldMeta : fieldValueMetas) {
+				String fieldName = fieldMeta.getEsFieldName();
+				if (addedFields.containsKey(fieldName))
+					continue;
+				boolean matched = false;
+				for (String name : columns) {
+					if (name.equals(fieldName)) {
+						record.addData(name, fieldMeta.getValue());
+						addedFields.put(name, dummy);
+						matched = true;
+						break;
+					}
+				}
+				if (useResultKeys && !matched) {
+					record.addData(fieldName, fieldMeta.getValue());
+					addedFields.put(fieldName, dummy);
 				}
 			}
-			if(useResultKeys && !matched){
-				record.addData(fieldName,fieldMeta.getValue());
-				addedFields.put(fieldName,dummy);
+		}
+		else{ //hbase之类的数据同步工具，数据都是在datarefactor接口中封装处理，columns信息不存在，直接用fieldValueMetas即可
+			for (FieldMeta fieldMeta : fieldValueMetas) {
+				String fieldName = fieldMeta.getEsFieldName();
+				if (addedFields.containsKey(fieldName))
+					continue;
+				record.addData(fieldName, fieldMeta.getValue());
+				addedFields.put(fieldName, dummy);
+
 			}
 		}
 	}
