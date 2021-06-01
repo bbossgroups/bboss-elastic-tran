@@ -44,11 +44,7 @@ public class ES2FileFtpDataTranPlugin extends ESInputPlugin implements DataTranP
 	}
 
 
-	@Override
-	public void afterInit(){
 
-
-	}
 	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch, Status currentStatus){
 		FileFtpOutPutDataTran fileFtpOutPutDataTran = new FileFtpOutPutDataTran(taskContext,jdbcResultSet,importContext,   targetImportContext,  countDownLatch,  currentStatus);
 		fileFtpOutPutDataTran.init();

@@ -37,11 +37,6 @@ public class DB2FileFtpDataTranPlugin extends SQLBaseDataTranPlugin implements D
 		super(importContext,  targetImportContext);
 
 	}
-	protected void init(ImportContext importContext,ImportContext targetImportContext){
-
-		super.init(importContext,  targetImportContext);
-
-	}
 
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){

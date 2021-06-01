@@ -36,7 +36,7 @@ import java.lang.reflect.InvocationTargetException;
  * @version 1.0
  */
 public class Kafka2FileFtpExportBuilder  extends KafkaExportBuilder {
-	private static final String Kafka2FileFtpInputPlugin = "org.frameworkset.tran.kafka.input.fileftp.Kafka2FileFtpInputPlugin";
+	private static final String Kafka2FileFtpInputPlugin = "org.frameworkset.tran.kafka.input.fileftp.Kafka2FileFtpDataTranPlugin";
 
 
 	@JsonIgnore

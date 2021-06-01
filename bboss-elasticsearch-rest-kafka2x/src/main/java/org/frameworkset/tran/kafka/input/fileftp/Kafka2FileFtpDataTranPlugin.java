@@ -18,7 +18,7 @@ package org.frameworkset.tran.kafka.input.fileftp;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.input.file.FileBaseDataTranPlugin;
+import org.frameworkset.tran.kafka.input.Kafka2InputPlugin;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -31,7 +31,7 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @author biaoping.yin
  * @version 1.0
  */
-public class Kafka2FileFtpDataTranPlugin extends FileBaseDataTranPlugin {
+public class Kafka2FileFtpDataTranPlugin  extends Kafka2InputPlugin {
 	public Kafka2FileFtpDataTranPlugin(ImportContext importContext, ImportContext targetImportContext){
 		super(importContext,  targetImportContext);
 
