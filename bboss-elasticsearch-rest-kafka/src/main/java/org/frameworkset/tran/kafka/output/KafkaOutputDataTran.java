@@ -30,7 +30,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 		super.init();
 		kafkaOutputContext = (KafkaOutputContext)targetImportContext;
 		taskInfo = new StringBuilder().append("import data to kafka topic[")
-				.append(kafkaOutputContext.getTopic()).append("] start.").toString();
+				.append(kafkaOutputContext.getTopic()).append("].").toString();
 	}
 
 	public KafkaOutputDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch,Status currentStatus) {
