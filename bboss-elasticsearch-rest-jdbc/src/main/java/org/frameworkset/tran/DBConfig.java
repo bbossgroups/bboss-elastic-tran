@@ -62,7 +62,7 @@ public class DBConfig {
 			.append( "status int(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 			.append( "filePath varchar(500) ,")  //日志文件路径
 			.append( "fileId varchar(500) ,")   //日志文件indoe标识
-			.append( "statusId number(10) ,")  //状态表中使用的主键标识
+			.append( "statusId bigint(10) ,")  //状态表中使用的主键标识
 			.append( "PRIMARY KEY(ID)) ENGINE=InnoDB").toString();
 	public static final String oracle_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName ( ID varchar(100) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL, lastvaluetype NUMBER(1) NOT NULL,")
 			.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
@@ -80,7 +80,7 @@ public class DBConfig {
 			.append( "status INT ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 			.append( "filePath varchar(500) ,")  //日志文件路径
 			.append( "fileId varchar(500) ,")   //日志文件indoe标识
-			.append( "statusId number(10) ,")  //状态表中使用的主键标识
+			.append( "statusId bigint ,")  //状态表中使用的主键标识
 			.append( "constraint $historyStatusTableName_PK primary key(ID))").toString();
 
 	/**是否启用sql日志，true启用，false 不启用，*/
