@@ -18,6 +18,7 @@ package org.frameworkset.tran.kafka.output;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.util.RecordGenerator;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -69,7 +70,14 @@ public class KafkaOutputConfig  extends BaseImportConfig {
 		kafkaConfigs.setProperty(name,value);
 		return this;
 	}
-
+	public KafkaOutputConfig addKafkaProperties(Map properties){
+		if(properties == null || properties.size() == 0)
+			return this;
+		if(kafkaConfigs == null)
+			kafkaConfigs = new Properties();
+		kafkaConfigs.putAll(properties);
+		return this;
+	}
 	public Properties getKafkaConfigs() {
 		return kafkaConfigs;
 	}

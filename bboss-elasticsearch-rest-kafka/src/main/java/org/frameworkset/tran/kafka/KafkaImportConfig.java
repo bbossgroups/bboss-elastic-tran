@@ -37,6 +37,7 @@ public class KafkaImportConfig extends BaseImportConfig {
 	public static final String CODEC_LONG = "long";
 	public static final String CODEC_JSON = "json";
 	public static final String CODEC_INTEGER = "int";
+	public static final String CODEC_BYTE = "byte[]";
 	/**
 	 * json
 	 * text

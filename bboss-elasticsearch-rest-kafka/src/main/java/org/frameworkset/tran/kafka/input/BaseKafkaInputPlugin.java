@@ -108,8 +108,12 @@ public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements
 		}
 
 	}
+	@Override
 	public void initSchedule(){
 		logger.info("Ignore initSchedule for plugin {}",this.getClass().getName());
 	}
-
+	@Override
+	public void initLastValueClumnName(){
+		setIncreamentImport(false);
+	}
 }

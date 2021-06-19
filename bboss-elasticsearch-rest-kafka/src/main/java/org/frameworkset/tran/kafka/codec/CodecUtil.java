@@ -40,6 +40,9 @@ public abstract class CodecUtil {
 		else if(KafkaImportConfig.CODEC_INTEGER.equals(codecType)) {
 			return "org.apache.kafka.common.serialization.IntegerDeserializer";
 		}
+		else if(KafkaImportConfig.CODEC_BYTE.equals(codecType)) {
+			return "org.apache.kafka.common.serialization.ByteArrayDeserializer";
+		}
 		else{
 			return codecType;
 		}
