@@ -8,6 +8,7 @@ import org.frameworkset.util.OSInfo;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +36,12 @@ public class FileConfig {
     private Pattern fileHeadLineRexPattern;
     //需要包含的记录条件,正则匹配
     private String[] includeLines;
+
+    public LineMatchType getIncludeLineMatchType() {
+        return includeLineMatchType;
+    }
+
+    private LineMatchType includeLineMatchType = LineMatchType.REGEX_CONTAIN;
     private Pattern[] includeLinesRexPattern;
     //需要排除的记录规则,正则匹配
     /**
@@ -45,6 +52,12 @@ public class FileConfig {
      * even if exclude_lines appears before include_lines in the config file.
      */
     private String[] excludeLines;
+
+    public LineMatchType getExcludeLineMatchType() {
+        return excludeLineMatchType;
+    }
+
+    private LineMatchType excludeLineMatchType = LineMatchType.REGEX_CONTAIN;
     private Pattern[] excludeLinesRexPattern;
     /**
      * The maximum number of bytes that a single log message can have. All bytes after max_bytes are discarded and not sent.
@@ -137,6 +150,12 @@ public class FileConfig {
         addFields.put(name,value);
         return this;
     }
+    public FileConfig addFields(Map<String,Object> values){
+        if(addFields == null)
+            addFields = new LinkedHashMap<>();
+        addFields.putAll(values);
+        return this;
+    }
 
     public Map<String, Object> getAddFields() {
         return addFields;
@@ -212,17 +231,26 @@ public class FileConfig {
         return includeLines;
     }
 
+    public FileConfig setIncludeLines(String[] includeLines,LineMatchType includeLineMatchType) {
+        this.includeLines = includeLines;
+        this.includeLineMatchType = includeLineMatchType;
+        return this;
+    }
     public FileConfig setIncludeLines(String[] includeLines) {
         this.includeLines = includeLines;
         return this;
     }
-
     public String[] getExcludeLines() {
         return excludeLines;
     }
-
     public FileConfig setExcludeLines(String[] excludeLines) {
         this.excludeLines = excludeLines;
+        return this;
+    }
+
+    public FileConfig setExcludeLines(String[] excludeLines,LineMatchType excludeLineMatchType) {
+        this.excludeLines = excludeLines;
+        this.excludeLineMatchType = excludeLineMatchType;
         return this;
     }
 
@@ -265,14 +293,18 @@ public class FileConfig {
         if(StringUtils.isNotEmpty(this.fileNameRegular)){
             fileNameRexPattern = Pattern.compile(this.fileNameRegular);
         }
-        if(includeLines != null && includeLines.length > 0){
+        if(includeLines != null && includeLines.length > 0
+                && (includeLineMatchType == LineMatchType.REGEX_CONTAIN
+                || includeLineMatchType == LineMatchType.REGEX_MATCH)){
             includeLinesRexPattern = new Pattern[includeLines.length];
             for(int i = 0; i < includeLines.length; i ++){
                 includeLinesRexPattern[i] = Pattern.compile(this.includeLines[i]);
             }
         }
 
-        if(excludeLines != null && excludeLines.length > 0){
+        if(excludeLines != null && excludeLines.length > 0
+                && (excludeLineMatchType == LineMatchType.REGEX_CONTAIN
+                    || excludeLineMatchType == LineMatchType.REGEX_MATCH)){
             excludeLinesRexPattern = new Pattern[excludeLines.length];
             for(int i = 0; i < excludeLines.length; i ++){
                 excludeLinesRexPattern[i] = Pattern.compile(this.excludeLines[i]);

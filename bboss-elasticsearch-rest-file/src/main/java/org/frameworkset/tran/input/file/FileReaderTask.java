@@ -460,38 +460,120 @@ public class FileReaderTask {
      * @param line
      * @return
      */
-    private boolean check(String line){
-        Pattern[] includes = fileConfig.getIncludeLinesRexPattern();
-        Pattern[] excludes = fileConfig.getExcludeLinesRexPattern();
-        if(includes != null && includes.length > 0){
+    private boolean regexCheck(String line,Pattern[] patterns,LineMatchType matchType){
+//        Pattern[] includes = fileConfig.getIncludeLinesRexPattern();
+//        Pattern[] excludes = fileConfig.getExcludeLinesRexPattern();
             boolean find = false;
-            for(Pattern inc:includes){
-                find = inc.matcher(line).find();
+            for(Pattern inc:patterns){
+                find = matchType == LineMatchType.REGEX_CONTAIN?inc.matcher(line).find():
+                                                                inc.matcher(line).matches();
                 if(find)
                     break;
             }
-            if(find){
-                if(excludes != null && excludes.length > 0){
-                    for(Pattern exc:excludes){
-                        if(exc.matcher(line).find()){
-                            find = false;
-                            break;
-                        }
+            return find;
+
+    }
+
+    /**
+     * 检查记录内容是否是需要采集的记录内容
+     * @param line
+     * @return
+     */
+    private boolean stringCheck(String line,String[] patterns,LineMatchType matchType){
+//        Pattern[] includes = fileConfig.getIncludeLinesRexPattern();
+//        Pattern[] excludes = fileConfig.getExcludeLinesRexPattern();
+        boolean find = false;
+        for(String inc:patterns){
+            switch (matchType){
+                case STRING_CONTAIN:
+                    find = line.contains(inc);
+                    break;
+                case STRING_EQUALS:
+                    find = line.equals(inc);
+                    break;
+                case STRING_END:
+                    find = line.endsWith(inc);
+                    break;
+                case STRING_PREFIX:
+                    find = line.startsWith(inc);
+                    break;
+                default:
+                    break;
+            }
+            if(find)
+                break;
+        }
+        return find;
+
+    }
+
+    private boolean includeCheck(String line,String[] includeLines,LineMatchType includeLineMatchType){
+        boolean find = false;
+        switch (includeLineMatchType){
+            case REGEX_CONTAIN:
+            case REGEX_MATCH:
+                Pattern[] includes = fileConfig.getIncludeLinesRexPattern();
+                find = regexCheck(line,includes,includeLineMatchType);
+                break;
+            case STRING_CONTAIN:
+            case STRING_EQUALS:
+            case STRING_END:
+            case STRING_PREFIX:
+                find = stringCheck(line,fileConfig.getIncludeLines(),includeLineMatchType);
+                break;
+            default:
+                break;
+        }
+        return find;
+    }
+
+    private boolean excludeCheck(String line,String[] excludeLines,LineMatchType excludeLineMatchType){
+        boolean find = false;
+        if(excludeLines != null && excludeLines.length > 0){
+            switch (excludeLineMatchType){
+                case REGEX_CONTAIN:
+                case REGEX_MATCH:
+                    Pattern[] excludes = fileConfig.getExcludeLinesRexPattern();
+                    if(regexCheck(line,excludes,excludeLineMatchType)){
+                        find = true;
                     }
-                }
+                    break;
+                case STRING_CONTAIN:
+                case STRING_EQUALS:
+                case STRING_END:
+                case STRING_PREFIX:
+                    if(stringCheck(line,excludeLines,excludeLineMatchType))
+                        find = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+        return find;
+    }
+    /**
+     * 检查记录内容是否是需要采集的记录内容
+     * @param line
+     * @return
+     */
+    private boolean check(String line){
+        String[] includeLines = fileConfig.getIncludeLines();
+        String[] excludeLines = fileConfig.getExcludeLines();
+        LineMatchType includeLineMatchType = fileConfig.getIncludeLineMatchType();
+        LineMatchType excludeLineMatchType = fileConfig.getExcludeLineMatchType();
+        if(includeLines != null && includeLines.length > 0){
+            boolean find = includeCheck(line,includeLines, includeLineMatchType);
+            if(find){
+                if(excludeCheck( line, excludeLines, excludeLineMatchType))
+                    find = false;
+
             }
             return find;
         }
         else{
             boolean find = true;
-            if(excludes != null && excludes.length > 0){
-                for(Pattern exc:excludes){
-                    if(exc.matcher(line).find()){
-                        find = false;
-                        break;
-                    }
-                }
-            }
+            if(excludeCheck( line, excludeLines, excludeLineMatchType))
+                find = false;
             return find;
         }
 
@@ -504,7 +586,7 @@ public class FileReaderTask {
      */
     private String checkMaxLength(String line){
         int maxLength = fileConfig.getMaxBytes();
-        if(line.length() > maxLength){
+        if(maxLength > 0 && line.length() > maxLength){
             line = line.substring(0,maxLength);
         }
         return line;
@@ -556,8 +638,10 @@ public class FileReaderTask {
                 }
             }
             Map common = common(file, pointer, result);
-            if (enableMeta)
+            if (enableMeta) {
                 result.put("@filemeta", common);
+                result.put("@timestamp",new Date());
+            }
             recordList.add(new FileLogRecord(common,result,pointer,reachEOFClosed));
         }
 
@@ -568,7 +652,7 @@ public class FileReaderTask {
         common.put("hostIp", BaseSimpleStringUtil.getIp());
         common.put("hostName",BaseSimpleStringUtil.getHostName());
         common.put("filePath",FileInodeHandler.change(file.getAbsolutePath()));
-        common.put("timestamp",new Date());
+
         common.put("pointer",pointer);
         common.put("fileId",fileId);
         return common;
