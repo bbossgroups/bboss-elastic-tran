@@ -148,7 +148,16 @@ public abstract class BaseImportBuilder {
 	 * @return
 	 */
 	private Integer increamentEndOffset;
-
+	/**
+	 * 是否采用异步模式存储增量状态，默认true
+	 * true 异步模式
+	 * false 同步模式
+	 */
+	private boolean asynFlushStatus = true;
+	/**
+	 * 单位：毫秒
+	 */
+	private long asynFlushStatusInterval = 10000;
 	public long getAsynResultPollTimeOut() {
 		return asynResultPollTimeOut;
 	}
@@ -165,6 +174,11 @@ public abstract class BaseImportBuilder {
 	 */
 	public BaseImportBuilder setIncreamentEndOffset(Integer increamentEndOffset) {
 		this.increamentEndOffset = increamentEndOffset;
+		return this;
+	}
+
+	public BaseImportBuilder setAsynFlushStatus(boolean asynFlushStatus) {
+		this.asynFlushStatus = asynFlushStatus;
 		return this;
 	}
 
@@ -1183,6 +1197,8 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setFlushInterval(this.flushInterval);
 		baseImportConfig.setIgnoreNullValueField(this.ignoreNullValueField);
 		baseImportConfig.setIncreamentEndOffset(this.increamentEndOffset);
+		baseImportConfig.setAsynFlushStatus(this.asynFlushStatus);
+		baseImportConfig.setAsynFlushStatusInterval(this.asynFlushStatusInterval);
 //		baseImportConfig.setEsDetectNoop(this.esDetectNoop);
 
 	}
@@ -1551,5 +1567,14 @@ public abstract class BaseImportBuilder {
 	protected abstract ImportContext buildImportContext(BaseImportConfig importConfig);
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig) {
 		return null;
+	}
+
+	public long getAsynFlushStatusInterval() {
+		return asynFlushStatusInterval;
+	}
+
+	public BaseImportBuilder setAsynFlushStatusInterval(long asynFlushStatusInterval) {
+		this.asynFlushStatusInterval = asynFlushStatusInterval;
+		return this;
 	}
 }

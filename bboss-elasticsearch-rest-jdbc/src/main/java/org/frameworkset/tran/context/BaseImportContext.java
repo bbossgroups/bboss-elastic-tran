@@ -65,7 +65,12 @@ public abstract  class BaseImportContext implements ImportContext {
 	public Integer increamentEndOffset(){
 		return baseImportConfig.getIncreamentEndOffset();
 	}
-
+	public boolean isAsynFlushStatus(){
+		return baseImportConfig.isAsynFlushStatus();
+	}
+	public long getAsynFlushStatusInterval(){
+		return baseImportConfig.getAsynFlushStatusInterval();
+	}
 	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext){
 		return dataTranPlugin.buildContext( taskContext,jdbcResultSet,batchContext);
 	}

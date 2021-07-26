@@ -9,6 +9,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.MultiStatusManager;
 import org.frameworkset.tran.util.TranConstant;
 
 import java.io.File;
@@ -38,8 +39,11 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 //    public void setFileListener(FileListener fileListener) {
 //        this.fileListener = fileListener;
 //    }
-
-
+    @Override
+    protected void initStatusManager(){
+        statusManager = new MultiStatusManager(statusDbname, updateSQL, lastValueType,this);
+        statusManager.init();
+    }
     public void setFileListenerService(FileListenerService fileListenerService) {
         this.fileListenerService = fileListenerService;
     }

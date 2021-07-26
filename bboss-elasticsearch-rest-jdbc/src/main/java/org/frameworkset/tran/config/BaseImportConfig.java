@@ -55,6 +55,22 @@ public abstract class BaseImportConfig {
 		return exportColumns;
 	}
 
+	/**
+	 * 是否采用异步模式存储增量状态，默认true
+	 * true 异步模式
+	 * false 同步模式
+	 */
+	private boolean asynFlushStatus = true;
+
+	public long getAsynFlushStatusInterval() {
+		return asynFlushStatusInterval;
+	}
+
+	public void setAsynFlushStatusInterval(long asynFlushStatusInterval) {
+		this.asynFlushStatusInterval = asynFlushStatusInterval;
+	}
+
+	private long asynFlushStatusInterval = 10000;
 	public void setIncreamentEndOffset(Integer increamentEndOffset) {
 		this.increamentEndOffset = increamentEndOffset;
 	}
@@ -917,5 +933,13 @@ public abstract class BaseImportConfig {
 
 	public void setGeoipConfig(Map<String, Object> geoipConfig) {
 		this.geoipConfig = geoipConfig;
+	}
+
+	public boolean isAsynFlushStatus() {
+		return asynFlushStatus;
+	}
+
+	public void setAsynFlushStatus(boolean asynFlushStatus) {
+		this.asynFlushStatus = asynFlushStatus;
 	}
 }

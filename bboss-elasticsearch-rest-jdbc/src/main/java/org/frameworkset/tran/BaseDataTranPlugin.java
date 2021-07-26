@@ -25,11 +25,10 @@ import org.frameworkset.elasticsearch.boot.ElasticSearchBoot;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.schedule.CallInterceptor;
-import org.frameworkset.tran.schedule.ImportIncreamentConfig;
-import org.frameworkset.tran.schedule.ScheduleService;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.schedule.*;
+import org.frameworkset.tran.status.DefaultStatusManager;
+import org.frameworkset.tran.status.SingleStatusManager;
+import org.frameworkset.tran.status.StatusManager;
 import org.frameworkset.tran.util.TranConstant;
 import org.frameworkset.util.TimeUtil;
 import org.slf4j.Logger;
@@ -58,6 +57,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	private boolean increamentImport = true;
 	private ExportCount exportCount;
+	protected StatusManager statusManager;
 	public ExportCount getExportCount() {
 		return exportCount;
 	}
@@ -230,6 +230,19 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public abstract void beforeInit();
 	public abstract void afterInit();
 	public abstract void initStatusTableId();
+	protected void initStatusManager(){
+		statusManager = new SingleStatusManager(statusDbname, updateSQL, lastValueType,this);
+		statusManager.init();
+	}
+
+	protected void _initStatusManager(){
+		if(this.importContext.isAsynFlushStatus()) {
+			initStatusManager();
+		}
+		else{
+			statusManager = new DefaultStatusManager(statusDbname, updateSQL, lastValueType,this);
+		}
+	}
 	@Override
 	public void init() {
 		exportCount = new ExportCount();
@@ -243,6 +256,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		}
 		initTableAndStatus();
 		afterInit();
+		if(this.isIncreamentImport()) {
+			_initStatusManager();
+		}
 	}
 	public boolean isMultiTran(){
 		return false;
@@ -884,10 +900,10 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			logger.debug("UpdateStatus：增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}",importContext.isLastValueDateType(),
 					lastValue.getClass().getName(),lastValue);
 		}
-//		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
-		SQLExecutor.updateWithDBName(statusDbname,updateSQL, currentStatus.getTime(), lastValue,
-									lastValueType,currentStatus.getFilePath(),currentStatus.getFileId(),
-									currentStatus.getStatus(),currentStatus.getId());
+//		SQLExecutor.updateWithDBName(statusDbname,updateSQL, currentStatus.getTime(), lastValue,
+//									lastValueType,currentStatus.getFilePath(),currentStatus.getFileId(),
+//									currentStatus.getStatus(),currentStatus.getId());
+		statusManager.putStatus(currentStatus);
 	}
 
 
