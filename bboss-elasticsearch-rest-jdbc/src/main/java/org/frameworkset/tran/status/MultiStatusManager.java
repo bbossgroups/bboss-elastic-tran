@@ -37,7 +37,9 @@ import java.util.*;
 public class MultiStatusManager extends BaseStatusManager{
 	private static Logger logger = LoggerFactory.getLogger(MultiStatusManager.class);
 	private Map<String,WrapStatus> statuses = new LinkedHashMap<>();
+	private long liveTime = 24 * 60 * 60 * 1000;
 	private long lastUpdateTime;
+
 	public MultiStatusManager(String statusDbname, String updateSQL,
 							  int lastValueType, DataTranPlugin dataTranPlugin){
 		super( statusDbname, updateSQL,lastValueType,dataTranPlugin);
@@ -48,23 +50,38 @@ public class MultiStatusManager extends BaseStatusManager{
 
 	}
 	protected void _putStatus(Status currentStatus){
-		WrapStatus wrapStatus = new WrapStatus();
-		wrapStatus.currentStatus = currentStatus ;
-		wrapStatus.lastPutTime = System.currentTimeMillis();
-		statuses.put(currentStatus.getFileId(),wrapStatus);
-
+		WrapStatus wrapStatus = statuses.get(currentStatus.getFileId());
+		if(wrapStatus == null) {
+			wrapStatus = new WrapStatus();
+			wrapStatus.currentStatus = currentStatus;
+			wrapStatus.lastPutTime = System.currentTimeMillis();
+			statuses.put(currentStatus.getFileId(), wrapStatus);
+		}
+		else{
+			wrapStatus.currentStatus = currentStatus;
+			wrapStatus.lastPutTime = System.currentTimeMillis();
+		}
 	}
 	protected void _flushStatus()  throws Exception{
 		if(logger.isDebugEnabled()){
 			logger.debug("flushStatus start.");
 		}
 		List<Status> datas = new ArrayList<>();
+		List<Status> removeDatas = new ArrayList<>();
 		Set<Map.Entry<String,WrapStatus>> statusSet = statuses.entrySet();
 		WrapStatus wrapStatus = null;
+		long interval = 0l;
+		long ntime  = System.currentTimeMillis();
 		for(Map.Entry<String,WrapStatus> entry : statusSet){
 			wrapStatus = entry.getValue();
 			if(lastUpdateTime < wrapStatus.lastPutTime )
 				datas.add(wrapStatus.currentStatus);
+			else{
+				interval = ntime - wrapStatus.lastPutTime;
+				if(interval >= liveTime){ //静默超过1天的记录将被从statuses中清除
+					removeDatas.add(wrapStatus.currentStatus);
+				}
+			}
 		}
 		if(datas.size() > 0) {
 			SQLExecutor.executeBatch(statusDbname, updateSQL, datas, 100, new BatchHandler<Status>() {
@@ -80,7 +97,7 @@ public class MultiStatusManager extends BaseStatusManager{
 				}
 			});
 			lastUpdateTime = System.currentTimeMillis();
-			for(Status status: datas){
+			for(Status status: removeDatas){
 				statuses.remove(status.getFileId());
 			}
 
