@@ -29,4 +29,6 @@ public interface StatusManager {
 	public void putStatus(Status currentStatus) throws Exception;
 	public void flushStatus();
 	public void init();
+	public void stop();
+	public boolean isStoped();
 }

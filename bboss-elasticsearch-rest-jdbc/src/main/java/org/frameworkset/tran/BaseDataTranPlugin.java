@@ -256,9 +256,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		}
 		initTableAndStatus();
 		afterInit();
-		if(this.isIncreamentImport()) {
-			_initStatusManager();
-		}
+
 	}
 	public boolean isMultiTran(){
 		return false;
@@ -325,6 +323,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		if(scheduleService != null){
 			scheduleService.stop();
 		}
+		if(statusManager != null)
+			statusManager.stop();
 		try {
 			if(statusDbname != null && !statusDbname.equals(""))
 				SQLUtil.stopPool(this.statusDbname);
@@ -601,6 +601,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 				}
 			}
+			_initStatusManager();
 			this.loadCurrentStatus();
 		}
 		else{

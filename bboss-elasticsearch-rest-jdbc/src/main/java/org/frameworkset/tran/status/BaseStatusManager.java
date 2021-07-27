@@ -39,6 +39,7 @@ public abstract class BaseStatusManager implements StatusManager {
 	protected int lastValueType;
 	private StatusFlushThread flushThread ;
 	private DataTranPlugin dataTranPlugin;
+	private boolean stoped;
 	public BaseStatusManager(String statusDbname,String updateSQL,
 							  int lastValueType,
 							 DataTranPlugin dataTranPlugin){
@@ -47,6 +48,11 @@ public abstract class BaseStatusManager implements StatusManager {
 		this.lastValueType = lastValueType;
 		this.dataTranPlugin = dataTranPlugin;
 	}
+
+	public DataTranPlugin getDataTranPlugin() {
+		return dataTranPlugin;
+	}
+
 	public void init(){
 		flushThread = new StatusFlushThread(this,
 				dataTranPlugin.getImportContext().getAsynFlushStatusInterval());
@@ -86,5 +92,15 @@ public abstract class BaseStatusManager implements StatusManager {
 		finally {
 			write.unlock();
 		}
+	}
+
+	@Override
+	public void stop(){
+		stoped = true;
+	}
+
+	@Override
+	public boolean isStoped() {
+		return stoped;
 	}
 }

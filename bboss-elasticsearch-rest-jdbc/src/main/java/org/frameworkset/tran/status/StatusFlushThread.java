@@ -40,10 +40,14 @@ public class StatusFlushThread extends Thread{
 	public void run(){
 		while (true){
 			try {
+				if(statusManager.isStoped())
+					break;
 				synchronized (this) {
 					wait(flushInterval);
 				}
 				try {
+					if(statusManager.isStoped())
+						break;
 					statusManager.flushStatus();
 
 				}
