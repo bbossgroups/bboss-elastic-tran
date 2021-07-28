@@ -97,6 +97,7 @@ public abstract class BaseStatusManager implements StatusManager {
 	@Override
 	public void stop(){
 		stoped = true;
+		flushThread.interrupt();
 	}
 
 	@Override

@@ -40,23 +40,23 @@ public class StatusFlushThread extends Thread{
 	public void run(){
 		while (true){
 			try {
-				if(statusManager.isStoped())
-					break;
-				synchronized (this) {
-					wait(flushInterval);
-				}
-				try {
-					if(statusManager.isStoped())
-						break;
-					statusManager.flushStatus();
 
+				sleep(flushInterval);
+				try {
+					statusManager.flushStatus();
 				}
 				catch (Exception e){
 					logger.warn("StatusManager flush Status failed:",e);
-					continue;
 				}
-
-			} catch (InterruptedException e) {
+				if(statusManager.isStoped())
+					break;
+			} catch (InterruptedException e) {//线程中断后，需强制刷新status
+				try {
+					statusManager.flushStatus();
+				}
+				catch (Exception e1){
+					logger.warn("StatusManager flush Status failed:",e1);
+				}
 				break;
 			}
 
