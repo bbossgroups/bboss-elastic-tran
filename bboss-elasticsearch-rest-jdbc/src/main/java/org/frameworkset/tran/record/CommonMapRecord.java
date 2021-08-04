@@ -15,7 +15,7 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.Record;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Map;
 
@@ -27,17 +27,19 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class CommonMapRecord implements Record {
+public class CommonMapRecord extends BaseRecord {
 	private Object key;
 	private Map<String,Object> record;
 	private long offset;
-	public CommonMapRecord(Object key, Map<String,Object> record,long offset){
+	public CommonMapRecord(TaskContext taskContext,Object key, Map<String,Object> record, long offset){
+		super(taskContext);
 		this.record = record;
 		this.key = key;
 		this.offset = offset;
 	}
 
-	public CommonMapRecord( Map<String,Object> record,long offset){
+	public CommonMapRecord(TaskContext taskContext, Map<String,Object> record,long offset){
+		super(taskContext);
 		this.record = record;
 		this.offset = offset;
 	}
@@ -45,6 +47,8 @@ public class CommonMapRecord implements Record {
 	public boolean reachEOFClosed(){
 		return false;
 	}
+
+
 	@Override
 	public Object getValue(String colName) {
 

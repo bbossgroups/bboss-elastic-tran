@@ -20,7 +20,8 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.ESDataImportException;
-import org.frameworkset.tran.Record;
+import org.frameworkset.tran.record.BaseRecord;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Date;
 import java.util.Map;
@@ -33,10 +34,11 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class HBaseRecord implements Record {
+public class HBaseRecord extends BaseRecord{
 	private Result data;
 	private Map<String,byte[][]> familys;
-	public HBaseRecord(Map<String,byte[][]> familys,Result data){
+	public HBaseRecord(TaskContext taskContext,Map<String, byte[][]> familys, Result data){
+		super(taskContext);
 		this.familys = familys;
 		this.data = data;
 	}
@@ -48,6 +50,8 @@ public class HBaseRecord implements Record {
 	public boolean reachEOFClosed(){
 		return false;
 	}
+
+
 	private byte[][] parser(String colName){
 		byte[][] cs = familys.get(colName);
 		if(cs != null){

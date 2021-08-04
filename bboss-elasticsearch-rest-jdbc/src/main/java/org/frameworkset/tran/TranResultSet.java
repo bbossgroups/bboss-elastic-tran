@@ -15,6 +15,8 @@ package org.frameworkset.tran;/*
  */
 
 
+import org.frameworkset.tran.schedule.TaskContext;
+
 import java.util.Date;
 
 public interface TranResultSet {
@@ -26,9 +28,11 @@ public interface TranResultSet {
 	public Object getLastOffsetValue() throws ESDataImportException;
 
 	public Object getValue( String colName,int sqlType) throws ESDataImportException;
-
+	public BaseDataTran getBaseDataTran();
+	public TaskContext getTaskContext();
+	public void setBaseDataTran(BaseDataTran baseDataTran);
 	public Date getDateTimeValue(String colName) throws ESDataImportException;
-
+	public TaskContext getRecordTaskContext();
 	/**
 	 * 如果返回null，说明是强制fush操作，true表示有数据，false表示没有数据
 	 * @return

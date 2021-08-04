@@ -15,7 +15,7 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.Record;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
@@ -25,16 +25,18 @@ import org.frameworkset.tran.Record;
  * @author biaoping.yin
  * @version 1.0
  */
-public class CommonStringRecord implements Record {
+public class CommonStringRecord  extends BaseRecord {
 	private Object key;
 	private String record;
 	private long offset;
-	public CommonStringRecord(Object key, String record,long offset){
+	public CommonStringRecord(TaskContext taskContext,Object key, String record, long offset){
+		super(taskContext);
 		this.record = record;
 		this.key = key;
 		this.offset = offset;
 	}
-	public CommonStringRecord(String record,long offset){
+	public CommonStringRecord(TaskContext taskContext,String record,long offset){
+		super(taskContext);
 		this.record = record;
 		this.offset = offset;
 	}
@@ -42,6 +44,7 @@ public class CommonStringRecord implements Record {
 	public boolean reachEOFClosed(){
 		return false;
 	}
+
 	@Override
 	public boolean removed() {
 		return false;

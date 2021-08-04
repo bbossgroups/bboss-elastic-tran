@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
  */
 public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     protected FileImportContext fileImportContext;
+    protected List<LogDirScanThread> logDirScanThreads;
     protected FileListenerService fileListenerService;
 //    protected FileListener fileListener;
 //    protected List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
@@ -79,7 +80,9 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         addStatus( status);
         FileResultSet kafkaResultSet = new FileResultSet(this.fileImportContext);
 //		final CountDownLatch countDownLatch = new CountDownLatch(1);
-        final BaseDataTran fileDataTran = createBaseDataTran((TaskContext)null,kafkaResultSet,status);
+        FileTaskContext taskContext = new FileTaskContext(importContext,targetImportContext);
+
+        final BaseDataTran fileDataTran = createBaseDataTran(taskContext,kafkaResultSet,status);
         Thread tranThread = null;
         try {
             if(fileDataTran != null) {
@@ -88,11 +91,15 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     public void run() {
                         fileDataTran.tran();
                     }
-                }, "file-log-tran");
+                }, "file-log-tran"+file.getPath());
                 tranThread.start();
                 String fileId = FileInodeHandler.inode(file,fileConfig.isEnableInode());
-                FileReaderTask task = new FileReaderTask(file,fileId,fileConfig,pointer,
+
+
+                FileReaderTask task = new FileReaderTask(taskContext,file,fileId,fileConfig,pointer,
                         fileListenerService,fileDataTran,status);
+                taskContext.setFileInfo(task.getFileInfo());
+                preCall(taskContext);//需要在任务完成时销毁taskContext
 //                fileConfigMap.put(fileId,task);
                 fileListenerService.addFileTask(fileId,task);
                 task.start();
@@ -164,7 +171,8 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                 //需判断文件是否存在，不存在需清除记录
                 //创建一个文件对应的交换通道
                 FileResultSet kafkaResultSet = new FileResultSet(this.fileImportContext);
-                final BaseDataTran fileDataTran = createBaseDataTran((TaskContext)null,kafkaResultSet,  status);
+                FileTaskContext taskContext = new FileTaskContext(importContext,targetImportContext);
+                final BaseDataTran fileDataTran = createBaseDataTran(taskContext,kafkaResultSet,  status);
 
                 Thread tranThread = null;
                 try {
@@ -190,12 +198,13 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                         else{
                             status.setLastValue(0l);
                         }
-
-                        FileReaderTask task = new FileReaderTask(new File(filePath)
+                        FileReaderTask task = new FileReaderTask(taskContext,new File(filePath)
                                 ,status.getFileId()
                                 ,fileConfig
                                 ,pointer
                                 ,fileListenerService,fileDataTran,status);
+                        taskContext.setFileInfo(task.getFileInfo());
+                        preCall(taskContext);//需要在任务完成时销毁taskContext
                         fileListenerService.addFileTask(task.getFileId(),task);
                         task.start();
                     }
@@ -220,11 +229,27 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         }
 
     }
+    private void stopScanThread(){
+        if(logDirScanThreads != null){
+
+            logger.info("StopScanThread:LogDirScanThread");
+            for(LogDirScanThread logDirScanThread: logDirScanThreads){
+                try {
+                    logDirScanThread.stop();
+                }
+                catch (Exception e){
+
+                }
+            }
+            logDirScanThreads = null;
+        }
+    }
     @Override
     public void destroy(boolean waitTranStop){
         this.status = TranConstant.PLUGIN_STOPAPPENDING;
+        stopScanThread();
         fileListenerService.checkTranFinished();//检查所有的作业是否已经结束，并等待作业结束
-        super.destroy( false);
+        super.destroy( waitTranStop);//之前为什么是false super.destroy( false);
        // todo
     }
 
@@ -260,11 +285,14 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                 }
             }*/
             List<FileConfig> fileConfigs = this.fileImportContext.getFileConfigList();
-            for(FileConfig fileConfig:fileConfigs) {
-                LogDirScanThread logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getInterval(),
-                        fileConfig,getFileListenerService());
-
-                logDirScanThread.start();
+            if(fileConfigs != null && fileConfigs.size() > 0) {
+                logDirScanThreads = new ArrayList<>(fileConfigs.size());
+                for (FileConfig fileConfig : fileConfigs) {
+                    LogDirScanThread logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getInterval(),
+                            fileConfig, getFileListenerService());
+                    logDirScanThreads.add(logDirScanThread);
+                    logDirScanThread.start();
+                }
             }
         }
     }

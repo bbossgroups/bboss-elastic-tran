@@ -43,6 +43,8 @@ public class FileListenerService {
             lock.lock();
             fileConfigMap.remove(fileReaderTask.getFileId());
             this.completedTasks.put(fileReaderTask.getFileId(), fileReaderTask);
+            this.baseDataTranPlugin.afterCall(fileReaderTask.getTaskContext());
+            fileReaderTask.destroyTaskContext();
         }
         finally {
             lock.unlock();
@@ -138,6 +140,8 @@ public class FileListenerService {
                         }
                         Status currentStatus = fileReaderTask_.getCurrentStatus();
                         baseDataTranPlugin.forceflushLastValue(currentStatus);
+                        baseDataTranPlugin.afterCall(fileReaderTask_.getTaskContext());
+                        fileReaderTask_.destroyTaskContext();
                     }
                 });
                 thread.start();

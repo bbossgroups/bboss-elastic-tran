@@ -16,6 +16,7 @@ package org.frameworkset.tran.kafka;
  */
 
 import org.frameworkset.tran.record.CommonStringRecord;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
@@ -27,8 +28,8 @@ import org.frameworkset.tran.record.CommonStringRecord;
  */
 public class KafkaStringRecord extends CommonStringRecord {
 
-	public KafkaStringRecord(Object key,String record,long offset){
-		super(key,record,offset);
+	public KafkaStringRecord(TaskContext taskContext, Object key, String record, long offset){
+		super(  taskContext,key,record,offset);
 	}
 
 }

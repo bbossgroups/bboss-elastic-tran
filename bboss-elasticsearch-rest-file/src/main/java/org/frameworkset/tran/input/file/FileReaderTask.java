@@ -8,6 +8,7 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.record.CommonData;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,18 +30,8 @@ import static java.lang.Thread.sleep;
  */
 public class FileReaderTask {
     private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
-    /**
-     * 文件
-     */
-    private File file;
-    /**
-     * 文件号
-     */
-    private String fileId;
-    /**
-     * 文件采集偏移量
-     */
-    private long pointer;
+    private FileInfo fileInfo;
+
 
     /**
      * 文件监听事件服务
@@ -52,8 +43,6 @@ public class FileReaderTask {
     private Pattern pattern;
     private boolean rootLevel;
     private boolean enableMeta;
-    private String charsetEncode;
-    private String filePath;
 
     private BaseDataTran fileDataTran;
     private RandomAccessFile raf ;
@@ -67,36 +56,115 @@ public class FileReaderTask {
      * jsondata：标识文本记录是json格式的数据，true 将值解析为json对象，false - 不解析，这样值将作为一个完整的message字段存放到上报数据中
      */
     private boolean jsondata ;
-    private FileConfig fileConfig;
     private Thread worker ;
     private long oldLastModifyTime = -1;
     private long checkFileModifyInterval = 3000l;
-    public FileReaderTask(File file, String fileId, FileConfig fileConfig, FileListenerService fileListenerService, BaseDataTran fileDataTran,
+    private long closeOlderTime ;
+    private TaskContext taskContext;
+    private FileConfig fileConfig;
+    public static class FileInfo{
+        public FileInfo(String charsetEncode, String filePath,
+                        File file, String fileId, long pointer, FileConfig fileConfig) {
+            this.charsetEncode = charsetEncode;
+            this.filePath = filePath;
+            this.file = file;
+            this.fileId = fileId;
+            this.pointer = pointer;
+            this.fileConfig = fileConfig;
+        }
+
+        public FileInfo( String fileId) {
+
+            this.fileId = fileId;
+
+        }
+
+        private String charsetEncode;
+        private String filePath;
+        /**
+         * 文件
+         */
+        private File file;
+        /**
+         * 文件号
+         */
+        private String fileId;
+        /**
+         * 文件采集偏移量
+         */
+        private long pointer;
+        private FileConfig fileConfig;
+
+        public String getCharsetEncode() {
+            return charsetEncode;
+        }
+
+        public String getFilePath() {
+            return filePath;
+        }
+
+        public File getFile() {
+            return file;
+        }
+
+        void setFile(File file) {
+            this.file = file;
+        }
+
+        public String getFileId() {
+            return fileId;
+        }
+
+        public long getPointer() {
+            return pointer;
+        }
+
+        void setPointer(long pointer) {
+            this.pointer = pointer;
+        }
+
+        public FileConfig getFileConfig() {
+            return fileConfig;
+        }
+    }
+    public FileReaderTask(TaskContext taskContext,File file, String fileId, FileConfig fileConfig, FileListenerService fileListenerService, BaseDataTran fileDataTran,
                           Status currentStatus ) {
-        this.file = file;
-        this.filePath = FileInodeHandler.change(file.getAbsolutePath());
-        this.pointer = 0;
-        this.fileId = fileId;
         this.fileListenerService = fileListenerService;
+        String charSet = fileConfig.getCharsetEncode() ;
+        if(charSet == null || charSet.equals("")){
+            charSet = this.fileListenerService.getFileImportContext()
+                    .getFileImportConfig().getCharsetEncode();
+        }
+        this.fileInfo = new FileInfo(charSet,
+                                        FileInodeHandler.change(file.getAbsolutePath()),
+                                    file,  fileId, 0,  fileConfig);
+        this.fileConfig = fileConfig;
+        this.taskContext = taskContext;
+
         if(fileConfig.getFileHeadLineRexPattern() != null){
             pattern = fileConfig.getFileHeadLineRexPattern() ;
         }
+        closeOlderTime = fileConfig.getCloseOlderTime() == null?0:fileConfig.getCloseOlderTime();
         rootLevel = this.fileListenerService.getFileImportContext().getFileImportConfig().isRootLevel();
         jsondata = this.fileListenerService.getFileImportContext().getFileImportConfig().isJsondata();
-        charsetEncode = this.fileListenerService.getFileImportContext().getFileImportConfig().getCharsetEncode();
         enableMeta = this.fileListenerService.getFileImportContext().getFileImportConfig().isEnableMeta();
         checkFileModifyInterval = this.fileListenerService.getFileImportContext().getFileImportConfig().getCheckFileModifyInterval();
         this.fileDataTran = fileDataTran;
         this.currentStatus = currentStatus;
-        this.fileConfig = fileConfig;
 
 
     }
     public FileReaderTask(String fileId,  Status currentStatus ) {
-        this.fileId = fileId;
-
         this.currentStatus = currentStatus;
+        this.fileInfo = new FileInfo( fileId);
+    }
 
+    public FileInfo getFileInfo() {
+        return fileInfo;
+    }
+
+    public TaskContext getTaskContext() {
+        return taskContext;
     }
 
     /**
@@ -108,7 +176,8 @@ public class FileReaderTask {
      * @return
      */
     public int fileExist(String logFileId){
-        if(!fileConfig.isEnableInode()){
+        FileConfig fileConfig = fileInfo.getFileConfig();
+        if(!fileInfo.getFileConfig().isEnableInode()){
             return 1;
         }
         File logDir = fileConfig.getLogDir();
@@ -142,18 +211,19 @@ public class FileReaderTask {
      * @return
      */
     public boolean fileRenamed(File logFile){
+        FileConfig fileConfig = fileInfo.getFileConfig();
         if(!fileConfig.isEnableInode()){
             return false;
         }
         String logFileId = FileInodeHandler.inode(logFile,fileConfig.isEnableInode());
-        return  !fileId.equals(logFileId);
+        return  !fileInfo.getFileId().equals(logFileId);
 
     }
 
-    public FileReaderTask(File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
+    public FileReaderTask(TaskContext taskContext,File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
                           Status currentStatus   ) {
-        this(file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus);
-        this.pointer = pointer;
+        this(  taskContext,file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus);
+        fileInfo.setPointer(pointer);
     }
     public void start(){
         worker = new Thread(new Work(),"FileReaderTask-Thread");
@@ -161,16 +231,19 @@ public class FileReaderTask {
         worker.start();
     }
     public String getFilePath() {
-        return filePath;
+        return fileInfo.getFilePath();
     }
     public boolean isEnableInode(){
-        return fileConfig.isEnableInode();
+        return fileInfo.getFileConfig().isEnableInode();
     }
     class Work implements Runnable{
 
         @Override
         public void run() {
             boolean delete = false;
+            boolean olded = false;
+            File file = fileInfo.getFile();
+            String fileId = fileInfo.getFileId();
             do {
                 if(taskEnded || fileListenerService.getBaseDataTranPlugin().checkTranToStop()){
                     break;
@@ -184,6 +257,12 @@ public class FileReaderTask {
                         continue;
                     }
                     else if(oldLastModifyTime == lastModifyTime){
+                        long idleTime = System.currentTimeMillis() - oldLastModifyTime;
+                        if(closeOlderTime > 0 && idleTime >= closeOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
+                            olded = true;
+
+                            break;
+                        }
                         try {
                             sleep(checkFileModifyInterval);
                         } catch (InterruptedException e) {
@@ -227,6 +306,16 @@ public class FileReaderTask {
             }while(true);
             if(delete){
                 taskEnded();
+                fileDataTran.getDataTranPlugin().afterCall(getTaskContext());
+                destroyTaskContext();
+            }
+            if(olded){
+                taskEnded();
+                fileListenerService.addOldedFileTask(currentStatus.getFileId(),new FileReaderTask(currentStatus.getFileId()
+                        ,currentStatus));
+                fileDataTran.getDataTranPlugin().handleOldedTask(currentStatus);
+                fileDataTran.getDataTranPlugin().afterCall(getTaskContext());
+                destroyTaskContext();
             }
         }
 
@@ -252,7 +341,7 @@ public class FileReaderTask {
         }
 
         public boolean isRollbackPreLine(){
-            return eof && !eol && !fileConfig.isCloseEOF();
+            return eof && !eol && !fileInfo.getFileConfig().isCloseEOF();
         }
 
 
@@ -332,15 +421,19 @@ public class FileReaderTask {
     }
     private void execute() {
         boolean reachEOFClosed = false;
+        File file = fileInfo.getFile();
         try {
             if(taskEnded)
                 return;
+
+               long pointer = fileInfo.getPointer();
+               String charsetEncode = fileInfo.getCharsetEncode();
 //            synchronized (this){  单线程处理，无需同步处理
                 if(raf == null) {
                     RandomAccessFile raf = new RandomAccessFile(file, "r");
                     //文件重新写了，则需要重新读取
-                    if(this.pointer > raf.length()){
-                        this.pointer = 0;
+                    if(pointer > raf.length()){
+                        pointer = 0;
                         this.currentStatus.setLastValue(0l);
                     }
                     raf.seek(pointer);
@@ -435,7 +528,7 @@ public class FileReaderTask {
             try {
                 //需要删除采集完数据的eof文件，有必要进行优化并在回调函数中处理
                 if (reachEOFClosed && fileConfig.isDeleteEOFFile()) {
-                    this.file.delete();
+                    file.delete();
                 }
             }
             catch (Exception e){
@@ -453,6 +546,10 @@ public class FileReaderTask {
             }
             raf = null;
         }
+    }
+
+    public void destroyTaskContext(){
+        taskContext = null;
     }
 
     /**
@@ -593,7 +690,7 @@ public class FileReaderTask {
     }
     private void result(File file, long pointer, String line,List<Record> recordList,boolean reachEOFClosed) {
         if(!check(line)){
-            recordList.add(new FileLogRecord(true,pointer,reachEOFClosed));
+            recordList.add(new FileLogRecord(taskContext,true,pointer,reachEOFClosed));
         }
         else {
 
@@ -642,7 +739,7 @@ public class FileReaderTask {
                 result.put("@filemeta", common);
                 result.put("@timestamp",new Date());
             }
-            recordList.add(new FileLogRecord(common,result,pointer,reachEOFClosed));
+            recordList.add(new FileLogRecord(taskContext,common,result,pointer,reachEOFClosed));
         }
 
     }
@@ -654,20 +751,17 @@ public class FileReaderTask {
         common.put("filePath",FileInodeHandler.change(file.getAbsolutePath()));
 
         common.put("pointer",pointer);
-        common.put("fileId",fileId);
+        common.put("fileId",fileInfo.getFileId());
         return common;
     }
 
     public String getFileId() {
-        return fileId;
+        return fileInfo.getFileId();
     }
 
-    public void setFile(File file) {
-        this.file = file;
-    }
 
     public void changeFile(File file){
-        this.file = file;
+        fileInfo.setFile( file);
         if(currentStatus != null)
             currentStatus.setFilePath(FileInodeHandler.change(file.getAbsolutePath()));
     }
@@ -682,7 +776,8 @@ public class FileReaderTask {
 
     @Override
     public String toString() {
-        return "{\"file\":\""+ FileInodeHandler.change(file.getAbsolutePath())+"\",\"fileId\":\""+fileId+"\",\"pointer\":"+pointer+"}";
+        return "{\"file\":\""+ FileInodeHandler.change(fileInfo.getFile().getAbsolutePath())+"\",\"fileId\":\""
+                +fileInfo.getFileId()+"\",\"pointer\":"+fileInfo.getPointer()+"}";
     }
 
     public boolean isTaskEnded() {

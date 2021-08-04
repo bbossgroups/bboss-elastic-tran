@@ -68,10 +68,8 @@ public class DB2KafkaDataTranPlugin extends SQLBaseDataTranPlugin implements Dat
 		if(kafkaProductor == null){
 			synchronized (this) {
 				if(kafkaProductor == null) {
-					kafkaProductor = new KafkaProductor();
-					kafkaProductor.setProductorPropes(kafkaOutputContext.getKafkaConfigs());
-					kafkaProductor.setSendDatatoKafka(true);
-					kafkaProductor.init();
+					kafkaProductor = KafkaSendImpl.buildProducer( kafkaOutputContext);
+
 				}
 			}
 		}

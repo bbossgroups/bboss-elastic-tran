@@ -36,7 +36,7 @@ public class FileConfig {
     private Pattern fileHeadLineRexPattern;
     //需要包含的记录条件,正则匹配
     private String[] includeLines;
-
+    private String charsetEncode ;
     public LineMatchType getIncludeLineMatchType() {
         return includeLineMatchType;
     }
@@ -96,6 +96,8 @@ public class FileConfig {
     }
 
     /**
+     * 作业启动时起作用
+     *
      * If this option is enabled, bboss ignores any files that were modified before the specified timespan.
      * Configuring ignore_older can be especially useful if you keep log files for a long time.
      * For example, if you want to start bboss,
@@ -107,6 +109,7 @@ public class FileConfig {
     private Long ignoreOlderTime ;
 
     /**
+     * 允许文件内容静默最大时间，单位毫秒，如果在idleMaxTime访问内一直没有数据更新，认为文件是静默文件，将不再采集静默文件数据
      * If this option is enabled, bboss close any files that were modified before the specified timespan.
      * Configuring closeOlder can be especially useful if you keep log files for a long time.
      * For example, if you want to start bboss,
@@ -354,7 +357,17 @@ public class FileConfig {
         return deleteEOFFile;
     }
 
-    public void setDeleteEOFFile(boolean deleteEOFFile) {
+    public FileConfig setDeleteEOFFile(boolean deleteEOFFile) {
         this.deleteEOFFile = deleteEOFFile;
+        return this;
+    }
+
+    public String getCharsetEncode() {
+        return charsetEncode;
+    }
+
+    public FileConfig setCharsetEncode(String charsetEncode) {
+        this.charsetEncode = charsetEncode;
+        return this;
     }
 }

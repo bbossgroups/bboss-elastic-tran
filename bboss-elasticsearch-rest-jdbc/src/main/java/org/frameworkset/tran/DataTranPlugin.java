@@ -22,6 +22,8 @@ import org.frameworkset.tran.schedule.ScheduleService;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
+import java.util.List;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -36,7 +38,8 @@ public interface DataTranPlugin {
 	public void throwException(TaskContext taskContext,Exception e);
 	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext);
 	public void forceflushLastValue(Status currentStatus);
-
+	public  void handleOldedTasks(List<Status> olded );
+	public  void handleOldedTask(Status olded );
 		boolean assertCondition();
 
 	void setErrorWrapper(TranErrorWrapper tranErrorWrapper);
@@ -60,6 +63,7 @@ public interface DataTranPlugin {
 	public void setHasTran();
 	public void setNoTran();
 	public boolean isPluginStopAppending();
+	boolean isPluginStopREADY();
 	void init();
 
 //	Object getValue(String columnName) throws ESDataImportException;

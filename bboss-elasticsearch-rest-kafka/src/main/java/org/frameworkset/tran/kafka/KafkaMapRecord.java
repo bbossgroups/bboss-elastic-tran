@@ -16,6 +16,7 @@ package org.frameworkset.tran.kafka;
  */
 
 import org.frameworkset.tran.record.CommonMapRecord;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Map;
 
@@ -29,8 +30,8 @@ import java.util.Map;
  */
 public class KafkaMapRecord extends CommonMapRecord {
 
-	public KafkaMapRecord(Object key, Map<String, Object> record,long offset) {
-		super(key, record,offset);
+	public KafkaMapRecord(TaskContext taskContext, Object key, Map<String, Object> record, long offset) {
+		super(taskContext,key, record,offset);
 	}
 
 }

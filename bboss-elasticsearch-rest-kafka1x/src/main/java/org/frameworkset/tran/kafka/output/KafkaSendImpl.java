@@ -41,6 +41,13 @@ import java.util.concurrent.Future;
  */
 public class KafkaSendImpl {
 	private static Logger logger = LoggerFactory.getLogger(KafkaSendImpl.class);
+	public static KafkaProductor buildProducer(KafkaOutputContext kafkaOutputContext){
+		KafkaProductor kafkaProductor = new KafkaProductor();
+		kafkaProductor.setProductorPropes(kafkaOutputContext.getKafkaConfigs());
+		kafkaProductor.setSendDatatoKafka(true);
+		kafkaProductor.init();
+		return kafkaProductor;
+	}
 	public static void send(KafkaProductor kafkaProductor,KafkaOutputContext kafkaOutputContext,final TaskCommand taskCommand, TaskContext taskContext, Object key, Object data) {
 
 		Callback callback = new Callback() {

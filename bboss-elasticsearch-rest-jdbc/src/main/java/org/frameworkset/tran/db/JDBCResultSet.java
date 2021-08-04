@@ -20,6 +20,7 @@ import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.LastValue;
 import org.frameworkset.tran.TranMeta;
 import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.sql.ResultSet;
 import java.util.Date;
@@ -164,5 +165,9 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 		catch (Exception e){
 			throw new ESDataImportException(e);
 		}
+	}
+	@Override
+	public TaskContext getRecordTaskContext() {
+		return null;
 	}
 }

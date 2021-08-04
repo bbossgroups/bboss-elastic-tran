@@ -17,6 +17,7 @@ package org.frameworkset.tran;
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
@@ -28,6 +29,17 @@ import org.frameworkset.tran.schedule.ImportIncreamentConfig;
  */
 public abstract class LastValue implements TranResultSet{
 	protected ImportContext importContext;
+	protected BaseDataTran baseDataTran;
+	public BaseDataTran getBaseDataTran(){
+		return baseDataTran;
+	}
+
+	public TaskContext getTaskContext(){
+		return this.baseDataTran.getTaskContext();
+	}
+	public void setBaseDataTran(BaseDataTran baseDataTran){
+		this.baseDataTran = baseDataTran;
+	}
 	public void setImportContext(ImportContext importContext) {
 		this.importContext = importContext;
 	}

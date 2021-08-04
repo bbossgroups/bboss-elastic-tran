@@ -1,6 +1,6 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.record;
 /**
- * Copyright 2008 biaoping.yin
+ * Copyright 2020 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,29 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2018</p>
- * @Date 2019/11/19 10:29
+ * <p>Copyright (c) 2020</p>
+ * @Date 2021/8/4 16:27
  * @author biaoping.yin
  * @version 1.0
  */
-public interface Record {
+public abstract class BaseRecord implements Record {
+	protected TaskContext taskContext;
+	public BaseRecord(TaskContext taskContext){
+		this.taskContext = taskContext;
+	}
 
-	Object getValue(String colName);
-	public Object getKeys();
-	public Object getData();
+	@Override
+	public TaskContext getTaskContext() {
+		return taskContext;
+	}
 
-	public Object getMetaValue(String metaName);
-	public long getOffset();
-
-	boolean removed();
-	boolean reachEOFClosed();
-	TaskContext getTaskContext();
+	public void setTaskContext(TaskContext taskContext) {
+		this.taskContext = taskContext;
+	}
 }

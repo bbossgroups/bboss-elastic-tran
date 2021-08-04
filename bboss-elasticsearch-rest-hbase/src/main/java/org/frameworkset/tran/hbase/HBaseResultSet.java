@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
 
 import java.io.IOException;
@@ -79,6 +80,10 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 
 	}
 
+	@Override
+	public TaskContext getRecordTaskContext() {
+		return record.getTaskContext();
+	}
 
 
 	@Override
@@ -86,7 +91,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 		try {
 			Result record = resultScanner.next();
 			if( record != null){
-				this.record = new HBaseRecord(familys,record);
+				this.record = new HBaseRecord(getTaskContext(),familys,record);
 				return true;
 			}
 		} catch (IOException e) {

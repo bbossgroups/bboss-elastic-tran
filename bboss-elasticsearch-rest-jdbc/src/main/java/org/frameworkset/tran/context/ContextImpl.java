@@ -62,7 +62,12 @@ public class ContextImpl implements Context {
 		this.targetImportContext = targetImportContext;
 		this.jdbcResultSet = jdbcResultSet;
 		this.batchContext = batchContext;
-		this.taskContext = taskContext;
+		if(taskContext != null) {
+			this.taskContext = taskContext;
+		}
+		else{
+			this.taskContext = jdbcResultSet.getRecordTaskContext();
+		}
 	}
 	public TranMeta getMetaData(){
 		return jdbcResultSet.getMetaData();

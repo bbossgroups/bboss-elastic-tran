@@ -44,6 +44,10 @@ public class TaskContext {
 		taskDatas.put(name,value);
 		return this;
 	}
+	public TaskContext addTaskDatas(Map<String,Object> taskDatas){
+		this.taskDatas.putAll(taskDatas);
+		return this;
+	}
 	public Object getTaskData(String name){
 		return taskDatas.get(name);
 	}

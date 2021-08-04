@@ -79,4 +79,7 @@ public class KafkaOutputContextImpl extends BaseImportContext implements KafkaOu
 		}
 		kafkaOutputConfig.getRecordGenerator().buildRecord(context,record,builder);
 	}
+	public long getLogsendTaskMetric(){
+		return kafkaOutputConfig.getLogsendTaskMetric();
+	}
 }

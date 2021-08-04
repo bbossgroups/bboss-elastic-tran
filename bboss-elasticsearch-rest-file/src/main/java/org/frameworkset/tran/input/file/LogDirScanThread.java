@@ -91,6 +91,7 @@ public class LogDirScanThread implements Runnable{
             Thread.currentThread().interrupt();
         }
 
+
     }
 
     /**

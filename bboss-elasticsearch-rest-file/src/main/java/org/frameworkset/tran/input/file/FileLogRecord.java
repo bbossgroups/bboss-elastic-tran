@@ -16,6 +16,7 @@ package org.frameworkset.tran.input.file;
  */
 
 import org.frameworkset.tran.record.CommonMapRecord;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Map;
 
@@ -39,23 +40,26 @@ public class FileLogRecord extends CommonMapRecord {
 	private Map meta;
 	private boolean removed;
 	private boolean reachEOFClosed;
-	public FileLogRecord( Map meta,Object key, Map<String,Object> record, long offset,boolean reachEOFClosed){
-		super(  key,   record,   offset);
+
+	public FileLogRecord( TaskContext taskContext,Map meta,Object key, Map<String,Object> record, long offset,boolean reachEOFClosed){
+		super(  taskContext,key,   record,   offset);
 		this.meta = meta;
 		this.reachEOFClosed = reachEOFClosed;
+		this.taskContext = taskContext;
 
 	}
 	@Override
 	public boolean reachEOFClosed(){
 		return reachEOFClosed;
 	}
-	public FileLogRecord(Map meta,Map<String,Object> record, long offset,boolean reachEOFClosed){
-		super(    record,   offset);
+	public FileLogRecord(TaskContext taskContext,Map meta,Map<String,Object> record, long offset,boolean reachEOFClosed){
+		super(  taskContext,  record,   offset);
 		this.meta = meta;
 		this.reachEOFClosed = reachEOFClosed;
+		this.taskContext = taskContext;
 	}
-	public FileLogRecord(boolean removed, long offset,boolean reachEOFClosed){
-		super(    (Map<String,Object>)null,   offset);
+	public FileLogRecord(TaskContext taskContext,boolean removed, long offset,boolean reachEOFClosed){
+		super(   taskContext,  (Map<String,Object>)null,   offset);
 		this.removed = removed;
 		this.reachEOFClosed = reachEOFClosed;
 	}

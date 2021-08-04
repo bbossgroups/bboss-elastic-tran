@@ -31,7 +31,6 @@ public class FileImportConfig extends BaseImportConfig {
 
 
 
-
     public FileImportConfig() {
     }
 
@@ -125,4 +124,5 @@ public class FileImportConfig extends BaseImportConfig {
         this.checkFileModifyInterval = checkFileModifyInterval;
         return this;
     }
+
 }

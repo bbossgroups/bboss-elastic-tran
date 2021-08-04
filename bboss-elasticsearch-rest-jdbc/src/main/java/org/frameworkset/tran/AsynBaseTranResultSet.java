@@ -16,6 +16,7 @@ package org.frameworkset.tran;
  */
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
 
 import java.util.Date;
@@ -110,12 +111,22 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	public void reachEend(){
 		this.reachEnd = true;
 	}
+	@Override
+	public TaskContext getRecordTaskContext(){
+		return record.getTaskContext();
+	}
 
+	private boolean stopIterator(){
+		return  status == STATUS_STOPTRANONLY || importContext.getDataTranPlugin().isPluginStopAppending() || importContext.getDataTranPlugin().isPluginStopREADY();
+	}
 	@Override
 	public Boolean next() throws ESDataImportException {
-		if(status == STATUS_STOP){
-			return false;
-		}
+		/**
+		 * 要把数据处理完毕，才停迭代器
+		 */
+//		if(status == STATUS_STOP){
+//			return false;
+//		}
 		if( pos < size){
 
 			record = buildRecord(records.get(pos));
@@ -128,9 +139,12 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 			try {
 
 				Data datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
-				if(status == STATUS_STOP){
-					return false;
-				}
+				/**
+				 * 要把数据处理完毕，才停迭代器
+				 */
+//				if(status == STATUS_STOP){
+//					return false;
+//				}
 
 
 				if(datas != null){
@@ -140,7 +154,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 
 				if(datas == null || size == 0)
 				{
-					if(status == STATUS_STOPTRANONLY || importContext.getDataTranPlugin().isPluginStopAppending()){
+					if(stopIterator()){
 						return false;
 					}
 					long pollStartTime = System.currentTimeMillis();
@@ -152,7 +166,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 						if(datas == null){
 							if(reachEnd)
 								break;
-							if(status == STATUS_STOPTRANONLY || importContext.getDataTranPlugin().isPluginStopAppending())
+							if(stopIterator())
 								return false;
 							if(importContext.getFlushInterval() > 0) {
 								long interval = System.currentTimeMillis() - pollStartTime;
@@ -167,7 +181,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 						if(size > 0)
 							break;
 						else{
-							if(status == STATUS_STOPTRANONLY || importContext.getDataTranPlugin().isPluginStopAppending())
+							if(stopIterator())
 								return false;
 						}
 					}while (true);
@@ -179,9 +193,12 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 				pos = 0;
 				record = buildRecord(records.get(pos));
 				pos ++;
-				if(status == STATUS_STOP){
-					return false;
-				}
+				/**
+				 * 要把数据处理完毕，才停迭代器
+				 */
+//				if(status == STATUS_STOP){
+//					return false;
+//				}
 				return true;
 			} catch (InterruptedException e) {
 				return false;

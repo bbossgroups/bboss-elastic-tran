@@ -33,8 +33,9 @@ public class ES2TranResultSet extends AsynBaseTranResultSet {
 		super(importContext);
 
 	}
+	@Override
 	protected Record buildRecord(Object data){
-		return new ESRecord(data);
+		return new ESRecord(getTaskContext(),data);
 	}
 
 

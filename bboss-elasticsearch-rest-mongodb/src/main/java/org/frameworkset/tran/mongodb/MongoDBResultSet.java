@@ -20,6 +20,7 @@ import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
 
 import java.util.Date;
@@ -39,7 +40,10 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 		this.importContext = importContext;
 		this.dbCursor = dbCursor;
 	}
-
+	@Override
+	public TaskContext getRecordTaskContext() {
+		return null;
+	}
 
 	@Override
 	public Object getValue(int i, String colName, int sqlType) throws ESDataImportException {

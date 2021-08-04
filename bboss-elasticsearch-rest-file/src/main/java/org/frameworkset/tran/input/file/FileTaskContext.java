@@ -1,6 +1,6 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.input.file;
 /**
- * Copyright 2008 biaoping.yin
+ * Copyright 2020 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,29 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2018</p>
- * @Date 2019/11/19 10:29
+ * <p>Copyright (c) 2020</p>
+ * @Date 2021/8/4 17:22
  * @author biaoping.yin
  * @version 1.0
  */
-public interface Record {
+public class FileTaskContext extends TaskContext {
+	private FileReaderTask.FileInfo fileInfo;
 
-	Object getValue(String colName);
-	public Object getKeys();
-	public Object getData();
+	public FileTaskContext(ImportContext importContext, ImportContext targetImportContext) {
+		super(importContext, targetImportContext);
+	}
 
-	public Object getMetaValue(String metaName);
-	public long getOffset();
+	public void setFileInfo(FileReaderTask.FileInfo fileInfo) {
+		this.fileInfo = fileInfo;
+	}
 
-	boolean removed();
-	boolean reachEOFClosed();
-	TaskContext getTaskContext();
+	public FileReaderTask.FileInfo getFileInfo() {
+		return fileInfo;
+	}
 }

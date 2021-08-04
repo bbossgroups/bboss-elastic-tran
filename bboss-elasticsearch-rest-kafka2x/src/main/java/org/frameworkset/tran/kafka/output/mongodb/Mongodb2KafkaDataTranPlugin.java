@@ -68,10 +68,7 @@ public class Mongodb2KafkaDataTranPlugin  extends MongoDBInputPlugin implements 
 		if(kafkaProductor == null){
 			synchronized (this) {
 				if(kafkaProductor == null) {
-					kafkaProductor = new KafkaProductor();
-					kafkaProductor.setProductorPropes(kafkaOutputContext.getKafkaConfigs());
-					kafkaProductor.setSendDatatoKafka(true);
-					kafkaProductor.init();
+					kafkaProductor = KafkaSendImpl.buildProducer( kafkaOutputContext);
 				}
 			}
 		}

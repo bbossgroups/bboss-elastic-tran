@@ -18,6 +18,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 	protected String taskInfo;
 	private CountDownLatch countDownLatch;
 	private KafkaOutputContext kafkaOutputContext ;
+	private long logsendTaskMetric = 10000l;
 	@Override
 	public void logTaskStart(Logger logger) {
 		logger.info(taskInfo);
@@ -29,7 +30,8 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 	public void init() {
 		super.init();
 		kafkaOutputContext = (KafkaOutputContext)targetImportContext;
-		taskInfo = new StringBuilder().append("import data to kafka topic[")
+		logsendTaskMetric = kafkaOutputContext.getLogsendTaskMetric();
+		taskInfo = new StringBuilder().append("Send data to kafka topic[")
 				.append(kafkaOutputContext.getTopic()).append("].").toString();
 	}
 
@@ -42,7 +44,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 
 	public String serialExecute(){
-		logger.info("import data to kafka start.");
+		logger.info("Send data to kafka start.");
 
 		Object lastValue = null;
 		Exception exception = null;
@@ -52,6 +54,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
 		ImportCount importCount = new SerialImportCount();
 		long totalCount = 0;
+
 		boolean reachEOFClosed = false;
 		try {
 
@@ -103,7 +106,25 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 //					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));
 //					//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 					totalCount++;
+					if(totalCount == Long.MAX_VALUE) {
+						if(isPrintTaskLog()) {
+							long end = System.currentTimeMillis();
+							logger.info(new StringBuilder().append("Send datas  Take time:").append((end - start)).append("ms")
+									.append(",Send total").append(totalCount).append(" records,IgnoreTotalCount ")
+									.append(importCount.getIgnoreTotalCount()).append(" records. totalCount has reach Long.MAX_VALUE and reset").toString());
 
+						}
+						totalCount = 0;
+					}
+					else{
+						if(isPrintTaskLog() && logsendTaskMetric > 0l && (totalCount % logsendTaskMetric) == 0l) {//每一万条记录打印一次日志
+							long end = System.currentTimeMillis();
+							logger.info(new StringBuilder().append("Send datas Take time:").append((end - start)).append("ms")
+									.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
+									.append(importCount.getIgnoreTotalCount()).append(" records. ").toString());
+
+						}
+					}
 				} catch (Exception e) {
 					throw new DataImportException(e);
 				}
@@ -111,8 +132,8 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 			if(isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("Serial import Take time:").append((end - start)).append("ms")
-						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
+				logger.info(new StringBuilder().append("Send datas Take time:").append((end - start)).append("ms")
+						.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
 						.append(importCount.getIgnoreTotalCount()).append(" records.").toString());
 
 			}

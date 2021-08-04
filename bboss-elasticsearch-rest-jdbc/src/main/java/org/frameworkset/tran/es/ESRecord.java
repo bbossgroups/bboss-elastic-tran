@@ -18,7 +18,8 @@ package org.frameworkset.tran.es;
 
 import org.frameworkset.elasticsearch.entity.MetaMap;
 import org.frameworkset.tran.ESDataImportException;
-import org.frameworkset.tran.Record;
+import org.frameworkset.tran.record.BaseRecord;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
@@ -28,10 +29,10 @@ import org.frameworkset.tran.Record;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ESRecord implements Record {
+public class ESRecord  extends BaseRecord {
 	private MetaMap data;
-	public ESRecord(Object data){
-
+	public ESRecord(TaskContext taskContext,Object data){
+		super(taskContext);
 		this.data = (MetaMap) data;
 	}
 	@Override
@@ -42,6 +43,9 @@ public class ESRecord implements Record {
 	public boolean reachEOFClosed(){
 		return false;
 	}
+
+
+
 	@Override
 	public boolean removed() {
 		return false;

@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Thread.sleep;
 
@@ -273,17 +274,28 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	 */
 	protected volatile int status ;
 	protected volatile boolean hasTran = false;
+	/**
+	 *
+	 */
+	private AtomicInteger tranCounts = new AtomicInteger(0);
 	public void setHasTran(){
+		tranCounts.incrementAndGet();
 		this.hasTran = true;
 	}
 	public void setNoTran(){
-		this.hasTran = false;
-		this.status = TranConstant.PLUGIN_STOPREADY;
+
+		int count = tranCounts.decrementAndGet();
+		if(count <= 0) {
+			this.hasTran = false;
+			this.status = TranConstant.PLUGIN_STOPREADY;
+		}
 	}
 	public boolean isPluginStopAppending(){
 		return status == TranConstant.PLUGIN_STOPAPPENDING;
 	}
-
+	public boolean isPluginStopREADY(){
+		return status == TranConstant.PLUGIN_STOPREADY;
+	}
 	public boolean checkTranToStop(){
 		return status == TranConstant.PLUGIN_STOPAPPENDING
 				|| status == TranConstant.PLUGIN_STOPREADY || hasTran == false;
@@ -506,18 +518,20 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 	}
 
-	protected  void handleOldedTasks(List<Status> olded ){
+	public  void handleOldedTasks(List<Status> olded ){
+		for (Status status : olded) {
+			handleOldedTask(status );
+		}
+	}
+	public  void handleOldedTask(Status olded ){
 
 //		String updateStatusSQL = new StringBuilder().append("update ")
 //				.append(statusTableName).append(" set status = ?, lasttime= ?").append(" where id=?").toString();
 
 		try {
-
-			for (Status status : olded) {
-					status.setTime(System.currentTimeMillis());
-					status.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
-					SQLExecutor.updateWithDBName(statusDbname, updateStatusSQL, status.getStatus(), status.getTime(),status.getId());
-			}
+			olded.setTime(System.currentTimeMillis());
+			olded.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
+			SQLExecutor.updateWithDBName(statusDbname, updateStatusSQL, olded.getStatus(), olded.getTime(),olded.getId());
 		}
 		catch (Exception e){
 			logger.error("handleCompletedTasks failed:"+SimpleStringUtil.object2json(olded),e);

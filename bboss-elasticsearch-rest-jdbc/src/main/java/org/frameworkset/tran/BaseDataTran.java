@@ -24,6 +24,11 @@ public abstract class BaseDataTran implements DataTran{
 	protected TranResultSet jdbcResultSet;
 	protected AsynTranResultSet esTranResultSet;
 	protected TaskContext taskContext;
+
+	public TaskContext getTaskContext() {
+		return taskContext;
+	}
+
 	/**
 	 * 当前作业处理的增量状态信息
 	 */
@@ -57,10 +62,12 @@ public abstract class BaseDataTran implements DataTran{
 		this.currentStatus = currentStatus;
 		this.taskContext = taskContext;
 		this.jdbcResultSet = jdbcResultSet;
+
 		if(jdbcResultSet instanceof AsynTranResultSet)
 			esTranResultSet = (AsynTranResultSet)jdbcResultSet;
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
+		jdbcResultSet.setBaseDataTran(this);
 //		init();
 	}
 
