@@ -324,6 +324,9 @@ public class FileConfig {
         if(inited )
             return this;
         inited = true;
+        if(normalSourcePath == null){
+            normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
+        }
         normalSourcePathPattern = Pattern.compile(normalSourcePath);
         if(StringUtils.isNotEmpty(this.fileHeadLineRegular)){
             fileHeadLineRexPattern = Pattern.compile(this.fileHeadLineRegular);
