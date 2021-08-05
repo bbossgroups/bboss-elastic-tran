@@ -170,7 +170,7 @@ public class FileReaderTask {
     /**
      * 检测文件是否被重命名，如果重命名则标识文件还存在
      * 1 文件被删除
-     * 2 文件被重命名
+     * 2 文件被重命名，能够识别本目录下面重命名的文件
      * -1 未知状态  判断过程中出错了，返回未知状态
      * @param logFileId
      * @return
@@ -287,7 +287,7 @@ public class FileReaderTask {
                 }
                 else{ //可能的删除文件，待处理
                     int lable = fileExist(fileId);//根据文件号识别文件是否被删除
-                    if(lable == 1)//文件被删除
+                    if(lable == 1 || lable == -1)//文件被删除或未知
                     {
                         fileListenerService.doDelete(fileId);
                         delete = true;
