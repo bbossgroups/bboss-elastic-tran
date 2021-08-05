@@ -34,6 +34,12 @@ public class FileConfig {
     //文件名称正则匹配
     private String fileNameRegular;
     private Pattern fileNameRexPattern;
+
+    public FileConfig setFileFilter(FileFilter fileFilter) {
+        this.fileFilter = fileFilter;
+        return this;
+    }
+
     private FileFilter fileFilter;
     //文件换行标识符，以什么开头,正则匹配
     private String fileHeadLineRegular;
@@ -143,6 +149,7 @@ public class FileConfig {
         this.fileHeadLineRegular = fileHeadLineRegular;
 
     }
+
     public FileConfig(String sourcePath, String fileNameRegular, String fileHeadLineRegular, boolean scanChild) {
         this.sourcePath = sourcePath;
         normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
@@ -150,6 +157,14 @@ public class FileConfig {
         this.fileHeadLineRegular = fileHeadLineRegular;
         this.scanChild = scanChild;
 
+    }
+    public FileConfig(){
+
+    }
+
+    public FileConfig setScanChild(boolean scanChild) {
+        this.scanChild = scanChild;
+        return this;
     }
 
     public FileConfig(String sourcePath, FileFilter fileFilter, String fileHeadLineRegular) {
