@@ -91,7 +91,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     public void run() {
                         fileDataTran.tran();
                     }
-                }, "file-log-tran"+file.getPath());
+                }, "file-log-tran|"+file.getCanonicalPath());
                 tranThread.start();
                 String fileId = FileInodeHandler.inode(file,fileConfig.isEnableInode());
 
@@ -182,7 +182,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                             public void run() {
                                 fileDataTran.tran();
                             }
-                        }, "file-log-tran");
+                        }, "file-log-tran|"+filePath);
                         tranThread.start();
                         Object lastValue = status.getLastValue();
                         long pointer = 0;
