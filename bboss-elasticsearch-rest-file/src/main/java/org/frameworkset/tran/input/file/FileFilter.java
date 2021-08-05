@@ -1,0 +1,36 @@
+package org.frameworkset.tran.input.file;
+/**
+ * Copyright 2020 bboss
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import java.io.File;
+
+/**
+ * <p>Description: 判断是否采集文件数据</p>
+ * <p></p>
+ * <p>Copyright (c) 2020</p>
+ * @Date 2021/8/5 19:46
+ * @author biaoping.yin
+ * @version 1.0
+ */
+public interface FileFilter {
+	/**
+	 * 判断是否采集文件数据，返回true标识采集，false 不采集
+	 * @param dir
+	 * @param fileConfig
+	 * @return
+	 */
+	boolean accept(File dir,String name,FileConfig fileConfig);
+}

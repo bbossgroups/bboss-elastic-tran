@@ -4,6 +4,8 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.util.OSInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -19,6 +21,7 @@ import java.util.regex.Pattern;
  * @create 2021/3/12
  */
 public class FileConfig {
+    private Logger logger = LoggerFactory.getLogger(FileConfig.class);
     //文件监听路径
     private String sourcePath;
 
@@ -31,6 +34,7 @@ public class FileConfig {
     //文件名称正则匹配
     private String fileNameRegular;
     private Pattern fileNameRexPattern;
+    private FileFilter fileFilter;
     //文件换行标识符，以什么开头,正则匹配
     private String fileHeadLineRegular;
     private Pattern fileHeadLineRexPattern;
@@ -143,6 +147,22 @@ public class FileConfig {
         this.sourcePath = sourcePath;
         normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
         this.fileNameRegular = fileNameRegular;
+        this.fileHeadLineRegular = fileHeadLineRegular;
+        this.scanChild = scanChild;
+
+    }
+
+    public FileConfig(String sourcePath, FileFilter fileFilter, String fileHeadLineRegular) {
+        this.sourcePath = sourcePath;
+        normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
+        this.fileFilter = fileFilter;
+        this.fileHeadLineRegular = fileHeadLineRegular;
+
+    }
+    public FileConfig(String sourcePath, FileFilter fileFilter, String fileHeadLineRegular, boolean scanChild) {
+        this.sourcePath = sourcePath;
+        normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
+        this.fileFilter = fileFilter;
         this.fileHeadLineRegular = fileHeadLineRegular;
         this.scanChild = scanChild;
 
@@ -317,9 +337,23 @@ public class FileConfig {
         filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                Matcher m = getFileNameRexPattern().matcher(name);
-                return m.matches();
-//                            return Pattern.matches(fileConfig.getFileNameRegular(), name);
+                if(fileNameRexPattern != null) {
+                    Matcher m = fileNameRexPattern.matcher(name);
+                    return m.matches();
+                }
+                else if(fileFilter != null){
+                    try {
+                        return fileFilter.accept(dir, name, FileConfig.this);
+                    }
+                    catch (Exception e){
+                        logger.warn(name,e);
+                        return false;
+                    }
+                }
+                /**
+                 * 默认接收所有文件
+                 */
+                return true;
             }
         };
         if(OSInfo.isWindows())
@@ -370,4 +404,10 @@ public class FileConfig {
         this.charsetEncode = charsetEncode;
         return this;
     }
+
+    public FileFilter getFileFilter() {
+        return fileFilter;
+    }
+
+
 }
