@@ -271,7 +271,7 @@ public class FileReaderTask {
                         continue;
                     }
                     else{
-                        if(fileRenamed(file))
+                        if(fileRenamed(file)) //文件重命名，等待文件被清理重新更新新的File对象
                         {
                             try {
                                 sleep(checkFileModifyInterval);
