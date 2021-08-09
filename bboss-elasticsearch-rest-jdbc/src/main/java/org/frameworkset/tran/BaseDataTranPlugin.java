@@ -918,7 +918,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 //		SQLExecutor.updateWithDBName(statusDbname,updateSQL, currentStatus.getTime(), lastValue,
 //									lastValueType,currentStatus.getFilePath(),currentStatus.getFileId(),
 //									currentStatus.getStatus(),currentStatus.getId());
-		statusManager.putStatus(currentStatus);
+		if(!statusManager.isStoped()) {
+			statusManager.putStatus(currentStatus);
+		}
 	}
 
 

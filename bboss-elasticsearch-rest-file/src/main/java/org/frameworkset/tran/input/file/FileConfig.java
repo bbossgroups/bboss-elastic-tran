@@ -1,6 +1,5 @@
 package org.frameworkset.tran.input.file;
 
-import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.util.OSInfo;
@@ -28,9 +27,7 @@ public class FileConfig {
     //控制是否删除采集完的文件，默认false 不删除，true 删除
     private boolean deleteEOFFile;
     //规范路径
-    private String normalSourcePath;
     //规范路径
-    private Pattern normalSourcePathPattern;
     //文件名称正则匹配
     private String fileNameRegular;
     private Pattern fileNameRexPattern;
@@ -143,16 +140,14 @@ public class FileConfig {
     private Map<String,Object> ignoreFields;
 
     public FileConfig(String sourcePath, String fileNameRegular, String fileHeadLineRegular) {
-        this.sourcePath = sourcePath;
-        normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
+        this.sourcePath = FileInodeHandler.change(sourcePath);
         this.fileNameRegular = fileNameRegular;
         this.fileHeadLineRegular = fileHeadLineRegular;
 
     }
 
     public FileConfig(String sourcePath, String fileNameRegular, String fileHeadLineRegular, boolean scanChild) {
-        this.sourcePath = sourcePath;
-        normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
+        this.sourcePath = FileInodeHandler.change(sourcePath);
         this.fileNameRegular = fileNameRegular;
         this.fileHeadLineRegular = fileHeadLineRegular;
         this.scanChild = scanChild;
@@ -168,15 +163,13 @@ public class FileConfig {
     }
 
     public FileConfig(String sourcePath, FileFilter fileFilter, String fileHeadLineRegular) {
-        this.sourcePath = sourcePath;
-        normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
+        this.sourcePath = FileInodeHandler.change(sourcePath);
         this.fileFilter = fileFilter;
         this.fileHeadLineRegular = fileHeadLineRegular;
 
     }
     public FileConfig(String sourcePath, FileFilter fileFilter, String fileHeadLineRegular, boolean scanChild) {
-        this.sourcePath = sourcePath;
-        normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
+        this.sourcePath = FileInodeHandler.change(sourcePath);
         this.fileFilter = fileFilter;
         this.fileHeadLineRegular = fileHeadLineRegular;
         this.scanChild = scanChild;
@@ -256,14 +249,7 @@ public class FileConfig {
         return scanChild;
     }
 
-    public String getNormalSourcePath() {
-        return normalSourcePath;
-    }
 
-    public FileConfig setNormalSourcePath(String normalSourcePath) {
-        this.normalSourcePath = normalSourcePath;
-        return this;
-    }
 
     public String[] getIncludeLines() {
         return includeLines;
@@ -324,10 +310,8 @@ public class FileConfig {
         if(inited )
             return this;
         inited = true;
-        if(normalSourcePath == null){
-            normalSourcePath = SimpleStringUtil.getPath(FileInodeHandler.change(sourcePath).toLowerCase(),fileNameRegular);
-        }
-        normalSourcePathPattern = Pattern.compile(normalSourcePath);
+
+
         if(StringUtils.isNotEmpty(this.fileHeadLineRegular)){
             fileHeadLineRexPattern = Pattern.compile(this.fileHeadLineRegular);
         }
@@ -355,6 +339,10 @@ public class FileConfig {
         filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
+
+                boolean isSameDir = logDir.getAbsolutePath().equals(dir.getAbsolutePath());
+                if(!isSameDir)//文件路径不匹配，直接忽略
+                    return false;
                 if(fileNameRexPattern != null) {
                     Matcher m = fileNameRexPattern.matcher(name);
                     return m.matches();
@@ -388,9 +376,6 @@ public class FileConfig {
         return filter;
     }
 
-    public Pattern getNormalSourcePathPattern() {
-        return normalSourcePathPattern;
-    }
 
 
     public boolean isEnableInode() {
@@ -425,6 +410,16 @@ public class FileConfig {
 
     public FileFilter getFileFilter() {
         return fileFilter;
+    }
+
+    public boolean checkFilePath(String filePath){
+        if(filter != null){
+            File file = new File(filePath);
+            return filter.accept(file.getParentFile(),file.getName());
+        }
+        else{
+            return false;
+        }
     }
 
 

@@ -15,7 +15,6 @@ import org.frameworkset.tran.util.TranConstant;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * @author xutengfei,yin-bp@163.com
@@ -61,15 +60,16 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         throw new UnsupportedOperationException("getCurrentStatus");
     }
     public FileConfig getFileConfig(String filePath) {
-        filePath = FileInodeHandler.change(filePath).toLowerCase();
+        filePath = FileInodeHandler.change(filePath);
         List<FileConfig> list = fileImportContext.getFileConfigList();
+        FileConfig fileConfig = null;
         for(FileConfig config : list){
-            Pattern source = config.getNormalSourcePathPattern();
-            if(source.matcher(filePath).matches()){
-                return config;
+            if(config.checkFilePath(filePath)) {
+                fileConfig = config;
+                break;
             }
         }
-        return null;
+        return fileConfig;
     }
 
     public boolean initFileTask(FileConfig fileConfig,Status status,File file,long pointer){

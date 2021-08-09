@@ -60,7 +60,13 @@ public abstract class BaseStatusManager implements StatusManager {
 		BaseApplicationContext.addShutdownHook(new Runnable() {
 			@Override
 			public void run() {
-				flushStatus();
+				if(isStoped())
+					return;
+				synchronized(BaseStatusManager.this) {
+					if(isStoped())
+						return;
+					flushStatus();
+				}
 			}
 		});
 	}
@@ -95,13 +101,13 @@ public abstract class BaseStatusManager implements StatusManager {
 	}
 
 	@Override
-	public void stop(){
+	public synchronized void stop(){
 		stoped = true;
 		flushThread.interrupt();
 	}
 
 	@Override
-	public boolean isStoped() {
+	public synchronized boolean isStoped() {
 		return stoped;
 	}
 }
