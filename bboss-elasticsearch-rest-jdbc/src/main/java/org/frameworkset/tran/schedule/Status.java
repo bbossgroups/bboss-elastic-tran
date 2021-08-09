@@ -73,6 +73,18 @@ public class Status implements java.lang.Cloneable{
 		this.lastValue = lastValue;
 	}
 
+	public Status copy(){
+		Status copy = new Status();
+		copy.fileId = this.fileId;
+		copy.filePath = this.filePath;
+		copy.id = this.id;
+		copy.lastValue = this.lastValue;
+		copy.lastValueType = this.lastValueType;
+		copy.status = this.status;
+		copy.time = this.time;
+		return copy;
+	}
+
 	public int getLastValueType() {
 		return lastValueType;
 	}

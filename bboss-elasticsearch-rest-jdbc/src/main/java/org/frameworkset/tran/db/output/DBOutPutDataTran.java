@@ -124,7 +124,10 @@ public class DBOutPutDataTran extends BaseDataTran {
 					if(!reachEOFClosed)
 						reachEOFClosed = context.reachEOFClosed();
 					if(context.removed()){
-						importCount.increamentIgnoreTotalCount();
+						if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
+							importCount.increamentIgnoreTotalCount();
+						else
+							importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
 						continue;
 					}
 					context.refactorData();
@@ -294,7 +297,10 @@ public class DBOutPutDataTran extends BaseDataTran {
 				if(!reachEOFClosed)
 					reachEOFClosed = context.reachEOFClosed();
 				if(context.removed()){
-					totalCount.increamentIgnoreTotalCount();
+					if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
+						totalCount.increamentIgnoreTotalCount();
+					else
+						importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
 					continue;
 				}
 				context.refactorData();
@@ -425,7 +431,10 @@ public class DBOutPutDataTran extends BaseDataTran {
 				if(!reachEOFClosed)
 					reachEOFClosed = context.reachEOFClosed();
 				if(context.removed()){
-					importCount.increamentIgnoreTotalCount();
+					if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
+						importCount.increamentIgnoreTotalCount();
+					else
+						importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
 					continue;
 				}
 				context.refactorData();

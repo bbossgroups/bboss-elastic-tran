@@ -515,6 +515,14 @@ public class FileReaderTask {
                 if(reachEOFClosed){
                     if(logger.isInfoEnabled())
                         logger.info("{} reached eof and will be closed.",toString());
+                    /**
+                     * 发送空记录
+                     */
+                    recordList = new ArrayList<Record>(1);
+                    pointer = raf.getFilePointer();
+                    recordList.add(new FileLogRecord(taskContext,true,pointer,reachEOFClosed));
+                    fileDataTran.appendData(new CommonData(recordList));
+
                     fileListenerService.moveTaskToComplete(this);
                     this.taskEnded();
 
@@ -743,6 +751,7 @@ public class FileReaderTask {
         }
 
     }
+
     //公共数据
     private Map common(File file, long pointer, Map result) {
         Map common = new HashMap();

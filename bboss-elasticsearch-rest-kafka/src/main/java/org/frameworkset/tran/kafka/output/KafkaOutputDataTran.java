@@ -49,6 +49,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 		Object lastValue = null;
 		Exception exception = null;
 		long start = System.currentTimeMillis();
+		long lastSend = 0;
 //		Status currentStatus = importContext.getCurrentStatus();
 		Status currentStatus = this.currentStatus;
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
@@ -62,15 +63,38 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 			Object temp = null;
 			Param param = null;
 //			List<DBRecord> records = new ArrayList<DBRecord>();
+			//十分钟后打印一次等待日志数据，打印后，就等下次
+			long logInterval = 1l * 60l * 1000l;
+			boolean printed = false;
 			while (true) {
 				Boolean hasNext = jdbcResultSet.next();
 				if(hasNext == null){
+					if(isPrintTaskLog() && !printed) {
+						if (lastSend > 0l) {//等待状态下，需一次打印日志
+							long end = System.currentTimeMillis();
+							long interval = end - lastSend;
+							if (interval >= logInterval) {
+								logger.info(new StringBuilder().append("Auto Log Send datas Take time:").append((end - start)).append("ms")
+										.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
+										.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
+										.append(importCount.getFailedCount()).append(" records.").toString());
+								lastSend = 0l;
+								printed = true;
+							}
 
+
+						}
+						else{
+							lastSend = System.currentTimeMillis();
+						}
+					}
 					continue;
 				}
 				else if(!hasNext.booleanValue()){
 					break;
 				}
+				lastSend = 0l;
+				printed = false;
 				try {
 					if (lastValue == null)
 						lastValue = importContext.max(currentValue, getLastValue());
@@ -84,7 +108,10 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 					if(!reachEOFClosed)
 						reachEOFClosed = context.reachEOFClosed();
 					if(context.removed()){
-						importCount.increamentIgnoreTotalCount();
+						if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
+							importCount.increamentIgnoreTotalCount();
+						else
+							importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
 						continue;
 					}
 					context.refactorData();
@@ -111,7 +138,8 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 							long end = System.currentTimeMillis();
 							logger.info(new StringBuilder().append("Send datas  Take time:").append((end - start)).append("ms")
 									.append(",Send total").append(totalCount).append(" records,IgnoreTotalCount ")
-									.append(importCount.getIgnoreTotalCount()).append(" records. totalCount has reach Long.MAX_VALUE and reset").toString());
+									.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
+						.append(importCount.getFailedCount()).append(" records. totalCount has reach Long.MAX_VALUE and reset").toString());
 
 						}
 						totalCount = 0;
@@ -121,7 +149,8 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 							long end = System.currentTimeMillis();
 							logger.info(new StringBuilder().append("Send datas Take time:").append((end - start)).append("ms")
 									.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
-									.append(importCount.getIgnoreTotalCount()).append(" records. ").toString());
+									.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
+									.append(importCount.getFailedCount()).append(" records.").toString());
 
 						}
 					}
@@ -134,7 +163,8 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 				long end = System.currentTimeMillis();
 				logger.info(new StringBuilder().append("Send datas Take time:").append((end - start)).append("ms")
 						.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
-						.append(importCount.getIgnoreTotalCount()).append(" records.").toString());
+						.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
+						.append(importCount.getFailedCount()).append(" records.").toString());
 
 			}
 		}

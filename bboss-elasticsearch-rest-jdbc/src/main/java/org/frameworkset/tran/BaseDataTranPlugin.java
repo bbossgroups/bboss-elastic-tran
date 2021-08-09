@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.Thread.sleep;
 
@@ -272,37 +273,68 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	/**
 	 * 插件运行状态
 	 */
-	protected volatile int status ;
+	protected volatile int status = TranConstant.PLUGIN_START;
 	protected volatile boolean hasTran = false;
+	private ReentrantLock lock = new ReentrantLock();
 	/**
 	 *
 	 */
 	private AtomicInteger tranCounts = new AtomicInteger(0);
 	public void setHasTran(){
-		tranCounts.incrementAndGet();
-		this.hasTran = true;
+		try {
+			lock.lock();
+			tranCounts.incrementAndGet();
+			this.hasTran = true;
+			status = TranConstant.PLUGIN_START;
+		}
+		finally {
+			lock.unlock();
+		}
+
 	}
 	public void setNoTran(){
 
-		int count = tranCounts.decrementAndGet();
-		if(count <= 0) {
-			this.hasTran = false;
-			this.status = TranConstant.PLUGIN_STOPREADY;
+		try {
+			lock.lock();
+			int count = tranCounts.decrementAndGet();
+			if(count <= 0) {
+				this.hasTran = false;
+				this.status = TranConstant.PLUGIN_STOPREADY;
+			}
+		}
+		finally {
+			lock.unlock();
 		}
 	}
 	public boolean isPluginStopAppending(){
-		return status == TranConstant.PLUGIN_STOPAPPENDING;
+		try {
+			lock.lock();
+			return status == TranConstant.PLUGIN_STOPAPPENDING;
+		}
+		finally {
+			lock.unlock();
+		}
 	}
 	public boolean isPluginStopREADY(){
-		return status == TranConstant.PLUGIN_STOPREADY;
+		try {
+			lock.lock();
+			return status == TranConstant.PLUGIN_STOPREADY;
+		}
+		finally {
+			lock.unlock();
+		}
 	}
 	public boolean checkTranToStop(){
-		return status == TranConstant.PLUGIN_STOPAPPENDING
+		try {
+			lock.lock();
+			return status == TranConstant.PLUGIN_STOPAPPENDING
 				|| status == TranConstant.PLUGIN_STOPREADY || hasTran == false;
+		}
+		finally {
+			lock.unlock();
+		}
 	}
-	public void setStatus(int status){
-		this.status = status;
-	}
+
 
 	@Override
 	public void destroy(boolean waitTranStop) {
@@ -834,13 +866,15 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 					currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
 				}
 
+
 				if (this.isIncreamentImport()) {
+					Status status = currentStatus.copy();
 //					Status temp = new Status();
 //					temp.setTime(time);
 //					temp.setId(this.currentStatus.getId());
 //					temp.setLastValueType(this.currentStatus.getLastValueType());
 //					temp.setLastValue(lastValue);
-					this.storeStatus(currentStatus);
+					this.storeStatus(status);
 				}
 			}
 		}
