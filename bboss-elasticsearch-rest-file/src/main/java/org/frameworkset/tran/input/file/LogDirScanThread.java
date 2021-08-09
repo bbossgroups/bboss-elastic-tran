@@ -59,7 +59,7 @@ public class LogDirScanThread implements Runnable{
         running = true;
 
         thread = new Thread(this,"LogFile-Change-monitor|"+fileConfig.getSourcePath());
-        thread.setDaemon(true);
+        thread.setDaemon(false);
         thread.start();
     }
 
