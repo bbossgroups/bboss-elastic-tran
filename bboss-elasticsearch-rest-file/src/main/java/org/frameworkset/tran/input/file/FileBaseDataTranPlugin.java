@@ -151,21 +151,22 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     completed.add(status);
                     fileListenerService.addCompletedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
                             ,status));
+                    logger.info("Ignore complete file {}",status.getFilePath());
                     continue;
                 }
 
                 String filePath = status.getFilePath();
                 FileConfig fileConfig = getFileConfig(filePath);
                 if(fileConfig == null) {
-                    completed.add(status);
-                    fileListenerService.addCompletedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
-                            ,status));
+//                    completed.add(status);
+//                    fileListenerService.addCompletedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
+//                            ,status));
+                    logger.info("Ignore file {} which config is removed.",status.getFilePath());
                     continue;
                 }
                 if(isOlded(status,fileConfig)){
                     olded.add(status);
-                    fileListenerService.addOldedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
-                            ,status));
+                    logger.info("Ignore old file {}",status.getFilePath());
                     continue;
                 }
                 //需判断文件是否存在，不存在需清除记录

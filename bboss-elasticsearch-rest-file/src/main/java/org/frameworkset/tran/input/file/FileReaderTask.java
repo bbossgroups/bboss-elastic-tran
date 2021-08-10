@@ -289,7 +289,7 @@ public class FileReaderTask {
                     int lable = fileExist(fileId);//根据文件号识别文件是否被删除
                     if(lable == 1 || lable == -1)//文件被删除或未知
                     {
-                        fileListenerService.doDelete(fileId);
+
                         delete = true;
                         break;
                     }
@@ -305,6 +305,14 @@ public class FileReaderTask {
 
             }while(true);
             if(delete){
+                //文件被删除，只清理作业任务，停止转换通道，清理和销毁通道任务上下文，当文件回来或者文件恢复后重新分配新的采集通道采集数据
+                fileListenerService.doDelete(fileId);
+                //need test
+                /**
+                fileListenerService.addCompletedFileTask(currentStatus.getFileId(),new FileReaderTask(currentStatus.getFileId()
+                        ,currentStatus));
+                fileDataTran.getDataTranPlugin().handleOldedTask(currentStatus);
+                 */
                 taskEnded();
                 fileDataTran.getDataTranPlugin().afterCall(getTaskContext());
                 destroyTaskContext();

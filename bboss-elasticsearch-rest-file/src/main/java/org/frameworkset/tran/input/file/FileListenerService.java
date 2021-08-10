@@ -125,9 +125,10 @@ public class FileListenerService {
         try {
             lock.lock();
             FileReaderTask fileReaderTask = fileConfigMap.remove(fileId);
-
+            /**
             if(fileReaderTask != null){
                 this.completedTasks.put(fileId, fileReaderTask);
+
                 fileReaderTask.taskEnded();
                 final FileReaderTask fileReaderTask_ = fileReaderTask;
                 Thread thread = new Thread(new Runnable() {
@@ -145,8 +146,10 @@ public class FileListenerService {
                     }
                 });
                 thread.start();
+
                 // todo 删除文件状态更新
             }
+             */
         }
         finally {
             lock.unlock();
@@ -215,9 +218,12 @@ public class FileListenerService {
             FileReaderTask fileReaderTask = fileConfigMap.get(fileId);
 
             if (fileReaderTask == null) {
-                if(this.completedTasks.containsKey(fileId))//作业已经完成
+                if(this.completedTasks.containsKey(fileId)) {//作业已经完成
+                    logger.debug("Ignore complete file {}",file.getAbsolutePath());
                     return;
+                }
                 if(this.oldedTasks.containsKey(fileId)){//作业已经被移除到过时作业清单
+                    logger.debug("Ignore old file {}",file.getAbsolutePath());
                     return;
                 }
 
