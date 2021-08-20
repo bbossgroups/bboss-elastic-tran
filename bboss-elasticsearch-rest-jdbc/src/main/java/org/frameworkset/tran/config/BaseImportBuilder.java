@@ -254,7 +254,8 @@ public abstract class BaseImportBuilder {
 			String dbName  = propertiesContainer.getExternalProperty("db.name");
 			if(dbName == null || dbName.equals(""))
 				return;
-			dbConfig = new DBConfig();
+			if(dbConfig == null)
+				dbConfig = new DBConfig();
 			_buildDBConfig(propertiesContainer,dbName,dbConfig, "");
 
 	}
