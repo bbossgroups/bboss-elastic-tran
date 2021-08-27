@@ -86,19 +86,36 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         Thread tranThread = null;
         try {
             if(fileDataTran != null) {
+                String fileId = FileInodeHandler.inode(file,fileConfig.isEnableInode());
+                String tname = "file-log-tran|"+status.getRealPath();
+                if(fileConfig.isEnableInode()){
+                    tname = tname + "|" +fileId;
+                }
                 tranThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         fileDataTran.tran();
                     }
-                }, "file-log-tran|"+file.getCanonicalPath());
+                }, tname);
                 tranThread.start();
-                String fileId = FileInodeHandler.inode(file,fileConfig.isEnableInode());
+
 
 
                 FileReaderTask task = new FileReaderTask(taskContext,file,fileId,fileConfig,pointer,
                         fileListenerService,fileDataTran,status);
                 taskContext.setFileInfo(task.getFileInfo());
+                if(fileConfig.getAddFields() != null && fileConfig.getAddFields().size() > 0){
+                    task.addFields(fileConfig.getAddFields());
+                }
+                if(fileConfig.getIgnoreFields() != null && fileConfig.getIgnoreFields().size() > 0){
+                    task.ignoreFields(fileConfig.getIgnoreFields());
+                }
+                /**
+                 * 根据文件信息动态添加文件标签
+                 */
+                if(fileConfig.getFieldBuilder() != null){
+                    fileConfig.getFieldBuilder().buildFields(file,task);
+                }
                 preCall(taskContext);//需要在任务完成时销毁taskContext
 //                fileConfigMap.put(fileId,task);
                 fileListenerService.addFileTask(fileId,task);
@@ -112,15 +129,32 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         }
 
     }
-    private boolean isOlded(Status status,FileConfig fileConfig){
-        if(fileConfig.getIgnoreOlderTime() == null)
+    private boolean isNeedClosed(Status status,FileConfig fileConfig){
+        Long oldedTime = fileConfig.getCloseOlderTime();
+        if(oldedTime == null || oldedTime == 0)
             return false;
         long lastTime = status.getTime();
-        long oldedTime = fileConfig.getIgnoreOlderTime();
+
         long stopTime = System.currentTimeMillis() - oldedTime;
+
         if(lastTime <= stopTime){
             return true;
         }
+
+        return false;
+    }
+    private boolean isOlded(Status status,FileConfig fileConfig){
+        Long oldedTime = fileConfig.getIgnoreOlderTime();
+        if(oldedTime == null || oldedTime == 0)
+            return false;
+        long lastTime = status.getTime();
+
+        long stopTime = System.currentTimeMillis() - oldedTime;
+
+        if(lastTime <= stopTime){
+            return true;
+        }
+
         return false;
     }
     @Override
@@ -146,7 +180,9 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
              */
             List<Status> olded = new ArrayList<Status>();
             for(Status status : statuses){
+                status.setRealPath(status.getFilePath());
                 //判断任务是否已经完成，如果完成，则对任务进行相应处理
+
                 if(isComplete(status)){
                     completed.add(status);
                     fileListenerService.addCompletedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
@@ -155,8 +191,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     continue;
                 }
 
-                String filePath = status.getFilePath();
-                FileConfig fileConfig = getFileConfig(filePath);
+                FileConfig fileConfig = getFileConfig(status.getFilePath());
                 if(fileConfig == null) {
 //                    completed.add(status);
 //                    fileListenerService.addCompletedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
@@ -164,11 +199,64 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     logger.info("Ignore file {} which config is removed.",status.getFilePath());
                     continue;
                 }
+                File logFile = new File(status.getFilePath());
+                if(fileConfig.isEnableInode()) {
+
+                    if(!logFile.exists()){
+                        File inodeFile = FileInodeHandler.getFileByInode( fileConfig,status.getFileId());
+                        if(inodeFile != null){
+                            status.setRealPath(FileInodeHandler.change(inodeFile.getCanonicalPath()));
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    else {
+                        String inode = FileInodeHandler.linuxInode(logFile);
+                        if (inode == null ) {
+                            File inodeFile = FileInodeHandler.getFileByInode(fileConfig, status.getFileId());
+
+                            if (inodeFile != null) {
+                                logger.info("inodeFile:{},status.fileid:{}",inodeFile.getCanonicalPath(),status.getFileId());
+                                status.setRealPath(FileInodeHandler.change(inodeFile.getCanonicalPath()));
+                            }
+                            else{
+                                continue;
+                            }
+                        }
+                        else if (!status.getFileId().equals(inode)) {
+                            File inodeFile = FileInodeHandler.getFileByInode(fileConfig, status.getFileId());
+                            if (inodeFile != null) {
+                                logger.info("inode:{},status.fileid:{} 不相等，老path:{},新path:{}",inode,status.getFileId(),status.getFilePath(),inodeFile.getCanonicalPath());
+                                status.setRealPath(FileInodeHandler.change(inodeFile.getCanonicalPath()));
+                            }
+                            else{
+                                handleOldedTask(status);
+                                logger.info("status.fileid:{} 对应的文件不存在，老path:{}",inode,status.getFileId(),status.getFilePath());
+                                continue;
+                            }
+                        }
+                    }
+                }
+                else {
+                    if(!logFile.exists()){
+                        continue;
+                    }
+                }
+                /**
                 if(isOlded(status,fileConfig)){
                     olded.add(status);
                     logger.info("Ignore old file {}",status.getFilePath());
                     continue;
                 }
+                if(isNeedClosed(status,fileConfig)){
+                    fileListenerService.addOldedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
+                            ,status));
+                    handleOldedTask(status);
+                    logger.info("Ignore need closed file {} closed old time {}",status.getFilePath(),fileConfig.getCloseOlderTime());
+                    continue;
+                }*/
                 //需判断文件是否存在，不存在需清除记录
                 //创建一个文件对应的交换通道
                 FileResultSet kafkaResultSet = new FileResultSet(this.fileImportContext);
@@ -178,12 +266,16 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                 Thread tranThread = null;
                 try {
                     if(fileDataTran != null) {
+                        String tname = "file-log-tran|"+status.getRealPath();
+                        if(fileConfig.isEnableInode()){
+                            tname = tname + "|" +status.getFileId();
+                        }
                         tranThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 fileDataTran.tran();
                             }
-                        }, "file-log-tran|"+filePath);
+                        }, tname);
                         tranThread.start();
                         Object lastValue = status.getLastValue();
                         long pointer = 0;
@@ -199,12 +291,24 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                         else{
                             status.setLastValue(0l);
                         }
-                        FileReaderTask task = new FileReaderTask(taskContext,new File(filePath)
+                        FileReaderTask task = new FileReaderTask(taskContext,new File(status.getRealPath())
                                 ,status.getFileId()
                                 ,fileConfig
                                 ,pointer
                                 ,fileListenerService,fileDataTran,status);
                         taskContext.setFileInfo(task.getFileInfo());
+                        if(fileConfig.getAddFields() != null && fileConfig.getAddFields().size() > 0){
+                            task.addFields(fileConfig.getAddFields());
+                        }
+                        if(fileConfig.getIgnoreFields() != null && fileConfig.getIgnoreFields().size() > 0){
+                            task.ignoreFields(fileConfig.getIgnoreFields());
+                        }
+                        /**
+                         * 根据文件信息动态添加文件标签
+                         */
+                        if(fileConfig.getFieldBuilder() != null){
+                            fileConfig.getFieldBuilder().buildFields(new File(status.getFilePath()),task);
+                        }
                         preCall(taskContext);//需要在任务完成时销毁taskContext
                         fileListenerService.addFileTask(task.getFileId(),task);
                         task.start();

@@ -8,9 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +16,7 @@ import java.util.regex.Pattern;
  * @description
  * @create 2021/3/12
  */
-public class FileConfig {
+public class FileConfig extends FieldManager{
     private Logger logger = LoggerFactory.getLogger(FileConfig.class);
     //文件监听路径
     private String sourcePath;
@@ -90,16 +87,18 @@ public class FileConfig {
         return ignoreOlderTime;
     }
 
-    public void setIgnoreOlderTime(Long ignoreOlderTime) {
+    public FileConfig setIgnoreOlderTime(Long ignoreOlderTime) {
         this.ignoreOlderTime = ignoreOlderTime;
+        return this;
     }
 
     public Long getCloseOlderTime() {
         return closeOlderTime;
     }
 
-    public void setCloseOlderTime(Long closeOlderTime) {
+    public FileConfig setCloseOlderTime(Long closeOlderTime) {
         this.closeOlderTime = closeOlderTime;
+        return this;
     }
 
     /**
@@ -130,14 +129,18 @@ public class FileConfig {
     private boolean scanChild;
     private FilenameFilter filter ;
     private File logDir;
-    /**
-     * 需要添加的字段
-     */
-    private Map<String,Object> addFields;
-    /**
-     * 需要添加的字段
-     */
-    private Map<String,Object> ignoreFields;
+
+    public FieldBuilder getFieldBuilder() {
+        return fieldBuilder;
+    }
+
+    public FileConfig setFieldBuilder(FieldBuilder fieldBuilder) {
+        this.fieldBuilder = fieldBuilder;
+        return this;
+    }
+
+    private FieldBuilder fieldBuilder;
+
 
     public FileConfig(String sourcePath, String fileNameRegular, String fileHeadLineRegular) {
         this.sourcePath = FileInodeHandler.change(sourcePath);
@@ -175,33 +178,8 @@ public class FileConfig {
         this.scanChild = scanChild;
 
     }
-    public FileConfig addField(String name,Object value){
-        if(addFields == null)
-            addFields = new HashMap<>();
-        addFields.put(name,value);
-        return this;
-    }
-    public FileConfig addFields(Map<String,Object> values){
-        if(addFields == null)
-            addFields = new LinkedHashMap<>();
-        addFields.putAll(values);
-        return this;
-    }
 
-    public Map<String, Object> getAddFields() {
-        return addFields;
-    }
 
-    public Map<String, Object> getIgnoreFields() {
-        return ignoreFields;
-    }
-
-    public FileConfig ignoreField(String name){
-        if(ignoreFields == null)
-            ignoreFields = new HashMap<>();
-        ignoreFields.put(name,1);
-        return this;
-    }
     public String getSourcePath() {
         return sourcePath;
     }

@@ -28,7 +28,7 @@ import static java.lang.Thread.sleep;
  * @description
  * @create 2021/3/15
  */
-public class FileReaderTask {
+public class FileReaderTask extends FieldManager{
     private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
     private FileInfo fileInfo;
 
@@ -60,6 +60,7 @@ public class FileReaderTask {
     private long oldLastModifyTime = -1;
     private long checkFileModifyInterval = 3000l;
     private long closeOlderTime ;
+    private long ignoreOlderTime ;
     private TaskContext taskContext;
     private FileConfig fileConfig;
     public static class FileInfo{
@@ -145,6 +146,7 @@ public class FileReaderTask {
             pattern = fileConfig.getFileHeadLineRexPattern() ;
         }
         closeOlderTime = fileConfig.getCloseOlderTime() == null?0:fileConfig.getCloseOlderTime();
+        ignoreOlderTime = fileConfig.getIgnoreOlderTime() == null?0:fileConfig.getIgnoreOlderTime();
         rootLevel = this.fileListenerService.getFileImportContext().getFileImportConfig().isRootLevel();
         jsondata = this.fileListenerService.getFileImportContext().getFileImportConfig().isJsondata();
         enableMeta = this.fileListenerService.getFileImportContext().getFileImportConfig().isEnableMeta();
@@ -226,7 +228,11 @@ public class FileReaderTask {
         fileInfo.setPointer(pointer);
     }
     public void start(){
-        worker = new Thread(new Work(),"FileReaderTask-Thread");
+        if(fileConfig.isEnableInode())
+            worker = new Thread(new Work(),"FileReaderTask-Thread|"+fileInfo.getFilePath() +"|"+fileInfo.getFileId());
+        else{
+            worker = new Thread(new Work(),"FileReaderTask-Thread|"+fileInfo.getFilePath() );
+        }
 //        worker.setDaemon(true);
         worker.start();
     }
@@ -259,6 +265,18 @@ public class FileReaderTask {
                     else if(oldLastModifyTime == lastModifyTime){
                         long idleTime = System.currentTimeMillis() - oldLastModifyTime;
                         if(closeOlderTime > 0 && idleTime >= closeOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
+//                            logger.info("file[{}|{}] idleTime:{},closeOlderTime:{}",fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,closeOlderTime);
+                            logger.info("文件[{}|{}]idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间closeOlderTime，停止本文件采集作业.",
+                                    fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,closeOlderTime);
+                            olded = true;
+
+                            break;
+                        }
+                        if(ignoreOlderTime > 0 && idleTime >= ignoreOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
+//                            logger.info("file[{}|{}] idleTime:{},ignoreOlderTime:{}",fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,ignoreOlderTime);
+                            logger.info("文件[{}|{}]idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间ignoreOlderTime，停止本文件采集作业.",
+                                    fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,ignoreOlderTime);
+
                             olded = true;
 
                             break;
@@ -306,6 +324,8 @@ public class FileReaderTask {
             }while(true);
             if(delete){
                 //文件被删除，只清理作业任务，停止转换通道，清理和销毁通道任务上下文，当文件回来或者文件恢复后重新分配新的采集通道采集数据
+                if(logger.isInfoEnabled())
+                    logger.info("文件[{}]被删除，只清理作业任务，停止转换通道，清理和销毁通道任务上下文，当文件回来或者文件恢复后重新分配新的采集通道采集数据",fileInfo.getFilePath());
                 fileListenerService.doDelete(fileId);
                 //need test
                 /**
@@ -715,11 +735,11 @@ public class FileReaderTask {
                 if (jsondata) {
                     //json
                     Map json = SimpleStringUtil.json2Object(line, Map.class);
-                    Map addFields = fileConfig.getAddFields();
+                    Map addFields = this.getAddFields();
                     if(addFields != null && addFields.size() > 0){
                         json.putAll(addFields);
                     }
-                    Map<String, Object> ignoreFields = fileConfig.getIgnoreFields();
+                    Map<String, Object> ignoreFields = getIgnoreFields();
                     if(ignoreFields != null && ignoreFields.size() > 0){
                         Iterator iterator = ignoreFields.keySet().iterator();
                         while (iterator.hasNext()){
@@ -736,7 +756,7 @@ public class FileReaderTask {
                 } else {
                     line = checkMaxLength(line);
                     result.put("@message", line);
-                    Map addFields = fileConfig.getAddFields();
+                    Map addFields = getAddFields();
                     if(addFields != null && addFields.size() > 0){
                         result.putAll(addFields);
                     }
@@ -745,7 +765,7 @@ public class FileReaderTask {
             } catch (Exception e) {
                 // not json
                 result.put("@message", line);
-                Map addFields = fileConfig.getAddFields();
+                Map addFields = getAddFields();
                 if(addFields != null && addFields.size() > 0){
                     result.putAll(addFields);
                 }

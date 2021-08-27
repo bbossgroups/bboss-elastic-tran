@@ -35,6 +35,7 @@ public class Status implements java.lang.Cloneable{
 	private int lastValueType;
 	private Object lastValue;
 	private String filePath = "";
+	private String realPath = "";
 	private String fileId = "";
 	private int status = ImportIncreamentConfig.STATUS_COLLECTING;
 	public long getTime() {
@@ -58,6 +59,7 @@ public class Status implements java.lang.Cloneable{
 				.append(",time:").append(new Date(time))
 				.append(",lastValue:").append(this.lastValue)
 				.append(",filePath:").append(filePath)
+				.append(",realPath:").append(realPath)
 				.append(",fileId:").append(fileId)
 				.append(",type:").append(lastValueType)
 				.append(",status:").append(status);
@@ -77,6 +79,7 @@ public class Status implements java.lang.Cloneable{
 		Status copy = new Status();
 		copy.fileId = this.fileId;
 		copy.filePath = this.filePath;
+		copy.realPath = this.realPath;
 		copy.id = this.id;
 		copy.lastValue = this.lastValue;
 		copy.lastValueType = this.lastValueType;
@@ -120,5 +123,13 @@ public class Status implements java.lang.Cloneable{
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+
+	public String getRealPath() {
+		return realPath;
+	}
+
+	public void setRealPath(String realPath) {
+		this.realPath = realPath;
 	}
 }

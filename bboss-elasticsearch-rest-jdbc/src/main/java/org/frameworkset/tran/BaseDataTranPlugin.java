@@ -730,9 +730,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 					tempConf.setTxIsolationLevel((String)null);
 					tempConf.setValidationQuery("select 1");
 					tempConf.setJndiName(dbJNDIName);
-					tempConf.setInitialConnections(10);
-					tempConf.setMinimumSize(10);
-					tempConf.setMaximumSize(20);
+					tempConf.setInitialConnections(1);
+					tempConf.setMinimumSize(1);
+					tempConf.setMaximumSize(1);
 					tempConf.setUsepool(true);
 					tempConf.setExternal(false);
 					tempConf.setExternaljndiName((String)null);

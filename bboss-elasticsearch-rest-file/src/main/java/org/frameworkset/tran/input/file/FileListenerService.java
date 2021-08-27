@@ -236,6 +236,7 @@ public class FileListenerService {
                 currentStatus.setTime(new Date().getTime());
                 currentStatus.setFileId(fileId);
                 currentStatus.setFilePath(FileInodeHandler.change(file.getAbsolutePath()));
+                currentStatus.setRealPath(currentStatus.getFilePath());
                 currentStatus.setStatus(ImportIncreamentConfig.STATUS_COLLECTING);
                 long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
                 currentStatus.setLastValue(pointer);
