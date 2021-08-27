@@ -63,14 +63,17 @@ public class FileReaderTask extends FieldManager{
     private long ignoreOlderTime ;
     private TaskContext taskContext;
     private FileConfig fileConfig;
+    /**
+     * 文件采集偏移量
+     */
+    private long pointer;
     public static class FileInfo{
         public FileInfo(String charsetEncode, String filePath,
-                        File file, String fileId, long pointer, FileConfig fileConfig) {
+                        File file, String fileId,   FileConfig fileConfig) {
             this.charsetEncode = charsetEncode;
             this.filePath = filePath;
             this.file = file;
             this.fileId = fileId;
-            this.pointer = pointer;
             this.fileConfig = fileConfig;
         }
 
@@ -90,10 +93,7 @@ public class FileReaderTask extends FieldManager{
          * 文件号
          */
         private String fileId;
-        /**
-         * 文件采集偏移量
-         */
-        private long pointer;
+
         private FileConfig fileConfig;
 
         public String getCharsetEncode() {
@@ -116,13 +116,8 @@ public class FileReaderTask extends FieldManager{
             return fileId;
         }
 
-        public long getPointer() {
-            return pointer;
-        }
 
-        void setPointer(long pointer) {
-            this.pointer = pointer;
-        }
+
 
         public FileConfig getFileConfig() {
             return fileConfig;
@@ -136,9 +131,10 @@ public class FileReaderTask extends FieldManager{
             charSet = this.fileListenerService.getFileImportContext()
                     .getFileImportConfig().getCharsetEncode();
         }
+        this.pointer = 0;
         this.fileInfo = new FileInfo(charSet,
                                         FileInodeHandler.change(file.getAbsolutePath()),
-                                    file,  fileId, 0,  fileConfig);
+                                    file,  fileId, fileConfig);
         this.fileConfig = fileConfig;
         this.taskContext = taskContext;
 
@@ -225,7 +221,7 @@ public class FileReaderTask extends FieldManager{
     public FileReaderTask(TaskContext taskContext,File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
                           Status currentStatus   ) {
         this(  taskContext,file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus);
-        fileInfo.setPointer(pointer);
+        this.pointer = pointer;
     }
     public void start(){
         if(fileConfig.isEnableInode())
@@ -454,7 +450,6 @@ public class FileReaderTask extends FieldManager{
             if(taskEnded)
                 return;
 
-               long pointer = fileInfo.getPointer();
                String charsetEncode = fileInfo.getCharsetEncode();
 //            synchronized (this){  单线程处理，无需同步处理
                 if(raf == null) {
@@ -814,7 +809,7 @@ public class FileReaderTask extends FieldManager{
     @Override
     public String toString() {
         return "{\"file\":\""+ FileInodeHandler.change(fileInfo.getFile().getAbsolutePath())+"\",\"fileId\":\""
-                +fileInfo.getFileId()+"\",\"pointer\":"+fileInfo.getPointer()+"}";
+                +fileInfo.getFileId()+"\",\"pointer\":"+pointer+"}";
     }
 
     public boolean isTaskEnded() {
