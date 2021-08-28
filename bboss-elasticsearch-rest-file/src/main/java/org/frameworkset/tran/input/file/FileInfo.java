@@ -69,6 +69,10 @@ public class FileInfo {
 		return filePath;
 	}
 
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
 	public File getFile() {
 		return file;
 	}

@@ -253,12 +253,18 @@ public class FileReaderTask extends FieldManager{
                     else{
                         if(fileRenamed(file)) //文件重命名，等待文件被清理重新更新新的File对象
                         {
-                            try {
-                                sleep(checkFileModifyInterval);
-                            } catch (InterruptedException e) {
+                            File fileIdFile = FileInodeHandler.getFileByInode(fileConfig,fileId);
+                            if (fileIdFile != null) {//文件发生了重命名
+                                String filePath = FileInodeHandler.change(fileIdFile.getAbsolutePath());
+                                if (logger.isInfoEnabled())
+                                    logger.info("Rename Log file {} to {}", fileInfo.getOriginFilePath(), filePath);
+                                changeFile(filePath,fileIdFile);
+                            }
+                            else{
+                                delete = true;
                                 break;
                             }
-                            continue;
+
                         }
                         oldLastModifyTime = lastModifyTime;
                         execute();
@@ -757,11 +763,20 @@ public class FileReaderTask extends FieldManager{
         return fileInfo.getFileId();
     }
 
-
-    public void changeFile(File file){
-        fileInfo.setFile( file);
-        if(currentStatus != null)
-            currentStatus.setFilePath(FileInodeHandler.change(file.getAbsolutePath()));
+//    private ReentrantLock changeFileLock = new ReentrantLock();
+    public void changeFile(String filePath,File file){
+        try {
+//            changeFileLock.lock();
+            fileInfo.setFile(file);
+            fileInfo.setFilePath(filePath);
+            if (currentStatus != null) {
+//            currentStatus.setFilePath(FileInodeHandler.change(file.getAbsolutePath()));
+                currentStatus.setRealPath(filePath);//设置实际文件地址，原文件地址不变
+            }
+        }
+        finally {
+//            changeFileLock.unlock();
+        }
     }
 
     public int getStatus() {

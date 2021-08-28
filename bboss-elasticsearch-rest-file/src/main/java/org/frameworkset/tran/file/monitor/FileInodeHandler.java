@@ -54,11 +54,12 @@ public class FileInodeHandler {
         }
         return fileId;
     }
-    public static File getFileByInode(FileConfig fileConfig,String inode){
-        File logDir = fileConfig.getLogDir();
+    public static File getFileByInode(FileConfig fileConfig, String inode){
+//        File logDir = fileConfig.getLogDir();
+        File logDir = fileConfig.getRenameFileLogDir();
 //        FilenameFilter filter = fileConfig.getFilter();
         File newFile = null;
-        if(logDir.isDirectory() && logDir.exists()){
+        if(logDir.exists() && logDir.isDirectory() ){
             File[] files = logDir.listFiles();
             File file = null;
             String fnode = null;
@@ -76,7 +77,7 @@ public class FileInodeHandler {
             }
         }
         else{
-            logger.info("{} must be a directory or must be exists.",fileConfig.getSourcePath() );
+            logger.info("{} must be a directory or must be exists.",fileConfig.getRenameFileSourcePath() );
         }
         return newFile;
     }

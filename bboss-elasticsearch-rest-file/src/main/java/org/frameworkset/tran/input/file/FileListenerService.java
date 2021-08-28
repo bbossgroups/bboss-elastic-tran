@@ -241,16 +241,18 @@ public class FileListenerService {
                 long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
                 currentStatus.setLastValue(pointer);
                 boolean successed = baseDataTranPlugin.initFileTask(fileConfig, currentStatus, file, pointer);
-            } else { //检查文件是否被重命名
+            } else { //检查文件是否被重命名,
+                /** 2021.08.28移除，在FileReadTask.Work中检测
                 if(fileReaderTask.isEnableInode()) {
                     String oldFilePath = fileReaderTask.getFilePath();
                     String filePath = FileInodeHandler.change(file.getAbsolutePath());
                     if (!oldFilePath.equals(filePath)) {//文件发生了重命名
                         if (logger.isInfoEnabled())
                             logger.info("Rename Log file {} to {}", oldFilePath, filePath);
-                        fileReaderTask.changeFile(file);
+                        fileReaderTask.changeFile(filePath,file);
                     }
                 }
+                 */
             }
 
         } finally {

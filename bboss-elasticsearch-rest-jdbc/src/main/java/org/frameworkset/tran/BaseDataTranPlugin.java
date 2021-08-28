@@ -17,6 +17,7 @@ package org.frameworkset.tran;
 
 import com.frameworkset.common.poolman.SQLExecutor;
 import com.frameworkset.common.poolman.util.DBConf;
+import com.frameworkset.common.poolman.util.JDBCPool;
 import com.frameworkset.common.poolman.util.SQLManager;
 import com.frameworkset.common.poolman.util.SQLUtil;
 import com.frameworkset.orm.annotation.BatchContext;
@@ -695,6 +696,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	 */
 	protected void initDatasource()  {
 		if(this.isIncreamentImport()) {
+
 			if(importContext.getStatusDbConfig() == null) {
 				statusDbname =  "_status_datasource";
 				String dbJNDIName ="_status_datasource_jndi";
@@ -740,9 +742,14 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 					tempConf.setEncryptdbinfo(false);
 					tempConf.setQueryfetchsize(null);
 					SQLUtil.startPoolWithDBConf(tempConf);
+					JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
+					if(jdbcPool == null){
+						throw new ESDataImportException("status_datasource["+statusDbname+"] not started.");
+					}
 				} catch (Exception e) {
 					throw new ESDataImportException(e);
 				}
+
 			}
 			else{
 				DBConfig statusDBConfig = importContext.getStatusDbConfig();
@@ -792,10 +799,16 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 						tempConf.setQueryfetchsize(null);
 						tempConf.setDbInfoEncryptClass(statusDBConfig.getDbInfoEncryptClass());
 						SQLUtil.startPoolWithDBConf(tempConf);
+						JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
+						if(jdbcPool == null){
+							throw new ESDataImportException("status_datasource["+statusDbname+"] not started.");
+						}
 					} catch (Exception e) {
 						throw new ESDataImportException(e);
 					}
+
 				}
+
 				createStatusTableSQL = statusDBConfig.getStatusTableDML();
 				if(createStatusTableSQL == null){
 					createStatusTableSQL = statusDBConfig.getCreateStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());

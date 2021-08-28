@@ -21,6 +21,19 @@ public class FileConfig extends FieldManager{
     //文件监听路径
     private String sourcePath;
 
+    /**
+     *重命名文件监听路径：一些日志组件会指定将滚动日志文件放在与当前日志文件不同的目录下，需要通过renameFileSourcePath指定这个不同的目录地址，以便
+     * 可以追踪到未采集完毕的滚动日志文件，从而继续采集文件中没有采集完毕的日志
+     * 本路径只有在inode机制有效并且启用的情况下才起作用,默认与sourcePath一致
+     */
+
+
+    private String renameFileSourcePath;
+
+    private File renameFileLogDir;
+
+
+
     //控制是否删除采集完的文件，默认false 不删除，true 删除
     private boolean deleteEOFFile;
     //规范路径
@@ -132,6 +145,8 @@ public class FileConfig extends FieldManager{
     private boolean scanChild;
     private FilenameFilter filter ;
     private File logDir;
+
+
 
     public FieldBuilder getFieldBuilder() {
         return fieldBuilder;
@@ -293,6 +308,18 @@ public class FileConfig extends FieldManager{
         inited = true;
 
 
+        if(sourcePath == null || sourcePath.equals("")){
+            throw new FilelogPluginException("sourcePath is null or empty.");
+        }
+        else{
+            if(renameFileSourcePath == null || renameFileSourcePath.equals("")){
+                renameFileSourcePath = sourcePath;
+            }
+        }
+        logDir  = new File(sourcePath);
+        if(renameFileSourcePath != null ){
+            renameFileLogDir = new File(renameFileSourcePath);
+        }
         if(StringUtils.isNotEmpty(this.fileHeadLineRegular)){
             fileHeadLineRexPattern = Pattern.compile(this.fileHeadLineRegular);
         }
@@ -316,7 +343,6 @@ public class FileConfig extends FieldManager{
                 excludeLinesRexPattern[i] = Pattern.compile(this.excludeLines[i]);
             }
         }
-        logDir  = new File(sourcePath);
         filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -420,5 +446,18 @@ public class FileConfig extends FieldManager{
     public FileConfig setCloseOldedFileAssert(CloseOldedFileAssert closeOldedFileAssert) {
         this.closeOldedFileAssert = closeOldedFileAssert;
         return this;
+    }
+
+    public FileConfig setRenameFileSourcePath(String renameFileSourcePath) {
+        this.renameFileSourcePath = renameFileSourcePath;
+        return this;
+    }
+
+    public File getRenameFileLogDir() {
+        return renameFileLogDir;
+    }
+
+    public String getRenameFileSourcePath() {
+        return renameFileSourcePath;
     }
 }
