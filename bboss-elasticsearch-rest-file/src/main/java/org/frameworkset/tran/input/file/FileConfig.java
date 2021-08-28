@@ -114,6 +114,8 @@ public class FileConfig extends FieldManager{
      */
     private Long ignoreOlderTime ;
 
+    private IgnoreFileAssert ignoreFileAssert;
+
     /**
      * 允许文件内容静默最大时间，单位毫秒，如果在idleMaxTime访问内一直没有数据更新，认为文件是静默文件，将不再采集静默文件数据
      * If this option is enabled, bboss close any files that were modified before the specified timespan.
@@ -125,6 +127,7 @@ public class FileConfig extends FieldManager{
      * which disables the setting. Commenting out the config has the same effect as setting it to 0.
      */
     private Long closeOlderTime ;
+    private CloseOldedFileAssert closeOldedFileAssert;
     //是否检测子目录
     private boolean scanChild;
     private FilenameFilter filter ;
@@ -401,4 +404,21 @@ public class FileConfig extends FieldManager{
     }
 
 
+    public IgnoreFileAssert getIgnoreFileAssert() {
+        return ignoreFileAssert;
+    }
+
+    public FileConfig setIgnoreFileAssert(IgnoreFileAssert ignoreFileAssert) {
+        this.ignoreFileAssert = ignoreFileAssert;
+        return this;
+    }
+
+    public CloseOldedFileAssert getCloseOldedFileAssert() {
+        return closeOldedFileAssert;
+    }
+
+    public FileConfig setCloseOldedFileAssert(CloseOldedFileAssert closeOldedFileAssert) {
+        this.closeOldedFileAssert = closeOldedFileAssert;
+        return this;
+    }
 }

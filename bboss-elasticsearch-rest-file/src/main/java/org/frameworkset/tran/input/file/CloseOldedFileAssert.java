@@ -15,29 +15,23 @@ package org.frameworkset.tran.input.file;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.schedule.TaskContext;
-
 /**
- * <p>Description: </p>
+ * <p>Description:  如果指定了closeOlderTime，但是有些文件是特例不能不关闭，那么可以通过指定CloseOldedFileAssert来
+ * 	  检查静默时间达到closeOlderTime的文件是否需要被关闭</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/8/4 17:22
+ * @Date 2021/8/28 9:53
  * @author biaoping.yin
  * @version 1.0
  */
-public class FileTaskContext extends TaskContext {
-	private FileInfo fileInfo;
-
-	public FileTaskContext(ImportContext importContext, ImportContext targetImportContext) {
-		super(importContext, targetImportContext);
-	}
-
-	public void setFileInfo(FileInfo fileInfo) {
-		this.fileInfo = fileInfo;
-	}
-
-	public FileInfo getFileInfo() {
-		return fileInfo;
-	}
+public interface CloseOldedFileAssert {
+	/**
+	 * 如果指定了closeOlderTime，但是有些文件是特例不能不关闭，那么可以通过指定CloseOldedFileAssert来
+	 * 检查静默时间达到closeOlderTime的文件是否需要被关闭
+	 * true 关闭
+	 * false 不能关闭
+	 * @param fileInfo
+	 * @return
+	 */
+	public boolean canClose(FileInfo fileInfo);
 }

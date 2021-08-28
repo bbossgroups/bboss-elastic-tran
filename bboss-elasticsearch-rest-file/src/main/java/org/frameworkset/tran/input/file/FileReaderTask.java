@@ -60,6 +60,9 @@ public class FileReaderTask extends FieldManager{
     private long oldLastModifyTime = -1;
     private long checkFileModifyInterval = 3000l;
     private long closeOlderTime ;
+    private CloseOldedFileAssert closeOldedFileAssert;
+
+    private IgnoreFileAssert ignoreFileAssert;
     private long ignoreOlderTime ;
     private TaskContext taskContext;
     private FileConfig fileConfig;
@@ -67,62 +70,7 @@ public class FileReaderTask extends FieldManager{
      * 文件采集偏移量
      */
     private long pointer;
-    public static class FileInfo{
-        public FileInfo(String charsetEncode, String filePath,
-                        File file, String fileId,   FileConfig fileConfig) {
-            this.charsetEncode = charsetEncode;
-            this.filePath = filePath;
-            this.file = file;
-            this.fileId = fileId;
-            this.fileConfig = fileConfig;
-        }
 
-        public FileInfo( String fileId) {
-
-            this.fileId = fileId;
-
-        }
-
-        private String charsetEncode;
-        private String filePath;
-        /**
-         * 文件
-         */
-        private File file;
-        /**
-         * 文件号
-         */
-        private String fileId;
-
-        private FileConfig fileConfig;
-
-        public String getCharsetEncode() {
-            return charsetEncode;
-        }
-
-        public String getFilePath() {
-            return filePath;
-        }
-
-        public File getFile() {
-            return file;
-        }
-
-        void setFile(File file) {
-            this.file = file;
-        }
-
-        public String getFileId() {
-            return fileId;
-        }
-
-
-
-
-        public FileConfig getFileConfig() {
-            return fileConfig;
-        }
-    }
     public FileReaderTask(TaskContext taskContext,File file, String fileId, FileConfig fileConfig, FileListenerService fileListenerService, BaseDataTran fileDataTran,
                           Status currentStatus ) {
         this.fileListenerService = fileListenerService;
@@ -143,6 +91,8 @@ public class FileReaderTask extends FieldManager{
         }
         closeOlderTime = fileConfig.getCloseOlderTime() == null?0:fileConfig.getCloseOlderTime();
         ignoreOlderTime = fileConfig.getIgnoreOlderTime() == null?0:fileConfig.getIgnoreOlderTime();
+        this.closeOldedFileAssert = fileConfig.getCloseOldedFileAssert();
+        this.ignoreFileAssert = fileConfig.getIgnoreFileAssert();
         rootLevel = this.fileListenerService.getFileImportContext().getFileImportConfig().isRootLevel();
         jsondata = this.fileListenerService.getFileImportContext().getFileImportConfig().isJsondata();
         enableMeta = this.fileListenerService.getFileImportContext().getFileImportConfig().isEnableMeta();
@@ -224,13 +174,20 @@ public class FileReaderTask extends FieldManager{
         this.pointer = pointer;
     }
     public void start(){
-        if(fileConfig.isEnableInode())
-            worker = new Thread(new Work(),"FileReaderTask-Thread|"+fileInfo.getFilePath() +"|"+fileInfo.getFileId());
+        String threadName = null;
+        if(fileConfig.isEnableInode()) {
+            threadName = "FileReaderTask-Thread|" + fileInfo.getFilePath() + "|" + fileInfo.getFileId();
+        }
         else{
-            worker = new Thread(new Work(),"FileReaderTask-Thread|"+fileInfo.getFilePath() );
+            threadName = "FileReaderTask-Thread|"+fileInfo.getFilePath() ;
+
         }
 //        worker.setDaemon(true);
+        worker = new Thread(new Work(),threadName );
+
         worker.start();
+        if(logger.isInfoEnabled())
+            logger.info(threadName+" started.");
     }
     public String getFilePath() {
         return fileInfo.getFilePath();
@@ -264,7 +221,12 @@ public class FileReaderTask extends FieldManager{
 //                            logger.info("file[{}|{}] idleTime:{},closeOlderTime:{}",fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,closeOlderTime);
                             logger.info("文件[{}|{}]idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间closeOlderTime，停止本文件采集作业.",
                                     fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,closeOlderTime);
-                            olded = true;
+                            if(closeOldedFileAssert == null) {
+                                olded = true;
+                            }
+                            else{
+                                olded = closeOldedFileAssert.canClose(fileInfo);
+                            }
 
                             break;
                         }
@@ -273,8 +235,12 @@ public class FileReaderTask extends FieldManager{
                             logger.info("文件[{}|{}]idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间ignoreOlderTime，停止本文件采集作业.",
                                     fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,ignoreOlderTime);
 
-                            olded = true;
-
+                            if(ignoreFileAssert == null) {
+                                olded = true;
+                            }
+                            else{
+                                olded = ignoreFileAssert.canIgnore(fileInfo);
+                            }
                             break;
                         }
                         try {

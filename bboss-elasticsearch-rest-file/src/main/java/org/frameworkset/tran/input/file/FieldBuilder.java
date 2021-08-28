@@ -15,8 +15,6 @@ package org.frameworkset.tran.input.file;
  * limitations under the License.
  */
 
-import java.io.File;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -26,5 +24,5 @@ import java.io.File;
  * @version 1.0
  */
 public interface FieldBuilder {
-	public void buildFields(File file, FieldManager fieldManager);
+	public void buildFields(FileInfo file, FieldManager fieldManager);
 }

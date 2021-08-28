@@ -98,7 +98,8 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     }
                 }, tname);
                 tranThread.start();
-
+                if(logger.isInfoEnabled())
+                    logger.info(tname+" started.");
 
 
                 FileReaderTask task = new FileReaderTask(taskContext,file,fileId,fileConfig,pointer,
@@ -114,7 +115,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                  * 根据文件信息动态添加文件标签
                  */
                 if(fileConfig.getFieldBuilder() != null){
-                    fileConfig.getFieldBuilder().buildFields(file,task);
+                    fileConfig.getFieldBuilder().buildFields(task.getFileInfo(),task);
                 }
                 preCall(taskContext);//需要在任务完成时销毁taskContext
 //                fileConfigMap.put(fileId,task);
@@ -233,7 +234,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                             }
                             else{
                                 handleOldedTask(status);
-                                logger.info("status.fileid:{} 对应的文件不存在，老path:{}",inode,status.getFileId(),status.getFilePath());
+                                logger.info("status.fileid:{} 对应的文件不存在，老path:{}，忽略本文件采集",status.getFileId(),status.getFilePath());
                                 continue;
                             }
                         }
@@ -277,6 +278,8 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                             }
                         }, tname);
                         tranThread.start();
+                        if(logger.isInfoEnabled())
+                            logger.info(tname+" started.");
                         Object lastValue = status.getLastValue();
                         long pointer = 0;
                         if (!fromFirst){
@@ -296,6 +299,8 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                                 ,fileConfig
                                 ,pointer
                                 ,fileListenerService,fileDataTran,status);
+                        task.getFileInfo().setOriginFile(new File(status.getFilePath()));
+                        task.getFileInfo().setOriginFilePath(status.getFilePath());
                         taskContext.setFileInfo(task.getFileInfo());
                         if(fileConfig.getAddFields() != null && fileConfig.getAddFields().size() > 0){
                             task.addFields(fileConfig.getAddFields());
@@ -307,7 +312,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                          * 根据文件信息动态添加文件标签
                          */
                         if(fileConfig.getFieldBuilder() != null){
-                            fileConfig.getFieldBuilder().buildFields(new File(status.getFilePath()),task);
+                            fileConfig.getFieldBuilder().buildFields(task.getFileInfo(),task);
                         }
                         preCall(taskContext);//需要在任务完成时销毁taskContext
                         fileListenerService.addFileTask(task.getFileId(),task);
