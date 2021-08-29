@@ -42,7 +42,12 @@ public class FileInfo {
 		this.fileId = fileId;
 
 	}
-
+	/**
+	 * When this option is enabled, bboss closes a file as soon as the end of a file is reached. This is useful when your files are only written once and not updated from time to time. For example,
+	 * this happens when you are writing every single log event to a new file. This option is disabled by default.
+	 * 重命名后的文件将被调整为true
+	 */
+	private boolean closeEOF ;
 	private String charsetEncode;
 	private String filePath;
 	/**
@@ -112,5 +117,13 @@ public class FileInfo {
 	}
 	public String getOriginFileName(){
 		return originFile.getName();
+	}
+
+	public boolean isCloseEOF() {
+		return closeEOF;
+	}
+
+	public void setCloseEOF(boolean closeEOF) {
+		this.closeEOF = closeEOF;
 	}
 }

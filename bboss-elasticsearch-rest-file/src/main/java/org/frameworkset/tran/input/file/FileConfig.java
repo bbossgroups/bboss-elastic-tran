@@ -86,6 +86,13 @@ public class FileConfig extends FieldManager{
      * this happens when you are writing every single log event to a new file. This option is disabled by default.
      */
     private boolean closeEOF ;
+
+	/**
+	 * 重命名后的文件采集完毕后，是否要被关闭,默认true
+	 * true 关闭
+	 * false 不关闭
+	 */
+	private boolean closeRenameEOF = true;
     /**
      *  指定开始采集位置
      */
@@ -460,4 +467,12 @@ public class FileConfig extends FieldManager{
     public String getRenameFileSourcePath() {
         return renameFileSourcePath;
     }
+
+	public boolean isCloseRenameEOF() {
+		return closeRenameEOF;
+	}
+
+	public void setCloseRenameEOF(boolean closeRenameEOF) {
+		this.closeRenameEOF = closeRenameEOF;
+	}
 }

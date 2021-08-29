@@ -31,7 +31,11 @@ import static java.lang.Thread.sleep;
 public class FileReaderTask extends FieldManager{
     private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
     private FileInfo fileInfo;
-
+	/**
+	 * When this option is enabled, bboss closes a file as soon as the end of a file is reached. This is useful when your files are only written once and not updated from time to time. For example,
+	 * this happens when you are writing every single log event to a new file. This option is disabled by default.
+	 */
+	private boolean closeEOF ;
 
     /**
      * 文件监听事件服务
@@ -83,6 +87,7 @@ public class FileReaderTask extends FieldManager{
         this.fileInfo = new FileInfo(charSet,
                                         FileInodeHandler.change(file.getAbsolutePath()),
                                     file,  fileId, fileConfig);
+		fileInfo.setCloseEOF(fileConfig.isCloseEOF());
         this.fileConfig = fileConfig;
         this.taskContext = taskContext;
 
@@ -218,30 +223,61 @@ public class FileReaderTask extends FieldManager{
                     else if(oldLastModifyTime == lastModifyTime){
                         long idleTime = System.currentTimeMillis() - oldLastModifyTime;
                         if(closeOlderTime > 0 && idleTime >= closeOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
-//                            logger.info("file[{}|{}] idleTime:{},closeOlderTime:{}",fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,closeOlderTime);
-                            logger.info("文件[{}|{}]idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间closeOlderTime，停止本文件采集作业.",
-                                    fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,closeOlderTime);
+
                             if(closeOldedFileAssert == null) {
+
                                 olded = true;
                             }
                             else{
                                 olded = closeOldedFileAssert.canClose(fileInfo);
-                            }
+                                if(!olded) {
+                                    if(logger.isDebugEnabled()) {
+                                        logger.debug("文件[新：{}|{}，老：{}],idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间closeOlderTime，停止本文件采集作业,olded:{}",
+                                                fileInfo.getFilePath(), fileInfo.getFileId(), fileInfo.getOriginFilePath(), idleTime, closeOlderTime, olded);
+                                    }
+                                }
 
-                            break;
+                            }
+                            if(olded) {
+                                if(logger.isInfoEnabled())
+                                    logger.info("文件[{}|{}]idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间closeOlderTime，停止本文件采集作业.",
+                                        fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,closeOlderTime);
+                                break;
+                            }
                         }
                         if(ignoreOlderTime > 0 && idleTime >= ignoreOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
 //                            logger.info("file[{}|{}] idleTime:{},ignoreOlderTime:{}",fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,ignoreOlderTime);
-                            logger.info("文件[{}|{}]idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间ignoreOlderTime，停止本文件采集作业.",
-                                    fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,ignoreOlderTime);
+
 
                             if(ignoreFileAssert == null) {
+
                                 olded = true;
                             }
                             else{
                                 olded = ignoreFileAssert.canIgnore(fileInfo);
                             }
-                            break;
+                            if(olded) {
+                                if(logger.isInfoEnabled())
+                                    logger.info("文件[{}|{}]idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间ignoreOlderTime，停止本文件采集作业.",
+                                        fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,ignoreOlderTime);
+                                break;
+                            }
+                        }
+                        if(closeOldedFileAssert != null) {
+                            olded = closeOldedFileAssert.canClose(fileInfo);
+                            if(olded){
+                                logger.info("备份日志文件[新：{}|{},老:{}]内容已经采集完毕，停止本文件采集作业.",
+                                        fileInfo.getFilePath(),fileInfo.getFileId(),fileInfo.getOriginFilePath());
+                                break;
+                            }
+                        }
+                        if(ignoreFileAssert != null) {
+                            olded = ignoreFileAssert.canIgnore(fileInfo);
+                            if(olded){
+                                logger.info("备份日志文件[新：{}|{},老:{}]内容已经采集完毕，停止本文件采集作业.",
+                                        fileInfo.getFilePath(),fileInfo.getFileId(),fileInfo.getOriginFilePath());
+                                break;
+                            }
                         }
                         try {
                             sleep(checkFileModifyInterval);
@@ -253,12 +289,15 @@ public class FileReaderTask extends FieldManager{
                     else{
                         if(fileRenamed(file)) //文件重命名，等待文件被清理重新更新新的File对象
                         {
-                            File fileIdFile = FileInodeHandler.getFileByInode(fileConfig,fileId);
+                            File fileIdFile = FileInodeHandler.getFileByInode(fileConfig,fileId);//查找重命名后的文件
                             if (fileIdFile != null) {//文件发生了重命名
                                 String filePath = FileInodeHandler.change(fileIdFile.getAbsolutePath());
                                 if (logger.isInfoEnabled())
                                     logger.info("Rename Log file {} to {}", fileInfo.getOriginFilePath(), filePath);
                                 changeFile(filePath,fileIdFile);
+                                file = fileIdFile;
+                                if(!fileInfo.isCloseEOF() && fileConfig.isCloseRenameEOF())
+                                	fileInfo.setCloseEOF(true);//设置关闭标识，重命名的文件被采集完后关闭
                             }
                             else{
                                 delete = true;
@@ -337,7 +376,8 @@ public class FileReaderTask extends FieldManager{
         }
 
         public boolean isRollbackPreLine(){
-            return eof && !eol && !fileInfo.getFileConfig().isCloseEOF();
+//            return eof && !eol && !fileInfo.getFileConfig().isCloseEOF();
+			return eof && !eol && !fileInfo.isCloseEOF();
         }
 
 
@@ -397,7 +437,8 @@ public class FileReaderTask extends FieldManager{
             if(input.length() == 0)
                 return new Line(null,true,true);
             else{
-                if(fileConfig.isCloseEOF())
+//                if(fileConfig.isCloseEOF())
+				if(fileInfo.isCloseEOF())
                     return new Line(input.toString(),true,false);
                 else{ // 需要结束本次采集
                     raf.seek(startPointer);
@@ -410,7 +451,8 @@ public class FileReaderTask extends FieldManager{
     }
 
     private boolean reachEOFClosed(Line line){
-        if(fileConfig.isCloseEOF() && line.isEof()){
+//        if(fileConfig.isCloseEOF() && line.isEof()){
+		if(fileInfo.isCloseEOF() && line.isEof()){
             return true;
         }
         return false;
