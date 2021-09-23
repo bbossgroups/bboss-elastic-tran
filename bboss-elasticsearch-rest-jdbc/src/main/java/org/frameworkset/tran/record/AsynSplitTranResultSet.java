@@ -15,30 +15,26 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.Record;
-import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.AsynTranResultSet;
+import org.frameworkset.tran.Data;
+import org.frameworkset.tran.context.ImportContext;
 
 /**
- * <p>Description: </p>
+ * <p>Description: 支持记录切割功能</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/8/4 16:27
+ * @Date 2021/9/20 19:31
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class BaseRecord implements Record {
-	protected TaskContext taskContext;
-	public BaseRecord(TaskContext taskContext){
-		this.taskContext = taskContext;
+public class AsynSplitTranResultSet extends SplitTranResultSet implements AsynTranResultSet {
+	private AsynTranResultSet tranResultSet;
+	public AsynSplitTranResultSet(ImportContext importContext, AsynTranResultSet tranResultSet){
+		super(  importContext,tranResultSet);
+		this.tranResultSet = tranResultSet;
 	}
-
 	@Override
-	public TaskContext getTaskContext() {
-		return taskContext;
+	public void appendData(Data datas) {
+		tranResultSet.appendData(datas);
 	}
-
-	public void setTaskContext(TaskContext taskContext) {
-		this.taskContext = taskContext;
-	}
-
 }

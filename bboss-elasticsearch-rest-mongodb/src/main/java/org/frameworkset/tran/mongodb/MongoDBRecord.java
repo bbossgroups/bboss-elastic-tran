@@ -1,6 +1,6 @@
-package org.frameworkset.tran.record;
+package org.frameworkset.tran.mongodb;
 /**
- * Copyright 2008 biaoping.yin
+ * Copyright 2020 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
+import com.mongodb.DBObject;
+import org.bson.types.ObjectId;
 import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.record.BaseRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
 
@@ -24,44 +27,26 @@ import java.util.Date;
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2018</p>
- * @Date 2019/11/19 11:09
+ * <p>Copyright (c) 2020</p>
+ * @Date 2021/9/23 14:21
  * @author biaoping.yin
  * @version 1.0
  */
-public class CommonStringRecord  extends BaseRecord {
-	private Object key;
-	private String record;
-	private long offset;
-	public CommonStringRecord(TaskContext taskContext,Object key, String record, long offset){
+public class MongoDBRecord extends BaseRecord {
+	private DBObject record;
+	public MongoDBRecord(DBObject record,TaskContext taskContext) {
 		super(taskContext);
 		this.record = record;
-		this.key = key;
-		this.offset = offset;
-	}
-	public CommonStringRecord(TaskContext taskContext,String record,long offset){
-		super(taskContext);
-		this.record = record;
-		this.offset = offset;
-	}
-	@Override
-	public boolean reachEOFClosed(){
-		return false;
-	}
-
-	@Override
-	public boolean removed() {
-		return false;
 	}
 
 	@Override
 	public Object getValue(int i, String colName, int sqlType) throws ESDataImportException {
-		return record;
+		return getValue(  colName);
 	}
 
 	@Override
 	public Object getValue(String colName, int sqlType) throws ESDataImportException {
-		return record;
+		return getValue(  colName);
 	}
 
 	@Override
@@ -70,36 +55,47 @@ public class CommonStringRecord  extends BaseRecord {
 		if(value == null)
 			return null;
 		return TranUtil.getDateTimeValue(colName,value,taskContext.getImportContext());
+
+	}
+	@Override
+	public Object getValue(String colName) {
+		Object value = record.get(colName);
+		if(value != null) {
+			if (colName.equals("_id") && value instanceof ObjectId) {
+				return ((ObjectId)value).toString();
+			}
+
+		}
+		return value;
 	}
 
 	@Override
-	public Object getValue(String colName) {
+	public Object getKeys() {
+		return  record.keySet();
+	}
 
-
+	@Override
+	public Object getData() {
 		return record;
-	}
-	public Object getKeys(){
-		return null;
-	}
-	public Object getData(){
-		return this;
 	}
 
 	@Override
 	public Object getMetaValue(String metaName) {
-		return null;
-	}
-
-	public Object getKey() {
-		return key;
-	}
-
-	public String getRecord() {
-		return record;
+		return this.getValue(metaName);
 	}
 
 	@Override
 	public long getOffset() {
-		return offset;
+		return 0;
+	}
+
+	@Override
+	public boolean removed() {
+		return false;
+	}
+
+	@Override
+	public boolean reachEOFClosed() {
+		return false;
 	}
 }

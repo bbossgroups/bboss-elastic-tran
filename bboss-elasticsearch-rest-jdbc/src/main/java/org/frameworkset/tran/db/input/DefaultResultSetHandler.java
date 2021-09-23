@@ -20,6 +20,7 @@ import com.frameworkset.common.poolman.handle.ResultSetHandler;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.JDBCResultSet;
+import org.frameworkset.tran.db.JDBCTranMetaData;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.sql.ResultSet;
@@ -46,12 +47,11 @@ public class DefaultResultSetHandler extends ResultSetHandler {
 	}
 	@Override
 	public void handleResult(ResultSet resultSet, StatementInfo statementInfo) throws Exception {
-		JDBCResultSet jdbcResultSet = new JDBCResultSet();
+		JDBCResultSet jdbcResultSet = new JDBCResultSet(taskContext,resultSet,new JDBCTranMetaData(statementInfo.getMeta()),statementInfo.getDbadapter());
 		jdbcResultSet.setImportContext(importContext);
-		jdbcResultSet.setResultSet(resultSet);
-		jdbcResultSet.setMetaData(statementInfo.getMeta());
-		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-//		BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(jdbcResultSet,importContext,targetImportContext);
+//		jdbcResultSet.setResultSet(resultSet);
+//		jdbcResultSet.setMetaData(statementInfo.getMeta());
+//		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
 		BaseDataTran baseDataTran = sqlBaseDataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet,sqlBaseDataTranPlugin.getCurrentStatus());
 		baseDataTran.tran(  );
 	}

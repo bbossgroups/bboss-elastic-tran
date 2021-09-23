@@ -17,11 +17,9 @@ package org.frameworkset.tran.mongodb;
 
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import org.bson.types.ObjectId;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.TranUtil;
 
 import java.util.Date;
 
@@ -36,13 +34,15 @@ import java.util.Date;
 public class MongoDBResultSet extends LastValue implements TranResultSet {
 	private DBCursor dbCursor;
 	private DBObject record;
+	private boolean stoped;
+	private MongoDBRecord mongoDBRecord;
 	public MongoDBResultSet(ImportContext importContext, DBCursor dbCursor) {
 		this.importContext = importContext;
 		this.dbCursor = dbCursor;
 	}
 	@Override
 	public TaskContext getRecordTaskContext() {
-		return null;
+		return mongoDBRecord.getTaskContext();
 	}
 
 	@Override
@@ -52,14 +52,7 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 
 	@Override
 	public Object getValue(String colName) throws ESDataImportException {
-		Object value = record.get(colName);
-		if(value != null) {
-			if (colName.equals("_id") && value instanceof ObjectId) {
-				return ((ObjectId)value).toString();
-			}
-
-		}
-		return value;
+		return mongoDBRecord.getValue(colName);
 
 	}
 
@@ -70,18 +63,18 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 
 	@Override
 	public Date getDateTimeValue(String colName) throws ESDataImportException {
-		Object value = getValue(  colName);
-		if(value == null)
-			return null;
-		return TranUtil.getDateTimeValue(colName,value,importContext);
+		return mongoDBRecord.getDateTimeValue(colName);
 
 	}
 
 	@Override
 	public Boolean next() throws ESDataImportException {
+		if(stoped )
+			return false;
 		boolean hasNext = dbCursor.hasNext();
 		if( hasNext){
 			record = dbCursor.next();
+			mongoDBRecord = new MongoDBRecord(record,getTaskContext());
 		}
 		return hasNext;
 	}
@@ -92,7 +85,7 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 	}
 
 	public Object getKeys(){
-		return  record.keySet();
+		return mongoDBRecord.getKeys();
 	}
 	@Override
 	public Object getRecord() {
@@ -100,15 +93,22 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 	}
 
 	@Override
-	public void stop() {
+	public Record getCurrentRecord() {
+		return mongoDBRecord;
+	}
 
+	@Override
+	public void stop() {
+		stoped = true;
 	}
 	@Override
-	public void stopTranOnly(){}
+	public void stopTranOnly(){
+		stoped = true;
+	}
 
 	@Override
 	public Object getMetaValue(String fieldName) {
-		return null;
+		return getValue(fieldName);
 	}
 	@Override
 	public boolean removed() {

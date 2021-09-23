@@ -22,6 +22,7 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 
 import java.util.List;
@@ -36,6 +37,8 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0
  */
 public interface ImportContext {
+	public String getSplitFieldName();
+	public SplitHandler getSplitHandler();
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);
 	public String[] getExportColumns();
 //	DataTranPlugin buildDataTranPlugin();

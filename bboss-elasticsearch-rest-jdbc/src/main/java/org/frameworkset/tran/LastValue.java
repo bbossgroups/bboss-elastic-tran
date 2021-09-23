@@ -50,7 +50,7 @@ public abstract class LastValue implements TranResultSet{
 		Record record = (Record) this.getRecord();
 		return record.getOffset();
 	}
-	public Object getLastValue(TranResultSet tranResultSet,ImportContext importContext,String colName) throws ESDataImportException{
+	protected Object getLastValue(TranResultSet tranResultSet,ImportContext importContext,String colName) throws ESDataImportException{
 		try {
 			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
 				return tranResultSet.getValue(importContext.getLastValueColumnName());

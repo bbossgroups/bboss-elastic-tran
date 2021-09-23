@@ -25,6 +25,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.ScheduleConfig;
@@ -49,6 +50,19 @@ public abstract class BaseImportBuilder {
 	private String statusDbname;
 	private String statusTableDML;
 	private Integer fetchSize = 5000;
+
+	public String getSplitFieldName() {
+		return splitFieldName;
+	}
+
+	public BaseImportBuilder setSplitFieldName(String splitFieldName) {
+		this.splitFieldName = splitFieldName;
+		return this;
+	}
+
+	private String splitFieldName;
+
+	private SplitHandler splitHandler;
 	/**
 	 * 设置强制刷新检测空闲时间间隔，单位：毫秒，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作，默认8秒,为0时关闭本机制
 	 */
@@ -1200,6 +1214,8 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setIncreamentEndOffset(this.increamentEndOffset);
 		baseImportConfig.setAsynFlushStatus(this.asynFlushStatus);
 		baseImportConfig.setAsynFlushStatusInterval(this.asynFlushStatusInterval);
+		baseImportConfig.setSplitHandler(this.getSplitHandler());
+		baseImportConfig.setSplitFieldName(getSplitFieldName());
 //		baseImportConfig.setEsDetectNoop(this.esDetectNoop);
 
 	}
@@ -1576,6 +1592,14 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setAsynFlushStatusInterval(long asynFlushStatusInterval) {
 		this.asynFlushStatusInterval = asynFlushStatusInterval;
+		return this;
+	}
+	public SplitHandler getSplitHandler() {
+		return splitHandler;
+	}
+
+	public BaseImportBuilder setSplitHandler(SplitHandler splitHandler) {
+		this.splitHandler = splitHandler;
 		return this;
 	}
 }

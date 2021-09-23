@@ -22,7 +22,6 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.TranUtil;
 
 import java.io.IOException;
 import java.util.Date;
@@ -39,7 +38,8 @@ import java.util.Map;
  */
 public class HBaseResultSet extends LastValue implements TranResultSet {
 	private ResultScanner resultScanner;
-	private Record record;
+	protected Record record;
+	protected boolean stoped;
 	private boolean incrementByTimeRange;
 
 	private Map<String,byte[][]> familys;
@@ -48,6 +48,10 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 		this.resultScanner = resultScanner;
 		familys = new HashMap<String, byte[][]>();
 		incrementByTimeRange = ((HBaseContextImpl)importContext).isIncrementByTimeRange();
+	}
+	@Override
+	public Record getCurrentRecord() {
+		return record;
 	}
 
 
@@ -72,11 +76,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 
 	@Override
 	public Date getDateTimeValue(String colName) throws ESDataImportException {
-		Object value = getValue(  colName);
-		if(value == null)
-			return null;
-		Long time = Bytes.toLong((byte[])value);
-		return TranUtil.getDateTimeValue(colName,time,importContext);
+		return record.getDateTimeValue(colName);
 
 	}
 
@@ -89,6 +89,8 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 	@Override
 	public Boolean next() throws ESDataImportException {
 		try {
+			if(stoped)
+				return false;
 			Result record = resultScanner.next();
 			if( record != null){
 				this.record = new HBaseRecord(getTaskContext(),familys,record);
@@ -115,10 +117,12 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 
 	@Override
 	public void stop() {
-
+		stoped = true;
 	}
 	@Override
-	public void stopTranOnly(){}
+	public void stopTranOnly(){
+		stoped = true;
+	}
 
 	@Override
 	public Object getMetaValue(String fieldName) {

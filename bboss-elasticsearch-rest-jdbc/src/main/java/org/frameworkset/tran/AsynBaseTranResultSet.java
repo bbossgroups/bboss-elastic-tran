@@ -17,7 +17,6 @@ package org.frameworkset.tran;
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.TranUtil;
 
 import java.util.Date;
 import java.util.List;
@@ -53,6 +52,11 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	public Object getKeys(){
 		return record.getKeys();
 	}
+	@Override
+	public Record getCurrentRecord() {
+		return record;
+	}
+
 	public void appendData(Data datas){
 
 		try {
@@ -72,7 +76,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 
 	@Override
 	public Object getValue(int i, String colName, int sqlType) throws ESDataImportException {
-		return getValue(  colName);
+		return record.getValue(  i,colName,sqlType);
 	}
 
 	@Override
@@ -83,7 +87,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 
 	@Override
 	public Object getValue(String colName, int sqlType) throws ESDataImportException {
-		return getValue(  colName);
+		return record.getValue(  colName,sqlType);
 	}
 	@Override
 	public Object getMetaValue(String fieldName) {
@@ -93,10 +97,11 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 
 	@Override
 	public Date getDateTimeValue(String colName) throws ESDataImportException {
-		Object value = getValue(  colName);
-		if(value == null)
-			return null;
-		return TranUtil.getDateTimeValue(colName,value,importContext);
+//		Object value = getValue(  colName);
+//		if(value == null)
+//			return null;
+//		return TranUtil.getDateTimeValue(colName,value,importContext);
+		return record.getDateTimeValue(colName);
 
 	}
 	@Override

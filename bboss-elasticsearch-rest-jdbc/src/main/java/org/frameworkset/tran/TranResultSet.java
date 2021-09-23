@@ -41,7 +41,17 @@ public interface TranResultSet {
 	public Boolean next() throws ESDataImportException ;
 	public TranMeta getMetaData();
 
+	/**
+	 * 获取当前记录对应的原始数据
+	 * @return
+	 */
 	Object getRecord();
+
+	/**
+	 * 获取当前记录对象
+	 * @return
+	 */
+	Record getCurrentRecord();
 
 	void stop();
 	public void stopTranOnly();

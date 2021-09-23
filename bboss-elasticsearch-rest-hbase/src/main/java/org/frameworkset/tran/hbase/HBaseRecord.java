@@ -22,6 +22,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.record.BaseRecord;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.util.TranUtil;
 
 import java.util.Date;
 import java.util.Map;
@@ -81,7 +82,25 @@ public class HBaseRecord extends BaseRecord{
 
 	}
 
+	@Override
+	public Object getValue(int i, String colName, int sqlType) throws ESDataImportException {
+		return getValue(colName);
+	}
 
+	@Override
+	public Object getValue(String colName, int sqlType) throws ESDataImportException {
+		return getValue(colName);
+	}
+
+	@Override
+	public Date getDateTimeValue(String colName) throws ESDataImportException {
+		Object value = getValue(  colName);
+		if(value == null)
+			return null;
+		Long time = Bytes.toLong((byte[])value);
+		return TranUtil.getDateTimeValue(colName,time,taskContext.getImportContext());
+
+	}
 	public Object getMetaValue(String colName) {
 		/**文档_id*/
 //		private String id;

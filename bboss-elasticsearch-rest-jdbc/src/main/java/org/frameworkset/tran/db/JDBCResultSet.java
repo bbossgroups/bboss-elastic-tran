@@ -16,10 +16,7 @@ package org.frameworkset.tran.db;/*
 
 import com.frameworkset.common.poolman.sql.PoolManResultSetMetaData;
 import com.frameworkset.orm.adapter.DB;
-import org.frameworkset.tran.ESDataImportException;
-import org.frameworkset.tran.LastValue;
-import org.frameworkset.tran.TranMeta;
-import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.sql.ResultSet;
@@ -29,6 +26,25 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	protected ResultSet resultSet;
 	protected JDBCTranMetaData metaData;
 	protected DB dbadapter;
+	protected JDBCResultRecord resultRecord;
+	protected boolean stoped;
+	public JDBCResultSet(){
+
+	}
+	public JDBCResultSet(TaskContext taskContext,ResultSet resultSet,JDBCTranMetaData metaData,DB dbadapter){
+		this.resultSet = resultSet;
+		this.metaData = metaData;
+		this.dbadapter = dbadapter;
+		resultRecord = new JDBCResultRecord(taskContext,resultSet,metaData,dbadapter);
+
+	}
+
+//	@Override
+//	public void setBaseDataTran(BaseDataTran baseDataTran) {
+//		super.setBaseDataTran(baseDataTran);
+//		resultRecord.setTaskContext(baseDataTran.getTaskContext());
+//	}
+
 	public ResultSet getResultSet() {
 		return resultSet;
 	}
@@ -44,6 +60,7 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 		this.resultSet = resultSet;
 	}
 
+	@Override
 	public TranMeta getMetaData() {
 		return metaData;
 	}
@@ -54,11 +71,16 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	}
 
 	@Override
-	public void stop() {
+	public Record getCurrentRecord() {
+		return resultRecord;
+	}
 
+	@Override
+	public void stop() {
+		stoped = true;
 	}
 	@Override
-	public void stopTranOnly(){}
+	public void stopTranOnly(){stoped = true;}
 
 	@Override
 	public Object getMetaValue(String fieldName) {
@@ -74,92 +96,50 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 		this.metaData = new JDBCTranMetaData(metaData);
 	}
 
-	public boolean isOracleTimestamp(int sqlType){
-		return dbadapter.isOracleTimestamp( sqlType);
-	}
 
 	public void setDbadapter(DB dbadapter) {
 		this.dbadapter = dbadapter;
 	}
 
+	@Override
 	public Object getValue(  int i, String colName,int sqlType) throws ESDataImportException
 	{
-		try {
-			if(!this.isOracleTimestamp(sqlType)) {
-				return this.resultSet.getObject(i + 1);
-			}
-			else{
-				return this.resultSet.getTimestamp(i + 1);
-			}
-		}
-		catch (Exception ex){
-			throw new ESDataImportException(new StringBuilder().append("getValue(  ")
-					.append(i).append(", ").append(colName).append(",").append(sqlType).append(")").toString(),ex);
-		}
+		return resultRecord.getValue(i,colName,sqlType);
 
 	}
 
+	@Override
 	public Object getValue( String colName) throws ESDataImportException
 	{
-		if(colName == null)
-			return null;
-		try {
-			Object value = this.resultSet.getObject(colName);
-			return value;
-		}
-		catch (Exception ex){
-			throw new ESDataImportException(new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
-		}
+		return resultRecord.getValue(colName);
 
 	}
 
+	@Override
 	public Object getKeys(){
 
-		return  metaData.getPoolManResultSetMetaData().get_columnLabel();
+		return  resultRecord.getKeys();
 	}
+
+	@Override
 	public Object getValue( String colName,int sqlType) throws ESDataImportException
 	{
-		if(colName == null)
-			return null;
-		try {
-			if(!this.isOracleTimestamp(sqlType)) {
-				return this.resultSet.getObject(colName);
-			}
-			else{
-				return this.resultSet.getTimestamp(colName);
-			}
-		}
-		catch (Exception ex){
-			throw new ESDataImportException(new StringBuilder().append("getValue(  ")
-					.append(colName).append(",").append(sqlType).append(")").toString(),ex);
-		}
-
+		return resultRecord.getValue(colName,sqlType);
 
 	}
 
+	@Override
 	public Date getDateTimeValue(String colName) throws ESDataImportException
 	{
-		if(colName == null)
-			return null;
-		try {
-			Date value = this.resultSet.getTimestamp(colName);
-			return value;
-		}
-		catch (Exception e){
-			try {
-				Date value = this.resultSet.getDate(colName);
-				return value;
-			}
-			catch (Exception ex){
-				throw new ESDataImportException(new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
-			}
-
-		}
+		return resultRecord.getDateTimeValue(colName);
 	}
 
+	@Override
 
 	public Boolean next() throws ESDataImportException {
 		try {
+			if(stoped)
+				return false;
 			return resultSet.next();
 		}
 		catch (Exception e){
@@ -168,6 +148,6 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	}
 	@Override
 	public TaskContext getRecordTaskContext() {
-		return null;
+		return resultRecord.getTaskContext();
 	}
 }

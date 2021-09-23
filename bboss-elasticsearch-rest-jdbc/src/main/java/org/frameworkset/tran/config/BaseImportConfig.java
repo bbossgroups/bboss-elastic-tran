@@ -22,6 +22,7 @@ import org.frameworkset.spi.geoip.GeoIPUtil;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.ScheduleConfig;
@@ -62,6 +63,11 @@ public abstract class BaseImportConfig {
 	 */
 	private boolean asynFlushStatus = true;
 
+
+	private String splitFieldName;
+
+
+	private SplitHandler splitHandler;
 	public long getAsynFlushStatusInterval() {
 		return asynFlushStatusInterval;
 	}
@@ -941,5 +947,20 @@ public abstract class BaseImportConfig {
 
 	public void setAsynFlushStatus(boolean asynFlushStatus) {
 		this.asynFlushStatus = asynFlushStatus;
+	}
+	public String getSplitFieldName() {
+		return splitFieldName;
+	}
+
+	public void setSplitFieldName(String splitFieldName) {
+		this.splitFieldName = splitFieldName;
+	}
+
+	public SplitHandler getSplitHandler() {
+		return splitHandler;
+	}
+
+	public void setSplitHandler(SplitHandler splitHandler) {
+		this.splitHandler = splitHandler;
 	}
 }

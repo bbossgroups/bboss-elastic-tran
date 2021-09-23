@@ -22,6 +22,7 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 
 import java.math.BigDecimal;
@@ -70,6 +71,12 @@ public abstract  class BaseImportContext implements ImportContext {
 	}
 	public long getAsynFlushStatusInterval(){
 		return baseImportConfig.getAsynFlushStatusInterval();
+	}
+	public SplitHandler getSplitHandler() {
+		return baseImportConfig.getSplitHandler();
+	}
+	public String getSplitFieldName() {
+		return baseImportConfig.getSplitFieldName();
 	}
 	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext){
 		return dataTranPlugin.buildContext( taskContext,jdbcResultSet,batchContext);

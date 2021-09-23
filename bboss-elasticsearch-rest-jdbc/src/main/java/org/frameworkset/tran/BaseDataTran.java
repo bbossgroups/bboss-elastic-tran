@@ -3,6 +3,8 @@ package org.frameworkset.tran;
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.record.AsynSplitTranResultSet;
+import org.frameworkset.tran.record.SplitTranResultSet;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
@@ -65,6 +67,12 @@ public abstract class BaseDataTran implements DataTran{
 
 		if(jdbcResultSet instanceof AsynTranResultSet)
 			esTranResultSet = (AsynTranResultSet)jdbcResultSet;
+		if(importContext.getSplitHandler() != null){
+			if(jdbcResultSet instanceof AsynTranResultSet)
+				esTranResultSet = new AsynSplitTranResultSet(importContext,(AsynTranResultSet)jdbcResultSet);
+			else
+				this.jdbcResultSet = new SplitTranResultSet(importContext,jdbcResultSet);
+		}
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
 		jdbcResultSet.setBaseDataTran(this);

@@ -15,8 +15,11 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.util.TranUtil;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -48,6 +51,25 @@ public class CommonMapRecord extends BaseRecord {
 		return false;
 	}
 
+
+	@Override
+	public Object getValue(int i, String colName, int sqlType) throws ESDataImportException {
+		return getValue(colName);
+	}
+
+	@Override
+	public Object getValue(String colName, int sqlType) throws ESDataImportException {
+		return getValue(colName);
+	}
+
+	@Override
+	public Date getDateTimeValue(String colName) throws ESDataImportException {
+		Object value = getValue(  colName);
+		if(value == null)
+			return null;
+		return TranUtil.getDateTimeValue(colName,value,taskContext.getImportContext());
+
+	}
 
 	@Override
 	public Object getValue(String colName) {

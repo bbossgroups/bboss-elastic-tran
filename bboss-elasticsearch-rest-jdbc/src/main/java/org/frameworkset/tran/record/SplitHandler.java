@@ -1,6 +1,6 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.record;
 /**
- * Copyright 2008 biaoping.yin
+ * Copyright 2020 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,28 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
+import org.frameworkset.elasticsearch.entity.KeyMap;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.schedule.TaskContext;
 
-import java.util.Date;
+import java.util.List;
 
 /**
- * <p>Description: </p>
+ * <p>Description: 记录切割器，将字段值切换为多条记录</p>
  * <p></p>
- * <p>Copyright (c) 2018</p>
- * @Date 2019/11/19 10:29
+ * <p>Copyright (c) 2020</p>
+ * @Date 2021/9/21 12:06
  * @author biaoping.yin
  * @version 1.0
  */
-public interface Record {
-	public Object getValue(  int i, String colName,int sqlType) throws ESDataImportException;
-	public Object getValue( String colName,int sqlType) throws ESDataImportException;
-	public Date getDateTimeValue(String colName) throws ESDataImportException;
-	Object getValue(String colName);
-	public Object getKeys();
-	public Object getData();
+public interface SplitHandler {
 
-	public Object getMetaValue(String metaName);
-	public long getOffset();
-
-	boolean removed();
-	boolean reachEOFClosed();
-	TaskContext getTaskContext();
+	/**
+	 * 将记录中字段对应的值切割为多条记录值
+	 * @param taskContext
+	 * @param record
+	 * @param fieldValue
+	 * @return
+	 */
+	public List<KeyMap<String,Object>> splitField(TaskContext taskContext, Record record, Object fieldValue);
 }
