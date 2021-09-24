@@ -16,17 +16,16 @@ import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.JDBCGetVariableValue;
-import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.task.TaskCommandImpl;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
+import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCall;
-import org.frameworkset.util.annotations.DateFormateMeta;
+import org.frameworkset.tran.task.TaskCommandImpl;
 import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -38,7 +37,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-public class BaseElasticsearchDataTran extends BaseDataTran{
+public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 	private ClientInterface[] clientInterfaces;
 	private boolean versionUpper7;;
 	protected String taskInfo;
@@ -865,65 +864,27 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 
 	private  void serialResult( Writer writer,  Context context) throws Exception {
 
-		TranMeta metaData = context.getMetaData();
-		int counts = metaData != null ?metaData.getColumnCount():0;
+
 		writer.write("{");
-		Boolean useJavaName = context.getUseJavaName();
-		if(useJavaName == null)
-			useJavaName = true;
 
-		Boolean useLowcase = context.getUseLowcase();
-
-
-		if(useJavaName == null) {
-			useJavaName = false;
-		}
-		if(useLowcase == null)
-		{
-			useLowcase = false;
-		}
 		boolean hasSeted = false;
-
-		Map<String,Object> addedFields = new HashMap<String,Object>();
-
-		List<FieldMeta> fieldValueMetas = context.getFieldValues();//context优先级高于，全局配置，全局配置高于字段值
-		hasSeted = appendFieldValues(  writer,   context, fieldValueMetas,  hasSeted,addedFields);
-		fieldValueMetas = context.getESJDBCFieldValues();
-		hasSeted = appendFieldValues(  writer,   context, fieldValueMetas,  hasSeted,addedFields);
-		for(int i =0; i < counts; i++)
+		CommonRecord dataRecord = super.buildRecord(context);
+		Map<String,Object> datas = dataRecord.getDatas();
+		Iterator<Map.Entry<String,Object>> iterator = datas.entrySet().iterator();
+		while(iterator.hasNext())
 		{
-			String colName = metaData.getColumnLabelByIndex(i);
+			Map.Entry<String,Object> entry = iterator.next();
+			String colName = entry.getKey();
 			if(colName.equals("_id")){
 				if(logger.isDebugEnabled()){
 					logger.debug("Field [_id] is a metadata field and cannot be added inside a document. Use the index API request parameters.");
 				}
 				continue;
 			}
-			int sqlType = metaData.getColumnTypeByIndex(i);
 //			if("ROWNUM__".equals(colName))//去掉oracle的行伪列
 //				continue;
-			String javaName = null;
-			FieldMeta fieldMeta = context.getMappingName(colName);
-			if(fieldMeta != null) {
-				if(fieldMeta.getIgnore() != null && fieldMeta.getIgnore() == true)
-					continue;
-				javaName = fieldMeta.getEsFieldName();
-			}
-			else {
-				if(useJavaName) {
-					javaName = metaData.getColumnJavaNameByIndex(i);
-				}
-				else{
-					javaName =  !useLowcase ?colName:metaData.getColumnLabelLowerByIndex(i);
-				}
-			}
-			if(javaName == null){
-				javaName = colName;
-			}
-			if(addedFields.containsKey(javaName)){
-				continue;
-			}
-			Object value = context.getValue(     i,  colName,sqlType);
+
+			Object value = entry.getValue();
 			if(value == null && importContext.isIgnoreNullValueField()){
 				continue;
 			}
@@ -933,26 +894,20 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 				hasSeted = true;
 
 			writer.write("\"");
-			writer.write(javaName);
+			writer.write(colName);
 			writer.write("\":");
 //			int colType = metaData.getColumnTypeByIndex(i);
 
 			if(value != null) {
+				RecordColumnInfo recordColumnInfo = dataRecord.getRecordColumnInfo(colName);
 				if (value instanceof String) {
 					writer.write("\"");
 					CharEscapeUtil charEscapeUtil = new CharEscapeUtil(writer);
 					charEscapeUtil.writeString((String) value, true);
 					writer.write("\"");
 				} else if (value instanceof Date) {
-					DateFormat dateFormat = null;
-					if(fieldMeta != null){
-						DateFormateMeta dateFormateMeta = fieldMeta.getDateFormateMeta();
-						if(dateFormateMeta != null){
-							dateFormat = dateFormateMeta.toDateFormat();
-						}
-					}
-					if(dateFormat == null)
-						dateFormat = context.getDateFormat();
+					DateFormat dateFormat = recordColumnInfo.getDateFormat();
+
 					String dataStr = ESUtil.getDate((Date) value,dateFormat);
 					writer.write("\"");
 					writer.write(dataStr);
@@ -986,73 +941,7 @@ public class BaseElasticsearchDataTran extends BaseDataTran{
 
 		writer.write("}");
 	}
-	private  boolean appendFieldValues(Writer writer,Context context,
-										  List<FieldMeta> fieldValueMetas,boolean hasSeted,Map<String,Object> addedFields) throws IOException {
-		if(fieldValueMetas != null && fieldValueMetas.size() > 0){
-			for(int i =0; i < fieldValueMetas.size(); i++)
-			{
 
-				FieldMeta fieldMeta = fieldValueMetas.get(i);
-				String javaName = fieldMeta.getEsFieldName();
-				if(addedFields.containsKey(javaName)) {
-					if(logger.isInfoEnabled()){
-						logger.info(new StringBuilder().append("Ignore adding duplicate field[")
-								.append(javaName).append("] value[")
-								.append(fieldMeta.getValue())
-								.append("].").toString());
-					}
-					continue;
-				}
-				Object value = fieldMeta.getValue();
-//				if(value == null)
-//					continue;
-				if(hasSeted)
-					writer.write(",");
-				else{
-					hasSeted = true;
-				}
-
-				writer.write("\"");
-				writer.write(javaName);
-				writer.write("\":");
-
-				if(value != null) {
-					if (value instanceof String) {
-						writer.write("\"");
-						CharEscapeUtil charEscapeUtil = new CharEscapeUtil(writer);
-						charEscapeUtil.writeString((String) value, true);
-						writer.write("\"");
-					} else if (value instanceof Date) {
-						DateFormat dateFormat = null;
-						if(fieldMeta != null){
-							DateFormateMeta dateFormateMeta = fieldMeta.getDateFormateMeta();
-							if(dateFormateMeta != null){
-								dateFormat = dateFormateMeta.toDateFormat();
-							}
-						}
-						if(dateFormat == null)
-							dateFormat = context.getDateFormat();
-						String dataStr = ESUtil.getDate((Date) value,dateFormat);
-						writer.write("\"");
-						writer.write(dataStr);
-						writer.write("\"");
-					}
-					else if(isBasePrimaryType(value.getClass())){
-						writer.write(String.valueOf(value));
-					}
-					else {
-						SimpleStringUtil.object2json(value,writer);
-					}
-				}
-				else{
-					writer.write("null");
-				}
-				addedFields.put(javaName,dummy);
-
-			}
-		}
-		return hasSeted;
-	}
 	public static final Class[] basePrimaryTypes = new Class[]{Integer.TYPE, Long.TYPE,
 								Boolean.TYPE, Float.TYPE, Short.TYPE, Double.TYPE,
 								Character.TYPE, Byte.TYPE, BigInteger.class, BigDecimal.class};

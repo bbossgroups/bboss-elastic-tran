@@ -54,8 +54,10 @@ public class SplitRecord extends CommonMapRecord{
 		return value;
 	}
 	public Object getKeys(){
-		return baseRecord.getKeys();
+		return super.getKeys();
 	}
+
+
 	public Object getData(){
 		return baseRecord.getData();
 	}

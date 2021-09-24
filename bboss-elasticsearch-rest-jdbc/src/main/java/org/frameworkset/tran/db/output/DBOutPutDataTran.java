@@ -9,6 +9,7 @@ import org.frameworkset.tran.db.DBRecord;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
+import org.frameworkset.tran.record.SplitKeys;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCall;
@@ -192,6 +193,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 		List<VariableHandler.Variable> vars = null;
 		Object temp = null;
 		Param param = null;
+
 		DBRecord dbRecord = new DBRecord();
 		TranSQLInfo insertSqlinfo = es2DBContext.getTargetSqlInfo();
 		TranSQLInfo updateSqlinfo = es2DBContext.getTargetUpdateSqlInfo();
@@ -208,12 +210,27 @@ public class DBOutPutDataTran extends BaseDataTran {
 			dbRecord.setAction(DBRecord.DELETE);
 			vars = deleteSqlinfo.getVars();
 		}
+		Object  keys = jdbcResultSet.getKeys();
+		String[] splitColumns = null;
+		if(keys != null) {
+			boolean isSplitKeys = keys instanceof SplitKeys;
+			if(isSplitKeys) {
+				SplitKeys splitKeys = (SplitKeys) keys;
+
+				splitColumns = splitKeys.getSplitKeys();
+			}
+
+		}
 		List<Param> record = new ArrayList<Param>();
 		Map<String,Object> addedFields = new HashMap<String,Object>();
-
-		List<FieldMeta> fieldValueMetas = context.getFieldValues();//context优先级高于，全局配置，全局配置高于字段值
+		//context优先级高于splitColumns,splitColumns高于全局配置，全局配置高于数据源级别字段值
+		List<FieldMeta> fieldValueMetas = context.getFieldValues();
 
 		appendFieldValues( record, vars,    fieldValueMetas,  addedFields);
+		//计算记录切割字段
+		appendSplitFieldValues(dbRecord,
+				splitColumns,
+				addedFields);
 		fieldValueMetas = context.getESJDBCFieldValues();
 		appendFieldValues(  record, vars,   fieldValueMetas,  addedFields);
 		String varName = null;

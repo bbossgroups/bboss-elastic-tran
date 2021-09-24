@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -31,6 +32,24 @@ public abstract class BaseDataTran implements DataTran{
 		return taskContext;
 	}
 
+	protected void appendSplitFieldValues(CommonRecord record,
+										  String[] splitColumns,
+										  Map<String, Object> addedFields) {
+		if(splitColumns ==  null || splitColumns.length == 0){
+			return;
+		}
+
+
+		for (String fieldName : splitColumns) {
+//				String fieldName = fieldMeta.getEsFieldName();
+			if (addedFields.containsKey(fieldName))
+				continue;
+			record.addData(fieldName, jdbcResultSet.getValue(fieldName));
+			addedFields.put(fieldName, dummy);
+
+		}
+
+	}
 	/**
 	 * 当前作业处理的增量状态信息
 	 */

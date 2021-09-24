@@ -22,6 +22,7 @@ import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>Description: 支持记录切割功能</p>
@@ -205,7 +206,12 @@ public class SplitTranResultSet  implements TranResultSet {
 
 	@Override
 	public Object getKeys() {
-		return tranResultSet.getKeys();
+		Set<String> cKeys = (Set<String>) record.getKeys();
+		String[] columns = cKeys.toArray(new String[cKeys.size()]);
+		SplitKeys splitKeys = new SplitKeys();
+		splitKeys.setBaseKeys(tranResultSet.getKeys());
+		splitKeys.setSplitKeys(columns);
+		return splitKeys;
 	}
 
 	@Override

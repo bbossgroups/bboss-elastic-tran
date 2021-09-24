@@ -15,7 +15,10 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import java.util.HashMap;
+import org.codehaus.groovy.util.ListHashMap;
+import org.frameworkset.tran.record.RecordColumnInfo;
+
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +34,7 @@ public class CommonRecord {
 	private List<Param> params;
 	private Object recordKey;
 
+
 	public Map<String, Object> getDatas() {
 		return datas;
 	}
@@ -40,12 +44,33 @@ public class CommonRecord {
 	}
 
 	private Map<String,Object> datas;
+	private Map<String,RecordColumnInfo> dataInfos;
 	public List<Param> getParams() {
 		return params;
 	}
+	public void addData(String name, Object value, RecordColumnInfo recordColumnInfo){
+		if(datas == null) {
+			datas = new LinkedHashMap<String, Object>();
+		}
+		if(recordColumnInfo != null){
+			if(dataInfos == null ){
+				dataInfos = new ListHashMap<>();
+			}
+			dataInfos.put(name,recordColumnInfo);
+		}
+
+		datas.put(name,value);
+	}
+	public RecordColumnInfo getRecordColumnInfo(String name){
+		if(dataInfos != null){
+			return dataInfos.get(name);
+		}
+		return null;
+	}
 	public void addData(String name,Object value){
-		if(datas == null)
-			datas = new HashMap<String, Object>();
+		if(datas == null) {
+			datas = new LinkedHashMap<String, Object>();
+		}
 		datas.put(name,value);
 	}
 	public void setParams(List<Param> params) {
