@@ -23,6 +23,13 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 //				throw new DataImportException("Export Columns is null,Please set Export Columns in importconfig.");
 	}
 	protected CommonRecord buildRecord(Context context){
+		CommonRecord dataRecord = new CommonRecord();
+		buildRecord(dataRecord,context);
+		return dataRecord;
+	}
+
+
+	protected CommonRecord buildRecord(CommonRecord dbRecord ,Context context){
 
 		String[] columns = targetImportContext.getExportColumns();
 		//如果采用结果集中的字段集，就需要考虑全局添加或者记录级别添加的字段，通过配置设置导出的字段集不需要考虑全局添加或者记录级别添加的字段
@@ -90,7 +97,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 			useLowcase = false;
 		}
 		Object temp = null;
-		CommonRecord dbRecord = new CommonRecord();
+
 
 		Map<String,Object> addedFields = new HashMap<String,Object>();
 		//计算记录级别字段配置值

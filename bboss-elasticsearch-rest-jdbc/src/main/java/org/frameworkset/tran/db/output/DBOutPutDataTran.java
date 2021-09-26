@@ -9,7 +9,6 @@ import org.frameworkset.tran.db.DBRecord;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
-import org.frameworkset.tran.record.SplitKeys;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCall;
@@ -17,11 +16,13 @@ import org.frameworkset.tran.task.TaskCommand;
 import org.slf4j.Logger;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-public class DBOutPutDataTran extends BaseDataTran {
+public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 	protected DBOutPutContext es2DBContext ;
 	@Override
 	public void logTaskStart(Logger logger) {
@@ -137,7 +138,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 						importCount.increamentIgnoreTotalCount();
 						continue;
 					}
-					DBRecord record = buildRecord(  context );
+					DBRecord record = buildDBRecord(  context );
 
 					records.add(record);
 					//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
@@ -189,12 +190,71 @@ public class DBOutPutDataTran extends BaseDataTran {
 		return null;
 
 	}
-	private DBRecord buildRecord(Context context){
+	/**
+	private void appendFieldValues(List<Param> record,
+								   List<VariableHandler.Variable> vars,
+								   List<FieldMeta> fieldValueMetas,
+								   Map<String, Object> addedFields) {
+		if(fieldValueMetas ==  null || fieldValueMetas.size() == 0){
+			return;
+		}
+		Param param = null;
+		for(VariableHandler.Variable variable:vars){
+			if(addedFields.containsKey(variable.getVariableName()))
+				continue;
+			for(FieldMeta fieldMeta:fieldValueMetas){
+				if(variable.getVariableName().equals(fieldMeta.getTargetFieldName())){
+					param = new Param();
+					param.setVariable(variable);
+					param.setIndex(variable.getPosition() +1);
+					param.setValue(fieldMeta.getValue());
+					param.setName(variable.getVariableName());
+					record.add(param);
+//					statement.setObject(i +1,fieldMeta.getValue());
+					addedFields.put(variable.getVariableName(),dummy);
+					break;
+				}
+			}
+		}
+	}
+
+	protected void appendSplitFieldValues(List<Param> record,
+										  List<VariableHandler.Variable> vars,
+										  String[] splitColumns,
+										  Map<String, Object> addedFields, Context context) {
+		if(splitColumns ==  null || splitColumns.length == 0){
+			return;
+		}
+
+		Param param = null;
+		for(VariableHandler.Variable variable:vars){
+			if(addedFields.containsKey(variable.getVariableName()))
+				continue;
+			for(String fieldName:splitColumns){
+				if(variable.getVariableName().equals(fieldName)){
+					param = new Param();
+					param.setVariable(variable);
+					param.setIndex(variable.getPosition() +1);
+					param.setValue(jdbcResultSet.getValue(fieldName));
+					param.setName(variable.getVariableName());
+					record.add(param);
+//					statement.setObject(i +1,fieldMeta.getValue());
+					addedFields.put(variable.getVariableName(),dummy);
+					break;
+				}
+			}
+		}
+
+	}
+	 */
+	protected DBRecord buildDBRecord(Context context){
+		DBRecord dbRecord = new DBRecord();
+
 		List<VariableHandler.Variable> vars = null;
 		Object temp = null;
 		Param param = null;
 
-		DBRecord dbRecord = new DBRecord();
+
 		TranSQLInfo insertSqlinfo = es2DBContext.getTargetSqlInfo();
 		TranSQLInfo updateSqlinfo = es2DBContext.getTargetUpdateSqlInfo();
 		TranSQLInfo deleteSqlinfo = es2DBContext.getTargetDeleteSqlInfo();
@@ -210,6 +270,29 @@ public class DBOutPutDataTran extends BaseDataTran {
 			dbRecord.setAction(DBRecord.DELETE);
 			vars = deleteSqlinfo.getVars();
 		}
+		super.buildRecord(dbRecord,context);
+		String varName = null;
+		List<Param> record = new ArrayList<Param>();
+		for(int i = 0;i < vars.size(); i ++)
+		{
+			VariableHandler.Variable var = vars.get(i);
+			varName = var.getVariableName();
+			temp = dbRecord.getData(varName);
+			if(temp == null) {
+				if(logger.isWarnEnabled())
+					logger.warn("未指定绑定变量的值：{}",varName);
+			}
+			param = new Param();
+			param.setVariable(var);
+			param.setIndex(var.getPosition()  +1);
+			param.setValue(temp);
+			param.setName(varName);
+			record.add(param);
+
+		}
+		dbRecord.setParams(record);
+		return dbRecord;
+		/**
 		Object  keys = jdbcResultSet.getKeys();
 		String[] splitColumns = null;
 		if(keys != null) {
@@ -228,7 +311,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 
 		appendFieldValues( record, vars,    fieldValueMetas,  addedFields);
 		//计算记录切割字段
-		appendSplitFieldValues(dbRecord,
+		appendSplitFieldValues(record, vars,
 				splitColumns,
 				addedFields,context);
 		fieldValueMetas = context.getESJDBCFieldValues();
@@ -262,7 +345,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 		}
 
 		dbRecord.setParams(record);
-		return dbRecord;
+		return dbRecord;*/
 	}
 	@Override
 	public String parallelBatchExecute() {
@@ -327,7 +410,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 					totalCount.increamentIgnoreTotalCount();
 					continue;
 				}
-				DBRecord record = buildRecord(  context);
+				DBRecord record = buildDBRecord(  context);
 				records.add(record);
 				//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 				count++;
@@ -462,7 +545,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 					importCount.increamentIgnoreTotalCount();
 					continue;
 				}
-				DBRecord record = buildRecord(  context );
+				DBRecord record = buildDBRecord(  context );
 				records.add(record);
 				count++;
 				if (count >= batchsize) {
@@ -534,34 +617,6 @@ public class DBOutPutDataTran extends BaseDataTran {
 		return ret;
 	}
 
-
-	private void appendFieldValues(List<Param> record,
-			List<VariableHandler.Variable> vars,
-			List<FieldMeta> fieldValueMetas,
-			Map<String, Object> addedFields) {
-		if(fieldValueMetas ==  null || fieldValueMetas.size() == 0){
-			return;
-		}
-		int i = 0;
-		Param param = null;
-		for(VariableHandler.Variable variable:vars){
-			if(addedFields.containsKey(variable.getVariableName()))
-				continue;
-			for(FieldMeta fieldMeta:fieldValueMetas){
-				if(variable.getVariableName().equals(fieldMeta.getTargetFieldName())){
-					param = new Param();
-					param.setVariable(variable);
-					param.setIndex(variable.getPosition() +1);
-					param.setValue(fieldMeta.getValue());
-					param.setName(variable.getVariableName());
-					record.add(param);
-//					statement.setObject(i +1,fieldMeta.getValue());
-					addedFields.put(variable.getVariableName(),dummy);
-					break;
-				}
-			}
-		}
-	}
 
 
 

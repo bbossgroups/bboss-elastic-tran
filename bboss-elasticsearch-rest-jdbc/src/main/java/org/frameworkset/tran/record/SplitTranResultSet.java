@@ -141,7 +141,7 @@ public class SplitTranResultSet  implements TranResultSet {
 	@Override
 	public Boolean next() throws ESDataImportException {
 		if(!readEnd() ){
-			KeyMap<String,Object> keyMap = splitRecords.get(0);
+			KeyMap<String,Object> keyMap = splitRecords.get(splitPos);
 			if(keyMap.getKey() != null)
 				record = new SplitRecord(baseRecord,keyMap.getKey(),keyMap);
 			else

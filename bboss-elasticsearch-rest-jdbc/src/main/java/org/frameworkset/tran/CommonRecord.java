@@ -18,7 +18,6 @@ package org.frameworkset.tran;
 import org.frameworkset.tran.record.RecordColumnInfo;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,7 +29,7 @@ import java.util.Map;
  * @version 1.0
  */
 public class CommonRecord {
-	private List<Param> params;
+
 	private Object recordKey;
 
 
@@ -44,9 +43,7 @@ public class CommonRecord {
 
 	private Map<String,Object> datas;
 	private Map<String,RecordColumnInfo> dataInfos;
-	public List<Param> getParams() {
-		return params;
-	}
+
 	public void addData(String name, Object value, RecordColumnInfo recordColumnInfo){
 		if(datas == null) {
 			datas = new LinkedHashMap<String, Object>();
@@ -72,19 +69,7 @@ public class CommonRecord {
 		}
 		datas.put(name,value);
 	}
-	public void setParams(List<Param> params) {
-		this.params = params;
-	}
-	public int size(){
-		if(params != null)
-			return params.size();
-		else if(datas != null)
-			return datas.size();
-		return 0;
-	}
-	public Param get(int idx){
-		return params.get(idx);
-	}
+
 	public Object getData(String name){
 		if(datas != null)
 			return datas.get(name);

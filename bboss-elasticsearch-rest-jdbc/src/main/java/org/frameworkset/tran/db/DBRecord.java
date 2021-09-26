@@ -16,6 +16,9 @@ package org.frameworkset.tran.db;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.Param;
+
+import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -26,6 +29,7 @@ import org.frameworkset.tran.CommonRecord;
  * @version 1.0
  */
 public class DBRecord extends CommonRecord {
+	private List<Param> params;
 	public static final int INSERT = 0;
 	public static final int DELETE = 2;
 	public static final int UPDATE = 1;
@@ -51,6 +55,22 @@ public class DBRecord extends CommonRecord {
 
 	public void setAction(int action) {
 		this.action = action;
+	}
+
+	public List<Param> getParams() {
+		return params;
+	}
+	public void setParams(List<Param> params) {
+		this.params = params;
+	}
+
+	public int size(){
+		if(params != null)
+			return params.size();
+		return 0;
+	}
+	public Param get(int idx){
+		return params.get(idx);
 	}
 
 }
