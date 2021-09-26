@@ -243,7 +243,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 			if(fieldMeta != null) {
 				if(fieldMeta.getIgnore() != null && fieldMeta.getIgnore() == true)
 					continue;
-				varName = fieldMeta.getEsFieldName();
+				varName = fieldMeta.getTargetFieldName();
 			}
 			if(addedFields.get(varName) != null)
 				continue;
@@ -548,7 +548,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 			if(addedFields.containsKey(variable.getVariableName()))
 				continue;
 			for(FieldMeta fieldMeta:fieldValueMetas){
-				if(variable.getVariableName().equals(fieldMeta.getEsFieldName())){
+				if(variable.getVariableName().equals(fieldMeta.getTargetFieldName())){
 					param = new Param();
 					param.setVariable(variable);
 					param.setIndex(variable.getPosition() +1);

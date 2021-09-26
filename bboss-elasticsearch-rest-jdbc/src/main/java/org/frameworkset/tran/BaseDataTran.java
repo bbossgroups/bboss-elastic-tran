@@ -84,7 +84,7 @@ public abstract class BaseDataTran implements DataTran{
 
 		if(columns != null && columns.length > 0) {
 			for (FieldMeta fieldMeta : fieldValueMetas) {
-				String fieldName = fieldMeta.getEsFieldName();
+				String fieldName = fieldMeta.getTargetFieldName();
 				if (addedFields.containsKey(fieldName))
 					continue;
 				boolean matched = false;
@@ -106,7 +106,7 @@ public abstract class BaseDataTran implements DataTran{
 		}
 		else{ //hbase之类的数据同步工具，数据都是在datarefactor接口中封装处理，columns信息不存在，直接用fieldValueMetas即可
 			for (FieldMeta fieldMeta : fieldValueMetas) {
-				String fieldName = fieldMeta.getEsFieldName();
+				String fieldName = fieldMeta.getTargetFieldName();
 				if (addedFields.containsKey(fieldName))
 					continue;
 				addRecordValue( record,fieldName, fieldMeta.getValue(), fieldMeta, context);

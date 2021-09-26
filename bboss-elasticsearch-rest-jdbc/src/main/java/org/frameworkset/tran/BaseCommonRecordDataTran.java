@@ -124,7 +124,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 			if(fieldMeta != null) {
 				if(fieldMeta.getIgnore() != null && fieldMeta.getIgnore() == true)
 					continue;
-				varName = fieldMeta.getEsFieldName();
+				varName = fieldMeta.getTargetFieldName();
 			}
 			else if(useResultKeys && metaData != null && metaData.getColumnCount() > 0 ){
 				if(useJavaName) {

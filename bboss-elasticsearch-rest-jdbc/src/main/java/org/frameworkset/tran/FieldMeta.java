@@ -17,38 +17,38 @@ package org.frameworkset.tran;/*
 import org.frameworkset.util.annotations.DateFormateMeta;
 
 public class FieldMeta {
-	private String esFieldName;
-	private String dbColumnName;
+	private String targetFieldName;
+	private String sourceFieldName;
 	private DateFormateMeta dateFormateMeta;
 	private Boolean ignore ;
 	private Object value;
 	public FieldMeta(){
 
 	}
-	public FieldMeta(String esFieldName,Object value){
-		this.esFieldName = esFieldName;
+	public FieldMeta(String targetFieldName, Object value){
+		this.targetFieldName = targetFieldName;
 		this.value = value;
 	}
-	public FieldMeta(String esFieldName,DateFormateMeta dateFormat ,Object value){
-		this.esFieldName = esFieldName;
+	public FieldMeta(String targetFieldName, DateFormateMeta dateFormat , Object value){
+		this.targetFieldName = targetFieldName;
 		this.value = value;
 		this.dateFormateMeta = dateFormat;
 
 	}
-	public String getEsFieldName() {
-		return esFieldName;
+	public String getTargetFieldName() {
+		return targetFieldName;
 	}
 
-	public void setEsFieldName(String esFieldName) {
-		this.esFieldName = esFieldName;
+	public void setTargetFieldName(String targetFieldName) {
+		this.targetFieldName = targetFieldName;
 	}
 
-	public String getDbColumnName() {
-		return dbColumnName;
+	public String getSourceFieldName() {
+		return sourceFieldName;
 	}
 
-	public void setDbColumnName(String dbColumnName) {
-		this.dbColumnName = dbColumnName;
+	public void setSourceFieldName(String sourceFieldName) {
+		this.sourceFieldName = sourceFieldName;
 	}
 
 	public DateFormateMeta getDateFormateMeta() {
