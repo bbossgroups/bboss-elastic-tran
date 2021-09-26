@@ -237,8 +237,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 		for(int i = 0;i < vars.size(); i ++)
 		{
 			VariableHandler.Variable var = vars.get(i);
-			if(addedFields.get(var.getVariableName()) != null)
-				continue;
+
 			varName = var.getVariableName();
 			FieldMeta fieldMeta = context.getMappingName(varName);
 			if(fieldMeta != null) {
@@ -246,6 +245,8 @@ public class DBOutPutDataTran extends BaseDataTran {
 					continue;
 				varName = fieldMeta.getEsFieldName();
 			}
+			if(addedFields.get(varName) != null)
+				continue;
 			temp = jdbcResultSet.getValue(varName);
 			if(temp == null) {
 				if(logger.isWarnEnabled())

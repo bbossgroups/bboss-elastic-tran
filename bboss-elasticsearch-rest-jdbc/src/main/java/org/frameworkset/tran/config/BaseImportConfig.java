@@ -430,9 +430,9 @@ public abstract class BaseImportConfig {
 		this.fieldMetaMap = fieldMetaMap;
 	}
 
-	public FieldMeta getMappingName(String colName){
+	public FieldMeta getMappingName(String sourceFieldName){
 		if(fieldMetaMap != null)
-			return this.fieldMetaMap.get(colName.toLowerCase());
+			return this.fieldMetaMap.get(sourceFieldName);
 		return null;
 	}
 

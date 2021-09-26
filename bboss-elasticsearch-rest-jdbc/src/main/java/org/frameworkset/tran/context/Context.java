@@ -19,6 +19,7 @@ import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.tran.FieldMeta;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.TranMeta;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -48,7 +49,7 @@ public interface Context {
 	ESIndexWrapper getESIndexWrapper();
 	Object getVersion() throws Exception;
 //	public Object getEsVersionType();
-void refactorData() throws Exception;
+	void refactorData() throws Exception;
 	TranMeta getMetaData();
 	DateFormat getDateFormat();
 	Boolean getUseJavaName();
@@ -103,10 +104,16 @@ void refactorData() throws Exception;
 	BatchContext getBatchContext();
 
 	/**
-	 * 获取原始记录对象
+	 * 获取原始数据对象,可能是一个map，jdbcresultset，DBObject,hbaseresult
 	 * @return
 	 */
 	Object getRecord();
+
+	/**
+	 * 获取记录对象
+	 * @return
+	 */
+	public Record getCurrentRecord();
 
 	/**
 	 * 标识记录状态为insert操作（增加），默认值

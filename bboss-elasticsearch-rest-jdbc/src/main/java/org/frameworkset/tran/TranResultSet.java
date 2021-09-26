@@ -42,7 +42,7 @@ public interface TranResultSet {
 	public TranMeta getMetaData();
 
 	/**
-	 * 获取当前记录对应的原始数据
+	 * 获取当前记录对应的原始数据对象，可能是一个map，jdbcresultset，DBObject,hbaseresult
 	 * @return
 	 */
 	Object getRecord();

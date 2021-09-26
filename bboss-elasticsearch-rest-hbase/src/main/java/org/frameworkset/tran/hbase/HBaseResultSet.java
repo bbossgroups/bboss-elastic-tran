@@ -112,7 +112,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 	}
 	@Override
 	public Object getRecord() {
-		return record;
+		return record.getData();
 	}
 
 	@Override

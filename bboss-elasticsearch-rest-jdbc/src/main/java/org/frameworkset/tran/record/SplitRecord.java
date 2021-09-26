@@ -36,6 +36,7 @@ public class SplitRecord extends CommonMapRecord{
 
 	public SplitRecord(Record baseRecord, Map<String, Object> record) {
 		super(baseRecord.getTaskContext(), record, baseRecord.getOffset());
+		this.baseRecord = baseRecord;
 	}
 
 	@Override
@@ -49,20 +50,11 @@ public class SplitRecord extends CommonMapRecord{
 
 		Object value =  super.getValue(colName);
 		if(value == null){
-			baseRecord.getValue(colName);
+			value = baseRecord.getValue(colName);
 		}
 		return value;
 	}
-	public Object getKeys(){
-		return super.getKeys();
-	}
 
-
-	public Object getData(){
-
-		return super.getData();
-
-	}
 
 	@Override
 	public Object getMetaValue(String metaName) {
@@ -80,14 +72,10 @@ public class SplitRecord extends CommonMapRecord{
 
 	@Override
 	public boolean removed() {
-		return false;
+		return baseRecord.removed();
 	}
 
-	public Object getKey() {
-		return super.getKey();
-	}
 
-	public Map<String, Object> getRecord() {
-		return super.getRecord();
-	}
+
+
 }

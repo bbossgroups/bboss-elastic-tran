@@ -82,7 +82,7 @@ public class CommonStringRecord  extends BaseRecord {
 		return null;
 	}
 	public Object getData(){
-		return this;
+		return record;
 	}
 
 	@Override
@@ -94,9 +94,7 @@ public class CommonStringRecord  extends BaseRecord {
 		return key;
 	}
 
-	public String getRecord() {
-		return record;
-	}
+
 
 	@Override
 	public long getOffset() {

@@ -38,5 +38,5 @@ public interface SplitHandler {
 	 * @param fieldValue
 	 * @return
 	 */
-	public List<KeyMap<String,Object>> splitField(TaskContext taskContext, Record record, Object fieldValue);
+	public List<KeyMap<String,Object>> splitField(TaskContext taskContext, Record record, Object splitValue);
 }

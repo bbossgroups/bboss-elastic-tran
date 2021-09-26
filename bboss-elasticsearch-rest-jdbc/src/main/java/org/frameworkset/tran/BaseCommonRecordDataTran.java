@@ -111,9 +111,11 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 		for(int i = 0;columns !=null && i < columns.length; i ++)
 		{
 			colName = columns[i];
+			/** 不能忽略，记录可能被切割，也可能不会被切割，切割后的记录也会包含切割字段同样的名称
 			if(splitFieldName != null && !splitFieldName.equals("") && splitFieldName.equals(colName)){ //忽略切割字段
 				continue;
 			}
+			 */
 
 //			if(addedFields.get(colName) != null)
 //				continue;

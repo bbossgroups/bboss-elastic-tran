@@ -80,12 +80,12 @@ public class CommonMapRecord extends BaseRecord {
 		return record.keySet();
 	}
 	public Object getData(){
-		return this;
+		return this.record;
 	}
 
 	@Override
 	public Object getMetaValue(String metaName) {
-		return null;
+		return this.getValue(metaName);
 	}
 
 	@Override
@@ -102,7 +102,5 @@ public class CommonMapRecord extends BaseRecord {
 		return key;
 	}
 
-	public Map<String, Object> getRecord() {
-		return record;
-	}
+
 }

@@ -1042,51 +1042,51 @@ public abstract class BaseImportBuilder {
 		return dateFormat == null?null:DateFormateMeta.buildDateFormateMeta(dateFormat,locale,timeZone);
 	}
 
-	private FieldMeta buildFieldMeta(String dbColumnName,String esFieldName ,String dateFormat){
+	private FieldMeta buildFieldMeta(String sourceColumnName,String targetFieldName ,String dateFormat){
 		FieldMeta fieldMeta = new FieldMeta();
-		fieldMeta.setDbColumnName(dbColumnName);
-		fieldMeta.setEsFieldName(esFieldName);
+		fieldMeta.setDbColumnName(sourceColumnName);
+		fieldMeta.setEsFieldName(targetFieldName);
 		fieldMeta.setIgnore(false);
 		fieldMeta.setDateFormateMeta(dateFormat == null?null:DateFormateMeta.buildDateFormateMeta(dateFormat,locale,  timeZone));
 		return fieldMeta;
 	}
 
-	private static FieldMeta buildIgnoreFieldMeta(String dbColumnName){
+	private static FieldMeta buildIgnoreFieldMeta(String sourceColumnName){
 		FieldMeta fieldMeta = new FieldMeta();
-		fieldMeta.setDbColumnName(dbColumnName);
+		fieldMeta.setDbColumnName(sourceColumnName);
 
 		fieldMeta.setIgnore(true);
 		return fieldMeta;
 	}
-	private FieldMeta buildFieldMeta(String toColumnName,String srcFieldName ,String dateFormat,String locale,String timeZone){
+	private FieldMeta buildFieldMeta(String sourceColumnName,String targetFieldName ,String dateFormat,String locale,String timeZone){
 		FieldMeta fieldMeta = new FieldMeta();
-		fieldMeta.setDbColumnName(toColumnName);
-		fieldMeta.setEsFieldName(srcFieldName);
+		fieldMeta.setDbColumnName(sourceColumnName);
+		fieldMeta.setEsFieldName(targetFieldName);
 		fieldMeta.setIgnore(false);
 		fieldMeta.setDateFormateMeta(dateFormat == null?null:DateFormateMeta.buildDateFormateMeta(dateFormat,locale,timeZone));
 		return fieldMeta;
 	}
-	public BaseImportBuilder addFieldMapping(String toColumnName, String srcFieldName){
-		this.fieldMetaMap.put(toColumnName.toLowerCase(),buildFieldMeta(  toColumnName,  srcFieldName,null ));
+	public BaseImportBuilder addFieldMapping(String sourceColumnName, String targetFieldName){
+		this.fieldMetaMap.put(sourceColumnName,buildFieldMeta(  sourceColumnName,  targetFieldName,null ));
 		return this;
 	}
 
-	public BaseImportBuilder addIgnoreFieldMapping(String dbColumnName){
-		addIgnoreFieldMapping(fieldMetaMap, dbColumnName);
+	public BaseImportBuilder addIgnoreFieldMapping(String sourceColumnName){
+		addIgnoreFieldMapping(fieldMetaMap, sourceColumnName);
 		return this;
 	}
 
-	public static void addIgnoreFieldMapping(Map<String,FieldMeta> fieldMetaMap, String dbColumnName){
-		fieldMetaMap.put(dbColumnName.toLowerCase(),buildIgnoreFieldMeta(  dbColumnName));
+	public static void addIgnoreFieldMapping(Map<String,FieldMeta> fieldMetaMap, String sourceColumnName){
+		fieldMetaMap.put(sourceColumnName,buildIgnoreFieldMeta(  sourceColumnName));
 	}
 
-	public BaseImportBuilder addFieldMapping(String dbColumnName, String esFieldName, String dateFormat){
-		this.fieldMetaMap.put(dbColumnName.toLowerCase(),buildFieldMeta(  dbColumnName,  esFieldName ,dateFormat));
+	public BaseImportBuilder addFieldMapping(String sourceColumnName, String targetFieldName, String dateFormat){
+		this.fieldMetaMap.put(sourceColumnName,buildFieldMeta(  sourceColumnName,  targetFieldName ,dateFormat));
 		return this;
 	}
 
-	public BaseImportBuilder addFieldMapping(String dbColumnName, String esFieldName, String dateFormat, String locale, String timeZone){
-		this.fieldMetaMap.put(dbColumnName.toLowerCase(),buildFieldMeta(  dbColumnName,  esFieldName ,dateFormat,  locale,  timeZone));
+	public BaseImportBuilder addFieldMapping(String sourceColumnName, String targetFieldName, String dateFormat, String locale, String timeZone){
+		this.fieldMetaMap.put(sourceColumnName,buildFieldMeta(  sourceColumnName,  targetFieldName ,dateFormat,  locale,  timeZone));
 		return this;
 	}
 

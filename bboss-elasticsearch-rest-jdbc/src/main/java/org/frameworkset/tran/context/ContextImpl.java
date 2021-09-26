@@ -20,6 +20,7 @@ import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.elasticsearch.client.ResultUtil;
 import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.config.BaseImportBuilder;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
@@ -202,11 +203,11 @@ public class ContextImpl implements Context {
 	}
 
 	@Override
-	public Context addIgnoreFieldMapping(String dbColumnName) {
+	public Context addIgnoreFieldMapping(String sourceFieldName) {
 		if(fieldMetaMap == null){
 			fieldMetaMap = new HashMap<String,FieldMeta>();
 		}
-		DB2ESImportBuilder.addIgnoreFieldMapping(fieldMetaMap,dbColumnName);
+		BaseImportBuilder.addIgnoreFieldMapping(fieldMetaMap,sourceFieldName);
 		return this;
 	}
 
@@ -314,14 +315,14 @@ public class ContextImpl implements Context {
 		return jdbcResultSet.getMetaValue(fieldName) ;
 	}
 
-	public FieldMeta getMappingName(String colName){
+	public FieldMeta getMappingName(String sourceFieldName){
 		if(fieldMetaMap != null) {
-			FieldMeta fieldMeta = this.fieldMetaMap.get(colName.toLowerCase());
+			FieldMeta fieldMeta = this.fieldMetaMap.get(sourceFieldName);
 			if (fieldMeta != null) {
 				return fieldMeta;
 			}
 		}
-		return baseImportConfig.getMappingName(colName);
+		return baseImportConfig.getMappingName(sourceFieldName);
 	}
 
 	@Override
@@ -392,12 +393,20 @@ public class ContextImpl implements Context {
 			return clientOptions != null?clientOptions.getEsParentIdValue():null;
 	}
 	/**
-	 * 获取原始记录对象
+	 * 获取原始数据对象,，可能是一个map，jdbcresultset，DBObject,hbaseresult
 	 * @return
 	 */
 	public Object getRecord(){
 		return jdbcResultSet.getRecord();
 	}
+	/**
+	 * 获取记录对象
+	 * @return
+	 */
+	public Record getCurrentRecord(){
+		return jdbcResultSet.getCurrentRecord();
+	}
+
 
 	@Override
 	public void markRecoredInsert() {

@@ -47,7 +47,7 @@ public abstract class LastValue implements TranResultSet{
 		return getLastValue(this,importContext,colName);
 	}
 	public Object getLastOffsetValue() throws ESDataImportException{
-		Record record = (Record) this.getRecord();
+		Record record = this.getCurrentRecord();
 		return record.getOffset();
 	}
 	protected Object getLastValue(TranResultSet tranResultSet,ImportContext importContext,String colName) throws ESDataImportException{
