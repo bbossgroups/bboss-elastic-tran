@@ -1,17 +1,21 @@
 package org.frameworkset.tran;
 
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
+import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.record.AsynSplitTranResultSet;
+import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.record.SplitTranResultSet;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +38,7 @@ public abstract class BaseDataTran implements DataTran{
 
 	protected void appendSplitFieldValues(CommonRecord record,
 										  String[] splitColumns,
-										  Map<String, Object> addedFields) {
+										  Map<String, Object> addedFields, Context context) {
 		if(splitColumns ==  null || splitColumns.length == 0){
 			return;
 		}
@@ -44,11 +48,73 @@ public abstract class BaseDataTran implements DataTran{
 //				String fieldName = fieldMeta.getEsFieldName();
 			if (addedFields.containsKey(fieldName))
 				continue;
-			record.addData(fieldName, jdbcResultSet.getValue(fieldName));
+			addRecordValue( record, fieldName,jdbcResultSet.getValue(fieldName),(FieldMeta)null ,context);
+//			record.addData(fieldName, jdbcResultSet.getValue(fieldName));
 			addedFields.put(fieldName, dummy);
 
 		}
 
+	}
+
+	private void addRecordValue(CommonRecord record,String fieldName,Object value,FieldMeta fieldMeta,Context context){
+		RecordColumnInfo recordColumnInfo = null;
+		if (value != null && value instanceof Date){
+			DateFormat dateFormat = null;
+			if(fieldMeta != null){
+				DateFormateMeta dateFormateMeta = fieldMeta.getDateFormateMeta();
+				if(dateFormateMeta != null){
+					dateFormat = dateFormateMeta.toDateFormat();
+				}
+			}
+			if(dateFormat == null)
+				dateFormat = context.getDateFormat();
+			recordColumnInfo = new RecordColumnInfo();
+			recordColumnInfo.setDataTag(true);
+			recordColumnInfo.setDateFormat(dateFormat);
+		}
+		record.addData(fieldName, value,recordColumnInfo);
+	}
+	protected void appendFieldValues(CommonRecord record,
+									 String[] columns ,
+									 List<FieldMeta> fieldValueMetas,
+									 Map<String, Object> addedFields, boolean useResultKeys,Context context) {
+		if(fieldValueMetas ==  null || fieldValueMetas.size() == 0){
+			return;
+		}
+
+		if(columns != null && columns.length > 0) {
+			for (FieldMeta fieldMeta : fieldValueMetas) {
+				String fieldName = fieldMeta.getEsFieldName();
+				if (addedFields.containsKey(fieldName))
+					continue;
+				boolean matched = false;
+				for (String name : columns) {
+					if (name.equals(fieldName)) {
+						addRecordValue( record,name, fieldMeta.getValue(), fieldMeta, context);
+//						record.addData(name, fieldMeta.getValue());
+						addedFields.put(name, dummy);
+						matched = true;
+						break;
+					}
+				}
+				if (useResultKeys && !matched) {
+					addRecordValue( record,fieldName, fieldMeta.getValue(), fieldMeta, context);
+//					record.addData(fieldName, fieldMeta.getValue());
+					addedFields.put(fieldName, dummy);
+				}
+			}
+		}
+		else{ //hbase之类的数据同步工具，数据都是在datarefactor接口中封装处理，columns信息不存在，直接用fieldValueMetas即可
+			for (FieldMeta fieldMeta : fieldValueMetas) {
+				String fieldName = fieldMeta.getEsFieldName();
+				if (addedFields.containsKey(fieldName))
+					continue;
+				addRecordValue( record,fieldName, fieldMeta.getValue(), fieldMeta, context);
+//				record.addData(fieldName, fieldMeta.getValue());
+				addedFields.put(fieldName, dummy);
+
+			}
+		}
 	}
 	/**
 	 * 当前作业处理的增量状态信息
@@ -82,15 +148,22 @@ public abstract class BaseDataTran implements DataTran{
 	public BaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,Status currentStatus) {
 		this.currentStatus = currentStatus;
 		this.taskContext = taskContext;
-		this.jdbcResultSet = jdbcResultSet;
 
-		if(jdbcResultSet instanceof AsynTranResultSet)
-			esTranResultSet = (AsynTranResultSet)jdbcResultSet;
 		if(importContext.getSplitHandler() != null){
+			if(jdbcResultSet instanceof AsynTranResultSet) {
+				AsynSplitTranResultSet asynSplitTranResultSet = new AsynSplitTranResultSet(importContext, (AsynTranResultSet) jdbcResultSet);
+				this.esTranResultSet = asynSplitTranResultSet;
+				this.jdbcResultSet = asynSplitTranResultSet;
+			}
+			else {
+				this.jdbcResultSet = new SplitTranResultSet(importContext, jdbcResultSet);
+			}
+		}
+		else{
+			this.jdbcResultSet = jdbcResultSet;
+
 			if(jdbcResultSet instanceof AsynTranResultSet)
-				esTranResultSet = new AsynSplitTranResultSet(importContext,(AsynTranResultSet)jdbcResultSet);
-			else
-				this.jdbcResultSet = new SplitTranResultSet(importContext,jdbcResultSet);
+				this.esTranResultSet = (AsynTranResultSet)jdbcResultSet;
 		}
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;

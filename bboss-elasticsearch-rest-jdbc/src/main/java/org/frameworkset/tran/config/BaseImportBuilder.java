@@ -62,7 +62,7 @@ public abstract class BaseImportBuilder {
 
 	private String splitFieldName;
 
-	private SplitHandler splitHandler;
+	private transient SplitHandler splitHandler;
 	/**
 	 * 设置强制刷新检测空闲时间间隔，单位：毫秒，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作，默认8秒,为0时关闭本机制
 	 */
@@ -849,6 +849,30 @@ public abstract class BaseImportBuilder {
 		try {
 			StringBuilder ret = new StringBuilder();
 			ret.append(SimpleStringUtil.object2json(this));
+			if(splitHandler != null)
+				ret.append(",splitHandler="+splitHandler.getClass().getCanonicalName());
+			else
+				ret.append(",splitHandler=null");
+			if(esIdGenerator != null)
+				ret.append(",esIdGenerator="+esIdGenerator.getClass().getCanonicalName());
+			else
+				ret.append(",esIdGenerator=null");
+			if(dataRefactor != null)
+				ret.append(",dataRefactor="+dataRefactor.getClass().getCanonicalName());
+			else
+				ret.append(",dataRefactor=null");
+
+			if(exportResultHandler != null)
+				ret.append(",exportResultHandler="+exportResultHandler.getClass().getCanonicalName());
+			else
+				ret.append(",exportResultHandler=null");
+
+			if(callInterceptorClasses != null)
+				ret.append(",callInterceptorClasses="+callInterceptorClasses);
+			else
+				ret.append(",callInterceptorClasses=null");
+
+
 			return configString = ret.toString();
 		}
 		catch (Exception e){
@@ -1594,6 +1618,7 @@ public abstract class BaseImportBuilder {
 		this.asynFlushStatusInterval = asynFlushStatusInterval;
 		return this;
 	}
+	@JsonIgnore
 	public SplitHandler getSplitHandler() {
 		return splitHandler;
 	}

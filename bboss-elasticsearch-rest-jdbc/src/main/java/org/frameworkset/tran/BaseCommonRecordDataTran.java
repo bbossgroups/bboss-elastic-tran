@@ -96,14 +96,14 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 		//计算记录级别字段配置值
 		List<FieldMeta> fieldValueMetas = context.getFieldValues();//context优先级高于splitColumns,splitColumns高于全局配置，全局配置高于数据源级别字段值
 
-		appendFieldValues( dbRecord, columns,    fieldValueMetas,  addedFields, useResultKeys);
+		appendFieldValues( dbRecord, columns,    fieldValueMetas,  addedFields, useResultKeys,context);
 		//计算记录切割字段
 		appendSplitFieldValues(dbRecord,
 				 splitColumns,
-				 addedFields);
+				 addedFields,context);
 		//计算全局级别字段配置值
 		fieldValueMetas = context.getESJDBCFieldValues();//全局配置
-		appendFieldValues(  dbRecord, columns,   fieldValueMetas,  addedFields,  useResultKeys);
+		appendFieldValues(  dbRecord, columns,   fieldValueMetas,  addedFields,  useResultKeys,context);
 		//计算数据源级别字段值
 		String varName = null;
 		String colName = null;
@@ -166,45 +166,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 
 		return dbRecord;
 	}
-	protected void appendFieldValues(CommonRecord record,
-								   String[] columns ,
-								   List<FieldMeta> fieldValueMetas,
-								   Map<String, Object> addedFields, boolean useResultKeys) {
-		if(fieldValueMetas ==  null || fieldValueMetas.size() == 0){
-			return;
-		}
 
-		if(columns != null && columns.length > 0) {
-			for (FieldMeta fieldMeta : fieldValueMetas) {
-				String fieldName = fieldMeta.getEsFieldName();
-				if (addedFields.containsKey(fieldName))
-					continue;
-				boolean matched = false;
-				for (String name : columns) {
-					if (name.equals(fieldName)) {
-						record.addData(name, fieldMeta.getValue());
-						addedFields.put(name, dummy);
-						matched = true;
-						break;
-					}
-				}
-				if (useResultKeys && !matched) {
-					record.addData(fieldName, fieldMeta.getValue());
-					addedFields.put(fieldName, dummy);
-				}
-			}
-		}
-		else{ //hbase之类的数据同步工具，数据都是在datarefactor接口中封装处理，columns信息不存在，直接用fieldValueMetas即可
-			for (FieldMeta fieldMeta : fieldValueMetas) {
-				String fieldName = fieldMeta.getEsFieldName();
-				if (addedFields.containsKey(fieldName))
-					continue;
-				record.addData(fieldName, fieldMeta.getValue());
-				addedFields.put(fieldName, dummy);
-
-			}
-		}
-	}
 
 
 }

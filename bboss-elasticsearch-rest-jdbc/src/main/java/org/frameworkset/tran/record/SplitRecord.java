@@ -59,7 +59,9 @@ public class SplitRecord extends CommonMapRecord{
 
 
 	public Object getData(){
-		return baseRecord.getData();
+
+		return super.getData();
+
 	}
 
 	@Override

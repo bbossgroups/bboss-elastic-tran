@@ -230,7 +230,7 @@ public class DBOutPutDataTran extends BaseDataTran {
 		//计算记录切割字段
 		appendSplitFieldValues(dbRecord,
 				splitColumns,
-				addedFields);
+				addedFields,context);
 		fieldValueMetas = context.getESJDBCFieldValues();
 		appendFieldValues(  record, vars,   fieldValueMetas,  addedFields);
 		String varName = null;

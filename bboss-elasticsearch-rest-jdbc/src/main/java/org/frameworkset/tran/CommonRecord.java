@@ -15,7 +15,6 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import org.codehaus.groovy.util.ListHashMap;
 import org.frameworkset.tran.record.RecordColumnInfo;
 
 import java.util.LinkedHashMap;
@@ -54,7 +53,7 @@ public class CommonRecord {
 		}
 		if(recordColumnInfo != null){
 			if(dataInfos == null ){
-				dataInfos = new ListHashMap<>();
+				dataInfos = new LinkedHashMap<>();
 			}
 			dataInfos.put(name,recordColumnInfo);
 		}

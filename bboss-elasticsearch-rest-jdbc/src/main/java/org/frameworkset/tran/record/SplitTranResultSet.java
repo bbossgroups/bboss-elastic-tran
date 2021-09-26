@@ -20,9 +20,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>Description: 支持记录切割功能</p>
@@ -50,7 +48,12 @@ public class SplitTranResultSet  implements TranResultSet {
 	}
 	@Override
 	public Record getCurrentRecord() {
-		return record;
+		if(record != null) {
+			return record;
+		}
+		else{
+			return tranResultSet.getCurrentRecord();
+		}
 	}
 
 	@Override
@@ -152,7 +155,10 @@ public class SplitTranResultSet  implements TranResultSet {
 			splitSize = 0;
 			baseRecord = null;
 			splitRecords = null;
-			boolean hasNext = tranResultSet.next();
+			Boolean hasNext = tranResultSet.next();
+			if(hasNext == null){
+				return hasNext;
+			}
 			if(hasNext) {
 				Record baseRecord = tranResultSet.getCurrentRecord();
 				if(baseRecord.removed()){//标记为removed状态的记录不需要切割
@@ -191,7 +197,26 @@ public class SplitTranResultSet  implements TranResultSet {
 
 	@Override
 	public Object getRecord() {
-		return tranResultSet.getRecord();
+		if(record != null){
+			Object data = tranResultSet.getRecord();
+			if(data == null)
+				return record.getData();
+			if(data instanceof Map){
+				Map newData = new LinkedHashMap();
+				newData.putAll((Map)data);
+				newData.putAll((Map)(record.getData()));
+				return newData;
+			}
+			else{
+				SplitData splitData = new SplitData();
+				splitData.setOriginData(data);
+				splitData.setSplitData((Map)record.getData());
+				return splitData;
+			}
+		}
+		else {
+			return tranResultSet.getRecord();
+		}
 	}
 
 	@Override
@@ -206,6 +231,9 @@ public class SplitTranResultSet  implements TranResultSet {
 
 	@Override
 	public Object getKeys() {
+		if(record == null){
+			return tranResultSet.getKeys();
+		}
 		Set<String> cKeys = (Set<String>) record.getKeys();
 		String[] columns = cKeys.toArray(new String[cKeys.size()]);
 		SplitKeys splitKeys = new SplitKeys();
