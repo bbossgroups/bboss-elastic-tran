@@ -26,9 +26,10 @@ package org.frameworkset.tran.input.file;
 public interface FileFilter {
 	/**
 	 * 判断是否采集文件数据，返回true标识采集，false 不采集
-	 * @param dir
+	 * @param parentDir
+	 * @param fileName
 	 * @param fileConfig
 	 * @return
 	 */
-	boolean accept(String dir,String name,FileConfig fileConfig);
+	boolean accept(String parentDir,String fileName,FileConfig fileConfig);
 }

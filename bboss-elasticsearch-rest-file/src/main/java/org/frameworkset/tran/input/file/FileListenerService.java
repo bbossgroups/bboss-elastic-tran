@@ -255,15 +255,49 @@ public class FileListenerService {
     public void checkFtpNewFile(RemoteResourceInfo remoteResourceInfo, FileConfig fileConfig, FtpContext ftpContext) {
 
         File localFile = new File(fileConfig.getSourcePath(),remoteResourceInfo.getName());
-        if(!localFile.exists()){//如果文件不存在，则下载文件到本地目录
+        String fileId = FileInodeHandler.change(localFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
+        try {
+            lock.lock();
+            FileReaderTask fileReaderTask = fileConfigMap.get(fileId);
 
-            SFTPTransfer.downloadFile(ftpContext,remoteResourceInfo.getPath(),fileConfig.getSourcePath());
+            if (fileReaderTask == null) {
+                if(this.completedTasks.containsKey(fileId)) {//作业已经完成
+                    logger.debug("Ignore complete file {}",fileId);
+                    return;
+                }
+                if(this.oldedTasks.containsKey(fileId)){//作业已经被移除到过时作业清单
+                    logger.debug("Ignore old file {}",fileId);
+                    return;
+                }
+                if(!localFile.exists()){//如果文件不存在，则下载文件到本地目录
+
+                    SFTPTransfer.downloadFile(ftpContext,remoteResourceInfo.getPath(),fileConfig.getSourcePath());
+                }
+                if(!localFile.exists()){
+                    logger.warn("文件下载失败：localPath:{},remotePath:{}",fileId,remoteResourceInfo.getPath());
+                    return;
+                }
+                //创建新的采集任务
+
+                if(logger.isInfoEnabled())
+                    logger.info("Start collect new ftp file {}",fileId);
+                Status currentStatus = new Status();
+                currentStatus.setId(fileId.hashCode());
+                currentStatus.setTime(new Date().getTime());
+                currentStatus.setFileId(fileId);
+                currentStatus.setFilePath(fileId);
+                currentStatus.setRealPath(fileId);
+                currentStatus.setStatus(ImportIncreamentConfig.STATUS_COLLECTING);
+                long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
+                currentStatus.setLastValue(pointer);
+                boolean successed = baseDataTranPlugin.initFileTask(fileConfig, currentStatus, localFile, pointer);
+            }
+
+        } finally {
+
+            lock.unlock();
         }
-        if(!localFile.exists()){
-            logger.warn("文件下载失败：localPath:{},remotePath:{}",localFile.getAbsolutePath(),remoteResourceInfo.getPath());
-            return;
-        }
-        checkNewFile(localFile, fileConfig);
+
     }
 
     public FileBaseDataTranPlugin getBaseDataTranPlugin() {

@@ -30,17 +30,14 @@ public class FileImportConfig extends BaseImportConfig {
     private List<FileConfig> fileConfigList;
     private long checkFileModifyInterval = 3000l;
     /**
-     * ftp配置冻结标识
+     * ftp配置标识
      */
-    private boolean ftpFreezon ;
     private boolean fromFtp;
 
     public FileImportConfig() {
     }
 
-    public boolean isFtpFreezon() {
-        return ftpFreezon;
-    }
+
 
     public boolean isFromFtp() {
         return fromFtp;
@@ -50,17 +47,20 @@ public class FileImportConfig extends BaseImportConfig {
         return fileConfigList;
     }
     public FileImportConfig addConfig(FileConfig fileConfig){
-        if(ftpFreezon && !(fileConfig instanceof FtpConfig))
+        if(fromFtp && !(fileConfig instanceof FtpConfig))
             throw new FilelogPluginException("只能设置ftp config配置");
+        if(fileConfig instanceof FtpConfig){
+            fromFtp = true;
+            fileConfig.setEnableInode(false);//ftp需禁用inode机制
+        }
+
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
+
         fileConfig.init();
         fileConfigList.add(fileConfig);
-        if(fileConfig instanceof FtpConfig){
-            ftpFreezon = true;
-            fromFtp = true;
-        }
+
         return this;
     }
     public FileImportConfig addConfig(String sourcePath,String fileNameRegular,String fileHeadLine){
