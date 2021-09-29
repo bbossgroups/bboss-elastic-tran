@@ -363,7 +363,7 @@ public class FileConfig extends FieldManager{
                 }
                 else if(fileFilter != null){
                     try {
-                        return fileFilter.accept(dir, name, FileConfig.this);
+                        return fileFilter.accept(dir.getCanonicalPath(), name, FileConfig.this);
                     }
                     catch (Exception e){
                         logger.warn(name,e);

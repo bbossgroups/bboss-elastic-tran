@@ -35,7 +35,9 @@ import java.util.List;
 public interface DataTranPlugin {
 	public void preCall(TaskContext taskContext);
 	public void afterCall(TaskContext taskContext);
-	public void throwException(TaskContext taskContext,Exception e);
+	public void init(ImportContext importContext,ImportContext targetImportContext);
+
+		public void throwException(TaskContext taskContext,Exception e);
 	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext);
 	public void forceflushLastValue(Status currentStatus);
 	public  void handleOldedTasks(List<Status> olded );

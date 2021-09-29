@@ -36,6 +36,7 @@ public class DataStream {
 
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;
+		this.dataTranPlugin.init(importContext,targetImportContext);
 		this.dataTranPlugin.init();
 	}
 

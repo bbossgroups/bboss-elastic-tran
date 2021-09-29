@@ -1,4 +1,4 @@
-package org.frameworkset.tran.input.file;
+package org.frameworkset.tran.ftp;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -15,20 +15,18 @@ package org.frameworkset.tran.input.file;
  * limitations under the License.
  */
 
+import net.schmizz.sshj.sftp.SFTPClient;
+
+import java.io.IOException;
+
 /**
- * <p>Description: 判断是否采集文件数据</p>
+ * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/8/5 19:46
+ * @Date 2021/9/27 11:49
  * @author biaoping.yin
  * @version 1.0
  */
-public interface FileFilter {
-	/**
-	 * 判断是否采集文件数据，返回true标识采集，false 不采集
-	 * @param dir
-	 * @param fileConfig
-	 * @return
-	 */
-	boolean accept(String dir,String name,FileConfig fileConfig);
+public interface SFTPAction {
+	void execute(SFTPClient sftp) throws IOException;
 }

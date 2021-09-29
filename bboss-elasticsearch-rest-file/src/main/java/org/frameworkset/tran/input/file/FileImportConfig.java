@@ -1,6 +1,7 @@
 package org.frameworkset.tran.input.file;
 
 import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.ftp.FtpConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,22 +29,38 @@ public class FileImportConfig extends BaseImportConfig {
     private String charsetEncode = "UTF-8";
     private List<FileConfig> fileConfigList;
     private long checkFileModifyInterval = 3000l;
-
-
+    /**
+     * ftp配置冻结标识
+     */
+    private boolean ftpFreezon ;
+    private boolean fromFtp;
 
     public FileImportConfig() {
     }
 
+    public boolean isFtpFreezon() {
+        return ftpFreezon;
+    }
+
+    public boolean isFromFtp() {
+        return fromFtp;
+    }
 
     public List<FileConfig> getFileConfigList() {
         return fileConfigList;
     }
     public FileImportConfig addConfig(FileConfig fileConfig){
+        if(ftpFreezon && !(fileConfig instanceof FtpConfig))
+            throw new FilelogPluginException("只能设置ftp config配置");
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
         fileConfig.init();
         fileConfigList.add(fileConfig);
+        if(fileConfig instanceof FtpConfig){
+            ftpFreezon = true;
+            fromFtp = true;
+        }
         return this;
     }
     public FileImportConfig addConfig(String sourcePath,String fileNameRegular,String fileHeadLine){

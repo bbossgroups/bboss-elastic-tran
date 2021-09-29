@@ -49,7 +49,8 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 	protected SQLInfo sqlInfo;
 	protected ConfigSQLExecutor executor;
 	protected DBContext dbContext;
-	protected void init(ImportContext importContext,ImportContext targetImportContext){
+	@Override
+	public void init(ImportContext importContext,ImportContext targetImportContext){
 		super.init(importContext,targetImportContext);
 		dbContext = (DBContext)importContext;
 	}

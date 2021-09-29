@@ -1,7 +1,10 @@
 package org.frameworkset.tran.input.file;
 
+import net.schmizz.sshj.sftp.RemoteResourceInfo;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
+import org.frameworkset.tran.ftp.FtpContext;
+import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.slf4j.Logger;
@@ -241,24 +244,26 @@ public class FileListenerService {
                 long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
                 currentStatus.setLastValue(pointer);
                 boolean successed = baseDataTranPlugin.initFileTask(fileConfig, currentStatus, file, pointer);
-            } else { //检查文件是否被重命名,
-                /** 2021.08.28移除，在FileReadTask.Work中检测
-                if(fileReaderTask.isEnableInode()) {
-                    String oldFilePath = fileReaderTask.getFilePath();
-                    String filePath = FileInodeHandler.change(file.getAbsolutePath());
-                    if (!oldFilePath.equals(filePath)) {//文件发生了重命名
-                        if (logger.isInfoEnabled())
-                            logger.info("Rename Log file {} to {}", oldFilePath, filePath);
-                        fileReaderTask.changeFile(filePath,file);
-                    }
-                }
-                 */
             }
 
         } finally {
 
             lock.unlock();
         }
+    }
+
+    public void checkFtpNewFile(RemoteResourceInfo remoteResourceInfo, FileConfig fileConfig, FtpContext ftpContext) {
+
+        File localFile = new File(fileConfig.getSourcePath(),remoteResourceInfo.getName());
+        if(!localFile.exists()){//如果文件不存在，则下载文件到本地目录
+
+            SFTPTransfer.downloadFile(ftpContext,remoteResourceInfo.getPath(),fileConfig.getSourcePath());
+        }
+        if(!localFile.exists()){
+            logger.warn("文件下载失败：localPath:{},remotePath:{}",localFile.getAbsolutePath(),remoteResourceInfo.getPath());
+            return;
+        }
+        checkNewFile(localFile, fileConfig);
     }
 
     public FileBaseDataTranPlugin getBaseDataTranPlugin() {

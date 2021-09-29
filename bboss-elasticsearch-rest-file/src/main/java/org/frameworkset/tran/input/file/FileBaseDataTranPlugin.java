@@ -7,6 +7,7 @@ import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
+import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.MultiStatusManager;
@@ -399,10 +400,18 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
             if(fileConfigs != null && fileConfigs.size() > 0) {
                 logDirScanThreads = new ArrayList<>(fileConfigs.size());
                 for (FileConfig fileConfig : fileConfigs) {
-                    LogDirScanThread logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getInterval(),
-                            fileConfig, getFileListenerService());
-                    logDirScanThreads.add(logDirScanThread);
-                    logDirScanThread.start();
+                    if(fileConfig instanceof FtpConfig){
+                        LogDirScanThread logDirScanThread = new FtpLogDirScanThread(fileImportContext.getFileImportConfig().getInterval(),
+                                (FtpConfig)fileConfig, getFileListenerService());
+                        logDirScanThreads.add(logDirScanThread);
+                        logDirScanThread.start();
+                    }
+                    else {
+                        LogDirScanThread logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getInterval(),
+                                fileConfig, getFileListenerService());
+                        logDirScanThreads.add(logDirScanThread);
+                        logDirScanThread.start();
+                    }
                 }
             }
         }
@@ -435,7 +444,13 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         initFileListener(taskContext);
 
     }
+    @Override
     public void initSchedule(){
-        logger.info("Ignore initSchedule for plugin {}",this.getClass().getName());
+//        if(!fileImportContext.isFromFtp()) {
+//            logger.info("Ignore initSchedule for plugin {}", this.getClass().getName());
+//        }
+//        else{
+//            super.initSchedule();
+//        }
     }
 }

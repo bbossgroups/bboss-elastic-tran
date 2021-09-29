@@ -49,7 +49,8 @@ public abstract class HBaseInputPlugin extends BaseDataTranPlugin implements Dat
 	private HBaseContext hbaseContext;
 	private byte[] incrementFamily;
 	private byte[] incrementColumn;
-	protected void init(ImportContext importContext,ImportContext targetImportContext){
+	@Override
+	public void init(ImportContext importContext,ImportContext targetImportContext){
 		super.init(importContext,  targetImportContext);
 		hbaseContext = (HBaseContext)importContext;
 

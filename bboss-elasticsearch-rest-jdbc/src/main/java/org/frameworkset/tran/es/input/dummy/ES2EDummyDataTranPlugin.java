@@ -36,9 +36,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class ES2EDummyDataTranPlugin extends ESInputPlugin implements DataTranPlugin {
 
-	protected void init(ImportContext importContext,ImportContext targetImportContext){
-		super.init(importContext,targetImportContext);
-	}
+
 	@Override
 	protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch, Status currentStatus){
 		DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,countDownLatch,  currentStatus);

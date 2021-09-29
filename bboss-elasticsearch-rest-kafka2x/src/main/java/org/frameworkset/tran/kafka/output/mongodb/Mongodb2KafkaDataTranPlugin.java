@@ -41,7 +41,8 @@ import java.util.concurrent.CountDownLatch;
 public class Mongodb2KafkaDataTranPlugin  extends MongoDBInputPlugin implements DataTranPlugin, KafkaSend {
 	private KafkaProductor kafkaProductor;
 	private KafkaOutputContext kafkaOutputContext;
-	protected void init(ImportContext importContext, ImportContext targetImportContext){
+	@Override
+	public void init(ImportContext importContext, ImportContext targetImportContext){
 		super.init(importContext,targetImportContext);
 		kafkaOutputContext = (KafkaOutputContext) targetImportContext;
 	}

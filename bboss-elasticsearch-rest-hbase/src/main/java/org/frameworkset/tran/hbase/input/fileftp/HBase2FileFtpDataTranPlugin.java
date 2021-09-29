@@ -38,11 +38,7 @@ public class HBase2FileFtpDataTranPlugin extends HBaseInputPlugin {
 
 		fileFtpOupputContext = (FileFtpOupputContext) targetImportContext;
 	}
-	protected void init(ImportContext importContext,ImportContext targetImportContext){
 
-		super.init(importContext,  targetImportContext);
-
-	}
 
 
 

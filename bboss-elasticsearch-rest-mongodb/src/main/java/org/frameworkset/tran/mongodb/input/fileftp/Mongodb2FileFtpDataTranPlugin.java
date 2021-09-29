@@ -38,11 +38,6 @@ public class Mongodb2FileFtpDataTranPlugin  extends MongoDBInputPlugin {
 
 		fileFtpOupputContext = (FileFtpOupputContext) targetImportContext;
 	}
-	protected void init(ImportContext importContext,ImportContext targetImportContext){
-
-		super.init(importContext,  targetImportContext);
-
-	}
 
 
 	@Override

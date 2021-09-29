@@ -40,7 +40,8 @@ import java.util.concurrent.CountDownLatch;
 public class HBase2KafkaDataTranPlugin extends HBaseInputPlugin implements DataTranPlugin, KafkaSend {
 	private KafkaProductor kafkaProductor;
 	private KafkaOutputContext kafkaOutputContext;
-	protected void init(ImportContext importContext, ImportContext targetImportContext){
+	@Override
+	public void init(ImportContext importContext, ImportContext targetImportContext){
 		super.init(importContext,targetImportContext);
 		kafkaOutputContext = (KafkaOutputContext) targetImportContext;
 	}

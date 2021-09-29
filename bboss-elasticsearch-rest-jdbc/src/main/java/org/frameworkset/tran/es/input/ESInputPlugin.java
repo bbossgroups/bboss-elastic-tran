@@ -44,7 +44,8 @@ import java.util.concurrent.CountDownLatch;
 public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTranPlugin {
 
 	protected ESInputContext esInputContext;
-	protected void init(ImportContext importContext, ImportContext targetImportContext){
+	@Override
+	public void init(ImportContext importContext, ImportContext targetImportContext){
 		super.init(importContext,   targetImportContext);
 		esInputContext = (ESInputContext)importContext;
 

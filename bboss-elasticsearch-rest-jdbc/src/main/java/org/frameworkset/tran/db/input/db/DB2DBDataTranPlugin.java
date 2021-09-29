@@ -41,7 +41,8 @@ public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 
 
 	}
-	protected void init(ImportContext importContext,ImportContext targetImportContext){
+	@Override
+	public void init(ImportContext importContext,ImportContext targetImportContext){
 		db2DBContext = (DBOutPutContext)importContext;
 		super.init(importContext,  targetImportContext);
 	}

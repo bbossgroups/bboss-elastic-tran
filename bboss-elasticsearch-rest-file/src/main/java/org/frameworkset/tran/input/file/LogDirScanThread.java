@@ -7,19 +7,19 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 /**
- * 扫描新增日志文件和inode机制有效的情况下的重命名日志文件检测
+ * 扫描新增日志文件
  * @author biaoping.yin
  * @description
  * @create 2021/3/23
  */
 public class LogDirScanThread implements Runnable{
     private Logger logger = LoggerFactory.getLogger(LogDirScanThread.class);
-    private final long interval;
-    private FileConfig fileConfig;
+    protected final long interval;
+    protected FileConfig fileConfig;
     private Thread thread = null;
-    private volatile boolean running = false;
+    protected volatile boolean running = false;
 
-    private FileListenerService fileListenerService;
+    protected FileListenerService fileListenerService;
 
 
     /**
@@ -101,7 +101,11 @@ public class LogDirScanThread implements Runnable{
     @Override
     public void run() {
         while (running) {
-            checkAndNotify();
+            try {
+                scanNewFile();
+            }catch (Exception e){
+                logger.error("扫描新文件失败",e);
+            }
             if (!running) {
                 break;
             }
@@ -116,7 +120,7 @@ public class LogDirScanThread implements Runnable{
     /**
      * 识别新增的文件，如果有新增文件，将启动新的文件采集作业
      */
-    private void checkAndNotify(){
+    protected void scanNewFile(){
         if(logger.isDebugEnabled()){
             logger.debug("scan new log file in dir {} with filename regex {}.",fileConfig.getLogDir(),fileConfig.getFileNameRegular());
         }
@@ -136,8 +140,4 @@ public class LogDirScanThread implements Runnable{
             logger.info("{} must be a directory or must be exists.",fileConfig.getSourcePath() );
         }
     }
-
-
-
-
 }

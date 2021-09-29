@@ -16,10 +16,10 @@ package org.frameworkset.tran.output.fileftp;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.ftp.FtpContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.io.Writer;
-import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -29,7 +29,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface FileFtpOupputContext {
+public interface FileFtpOupputContext extends FtpContext {
 	public final int TRANSFER_PROTOCOL_FTP = 1;
 	public final int TRANSFER_PROTOCOL_SFTP = 2;
 
@@ -38,32 +38,14 @@ public interface FileFtpOupputContext {
 	public long getFailedFileResendInterval();
 	public long getSuccessFilesCleanInterval();
 	public int getFileLiveTime();
-	public String getFtpIP();
-	public int getFtpPort();
-	public String getFtpUser() ;
 
-	public String getFtpPassword() ;
-	public List<String> getHostKeyVerifiers();
 	public String getFileDir() ;
-	public String getRemoteFileDir() ;
 	public int getFileWriterBuffsize();
 	public int getMaxFileRecordSize();
-	public String getFtpProtocol();
-	public String getFtpTrustmgr();
 
-	public String getFtpProxyHost();
-	public int getFtpProxyPort();
-	public String getFtpProxyUser();
-	public String getFtpProxyPassword();
-	public boolean printHash();
-	public boolean binaryTransfer();
-	public long getKeepAliveTimeout();
-	public int getControlKeepAliveReplyTimeout();
 	public String getEncoding();
 	public String getFtpServerType();
-	public boolean localActive();
-	public boolean useEpsvWithIPv4();
-	public int getTransferProtocol();
+
 	public boolean transferEmptyFiles();
 	public boolean backupSuccessFiles();
 	public boolean disableftp();

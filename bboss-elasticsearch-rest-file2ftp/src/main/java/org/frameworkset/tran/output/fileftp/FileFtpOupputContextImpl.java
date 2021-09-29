@@ -18,6 +18,8 @@ package org.frameworkset.tran.output.fileftp;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.Context;
+import org.frameworkset.tran.ftp.FtpConfig;
+import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
@@ -112,6 +114,11 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 	}
 
 	@Override
+	public FtpConfig getFtpConfig() {
+		throw new UnsupportedOperationException("getFileFilter");
+	}
+
+	@Override
 	public String getFtpUser() {
 		return fileFtpOupputConfig.getFtpUser();
 	}
@@ -169,6 +176,11 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 	@Override
 	public int getControlKeepAliveReplyTimeout() {
 		return fileFtpOupputConfig.getControlKeepAliveReplyTimeout();
+	}
+
+	@Override
+	public FileFilter getFileFilter() {
+		throw new UnsupportedOperationException("getFileFilter");
 	}
 
 	@Override

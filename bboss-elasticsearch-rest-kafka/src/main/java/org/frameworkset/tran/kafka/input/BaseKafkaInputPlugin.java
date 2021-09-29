@@ -32,7 +32,8 @@ import org.frameworkset.tran.schedule.TaskContext;
  */
 public abstract class BaseKafkaInputPlugin extends BaseDataTranPlugin implements DataTranPlugin {
 	protected KafkaContext kafkaContext;
-	protected void init(ImportContext importContext,ImportContext targetImportContext){
+	@Override
+	public void init(ImportContext importContext,ImportContext targetImportContext){
 		super.init(importContext,  targetImportContext);
 		kafkaContext = (KafkaContext)importContext;
 

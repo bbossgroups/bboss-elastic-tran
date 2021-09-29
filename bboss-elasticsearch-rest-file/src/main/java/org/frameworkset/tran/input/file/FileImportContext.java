@@ -44,4 +44,7 @@ public class FileImportContext extends BaseImportContext {
     public List<FileConfig> getFileConfigList(){
         return fileImportConfig.getFileConfigList();
     }
+    public boolean isFromFtp() {
+        return fileImportConfig.isFromFtp();
+    }
 }

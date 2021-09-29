@@ -17,6 +17,7 @@ package org.frameworkset.tran.output.fileftp;
 
 import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
