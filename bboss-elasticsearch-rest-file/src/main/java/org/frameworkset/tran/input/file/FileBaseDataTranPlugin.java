@@ -7,6 +7,7 @@ import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
+import org.frameworkset.tran.ftp.BackupSuccessFilesClean;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -26,6 +27,8 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     protected FileImportContext fileImportContext;
     protected List<LogDirScanThread> logDirScanThreads;
     protected FileListenerService fileListenerService;
+
+    private static BackupSuccessFilesClean backupSuccessFilesClean;
 //    protected FileListener fileListener;
 //    protected List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
     public FileBaseDataTranPlugin(ImportContext importContext,
@@ -104,7 +107,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 
 
                 FileReaderTask task = new FileReaderTask(taskContext,file,fileId,fileConfig,pointer,
-                        fileListenerService,fileDataTran,status);
+                        fileListenerService,fileDataTran,status,fileImportContext.getFileImportConfig());
                 taskContext.setFileInfo(task.getFileInfo());
                 if(fileConfig.getAddFields() != null && fileConfig.getAddFields().size() > 0){
                     task.addFields(fileConfig.getAddFields());
@@ -188,7 +191,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                 if(isComplete(status)){
                     completed.add(status);
                     fileListenerService.addCompletedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
-                            ,status));
+                            ,status,fileImportContext.getFileImportConfig()));
                     logger.info("Ignore complete file {}",status.getFilePath());
                     continue;
                 }
@@ -299,7 +302,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                                 ,status.getFileId()
                                 ,fileConfig
                                 ,pointer
-                                ,fileListenerService,fileDataTran,status);
+                                ,fileListenerService,fileDataTran,status,fileImportContext.getFileImportConfig());
                         task.getFileInfo().setOriginFile(new File(status.getFilePath()));
                         task.getFileInfo().setOriginFilePath(status.getFilePath());
                         taskContext.setFileInfo(task.getFileInfo());
@@ -414,6 +417,29 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     }
                 }
             }
+
+
+                synchronized (BackupSuccessFilesClean.class) {
+                    if(backupSuccessFilesClean == null){
+                        if (fileImportContext.getFileImportConfig() != null) {
+                            if (fileImportContext.getFileImportConfig().isBackupSuccessFiles()) {
+                                String backupSuccessFileDir = fileImportContext.getFileImportConfig().getBackupSuccessFileDir();
+                                if (backupSuccessFileDir == null || backupSuccessFileDir.equals("")) {
+                                    logger.warn("开启了备份成功文件机制，但是没有指定备份目录，忽略备份功能，请检查并设置backupSuccessFileDir");
+                                } else {
+                                    boolean backupEnable = fileImportContext.getFileImportConfig().getBackupSuccessFileInterval() > 0 && fileImportContext.getFileImportConfig().getBackupSuccessFileLiveTime() > 0;
+                                    if (backupEnable) {
+                                        backupSuccessFilesClean = new BackupSuccessFilesClean(fileImportContext.getFileImportConfig());
+                                        backupSuccessFilesClean.start();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+
         }
     }
 

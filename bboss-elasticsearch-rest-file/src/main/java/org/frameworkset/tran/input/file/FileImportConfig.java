@@ -33,7 +33,27 @@ public class FileImportConfig extends BaseImportConfig {
      * ftp配置标识
      */
     private boolean fromFtp;
+    /**
+     * 备份成功文件
+     * true 备份
+     * false 不备份
+     */
+    private boolean backupSuccessFiles;
+    /**
+     * 备份文件目录
+     */
+    private String backupSuccessFileDir;
 
+    /**
+     * 备份文件清理线程执行时间间隔，单位：毫秒
+     * 默认每隔10秒执行一次
+     */
+    private long backupSuccessFileInterval = 10000l;
+    /**
+     * 备份文件保留时长，单位：秒
+     * 默认保留7天
+     */
+    private long backupSuccessFileLiveTime = 7 * 24 * 60 * 60l;
     public FileImportConfig() {
     }
 
@@ -141,5 +161,39 @@ public class FileImportConfig extends BaseImportConfig {
         this.checkFileModifyInterval = checkFileModifyInterval;
         return this;
     }
+    public boolean isBackupSuccessFiles() {
+        return backupSuccessFiles;
+    }
 
+    public FileImportConfig setBackupSuccessFiles(boolean backupSuccessFiles) {
+        this.backupSuccessFiles = backupSuccessFiles;
+        return this;
+    }
+
+    public String getBackupSuccessFileDir() {
+        return backupSuccessFileDir;
+    }
+
+    public FileImportConfig setBackupSuccessFileDir(String backupSuccessFileDir) {
+        this.backupSuccessFileDir = backupSuccessFileDir;
+        return this;
+    }
+
+    public long getBackupSuccessFileInterval() {
+        return backupSuccessFileInterval;
+    }
+
+    public FileImportConfig setBackupSuccessFileInterval(long backupSuccessFileInterval) {
+        this.backupSuccessFileInterval = backupSuccessFileInterval;
+        return this;
+    }
+
+    public long getBackupSuccessFileLiveTime() {
+        return backupSuccessFileLiveTime;
+    }
+
+    public FileImportConfig setBackupSuccessFileLiveTime(long backupSuccessFileLiveTime) {
+        this.backupSuccessFileLiveTime = backupSuccessFileLiveTime;
+        return this;
+    }
 }

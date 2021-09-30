@@ -53,4 +53,5 @@ public interface FtpContext {
 	public long getKeepAliveTimeout();
 	public int getControlKeepAliveReplyTimeout();
 	FileFilter getFileFilter();
+
 }

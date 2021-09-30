@@ -1,4 +1,4 @@
-package org.frameworkset.tran.output.fileftp;
+package org.frameworkset.tran.ftp;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -15,36 +15,35 @@ package org.frameworkset.tran.output.fileftp;
  * limitations under the License.
  */
 
-import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.file.monitor.FileCleanThread;
+import org.frameworkset.tran.input.file.FileImportConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>Description: 清理发送成功的备份文件服务</p>
+ * <p>Description: 失败文件重传</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2021/2/4 14:48
  * @author biaoping.yin
  * @version 1.0
  */
-public class SuccessFilesClean{
-	private String transferSuccessFileDir;
-	private static final Logger logger = LoggerFactory.getLogger(SuccessFilesClean.class);
-	private FileFtpOupputContext fileFtpOupputContext;
-	public SuccessFilesClean(FileFtpOupputContext fileFtpOupputContext){
-		this.fileFtpOupputContext = fileFtpOupputContext;
-		transferSuccessFileDir = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferSuccessFileDir");
+public class BackupSuccessFilesClean {
+	private static final Logger logger = LoggerFactory.getLogger(BackupSuccessFilesClean.class);
+	private FileImportConfig fileImportConfig;
+
+	public BackupSuccessFilesClean(FileImportConfig fileImportConfig){
+		this.fileImportConfig = fileImportConfig;
 
 	}
 	public void start(){
-		FileCleanThread fileCleanThread = new FileCleanThread("SuccessFTPFilesClean-Thread",
-				transferSuccessFileDir,
-				fileFtpOupputContext.getSuccessFilesCleanInterval(),
-				fileFtpOupputContext.getFileLiveTime() * 1000L);
+		FileCleanThread fileCleanThread = new FileCleanThread("BackupSuccessFilesClean-Thread",
+															   fileImportConfig.getBackupSuccessFileDir(),
+				                                               fileImportConfig.getBackupSuccessFileInterval(),
+																fileImportConfig.getBackupSuccessFileLiveTime() * 1000l);
 		fileCleanThread.start();
-	}
 
+	}
 
 
 

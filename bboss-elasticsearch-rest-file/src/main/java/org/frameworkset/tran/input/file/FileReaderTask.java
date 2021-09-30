@@ -1,6 +1,7 @@
 package org.frameworkset.tran.input.file;
 
 import com.frameworkset.util.BaseSimpleStringUtil;
+import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
@@ -31,11 +32,8 @@ import static java.lang.Thread.sleep;
 public class FileReaderTask extends FieldManager{
     private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
     private FileInfo fileInfo;
-	/**
-	 * When this option is enabled, bboss closes a file as soon as the end of a file is reached. This is useful when your files are only written once and not updated from time to time. For example,
-	 * this happens when you are writing every single log event to a new file. This option is disabled by default.
-	 */
-	private boolean closeEOF ;
+    private FileImportConfig fileImportConfig;
+
 
     /**
      * 文件监听事件服务
@@ -75,8 +73,11 @@ public class FileReaderTask extends FieldManager{
      */
     private long pointer;
 
-    public FileReaderTask(TaskContext taskContext,File file, String fileId, FileConfig fileConfig, FileListenerService fileListenerService, BaseDataTran fileDataTran,
-                          Status currentStatus ) {
+    public FileReaderTask(TaskContext taskContext,File file, String fileId, FileConfig fileConfig,
+                          FileListenerService fileListenerService,
+                          BaseDataTran fileDataTran,
+                          Status currentStatus ,FileImportConfig fileImportConfig ) {
+        this.fileImportConfig = fileImportConfig;
         this.fileListenerService = fileListenerService;
         String charSet = fileConfig.getCharsetEncode() ;
         if(charSet == null || charSet.equals("")){
@@ -107,7 +108,8 @@ public class FileReaderTask extends FieldManager{
 
 
     }
-    public FileReaderTask(String fileId,  Status currentStatus ) {
+    public FileReaderTask(String fileId,  Status currentStatus,FileImportConfig fileImportConfig ) {
+        this.fileImportConfig = fileImportConfig;
         this.currentStatus = currentStatus;
         this.fileInfo = new FileInfo( fileId);
     }
@@ -174,8 +176,8 @@ public class FileReaderTask extends FieldManager{
     }
 
     public FileReaderTask(TaskContext taskContext,File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
-                          Status currentStatus   ) {
-        this(  taskContext,file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus);
+                          Status currentStatus ,FileImportConfig fileImportConfig   ) {
+        this(  taskContext,file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus,  fileImportConfig );
         this.pointer = pointer;
     }
     public void start(){
@@ -347,7 +349,7 @@ public class FileReaderTask extends FieldManager{
             if(olded){
                 taskEnded();
                 fileListenerService.addOldedFileTask(currentStatus.getFileId(),new FileReaderTask(currentStatus.getFileId()
-                        ,currentStatus));
+                        ,currentStatus,fileImportConfig));
                 fileDataTran.getDataTranPlugin().handleOldedTask(currentStatus);
                 fileDataTran.getDataTranPlugin().afterCall(getTaskContext());
                 destroyTaskContext();
@@ -572,12 +574,16 @@ public class FileReaderTask extends FieldManager{
             destroy();
             try {
                 //需要删除采集完数据的eof文件，有必要进行优化并在回调函数中处理
-                if (reachEOFClosed && fileConfig.isDeleteEOFFile()) {
-                    file.delete();
+                if (reachEOFClosed ) {
+                    if (fileImportConfig.isBackupSuccessFiles())//备份采集完的数据文件，默认保留一周，过期清理
+                        FileUtil.bakFile(file.getCanonicalPath(), SimpleStringUtil.getPath(fileImportConfig.getBackupSuccessFileDir(),file.getName()));
+                    else if(fileConfig.isDeleteEOFFile())//删除日志文件
+                        file.delete();
+
                 }
             }
             catch (Exception e){
-
+                logger.warn("",e);
             }
         }
     }

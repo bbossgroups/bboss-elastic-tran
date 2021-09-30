@@ -93,6 +93,9 @@ public class FileConfig extends FieldManager{
 	 * false 不关闭
 	 */
 	private boolean closeRenameEOF = true;
+
+
+
     /**
      *  指定开始采集位置
      */
@@ -472,7 +475,10 @@ public class FileConfig extends FieldManager{
 		return closeRenameEOF;
 	}
 
-	public void setCloseRenameEOF(boolean closeRenameEOF) {
+	public FileConfig setCloseRenameEOF(boolean closeRenameEOF) {
 		this.closeRenameEOF = closeRenameEOF;
+		return this;
 	}
+
+
 }
