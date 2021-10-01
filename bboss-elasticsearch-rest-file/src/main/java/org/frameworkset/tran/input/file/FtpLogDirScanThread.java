@@ -38,7 +38,7 @@ public class FtpLogDirScanThread extends LogDirScanThread{
      * 识别新增的文件，如果有新增文件，将启动新的文件采集作业
      */
     @Override
-    protected void scanNewFile(){
+    public void scanNewFile(){
         if(logger.isDebugEnabled()){
             if(fileConfig.getFileFilter() == null)
                 logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",ftpContext.getRemoteFileDir(),fileConfig.getFileNameRegular());
@@ -62,7 +62,7 @@ public class FtpLogDirScanThread extends LogDirScanThread{
                 continue;
             }
             else{
-                fileListenerService.checkFtpNewFile(remoteResourceInfo,fileConfig,ftpContext);
+                fileListenerService.checkFtpNewFile(remoteResourceInfo,ftpContext.getFtpConfig(),ftpContext);
             }
         }
 

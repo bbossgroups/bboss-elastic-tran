@@ -19,10 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * <p>Description: </p>
@@ -63,19 +59,7 @@ public class FileCleanThread extends Thread{
 		this.setDaemon(true);
 		super.start();
 	}
-	private long getCreateTime(File file ){
-		try {
-			Path path =  file.toPath();
-			BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
-			// 创建时间
-//			Instant instant = attr.creationTime().toInstant();
-			return attr.creationTime().toMillis();
-		} catch (IOException e) {
-			logger.error("Get createtime of file "+ file.getAbsolutePath() +" failed :",e);
-			return -1;
-		}
 
-	}
 	public void run(){
 		File transferSuccessFileDir_ = new File(fileDir);
 		logger.info("Start "+ this.getName() +" ,fileDir["+ fileDir +"],fileLiveTime["+ fileLiveTime +"]毫秒");
@@ -89,7 +73,7 @@ public class FileCleanThread extends Thread{
 					if(!file.isFile())
 						continue;
 					try {
-						long filetime = getCreateTime( file );
+						long filetime = FileManager.getCreateTime( file );
 						if(filetime < 0){
 							continue;
 						}

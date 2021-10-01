@@ -2,12 +2,15 @@ package org.frameworkset.tran.input.file;
 
 import org.apache.commons.lang.StringUtils;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
+import org.frameworkset.tran.file.util.TimeUtil;
 import org.frameworkset.util.OSInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,6 +35,15 @@ public class FileConfig extends FieldManager{
 
     private File renameFileLogDir;
 
+
+    /**
+     * 每天不扫码新文件时间段，如果没有定义扫描段
+     */
+    private List<TimeRange> skipScanNewFileTimeRanges;
+    /**
+     * 每天扫描新文件时间段，优先级高于不扫码时间段，先计算是否在扫描时间段，如果是则扫描，不是则不扫码
+     */
+    private List<TimeRange> scanNewFileTimeRanges;
 
 
     //控制是否删除采集完的文件，默认false 不删除，true 删除
@@ -479,6 +491,63 @@ public class FileConfig extends FieldManager{
 		this.closeRenameEOF = closeRenameEOF;
 		return this;
 	}
+    /**
+     * 添加不扫码新文件的时间段
+     * timeRange必须是以下三种类型格式
+     * 11:30-12:30  每天在11:30和12:30之间运行
+     * 11:30-    每天11:30开始执行,到23:59结束
+     * -12:30    每天从00:00开始到12:30
+     * @param timeRange
+     * @return
+     */
+    public FileConfig addSkipScanNewFileTimeRange(String timeRange){
+        if(skipScanNewFileTimeRanges == null){
+            skipScanNewFileTimeRanges = new ArrayList<>();
+        }
+        TimeRange skipTimeRange = TimeUtil.parserTimeRange(  timeRange);
+        if(skipTimeRange != null)
+            skipScanNewFileTimeRanges.add(skipTimeRange);
+        return this;
+    }
+
+    /**
+     * 添加扫码新文件的时间段，每天扫描新文件时间段，优先级高于不扫码时间段，先计算是否在扫描时间段，如果是则扫描，不是则不扫码
+     * timeRange必须是以下三种类型格式
+     * 11:30-12:30  每天在11:30和12:30之间运行
+     * 11:30-    每天11:30开始执行,到23:59结束
+     * -12:30    每天从00:00开始到12:30
+     * @param timeRange
+     * @return
+     */
+    public FileConfig addScanNewFileTimeRange(String timeRange){
+        if(scanNewFileTimeRanges == null){
+            scanNewFileTimeRanges = new ArrayList<>();
+        }
+
+        TimeRange includeTimeRange = TimeUtil.parserTimeRange(  timeRange);
+        if(includeTimeRange != null)
+            scanNewFileTimeRanges.add(includeTimeRange);
+
+        return this;
+    }
 
 
+
+    public List<TimeRange> getScanNewFileTimeRanges() {
+        return scanNewFileTimeRanges;
+    }
+
+    public List<TimeRange> getSkipScanNewFileTimeRanges() {
+        return skipScanNewFileTimeRanges;
+    }
+    @Override
+    public String toString(){
+        StringBuilder ret = new StringBuilder();
+        buildMsg(ret);
+        return ret.toString();
+
+    }
+    protected void buildMsg(StringBuilder stringBuilder){
+        stringBuilder.append("sourcePath:").append(this.sourcePath);
+    }
 }

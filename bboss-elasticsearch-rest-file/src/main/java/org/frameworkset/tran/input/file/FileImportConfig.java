@@ -13,10 +13,10 @@ import java.util.List;
  */
 public class FileImportConfig extends BaseImportConfig {
     /**
-     * 扫描新文件和文件名调整时间间隔
+     * 每次扫描新文件时间间隔
      */
 
-    private Long interval = 5000L;
+    private Long scanNewFileInterval = 5000L;
     private Long registLiveTime;
     //jsondata = true时，自定义的数据是否和采集的数据平级，true则直接在原先的json串中存放数据
     //false则定义一个json存放数据，若不是json则是message
@@ -29,10 +29,7 @@ public class FileImportConfig extends BaseImportConfig {
     private String charsetEncode = "UTF-8";
     private List<FileConfig> fileConfigList;
     private long checkFileModifyInterval = 3000l;
-    /**
-     * ftp配置标识
-     */
-    private boolean fromFtp;
+
     /**
      * 备份成功文件
      * true 备份
@@ -54,23 +51,23 @@ public class FileImportConfig extends BaseImportConfig {
      * 默认保留7天
      */
     private long backupSuccessFileLiveTime = 7 * 24 * 60 * 60l;
+    /**
+     * 否采用外部新文件扫描调度机制：jdk timer,quartz,xxl-job
+     *     true 采用，false 不采用，默认false
+     */
+    private boolean useETLScheduleForScanNewFile;
     public FileImportConfig() {
     }
 
 
 
-    public boolean isFromFtp() {
-        return fromFtp;
-    }
 
     public List<FileConfig> getFileConfigList() {
         return fileConfigList;
     }
     public FileImportConfig addConfig(FileConfig fileConfig){
-        if(fromFtp && !(fileConfig instanceof FtpConfig))
-            throw new FilelogPluginException("只能设置ftp config配置");
+
         if(fileConfig instanceof FtpConfig){
-            fromFtp = true;
             fileConfig.setEnableInode(false);//ftp需禁用inode机制
         }
 
@@ -98,13 +95,22 @@ public class FileImportConfig extends BaseImportConfig {
         return this;
     }
 
+    /**
+     *
+     * @param interval
+     * use method setScanNewFileInterval
+     * @return
+     */
+    @Deprecated
     public FileImportConfig setInterval(Long interval) {
-        this.interval = interval;
+        return setScanNewFileInterval(interval);
+    }
+    public FileImportConfig setScanNewFileInterval(Long scanNewFileInterval) {
+        this.scanNewFileInterval = scanNewFileInterval;
         return this;
     }
-
-    public Long getInterval() {
-        return interval;
+    public Long getScanNewFileInterval() {
+        return scanNewFileInterval;
     }
 
     public boolean isRootLevel() {
@@ -194,6 +200,21 @@ public class FileImportConfig extends BaseImportConfig {
 
     public FileImportConfig setBackupSuccessFileLiveTime(long backupSuccessFileLiveTime) {
         this.backupSuccessFileLiveTime = backupSuccessFileLiveTime;
+        return this;
+    }
+
+    public boolean isUseETLScheduleForScanNewFile() {
+        return useETLScheduleForScanNewFile;
+    }
+
+    /**
+     *  设置是否采用外部新文件扫描调度机制：jdk timer,quartz,xxl-job
+     *      true 采用，false 不采用，默认false
+     * @param useETLScheduleForScanNewFile
+     * @return
+     */
+    public FileImportConfig setUseETLScheduleForScanNewFile(boolean useETLScheduleForScanNewFile) {
+        this.useETLScheduleForScanNewFile = useETLScheduleForScanNewFile;
         return this;
     }
 }

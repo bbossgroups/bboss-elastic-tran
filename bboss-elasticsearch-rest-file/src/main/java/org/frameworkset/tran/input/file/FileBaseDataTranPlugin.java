@@ -373,79 +373,30 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         if(importContext.getDbConfig() != null)
             this.initDS(importContext.getDbConfig());
     }
-    protected void initFileListener(TaskContext taskContext){
-        if(fileImportContext.getFileImportConfig() != null)
-        {
-            /**
-            // 一个目录一个FileAlterationObserver 一个FileAlterationObserver一个线程进行监听扫描，有文件变化交给监听器进行处理
-            //每个线程再开启5（可配置）个工作线程的线程池，用于多线程采集日志数据
-            List<FileAlterationObserver> observerList = this.init(fileImportContext.getFileImportConfig());
-            for(int i = 0; observerList != null && i < observerList.size(); i ++) {
-                FileAlterationObserver fileAlterationObserver = observerList.get(i);
-                FileAlterationMonitor fileAlterationMonitor = new FileAlterationMonitor(fileImportContext.getFileImportConfig().getInterval(),
-                        fileAlterationObserver);
-                this.fileAlterationMonitors.add(fileAlterationMonitor);
-                try {
-//                fileListener.reload();
-//                    Iterator<FileAlterationObserver> iterator = fileAlterationMonitor.getObservers().iterator();
-//                    while (iterator.hasNext()) {
-//                        iterator.next().checkAndNotify();
-//                    }
-                    fileAlterationMonitor.start();
-//                while(true){
-//                    Thread.sleep(10000);
-//                }
-                } catch (Exception e) {
-                    throw new ESDataImportException(e);
-                }
-            }*/
-            List<FileConfig> fileConfigs = this.fileImportContext.getFileConfigList();
-            if(fileConfigs != null && fileConfigs.size() > 0) {
-                logDirScanThreads = new ArrayList<>(fileConfigs.size());
-                for (FileConfig fileConfig : fileConfigs) {
-                    if(fileConfig instanceof FtpConfig){
-                        LogDirScanThread logDirScanThread = new FtpLogDirScanThread(fileImportContext.getFileImportConfig().getInterval(),
-                                (FtpConfig)fileConfig, getFileListenerService());
-                        logDirScanThreads.add(logDirScanThread);
-                        logDirScanThread.start();
-                    }
-                    else {
-                        LogDirScanThread logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getInterval(),
-                                fileConfig, getFileListenerService());
-                        logDirScanThreads.add(logDirScanThread);
-                        logDirScanThread.start();
-                    }
-                }
-            }
 
-
-                synchronized (BackupSuccessFilesClean.class) {
-                    if(backupSuccessFilesClean == null){
-                        if (fileImportContext.getFileImportConfig() != null) {
-                            if (fileImportContext.getFileImportConfig().isBackupSuccessFiles()) {
-                                String backupSuccessFileDir = fileImportContext.getFileImportConfig().getBackupSuccessFileDir();
-                                if (backupSuccessFileDir == null || backupSuccessFileDir.equals("")) {
-                                    logger.warn("开启了备份成功文件机制，但是没有指定备份目录，忽略备份功能，请检查并设置backupSuccessFileDir");
-                                } else {
-                                    boolean backupEnable = fileImportContext.getFileImportConfig().getBackupSuccessFileInterval() > 0 && fileImportContext.getFileImportConfig().getBackupSuccessFileLiveTime() > 0;
-                                    if (backupEnable) {
-                                        backupSuccessFilesClean = new BackupSuccessFilesClean(fileImportContext.getFileImportConfig());
-                                        backupSuccessFilesClean.start();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-
-        }
-    }
 
 
     @Override
     public void afterInit(){
+
+        synchronized (BackupSuccessFilesClean.class) {
+            if(backupSuccessFilesClean == null){
+                if (fileImportContext.getFileImportConfig() != null) {
+                    if (fileImportContext.getFileImportConfig().isBackupSuccessFiles()) {
+                        String backupSuccessFileDir = fileImportContext.getFileImportConfig().getBackupSuccessFileDir();
+                        if (backupSuccessFileDir == null || backupSuccessFileDir.equals("")) {
+                            logger.warn("开启了备份成功文件机制，但是没有指定备份目录，忽略备份功能，请检查并设置backupSuccessFileDir");
+                        } else {
+                            boolean backupEnable = fileImportContext.getFileImportConfig().getBackupSuccessFileInterval() > 0 && fileImportContext.getFileImportConfig().getBackupSuccessFileLiveTime() > 0;
+                            if (backupEnable) {
+                                backupSuccessFilesClean = new BackupSuccessFilesClean(fileImportContext.getFileImportConfig());
+                                backupSuccessFilesClean.start();
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
     }
     @Override
@@ -467,16 +418,71 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     @Override
     public void doImportData(TaskContext taskContext) throws ESDataImportException {
 
-        initFileListener(taskContext);
+        if(fileImportContext.getFileImportConfig() != null)
+        {
+            List<FileConfig> fileConfigs = this.fileImportContext.getFileConfigList();
+            if (fileConfigs != null && fileConfigs.size() > 0) {
+                if (!fileImportContext.isUseETLScheduleForScanNewFile()) {//采用内置新文件扫描调度机制
+
+                    logDirScanThreads = new ArrayList<>(fileConfigs.size());
+                    for (FileConfig fileConfig : fileConfigs) {
+                        LogDirScanThread logDirScanThread = null;
+                        if (fileConfig instanceof FtpConfig) {
+                            logDirScanThread = new FtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
+                                    (FtpConfig) fileConfig, getFileListenerService());
+
+                        } else {
+                            logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
+                                    fileConfig, getFileListenerService());
+
+                        }
+                        logDirScanThreads.add(logDirScanThread);
+                        logDirScanThread.start();
+                    }
+
+                } else {//采用外部新文件扫描调度机制：jdk timer,quartz,xxl-job
+                    if(logDirScanThreads == null){
+                        logDirScanThreads = new ArrayList<>(fileConfigs.size());
+                        for (FileConfig fileConfig : fileConfigs) {
+                            LogDirScanThread logDirScanThread = null;
+                            if (fileConfig instanceof FtpConfig) {
+                                logDirScanThread = new FtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
+                                        (FtpConfig) fileConfig, getFileListenerService());
+
+                            } else {
+                                logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
+                                        fileConfig, getFileListenerService());
+
+                            }
+                            logDirScanThreads.add(logDirScanThread);
+                            logDirScanThread.scanNewFile();
+                        }
+
+                    }
+                    else{
+                        for(LogDirScanThread logDirScanThread: logDirScanThreads){
+                            try {
+                                logDirScanThread.scanNewFile();
+                            }
+                            catch (Exception e){
+                                logger.error("扫描新文件异常:"+logDirScanThread.getFileConfig().toString(),e);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+        }
 
     }
     @Override
     public void initSchedule(){
-//        if(!fileImportContext.isFromFtp()) {
-//            logger.info("Ignore initSchedule for plugin {}", this.getClass().getName());
-//        }
-//        else{
-//            super.initSchedule();
-//        }
+        if(!fileImportContext.isUseETLScheduleForScanNewFile()) {
+            logger.info("Ignore initSchedule for plugin {}", this.getClass().getName());
+        }
+        else{
+            super.initSchedule();
+        }
     }
 }

@@ -3,6 +3,7 @@ package org.frameworkset.tran.input.file;
 import net.schmizz.sshj.sftp.RemoteResourceInfo;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
+import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpContext;
 import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
@@ -252,10 +253,14 @@ public class FileListenerService {
         }
     }
 
-    public void checkFtpNewFile(RemoteResourceInfo remoteResourceInfo, FileConfig fileConfig, FtpContext ftpContext) {
 
-        File localFile = new File(fileConfig.getSourcePath(),remoteResourceInfo.getName());
-        String fileId = FileInodeHandler.change(localFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
+
+    public void checkFtpNewFile(RemoteResourceInfo remoteResourceInfo, FtpConfig fileConfig, FtpContext ftpContext) {
+
+        File handleFile = new File( fileConfig.getSourcePath(), remoteResourceInfo.getName());//正式文件
+        File localFile = new File(fileConfig.getDownloadTempDir(),remoteResourceInfo.getName());//临时下载文件，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
+
+        String fileId = FileInodeHandler.change(handleFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
         try {
             lock.lock();
             FileReaderTask fileReaderTask = fileConfigMap.get(fileId);
@@ -269,12 +274,23 @@ public class FileListenerService {
                     logger.debug("Ignore old file {}",fileId);
                     return;
                 }
-                if(!localFile.exists()){//如果文件不存在，则下载文件到本地目录
+                /**
+                 * 如果处理文件不存在，则下载文件到本地临时目录,下载后重命名为正式处理文件，避免因下载中断处理不完整文件问题
+                 */
+                if(!handleFile.exists()){
 
-                    SFTPTransfer.downloadFile(ftpContext,remoteResourceInfo.getPath(),fileConfig.getSourcePath());
+                    /**
+                     * 支持断点续传
+                     */
+                    SFTPTransfer.downloadFile(ftpContext,remoteResourceInfo.getPath(),fileConfig.getDownloadTempDir());
+                    if(!localFile.exists()){
+                        logger.warn("文件下载失败：localPath:{},remotePath:{}",localFile.getAbsolutePath(),remoteResourceInfo.getPath());
+                        return;
+                    }
+                    localFile.renameTo(handleFile);
                 }
-                if(!localFile.exists()){
-                    logger.warn("文件下载失败：localPath:{},remotePath:{}",fileId,remoteResourceInfo.getPath());
+                if(!handleFile.exists()){
+                    logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteResourceInfo.getPath(),handleFile.getAbsolutePath());
                     return;
                 }
                 //创建新的采集任务
@@ -290,7 +306,7 @@ public class FileListenerService {
                 currentStatus.setStatus(ImportIncreamentConfig.STATUS_COLLECTING);
                 long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
                 currentStatus.setLastValue(pointer);
-                boolean successed = baseDataTranPlugin.initFileTask(fileConfig, currentStatus, localFile, pointer);
+                boolean successed = baseDataTranPlugin.initFileTask(fileConfig, currentStatus, handleFile, pointer);
             }
 
         } finally {

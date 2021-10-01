@@ -1,5 +1,6 @@
 package org.frameworkset.tran.input.file;
 
+import org.frameworkset.tran.file.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,9 @@ public class LogDirScanThread implements Runnable{
         this.fileListenerService = fileListenerService;
     }
 
+    public FileConfig getFileConfig() {
+        return fileConfig;
+    }
 
     /**
      * Returns the interval.
@@ -95,17 +99,38 @@ public class LogDirScanThread implements Runnable{
 
     }
 
+
+
+
     /**
      * Runs this monitor.
      */
     @Override
     public void run() {
         while (running) {
-            try {
-                scanNewFile();
-            }catch (Exception e){
-                logger.error("扫描新文件失败",e);
-            }
+            /**
+             * 如果没有到达执行时间点，则定时检查直到命中扫描时间点
+             */
+            do {
+
+                if (TimeUtil.evalateNeedScan(fileConfig)) {
+
+                    try {
+                        scanNewFile();
+                    } catch (Exception e) {
+                        logger.error("扫描新文件失败", e);
+                    }
+                    break;
+                }
+                else {
+                    try {
+                        Thread.sleep(30000l);
+                    } catch (final InterruptedException ignored) {
+                        // ignore
+                        break;
+                    }
+                }
+            }while(true);
             if (!running) {
                 break;
             }
@@ -120,7 +145,7 @@ public class LogDirScanThread implements Runnable{
     /**
      * 识别新增的文件，如果有新增文件，将启动新的文件采集作业
      */
-    protected void scanNewFile(){
+    public void scanNewFile(){
         if(logger.isDebugEnabled()){
             logger.debug("scan new log file in dir {} with filename regex {}.",fileConfig.getLogDir(),fileConfig.getFileNameRegular());
         }

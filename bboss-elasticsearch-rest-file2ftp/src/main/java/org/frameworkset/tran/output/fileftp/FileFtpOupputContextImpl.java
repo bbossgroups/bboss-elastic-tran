@@ -20,6 +20,7 @@ import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.input.file.FileFilter;
+import org.frameworkset.tran.input.file.FtpFileFilter;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
@@ -181,6 +182,11 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 	@Override
 	public FileFilter getFileFilter() {
 		throw new UnsupportedOperationException("getFileFilter");
+	}
+
+	@Override
+	public FtpFileFilter getFtpFileFilter() {
+		throw new UnsupportedOperationException("getFtpFileFilter");
 	}
 
 	@Override

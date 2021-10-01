@@ -26,6 +26,7 @@ import net.schmizz.sshj.xfer.FileSystemFile;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
+import org.frameworkset.tran.input.file.FtpFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,13 +48,25 @@ public class SFTPTransfer {
 	public static List<RemoteResourceInfo> ls(final FtpContext fileFtpOupputContext){
 		final List<RemoteResourceInfo> files = new ArrayList<RemoteResourceInfo>();
 		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
+		final FtpFileFilter ftpFileFilter = fileFtpOupputContext.getFtpFileFilter();
 		final FileConfig fileConfig = fileFtpOupputContext.getFtpConfig();
 		handlerFile(  fileFtpOupputContext, new SFTPAction (){
-
 			@Override
 			public void execute(SFTPClient sftp) throws IOException {
 //				fileFtpOupputContext.getf
-				if(fileFilter != null) {
+				if(ftpFileFilter != null){
+					List<RemoteResourceInfo> _files = sftp.ls(fileFtpOupputContext.getRemoteFileDir(), new RemoteResourceFilter() {
+						@Override
+						public boolean accept(RemoteResourceInfo resource) {
+
+							return ftpFileFilter.accept(resource, resource.getName(), fileConfig);
+						}
+					});
+					if (_files != null && _files.size() > 0) {
+						files.addAll(_files);
+					}
+				}
+				else if(fileFilter != null) {
 					List<RemoteResourceInfo> _files = sftp.ls(fileFtpOupputContext.getRemoteFileDir(), new RemoteResourceFilter() {
 						@Override
 						public boolean accept(RemoteResourceInfo resource) {

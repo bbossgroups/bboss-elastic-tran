@@ -15,8 +15,11 @@ package org.frameworkset.tran.ftp;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.input.file.FileConfig;
+import org.frameworkset.tran.input.file.FtpFileFilter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +41,8 @@ public class FtpConfig extends FileConfig {
 	private String ftpProtocol;
 	private String ftpTrustmgr;
 	private String ftpProxyHost;
-
+	private FtpFileFilter ftpFileFilter;
+	private String downloadTempDir;
 
 	private int ftpProxyPort;
 
@@ -67,9 +71,21 @@ public class FtpConfig extends FileConfig {
 		return hostKeyVerifiers;
 	}
 
-
+	@Override
+	public FileConfig init(){
+		super.init();
+		downloadTempDir = SimpleStringUtil.getPath(getSourcePath(),"temp");
+		File f = new File(downloadTempDir);
+		if(!f.exists())
+			f.mkdirs();
+		return this;
+	}
 	public int getTransferProtocol() {
 		return transferProtocol;
+	}
+
+	public String getDownloadTempDir() {
+		return downloadTempDir;
 	}
 
 	public FtpConfig setTransferProtocol(int transferProtocol) {
@@ -228,5 +244,24 @@ public class FtpConfig extends FileConfig {
 	public FtpConfig setRemoteFileDir(String remoteFileDir) {
 		this.remoteFileDir = remoteFileDir;
 		return this;
+	}
+
+	public FtpFileFilter getFtpFileFilter() {
+		return ftpFileFilter;
+	}
+
+	public FtpConfig setFtpFileFilter(FtpFileFilter ftpFileFilter) {
+		this.ftpFileFilter = ftpFileFilter;
+		return this;
+	}
+	@Override
+	protected void buildMsg(StringBuilder stringBuilder){
+		super.buildMsg(stringBuilder);
+		stringBuilder.append(",remoteFileDir:").append(this.remoteFileDir);
+		stringBuilder.append(",ftpIP:").append(this.ftpIP);
+		stringBuilder.append(",ftpPort:").append(this.ftpPort);
+		stringBuilder.append(",ftpUser:").append(this.ftpUser);
+		stringBuilder.append(",ftpPassword:").append(this.ftpPassword);
+
 	}
 }

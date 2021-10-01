@@ -44,7 +44,14 @@ public class FileImportContext extends BaseImportContext {
     public List<FileConfig> getFileConfigList(){
         return fileImportConfig.getFileConfigList();
     }
-    public boolean isFromFtp() {
-        return fileImportConfig.isFromFtp();
+
+
+    /**
+     * 判断是否采用外部新文件扫描调度机制：jdk timer,quartz,xxl-job
+     * true 采用，false 不采用，默认false
+     * @return
+     */
+    public boolean isUseETLScheduleForScanNewFile() {
+        return fileImportConfig.isUseETLScheduleForScanNewFile();
     }
 }

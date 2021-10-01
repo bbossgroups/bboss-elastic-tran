@@ -16,6 +16,7 @@ package org.frameworkset.tran.ftp;
  */
 
 import org.frameworkset.tran.input.file.FileFilter;
+import org.frameworkset.tran.input.file.FtpFileFilter;
 
 import java.util.List;
 
@@ -138,6 +139,11 @@ public class FtpContextImpl implements FtpContext {
 	@Override
 	public FileFilter getFileFilter() {
 		return ftpConfig.getFileFilter();
+	}
+
+	@Override
+	public FtpFileFilter getFtpFileFilter() {
+		return ftpConfig.getFtpFileFilter();
 	}
 
 

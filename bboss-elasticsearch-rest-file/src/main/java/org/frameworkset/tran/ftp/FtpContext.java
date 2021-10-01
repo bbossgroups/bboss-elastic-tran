@@ -16,6 +16,7 @@ package org.frameworkset.tran.ftp;
  */
 
 import org.frameworkset.tran.input.file.FileFilter;
+import org.frameworkset.tran.input.file.FtpFileFilter;
 
 import java.util.List;
 
@@ -53,5 +54,5 @@ public interface FtpContext {
 	public long getKeepAliveTimeout();
 	public int getControlKeepAliveReplyTimeout();
 	FileFilter getFileFilter();
-
+	FtpFileFilter getFtpFileFilter();
 }

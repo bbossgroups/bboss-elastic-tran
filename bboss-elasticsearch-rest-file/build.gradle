@@ -27,7 +27,7 @@ sourceSets {
 
 dependencies {
 	api project(':bboss-elasticsearch-rest-jdbc')
-	api 'com.hierynomus:sshj:0.30.0'
+	api 'com.hierynomus:sshj:0.31.0'
 
 	api group: 'commons-net', name: 'commons-net', version: '3.8.0', transitive: true
 //	compile 'commons-io:commons-io:2.8.0'
