@@ -195,7 +195,8 @@ public class FtpTransfer {
 			} else {
 				ftp.connect(fileFtpOupputContext.getFtpIP());
 			}
-			logger.info("Connected to " + fileFtpOupputContext.getFtpIP() + " on " + (fileFtpOupputContext.getFtpPort() > 0 ? fileFtpOupputContext.getFtpPort() : ftp.getDefaultPort()));
+			if(logger.isDebugEnabled())
+				logger.debug("Connected to " + fileFtpOupputContext.getFtpIP() + " on " + (fileFtpOupputContext.getFtpPort() > 0 ? fileFtpOupputContext.getFtpPort() : ftp.getDefaultPort()));
 
 			// After connection attempt, you should check the reply code to verify
 			// success.
