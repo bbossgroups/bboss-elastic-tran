@@ -55,4 +55,6 @@ public interface FtpContext {
 	public int getControlKeepAliveReplyTimeout();
 	FileFilter getFileFilter();
 	FtpFileFilter getFtpFileFilter();
+
+	String getEncoding();
 }

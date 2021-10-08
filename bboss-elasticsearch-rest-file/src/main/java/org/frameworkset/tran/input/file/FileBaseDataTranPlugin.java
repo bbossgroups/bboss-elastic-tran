@@ -415,6 +415,27 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 
 
     }
+
+    private LogDirScanThread logDirScanThread(FileConfig fileConfig ){
+        LogDirScanThread logDirScanThread = null;
+        if (fileConfig instanceof FtpConfig) {
+            FtpConfig ftpConfig = (FtpConfig) fileConfig;
+            if(ftpConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
+                logDirScanThread = new FtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
+                        ftpConfig, getFileListenerService());
+            }
+            else{
+                logDirScanThread = new SFtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
+                        ftpConfig, getFileListenerService());
+            }
+
+        } else {
+            logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
+                    fileConfig, getFileListenerService());
+
+        }
+        return logDirScanThread;
+    }
     @Override
     public void doImportData(TaskContext taskContext) throws ESDataImportException {
 
@@ -426,16 +447,8 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 
                     logDirScanThreads = new ArrayList<>(fileConfigs.size());
                     for (FileConfig fileConfig : fileConfigs) {
-                        LogDirScanThread logDirScanThread = null;
-                        if (fileConfig instanceof FtpConfig) {
-                            logDirScanThread = new FtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                                    (FtpConfig) fileConfig, getFileListenerService());
+                        LogDirScanThread logDirScanThread = logDirScanThread(  fileConfig );
 
-                        } else {
-                            logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                                    fileConfig, getFileListenerService());
-
-                        }
                         logDirScanThreads.add(logDirScanThread);
                         logDirScanThread.start();
                     }
@@ -444,16 +457,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     if(logDirScanThreads == null){
                         logDirScanThreads = new ArrayList<>(fileConfigs.size());
                         for (FileConfig fileConfig : fileConfigs) {
-                            LogDirScanThread logDirScanThread = null;
-                            if (fileConfig instanceof FtpConfig) {
-                                logDirScanThread = new FtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                                        (FtpConfig) fileConfig, getFileListenerService());
-
-                            } else {
-                                logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                                        fileConfig, getFileListenerService());
-
-                            }
+                            LogDirScanThread logDirScanThread = logDirScanThread(  fileConfig );
                             logDirScanThreads.add(logDirScanThread);
                             logDirScanThread.scanNewFile();
                         }

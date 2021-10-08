@@ -96,7 +96,9 @@ configure([project(":bboss-elasticsearch-rest-jdbc"),project(":bboss-elasticsear
 		   project(":bboss-elasticsearch-rest-kafka2x"),
 		   project(":bboss-elasticsearch-rest-hbase"),
 		   project(":bboss-elasticsearch-rest-file2ftp"),
-		   project(":bboss-elasticsearch-rest-file")]) { subproject ->
+		   project(":bboss-elasticsearch-rest-file")
+//		   ,project(":bboss-elasticsearch-rest-http")
+]) { subproject ->
 
 
 //	uploadArchives {

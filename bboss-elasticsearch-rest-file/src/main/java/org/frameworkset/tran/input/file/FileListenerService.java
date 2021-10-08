@@ -1,10 +1,13 @@
 package org.frameworkset.tran.input.file;
 
+import com.frameworkset.util.SimpleStringUtil;
 import net.schmizz.sshj.sftp.RemoteResourceInfo;
+import org.apache.commons.net.ftp.FTPFile;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpContext;
+import org.frameworkset.tran.ftp.FtpTransfer;
 import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
@@ -254,11 +257,82 @@ public class FileListenerService {
     }
 
 
+    static interface DownloadFileAction{
+        boolean downloadFile(String localFile,String remoteFile);
 
-    public void checkFtpNewFile(RemoteResourceInfo remoteResourceInfo, FtpConfig fileConfig, FtpContext ftpContext) {
+    }
 
-        File handleFile = new File( fileConfig.getSourcePath(), remoteResourceInfo.getName());//正式文件
-        File localFile = new File(fileConfig.getDownloadTempDir(),remoteResourceInfo.getName());//临时下载文件，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
+    public void checkSFtpNewFile(RemoteResourceInfo remoteResourceInfo,  final FtpContext ftpContext) {
+        checkRemoteNewFile(remoteResourceInfo.getName(), remoteResourceInfo.getPath(),  ftpContext, new DownloadFileAction() {
+            @Override
+            public boolean downloadFile(String localFile,String remoteFile) {
+                SFTPTransfer.downloadFile(ftpContext,remoteFile,localFile);
+                return true;
+            }
+        });
+//        File handleFile = new File( fileConfig.getSourcePath(), remoteResourceInfo.getName());//正式文件
+//        File localFile = new File(fileConfig.getDownloadTempDir(),remoteResourceInfo.getName());//临时下载文件，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
+//
+//        String fileId = FileInodeHandler.change(handleFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
+//        try {
+//            lock.lock();
+//            FileReaderTask fileReaderTask = fileConfigMap.get(fileId);
+//
+//            if (fileReaderTask == null) {
+//                if(this.completedTasks.containsKey(fileId)) {//作业已经完成
+//                    logger.debug("Ignore complete file {}",fileId);
+//                    return;
+//                }
+//                if(this.oldedTasks.containsKey(fileId)){//作业已经被移除到过时作业清单
+//                    logger.debug("Ignore old file {}",fileId);
+//                    return;
+//                }
+//                /**
+//                 * 如果处理文件不存在，则下载文件到本地临时目录,下载后重命名为正式处理文件，避免因下载中断处理不完整文件问题
+//                 */
+//                if(!handleFile.exists()){
+//
+//                    /**
+//                     * 支持断点续传
+//                     */
+//                    SFTPTransfer.downloadFile(ftpContext,remoteResourceInfo.getPath(),fileConfig.getDownloadTempDir());
+//                    if(!localFile.exists()){
+//                        logger.warn("文件下载失败：localPath:{},remotePath:{}",localFile.getAbsolutePath(),remoteResourceInfo.getPath());
+//                        return;
+//                    }
+//                    localFile.renameTo(handleFile);
+//                }
+//                if(!handleFile.exists()){
+//                    logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteResourceInfo.getPath(),handleFile.getAbsolutePath());
+//                    return;
+//                }
+//                //创建新的采集任务
+//
+//                if(logger.isInfoEnabled())
+//                    logger.info("Start collect new ftp file {}",fileId);
+//                Status currentStatus = new Status();
+//                currentStatus.setId(fileId.hashCode());
+//                currentStatus.setTime(new Date().getTime());
+//                currentStatus.setFileId(fileId);
+//                currentStatus.setFilePath(fileId);
+//                currentStatus.setRealPath(fileId);
+//                currentStatus.setStatus(ImportIncreamentConfig.STATUS_COLLECTING);
+//                long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
+//                currentStatus.setLastValue(pointer);
+//                boolean successed = baseDataTranPlugin.initFileTask(fileConfig, currentStatus, handleFile, pointer);
+//            }
+//
+//        } finally {
+//
+//            lock.unlock();
+//        }
+
+    }
+
+    private void checkRemoteNewFile(String fileName, String remoteFile, FtpContext ftpContext,DownloadFileAction downloadFileAction) {
+        FtpConfig fileConfig = ftpContext.getFtpConfig();
+        File handleFile = new File( fileConfig.getSourcePath(), fileName);//正式文件
+        File localFile = new File(fileConfig.getDownloadTempDir(),fileName);//临时下载文件，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
 
         String fileId = FileInodeHandler.change(handleFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
         try {
@@ -282,21 +356,22 @@ public class FileListenerService {
                     /**
                      * 支持断点续传
                      */
-                    SFTPTransfer.downloadFile(ftpContext,remoteResourceInfo.getPath(),fileConfig.getDownloadTempDir());
+//                    SFTPTransfer.downloadFile(ftpContext,remoteFile,fileConfig.getDownloadTempDir());
+                    downloadFileAction.downloadFile(localFile.getAbsolutePath(),remoteFile);
                     if(!localFile.exists()){
-                        logger.warn("文件下载失败：localPath:{},remotePath:{}",localFile.getAbsolutePath(),remoteResourceInfo.getPath());
+                        logger.warn("文件下载失败：localPath:{},remotePath:{}",localFile.getAbsolutePath(),remoteFile);
                         return;
                     }
                     localFile.renameTo(handleFile);
                 }
                 if(!handleFile.exists()){
-                    logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteResourceInfo.getPath(),handleFile.getAbsolutePath());
+                    logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteFile,handleFile.getAbsolutePath());
                     return;
                 }
                 //创建新的采集任务
 
                 if(logger.isInfoEnabled())
-                    logger.info("Start collect new ftp file {}",fileId);
+                    logger.info("Start collect new remote file {}",fileId);
                 Status currentStatus = new Status();
                 currentStatus.setId(fileId.hashCode());
                 currentStatus.setTime(new Date().getTime());
@@ -313,6 +388,78 @@ public class FileListenerService {
 
             lock.unlock();
         }
+
+    }
+
+
+    public void checkFtpNewFile(FTPFile remoteResourceInfo,   final FtpContext ftpContext) {
+        String name = remoteResourceInfo.getName().trim();
+        String remoteFile = SimpleStringUtil.getPath(ftpContext.getRemoteFileDir(),name);
+        checkRemoteNewFile(name, remoteFile,   ftpContext, new DownloadFileAction() {
+            @Override
+            public boolean downloadFile(String localFile,String remoteFile) {
+                FtpTransfer.downloadFile(ftpContext,localFile,remoteFile);
+                return true;
+            }
+        });
+//        File handleFile = new File( fileConfig.getSourcePath(), remoteResourceInfo.getName());//正式文件
+//        File localFile = new File(fileConfig.getDownloadTempDir(),remoteResourceInfo.getName());//临时下载文件，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
+//
+//        String fileId = FileInodeHandler.change(handleFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
+//        try {
+//            lock.lock();
+//            FileReaderTask fileReaderTask = fileConfigMap.get(fileId);
+//
+//            if (fileReaderTask == null) {
+//                if(this.completedTasks.containsKey(fileId)) {//作业已经完成
+//                    logger.debug("Ignore complete file {}",fileId);
+//                    return;
+//                }
+//                if(this.oldedTasks.containsKey(fileId)){//作业已经被移除到过时作业清单
+//                    logger.debug("Ignore old file {}",fileId);
+//                    return;
+//                }
+//                String remoteFile = SimpleStringUtil.getPath(ftpContext.getRemoteFileDir(),remoteResourceInfo.getName());
+//                /**
+//                 * 如果处理文件不存在，则下载文件到本地临时目录,下载后重命名为正式处理文件，避免因下载中断处理不完整文件问题
+//                 */
+//                if(!handleFile.exists()){
+//
+//                    /**
+//                     * 支持断点续传
+//                     */
+//
+//                    FtpTransfer.downloadFile(ftpContext,localFile.getAbsolutePath(),remoteFile);
+//                    if(!localFile.exists()){
+//                        logger.warn("文件下载失败：localPath:{},remotePath:{}",localFile.getAbsolutePath(),remoteFile);
+//                        return;
+//                    }
+//                    localFile.renameTo(handleFile);
+//                }
+//                if(!handleFile.exists()){
+//                    logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteFile,handleFile.getAbsolutePath());
+//                    return;
+//                }
+//                //创建新的采集任务
+//
+//                if(logger.isInfoEnabled())
+//                    logger.info("Start collect new ftp file {}",fileId);
+//                Status currentStatus = new Status();
+//                currentStatus.setId(fileId.hashCode());
+//                currentStatus.setTime(new Date().getTime());
+//                currentStatus.setFileId(fileId);
+//                currentStatus.setFilePath(fileId);
+//                currentStatus.setRealPath(fileId);
+//                currentStatus.setStatus(ImportIncreamentConfig.STATUS_COLLECTING);
+//                long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
+//                currentStatus.setLastValue(pointer);
+//                boolean successed = baseDataTranPlugin.initFileTask(fileConfig, currentStatus, handleFile, pointer);
+//            }
+//
+//        } finally {
+//
+//            lock.unlock();
+//        }
 
     }
 

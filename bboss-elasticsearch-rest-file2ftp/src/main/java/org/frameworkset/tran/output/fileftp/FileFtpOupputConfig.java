@@ -16,6 +16,7 @@ package org.frameworkset.tran.output.fileftp;
  */
 
 import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.util.RecordGenerator;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 	private int fileWriterBuffsize ;
 	private int maxFileRecordSize;
 	private List<String> hostKeyVerifiers;
-	private int transferProtocol;
+	private int transferProtocol = FtpConfig.TRANSFER_PROTOCOL_SFTP;
 	private boolean disableftp;
 
 	/**

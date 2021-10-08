@@ -146,5 +146,10 @@ public class FtpContextImpl implements FtpContext {
 		return ftpConfig.getFtpFileFilter();
 	}
 
+	@Override
+	public String getEncoding() {
+		return ftpConfig.getEncoding();
+	}
+
 
 }

@@ -18,6 +18,8 @@ package org.frameworkset.tran.output.fileftp;
 import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.ftp.FtpConfig;
+import org.frameworkset.tran.ftp.FtpTransfer;
 import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,14 +95,14 @@ public class FileTransfer {
 			if(!fileFtpOupputContext.disableftp()) {
 				if (file.length() <= 0) {
 					if (fileFtpOupputContext.transferEmptyFiles()) {
-						if (fileFtpOupputContext.getTransferProtocol() == FileFtpOupputContext.TRANSFER_PROTOCOL_FTP) {
+						if (fileFtpOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
 							FtpTransfer.sendFile(fileFtpOupputContext, filePath, remoteFilePath);
 						} else {
 							SFTPTransfer.sendFile(fileFtpOupputContext, this.filePath);
 						}
 					}
 				} else {
-					if (fileFtpOupputContext.getTransferProtocol() == FileFtpOupputContext.TRANSFER_PROTOCOL_FTP) {
+					if (fileFtpOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
 						FtpTransfer.sendFile(fileFtpOupputContext, filePath, remoteFilePath);
 					} else {
 						SFTPTransfer.sendFile(fileFtpOupputContext, this.filePath);

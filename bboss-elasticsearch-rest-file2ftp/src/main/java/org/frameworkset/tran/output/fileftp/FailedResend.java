@@ -17,6 +17,8 @@ package org.frameworkset.tran.output.fileftp;
 
 import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.ftp.FtpConfig;
+import org.frameworkset.tran.ftp.FtpTransfer;
 import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,14 +63,14 @@ public class FailedResend extends Thread{
 						String remoteFilePath = SimpleStringUtil.getPath(fileFtpOupputContext.getRemoteFileDir(), file.getName());
 						if (file.length() <= 0) {
 							if (fileFtpOupputContext.transferEmptyFiles()) {
-								if (fileFtpOupputContext.getTransferProtocol() == FileFtpOupputContext.TRANSFER_PROTOCOL_FTP) {
+								if (fileFtpOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
 									FtpTransfer.sendFile(fileFtpOupputContext, file.getPath(), remoteFilePath);
 								} else {
 									SFTPTransfer.sendFile(fileFtpOupputContext, file.getPath());
 								}
 							}
 						} else {
-							if (fileFtpOupputContext.getTransferProtocol() == FileFtpOupputContext.TRANSFER_PROTOCOL_FTP) {
+							if (fileFtpOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
 
 								FtpTransfer.sendFile(fileFtpOupputContext, file.getPath(), remoteFilePath);
 							} else {

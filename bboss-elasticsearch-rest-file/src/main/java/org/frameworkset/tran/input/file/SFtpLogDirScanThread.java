@@ -1,10 +1,8 @@
 package org.frameworkset.tran.input.file;
 
-import org.apache.commons.net.ftp.FTPFile;
+import net.schmizz.sshj.sftp.RemoteResourceInfo;
 import org.frameworkset.tran.ftp.FtpConfig;
-import org.frameworkset.tran.ftp.FtpContext;
-import org.frameworkset.tran.ftp.FtpContextImpl;
-import org.frameworkset.tran.ftp.FtpTransfer;
+import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,9 +14,8 @@ import java.util.List;
  * @description
  * @create 2021/3/23
  */
-public class FtpLogDirScanThread extends LogDirScanThread{
-    private Logger logger = LoggerFactory.getLogger(FtpLogDirScanThread.class);
-    protected FtpContext ftpContext ;
+public class SFtpLogDirScanThread extends FtpLogDirScanThread{
+    private Logger logger = LoggerFactory.getLogger(SFtpLogDirScanThread.class);
 
     /**
      * Constructs a monitor with the specified interval and set of observers.
@@ -27,9 +24,8 @@ public class FtpLogDirScanThread extends LogDirScanThread{
      * checks of the file system
      * @param fileListenerService .
      */
-    public FtpLogDirScanThread(final long interval, FtpConfig fileConfig, FileListenerService fileListenerService) {
+    public SFtpLogDirScanThread(final long interval, FtpConfig fileConfig, FileListenerService fileListenerService) {
        super(interval,fileConfig,fileListenerService);
-       ftpContext = new FtpContextImpl(fileConfig);
     }
 
 
@@ -41,28 +37,28 @@ public class FtpLogDirScanThread extends LogDirScanThread{
     public void scanNewFile(){
         if(logger.isDebugEnabled()){
             if(fileConfig.getFileFilter() == null)
-                logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",ftpContext.getRemoteFileDir(),fileConfig.getFileNameRegular());
+                logger.debug("Scan new sftp file in remote dir {} with filename regex {}.",ftpContext.getRemoteFileDir(),fileConfig.getFileNameRegular());
             else{
-                logger.debug("Scan new ftp file in remote dir {} with filename filter {}.",ftpContext.getRemoteFileDir(),
+                logger.debug("Scan new sftp file in remote dir {} with filename filter {}.",ftpContext.getRemoteFileDir(),
                         fileConfig.getFileFilter().getClass().getCanonicalName());
             }
         }
-        List<FTPFile> files = FtpTransfer.ls(ftpContext);
+        List<RemoteResourceInfo> files = SFTPTransfer.ls(ftpContext);
         if(files == null || files.size() == 0){
             if(logger.isInfoEnabled()) {
                 logger.info("{} must be a directory or is empty directory.", ftpContext.getRemoteFileDir());
             }
             return;
         }
-        for(FTPFile remoteResourceInfo:files){
+        for(RemoteResourceInfo remoteResourceInfo:files){
             if(remoteResourceInfo.isDirectory()) {
                 if(logger.isInfoEnabled()) {
-                    logger.info("Ignore ftp dir:{}",remoteResourceInfo.getName().trim());
+                    logger.info("Ignore sftp dir:{}",remoteResourceInfo.getPath());
                 }
                 continue;
             }
             else{
-                fileListenerService.checkFtpNewFile(remoteResourceInfo,ftpContext);
+                fileListenerService.checkSFtpNewFile(remoteResourceInfo,ftpContext);
             }
         }
 

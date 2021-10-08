@@ -30,8 +30,7 @@ import java.io.Writer;
  * @version 1.0
  */
 public interface FileFtpOupputContext extends FtpContext {
-	public final int TRANSFER_PROTOCOL_FTP = 1;
-	public final int TRANSFER_PROTOCOL_SFTP = 2;
+
 
 	public String generateFileName(TaskContext taskContext, int fileSeq);
 	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder) throws Exception;

@@ -32,8 +32,11 @@ import java.util.List;
  * @version 1.0
  */
 public class FtpConfig extends FileConfig {
+
+	public static final int TRANSFER_PROTOCOL_FTP = 1;
+	public static final int TRANSFER_PROTOCOL_SFTP = 2;
 	private List<String> hostKeyVerifiers;
-	private int transferProtocol;
+	private int transferProtocol = TRANSFER_PROTOCOL_SFTP;
 	private String ftpIP;
 	private int ftpPort;
 	private String ftpUser;
@@ -59,6 +62,7 @@ public class FtpConfig extends FileConfig {
 	private long keepAliveTimeout;
 	private int controlKeepAliveReplyTimeout;
 	private String remoteFileDir;
+	private String encoding;
 	public FtpConfig addHostKeyVerifier(String hostKeyVerifier) {
 		if(hostKeyVerifiers  == null){
 			this.hostKeyVerifiers = new ArrayList<String>();
@@ -265,5 +269,14 @@ public class FtpConfig extends FileConfig {
 		stringBuilder.append(",ftpUser:").append(this.ftpUser);
 		stringBuilder.append(",ftpPassword:").append(this.ftpPassword);
 
+	}
+
+	public String getEncoding() {
+		return encoding;
+	}
+
+	public FtpConfig setEncoding(String encoding) {
+		this.encoding = encoding;
+		return this;
 	}
 }
