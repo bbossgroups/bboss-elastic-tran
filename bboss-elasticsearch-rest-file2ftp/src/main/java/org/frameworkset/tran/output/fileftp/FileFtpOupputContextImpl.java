@@ -212,6 +212,12 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 	public String getRemoteFileDir() {
 		return fileFtpOupputConfig.getRemoteFileDir();
 	}
+
+	@Override
+	public boolean deleteRemoteFile() {
+		return false;
+	}
+
 	public int getFileLiveTime() {
 		return fileFtpOupputConfig.getFileLiveTime();
 	}

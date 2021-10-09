@@ -63,6 +63,7 @@ public class FtpConfig extends FileConfig {
 	private int controlKeepAliveReplyTimeout;
 	private String remoteFileDir;
 	private String encoding;
+	private boolean deleteRemoteFile;
 	public FtpConfig addHostKeyVerifier(String hostKeyVerifier) {
 		if(hostKeyVerifiers  == null){
 			this.hostKeyVerifiers = new ArrayList<String>();
@@ -277,6 +278,15 @@ public class FtpConfig extends FileConfig {
 
 	public FtpConfig setEncoding(String encoding) {
 		this.encoding = encoding;
+		return this;
+	}
+
+	public boolean isDeleteRemoteFile() {
+		return this.deleteRemoteFile;
+	}
+
+	public FtpConfig setDeleteRemoteFile(boolean deleteRemoteFile) {
+		this.deleteRemoteFile = deleteRemoteFile;
 		return this;
 	}
 }

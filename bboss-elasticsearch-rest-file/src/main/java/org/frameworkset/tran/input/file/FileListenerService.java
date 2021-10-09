@@ -257,17 +257,22 @@ public class FileListenerService {
     }
 
 
-    static interface DownloadFileAction{
+    static interface RemoteFileAction {
         boolean downloadFile(String localFile,String remoteFile);
-
+        void deleteFile(String remoteFile);
     }
 
     public void checkSFtpNewFile(RemoteResourceInfo remoteResourceInfo,  final FtpContext ftpContext) {
-        checkRemoteNewFile(remoteResourceInfo.getName(), remoteResourceInfo.getPath(),  ftpContext, new DownloadFileAction() {
+        checkRemoteNewFile(remoteResourceInfo.getName(), remoteResourceInfo.getPath(),  ftpContext, new RemoteFileAction() {
             @Override
             public boolean downloadFile(String localFile,String remoteFile) {
                 SFTPTransfer.downloadFile(ftpContext,remoteFile,localFile);
                 return true;
+            }
+
+            @Override
+            public void deleteFile(String remoteFile) {
+                  SFTPTransfer.deleteFile(ftpContext,remoteFile);
             }
         });
 //        File handleFile = new File( fileConfig.getSourcePath(), remoteResourceInfo.getName());//正式文件
@@ -329,7 +334,7 @@ public class FileListenerService {
 
     }
 
-    private void checkRemoteNewFile(String fileName, String remoteFile, FtpContext ftpContext,DownloadFileAction downloadFileAction) {
+    private void checkRemoteNewFile(String fileName, String remoteFile, FtpContext ftpContext, RemoteFileAction remoteFileAction) {
         FtpConfig fileConfig = ftpContext.getFtpConfig();
         File handleFile = new File( fileConfig.getSourcePath(), fileName);//正式文件
         File localFile = new File(fileConfig.getDownloadTempDir(),fileName);//临时下载文件，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
@@ -357,7 +362,7 @@ public class FileListenerService {
                      * 支持断点续传
                      */
 //                    SFTPTransfer.downloadFile(ftpContext,remoteFile,fileConfig.getDownloadTempDir());
-                    downloadFileAction.downloadFile(localFile.getAbsolutePath(),remoteFile);
+                    remoteFileAction.downloadFile(localFile.getAbsolutePath(),remoteFile);
                     if(!localFile.exists()){
                         logger.warn("文件下载失败：localPath:{},remotePath:{}",localFile.getAbsolutePath(),remoteFile);
                         return;
@@ -367,6 +372,19 @@ public class FileListenerService {
                 if(!handleFile.exists()){
                     logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteFile,handleFile.getAbsolutePath());
                     return;
+                }
+                else{
+                    if(ftpContext.deleteRemoteFile()) {
+                        try {
+
+                            remoteFileAction.deleteFile(remoteFile);
+                            if(logger.isDebugEnabled()){
+                                logger.debug("删除远程ftp服务器文件{}完毕",remoteFile);
+                            }
+                        } catch (Exception e) {
+                            logger.warn("删除远程ftp服务器文件失败：" + remoteFile, e);
+                        }
+                    }
                 }
                 //创建新的采集任务
 
@@ -395,11 +413,16 @@ public class FileListenerService {
     public void checkFtpNewFile(FTPFile remoteResourceInfo,   final FtpContext ftpContext) {
         String name = remoteResourceInfo.getName().trim();
         String remoteFile = SimpleStringUtil.getPath(ftpContext.getRemoteFileDir(),name);
-        checkRemoteNewFile(name, remoteFile,   ftpContext, new DownloadFileAction() {
+        checkRemoteNewFile(name, remoteFile,   ftpContext, new RemoteFileAction() {
             @Override
             public boolean downloadFile(String localFile,String remoteFile) {
                 FtpTransfer.downloadFile(ftpContext,localFile,remoteFile);
                 return true;
+            }
+
+            @Override
+            public void deleteFile(String remoteFile) {
+                FtpTransfer.deleteFile(ftpContext,remoteFile);
             }
         });
 //        File handleFile = new File( fileConfig.getSourcePath(), remoteResourceInfo.getName());//正式文件

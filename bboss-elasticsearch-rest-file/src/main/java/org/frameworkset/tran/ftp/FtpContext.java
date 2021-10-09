@@ -34,6 +34,7 @@ public interface FtpContext {
 	int getFtpPort();
 	FtpConfig getFtpConfig();
 	String getRemoteFileDir();
+	boolean deleteRemoteFile();
 
 	public String getFtpUser() ;
 

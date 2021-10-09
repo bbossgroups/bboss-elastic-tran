@@ -109,6 +109,25 @@ public class SFTPTransfer {
 
 	}
 
+
+	/**
+	 * 删除文件
+	 * @param fileFtpOupputContext
+	 * @param remoteFile
+	 */
+	public static void deleteFile(final FtpContext fileFtpOupputContext,final String remoteFile){
+		handlerFile(  fileFtpOupputContext, new SFTPAction (){
+
+			@Override
+			public void execute(SFTPClient sftp) throws IOException {
+				sftp.rm(remoteFile);
+				if(logger.isInfoEnabled())
+					logger.info("Delete file "+remoteFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success.");
+			}
+		}, "Delete file "+remoteFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed.");
+
+	}
+
 	private static void handlerFile(FtpContext fileFtpOupputContext, SFTPAction sftpAction,String errorMessage) {
 		final SSHClient ssh = new SSHClient();
 

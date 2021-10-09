@@ -40,6 +40,12 @@ import java.util.List;
 public class FtpTransfer {
 	private static Logger logger = LoggerFactory.getLogger(FtpTransfer.class);
 
+	/**
+	 * 上传文件
+	 * @param fileFtpOupputContext
+	 * @param filePath
+	 * @param remoteFilePath
+	 */
 	public static void sendFile(final FtpContext fileFtpOupputContext, final String filePath,
 								final String remoteFilePath) {
 
@@ -65,6 +71,11 @@ public class FtpTransfer {
 		});
 	}
 
+	/**
+	 * 列出文件
+	 * @param fileFtpOupputContext
+	 * @return
+	 */
 	public static List<FTPFile> ls(final FtpContext fileFtpOupputContext) {
 		final List<FTPFile> files = new ArrayList<FTPFile>();
 
@@ -96,6 +107,12 @@ public class FtpTransfer {
 		return files;
 	}
 
+	/**
+	 * 下载文件
+	 * @param fileFtpOupputContext
+	 * @param local
+	 * @param remote
+	 */
 	public static void downloadFile(final FtpContext fileFtpOupputContext, final String local,
 									final String remote) {
 
@@ -117,6 +134,29 @@ public class FtpTransfer {
 					if (output != null) {
 						output.close();
 					}
+				}
+			}
+		});
+	}
+
+	/**
+	 * 删除文件
+	 * @param fileFtpOupputContext
+	 * @param remoteFile
+	 */
+	public static void deleteFile(final FtpContext fileFtpOupputContext,final String remoteFile) {
+
+
+		handle(fileFtpOupputContext, new FTPAction() {
+
+			@Override
+			public void execute(FTPClient ftp) throws IOException {
+				try {
+					ftp.deleteFile(remoteFile);
+					if(logger.isInfoEnabled())
+						logger.info("Delete file "+remoteFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success.");
+				} catch (Exception e) {
+					throw new DataImportException("Delete file "+remoteFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success.", e);
 				}
 			}
 		});

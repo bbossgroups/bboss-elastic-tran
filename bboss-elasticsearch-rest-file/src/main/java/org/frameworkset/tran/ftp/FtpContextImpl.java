@@ -34,7 +34,9 @@ public class FtpContextImpl implements FtpContext {
 	public FtpContextImpl(FtpConfig ftpConfig) {
 		this.ftpConfig = ftpConfig;
 	}
-
+	public boolean deleteRemoteFile(){
+		return this.ftpConfig.isDeleteRemoteFile();
+	}
 
 	@Override
 	public String getFtpIP() {
