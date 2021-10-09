@@ -49,8 +49,8 @@ public class FtpLogDirScanThread extends LogDirScanThread{
         }
         List<FTPFile> files = FtpTransfer.ls(ftpContext);
         if(files == null || files.size() == 0){
-            if(logger.isInfoEnabled()) {
-                logger.info("{} must be a directory or is empty directory.", ftpContext.getRemoteFileDir());
+            if(logger.isDebugEnabled()) {
+                logger.debug("{} must be a directory or is empty directory.", ftpContext.getRemoteFileDir());
             }
             return;
         }
