@@ -87,7 +87,7 @@ public class TranErrorWrapper {
 	 * 判断执行条件是否成立，成立返回true，否则返回false
 	 * @return
 	 */
-	public static boolean assertCondition(Exception e,ImportContext importContext){
+	public static boolean assertCondition(Throwable e,ImportContext importContext){
 
 		if(e != null && !importContext.isContinueOnError() ) {
 

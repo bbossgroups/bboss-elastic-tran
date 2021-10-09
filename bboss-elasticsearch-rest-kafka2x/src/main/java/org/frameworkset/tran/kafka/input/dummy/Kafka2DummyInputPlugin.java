@@ -15,11 +15,11 @@ package org.frameworkset.tran.kafka.input.dummy;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.BaseCommonRecordDataTran;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.input.Kafka2InputPlugin;
-import org.frameworkset.tran.ouput.dummy.DummyOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -39,7 +39,8 @@ public class Kafka2DummyInputPlugin extends Kafka2InputPlugin {
 	}
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
-		DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,tranResultSet,importContext,   targetImportContext, currentStatus);
+		//DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,tranResultSet,importContext,   targetImportContext, currentStatus);
+		BaseCommonRecordDataTran dummyOutPutDataTran = super.createCustomOrDummyTran(taskContext,tranResultSet,currentStatus);
 		dummyOutPutDataTran.init();
 		return dummyOutPutDataTran;
 	}

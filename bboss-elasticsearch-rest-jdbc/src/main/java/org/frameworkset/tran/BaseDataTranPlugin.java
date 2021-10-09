@@ -26,6 +26,8 @@ import org.frameworkset.elasticsearch.boot.ElasticSearchBoot;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.ouput.custom.CustomOutPutDataTran;
+import org.frameworkset.tran.ouput.dummy.DummyOutPutDataTran;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.status.DefaultStatusManager;
 import org.frameworkset.tran.status.SingleStatusManager;
@@ -63,6 +65,20 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	protected StatusManager statusManager;
 	public ExportCount getExportCount() {
 		return exportCount;
+	}
+
+	protected BaseCommonRecordDataTran createCustomOrDummyTran(TaskContext taskContext,TranResultSet tranResultSet,Status currentStatus){
+		BaseCommonRecordDataTran baseCommonRecordDataTran = null;
+		if(importContext.getCustomOutPut() == null) {
+			baseCommonRecordDataTran = new DummyOutPutDataTran(taskContext, tranResultSet, importContext, targetImportContext, currentStatus);
+
+		}
+		else{
+			baseCommonRecordDataTran = new CustomOutPutDataTran(taskContext, tranResultSet, importContext, targetImportContext, currentStatus);
+
+		}
+
+		return baseCommonRecordDataTran;
 	}
 
 	/**

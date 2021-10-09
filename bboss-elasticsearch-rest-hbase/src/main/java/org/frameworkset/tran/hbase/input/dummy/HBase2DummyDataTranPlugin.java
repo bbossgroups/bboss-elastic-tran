@@ -16,10 +16,10 @@ package org.frameworkset.tran.hbase.input.dummy;
  */
 
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.frameworkset.tran.BaseCommonRecordDataTran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.hbase.HBaseInputPlugin;
 import org.frameworkset.tran.hbase.HBaseResultSet;
-import org.frameworkset.tran.ouput.dummy.DummyOutPutDataTran;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -44,9 +44,10 @@ public class HBase2DummyDataTranPlugin extends HBaseInputPlugin {
 	@Override
 	protected void doTran(ResultScanner rs, TaskContext taskContext) {
 		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
-		DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,hBaseResultSet,importContext,   targetImportContext, currentStatus);
-		dummyOutPutDataTran.init();
-		dummyOutPutDataTran.tran();
+		BaseCommonRecordDataTran baseCommonRecordDataTran = createCustomOrDummyTran( taskContext,  hBaseResultSet,currentStatus);
+		baseCommonRecordDataTran.init();
+		baseCommonRecordDataTran.tran();
+
 	}
 
 

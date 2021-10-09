@@ -16,14 +16,12 @@ package org.frameworkset.tran.es.input.dummy;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.DataTranPlugin;
-import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.input.ESExportBuilder;
+import org.frameworkset.tran.ouput.custom.CustomDummyUtil;
 import org.frameworkset.tran.ouput.dummy.DummyOupputConfig;
-import org.frameworkset.tran.ouput.dummy.DummyOupputContextImpl;
 
 /**
  * <p>Description: </p>
@@ -41,11 +39,7 @@ public class ES2DummyExportBuilder extends ESExportBuilder {
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
 		return new ES2EDummyDataTranPlugin(  importContext,  targetImportContext);
 	}
-	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-		DummyOupputContextImpl dummyOupputContext = new DummyOupputContextImpl((DummyOupputConfig) importConfig);
-		dummyOupputContext.init();
-		return dummyOupputContext;
-	}
+
 	public DataStream builder(){
 		DataStream dataStream = super.builder();
 //		this.buildDBConfig();
@@ -61,18 +55,7 @@ public class ES2DummyExportBuilder extends ESExportBuilder {
 		}
 
 
-		if(dummyOupputConfig != null)
-			dataStream.setTargetImportContext(buildTargetImportContext(dummyOupputConfig) );
-		else
-			throw new DataImportException("DummyOupputConfig is null,please set it as:\n\t\tDummyOupputConfig dummyOupputConfig = new DummyOupputConfig();\n" +
-					"\t\tdummyOupputConfig.setRecordGenerator(new RecordGenerator() {\n" +
-					"\t\t\t@Override\n" +
-					"\t\t\tpublic void buildRecord(Context taskContext, CommonRecord record, Writer builder) throws Exception{\n" +
-					"\t\t\t\tSimpleStringUtil.object2json(record.getDatas(),builder);\n" +
-					"\n" +
-					"\t\t\t}\n" +
-					"\t\t}).setPrintRecord(true);\n" +
-					"\t\timportBuilder.setDummyOupputConfig(dummyOupputConfig);");
+		CustomDummyUtil.setTargetImportContext(dummyOupputConfig,dataStream);
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
 
 		return dataStream;

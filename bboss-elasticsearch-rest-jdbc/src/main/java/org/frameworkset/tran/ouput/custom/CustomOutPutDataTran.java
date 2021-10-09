@@ -1,19 +1,17 @@
-package org.frameworkset.tran.ouput.dummy;
+package org.frameworkset.tran.ouput.custom;
 
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.elasticsearch.ElasticSearchException;
-import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
-import org.frameworkset.tran.ouput.custom.CustomOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCall;
-import org.frameworkset.tran.util.TranUtil;
+import org.slf4j.Logger;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,38 +21,74 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-public class DummyOutPutDataTran extends CustomOutPutDataTran {
-	protected DummyOupputContext dummyOupputContext ;
-//	protected String fileName;
-//	protected String remoteFileName;
+public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 
-	public DummyOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, Status currentStatus) {
-		super(taskContext,jdbcResultSet,importContext, targetImportContext,  currentStatus);
+	protected CountDownLatch countDownLatch;
+
+	protected String taskInfo ;
+	@Override
+	public void logTaskStart(Logger logger) {
+//		StringBuilder builder = new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
+//				.append("] dbuser[").append(importContext.getDbConfig().getDbUser())
+//				.append("] insert sql[").append(es2DBContext.getTargetSqlInfo() == null ?"": es2DBContext.getTargetSqlInfo().getOriginSQL()).append("] \r\nupdate sql[")
+//					.append(es2DBContext.getTargetUpdateSqlInfo() == null?"":es2DBContext.getTargetUpdateSqlInfo().getOriginSQL()).append("] \r\ndelete sql[")
+//					.append(es2DBContext.getTargetDeleteSqlInfo() == null ?"":es2DBContext.getTargetDeleteSqlInfo().getOriginSQL()).append("] start.");
+		logger.info(taskInfo + " start.");
 	}
-	public DummyOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch, Status currentStatus) {
-		super(taskContext, jdbcResultSet, importContext, targetImportContext, countDownLatch, currentStatus);
+
+	@Override
+	public void stop(){
+		if(esTranResultSet != null) {
+			esTranResultSet.stop();
+			esTranResultSet = null;
+		}
+		super.stop();
 	}
-
-
-	public void init(){
-		super.init();
-
-		dummyOupputContext = (DummyOupputContext)targetImportContext;
-		taskInfo = new StringBuilder().append("import data to dummy").toString();
-
-
+	/**
+	 * 只停止转换作业
+	 */
+	@Override
+	public void stopTranOnly(){
+		if(esTranResultSet != null) {
+			esTranResultSet.stopTranOnly();
+			esTranResultSet = null;
+		}
+		super.stopTranOnly();
 	}
 
 
 	@Override
+	public String tran() throws ESDataImportException {
+		try {
+			String ret = super.tran();
+
+			return ret;
+		}
+		finally {
+			if(this.countDownLatch != null)
+				countDownLatch.countDown();
+		}
+	}
+
+	public void init(){
+		super.init();
+		taskInfo = new StringBuilder().append("Import data to custom output.").toString();
+
+
+	}
+
+
+
+	public CustomOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, Status currentStatus) {
+		super(taskContext,jdbcResultSet,importContext, targetImportContext,  currentStatus);
+	}
+	public CustomOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch, Status currentStatus) {
+		super(taskContext,jdbcResultSet,importContext, targetImportContext,  currentStatus);
+		this.countDownLatch = countDownLatch;
+	}
 	public String serialExecute(){
 		logger.info("serial import data Execute started.");
-		StringBuilder builder = null;
-		BBossStringWriter writer = null;
-		if(dummyOupputContext.isPrintRecord()) {
-			builder = new StringBuilder();
-			writer = new BBossStringWriter(builder);
-		}
+		List<CommonRecord> datas = new ArrayList<>();
 		Object lastValue = null;
 		Exception exception = null;
 		long start = System.currentTimeMillis();
@@ -79,16 +113,14 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 				if(hasNext == null){
 					String ret = null;
 					if(count > 0) {
-						String _dd = null;
-						if(dummyOupputContext.isPrintRecord()) {
-							_dd = builder.toString();
-							builder.setLength(0);
-						}
+
+
 						int _count = count;
 						count = 0;
-						DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(importCount, importContext,targetImportContext,
-								_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
-						taskCommand.setDatas(_dd);
+						CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(importCount, importContext,targetImportContext,
+								_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
+						taskCommand.setDatas(datas);
+						datas = new ArrayList<>();
 						ret = TaskCall.call(taskCommand);
 						taskNo ++;
 					}
@@ -133,13 +165,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 						continue;
 					}
 					CommonRecord record = buildRecord(  context );
-					dummyOupputContext.generateReocord(context, record, writer);
-					if(dummyOupputContext.isPrintRecord()) {
-
-						writer.write(TranUtil.lineSeparator);
-					}
-//					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));
-//					//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
+					datas.add(record) ;
 					totalCount++;
 					count ++;
 
@@ -149,13 +175,10 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 			}
 			if(count > 0) {
 
-				DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(importCount, importContext,targetImportContext,
-						count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+				CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(importCount, importContext,targetImportContext,
+						count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 				taskNo ++;
-				if(dummyOupputContext.isPrintRecord()) {
-					taskCommand.setDatas(builder.toString());
-					builder.setLength(0);
-				}
+				taskCommand.setDatas(datas);
 				TaskCall.call(taskCommand);
 
 			}
@@ -190,7 +213,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 			}
 			if(importContext.isCurrentStoped()){
 
-					this.stopTranOnly();
+				this.stopTranOnly();
 
 			}
 			importCount.setJobEndTime(new Date());
@@ -204,15 +227,9 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 	 * @return
 	 */
-	@Override
 	public String parallelBatchExecute( ){
 		int count = 0;
-		StringBuilder builder = null;
-		BBossStringWriter writer = null;
-		if(dummyOupputContext.isPrintRecord()) {
-			builder = new StringBuilder();
-			writer = new BBossStringWriter(builder);
-		}
+		List<CommonRecord> datas = new ArrayList<>();
 		String ret = null;
 		ExecutorService	service = importContext.buildThreadPool();
 		List<Future> tasks = new ArrayList<Future>();
@@ -237,18 +254,13 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 				Boolean hasNext = jdbcResultSet.next();
 				if(hasNext == null){//强制flush操作
 					if (count > 0) {
-						String datas = null;
-						if(dummyOupputContext.isPrintRecord()) {
-							datas = builder.toString();
-							builder.setLength(0);
-						}
-
 
 						int _count = count;
 						count = 0;
-						DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,targetImportContext,
-								_count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+						CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(totalCount, importContext,targetImportContext,
+								_count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 						taskCommand.setDatas(datas);
+						datas = new ArrayList<>();
 						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 						taskNo++;
 
@@ -281,23 +293,17 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 					continue;
 				}
 				CommonRecord record = buildRecord(  context );
-				dummyOupputContext.generateReocord(context,record, writer);
-				if(dummyOupputContext.isPrintRecord()) {
-					writer.write(TranUtil.lineSeparator);
-				}
+				datas.add(record) ;
 				count++;
 				if(count >= batchsize ){
-					String datas = null;
-					if(dummyOupputContext.isPrintRecord()) {
-						datas = builder.toString();
-						builder.setLength(0);
-					}
+
 
 					int _count = count;
 					count = 0;
-					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,targetImportContext,
-							_count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+					CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(totalCount, importContext,targetImportContext,
+							_count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas(datas);
+					datas = new ArrayList<>();
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 					taskNo++;
 
@@ -307,14 +313,11 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 				if(!tranErrorWrapper.assertCondition()) {
 					tranErrorWrapper.throwError();
 				}
-				String datas = null;
-				if(dummyOupputContext.isPrintRecord()) {
-					datas = builder.toString();
-					builder.setLength(0);
-				}
-				DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,targetImportContext,
-						count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+
+				CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(totalCount, importContext,targetImportContext,
+						count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 				taskCommand.setDatas(datas);
+				datas = null;
 				tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 				if(isPrintTaskLog())
@@ -340,29 +343,20 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 		}
 		finally {
 			waitTasksComplete(tasks, service, exception, lastValue, totalCount, tranErrorWrapper, (WaitTasksCompleteCallBack)null,reachEOFClosed);
-			try {
-				writer.close();
-			} catch (Exception e) {
 
-			}
 			totalCount.setJobEndTime(new Date());
 		}
 
 		return ret;
 	}
+
 	/**
 	 * 串行批处理导入
 	 * @return
 	 */
-	@Override
-	public String batchExecute(  ){
+	public String batchExecute(){
 		int count = 0;
-		StringBuilder builder = null;
-		BBossStringWriter writer = null;
-		if(dummyOupputContext.isPrintRecord()) {
-			builder = new StringBuilder();
-			writer = new BBossStringWriter(builder);
-		}
+		List<CommonRecord> datas = new ArrayList<>();
 		String ret = null;
 		int taskNo = 0;
 		Exception exception = null;
@@ -386,16 +380,13 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 				Boolean hasNext = jdbcResultSet.next();
 				if(hasNext == null){
 					if(count > 0) {
-						String _dd = null;
-						if(dummyOupputContext.isPrintRecord()) {
-							_dd = builder.toString();
-							builder.setLength(0);
-						}
+
 						int _count = count;
 						count = 0;
-						DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(importCount, importContext,targetImportContext,
-								_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
-						taskCommand.setDatas(_dd);
+						CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(importCount, importContext,targetImportContext,
+								_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
+						taskCommand.setDatas(datas);
+						datas = new ArrayList<>();
 						ret = TaskCall.call(taskCommand);
 
 
@@ -437,31 +428,19 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 					continue;
 				}
 				CommonRecord record = buildRecord(  context );
+				datas.add(record);
 
-				dummyOupputContext.generateReocord(context,record, writer);
-				if(dummyOupputContext.isPrintRecord()) {
-					writer.write(TranUtil.lineSeparator);
-				}
 				count++;
 				totalCount ++;
 				if (count >= batchsize) {
-					String datas = null;
-					if(dummyOupputContext.isPrintRecord()) {
-						writer.flush();
-						datas = builder.toString();
-						builder.setLength(0);
-						writer.close();
-						writer = new BBossStringWriter(builder);
-					}
+
 					int _count = count;
 					count = 0;
-					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(importCount, importContext,targetImportContext,
-							_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+					CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(importCount, importContext,targetImportContext,
+							_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas(datas);
+					datas = new ArrayList<>();
 					ret = TaskCall.call(taskCommand);
-
-
-
 					if(isPrintTaskLog())  {
 						end = System.currentTimeMillis();
 						logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
@@ -475,14 +454,10 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 			}
 			if (count > 0) {
-				String datas = null;
-				if(dummyOupputContext.isPrintRecord()) {
-					writer.flush();
-					datas = builder.toString();
-				}
 
-				DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(importCount, importContext, targetImportContext,
-						count, taskNo, importCount.getJobNo(),  lastValue,  currentStatus,reachEOFClosed);
+
+				CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(importCount, importContext, targetImportContext,
+						count, taskNo, importCount.getJobNo(),  lastValue,  currentStatus,reachEOFClosed,taskContext);
 				taskCommand.setDatas(datas);
 				TaskCall.call(taskCommand);
 				if(isPrintTaskLog())  {
@@ -521,11 +496,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 					this.stopTranOnly();
 				}
 			}
-			try {
-				writer.close();
-			} catch (Exception e) {
 
-			}
 			importCount.setJobEndTime(new Date());
 		}
 

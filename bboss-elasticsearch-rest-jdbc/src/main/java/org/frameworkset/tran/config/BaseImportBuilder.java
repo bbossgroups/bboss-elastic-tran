@@ -25,6 +25,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
@@ -63,6 +64,7 @@ public abstract class BaseImportBuilder {
 	private String splitFieldName;
 
 	private transient SplitHandler splitHandler;
+	private transient CustomOutPut customOutPut;
 	/**
 	 * 设置强制刷新检测空闲时间间隔，单位：毫秒，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作，默认8秒,为0时关闭本机制
 	 */
@@ -1240,6 +1242,7 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setAsynFlushStatusInterval(this.asynFlushStatusInterval);
 		baseImportConfig.setSplitHandler(this.getSplitHandler());
 		baseImportConfig.setSplitFieldName(getSplitFieldName());
+		baseImportConfig.setCustomOutPut(customOutPut);
 //		baseImportConfig.setEsDetectNoop(this.esDetectNoop);
 
 	}
@@ -1625,6 +1628,15 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setSplitHandler(SplitHandler splitHandler) {
 		this.splitHandler = splitHandler;
+		return this;
+	}
+	@JsonIgnore
+	public CustomOutPut getCustomOutPut() {
+		return customOutPut;
+	}
+
+	public BaseImportBuilder setCustomOutPut(CustomOutPut customOutPut) {
+		this.customOutPut = customOutPut;
 		return this;
 	}
 }

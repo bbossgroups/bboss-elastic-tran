@@ -15,12 +15,12 @@ package org.frameworkset.tran.db.input.dummy;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.BaseCommonRecordDataTran;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.input.SQLBaseDataTranPlugin;
-import org.frameworkset.tran.ouput.dummy.DummyOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -44,7 +44,8 @@ public class DB2DummyDataTranPlugin extends SQLBaseDataTranPlugin implements Dat
 
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
-		DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,tranResultSet,importContext,   targetImportContext, currentStatus);
+		BaseCommonRecordDataTran dummyOutPutDataTran = super.createCustomOrDummyTran(taskContext,tranResultSet,currentStatus);
+		//DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,tranResultSet,importContext,   targetImportContext, currentStatus);
 		dummyOutPutDataTran.init();
 		return dummyOutPutDataTran;
 	}

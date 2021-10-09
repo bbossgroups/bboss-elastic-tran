@@ -22,6 +22,7 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 
@@ -44,6 +45,9 @@ public abstract  class BaseImportContext implements ImportContext {
 
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;
+	}
+	public CustomOutPut getCustomOutPut(){
+		return baseImportConfig.getCustomOutPut();
 	}
 	public String[] getExportColumns(){
 		return  baseImportConfig.getExportColumns();

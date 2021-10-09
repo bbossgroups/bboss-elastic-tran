@@ -1,4 +1,4 @@
-package org.frameworkset.tran.ouput.dummy;
+package org.frameworkset.tran.ouput.custom;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -16,21 +16,18 @@ package org.frameworkset.tran.ouput.dummy;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.schedule.TaskContext;
 
-import java.io.Writer;
+import java.util.List;
 
 /**
- * <p>Description: </p>
+ * <p>Description: 自定义数据处理组件</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/1/28 16:48
+ * @Date 2021/10/9 17:08
  * @author biaoping.yin
  * @version 1.0
  */
-public interface DummyOupputContext    {
-
-	public boolean isPrintRecord();
-	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder) throws Exception;
-
-
+public interface CustomOutPut {
+	public void handleData(TaskContext taskContext,List<CommonRecord> datas);
 }

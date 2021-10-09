@@ -16,10 +16,10 @@ package org.frameworkset.tran.mongodb.input.dummy;
  */
 
 import com.mongodb.DBCursor;
+import org.frameworkset.tran.BaseCommonRecordDataTran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.mongodb.MongoDBResultSet;
 import org.frameworkset.tran.mongodb.input.MongoDBInputPlugin;
-import org.frameworkset.tran.ouput.dummy.DummyOutPutDataTran;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -44,7 +44,8 @@ public class Mongodb2DummyDataTranPlugin extends MongoDBInputPlugin {
 	@Override
 	protected void doTran(DBCursor dbCursor, TaskContext taskContext) {
 		MongoDBResultSet mongoDB2DBResultSet = new MongoDBResultSet(importContext,dbCursor);
-		DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,mongoDB2DBResultSet,importContext,   targetImportContext, currentStatus);
+		BaseCommonRecordDataTran dummyOutPutDataTran = super.createCustomOrDummyTran(taskContext,mongoDB2DBResultSet,currentStatus);
+		//DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,mongoDB2DBResultSet,importContext,   targetImportContext, currentStatus);
 		dummyOutPutDataTran.init();
 		dummyOutPutDataTran.tran();
 	}
