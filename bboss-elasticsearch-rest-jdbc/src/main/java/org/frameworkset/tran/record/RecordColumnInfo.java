@@ -26,14 +26,14 @@ import java.text.DateFormat;
  * @version 1.0
  */
 public class RecordColumnInfo {
-	private boolean dataTag;
+	private boolean dateTag;
 	private DateFormat dateFormat;
-	public boolean isDataTag() {
-		return dataTag;
+	public boolean isDateTag() {
+		return dateTag;
 	}
 
-	public void setDataTag(boolean dataTag) {
-		this.dataTag = dataTag;
+	public void setDateTag(boolean dateTag) {
+		this.dateTag = dateTag;
 	}
 
 	public DateFormat getDateFormat() {

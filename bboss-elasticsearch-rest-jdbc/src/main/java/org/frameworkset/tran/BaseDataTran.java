@@ -69,7 +69,7 @@ public abstract class BaseDataTran implements DataTran{
 			if(dateFormat == null)
 				dateFormat = context.getDateFormat();
 			recordColumnInfo = new RecordColumnInfo();
-			recordColumnInfo.setDataTag(true);
+			recordColumnInfo.setDateTag(true);
 			recordColumnInfo.setDateFormat(dateFormat);
 		}
 		record.addData(fieldName, value,recordColumnInfo);

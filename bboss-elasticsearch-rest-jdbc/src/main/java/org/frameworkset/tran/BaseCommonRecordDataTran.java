@@ -164,7 +164,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 				if(dateFormat == null)
 					dateFormat = context.getDateFormat();
 				recordColumnInfo = new RecordColumnInfo();
-				recordColumnInfo.setDataTag(true);
+				recordColumnInfo.setDateTag(true);
 				recordColumnInfo.setDateFormat(dateFormat);
 			}
 			dbRecord.addData(varName,temp,recordColumnInfo);
