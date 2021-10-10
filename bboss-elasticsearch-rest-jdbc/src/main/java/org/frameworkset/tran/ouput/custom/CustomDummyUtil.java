@@ -48,7 +48,20 @@ public class CustomDummyUtil {
 			dataStream.setTargetImportContext(importContext);
 		}
 		else
-			throw new DataImportException("DummyOupputConfig is null,please set it as:\n\t\tDummyOupputConfig dummyOupputConfig = new DummyOupputConfig();\n" +
+			throw new DataImportException("Must set CustomOutPut or DummyOupputConfig ," +
+					"\n Set CustomOutPut  as:\n\t\t//自己处理数据\n" +
+					"importBuilder.setCustomOutPut(new CustomOutPut() {\n" +
+					"   @Override\n" +
+					"   public void handleData(TaskContext taskContext, List<CommonRecord> datas) {\n" +
+					"\n" +
+					"      //You can do any thing here for datas\n" +
+					"      for(CommonRecord record:datas){\n" +
+					"         Map<String,Object> data = record.getDatas();\n" +
+					"         logger.info(SimpleStringUtil.object2json(data));\n" +
+					"      }\n" +
+					"   }\n" +
+					"});\r\n" +
+					"\n Or Set DummyOupputConfig  as:\n\t\tDummyOupputConfig dummyOupputConfig = new DummyOupputConfig();\n" +
 					"\t\tdummyOupputConfig.setRecordGenerator(new RecordGenerator() {\n" +
 					"\t\t\t@Override\n" +
 					"\t\t\tpublic void buildRecord(Context taskContext, CommonRecord record, Writer builder) throws Exception{\n" +
