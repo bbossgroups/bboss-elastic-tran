@@ -36,7 +36,21 @@ public interface SplitHandler {
 	 * @param taskContext
 	 * @param record
 	 * @param fieldValue
-	 * @return
+	 * @return KeyMap为LinkedHashMap的子类，添加key字段，用于设置用于kafka之类的消息key，如果是往kafka推送数据，可以设置推送的key，
+	 * public class KeyMap<K,V> extends LinkedHashMap<K,V> {
+	 *
+	 * 	  标识记录key信息
+	 *
+	 * 	private Object key;
+	 *
+		public Object getKey() {
+	 * 		return key;
+	 * 	}
+	 *
+		public void setKey(Object key) {
+	 * 		this.key = key;
+	 * 	}
+     * }
 	 */
-	public List<KeyMap<String,Object>> splitField(TaskContext taskContext, Record record, Object splitValue);
+	public List<KeyMap> splitField(TaskContext taskContext, Record record, Object fieldValue);
 }

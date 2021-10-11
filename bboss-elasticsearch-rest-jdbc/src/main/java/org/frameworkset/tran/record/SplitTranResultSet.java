@@ -32,7 +32,7 @@ import java.util.*;
  */
 public class SplitTranResultSet  implements TranResultSet {
 	private TranResultSet tranResultSet;
-	private List<KeyMap<String,Object>> splitRecords;
+	private List<KeyMap> splitRecords;
 	private SplitHandler splitHandler;
 	private ImportContext importContext;
 	private int splitSize;
@@ -164,7 +164,7 @@ public class SplitTranResultSet  implements TranResultSet {
 				if(baseRecord.removed()){//标记为removed状态的记录不需要切割
 					return hasNext;
 				}
-				List<KeyMap<String, Object>> splitRecords_ = splitHandler.splitField(getTaskContext(), baseRecord,
+				List<KeyMap> splitRecords_ = splitHandler.splitField(getTaskContext(), baseRecord,
 						baseRecord.getValue(getTaskContext().getImportContext().getSplitFieldName()));
 				if (splitRecords_ == null || splitRecords_.size() == 0) {
 					record = null;
