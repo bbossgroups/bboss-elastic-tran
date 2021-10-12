@@ -60,7 +60,7 @@ public abstract class BaseDataTran implements DataTran{
 			}
 			if (addedFields.containsKey(varName))
 				continue;
-			addRecordValue( record, varName,jdbcResultSet.getValue(fieldName),(FieldMeta)null ,context);
+			addRecordValue( record, varName,jdbcResultSet.getValue(fieldName),fieldMeta ,context);
 //			record.addData(fieldName, jdbcResultSet.getValue(fieldName));
 			addedFields.put(varName, dummy);
 
