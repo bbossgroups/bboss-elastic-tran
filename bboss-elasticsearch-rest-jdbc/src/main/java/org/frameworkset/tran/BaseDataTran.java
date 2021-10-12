@@ -1,5 +1,6 @@
 package org.frameworkset.tran;
 
+import org.frameworkset.elasticsearch.ElasticSearchException;
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
@@ -43,14 +44,25 @@ public abstract class BaseDataTran implements DataTran{
 			return;
 		}
 
-
+		String varName = null;
 		for (String fieldName : splitColumns) {
-//				String fieldName = fieldMeta.getEsFieldName();
-			if (addedFields.containsKey(fieldName))
+			FieldMeta fieldMeta = context.getMappingName(fieldName);//获取字段映射或者忽略配置
+
+			if(fieldMeta != null) {
+				if(fieldMeta.getIgnore() != null && fieldMeta.getIgnore() == true)//忽略字段
+					continue;
+				varName = fieldMeta.getTargetFieldName();//获取映射字段
+				if(varName == null || varName.equals(""))
+					throw new ElasticSearchException("fieldName["+fieldName+"]名称映射配置错误：varName="+varName);
+			}
+			else{
+				varName = fieldName;
+			}
+			if (addedFields.containsKey(varName))
 				continue;
-			addRecordValue( record, fieldName,jdbcResultSet.getValue(fieldName),(FieldMeta)null ,context);
+			addRecordValue( record, varName,jdbcResultSet.getValue(fieldName),(FieldMeta)null ,context);
 //			record.addData(fieldName, jdbcResultSet.getValue(fieldName));
-			addedFields.put(fieldName, dummy);
+			addedFields.put(varName, dummy);
 
 		}
 

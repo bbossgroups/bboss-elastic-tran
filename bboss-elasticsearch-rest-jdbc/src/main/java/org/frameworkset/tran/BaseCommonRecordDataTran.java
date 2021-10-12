@@ -1,5 +1,6 @@
 package org.frameworkset.tran;
 
+import org.frameworkset.elasticsearch.ElasticSearchException;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.RecordColumnInfo;
@@ -83,8 +84,6 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 		}
 		TranMeta metaData = context.getMetaData();
 		Boolean useJavaName = context.getUseJavaName();
-		if(useJavaName == null)
-			useJavaName = true;
 
 		Boolean useLowcase = context.getUseLowcase();
 
@@ -104,7 +103,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 		List<FieldMeta> fieldValueMetas = context.getFieldValues();//context优先级高于splitColumns,splitColumns高于全局配置，全局配置高于数据源级别字段值
 
 		appendFieldValues( dbRecord, columns,    fieldValueMetas,  addedFields, useResultKeys,context);
-		//计算记录切割字段
+		//计算记录切割字段，如果存在忽略字段，则需要通过补偿方法，对数据进行忽略处理
 		appendSplitFieldValues(dbRecord,
 				 splitColumns,
 				 addedFields,context);
@@ -114,7 +113,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 		//计算数据源级别字段值
 		String varName = null;
 		String colName = null;
-		String splitFieldName = context.getImportContext().getSplitFieldName();
+//		String splitFieldName = context.getImportContext().getSplitFieldName();
 		for(int i = 0;columns !=null && i < columns.length; i ++)
 		{
 			colName = columns[i];
@@ -132,6 +131,8 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 				if(fieldMeta.getIgnore() != null && fieldMeta.getIgnore() == true)
 					continue;
 				varName = fieldMeta.getTargetFieldName();
+				if(varName == null || varName.equals(""))
+					throw new ElasticSearchException("fieldName["+colName+"]名称映射配置错误：varName="+varName);
 			}
 			else if(useResultKeys && metaData != null && metaData.getColumnCount() > 0 ){
 				if(useJavaName) {
@@ -172,8 +173,14 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 
 		}
 
-
+		if(splitColumns !=  null && splitColumns.length > 0){
+			handleIgnoreFieldsAgain();
+		}
 		return dbRecord;
+	}
+
+	protected void handleIgnoreFieldsAgain(){
+
 	}
 
 
