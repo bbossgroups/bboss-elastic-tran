@@ -79,4 +79,5 @@ public class ScheduleConfig {
 	public void setFixedRate(Boolean fixedRate) {
 		this.fixedRate = fixedRate;
 	}
+
 }

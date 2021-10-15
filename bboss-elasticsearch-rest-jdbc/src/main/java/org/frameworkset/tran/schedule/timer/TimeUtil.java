@@ -1,4 +1,4 @@
-package org.frameworkset.tran.file.util;
+package org.frameworkset.tran.schedule.timer;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -14,10 +14,6 @@ package org.frameworkset.tran.file.util;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import org.frameworkset.tran.ftp.FtpConfig;
-import org.frameworkset.tran.input.file.FileConfig;
-import org.frameworkset.tran.input.file.TimeRange;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -44,34 +40,34 @@ public class TimeUtil {
 		int min = calendar.get(Calendar.MINUTE);
 		System.out.println(itime);
 
-		FileConfig fileConfig = new FtpConfig();
-		fileConfig.addScanNewFileTimeRange("17:29-18:30");
-		boolean result = TimeUtil.evalateNeedScan(fileConfig);
+		TimerScheduleConfig timerScheduleConfig = new TimerScheduleConfig();
+		timerScheduleConfig.addScanNewFileTimeRange("17:29-18:30");
+		boolean result = TimeUtil.evalateNeedScan(timerScheduleConfig);
 		System.out.println(result);
 
-		fileConfig = new FtpConfig();
-		fileConfig.addScanNewFileTimeRange("18:29-18:30");
-		result = TimeUtil.evalateNeedScan(fileConfig);
+		timerScheduleConfig = new TimerScheduleConfig();
+		timerScheduleConfig.addScanNewFileTimeRange("18:29-18:30");
+		result = TimeUtil.evalateNeedScan(timerScheduleConfig);
 		System.out.println(result);
 
-		fileConfig = new FtpConfig();
-		fileConfig.addScanNewFileTimeRange("18:29-");
-		result = TimeUtil.evalateNeedScan(fileConfig);
+		timerScheduleConfig = new TimerScheduleConfig();
+		timerScheduleConfig.addScanNewFileTimeRange("18:29-");
+		result = TimeUtil.evalateNeedScan(timerScheduleConfig);
 		System.out.println(result);
 
-		fileConfig = new FtpConfig();
-		fileConfig.addScanNewFileTimeRange("-18:29");
-		result = TimeUtil.evalateNeedScan(fileConfig);
+		timerScheduleConfig = new TimerScheduleConfig();
+		timerScheduleConfig.addScanNewFileTimeRange("-18:29");
+		result = TimeUtil.evalateNeedScan(timerScheduleConfig);
 		System.out.println(result);
 
-		fileConfig = new FtpConfig();
-		fileConfig.addSkipScanNewFileTimeRange("-18:29");
-		result = TimeUtil.evalateNeedScan(fileConfig);
+		timerScheduleConfig = new TimerScheduleConfig();
+		timerScheduleConfig.addSkipScanNewFileTimeRange("-18:29");
+		result = TimeUtil.evalateNeedScan(timerScheduleConfig);
 		System.out.println(result);
 
-		fileConfig = new FtpConfig();
-		fileConfig.addSkipScanNewFileTimeRange("-14:29");
-		result = TimeUtil.evalateNeedScan(fileConfig);
+		timerScheduleConfig = new TimerScheduleConfig();
+		timerScheduleConfig.addSkipScanNewFileTimeRange("-14:29");
+		result = TimeUtil.evalateNeedScan(timerScheduleConfig);
 		System.out.println(result);
 	}
 	public static TimeRange parserTimeRange(String timeRange){
@@ -144,17 +140,17 @@ public class TimeUtil {
 
 	/**
 	 * 评估是否需要进行新文件扫描
-	 * @param fileConfig
+	 * @param timerScheduleConfig
 	 * @return
 	 */
-	public static boolean evalateNeedScan(FileConfig fileConfig){
+	public static boolean evalateNeedScan(TimerScheduleConfig timerScheduleConfig){
 		Date currentTime = new Date();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(currentTime);
 		int hour = calendar.get(Calendar.HOUR_OF_DAY);
 		int min = calendar.get(Calendar.MINUTE);
-		List<TimeRange> includeTimeRanges = fileConfig.getScanNewFileTimeRanges();
-		List<TimeRange> skipTimeRanges = fileConfig.getSkipScanNewFileTimeRanges();
+		List<TimeRange> includeTimeRanges = timerScheduleConfig.getScanNewFileTimeRanges();
+		List<TimeRange> skipTimeRanges = timerScheduleConfig.getSkipScanNewFileTimeRanges();
 		boolean result = false;
 		if(includeTimeRanges != null && includeTimeRanges.size() > 0){
 			for(TimeRange timeRange:includeTimeRanges){

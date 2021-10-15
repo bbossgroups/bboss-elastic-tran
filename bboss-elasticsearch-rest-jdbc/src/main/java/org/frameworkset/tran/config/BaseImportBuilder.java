@@ -30,6 +30,7 @@ import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.ScheduleConfig;
+import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -720,18 +721,66 @@ public abstract class BaseImportBuilder {
 		if(scheduleConfig == null){
 			scheduleConfig = new ScheduleConfig();
 		}
+		else if(scheduleConfig instanceof TimerScheduleConfig)
+			return this;
 		this.scheduleConfig.setScheduleDate(scheduleDate);
 		return this;
 	}
 
+	public BaseImportBuilder setScheduleSelf(){
+		if(scheduleConfig == null){
+			scheduleConfig = new TimerScheduleConfig();
+		}
+		return this;
+	}
 	public BaseImportBuilder setFixedRate(Boolean fixedRate) {
 		if(scheduleConfig == null){
 			scheduleConfig = new ScheduleConfig();
 		}
+		else if(scheduleConfig instanceof TimerScheduleConfig)
+			return this;
 		this.scheduleConfig.setFixedRate(fixedRate);
 		return this;
 	}
 
+	/**
+	 * 添加不扫码新文件的时间段
+	 * timeRange必须是以下三种类型格式
+	 * 11:30-12:30  每天在11:30和12:30之间运行
+	 * 11:30-    每天11:30开始执行,到23:59结束
+	 * -12:30    每天从00:00开始到12:30
+	 * @param timeRange
+	 * @return
+	 */
+	public BaseImportBuilder addSkipScanNewFileTimeRange(String timeRange){
+		if(scheduleConfig == null){
+			scheduleConfig = new TimerScheduleConfig();
+		}
+		else if(scheduleConfig instanceof  TimerScheduleConfig) {
+			((TimerScheduleConfig) scheduleConfig).addSkipScanNewFileTimeRange(timeRange);
+		}
+		return this;
+	}
+
+	/**
+	 * 添加扫码新文件的时间段，每天扫描新文件时间段，优先级高于不扫码时间段，先计算是否在扫描时间段，如果是则扫描，不是则不扫码
+	 * timeRange必须是以下三种类型格式
+	 * 11:30-12:30  每天在11:30和12:30之间运行
+	 * 11:30-    每天11:30开始执行,到23:59结束
+	 * -12:30    每天从00:00开始到12:30
+	 * @param timeRange
+	 * @return
+	 */
+	public BaseImportBuilder addScanNewFileTimeRange(String timeRange){
+		if(scheduleConfig == null){
+			scheduleConfig = new TimerScheduleConfig();
+		}
+		else if(scheduleConfig instanceof  TimerScheduleConfig) {
+			((TimerScheduleConfig) scheduleConfig).addScanNewFileTimeRange(timeRange);
+		}
+
+		return this;
+	}
 	public ScheduleConfig getScheduleConfig() {
 		return scheduleConfig;
 	}

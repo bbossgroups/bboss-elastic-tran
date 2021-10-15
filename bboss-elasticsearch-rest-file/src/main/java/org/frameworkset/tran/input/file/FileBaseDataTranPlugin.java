@@ -406,13 +406,16 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     @Override
     public void importData() throws ESDataImportException {
 
-
-        long importStartTime = System.currentTimeMillis();
-        this.doImportData(null);
-        long importEndTime = System.currentTimeMillis();
-        if( isPrintTaskLog())
-            logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
-
+        if (!fileImportContext.isUseETLScheduleForScanNewFile()) {//采用内置新文件扫描调度机制
+            long importStartTime = System.currentTimeMillis();
+            this.doImportData(null);
+            long importEndTime = System.currentTimeMillis();
+            if (isPrintTaskLog())
+                logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
+        }
+        else{
+            super.importData();
+        }
 
     }
 

@@ -1,4 +1,4 @@
-package org.frameworkset.tran.input.file;
+package org.frameworkset.tran.schedule.timer;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -14,8 +14,6 @@ package org.frameworkset.tran.input.file;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import org.frameworkset.tran.file.util.TimeUtil;
 
 /**
  * <p>Description: 定义扫描文件时间段</p>

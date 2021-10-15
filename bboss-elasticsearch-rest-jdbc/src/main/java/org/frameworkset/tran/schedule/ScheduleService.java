@@ -16,6 +16,8 @@ package org.frameworkset.tran.schedule;
  */
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.timer.ScheduleTimer;
+import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +53,7 @@ public class ScheduleService {
 
 
 	private Timer timer ;
-
+	private ScheduleTimer scheduleTimer;
 
 	private void scheduleImportData(TaskContext taskContext) throws Exception {
 		if(!importContext.assertCondition()) {
@@ -110,8 +112,8 @@ public class ScheduleService {
 		}
 
 	}
-	public void timeSchedule() throws Exception {
-//		scheduleImportData(dataTranPlugin.getBatchSize());
+	private void jdkTimeSchedule(ScheduleConfig scheduleConfig ) throws Exception{
+		//		scheduleImportData(dataTranPlugin.getBatchSize());
 
 		timer = new Timer();
 		TimerTask timerTask = new TimerTask() {
@@ -130,7 +132,6 @@ public class ScheduleService {
 				externalTimeSchedule( );
 			}
 		};
-		ScheduleConfig scheduleConfig = importContext.getScheduleConfig();
 		Date scheduleDate = scheduleConfig.getScheduleDate();
 		Long delay = scheduleConfig.getDeyLay();
 		if(scheduleDate != null) {
@@ -164,7 +165,22 @@ public class ScheduleService {
 
 			}
 		}
+	}
+	private void innerimeSchedule(TimerScheduleConfig scheduleConfig ) throws Exception{
+		//		scheduleImportData(dataTranPlugin.getBatchSize());
 
+		scheduleTimer = new ScheduleTimer(scheduleConfig ,this);
+		scheduleTimer.start();
+
+	}
+	public void timeSchedule() throws Exception {
+		ScheduleConfig scheduleConfig = importContext.getScheduleConfig();
+		if(scheduleConfig instanceof TimerScheduleConfig){
+			innerimeSchedule((TimerScheduleConfig)scheduleConfig);
+		}
+		else{
+			this.jdkTimeSchedule(scheduleConfig);
+		}
 
 
 	}
@@ -206,8 +222,13 @@ public class ScheduleService {
 
 	public void stop(){
 		try {
-			if (timer != null)
+			if (timer != null) {
 				timer.cancel();
+			}
+			if(scheduleTimer != null)
+			{
+				scheduleTimer.stop();
+			}
 		}
 		catch (Exception e){
 			logger.error("",e);

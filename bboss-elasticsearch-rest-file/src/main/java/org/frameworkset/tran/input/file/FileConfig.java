@@ -2,14 +2,14 @@ package org.frameworkset.tran.input.file;
 
 import org.apache.commons.lang.StringUtils;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
-import org.frameworkset.tran.file.util.TimeUtil;
+import org.frameworkset.tran.schedule.timer.TimeRange;
+import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.frameworkset.util.OSInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,15 +35,13 @@ public class FileConfig extends FieldManager{
 
     private File renameFileLogDir;
 
+    public TimerScheduleConfig getTimerScheduleConfig() {
+        return timerScheduleConfig;
+    }
 
-    /**
-     * 每天不扫码新文件时间段，如果没有定义扫描段
-     */
-    private List<TimeRange> skipScanNewFileTimeRanges;
-    /**
-     * 每天扫描新文件时间段，优先级高于不扫码时间段，先计算是否在扫描时间段，如果是则扫描，不是则不扫码
-     */
-    private List<TimeRange> scanNewFileTimeRanges;
+    private TimerScheduleConfig timerScheduleConfig;
+
+
 
 
     //控制是否删除采集完的文件，默认false 不删除，true 删除
@@ -501,12 +499,10 @@ public class FileConfig extends FieldManager{
      * @return
      */
     public FileConfig addSkipScanNewFileTimeRange(String timeRange){
-        if(skipScanNewFileTimeRanges == null){
-            skipScanNewFileTimeRanges = new ArrayList<>();
+        if(timerScheduleConfig == null){
+            timerScheduleConfig = new TimerScheduleConfig();
         }
-        TimeRange skipTimeRange = TimeUtil.parserTimeRange(  timeRange);
-        if(skipTimeRange != null)
-            skipScanNewFileTimeRanges.add(skipTimeRange);
+        timerScheduleConfig.addSkipScanNewFileTimeRange(timeRange);
         return this;
     }
 
@@ -520,13 +516,10 @@ public class FileConfig extends FieldManager{
      * @return
      */
     public FileConfig addScanNewFileTimeRange(String timeRange){
-        if(scanNewFileTimeRanges == null){
-            scanNewFileTimeRanges = new ArrayList<>();
+        if(timerScheduleConfig == null){
+            timerScheduleConfig = new TimerScheduleConfig();
         }
-
-        TimeRange includeTimeRange = TimeUtil.parserTimeRange(  timeRange);
-        if(includeTimeRange != null)
-            scanNewFileTimeRanges.add(includeTimeRange);
+        timerScheduleConfig.addSkipScanNewFileTimeRange(timeRange);
 
         return this;
     }
@@ -534,11 +527,11 @@ public class FileConfig extends FieldManager{
 
 
     public List<TimeRange> getScanNewFileTimeRanges() {
-        return scanNewFileTimeRanges;
+        return timerScheduleConfig != null?timerScheduleConfig.getScanNewFileTimeRanges():null;
     }
 
     public List<TimeRange> getSkipScanNewFileTimeRanges() {
-        return skipScanNewFileTimeRanges;
+        return timerScheduleConfig != null?timerScheduleConfig.getSkipScanNewFileTimeRanges():null;
     }
     @Override
     public String toString(){

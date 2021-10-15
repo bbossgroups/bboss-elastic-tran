@@ -1,6 +1,7 @@
 package org.frameworkset.tran.input.file;
 
-import org.frameworkset.tran.file.util.TimeUtil;
+import org.frameworkset.tran.schedule.timer.TimeUtil;
+import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,13 +108,14 @@ public class LogDirScanThread implements Runnable{
      */
     @Override
     public void run() {
+        TimerScheduleConfig timerScheduleConfig = fileConfig.getTimerScheduleConfig();
         while (running) {
             /**
              * 如果没有到达执行时间点，则定时检查直到命中扫描时间点
              */
             do {
 
-                if (TimeUtil.evalateNeedScan(fileConfig)) {
+                if (TimeUtil.evalateNeedScan(timerScheduleConfig)) {
 
                     try {
                         scanNewFile();
