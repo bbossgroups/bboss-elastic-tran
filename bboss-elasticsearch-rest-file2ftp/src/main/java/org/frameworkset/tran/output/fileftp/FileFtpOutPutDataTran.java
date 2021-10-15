@@ -291,11 +291,14 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	}
 
 	/**
-	 * 并行批处理导入
+	 * 并行批处理导入，ftp上传，不支持并行生成文件
 
 	 * @return
 	 */
 	public String parallelBatchExecute( ){
+		if(!fileFtpOupputContext.disableftp()){
+			return batchExecute();
+		}
 		int count = 0;
 		StringBuilder builder = new StringBuilder();
 		BBossStringWriter writer = new BBossStringWriter(builder);

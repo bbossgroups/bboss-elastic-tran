@@ -151,8 +151,8 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 			temp = jdbcResultSet.getValue(colName,sqlType);
 			RecordColumnInfo recordColumnInfo = null;
 			if(temp == null) {
-				if(logger.isWarnEnabled())
-					logger.warn("未指定绑定变量{}的值！",varName);
+				if(logger.isDebugEnabled())
+					logger.debug("未指定[绑定变量：{},数据源列名：{}]的值！",varName,colName);
 			}
 			else if (temp instanceof Date){
 				DateFormat dateFormat = null;

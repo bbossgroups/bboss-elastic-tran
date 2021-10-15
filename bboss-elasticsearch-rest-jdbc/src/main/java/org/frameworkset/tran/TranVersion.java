@@ -24,7 +24,7 @@ package org.frameworkset.tran;
  * @version 1.0
  */
 public class TranVersion {
-	public static String getVersion631(){
-		return "6.3.1";
+	public static String getVersion636(){
+		return "6.3.6";
 	}
 }
