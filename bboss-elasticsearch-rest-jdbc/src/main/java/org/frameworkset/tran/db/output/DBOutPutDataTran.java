@@ -279,8 +279,8 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 			varName = var.getVariableName();
 			temp = dbRecord.getData(varName);
 			if(temp == null) {
-				if(logger.isWarnEnabled())
-					logger.warn("未指定绑定变量的值：{}",varName);
+				if(logger.isDebugEnabled())
+					logger.debug("未指定绑定变量的值：{}",varName);
 			}
 			param = new Param();
 			param.setVariable(var);
