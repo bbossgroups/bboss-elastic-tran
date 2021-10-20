@@ -152,6 +152,15 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	protected boolean isPrintTaskLog(){
 		return importContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
+	protected boolean enablePluginTaskIntercept = true;
+
+	public void setEnablePluginTaskIntercept(boolean enablePluginTaskIntercept) {
+		this.enablePluginTaskIntercept = enablePluginTaskIntercept;
+	}
+
+	public boolean isEnablePluginTaskIntercept() {
+		return enablePluginTaskIntercept;
+	}
 
 	public void preCall(TaskContext taskContext){
 		List<CallInterceptor> callInterceptors = importContext.getCallInterceptors();
@@ -206,18 +215,20 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 			long importStartTime = System.currentTimeMillis();
 
-			TaskContext taskContext = new TaskContext(importContext,targetImportContext);
+			TaskContext taskContext = isEnablePluginTaskIntercept()?new TaskContext(importContext,targetImportContext):null;
 			try {
-
-				preCall(taskContext);
+				if(isEnablePluginTaskIntercept())
+					preCall(taskContext);
 				this.doImportData(taskContext);
-				afterCall(taskContext);
+				if(isEnablePluginTaskIntercept())
+					afterCall(taskContext);
 				long importEndTime = System.currentTimeMillis();
 				if( isPrintTaskLog())
 					logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
 			}
 			catch (Exception e){
-				throwException(taskContext,e);
+				if(isEnablePluginTaskIntercept())
+					throwException(taskContext,e);
 				logger.error("scheduleImportData failed:",e);
 			}
 
@@ -1069,6 +1080,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public void initSchedule(){
 		if(importContext.getScheduleConfig() != null) {
 			this.scheduleService = new ScheduleService();
+			scheduleService.setEnablePluginTaskIntercept(this.isEnablePluginTaskIntercept());
 			this.scheduleService.init(importContext,targetImportContext);
 		}
 	}

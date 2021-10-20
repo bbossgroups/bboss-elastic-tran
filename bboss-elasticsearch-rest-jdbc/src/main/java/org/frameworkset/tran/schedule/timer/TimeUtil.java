@@ -144,6 +144,8 @@ public class TimeUtil {
 	 * @return
 	 */
 	public static boolean evalateNeedScan(TimerScheduleConfig timerScheduleConfig){
+		if(timerScheduleConfig == null)
+			return true;
 		Date currentTime = new Date();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(currentTime);

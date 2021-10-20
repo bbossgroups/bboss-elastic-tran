@@ -37,7 +37,15 @@ import java.util.TimerTask;
 public class ScheduleService {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleService.class);
 
+	protected boolean enablePluginTaskIntercept = true;
 
+	public void setEnablePluginTaskIntercept(boolean enablePluginTaskIntercept) {
+		this.enablePluginTaskIntercept = enablePluginTaskIntercept;
+	}
+
+	public boolean isEnablePluginTaskIntercept() {
+		return enablePluginTaskIntercept;
+	}
 
 
 	/**
@@ -190,16 +198,18 @@ public class ScheduleService {
 	 */
 	public synchronized void externalTimeSchedule()  {
 
-		TaskContext taskContext = new TaskContext(importContext,targetImportContext);
+		TaskContext taskContext = isEnablePluginTaskIntercept()?new TaskContext(importContext,targetImportContext):null;
 		long importStartTime = System.currentTimeMillis();
 		try {
-
-			preCall(taskContext);
+			if(isEnablePluginTaskIntercept())
+				preCall(taskContext);
 			scheduleImportData( taskContext );
-			afterCall(taskContext);
+			if(isEnablePluginTaskIntercept())
+				afterCall(taskContext);
 		}
 		catch (Exception e){
-			throwException(taskContext,e);
+			if(isEnablePluginTaskIntercept())
+				throwException(taskContext,e);
 			logger.error("scheduleImportData failed:",e);
 		}
 		finally {

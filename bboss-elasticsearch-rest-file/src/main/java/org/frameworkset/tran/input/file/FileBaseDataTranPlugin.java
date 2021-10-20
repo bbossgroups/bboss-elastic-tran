@@ -35,7 +35,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                                   ImportContext targetImportContext) {
         super(importContext, targetImportContext);
         this.fileImportContext = (FileImportContext) importContext;
-
+        this.enablePluginTaskIntercept = false;
     }
     public boolean isMultiTran(){
         return true;
