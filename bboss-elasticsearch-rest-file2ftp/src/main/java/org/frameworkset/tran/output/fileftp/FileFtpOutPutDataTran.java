@@ -165,7 +165,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 						String _dd =  builder.toString();
 						builder.setLength(0);
 						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-								totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed);
+								totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 						taskCommand.setDatas(_dd);
 						ret = TaskCall.call(taskCommand);
 						taskNo ++;
@@ -223,7 +223,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 						String _dd =  builder.toString();
 						builder.setLength(0);
 						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-								totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed);
+								totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 						taskCommand.setDatas(_dd);
 						TaskCall.call(taskCommand);
 						taskNo ++;
@@ -237,7 +237,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 			if(builder.length() > 0) {
 
 				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-						totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed);
+						totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 				taskNo ++;
 				taskCommand.setDatas(builder.toString());
 				builder.setLength(0);
@@ -333,7 +333,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 						int _count = count;
 						count = 0;
 						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-								_count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed);
+								_count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 						taskCommand.setDatas(datas);
 						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 						taskNo++;
@@ -378,7 +378,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 					int _count = count;
 					count = 0;
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-							_count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed);
+							_count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas(datas);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 					taskNo++;
@@ -391,7 +391,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 				}
 				String datas = builder.toString();
 				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-						count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed);
+						count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 				taskCommand.setDatas(datas);
 				tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 				builder.setLength(0);
@@ -469,7 +469,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 						int _count = count;
 						count = 0;
 						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-								_count, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed);
+								_count, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 						taskCommand.setDatas(_dd);
 						ret = TaskCall.call(taskCommand);
 
@@ -530,7 +530,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 					int _count = count;
 					count = 0;
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-							_count, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed);
+							_count, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas(datas);
 					ret = TaskCall.call(taskCommand);
 
@@ -552,7 +552,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 						String _dd = builder.toString();
 						builder.setLength(0);
 						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext, targetImportContext,
-								count, taskNo, importCount.getJobNo(), fileTransfer, lastValue,  currentStatus,reachEOFClosed);
+								count, taskNo, importCount.getJobNo(), fileTransfer, lastValue,  currentStatus,reachEOFClosed,taskContext);
 						taskCommand.setDatas(_dd);
 						TaskCall.call(taskCommand);
 						count = 0;
@@ -568,7 +568,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 				String datas = builder.toString();
 
 				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext, targetImportContext,
-						count, taskNo, importCount.getJobNo(), fileTransfer, lastValue,  currentStatus,reachEOFClosed);
+						count, taskNo, importCount.getJobNo(), fileTransfer, lastValue,  currentStatus,reachEOFClosed,taskContext);
 				taskCommand.setDatas(datas);
 				TaskCall.call(taskCommand);
 				if(isPrintTaskLog())  {

@@ -15,7 +15,10 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.db.DBImportConfig;
+import org.frameworkset.tran.db.output.TranSQLInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +33,26 @@ import java.util.Map;
  */
 public class TaskContext {
 	private Map<String,Object> taskDatas;
+	/**
+	 * 获取任务级别数据库配置
+	 */
+	public DBImportConfig getDbmportConfig() {
+		return dbmportConfig;
+	}
+	/**
+	 * 设置任务级别数据库配置
+	 */
+	public void setDbmportConfig(DBImportConfig dbmportConfig) {
+		this.dbmportConfig = dbmportConfig;
+	}
+
+	/**
+	 * 设置任务级别数据库配置，适用场景，不同文件到不同数据库表输出插件
+	 */
+	private DBImportConfig dbmportConfig;
+	private TranSQLInfo targetSqlInfo;
+	private TranSQLInfo targetUpdateSqlInfo;
+	private TranSQLInfo targetDeleteSqlInfo;
 	public TaskContext(ImportContext importContext,ImportContext targetImportContext){
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
@@ -62,5 +85,75 @@ public class TaskContext {
 	public void release(){
 		this.taskDatas.clear();
 		this.taskDatas = null;
+	}
+
+
+	public String getSql() {
+		return dbmportConfig.getSql();
+	}
+
+
+	public String getSqlFilepath() {
+		return dbmportConfig.getSqlFilepath();
+	}
+
+	public String getSqlName() {
+		return dbmportConfig.getSqlName();
+	}
+
+	public void setSql(String sql) {
+		dbmportConfig.setSql(sql);
+	}
+
+	public String getInsertSqlName() {
+		return dbmportConfig.getInsertSqlName();
+	}
+	public String getInsertSql() {
+		return dbmportConfig.getInsertSql();
+	}
+
+	public String getDeleteSqlName() {
+		return dbmportConfig.getDeleteSqlName();
+	}
+	public String getDeleteSql(){
+		return dbmportConfig.getDeleteSql();
+	}
+
+	public String getUpdateSqlName() {
+		return dbmportConfig.getUpdateSqlName();
+	}
+	public String getUpdateSql(){
+		return dbmportConfig.getUpdateSql();
+	}
+
+	public TranSQLInfo getTargetSqlInfo() {
+		return targetSqlInfo;
+	}
+
+	public void setTargetSqlInfo(TranSQLInfo targetSqlInfo) {
+		this.targetSqlInfo = targetSqlInfo;
+	}
+
+	public TranSQLInfo getTargetUpdateSqlInfo() {
+		return targetUpdateSqlInfo;
+	}
+
+	public void setTargetUpdateSqlInfo(TranSQLInfo sqlInfo) {
+		this.targetUpdateSqlInfo = sqlInfo;
+	}
+	public TranSQLInfo getTargetDeleteSqlInfo() {
+		return targetDeleteSqlInfo;
+	}
+
+	public void setTargetDeleteSqlInfo(TranSQLInfo sqlInfo) {
+		this.targetDeleteSqlInfo = sqlInfo;
+	}
+	public DBConfig getTargetDBConfig() {
+		if(dbmportConfig != null) {
+			return dbmportConfig.getTargetDBConfig();
+		}
+		else{
+			return null;
+		}
 	}
 }

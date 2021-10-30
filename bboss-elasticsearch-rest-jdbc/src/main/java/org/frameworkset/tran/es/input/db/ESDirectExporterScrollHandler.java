@@ -23,6 +23,7 @@ import org.frameworkset.elasticsearch.entity.ESDatas;
 import org.frameworkset.elasticsearch.scroll.HandlerInfo;
 import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.es.BaseESExporterScrollHandler;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.List;
 
@@ -37,12 +38,13 @@ import java.util.List;
 public class ESDirectExporterScrollHandler<T> extends BaseESExporterScrollHandler<T> {
 	protected ConfigSQLExecutor configSQLExecutor;
 	protected DBImportContext es2DBContext ;
-
+	protected TaskContext taskContext;
 //	private ESTranResultSet esTranResultSet ;
-	public ESDirectExporterScrollHandler(ImportContext importContext,ImportContext targetImportContext, ConfigSQLExecutor configSQLExecutor ) {
+	public ESDirectExporterScrollHandler(TaskContext taskContext,ImportContext importContext, ImportContext targetImportContext, ConfigSQLExecutor configSQLExecutor ) {
 		super(  importContext,targetImportContext);
 		this.configSQLExecutor = configSQLExecutor;
 		this.es2DBContext = (DBImportContext)targetImportContext;
+		this.taskContext = taskContext;
 	}
 
 	public void handle(ESDatas<T> response, HandlerInfo handlerInfo) throws Exception {//自己处理每次scroll的结果
@@ -65,7 +67,7 @@ public class ESDirectExporterScrollHandler<T> extends BaseESExporterScrollHandle
 		if(logger.isInfoEnabled()){
 			logger.info("Execute task {} start.",batchNo);
 		}
-		DBConfig targetDB = es2DBContext.getTargetDBConfig();
+		DBConfig targetDB = es2DBContext.getTargetDBConfig(taskContext);
 		if(targetDB == null)
 			targetDB = importContext.getDbConfig();
 		if(es2DBContext.getSql() == null) {

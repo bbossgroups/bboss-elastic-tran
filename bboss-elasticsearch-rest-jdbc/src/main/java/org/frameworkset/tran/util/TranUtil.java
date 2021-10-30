@@ -27,6 +27,7 @@ import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.db.output.TranSQLInfo;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.annotations.DateFormateMeta;
 
 import java.sql.SQLException;
@@ -73,7 +74,7 @@ public abstract class TranUtil {
 
 	}*/
 
-	private static  TranSQLInfo buildTranSQLInfo(String sqlName,boolean issql,DBOutPutContext dbContext, DBConfig db){
+	private static  TranSQLInfo buildTranSQLInfo(String sqlName,boolean issql,String sqlFilepath, String dbname){
 		TranSQLInfo sqlInfo = new TranSQLInfo();
 		SQLInfo sqlinfo = null;
 		ConfigSQLExecutor configSQLExecutor = null;
@@ -84,8 +85,8 @@ public abstract class TranUtil {
 					sqlinfo = GloableSQLUtil.getGlobalSQLUtil().getSQLInfo(sqlName);
 			}
 			else{
-				configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
-				sqlinfo = configSQLExecutor.getSqlInfo(db.getDbName(), sqlName);
+				configSQLExecutor = new ConfigSQLExecutor(sqlFilepath);
+				sqlinfo = configSQLExecutor.getSqlInfo(dbname, sqlName);
 			}
 
 			if(sqlinfo == null){
@@ -107,67 +108,162 @@ public abstract class TranUtil {
 			throw new ESDataImportException("Init TargetSQLInfo failed",e);
 		}
 	}
-	private static void assertNull(DBOutPutContext dbContext, DBConfig db){
-		if(dbContext.getTargetSqlInfo() == null && dbContext.getTargetDeleteSqlInfo() == null && dbContext.getTargetDeleteSqlInfo() == null )
-			throw new ESDataImportException("Init TargetSQLInfo  failed:InsertSqlName="+dbContext.getInsertSqlName() + " and insertSql = "+dbContext.getInsertSql());
-	}
-	public static ConfigSQLExecutor initTargetSQLInfo(DBOutPutContext dbContext, DBConfig db) throws ESDataImportException {
+//	private static void assertNull(DBOutPutContext dbContext, DBConfig db){
+//		if(dbContext.getTargetSqlInfo() == null && dbContext.getTargetDeleteSqlInfo() == null && dbContext.getTargetDeleteSqlInfo() == null )
+//			throw new ESDataImportException("Init TargetSQLInfo  failed:InsertSqlName="+dbContext.getInsertSqlName() + " and insertSql = "+dbContext.getInsertSql());
+//	}
+	public static void initTargetSQLInfo(DBOutPutContext dbContext, String db) throws ESDataImportException {
 		TranSQLInfo sqlInfo = null;
 		SQLInfo sqlinfo = null;
-		ConfigSQLExecutor configSQLExecutor = null;
 		String sqlName = dbContext.getInsertSqlName();
 
 		if(sqlName == null) {
 			sqlName = dbContext.getInsertSql();
-			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext,   db);
+			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext.getSqlFilepath(),   db);
 
 
 		}
 		else{
-			configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
-			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext,   db);
+			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext.getSqlFilepath(),   db);
 		}
 
 		if(sqlInfo != null){
 			dbContext.setTargetSqlInfo(sqlInfo);
+			sqlInfo = null;
 		}
 
 		sqlName = dbContext.getUpdateSqlName();
 
 		if(sqlName == null) {
 			sqlName = dbContext.getUpdateSql();
-			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext,   db);
+			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext.getSqlFilepath(),   db);
 
 
 		}
 		else{
-			if(configSQLExecutor == null)
-				configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
-			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext,   db);
+
+			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext.getSqlFilepath(),   db);
 		}
 
 		if(sqlInfo != null){
 			dbContext.setTargetUpdateSqlInfo(sqlInfo);
+			sqlInfo = null;
 		}
 		sqlName = dbContext.getDeleteSqlName();
 
 		if(sqlName == null) {
 			sqlName = dbContext.getDeleteSql();
-			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext,   db);
+			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext.getSqlFilepath(),   db);
 
 
 		}
 		else{
-			if(configSQLExecutor == null)
-				configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
-			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext,   db);
+
+			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext.getSqlFilepath(),   db);
 		}
 
 		if(sqlInfo != null){
 			dbContext.setTargetDeleteSqlInfo(sqlInfo);
+			sqlInfo = null;
 		}
-		assertNull(dbContext,  db);
-		return configSQLExecutor;
+//		assertNull(dbContext,  db);
+
+
+	}
+
+	public static void initTaskContextSQLInfo(TaskContext taskContext,ImportContext importContext,
+			 									ImportContext targetImportContext){
+		if(taskContext != null) {
+			String dbName = null;
+			if(taskContext.getTargetDBConfig() != null){
+				DBConfig dbConfig = taskContext.getTargetDBConfig();
+				if(dbConfig != null)
+					dbName = dbConfig.getDbName();
+			}
+			if(dbName == null) {
+				if (targetImportContext != null && targetImportContext instanceof DBOutPutContext) {
+					DBConfig dbConfig = ((DBOutPutContext) targetImportContext).getTargetDBConfig(taskContext);
+					if(dbConfig != null)
+						dbName = dbConfig.getDbName();
+				}
+			}
+			if(dbName == null){
+				DBConfig dbConfig = importContext.getDbConfig();
+				if(dbConfig != null)
+					dbName = dbConfig.getDbName();
+
+			}
+			if(dbName != null)
+				TranUtil.initTargetSQLInfo(taskContext, dbName);
+		}
+	}
+	public static void initTargetSQLInfo(TaskContext dbContext, String db) throws ESDataImportException {
+		if(dbContext == null)
+			return;
+		ImportContext targetImportContext = dbContext.getTargetImportContext();
+		if(!(targetImportContext instanceof DBOutPutContext)){
+			return ;
+		}
+		TranSQLInfo sqlInfo = null;
+		SQLInfo sqlinfo = null;
+		String sqlName = dbContext.getInsertSqlName();
+		String sqlFilePath = dbContext.getSqlFilepath();
+		if(sqlFilePath == null){
+
+			sqlFilePath = ((DBOutPutContext)targetImportContext).getSqlFilepath();
+
+		}
+		if(sqlName == null) {
+			sqlName = dbContext.getInsertSql();
+			if(sqlName != null)
+				sqlInfo = buildTranSQLInfo( sqlName,true,  sqlFilePath,   db);
+
+
+		}
+		else{
+			sqlInfo = buildTranSQLInfo( sqlName,false,  sqlFilePath,   db);
+		}
+
+		if(sqlInfo != null){
+			dbContext.setTargetSqlInfo(sqlInfo);
+			sqlInfo = null;
+		}
+
+		sqlName = dbContext.getUpdateSqlName();
+
+		if(sqlName == null) {
+			sqlName = dbContext.getUpdateSql();
+			if(sqlName != null)
+				sqlInfo = buildTranSQLInfo( sqlName,true,  sqlFilePath,   db);
+
+
+		}
+		else{
+			sqlInfo = buildTranSQLInfo( sqlName,false,  sqlFilePath,   db);
+		}
+
+		if(sqlInfo != null){
+			dbContext.setTargetUpdateSqlInfo(sqlInfo);
+			sqlInfo = null;
+		}
+		sqlName = dbContext.getDeleteSqlName();
+
+		if(sqlName == null) {
+			sqlName = dbContext.getDeleteSql();
+			if(sqlName != null)
+				sqlInfo = buildTranSQLInfo( sqlName,true,  sqlFilePath,   db);
+
+
+		}
+		else{
+			sqlInfo = buildTranSQLInfo( sqlName,false,  sqlFilePath,   db);
+		}
+
+		if(sqlInfo != null){
+			dbContext.setTargetDeleteSqlInfo(sqlInfo);
+			sqlInfo = null;
+		}
+//		assertNull(dbContext,  db);
 
 
 	}

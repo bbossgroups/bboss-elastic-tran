@@ -18,6 +18,7 @@ package org.frameworkset.tran.ouput.dummy;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +36,8 @@ public class DummyTaskCommandImpl extends BaseTaskCommand<String,String> {
 	private DummyOupputContext dummyOupputContext ;
 	public DummyTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
 								long dataSize, int taskNo, String jobNo,
-								Object lastValue, Status currentStatus, boolean reachEOFClosed) {
-		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed);
+								Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
+		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,  taskContext);
 		if(targetImportContext instanceof DummyOupputContext)
 			dummyOupputContext = (DummyOupputContext)targetImportContext;
 	}

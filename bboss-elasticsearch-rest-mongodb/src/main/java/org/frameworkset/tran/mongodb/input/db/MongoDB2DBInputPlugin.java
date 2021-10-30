@@ -56,7 +56,7 @@ public class MongoDB2DBInputPlugin extends MongoDBInputPlugin {
 	@Override
 	public void afterInit(){
 		DBOutPutContext dbOutPutContext = (DBOutPutContext) importContext ;
-		TranUtil.initTargetSQLInfo(dbOutPutContext,importContext.getDbConfig());
+		TranUtil.initTargetSQLInfo(dbOutPutContext,importContext.getDbConfig().getDbName());
 		super.afterInit();
 	}
 }

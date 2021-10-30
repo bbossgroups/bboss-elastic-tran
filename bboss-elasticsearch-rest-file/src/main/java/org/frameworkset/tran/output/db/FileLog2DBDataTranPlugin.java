@@ -16,6 +16,7 @@ package org.frameworkset.tran.output.db;
  */
 
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
@@ -43,12 +44,15 @@ public class FileLog2DBDataTranPlugin extends FileBaseDataTranPlugin {
 	public void beforeInit() {
 		if(importContext.getDbConfig() != null)
 			this.initDS(importContext.getDbConfig());
-		if(dbOutPutContext.getTargetDBConfig() != null) {
-			this.initDS(dbOutPutContext.getTargetDBConfig());
-			TranUtil.initTargetSQLInfo(dbOutPutContext, dbOutPutContext.getTargetDBConfig());
+		DBConfig dbConfig = dbOutPutContext.getTargetDBConfig(null);
+		if(dbConfig != null) {
+			this.initDS(dbConfig);
+			TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
 		}
 		else{
-			TranUtil.initTargetSQLInfo(dbOutPutContext, importContext.getDbConfig());
+			dbConfig = importContext.getDbConfig();
+			if(dbConfig != null)
+				TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
 		}
 		super.beforeInit();
 	}

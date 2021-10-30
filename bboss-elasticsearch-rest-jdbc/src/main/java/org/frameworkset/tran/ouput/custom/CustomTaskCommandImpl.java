@@ -41,8 +41,7 @@ public class CustomTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, S
 	public CustomTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
 								 long dataSize, int taskNo, String jobNo,
 								 Object lastValue, Status currentStatus, boolean reachEOFClosed,TaskContext taskContext) {
-		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed);
-		this.taskContext = taskContext;
+		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,taskContext);
 		if(this.taskContext == null)
 			this.taskContext = new TaskContext(importContext,targetImportContext);
 	}

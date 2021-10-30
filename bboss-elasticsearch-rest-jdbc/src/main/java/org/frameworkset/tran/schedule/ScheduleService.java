@@ -18,6 +18,7 @@ package org.frameworkset.tran.schedule;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.timer.ScheduleTimer;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
+import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +87,8 @@ public class ScheduleService {
 				logger.error("preCall failed:",e);
 			}
 		}
+		TranUtil.initTaskContextSQLInfo(taskContext, importContext,
+				targetImportContext);
 
 	}
 	private void afterCall(TaskContext taskContext){

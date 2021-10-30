@@ -16,6 +16,7 @@ package org.frameworkset.tran.hbase.input.db;
  */
 
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.db.output.DBOutPutContext;
@@ -40,12 +41,15 @@ public class HBase2DBInputPlugin extends HBaseInputPlugin {
 	public void beforeInit() {
 		if(importContext.getDbConfig() != null)
 			this.initDS(importContext.getDbConfig());
-		if(dbOutPutContext.getTargetDBConfig() != null) {
-			this.initDS(dbOutPutContext.getTargetDBConfig());
-			TranUtil.initTargetSQLInfo(dbOutPutContext, dbOutPutContext.getTargetDBConfig());
+		DBConfig dbConfig = dbOutPutContext.getTargetDBConfig(null);
+		if(dbConfig != null) {
+			this.initDS(dbConfig);
+			TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
 		}
 		else{
-			TranUtil.initTargetSQLInfo(dbOutPutContext, importContext.getDbConfig());
+			dbConfig = importContext.getDbConfig();
+			if(dbConfig != null)
+				TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
 		}
 		super.beforeInit();
 

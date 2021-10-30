@@ -33,6 +33,7 @@ import org.frameworkset.tran.status.DefaultStatusManager;
 import org.frameworkset.tran.status.SingleStatusManager;
 import org.frameworkset.tran.status.StatusManager;
 import org.frameworkset.tran.util.TranConstant;
+import org.frameworkset.tran.util.TranUtil;
 import org.frameworkset.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,6 +175,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				logger.error("preCall failed:",e);
 			}
 		}
+		TranUtil.initTaskContextSQLInfo(taskContext, importContext,
+				 targetImportContext);
 
 	}
 	public void afterCall(TaskContext taskContext){

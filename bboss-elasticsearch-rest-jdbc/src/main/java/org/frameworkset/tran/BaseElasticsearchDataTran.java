@@ -145,7 +145,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 						for(ClientInterface clientInterface:clientInterfaces) {
 							taskNo++;
 							TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext,
-									_count, taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
+									_count, taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
 //						count = 0;
 							taskCommand.setClientInterface(clientInterface);
 							taskCommand.setDatas(datas);
@@ -193,7 +193,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 					for(ClientInterface clientInterface:clientInterfaces) {
 						taskNo++;
 						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext, _count,
-								taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
+								taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
 
 						taskCommand.setClientInterface(clientInterface);
 						taskCommand.setDatas(datas);
@@ -214,7 +214,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 				for(ClientInterface clientInterface:clientInterfaces) {
 					taskNo++;
 					TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext,
-							count, taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
+							count, taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setClientInterface(clientInterface);
 					taskCommand.setDatas(datas);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
@@ -294,7 +294,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 						for(ClientInterface clientInterface:clientInterfaces) {
 							taskNo++;
 							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
-									_count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
+									_count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
 //						int temp = count;
 //						count = 0;
 
@@ -354,7 +354,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 					for(ClientInterface clientInterface:clientInterfaces) {
 						taskNo++;
 						TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
-								_count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
+								_count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
 //					count = 0;
 						taskCommand.setClientInterface(clientInterface);
 						taskCommand.setDatas(datas);
@@ -381,7 +381,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 				for(ClientInterface clientInterface:clientInterfaces) {
 					taskNo++;
 					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
-							count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
+							count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setClientInterface(clientInterface);
 					taskCommand.setDatas(datas);
 					ret = TaskCall.call(taskCommand);
@@ -460,7 +460,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 						for(ClientInterface clientInterface:clientInterfaces) {
 
 							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
-									totalCount, 1, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
+									totalCount, 1, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
 							taskCommand.setClientInterface(clientInterface);
 							taskCommand.setDatas(_dd);
 							ret = TaskCall.call(taskCommand);
@@ -521,7 +521,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 				for(ClientInterface clientInterface:clientInterfaces) {
 
 					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
-							totalCount, 1, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed);
+							totalCount, 1, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setClientInterface(clientInterface);
 					taskCommand.setDatas(_dd);
 					ret = TaskCall.call(taskCommand);

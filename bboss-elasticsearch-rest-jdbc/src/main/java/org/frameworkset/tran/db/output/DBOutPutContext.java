@@ -18,6 +18,7 @@ package org.frameworkset.tran.db.output;
 import com.frameworkset.common.poolman.BatchHandler;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.db.DBContext;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
@@ -28,20 +29,20 @@ import org.frameworkset.tran.db.DBContext;
  * @version 1.0
  */
 public interface DBOutPutContext extends DBContext {
-	public DBConfig getTargetDBConfig() ;
+	public DBConfig getTargetDBConfig(TaskContext taskContext) ;
 	/**
 	 * 数据库相关配置
 	 * @return
 	 */
-	public TranSQLInfo getTargetSqlInfo() ;
+	public TranSQLInfo getTargetSqlInfo(TaskContext taskContext) ;
 	public boolean optimize();
 
 	public void setTargetSqlInfo(TranSQLInfo sqlInfo) ;
 
-	public TranSQLInfo getTargetUpdateSqlInfo() ;
+	public TranSQLInfo getTargetUpdateSqlInfo(TaskContext taskContext) ;
 
 	public void setTargetUpdateSqlInfo(TranSQLInfo sqlInfo) ;
-	public TranSQLInfo getTargetDeleteSqlInfo() ;
+	public TranSQLInfo getTargetDeleteSqlInfo(TaskContext taskContext) ;
 
 	public void setTargetDeleteSqlInfo(TranSQLInfo sqlInfo) ;
 	public String getInsertSqlName() ;

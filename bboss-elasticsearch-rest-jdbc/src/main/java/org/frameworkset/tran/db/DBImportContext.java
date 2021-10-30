@@ -21,6 +21,7 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.db.output.TranSQLInfo;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
@@ -32,7 +33,9 @@ import org.frameworkset.tran.db.output.TranSQLInfo;
  */
 public  class DBImportContext extends BaseImportContext implements DBOutPutContext {
 	protected DBImportConfig dbImportConfig;
-	public DBConfig getTargetDBConfig() {
+	public DBConfig getTargetDBConfig(TaskContext taskContext) {
+		if(taskContext != null && taskContext.getTargetDBConfig() != null)
+			return taskContext.getTargetDBConfig();
 		return dbImportConfig.getTargetDBConfig();
 	}
 	public boolean optimize()
@@ -103,7 +106,9 @@ public  class DBImportContext extends BaseImportContext implements DBOutPutConte
 		return dbImportConfig.getUpdateSql();
 	}
 
-	public TranSQLInfo getTargetSqlInfo() {
+	public TranSQLInfo getTargetSqlInfo(TaskContext taskContext) {
+		if(taskContext != null && taskContext.getTargetSqlInfo() != null)
+			return taskContext.getTargetSqlInfo();
 		return targetSqlInfo;
 	}
 
@@ -111,14 +116,18 @@ public  class DBImportContext extends BaseImportContext implements DBOutPutConte
 		this.targetSqlInfo = targetSqlInfo;
 	}
 
-	public TranSQLInfo getTargetUpdateSqlInfo() {
+	public TranSQLInfo getTargetUpdateSqlInfo(TaskContext taskContext) {
+		if(taskContext != null && taskContext.getTargetUpdateSqlInfo() != null)
+			return taskContext.getTargetUpdateSqlInfo();
 		return targetUpdateSqlInfo;
 	}
 
 	public void setTargetUpdateSqlInfo(TranSQLInfo sqlInfo) {
 		this.targetUpdateSqlInfo = sqlInfo;
 	}
-	public TranSQLInfo getTargetDeleteSqlInfo() {
+	public TranSQLInfo getTargetDeleteSqlInfo(TaskContext taskContext) {
+		if(taskContext != null && taskContext.getTargetDeleteSqlInfo() != null)
+			return taskContext.getTargetDeleteSqlInfo();
 		return targetDeleteSqlInfo;
 	}
 

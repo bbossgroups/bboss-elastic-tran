@@ -25,6 +25,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBRecord;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskFailedException;
 
@@ -49,8 +50,8 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 	private boolean needBatch;
 	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
 								  List<DBRecord> datas, int taskNo, String jobNo, String taskInfo,
-								  boolean needBatch, Object lastValue, Status currentStatus,boolean reachEOFClosed) {
-		super(importCount,importContext, targetImportContext,datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed);
+								  boolean needBatch, Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
+		super(importCount,importContext, targetImportContext,datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed,   taskContext);
 		this.needBatch = needBatch;
 		this.importContext = importContext;
 		this.datas = datas;
@@ -132,13 +133,13 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 
 		StatementInfo stmtInfo = null;
 		PreparedStatement statement = null;
-		TranSQLInfo insertSqlinfo = es2DBContext.getTargetSqlInfo();
-		TranSQLInfo updateSqlinfo = es2DBContext.getTargetUpdateSqlInfo();
-		TranSQLInfo deleteSqlinfo = es2DBContext.getTargetDeleteSqlInfo();
+		TranSQLInfo insertSqlinfo = es2DBContext.getTargetSqlInfo(taskContext);
+		TranSQLInfo updateSqlinfo = es2DBContext.getTargetUpdateSqlInfo(taskContext);
+		TranSQLInfo deleteSqlinfo = es2DBContext.getTargetDeleteSqlInfo(taskContext);
 		Connection con_ = null;
 		int batchsize = importContext.getStoreBatchSize();
 		try {
-			DBConfig targetDB = es2DBContext.getTargetDBConfig();
+			DBConfig targetDB = es2DBContext.getTargetDBConfig(taskContext);
 			if(targetDB == null)
 				targetDB = importContext.getDbConfig();
 //		GetCUDResult CUDResult = null;

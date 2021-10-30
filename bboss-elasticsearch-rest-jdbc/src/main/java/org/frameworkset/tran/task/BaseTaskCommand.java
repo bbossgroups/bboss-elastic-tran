@@ -71,7 +71,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	}
 	public BaseTaskCommand(ImportCount importCount,
 						   ImportContext importContext,ImportContext targetImportContext,
-						   long dataSize,int taskNo,String jobNo,Object lastValue,Status currentStatus,boolean reachEOFClosed){
+						   long dataSize,int taskNo,String jobNo,Object lastValue,Status currentStatus,boolean reachEOFClosed,TaskContext taskContext){
 		this.importCount = importCount;
 		this.importContext =  importContext;
 		this.targetImportContext = targetImportContext;
@@ -82,6 +82,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		this.lastValue = lastValue;
 		this.currentStatus = currentStatus;
 		this.reachEOFClosed = reachEOFClosed;
+		this.taskContext = taskContext;
 	}
 	public ImportCount getImportCount(){
 		return this.importCount;

@@ -16,10 +16,11 @@ package org.frameworkset.tran.db.input.db;
  */
 
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataTranPlugin;
-import org.frameworkset.tran.db.input.SQLBaseDataTranPlugin;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.db.input.SQLBaseDataTranPlugin;
 import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.db.output.DBOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
@@ -50,8 +51,11 @@ public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 	@Override
 	public void beforeInit() {
 		super.beforeInit();
-		this.initDS(db2DBContext.getTargetDBConfig());
-		TranUtil.initTargetSQLInfo(db2DBContext,db2DBContext.getTargetDBConfig());
+		DBConfig dbConfig = db2DBContext.getTargetDBConfig(null);
+		if(dbConfig != null) {
+			this.initDS(dbConfig);
+			TranUtil.initTargetSQLInfo(db2DBContext, dbConfig.getDbName());
+		}
 	}
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){

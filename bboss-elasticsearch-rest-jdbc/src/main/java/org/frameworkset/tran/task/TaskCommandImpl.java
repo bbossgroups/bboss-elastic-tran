@@ -23,6 +23,7 @@ import org.frameworkset.elasticsearch.handler.ESVoidResponseHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +38,8 @@ import org.slf4j.LoggerFactory;
 public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 
 	public TaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
-						   long dataSize, int taskNo, String jobNo, Object lastValue, Status currentStatus,boolean reachEOFClosed) {
-		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,  lastValue,  currentStatus,reachEOFClosed);
+						   long dataSize, int taskNo, String jobNo, Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
+		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,  lastValue,  currentStatus,reachEOFClosed,  taskContext);
 	}
 
 

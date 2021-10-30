@@ -87,7 +87,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 						int _count = count;
 						count = 0;
 						DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(importCount, importContext,targetImportContext,
-								_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+								_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 						taskCommand.setDatas(_dd);
 						ret = TaskCall.call(taskCommand);
 						taskNo ++;
@@ -150,7 +150,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 			if(count > 0) {
 
 				DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(importCount, importContext,targetImportContext,
-						count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+						count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 				taskNo ++;
 				if(dummyOupputContext.isPrintRecord()) {
 					taskCommand.setDatas(builder.toString());
@@ -247,7 +247,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 						int _count = count;
 						count = 0;
 						DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,targetImportContext,
-								_count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+								_count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 						taskCommand.setDatas(datas);
 						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 						taskNo++;
@@ -296,7 +296,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 					int _count = count;
 					count = 0;
 					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,targetImportContext,
-							_count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+							_count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas(datas);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 					taskNo++;
@@ -313,7 +313,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 					builder.setLength(0);
 				}
 				DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,targetImportContext,
-						count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+						count, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 				taskCommand.setDatas(datas);
 				tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
@@ -394,7 +394,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 						int _count = count;
 						count = 0;
 						DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(importCount, importContext,targetImportContext,
-								_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+								_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 						taskCommand.setDatas(_dd);
 						ret = TaskCall.call(taskCommand);
 
@@ -456,7 +456,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 					int _count = count;
 					count = 0;
 					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(importCount, importContext,targetImportContext,
-							_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed);
+							_count, taskNo, importCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas(datas);
 					ret = TaskCall.call(taskCommand);
 
@@ -482,7 +482,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 				}
 
 				DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(importCount, importContext, targetImportContext,
-						count, taskNo, importCount.getJobNo(),  lastValue,  currentStatus,reachEOFClosed);
+						count, taskNo, importCount.getJobNo(),  lastValue,  currentStatus,reachEOFClosed,taskContext);
 				taskCommand.setDatas(datas);
 				TaskCall.call(taskCommand);
 				if(isPrintTaskLog())  {

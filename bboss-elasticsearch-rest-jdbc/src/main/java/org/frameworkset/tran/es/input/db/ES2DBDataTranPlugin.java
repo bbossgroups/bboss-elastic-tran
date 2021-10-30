@@ -16,10 +16,7 @@ package org.frameworkset.tran.es.input.db;
  */
 
 import com.frameworkset.common.poolman.ConfigSQLExecutor;
-import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DataTranPlugin;
-import org.frameworkset.tran.ESDataImportException;
-import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.db.output.DBOutPutContext;
@@ -40,7 +37,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class ES2DBDataTranPlugin extends ESInputPlugin implements DataTranPlugin {
 
-	protected ConfigSQLExecutor executor;
+//	protected ConfigSQLExecutor executor;
 
 	protected DBOutPutContext dbOutPutContext;
 	public ES2DBDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
@@ -52,9 +49,9 @@ public class ES2DBDataTranPlugin extends ESInputPlugin implements DataTranPlugin
 	@Override
 	public void beforeInit() {
 		super.beforeInit();
-		if(dbOutPutContext.getTargetDBConfig() != null)
+		if(dbOutPutContext.getTargetDBConfig(null) != null)
 		{
-			this.initDS(dbOutPutContext.getTargetDBConfig());
+			this.initDS(dbOutPutContext.getTargetDBConfig(null));
 		}
 		if(importContext.getDbConfig() != null) {
 			this.initDS(importContext.getDbConfig());
@@ -64,7 +61,9 @@ public class ES2DBDataTranPlugin extends ESInputPlugin implements DataTranPlugin
 	}
 	@Override
 	public void afterInit(){
-		executor = TranUtil.initTargetSQLInfo(dbOutPutContext,dbOutPutContext.getTargetDBConfig() != null?dbOutPutContext.getTargetDBConfig():importContext.getDbConfig());
+		DBConfig dbConfig = dbOutPutContext.getTargetDBConfig(null) != null?dbOutPutContext.getTargetDBConfig(null):importContext.getDbConfig();
+		if(dbConfig != null)
+			TranUtil.initTargetSQLInfo(dbOutPutContext,dbConfig.getDbName());
 
 	}
 	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch, Status currentStatus){
@@ -81,7 +80,15 @@ public class ES2DBDataTranPlugin extends ESInputPlugin implements DataTranPlugin
 		}
 	}
 	protected  void doBatchHandler(TaskContext taskContext){
-		ESDirectExporterScrollHandler esDirectExporterScrollHandler = new ESDirectExporterScrollHandler(importContext,targetImportContext,
+
+		ConfigSQLExecutor executor = null;
+		if(taskContext.getSqlFilepath() != null) {
+			executor = new ConfigSQLExecutor(taskContext.getSqlFilepath());
+		}
+		else if(dbOutPutContext.getSqlFilepath() != null) {
+			executor = new ConfigSQLExecutor(dbOutPutContext.getSqlFilepath());
+		}
+		ESDirectExporterScrollHandler esDirectExporterScrollHandler = new ESDirectExporterScrollHandler(taskContext,importContext,targetImportContext,
 				executor);
 		try {
 			if (!isIncreamentImport()) {
