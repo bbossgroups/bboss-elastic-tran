@@ -20,6 +20,7 @@ import org.apache.commons.net.io.CopyStreamEvent;
 import org.apache.commons.net.io.CopyStreamListener;
 import org.apache.commons.net.util.TrustManagerUtils;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.input.file.FileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,14 +79,14 @@ public class FtpTransfer {
 	 */
 	public static List<FTPFile> ls(final FtpContext fileFtpOupputContext) {
 		final List<FTPFile> files = new ArrayList<FTPFile>();
-
+		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
 		handle(fileFtpOupputContext, new FTPAction() {
 
 			@Override
 			public void execute(FTPClient ftp) throws IOException {
 				try {
 					FTPFile[] ftpFiles = null;
-					if(fileFtpOupputContext.getFileFilter() == null){
+					if(fileFilter == null){
 						ftpFiles = ftp.listFiles(fileFtpOupputContext.getRemoteFileDir());
 					}
 					else{
@@ -93,7 +94,7 @@ public class FtpTransfer {
 							@Override
 							public boolean accept(FTPFile file) {
 								String name = file.getName().trim();
-								return fileFtpOupputContext.getFileFilter().accept(fileFtpOupputContext.getRemoteFileDir(),name,fileFtpOupputContext.getFtpConfig());
+								return fileFilter.accept(fileFtpOupputContext.getRemoteFileDir(),name,fileFtpOupputContext.getFtpConfig());
 							}
 						});
 					}
@@ -154,9 +155,9 @@ public class FtpTransfer {
 				try {
 					ftp.deleteFile(remoteFile);
 					if(logger.isInfoEnabled())
-						logger.info("Delete file "+remoteFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success.");
+						logger.info("Delete file "+remoteFile+" from ftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success.");
 				} catch (Exception e) {
-					throw new DataImportException("Delete file "+remoteFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success.", e);
+					throw new DataImportException("Delete file "+remoteFile+" from ftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success.", e);
 				}
 			}
 		});

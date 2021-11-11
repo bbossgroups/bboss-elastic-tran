@@ -85,9 +85,9 @@ public class SFTPTransfer {
 					}
 				}
 				if(logger.isDebugEnabled())
-					logger.debug("List files in remote dir["+fileFtpOupputContext.getRemoteFileDir()+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() );
+					logger.debug("List files in remote dir["+fileFtpOupputContext.getRemoteFileDir()+"} from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() );
 			}
-		},"List files in remote dir["+fileFtpOupputContext.getRemoteFileDir()+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + "failed." );
+		},"List files in remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed." );
 		return files;
 	}
 	/**
