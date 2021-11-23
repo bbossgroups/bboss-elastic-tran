@@ -16,6 +16,8 @@ package org.frameworkset.tran;
  */
 
 
+import com.frameworkset.orm.adapter.DBFactory;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -111,7 +113,7 @@ public class DBConfig {
 		return dbDriver;
 	}
 
-	public String getCreateStatusTableSQL(String dbtype){
+	public static String getCreateStatusTableSQL(String dbtype){
 		if(dbtype.equals("mysql")){
 			return mysql_createStatusTableSQL;
 		}
@@ -126,7 +128,7 @@ public class DBConfig {
 		}
 		throw new ESDataImportException("getCreateStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
-	public String getCreateHistoryStatusTableSQL(String dbtype){
+	public static String getCreateHistoryStatusTableSQL(String dbtype){
 		if(dbtype.equals("mysql")){
 			return mysql_createHistoryStatusTableSQL;
 		}
@@ -138,6 +140,44 @@ public class DBConfig {
 		}
 		else if(dbtype.equals("sqlserver")){
 			return sqlserver_createHistoryStatusTableSQL;
+		}
+		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+	}
+
+	public static String getStatusTableDefaultValue(String dbtype){
+		if(dbtype.equals("mysql")){
+			return "null";
+		}
+		else if(dbtype.equals("oracle")){
+			return "null";
+		}
+		else if(dbtype.equals("dm")){
+			return "null";
+		}
+		else if(dbtype.equals("sqlserver")){
+			return "null";
+		}
+		else if(dbtype.equals(DBFactory.SQLITEX)){
+			return "0";
+		}
+		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+	}
+
+	public static String getStatusTableType(String dbtype){
+		if(dbtype.equals("mysql")){
+			return "VARCHAR";
+		}
+		else if(dbtype.equals("oracle")){
+			return "VARCHAR2";
+		}
+		else if(dbtype.equals("dm")){
+			return "VARCHAR2";
+		}
+		else if(dbtype.equals("sqlserver")){
+			return "VARCHAR";
+		}
+		else if(dbtype.equals(DBFactory.SQLITEX)){
+			return "VARCHAR";
 		}
 		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}

@@ -138,9 +138,12 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	protected String createStatusTableSQL;
 	protected String createHistoryStatusTableSQL;
 	protected String selectSQL;
+	protected String checkFieldSQL ;
+	protected String checkHisFieldSQL ;
 	protected String deleteSQL;
 	protected String selectAllSQL;
 	protected String existSQL;
+	protected String existHisSQL;
 	protected int lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
 
 	protected Date initLastDate = null;
@@ -602,9 +605,82 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 
 	}
-	
+
+	/**
+	 * 创建字段
+	 * @param field
+	 * @param tableName
+	 * @param defaultValue
+	 * @param length
+	 * @param type
+	 */
+	private void addField(String field,String tableName,String defaultValue,String length,String type){
+		String addFiledSQL = defaultValue !=null ?
+				"ALTER TABLE '"+tableName+"' ADD '"+field+"' "+type+"("+length+") DEFAULT "+ defaultValue:
+				"ALTER TABLE '"+tableName+"' ADD '"+field+"' "+type+"("+length+") ";
+
+		try {
+			SQLExecutor.updateWithDBName(statusDbname, addFiledSQL);
+			if(logger.isInfoEnabled())
+				logger.info("add field to table success：" + addFiledSQL + ".");
+
+		} catch (Exception e1) {
+			if(logger.isWarnEnabled())
+				logger.warn("add field to table failed：" + addFiledSQL + ".", e1);
+//			throw new ESDataImportException("add field to table failed：" + addFiledSQL + ".",e1);
+
+		}
+	}
+	/**
+	 * 检查状态表字段是否存在，不存在则创建
+	 */
+	private void checkStatusFieldExist()  {
+		String defaultValue = DBConfig.getStatusTableDefaultValue(SQLUtil.getPool(statusDbname).getDBType());
+		String type = DBConfig.getStatusTableType(SQLUtil.getPool(statusDbname).getDBType());
+		try {
+			SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, checkFieldSQL);
+
+		}
+		catch (SQLException e){
+			logger.warn("filePath,status and fileId not exit in table {"+statusTableName+"}",e);
+
+			addField("filePath",statusTableName,defaultValue,"500",type);
+			addField("fileId",statusTableName,defaultValue,"500",type);
+
+			addField("status",statusTableName,null,"1","number");
+
+		}
+
+
+
+	}
+
+	/**
+	 * 检查历史状态表字段是否存在，不存在则创建
+	 */
+	private void checkHisStatusFieldExist()  {
+		String defaultValue = DBConfig.getStatusTableDefaultValue(SQLUtil.getPool(statusDbname).getDBType());
+		String type = DBConfig.getStatusTableType(SQLUtil.getPool(statusDbname).getDBType());
+
+
+		try {
+			SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, checkHisFieldSQL);
+
+		}
+		catch (SQLException e){
+			logger.warn("filePath,status,statusId and fileId not exit in table {"+historyStatusTableName+"}",e);
+
+			addField("filePath",historyStatusTableName,defaultValue,"500",type);
+			addField("fileId",historyStatusTableName,defaultValue,"500",type);
+			addField("status",historyStatusTableName,null,"1","number");
+			addField("statusId",historyStatusTableName,null,"10","number");
+		}
+
+
+	}
 	protected void loadCurrentStatus(){
 		try {
+
 			/**
 			 * 初始化数据检索起始状态信息
 			 */
@@ -644,40 +720,64 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		}
 	}
 
+	private void createTable(String tableName,String sql){
+		try {
+			SQLExecutor.updateWithDBName(statusDbname, sql);
+			if(logger.isInfoEnabled())
+				logger.info("table " + tableName + " create success：" + sql + ".");
+
+		} catch (Exception e1) {
+			if(logger.isInfoEnabled())
+				logger.info("table " + tableName + " create failed：" + sql + ".", e1);
+			throw new ESDataImportException(e1);
+
+		}
+	}
 	protected void initTableAndStatus(){
 		if(this.isIncreamentImport()) {
 			try {
 				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				initLastDate = dateFormat.parse("1970-01-01 00:00:00");
 				SQLExecutor.queryObjectWithDBName(int.class, statusDbname, existSQL);
-
+				/**
+				 * 检查状态表字段是否存在，不存在则创建
+				 */
+				checkStatusFieldExist();
 			} catch (Exception e) {
-				String tsql = createStatusTableSQL;
+
 				if(logger.isInfoEnabled())
-					logger.info( "{} table not exist，{}：{}.",statusTableName,statusTableName,tsql);
-				try {
-					SQLExecutor.updateWithDBName(statusDbname, tsql);
-					if(logger.isInfoEnabled())
-						logger.info("table " + statusTableName + " create success：" + tsql + ".");
+					logger.info( "{} table not exist，{}：{}.",statusTableName,statusTableName,createStatusTableSQL);
+				createTable(statusTableName,createStatusTableSQL);
 
-				} catch (Exception e1) {
-					if(logger.isInfoEnabled())
-						logger.info("table " + statusTableName + " create success：" + tsql + ".", e1);
-					throw new ESDataImportException(e1);
 
-				}
-				try {
-					SQLExecutor.updateWithDBName(statusDbname, createHistoryStatusTableSQL);
-					if(logger.isInfoEnabled())
-						logger.info("table " + historyStatusTableName + " create success：" + createHistoryStatusTableSQL + ".");
-
-				} catch (Exception e1) {
-					if(logger.isInfoEnabled())
-						logger.info("table " + historyStatusTableName + " create success：" + createHistoryStatusTableSQL + ".", e1);
-					throw new ESDataImportException(e1);
-
-				}
 			}
+
+			try {
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				initLastDate = dateFormat.parse("1970-01-01 00:00:00");
+				SQLExecutor.queryObjectWithDBName(int.class, statusDbname, existHisSQL);
+				/**
+				 * 检查历史状态表字段是否存在，不存在则创建
+				 */
+				checkHisStatusFieldExist();
+			} catch (Exception e) {
+				if(logger.isInfoEnabled())
+					logger.info( "{} table not exist，{}：{}.",historyStatusTableName,statusTableName,createHistoryStatusTableSQL);
+				createTable(historyStatusTableName,createHistoryStatusTableSQL);
+				/**
+				 try {
+				 SQLExecutor.updateWithDBName(statusDbname, createHistoryStatusTableSQL);
+				 if(logger.isInfoEnabled())
+				 logger.info("table " + historyStatusTableName + " create success：" + createHistoryStatusTableSQL + ".");
+
+				 } catch (Exception e1) {
+				 if(logger.isInfoEnabled())
+				 logger.info("table " + historyStatusTableName + " create failed：" + createHistoryStatusTableSQL + ".", e1);
+				 throw new ESDataImportException(e1);
+
+				 }*/
+			}
+
 			_initStatusManager();
 			this.loadCurrentStatus();
 		}
@@ -866,10 +966,11 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 
 			existSQL = new StringBuilder().append("select 1 from ").append(statusTableName).toString();
+			existHisSQL = new StringBuilder().append("select 1 from ").append(historyStatusTableName).toString();
 			selectSQL = new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status from ")
 					.append(statusTableName).append(" where id=?").toString();
-
-
+			checkFieldSQL = "select filePath,fileId,status from " + statusTableName;
+			checkHisFieldSQL = "select filePath,fileId,status,statusId from " + historyStatusTableName;
 			selectAllSQL =  new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status from ")
 					.append(statusTableName).toString();
 			updateSQL = new StringBuilder().append("update ").append(statusTableName)

@@ -36,8 +36,19 @@ public class DataStream {
 
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;
-		this.dataTranPlugin.init(importContext,targetImportContext);
-		this.dataTranPlugin.init();
+		try {
+			this.dataTranPlugin.init(importContext,targetImportContext);
+			this.dataTranPlugin.init();
+		}
+		catch (ESDataImportException e){
+			logger.error("Set DataTranPlugin failed:",e);
+			throw e;
+		}
+		catch (Exception e){
+			logger.error("Set DataTranPlugin failed:",e);
+			throw new ESDataImportException("Set DataTranPlugin failed:",e);
+		}
+
 	}
 
 	private DataTranPlugin dataTranPlugin;
