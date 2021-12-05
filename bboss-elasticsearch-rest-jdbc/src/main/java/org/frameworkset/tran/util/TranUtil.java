@@ -173,7 +173,7 @@ public abstract class TranUtil {
 
 	public static void initTaskContextSQLInfo(TaskContext taskContext,ImportContext importContext,
 			 									ImportContext targetImportContext){
-		if(taskContext != null) {
+		if(taskContext != null && taskContext.getDbmportConfig() != null) {
 			String dbName = null;
 			if(taskContext.getTargetDBConfig() != null){
 				DBConfig dbConfig = taskContext.getTargetDBConfig();

@@ -89,41 +89,55 @@ public class TaskContext {
 
 
 	public String getSql() {
-		return dbmportConfig.getSql();
+		if(dbmportConfig != null)
+			return dbmportConfig.getSql();
+		return null;
 	}
 
 
 	public String getSqlFilepath() {
-		return dbmportConfig.getSqlFilepath();
+		if(dbmportConfig != null)
+			return dbmportConfig.getSqlFilepath();
+		return null;
 	}
 
 	public String getSqlName() {
-		return dbmportConfig.getSqlName();
-	}
-
-	public void setSql(String sql) {
-		dbmportConfig.setSql(sql);
+		if(dbmportConfig != null)
+			return dbmportConfig.getSqlName();
+		return null;
 	}
 
 	public String getInsertSqlName() {
-		return dbmportConfig.getInsertSqlName();
+		if(dbmportConfig != null)
+			return dbmportConfig.getInsertSqlName();
+		return null;
 	}
 	public String getInsertSql() {
-		return dbmportConfig.getInsertSql();
+		if(dbmportConfig != null)
+			return dbmportConfig.getInsertSql();
+		return null;
 	}
 
 	public String getDeleteSqlName() {
-		return dbmportConfig.getDeleteSqlName();
+		if(dbmportConfig != null)
+			return dbmportConfig.getDeleteSqlName();
+		return null;
 	}
 	public String getDeleteSql(){
-		return dbmportConfig.getDeleteSql();
+		if(dbmportConfig != null)
+			return dbmportConfig.getDeleteSql();
+		return null;
 	}
 
 	public String getUpdateSqlName() {
-		return dbmportConfig.getUpdateSqlName();
+		if(dbmportConfig != null)
+			return dbmportConfig.getUpdateSqlName();
+		return null;
 	}
 	public String getUpdateSql(){
-		return dbmportConfig.getUpdateSql();
+		if(dbmportConfig != null)
+			return dbmportConfig.getUpdateSql();
+		return null;
 	}
 
 	public TranSQLInfo getTargetSqlInfo() {

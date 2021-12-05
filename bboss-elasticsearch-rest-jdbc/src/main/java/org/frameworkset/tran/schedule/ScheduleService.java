@@ -87,8 +87,11 @@ public class ScheduleService {
 				logger.error("preCall failed:",e);
 			}
 		}
-		TranUtil.initTaskContextSQLInfo(taskContext, importContext,
-				targetImportContext);
+
+		if(taskContext.getDbmportConfig() != null) {
+			TranUtil.initTaskContextSQLInfo(taskContext, importContext,
+					targetImportContext);
+		}
 
 	}
 	private void afterCall(TaskContext taskContext){
