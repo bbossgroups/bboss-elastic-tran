@@ -49,7 +49,7 @@ https://esdoc.bbossgroups.com/#/db-es-tool
 
 ## elasticsearch微信公众号:bbossgroup   
 
-![GitHub Logo](https://esdoc.bbossgroups.com/images/datasyn.png)
+
 
 ## License
 
