@@ -46,7 +46,7 @@ First add the maven dependency of BBoss to your pom.xml:
 ## Elasticsearch技术交流群:166471282 
 
 ## Elasticsearch微信公众号:bbossgroup   
-![GitHub Logo](https://static.oschina.net/uploads/space/2017/0617/094201_QhWs_94045.jpg)
+![GitHub Logo](https://esdoc.bbossgroups.com/images/datasyn.png)
 
 ## License
 
