@@ -46,17 +46,18 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		path = fileFtpOupputContext.getFileDir();
 		String name = fileFtpOupputContext.generateFileName(   taskContext, fileSeq);
 		String fileName = SimpleStringUtil.getPath(path,name);
-		String remoteFileName = SimpleStringUtil.getPath(fileFtpOupputContext.getRemoteFileDir(),name);
 		fileSeq ++;
-		StringBuilder builder = new StringBuilder().append("Import data to ftp ip[").append(fileFtpOupputContext.getFtpIP())
-				.append("] ftp user[").append(fileFtpOupputContext.getFtpUser())
-				.append("] ftp password[").append(fileFtpOupputContext.getFtpPassword()).append("] ftp port[")
-				.append(fileFtpOupputContext.getFtpPort()).append("] file [")
-				.append(fileName).append("]");
-		taskInfo = builder.toString();
-
 		try {
+			String remoteFileName = !fileFtpOupputContext.disableftp()?SimpleStringUtil.getPath(fileFtpOupputContext.getRemoteFileDir(),name):null;
 			FileTransfer fileTransfer = new FileTransfer(taskInfo,fileFtpOupputContext,path,fileName,remoteFileName,fileFtpOupputContext.getFileWriterBuffsize());
+			StringBuilder builder = new StringBuilder().append("Import data to ftp ip[").append(fileFtpOupputContext.getFtpIP())
+					.append("] ftp user[").append(fileFtpOupputContext.getFtpUser())
+					.append("] ftp password[******] ftp port[")
+					.append(fileFtpOupputContext.getFtpPort()).append("] file [")
+					.append(fileName).append("]")
+					.append(" remoteFileName[").append(remoteFileName).append("]")
+					;
+			taskInfo = builder.toString();
 			return fileTransfer;
 		} catch (IOException e) {
 			throw new ESDataImportException("init file writer failed:"+fileName,e);
@@ -254,8 +255,9 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 			if(isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
 				logger.info(new StringBuilder().append("Serial import Take time:").append((end - start)).append("ms")
-						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
-						.append(importCount.getIgnoreTotalCount()).append(" records.").toString());
+						.append(",Total Import  ").append(totalCount).append(" records,Total Ignore Count ")
+						.append(importCount.getIgnoreTotalCount()).append(" records,Total Failed Count ")
+						.append(importCount.getFailedCount()).append(" records.").toString());
 
 			}
 		}
