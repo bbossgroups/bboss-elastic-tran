@@ -93,8 +93,8 @@ public class FtpTransfer {
 						ftpFiles = ftp.listFiles(fileFtpOupputContext.getRemoteFileDir(), new FTPFileFilter() {
 							@Override
 							public boolean accept(FTPFile file) {
-								String name = file.getName().trim();
-								return fileFilter.accept(fileFtpOupputContext.getRemoteFileDir(),name,fileFtpOupputContext.getFtpConfig());
+
+								return fileFilter.accept(new FTPFilterFileInfo(fileFtpOupputContext.getRemoteFileDir(),file),fileFtpOupputContext.getFtpConfig());
 							}
 						});
 					}
@@ -102,6 +102,42 @@ public class FtpTransfer {
 					files.addAll(Arrays.asList(ftpFiles));
 				} catch (Exception e) {
 					throw new DataImportException("Ls files from ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " failed:remote dir[" + fileFtpOupputContext.getRemoteFileDir() + "]", e);
+				}
+			}
+		});
+		return files;
+	}
+
+	/**
+	 * 列出文件
+	 * @param fileFtpOupputContext
+	 * @return
+	 */
+	public static List<FTPFile> ls(final String remoteDir,final FtpContext fileFtpOupputContext) {
+		final List<FTPFile> files = new ArrayList<FTPFile>();
+		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
+		handle(fileFtpOupputContext, new FTPAction() {
+
+			@Override
+			public void execute(FTPClient ftp) throws IOException {
+				try {
+					FTPFile[] ftpFiles = null;
+					if(fileFilter == null){
+						ftpFiles = ftp.listFiles(remoteDir);
+					}
+					else{
+						ftpFiles = ftp.listFiles(remoteDir, new FTPFileFilter() {
+							@Override
+							public boolean accept(FTPFile file) {
+
+								return fileFilter.accept(new FTPFilterFileInfo(remoteDir,file),fileFtpOupputContext.getFtpConfig());
+							}
+						});
+					}
+
+					files.addAll(Arrays.asList(ftpFiles));
+				} catch (Exception e) {
+					throw new DataImportException("Ls files from ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " failed:remote dir[" + remoteDir + "]", e);
 				}
 			}
 		});

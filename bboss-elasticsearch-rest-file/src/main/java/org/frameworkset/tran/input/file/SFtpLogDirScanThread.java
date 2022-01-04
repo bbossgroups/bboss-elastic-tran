@@ -50,21 +50,47 @@ public class SFtpLogDirScanThread extends FtpLogDirScanThread{
             }
             return;
         }
+        _scanCheck(files);
+
+    }
+
+    public void scanSubDirNewFile(RemoteResourceInfo logDir){
+        if(logger.isDebugEnabled()){
+            if(fileConfig.getFileFilter() == null)
+                logger.debug("Scan new sftp file in remote dir {} with filename regex {}.",logDir.getPath(),fileConfig.getFileNameRegular());
+            else{
+                logger.debug("Scan new sftp file in remote dir {} with filename filter {}.",logDir.getPath(),
+                        fileConfig.getFileFilter().getClass().getCanonicalName());
+            }
+        }
+        List<RemoteResourceInfo> files = SFTPTransfer.ls(logDir,ftpContext);
+        if(files == null || files.size() == 0){
+            if(logger.isInfoEnabled()) {
+                logger.info("{} must be a directory or is empty directory.", logDir.getPath());
+            }
+            return;
+        }
+        _scanCheck(files);
+    }
+
+    private void _scanCheck(List<RemoteResourceInfo> files){
         for(RemoteResourceInfo remoteResourceInfo:files){
             if(remoteResourceInfo.isDirectory()) {
-                if(logger.isInfoEnabled()) {
-                    logger.info("Ignore sftp dir:{}",remoteResourceInfo.getPath());
+                if(!fileConfig.isScanChild()) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Ignore sftp dir:{}", remoteResourceInfo.getPath());
+                    }
+                    continue;
                 }
-                continue;
+                else{
+                    scanSubDirNewFile( remoteResourceInfo);
+                }
             }
             else{
                 fileListenerService.checkSFtpNewFile(remoteResourceInfo,ftpContext);
             }
         }
-
     }
-
-
 
 
 }

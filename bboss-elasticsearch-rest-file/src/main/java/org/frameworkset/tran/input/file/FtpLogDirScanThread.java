@@ -1,5 +1,6 @@
 package org.frameworkset.tran.input.file;
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.net.ftp.FTPFile;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpContext;
@@ -56,16 +57,57 @@ public class FtpLogDirScanThread extends LogDirScanThread{
         }
         for(FTPFile remoteResourceInfo:files){
             if(remoteResourceInfo.isDirectory()) {
-                if(logger.isInfoEnabled()) {
-                    logger.info("Ignore ftp dir:{}",remoteResourceInfo.getName().trim());
+                if(!fileConfig.isScanChild()) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Ignore ftp dir:{}", remoteResourceInfo.getName().trim());
+                    }
+                    continue;
                 }
-                continue;
+                else{
+                    scanSubDirNewFile(remoteResourceInfo,
+                            SimpleStringUtil.getPath(ftpContext.getRemoteFileDir(),remoteResourceInfo.getName().trim()));
+                }
             }
             else{
                 fileListenerService.checkFtpNewFile(remoteResourceInfo,ftpContext);
             }
         }
 
+    }
+
+    public void scanSubDirNewFile(FTPFile logDir,String subdir){
+        if(logger.isDebugEnabled()){
+            if(fileConfig.getFileFilter() == null)
+                logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",subdir,fileConfig.getFileNameRegular());
+            else{
+                logger.debug("Scan new ftp file in remote dir {} with filename filter {}.",subdir,
+                        fileConfig.getFileFilter().getClass().getCanonicalName());
+            }
+        }
+        List<FTPFile> files = FtpTransfer.ls(subdir,ftpContext);
+        if(files == null || files.size() == 0){
+            if(logger.isDebugEnabled()) {
+                logger.debug("{} must be a directory or is empty directory.", subdir);
+            }
+            return;
+        }
+        for(FTPFile remoteResourceInfo:files){
+            if(remoteResourceInfo.isDirectory()) {
+                if(!fileConfig.isScanChild()) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Ignore ftp dir:{}", remoteResourceInfo.getName().trim());
+                    }
+                    continue;
+                }
+                else{
+                    scanSubDirNewFile(remoteResourceInfo,
+                            SimpleStringUtil.getPath(subdir,remoteResourceInfo.getName().trim()));
+                }
+            }
+            else{
+                fileListenerService.checkFtpNewFile(remoteResourceInfo,ftpContext);
+            }
+        }
     }
 
 

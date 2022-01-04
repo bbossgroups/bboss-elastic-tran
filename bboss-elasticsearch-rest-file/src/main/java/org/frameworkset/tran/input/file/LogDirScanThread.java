@@ -161,10 +161,36 @@ public class LogDirScanThread implements Runnable{
                 if(file.isFile() && file.exists()) {
                     fileListenerService.checkNewFile(file,fileConfig);
                 }
+                else if (fileConfig.isScanChild()){ //如果需要扫描子目录
+                    scanSubDirNewFile(file);
+                }
             }
         }
         else{
             logger.info("{} must be a directory or must be exists.",fileConfig.getSourcePath() );
+        }
+    }
+
+    public void scanSubDirNewFile(File logDir){
+        if(logger.isDebugEnabled()){
+            logger.debug("scan new log file in sub dir {}",logDir.getAbsolutePath());
+        }
+        FilenameFilter filter = fileConfig.getFilter();
+        if(logDir.isDirectory() && logDir.exists()){
+            File[] files = logDir.listFiles(filter);
+            File file = null;
+            for(int i = 0; files != null && i < files.length; i ++){
+                file = files[i];
+                if(file.isFile() && file.exists()) {
+                    fileListenerService.checkNewFile(file,fileConfig);
+                }
+                else if (fileConfig.isScanChild()){ //如果需要扫描子目录
+                    scanSubDirNewFile(file);
+                }
+            }
+        }
+        else{
+            logger.info("{} must be a directory or must be exists.",logDir.getAbsolutePath());
         }
     }
 }

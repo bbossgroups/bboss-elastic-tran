@@ -2,6 +2,7 @@ package org.frameworkset.tran.input.file;
 
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.ftp.FtpConfig;
+import org.frameworkset.util.OSInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +68,7 @@ public class FileImportConfig extends BaseImportConfig {
     }
     public FileImportConfig addConfig(FileConfig fileConfig){
 
-        if(fileConfig instanceof FtpConfig){
+        if(fileConfig instanceof FtpConfig || fileConfig.isScanChild() || OSInfo.isWindows()){
             fileConfig.setEnableInode(false);//ftp需禁用inode机制
         }
 

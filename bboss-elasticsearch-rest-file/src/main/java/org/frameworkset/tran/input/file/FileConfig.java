@@ -161,7 +161,11 @@ public class FileConfig extends FieldManager{
      */
     private Long closeOlderTime ;
     private CloseOldedFileAssert closeOldedFileAssert;
-    //是否检测子目录
+    /**
+     * 是否检测子目录
+     * 如果扫描子目录，则inode机制强制关闭
+     */
+
     private boolean scanChild;
     private FilenameFilter filter ;
     private File logDir;
@@ -376,7 +380,7 @@ public class FileConfig extends FieldManager{
                 }
                 else if(fileFilter != null){
                     try {
-                        return fileFilter.accept(dir.getCanonicalPath(), name, FileConfig.this);
+                        return fileFilter.accept(new LocalFilterFileInfo(dir, name), FileConfig.this);
                     }
                     catch (Exception e){
                         logger.warn(name,e);

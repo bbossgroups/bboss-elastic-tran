@@ -15,21 +15,38 @@ package org.frameworkset.tran.input.file;
  * limitations under the License.
  */
 
+import net.schmizz.sshj.sftp.RemoteResourceInfo;
+
 /**
- * <p>Description: 判断是否采集文件数据</p>
+ * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/8/5 19:46
+ * @Date 2022/1/4 22:12
  * @author biaoping.yin
  * @version 1.0
  */
-public interface FileFilter {
+public class SFTPFilterFileInfo implements FilterFileInfo{
+	private RemoteResourceInfo remoteResourceInfo;
+	public SFTPFilterFileInfo(RemoteResourceInfo remoteResourceInfo){
+		this.remoteResourceInfo = remoteResourceInfo;
+	}
+	@Override
+	public String getParentDir() {
+		return remoteResourceInfo.getParent();
+	}
 
-	/**
-	 * 判断是否采集文件数据，返回true标识采集，false 不采集
-	 * @param fileInfo
-	 * @param fileConfig
-	 * @return
-	 */
-	boolean accept(FilterFileInfo fileInfo,FileConfig fileConfig);
+	@Override
+	public String getFileName() {
+		return remoteResourceInfo.getName();
+	}
+
+	@Override
+	public boolean isDirectory() {
+		return remoteResourceInfo.isDirectory();
+	}
+
+	@Override
+	public Object getFileObject() {
+		return remoteResourceInfo;
+	}
 }

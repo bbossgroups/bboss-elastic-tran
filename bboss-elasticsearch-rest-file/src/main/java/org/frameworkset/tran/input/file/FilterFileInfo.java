@@ -16,20 +16,16 @@ package org.frameworkset.tran.input.file;
  */
 
 /**
- * <p>Description: 判断是否采集文件数据</p>
+ * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/8/5 19:46
+ * @Date 2022/1/4 22:33
  * @author biaoping.yin
  * @version 1.0
  */
-public interface FileFilter {
-
-	/**
-	 * 判断是否采集文件数据，返回true标识采集，false 不采集
-	 * @param fileInfo
-	 * @param fileConfig
-	 * @return
-	 */
-	boolean accept(FilterFileInfo fileInfo,FileConfig fileConfig);
+public interface FilterFileInfo {
+	public String getParentDir();
+	public String getFileName();
+	public boolean isDirectory();
+	public Object getFileObject();
 }

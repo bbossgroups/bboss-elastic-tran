@@ -27,6 +27,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
+import org.frameworkset.tran.input.file.SFTPFilterFileInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +72,7 @@ public class SFTPTransfer {
 						@Override
 						public boolean accept(RemoteResourceInfo resource) {
 
-							return fileFilter.accept(resource.getParent(), resource.getName(), fileConfig);
+							return fileFilter.accept(new SFTPFilterFileInfo(resource), fileConfig);
 						}
 					});
 					if (_files != null && _files.size() > 0) {
@@ -88,6 +89,52 @@ public class SFTPTransfer {
 					logger.debug("List files in remote dir["+fileFtpOupputContext.getRemoteFileDir()+"} from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() );
 			}
 		},"List files in remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed." );
+		return files;
+	}
+
+	public static List<RemoteResourceInfo> ls(final RemoteResourceInfo parent,final FtpContext fileFtpOupputContext){
+		final List<RemoteResourceInfo> files = new ArrayList<RemoteResourceInfo>();
+		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
+		final FtpFileFilter ftpFileFilter = fileFtpOupputContext.getFtpFileFilter();
+		final FileConfig fileConfig = fileFtpOupputContext.getFtpConfig();
+		handlerFile(  fileFtpOupputContext, new SFTPAction (){
+			@Override
+			public void execute(SFTPClient sftp) throws IOException {
+//				fileFtpOupputContext.getf
+				if(ftpFileFilter != null){
+					List<RemoteResourceInfo> _files = sftp.ls(parent.getPath(), new RemoteResourceFilter() {
+						@Override
+						public boolean accept(RemoteResourceInfo resource) {
+
+							return ftpFileFilter.accept(resource, resource.getName(), fileConfig);
+						}
+					});
+					if (_files != null && _files.size() > 0) {
+						files.addAll(_files);
+					}
+				}
+				else if(fileFilter != null) {
+					List<RemoteResourceInfo> _files = sftp.ls(parent.getPath(), new RemoteResourceFilter() {
+						@Override
+						public boolean accept(RemoteResourceInfo resource) {
+
+							return fileFilter.accept(new SFTPFilterFileInfo(resource), fileConfig);
+						}
+					});
+					if (_files != null && _files.size() > 0) {
+						files.addAll(_files);
+					}
+				}
+				else{
+					List<RemoteResourceInfo> _files = sftp.ls(parent.getPath());
+					if (_files != null && _files.size() > 0) {
+						files.addAll(_files);
+					}
+				}
+				if(logger.isDebugEnabled())
+					logger.debug("List files in remote dir["+parent.getPath()+"} from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() );
+			}
+		},"List files in remote dir["+parent.getPath()+"] from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed." );
 		return files;
 	}
 	/**

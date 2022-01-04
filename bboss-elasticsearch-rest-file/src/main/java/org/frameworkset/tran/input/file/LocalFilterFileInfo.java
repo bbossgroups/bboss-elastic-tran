@@ -15,21 +15,47 @@ package org.frameworkset.tran.input.file;
  * limitations under the License.
  */
 
+import java.io.File;
+import java.io.IOException;
+
 /**
- * <p>Description: 判断是否采集文件数据</p>
+ * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/8/5 19:46
+ * @Date 2022/1/4 22:12
  * @author biaoping.yin
  * @version 1.0
  */
-public interface FileFilter {
+public class LocalFilterFileInfo implements FilterFileInfo{
+	private File dir;
+	private String name;
+	private File file;
+	public LocalFilterFileInfo(File dir,String name){
+		this.dir = dir;
+		this.name = name;
+		file = new File(dir,name);
+	}
+	@Override
+	public String getParentDir() {
+		try {
+			return dir.getCanonicalPath();
+		} catch (IOException e) {
+			throw new RuntimeException(dir.getAbsolutePath(),e);
+		}
+	}
 
-	/**
-	 * 判断是否采集文件数据，返回true标识采集，false 不采集
-	 * @param fileInfo
-	 * @param fileConfig
-	 * @return
-	 */
-	boolean accept(FilterFileInfo fileInfo,FileConfig fileConfig);
+	@Override
+	public String getFileName() {
+		return name;
+	}
+
+	@Override
+	public boolean isDirectory() {
+		return file.isDirectory();
+	}
+
+	@Override
+	public Object getFileObject() {
+		return file;
+	}
 }
