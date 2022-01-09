@@ -1,5 +1,6 @@
 package org.frameworkset.tran.input.file;
 
+import com.frameworkset.util.SimpleStringUtil;
 import net.schmizz.sshj.sftp.RemoteResourceInfo;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.SFTPTransfer;
@@ -50,11 +51,11 @@ public class SFtpLogDirScanThread extends FtpLogDirScanThread{
             }
             return;
         }
-        _scanCheck(files);
+        _scanCheck("",files);
 
     }
 
-    public void scanSubDirNewFile(RemoteResourceInfo logDir){
+    public void scanSubDirNewFile(String relativeParentDir,RemoteResourceInfo logDir){
         if(logger.isDebugEnabled()){
             if(fileConfig.getFileFilter() == null)
                 logger.debug("Scan new sftp file in remote dir {} with filename regex {}.",logDir.getPath(),fileConfig.getFileNameRegular());
@@ -70,10 +71,15 @@ public class SFtpLogDirScanThread extends FtpLogDirScanThread{
             }
             return;
         }
-        _scanCheck(files);
+        _scanCheck(relativeParentDir,files);
     }
 
-    private void _scanCheck(List<RemoteResourceInfo> files){
+    /**
+     *
+     * @param relativeParentDir 相对路径
+     * @param files
+     */
+    private void _scanCheck(String relativeParentDir,List<RemoteResourceInfo> files){
         for(RemoteResourceInfo remoteResourceInfo:files){
             if(remoteResourceInfo.isDirectory()) {
                 if(!fileConfig.isScanChild()) {
@@ -83,11 +89,11 @@ public class SFtpLogDirScanThread extends FtpLogDirScanThread{
                     continue;
                 }
                 else{
-                    scanSubDirNewFile( remoteResourceInfo);
+                    scanSubDirNewFile(SimpleStringUtil.getPath(relativeParentDir,remoteResourceInfo.getName()),remoteResourceInfo);
                 }
             }
             else{
-                fileListenerService.checkSFtpNewFile(remoteResourceInfo,ftpContext);
+                fileListenerService.checkSFtpNewFile(relativeParentDir,remoteResourceInfo,ftpContext);
             }
         }
     }

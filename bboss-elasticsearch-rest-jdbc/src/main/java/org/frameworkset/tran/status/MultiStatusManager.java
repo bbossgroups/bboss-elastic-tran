@@ -91,9 +91,10 @@ public class MultiStatusManager extends BaseStatusManager{
 					stmt.setObject(2, record.getLastValue());
 					stmt.setInt(3, lastValueType);
 					stmt.setString(4, record.getFilePath());
-					stmt.setString(5, record.getFileId());
-					stmt.setInt(6, record.getStatus());
-					stmt.setInt(7, record.getId());
+					stmt.setString(5, record.getRelativeParentDir());
+					stmt.setString(6, record.getFileId());
+					stmt.setInt(7, record.getStatus());
+					stmt.setInt(8, record.getId());
 				}
 			});
 			lastUpdateTime = System.currentTimeMillis();

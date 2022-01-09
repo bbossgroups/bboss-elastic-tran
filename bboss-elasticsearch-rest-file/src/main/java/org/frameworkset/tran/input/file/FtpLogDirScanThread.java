@@ -69,7 +69,7 @@ public class FtpLogDirScanThread extends LogDirScanThread{
                 }
             }
             else{
-                fileListenerService.checkFtpNewFile(remoteResourceInfo,ftpContext);
+                fileListenerService.checkFtpNewFile("",remoteResourceInfo,ftpContext);
             }
         }
 
@@ -105,7 +105,7 @@ public class FtpLogDirScanThread extends LogDirScanThread{
                 }
             }
             else{
-                fileListenerService.checkFtpNewFile(remoteResourceInfo,ftpContext);
+                fileListenerService.checkFtpNewFile(subdir,remoteResourceInfo,ftpContext);
             }
         }
     }

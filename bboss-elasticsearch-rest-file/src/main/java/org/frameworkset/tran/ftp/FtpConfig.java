@@ -268,7 +268,8 @@ public class FtpConfig extends FileConfig {
 		stringBuilder.append(",ftpIP:").append(this.ftpIP);
 		stringBuilder.append(",ftpPort:").append(this.ftpPort);
 		stringBuilder.append(",ftpUser:").append(this.ftpUser);
-		stringBuilder.append(",ftpPassword:").append(this.ftpPassword);
+//		stringBuilder.append(",ftpPassword:").append(this.ftpPassword);
+		stringBuilder.append(",ftpPassword:******");
 
 	}
 

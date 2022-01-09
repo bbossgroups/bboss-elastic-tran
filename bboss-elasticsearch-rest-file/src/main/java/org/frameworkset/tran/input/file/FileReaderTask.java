@@ -576,7 +576,7 @@ public class FileReaderTask extends FieldManager{
                 //需要删除采集完数据的eof文件，有必要进行优化并在回调函数中处理
                 if (reachEOFClosed ) {
                     if (fileImportConfig.isBackupSuccessFiles())//备份采集完的数据文件，默认保留一周，过期清理
-                        FileUtil.bakFile(file.getCanonicalPath(), SimpleStringUtil.getPath(fileImportConfig.getBackupSuccessFileDir(),file.getName()));
+                        backupFile( currentStatus.getRelativeParentDir(),file);
                     else if(fileConfig.isDeleteEOFFile())//删除日志文件
                         file.delete();
 
@@ -585,6 +585,17 @@ public class FileReaderTask extends FieldManager{
             catch (Exception e){
                 logger.warn("",e);
             }
+        }
+    }
+    private void backupFile(String relativeParentDir,File file) throws IOException {
+        String sourcePath = fileConfig.getSourcePath();
+        if(fileConfig.isScanChild()) {
+            //需要备份到子目录
+            String parentDir = SimpleStringUtil.getPath( fileImportConfig.getBackupSuccessFileDir(),relativeParentDir);
+            FileUtil.bakFile(file.getCanonicalPath(), SimpleStringUtil.getPath(parentDir, file.getName()));
+        }
+        else{
+            FileUtil.bakFile(file.getCanonicalPath(), SimpleStringUtil.getPath(fileImportConfig.getBackupSuccessFileDir(), file.getName()));
         }
     }
 

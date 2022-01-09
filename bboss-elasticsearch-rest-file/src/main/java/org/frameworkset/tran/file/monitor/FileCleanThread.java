@@ -60,37 +60,42 @@ public class FileCleanThread extends Thread{
 		super.start();
 	}
 
+	private void cleanFiles(File transferSuccessFileDir){
+		long lastArchtime = System.currentTimeMillis() - fileLiveTime ;
+		if(transferSuccessFileDir.exists()){
+			File[] files = transferSuccessFileDir.listFiles();
+			for(int i =0 ; i < files.length; i ++){
+				File file = files[i];
+				if(!file.isFile()) {
+					cleanFiles(file);//清理子目录下的过时备份文件
+				}
+				else {
+					try {
+						long filetime = FileManager.getCreateTime(file);
+						if (filetime < 0) {
+							continue;
+						}
+						if (filetime <= lastArchtime) {
+							file.delete();
+							if (logger.isInfoEnabled())
+								logger.info("Delete file {} lived {} ms complete.", file.getPath(), fileLiveTime);
+						}
+					} catch (Exception e) {
+						logger.error("Delete file " + file.getPath() + " failed:", e);
+					} catch (Throwable e) {
+						logger.error("Delete file " + file.getPath() + " failed:", e);
+					}
+				}
+			}
+		}
+	}
 	public void run(){
 		File transferSuccessFileDir_ = new File(fileDir);
 		logger.info("Start "+ this.getName() +" ,fileDir["+ fileDir +"],fileLiveTime["+ fileLiveTime +"]毫秒");
 		while(true){
 			long lastArchtime = System.currentTimeMillis() - fileLiveTime ;
 
-			if(transferSuccessFileDir_.exists()){
-				File[] files = transferSuccessFileDir_.listFiles();
-				for(int i =0 ; i < files.length; i ++){
-					File file = files[i];
-					if(!file.isFile())
-						continue;
-					try {
-						long filetime = FileManager.getCreateTime( file );
-						if(filetime < 0){
-							continue;
-						}
-						if(filetime <= lastArchtime) {
-							file.delete();
-							if (logger.isInfoEnabled())
-								logger.info("Delete file {} lived {} ms complete.", file.getPath(), fileLiveTime);
-						}
-					}
-					catch (Exception e){
-						logger.error("Delete file "+ file.getPath() + " failed:",e);
-					}
-					catch (Throwable e){
-						logger.error("Delete file "+ file.getPath() + " failed:",e);
-					}
-				}
-			}
+			cleanFiles( transferSuccessFileDir_);
 
 			try {
 				synchronized (this) {

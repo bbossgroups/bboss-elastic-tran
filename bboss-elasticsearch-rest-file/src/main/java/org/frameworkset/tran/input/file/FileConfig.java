@@ -371,9 +371,11 @@ public class FileConfig extends FieldManager{
             @Override
             public boolean accept(File dir, String name) {
 
-                boolean isSameDir = logDir.getAbsolutePath().equals(dir.getAbsolutePath());
-                if(!isSameDir)//文件路径不匹配，直接忽略
-                    return false;
+                if(!isScanChild() ) {
+                    boolean isSameDir = logDir.getAbsolutePath().equals(dir.getAbsolutePath());
+                    if (!isSameDir)//文件路径不匹配，直接忽略
+                        return false;
+                }
                 if(fileNameRexPattern != null) {
                     Matcher m = fileNameRexPattern.matcher(name);
                     return m.matches();

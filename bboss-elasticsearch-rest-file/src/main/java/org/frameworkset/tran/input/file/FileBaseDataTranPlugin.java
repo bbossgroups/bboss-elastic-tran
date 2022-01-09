@@ -76,7 +76,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         return fileConfig;
     }
 
-    public boolean initFileTask(FileConfig fileConfig,Status status,File file,long pointer){
+    public boolean initFileTask(String relativeParentDir,FileConfig fileConfig,Status status,File file,long pointer){
 
         if(fileConfig == null){
             return false;

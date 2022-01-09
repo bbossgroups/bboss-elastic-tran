@@ -1,5 +1,6 @@
 package org.frameworkset.tran.input.file;
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.slf4j.Logger;
@@ -159,10 +160,10 @@ public class LogDirScanThread implements Runnable{
             for(int i = 0; files != null && i < files.length; i ++){
                 file = files[i];
                 if(file.isFile() && file.exists()) {
-                    fileListenerService.checkNewFile(file,fileConfig);
+                    fileListenerService.checkNewFile("",file,fileConfig);
                 }
                 else if (fileConfig.isScanChild()){ //如果需要扫描子目录
-                    scanSubDirNewFile(file);
+                    scanSubDirNewFile(file.getName(),file);
                 }
             }
         }
@@ -171,7 +172,7 @@ public class LogDirScanThread implements Runnable{
         }
     }
 
-    public void scanSubDirNewFile(File logDir){
+    public void scanSubDirNewFile(String relativeParent,File logDir){
         if(logger.isDebugEnabled()){
             logger.debug("scan new log file in sub dir {}",logDir.getAbsolutePath());
         }
@@ -182,10 +183,10 @@ public class LogDirScanThread implements Runnable{
             for(int i = 0; files != null && i < files.length; i ++){
                 file = files[i];
                 if(file.isFile() && file.exists()) {
-                    fileListenerService.checkNewFile(file,fileConfig);
+                    fileListenerService.checkNewFile(relativeParent,file,fileConfig);
                 }
                 else if (fileConfig.isScanChild()){ //如果需要扫描子目录
-                    scanSubDirNewFile(file);
+                    scanSubDirNewFile(SimpleStringUtil.getPath(relativeParent,file.getName()),file);
                 }
             }
         }

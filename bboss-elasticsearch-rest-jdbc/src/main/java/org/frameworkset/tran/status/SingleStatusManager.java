@@ -47,7 +47,7 @@ public class SingleStatusManager  extends BaseStatusManager{
 	protected void _flushStatus() throws Exception {
 		if(lastUpdateTime < lastPutTime) {
 			SQLExecutor.updateWithDBName(statusDbname, updateSQL, currentStatus.getTime(), currentStatus.getLastValue(),
-					lastValueType, currentStatus.getFilePath(), currentStatus.getFileId(),
+					lastValueType, currentStatus.getFilePath(),currentStatus.getRelativeParentDir(), currentStatus.getFileId(),
 					currentStatus.getStatus(), currentStatus.getId());
 			lastUpdateTime = System.currentTimeMillis();
 		}

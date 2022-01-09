@@ -570,7 +570,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 					long lastTime = status.getTime();
 					if (lastTime <= deletedTime) {
 						SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
-								status.getLastValue(), status.getLastValueType(), status.getFilePath(), status.getFileId(), status.getStatus());
+								status.getLastValue(), status.getLastValueType(), status.getFilePath(), status.getRelativeParentDir(),status.getFileId(), status.getStatus());
 						SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId());
 					}
 				}
@@ -645,8 +645,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			logger.warn("filePath,status and fileId not exit in table {"+statusTableName+"}",e);
 
 			addField("filePath",statusTableName,defaultValue,"500",type);
+			addField("relativeParentDir",statusTableName,defaultValue,"500",type);
 			addField("fileId",statusTableName,defaultValue,"500",type);
-
 			addField("status",statusTableName,null,"1","number");
 
 		}
@@ -671,6 +671,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			logger.warn("filePath,status,statusId and fileId not exit in table {"+historyStatusTableName+"}",e);
 
 			addField("filePath",historyStatusTableName,defaultValue,"500",type);
+			addField("relativeParentDir",historyStatusTableName,defaultValue,"500",type);
 			addField("fileId",historyStatusTableName,defaultValue,"500",type);
 			addField("status",historyStatusTableName,null,"1","number");
 			addField("statusId",historyStatusTableName,null,"10","number");
@@ -838,6 +839,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 							.append( "lastvaluetype number(1),") //值类型 0-数字 1-日期
 							.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 							.append( "filePath varchar(500) ,")  //日志文件路径
+							.append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径
+
 							.append( "fileId varchar(500) ,")  //日志文件indoe标识
 							.append( "PRIMARY KEY (ID))").toString();
 					createHistoryStatusTableSQL = new StringBuilder().append("create table " ).append( historyStatusTableName)
@@ -847,6 +850,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 							.append( "lastvaluetype number(1),") //值类型 0-数字 1-日期
 							.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 							.append( "filePath varchar(500) ,")  //日志文件路径
+							.append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径
 							.append( "fileId varchar(500) ,")  //日志文件indoe标识
 							.append( "statusId number(10) ,")  //状态表中使用的主键标识
 							.append( "PRIMARY KEY (ID))").toString();
@@ -967,22 +971,22 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 			existSQL = new StringBuilder().append("select 1 from ").append(statusTableName).toString();
 			existHisSQL = new StringBuilder().append("select 1 from ").append(historyStatusTableName).toString();
-			selectSQL = new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status from ")
+			selectSQL = new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,relativeParentDir,fileId,status from ")
 					.append(statusTableName).append(" where id=?").toString();
-			checkFieldSQL = "select filePath,fileId,status from " + statusTableName;
-			checkHisFieldSQL = "select filePath,fileId,status,statusId from " + historyStatusTableName;
-			selectAllSQL =  new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status from ")
+			checkFieldSQL = "select filePath,fileId,relativeParentDir,status from " + statusTableName;
+			checkHisFieldSQL = "select filePath,fileId,relativeParentDir,status,statusId from " + historyStatusTableName;
+			selectAllSQL =  new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,relativeParentDir,fileId,status from ")
 					.append(statusTableName).toString();
 			updateSQL = new StringBuilder().append("update ").append(statusTableName)
-					.append(" set lasttime = ?,lastvalue = ? ,lastvaluetype= ? , filePath = ?,fileId = ? ,status = ? where id=?").toString();
+					.append(" set lasttime = ?,lastvalue = ? ,lastvaluetype= ? , filePath = ?,relativeParentDir = ?,fileId = ? ,status = ? where id=?").toString();
 			updateStatusSQL = new StringBuilder().append("update ")
 					.append(statusTableName).append(" set status = ?, lasttime= ?").append(" where id=?").toString();
 			insertSQL = new StringBuilder().append("insert into ").append(statusTableName)
-					.append(" (id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status) values(?,?,?,?,?,?,?)").toString();
+					.append(" (id,lasttime,lastvalue,lastvaluetype,filePath,relativeParentDir,fileId,status) values(?,?,?,?,?,?,?,?)").toString();
 			deleteSQL = new StringBuilder().append("delete from ")
 					.append(statusTableName).append(" where id=?").toString();
 			insertHistorySQL = new StringBuilder().append("insert into ").append(statusTableName)
-					.append(" (id,lasttime,lastvalue,lastvaluetype,filePath,fileId,status) values(?,?,?,?,?,?,?)").toString();
+					.append(" (id,lasttime,lastvalue,lastvaluetype,filePath,relativeParentDir,fileId,status) values(?,?,?,?,?,?,?,?)").toString();
 		}
 	}
 
@@ -1069,7 +1073,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		}
 
 		try {
-			SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),lastValue,lastValueType,currentStatus.getFilePath(),currentStatus.getFileId(),currentStatus.getStatus());
+			SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),lastValue,lastValueType,
+																currentStatus.getFilePath(),currentStatus.getRelativeParentDir(),
+																currentStatus.getFileId(),currentStatus.getStatus());
 		} catch (SQLException throwables) {
 			throw new ESDataImportException("Add Status failed:"+currentStatus.toString(),throwables);
 		}

@@ -217,7 +217,7 @@ public class FileListenerService {
 
     }
 
-    public void checkNewFile(File file,FileConfig fileConfig) {
+    public void checkNewFile(String relativeParentDir,File file,FileConfig fileConfig) {
 
         String fileId = FileInodeHandler.inode(file,fileConfig.isEnableInode());
         try {
@@ -242,12 +242,13 @@ public class FileListenerService {
                 currentStatus.setId(fileId.hashCode());
                 currentStatus.setTime(new Date().getTime());
                 currentStatus.setFileId(fileId);
+                currentStatus.setRelativeParentDir(relativeParentDir);
                 currentStatus.setFilePath(FileInodeHandler.change(file.getAbsolutePath()));
                 currentStatus.setRealPath(currentStatus.getFilePath());
                 currentStatus.setStatus(ImportIncreamentConfig.STATUS_COLLECTING);
                 long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
                 currentStatus.setLastValue(pointer);
-                boolean successed = baseDataTranPlugin.initFileTask(fileConfig, currentStatus, file, pointer);
+                boolean successed = baseDataTranPlugin.initFileTask( relativeParentDir,fileConfig, currentStatus, file, pointer);
             }
 
         } finally {
@@ -262,8 +263,8 @@ public class FileListenerService {
         void deleteFile(String remoteFile);
     }
 
-    public void checkSFtpNewFile(RemoteResourceInfo remoteResourceInfo,  final FtpContext ftpContext) {
-        checkRemoteNewFile(remoteResourceInfo.getName(), remoteResourceInfo.getPath(),  ftpContext, new RemoteFileAction() {
+    public void checkSFtpNewFile(String relativeParentDir,RemoteResourceInfo remoteResourceInfo,  final FtpContext ftpContext) {
+        checkRemoteNewFile( relativeParentDir,remoteResourceInfo.getName(), remoteResourceInfo.getPath(),  ftpContext, new RemoteFileAction() {
             @Override
             public boolean downloadFile(String localFile,String remoteFile) {
                 SFTPTransfer.downloadFile(ftpContext,remoteFile,localFile);
@@ -334,11 +335,24 @@ public class FileListenerService {
 
     }
 
-    private void checkRemoteNewFile(String fileName, String remoteFile, FtpContext ftpContext, RemoteFileAction remoteFileAction) {
-        FtpConfig fileConfig = ftpContext.getFtpConfig();
-        File handleFile = new File( fileConfig.getSourcePath(), fileName);//正式文件
-        File localFile = new File(fileConfig.getDownloadTempDir(),fileName);//临时下载文件，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
+    private synchronized void checkParentExist(File handleFile){
+        File parent = handleFile.getParentFile();
+        try {
 
+            if (!parent.exists()) {
+                parent.mkdirs();
+            }
+        }
+        catch (Exception e){
+            logger.warn("Create parent dir " + parent.getAbsolutePath() + " failed:");
+        }
+    }
+    private void checkRemoteNewFile(String relativeParentDir,String fileName, String remoteFile, FtpContext ftpContext, RemoteFileAction remoteFileAction) {
+        FtpConfig fileConfig = ftpContext.getFtpConfig();
+        File handleFile = new File( SimpleStringUtil.getPath(fileConfig.getSourcePath(),relativeParentDir), fileName);//正式文件,如果有子目录，则需要保存到子目录
+        checkParentExist(handleFile);
+        File localFile = new File(SimpleStringUtil.getPath(fileConfig.getDownloadTempDir(),relativeParentDir),fileName);//临时下载文件，,如果有子目录，则需要保存到临时子目录，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
+        checkParentExist(localFile);
         String fileId = FileInodeHandler.change(handleFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
         try {
             lock.lock();
@@ -396,10 +410,11 @@ public class FileListenerService {
                 currentStatus.setFileId(fileId);
                 currentStatus.setFilePath(fileId);
                 currentStatus.setRealPath(fileId);
+                currentStatus.setRelativeParentDir(relativeParentDir);
                 currentStatus.setStatus(ImportIncreamentConfig.STATUS_COLLECTING);
                 long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
                 currentStatus.setLastValue(pointer);
-                boolean successed = baseDataTranPlugin.initFileTask(fileConfig, currentStatus, handleFile, pointer);
+                boolean successed = baseDataTranPlugin.initFileTask( relativeParentDir,fileConfig, currentStatus, handleFile, pointer);
             }
 
         } finally {
@@ -410,10 +425,10 @@ public class FileListenerService {
     }
 
 
-    public void checkFtpNewFile(FTPFile remoteResourceInfo,   final FtpContext ftpContext) {
+    public void checkFtpNewFile(String relativeParentDir,FTPFile remoteResourceInfo,   final FtpContext ftpContext) {
         String name = remoteResourceInfo.getName().trim();
         String remoteFile = SimpleStringUtil.getPath(ftpContext.getRemoteFileDir(),name);
-        checkRemoteNewFile(name, remoteFile,   ftpContext, new RemoteFileAction() {
+        checkRemoteNewFile( relativeParentDir,name, remoteFile,   ftpContext, new RemoteFileAction() {
             @Override
             public boolean downloadFile(String localFile,String remoteFile) {
                 FtpTransfer.downloadFile(ftpContext,localFile,remoteFile);
