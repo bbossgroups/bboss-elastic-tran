@@ -15,6 +15,8 @@ package org.frameworkset.spi.geoip;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
+
 import java.io.IOException;
 
 /**
@@ -33,23 +35,24 @@ public class IPDBTest1 {
 	public static void test() throws IOException {
 
 
-			// 测试ip 221.232.245.73 湖北武汉
-			try {
-				GeoIPUtil addressUtils = new GeoIPUtil();
-				addressUtils.setAsnDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
-				addressUtils.setDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
-				addressUtils.setIp2regionDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\ip2region.db");
-				addressUtils.setCachesize(2000);
-				addressUtils.init();
-				IpInfo address = addressUtils.getAddressMapResult("223.104.130.11");
-				System.out.println(address);
-				address = addressUtils.getAddressMapResult("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");//ipv6
-				System.out.println(address);
+
+		// 测试ip 221.232.245.73 湖北武汉
+		try {
+			GeoIPUtil addressUtils = new GeoIPUtil();
+			addressUtils.setAsnDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
+			addressUtils.setDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
+			addressUtils.setIp2regionDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\ip2region.db");
+			addressUtils.setCachesize(2000);
+			addressUtils.init();
+			IpInfo address = addressUtils.getAddressMapResult("223.104.130.11");
+			System.out.println(SimpleStringUtil.object2json(address));
+			address = addressUtils.getAddressMapResult("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");//ipv6
+			System.out.println(SimpleStringUtil.object2json(address));
 
 
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 }

@@ -191,7 +191,7 @@ public class GeoIPUtil {
 //			Map<String,Object> taobaodata = HttpRequestUtil.httpGetforString(url.toString(),header,new MapResponseHandler());
 
 
-
+		boolean needHanldle = true;
 
 		if(geoData_ != null && geoData_.size() > 0) {//处理从geolite2获取ip地址信息
 			Map<String, Object> asnData_ = this.geoIPFilter.handleIpAsn(ip);
@@ -228,42 +228,44 @@ public class GeoIPUtil {
 			geoPoint.setLat(latitude);
 			geoPoint.setLon(longitude);
 			ipInfo.setGeoPoint(geoPoint);
-			_IPConverter.convert(ipInfo);
-			return ipInfo;
+//			_IPConverter.convert(ipInfo);
+//			return ipInfo;
 		}
 		else if(ipInfo == null){//如果没有
-
-				ipInfo = new IpInfo();
-				ipInfo.setArea("");
-				ipInfo.setAreaId("");
-				ipInfo.setCity("未知");
-				ipInfo.setCityId("未知");
-				ipInfo.setCountry("未知");
-				ipInfo.setCountryId("未知");
-				ipInfo.setCounty("未知");
-				ipInfo.setCountyId("未知");
-				ipInfo.setIp(ip);
-				ipInfo.setIsp("未知");
-				ipInfo.setIspId(null);
-				ipInfo.setRegion("未知");
-				ipInfo.setRegionId("未知");
-				return ipInfo;
+			needHanldle = false;
+			ipInfo = new IpInfo();
+			ipInfo.setArea("");
+			ipInfo.setAreaId("");
+			ipInfo.setCity("未知");
+			ipInfo.setCityId("未知");
+			ipInfo.setCountry("未知");
+			ipInfo.setCountryId("未知");
+			ipInfo.setCounty("未知");
+			ipInfo.setCountyId("未知");
+			ipInfo.setIp(ip);
+			ipInfo.setIsp("未知");
+			ipInfo.setIspId(null);
+			ipInfo.setRegion("未知");
+			ipInfo.setRegionId("未知");
+//				return ipInfo;
 
 		}
-		else{
-			if(ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
+		if(needHanldle) {
+			if (ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
 				ipInfo.setIsp("未知");
-			if(ipInfo.getArea() == null || ipInfo.getArea().equals("0"))
+			if (ipInfo.getArea() == null || ipInfo.getArea().equals("0"))
 				ipInfo.setArea("未知");
-			if(ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
+			if (ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
 				ipInfo.setCountry("未知");
-			if(ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
+			if (ipInfo.getCounty() == null || ipInfo.getCounty().equals("0"))
+				ipInfo.setCounty("未知");
+			if (ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
 				ipInfo.setRegion("未知");
-			if(ipInfo.getCity() == null || ipInfo.getCity().equals("0"))
+			if (ipInfo.getCity() == null || ipInfo.getCity().equals("0"))
 				ipInfo.setCity("未知");
 			_IPConverter.convert(ipInfo);
-			return ipInfo;
-	}
+		}
+		return ipInfo;
 	}
 
 	public String getDatabase() {
