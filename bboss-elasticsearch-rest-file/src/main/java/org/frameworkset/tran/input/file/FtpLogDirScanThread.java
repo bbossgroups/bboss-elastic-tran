@@ -57,25 +57,26 @@ public class FtpLogDirScanThread extends LogDirScanThread{
         }
         for(FTPFile remoteResourceInfo:files){
             if(remoteResourceInfo.isDirectory()) {
+                String name = remoteResourceInfo.getName().trim();
                 if(!fileConfig.isScanChild()) {
                     if (logger.isInfoEnabled()) {
-                        logger.info("Ignore ftp dir:{}", remoteResourceInfo.getName().trim());
+                        logger.info("Ignore ftp dir:{}", name);
                     }
                     continue;
                 }
                 else{
-                    scanSubDirNewFile(remoteResourceInfo,
-                            SimpleStringUtil.getPath(ftpContext.getRemoteFileDir(),remoteResourceInfo.getName().trim()));
+                    scanSubDirNewFile(remoteResourceInfo,name,
+                            SimpleStringUtil.getPath(ftpContext.getRemoteFileDir(),name));
                 }
             }
             else{
-                fileListenerService.checkFtpNewFile("",remoteResourceInfo,ftpContext);
+                fileListenerService.checkFtpNewFile("",ftpContext.getRemoteFileDir(),remoteResourceInfo,ftpContext);
             }
         }
 
     }
 
-    public void scanSubDirNewFile(FTPFile logDir,String subdir){
+    public void scanSubDirNewFile(FTPFile logDir,String relativeParentDir,String subdir){
         if(logger.isDebugEnabled()){
             if(fileConfig.getFileFilter() == null)
                 logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",subdir,fileConfig.getFileNameRegular());
@@ -93,19 +94,20 @@ public class FtpLogDirScanThread extends LogDirScanThread{
         }
         for(FTPFile remoteResourceInfo:files){
             if(remoteResourceInfo.isDirectory()) {
+                String name = remoteResourceInfo.getName().trim();
                 if(!fileConfig.isScanChild()) {
                     if (logger.isInfoEnabled()) {
-                        logger.info("Ignore ftp dir:{}", remoteResourceInfo.getName().trim());
+                        logger.info("Ignore ftp dir:{}", name);
                     }
                     continue;
                 }
                 else{
-                    scanSubDirNewFile(remoteResourceInfo,
-                            SimpleStringUtil.getPath(subdir,remoteResourceInfo.getName().trim()));
+                    scanSubDirNewFile(remoteResourceInfo,SimpleStringUtil.getPath(relativeParentDir,name),
+                            SimpleStringUtil.getPath(subdir,name));
                 }
             }
             else{
-                fileListenerService.checkFtpNewFile(subdir,remoteResourceInfo,ftpContext);
+                fileListenerService.checkFtpNewFile(relativeParentDir,subdir,remoteResourceInfo,ftpContext);
             }
         }
     }

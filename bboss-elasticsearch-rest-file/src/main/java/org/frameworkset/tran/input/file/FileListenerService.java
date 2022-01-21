@@ -347,6 +347,15 @@ public class FileListenerService {
             logger.warn("Create parent dir " + parent.getAbsolutePath() + " failed:");
         }
     }
+
+    /**
+     *
+     * @param relativeParentDir
+     * @param fileName 远程文件名称
+     * @param remoteFile  远程根目录+relativeParentDir
+     * @param ftpContext
+     * @param remoteFileAction
+     */
     private void checkRemoteNewFile(String relativeParentDir,String fileName, String remoteFile, FtpContext ftpContext, RemoteFileAction remoteFileAction) {
         FtpConfig fileConfig = ftpContext.getFtpConfig();
         File handleFile = new File( SimpleStringUtil.getPath(fileConfig.getSourcePath(),relativeParentDir), fileName);//正式文件,如果有子目录，则需要保存到子目录
@@ -425,9 +434,10 @@ public class FileListenerService {
     }
 
 
-    public void checkFtpNewFile(String relativeParentDir,FTPFile remoteResourceInfo,   final FtpContext ftpContext) {
+    public void checkFtpNewFile(String relativeParentDir,String parentDir,FTPFile remoteResourceInfo,   final FtpContext ftpContext) {
         String name = remoteResourceInfo.getName().trim();
-        String remoteFile = SimpleStringUtil.getPath(ftpContext.getRemoteFileDir(),name);
+
+        String remoteFile = SimpleStringUtil.getPath(parentDir,name);
         checkRemoteNewFile( relativeParentDir,name, remoteFile,   ftpContext, new RemoteFileAction() {
             @Override
             public boolean downloadFile(String localFile,String remoteFile) {
