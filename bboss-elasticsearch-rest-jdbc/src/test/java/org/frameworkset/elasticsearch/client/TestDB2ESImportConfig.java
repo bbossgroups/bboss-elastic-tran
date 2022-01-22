@@ -21,7 +21,7 @@ public class TestDB2ESImportConfig {
 
 	private void initDBSource(){
 		SQLUtil.startNoPool("test",//数据源名称
-				"com.mysql.jdbc.Driver",//oracle驱动
+				"com.mysql.cj.jdbc.Driver",//oracle驱动
 				"jdbc:mysql://localhost:3306/bboss",//mysql链接串
 				"root","123456",//数据库账号和口令
 				"select 1 " //数据库连接校验sql
@@ -108,7 +108,7 @@ public class TestDB2ESImportConfig {
 		}
 		//数据源相关配置，可选项，可以在外部启动数据源
 		importBuilder.setDbName("test")
-				.setDbDriver("com.mysql.jdbc.Driver") //数据库驱动程序，必须导入相关数据库的驱动jar包
+				.setDbDriver("com.mysql.cj.jdbc.Driver") //数据库驱动程序，必须导入相关数据库的驱动jar包
 				.setDbUrl("jdbc:mysql://localhost:3306/bboss")
 				.setDbUser("root")
 				.setDbPassword("123456")
@@ -166,7 +166,7 @@ public class TestDB2ESImportConfig {
 		}
 		//数据源相关配置，可选项，可以在外部启动数据源
 		importBuilder.setDbName("test")
-				.setDbDriver("com.mysql.jdbc.Driver") //数据库驱动程序，必须导入相关数据库的驱动jar包
+				.setDbDriver("com.mysql.cj.jdbc.Driver") //数据库驱动程序，必须导入相关数据库的驱动jar包
 				.setDbUrl("jdbc:mysql://localhost:3306/bboss")
 				.setDbUser("root")
 				.setDbPassword("123456")
