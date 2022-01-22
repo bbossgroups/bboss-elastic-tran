@@ -391,6 +391,8 @@ public class FileListenerService {
                         return;
                     }
                     localFile.renameTo(handleFile);
+                    if(logger.isInfoEnabled())
+						logger.info("Rename " + localFile.getAbsolutePath() + " to " + handleFile.getAbsolutePath());
                 }
                 if(!handleFile.exists()){
                     logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteFile,handleFile.getAbsolutePath());
