@@ -37,7 +37,7 @@ public class DefaultStatusManager extends BaseStatusManager{
 	}
 	public void putStatus(Status currentStatus) throws Exception{
 
-		SQLExecutor.updateWithDBName(statusDbname, updateSQL, currentStatus.getTime(), currentStatus.getLastValue(),
+		SQLExecutor.updateWithDBName(statusDbname, updateSQL, currentStatus.getTime(),convertLastValue( currentStatus.getLastValue()),
 				lastValueType, currentStatus.getFilePath(), currentStatus.getRelativeParentDir(),currentStatus.getFileId(),
 				currentStatus.getStatus(), currentStatus.getId());
 

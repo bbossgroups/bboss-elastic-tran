@@ -88,7 +88,7 @@ public class MultiStatusManager extends BaseStatusManager{
 				@Override
 				public void handler(PreparedStatement stmt, Status record, int i) throws SQLException {
 					stmt.setLong(1, record.getTime());
-					stmt.setObject(2, record.getLastValue());
+					stmt.setObject(2, convertLastValue( record.getLastValue()));
 					stmt.setInt(3, lastValueType);
 					stmt.setString(4, record.getFilePath());
 					stmt.setString(5, record.getRelativeParentDir());

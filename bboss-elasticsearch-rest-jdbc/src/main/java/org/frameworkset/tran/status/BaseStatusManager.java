@@ -21,6 +21,7 @@ import org.frameworkset.tran.schedule.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -109,5 +110,15 @@ public abstract class BaseStatusManager implements StatusManager {
 	@Override
 	public synchronized boolean isStoped() {
 		return stoped;
+	}
+
+	protected Object convertLastValue(Object lastValue){
+		if(lastValue == null){
+			return null;
+		}
+		if(lastValue instanceof Date){
+			lastValue = new Long(((Date) lastValue).getTime());
+		}
+		return lastValue;
 	}
 }
