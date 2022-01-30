@@ -26,9 +26,11 @@ import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.schedule.timer.TimeUtil;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.time.*;
 import java.util.*;
 
 /**
@@ -267,6 +269,8 @@ public class ContextImpl implements Context {
 		return ResultUtil.intValue(value,0);
 	}
 
+
+
 	@Override
 	public Date getDateValue(String fieldName) throws Exception {
 		Object value = this.getValue(fieldName);
@@ -274,6 +278,14 @@ public class ContextImpl implements Context {
 			return null;
 		else if(value instanceof Date){
 			return (Date)value;
+
+		}
+		else if(value instanceof LocalDateTime){
+			return TimeUtil.convertLocalDatetime((LocalDateTime)value);
+
+		}
+		else if(value instanceof LocalDate){
+			return TimeUtil.convertLocalDate((LocalDate)value);
 
 		}
 		else if(value instanceof BigDecimal){
@@ -293,6 +305,14 @@ public class ContextImpl implements Context {
 			return (Date)value;
 
 		}
+		else if(value instanceof LocalDateTime){
+			return TimeUtil.convertLocalDatetime((LocalDateTime)value);
+
+		}
+		else if(value instanceof LocalDate){
+			return TimeUtil.convertLocalDate((LocalDate)value);
+
+		}
 		else if(value instanceof BigDecimal){
 			return new Date(((BigDecimal)value).longValue());
 		}
@@ -307,7 +327,8 @@ public class ContextImpl implements Context {
 	}
 
 	public Object getValue(String fieldName) throws Exception{
-		return jdbcResultSet.getValue(fieldName);
+		Object value = jdbcResultSet.getValue(fieldName);
+		return TimeUtil.convertLocalDate(value);
 	}
 
 	@Override

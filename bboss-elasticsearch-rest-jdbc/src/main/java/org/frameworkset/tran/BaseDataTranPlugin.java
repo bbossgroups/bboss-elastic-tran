@@ -647,7 +647,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			addField("filePath",statusTableName,defaultValue,"500",type);
 			addField("relativeParentDir",statusTableName,defaultValue,"500",type);
 			addField("fileId",statusTableName,defaultValue,"500",type);
-			addField("status",statusTableName,null,"1","number");
+			addField("status",statusTableName,null,"1",DBConfig.getStatusTableTypeNumber(SQLUtil.getPool(statusDbname).getDBType()));
 
 		}
 
@@ -673,8 +673,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			addField("filePath",historyStatusTableName,defaultValue,"500",type);
 			addField("relativeParentDir",historyStatusTableName,defaultValue,"500",type);
 			addField("fileId",historyStatusTableName,defaultValue,"500",type);
-			addField("status",historyStatusTableName,null,"1","number");
-			addField("statusId",historyStatusTableName,null,"10","number");
+			addField("status",historyStatusTableName,null,"1",DBConfig.getStatusTableTypeNumber(SQLUtil.getPool(statusDbname).getDBType()));
+			addField("statusId",historyStatusTableName,null,"10",DBConfig.getStatusTableTypeBigNumber(SQLUtil.getPool(statusDbname).getDBType()));
 		}
 
 

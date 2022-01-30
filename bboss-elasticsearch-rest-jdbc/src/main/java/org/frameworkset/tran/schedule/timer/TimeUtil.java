@@ -15,6 +15,7 @@ package org.frameworkset.tran.schedule.timer;
  * limitations under the License.
  */
 
+import java.time.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -178,4 +179,40 @@ public class TimeUtil {
 		return result;
 
 	}
+	public static Date convertLocalDatetime(LocalDateTime localDateTime){
+		if (null == localDateTime) {
+			return null;
+		}
+		ZoneId zoneId = ZoneId.systemDefault();
+		ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
+		Instant instant = zonedDateTime.toInstant();
+		Date date = Date.from(instant);
+		return date;
+	}
+
+	public static Date convertLocalDate(LocalDate localDate){
+
+		if (null == localDate) {
+			return null;
+		}
+		ZonedDateTime zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault());
+		return Date.from(zonedDateTime.toInstant());
+	}
+
+	public static Object convertLocalDate(Object localDate){
+
+		if (null == localDate) {
+			return null;
+		}
+		if(localDate instanceof LocalDateTime){
+			return convertLocalDatetime((LocalDateTime)localDate);
+
+		}
+		else if(localDate instanceof LocalDate){
+			return convertLocalDate((LocalDate)localDate);
+
+		}
+		return localDate;
+	}
+
 }

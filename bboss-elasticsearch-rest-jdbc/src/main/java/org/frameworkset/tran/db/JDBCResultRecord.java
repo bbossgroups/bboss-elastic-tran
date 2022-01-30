@@ -19,6 +19,7 @@ import com.frameworkset.orm.adapter.DB;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.record.BaseRecord;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.schedule.timer.TimeUtil;
 
 import java.sql.ResultSet;
 import java.util.Date;
@@ -49,7 +50,9 @@ public class JDBCResultRecord extends BaseRecord {
 	public Object getValue(  int i, String colName,int sqlType) throws ESDataImportException{
 		try {
 			if(!this.isOracleTimestamp(sqlType)) {
-				return this.resultSet.getObject(i + 1);
+				Object value = this.resultSet.getObject(i + 1);
+				value = TimeUtil.convertLocalDate(value);
+				return value;
 			}
 			else{
 				return this.resultSet.getTimestamp(i + 1);
@@ -88,7 +91,9 @@ public class JDBCResultRecord extends BaseRecord {
 			return null;
 		try {
 			if(!this.isOracleTimestamp(sqlType)) {
-				return this.resultSet.getObject(colName);
+				Object value = this.resultSet.getObject(colName);
+				value = TimeUtil.convertLocalDate(value);
+				return value;
 			}
 			else{
 				return this.resultSet.getTimestamp(colName);
@@ -107,6 +112,7 @@ public class JDBCResultRecord extends BaseRecord {
 			return null;
 		try {
 			Object value = this.resultSet.getObject(colName);
+			value = TimeUtil.convertLocalDate(value);
 			return value;
 		}
 		catch (Exception ex){

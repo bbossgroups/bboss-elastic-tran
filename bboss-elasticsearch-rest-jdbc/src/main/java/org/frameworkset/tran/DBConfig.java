@@ -190,6 +190,44 @@ public class DBConfig {
 		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
+	public static String getStatusTableTypeNumber(String dbtype){
+		if(dbtype.equals("mysql")){
+			return "int";
+		}
+		else if(dbtype.equals("oracle")){
+			return "number";
+		}
+		else if(dbtype.equals("dm")){
+			return "number";
+		}
+		else if(dbtype.equals("sqlserver")){
+			return "int";
+		}
+		else if(dbtype.equals(DBFactory.SQLITEX)){
+			return "number";
+		}
+		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+	}
+
+	public static String getStatusTableTypeBigNumber(String dbtype){
+		if(dbtype.equals("mysql")){
+			return "bigint";
+		}
+		else if(dbtype.equals("oracle")){
+			return "number";
+		}
+		else if(dbtype.equals("dm")){
+			return "number";
+		}
+		else if(dbtype.equals("sqlserver")){
+			return "bigint";
+		}
+		else if(dbtype.equals(DBFactory.SQLITEX)){
+			return "number";
+		}
+		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+	}
+
 	public void setDbDriver(String dbDriver) {
 		this.dbDriver = dbDriver;
 	}
