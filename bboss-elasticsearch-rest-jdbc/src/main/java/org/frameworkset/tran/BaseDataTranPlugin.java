@@ -616,8 +616,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	 */
 	private void addField(String field,String tableName,String defaultValue,String length,String type){
 		String addFiledSQL = defaultValue !=null ?
-				"ALTER TABLE '"+tableName+"' ADD '"+field+"' "+type+"("+length+") DEFAULT "+ defaultValue:
-				"ALTER TABLE '"+tableName+"' ADD '"+field+"' "+type+"("+length+") ";
+				"ALTER TABLE "+tableName+" ADD "+field+" "+type+"("+length+") DEFAULT "+ defaultValue:
+				"ALTER TABLE "+tableName+" ADD "+field+" "+type+"("+length+") ";
 
 		try {
 			SQLExecutor.updateWithDBName(statusDbname, addFiledSQL);
