@@ -26,7 +26,12 @@ sourceSets {
 
 
 dependencies {
-	api (project(':bboss-datatran-schedule-quartz'))
-	compileOnly 'com.xuxueli:xxl-job-core:2.1.1'
+	api (project(':bboss-datatran-core'))
+	compileOnly "com.bbossgroups:bboss-schedule:${PROJ_BBOSS_VERSION}"
+	testImplementation (
+
+			[group: 'mysql', name: 'mysql-connector-java', version: "${mysqlconnectorversion}", transitive: false]
+	)
+
 }
 

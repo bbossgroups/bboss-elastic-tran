@@ -26,7 +26,11 @@ sourceSets {
 
 
 dependencies {
-	api (project(':bboss-datatran-schedule-quartz'))
-	compileOnly 'com.xuxueli:xxl-job-core:2.1.1'
+	api (project(':bboss-elasticsearch-geoip'))
+	testImplementation (
+
+			[group: 'mysql', name: 'mysql-connector-java', version: "${mysqlconnectorversion}", transitive: false]
+	)
+
 }
 
