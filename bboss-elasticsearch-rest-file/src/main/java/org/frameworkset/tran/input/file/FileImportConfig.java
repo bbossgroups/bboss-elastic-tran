@@ -2,7 +2,6 @@ package org.frameworkset.tran.input.file;
 
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.config.BaseImportConfig;
-import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.OSInfo;
@@ -72,7 +71,7 @@ public class FileImportConfig extends BaseImportConfig {
     }
     public FileImportConfig addConfig(FileConfig fileConfig){
 
-        if(fileConfig instanceof FtpConfig || fileConfig.isScanChild() || OSInfo.isWindows()){
+        if(fileConfig.getFtpConfig() != null || fileConfig.isScanChild() || OSInfo.isWindows()){
             fileConfig.setEnableInode(false);//ftp需禁用inode机制
         }
 

@@ -416,6 +416,9 @@ public class FileConfig extends FieldManager{
         };
         if(OSInfo.isWindows())
             enableInode = false;
+        if(ftpConfig != null){
+            ftpConfig.init(this);
+        }
         return this;
 
     }
@@ -567,6 +570,10 @@ public class FileConfig extends FieldManager{
     }
     protected void buildMsg(StringBuilder stringBuilder){
         stringBuilder.append("sourcePath:").append(this.sourcePath);
+        stringBuilder.append(",skipHeaderLines:").append(this.skipHeaderLines);
+        if(ftpConfig != null){
+            ftpConfig.buildMsg(stringBuilder);
+        }
     }
 
     public FtpConfig getFtpConfig() {

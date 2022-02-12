@@ -31,7 +31,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FtpConfig extends FileConfig {
+public class FtpConfig  {
 
 	public static final int TRANSFER_PROTOCOL_FTP = 1;
 	public static final int TRANSFER_PROTOCOL_SFTP = 2;
@@ -76,17 +76,17 @@ public class FtpConfig extends FileConfig {
 		return hostKeyVerifiers;
 	}
 
-	@Override
-	public FileConfig init(){
-		super.init();
-		this.setFtpConfig(this);
-		downloadTempDir = SimpleStringUtil.getPath(getSourcePath(),"temp");
-		this.setEnableInode(false);
-		this.setCloseEOF(true);//已经结束的文件内容采集完毕后关闭文件对应的采集通道，后续不再监听对应文件的内容变化
+//	@Override
+	public void init(FileConfig fileConfig){
+//		super.init();
+//		this.setFtpConfig(fileConfig);
+		downloadTempDir = SimpleStringUtil.getPath(fileConfig.getSourcePath(),"temp");
+		fileConfig.setEnableInode(false);
+		fileConfig.setCloseEOF(true);//已经结束的文件内容采集完毕后关闭文件对应的采集通道，后续不再监听对应文件的内容变化
 		File f = new File(downloadTempDir);
 		if(!f.exists())
 			f.mkdirs();
-		return this;
+//		return this;
 	}
 	public int getTransferProtocol() {
 		return transferProtocol;
@@ -262,9 +262,9 @@ public class FtpConfig extends FileConfig {
 		this.ftpFileFilter = ftpFileFilter;
 		return this;
 	}
-	@Override
-	protected void buildMsg(StringBuilder stringBuilder){
-		super.buildMsg(stringBuilder);
+//	@Override
+	public void buildMsg(StringBuilder stringBuilder){
+//		super.buildMsg(stringBuilder);
 		stringBuilder.append(",remoteFileDir:").append(this.remoteFileDir);
 		stringBuilder.append(",ftpIP:").append(this.ftpIP);
 		stringBuilder.append(",ftpPort:").append(this.ftpPort);

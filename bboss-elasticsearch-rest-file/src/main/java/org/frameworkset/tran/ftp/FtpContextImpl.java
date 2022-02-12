@@ -147,7 +147,7 @@ public class FtpContextImpl implements FtpContext {
 
 	@Override
 	public FileFilter getFileFilter() {
-		return ftpConfig.getFileFilter();
+		return fileConfig.getFileFilter();
 	}
 
 	@Override

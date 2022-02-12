@@ -431,8 +431,8 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     }
 
     private FtpConfig getFtpConfig(FileConfig fileConfig){
-        if(fileConfig instanceof FtpConfig)
-            return (FtpConfig)fileConfig;
+//        if(fileConfig instanceof FtpConfig)
+//            return (FtpConfig)fileConfig;
         return fileConfig.getFtpConfig();
 
     }
