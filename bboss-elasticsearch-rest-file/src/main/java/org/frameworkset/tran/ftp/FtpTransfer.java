@@ -94,7 +94,7 @@ public class FtpTransfer {
 							@Override
 							public boolean accept(FTPFile file) {
 
-								return fileFilter.accept(new FTPFilterFileInfo(fileFtpOupputContext.getRemoteFileDir(),file),fileFtpOupputContext.getFtpConfig());
+								return fileFilter.accept(new FTPFilterFileInfo(fileFtpOupputContext.getRemoteFileDir(),file),fileFtpOupputContext.getFileConfig());
 							}
 						});
 					}
@@ -130,7 +130,7 @@ public class FtpTransfer {
 							@Override
 							public boolean accept(FTPFile file) {
 
-								return fileFilter.accept(new FTPFilterFileInfo(remoteDir,file),fileFtpOupputContext.getFtpConfig());
+								return fileFilter.accept(new FTPFilterFileInfo(remoteDir,file),fileFtpOupputContext.getFileConfig());
 							}
 						});
 					}

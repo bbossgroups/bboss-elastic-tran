@@ -76,6 +76,17 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         return fileConfig;
     }
 
+    protected FileReaderTask buildFileReaderTask(TaskContext taskContext,File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
+                                                 Status currentStatus ,FileImportConfig fileImportConfig ){
+        FileReaderTask task = fileImportConfig.buildFileReaderTask(taskContext,file,fileId,fileConfig,pointer,
+                fileListenerService,fileDataTran,currentStatus,fileImportConfig);
+        return task;
+    }
+    protected FileReaderTask buildFileReaderTask(String fileId,  Status currentStatus,FileImportConfig fileImportConfig ){
+        FileReaderTask task =  fileImportConfig.buildFileReaderTask(fileId,currentStatus,fileImportConfig);
+        return task;
+    }
+
     public boolean initFileTask(String relativeParentDir,FileConfig fileConfig,Status status,File file,long pointer){
 
         if(fileConfig == null){
@@ -106,7 +117,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                     logger.info(tname+" started.");
 
 
-                FileReaderTask task = new FileReaderTask(taskContext,file,fileId,fileConfig,pointer,
+                FileReaderTask task = buildFileReaderTask(taskContext,file,fileId,fileConfig,pointer,
                         fileListenerService,fileDataTran,status,fileImportContext.getFileImportConfig());
                 taskContext.setFileInfo(task.getFileInfo());
                 if(fileConfig.getAddFields() != null && fileConfig.getAddFields().size() > 0){
@@ -190,7 +201,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 
                 if(isComplete(status)){
                     completed.add(status);
-                    fileListenerService.addCompletedFileTask(status.getFileId(),new FileReaderTask(status.getFileId()
+                    fileListenerService.addCompletedFileTask(status.getFileId(),buildFileReaderTask(status.getFileId()
                             ,status,fileImportContext.getFileImportConfig()));
                     logger.info("Ignore complete file {}",status.getFilePath());
                     continue;
@@ -298,7 +309,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                         else{
                             status.setLastValue(0l);
                         }
-                        FileReaderTask task = new FileReaderTask(taskContext,new File(status.getRealPath())
+                        FileReaderTask task = buildFileReaderTask(taskContext,new File(status.getRealPath())
                                 ,status.getFileId()
                                 ,fileConfig
                                 ,pointer
@@ -419,17 +430,24 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 
     }
 
+    private FtpConfig getFtpConfig(FileConfig fileConfig){
+        if(fileConfig instanceof FtpConfig)
+            return (FtpConfig)fileConfig;
+        return fileConfig.getFtpConfig();
+
+    }
     private LogDirScanThread logDirScanThread(FileConfig fileConfig ){
         LogDirScanThread logDirScanThread = null;
-        if (fileConfig instanceof FtpConfig) {
-            FtpConfig ftpConfig = (FtpConfig) fileConfig;
+        FtpConfig ftpConfig = getFtpConfig(fileConfig);
+        if (ftpConfig != null) {
+//            FtpConfig ftpConfig = (FtpConfig) fileConfig;
             if(ftpConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
                 logDirScanThread = new FtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                        ftpConfig, getFileListenerService());
+                        fileConfig, getFileListenerService());
             }
             else{
                 logDirScanThread = new SFtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                        ftpConfig, getFileListenerService());
+                        fileConfig, getFileListenerService());
             }
 
         } else {

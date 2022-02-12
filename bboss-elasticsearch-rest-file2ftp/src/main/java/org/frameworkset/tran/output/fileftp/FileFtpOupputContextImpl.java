@@ -19,6 +19,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.ftp.FtpConfig;
+import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -81,7 +82,7 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 		if(builder == null){
 			builder = RecordGenerator.tranDummyWriter;
 		}
-		fileFtpOupputConfig.getRecordGenerator().buildRecord(  taskContext, record,  builder);
+		getRecordGenerator().buildRecord(  taskContext, record,  builder);
 	}
 
 	@Override
@@ -100,9 +101,7 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 		return fileFtpOupputConfig.getFileDir();
 	}
 
-	public RecordGenerator getRecordGenerator() {
-		return fileFtpOupputConfig.getRecordGenerator();
-	}
+
 
 	@Override
 	public String getFtpIP() {
@@ -116,7 +115,12 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 
 	@Override
 	public FtpConfig getFtpConfig() {
-		throw new UnsupportedOperationException("getFileFilter");
+		throw new UnsupportedOperationException("getFtpConfig");
+	}
+
+	@Override
+	public FileConfig getFileConfig() {
+		throw new UnsupportedOperationException("getFileConfig");
 	}
 
 	@Override
@@ -217,9 +221,14 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 	public boolean deleteRemoteFile() {
 		return false;
 	}
-
+	@Override
 	public int getFileLiveTime() {
 		return fileFtpOupputConfig.getFileLiveTime();
+	}
+
+	@Override
+	public RecordGenerator getRecordGenerator() {
+		return fileFtpOupputConfig.getRecordGenerator();
 	}
 
 }

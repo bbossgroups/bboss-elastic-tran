@@ -18,6 +18,7 @@ package org.frameworkset.tran.output.fileftp;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.ftp.FtpContext;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.util.RecordGenerator;
 
 import java.io.Writer;
 
@@ -48,5 +49,6 @@ public interface FileFtpOupputContext extends FtpContext {
 	public boolean transferEmptyFiles();
 	public boolean backupSuccessFiles();
 	public boolean disableftp();
+	public RecordGenerator getRecordGenerator() ;
 
 }

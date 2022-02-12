@@ -2,7 +2,6 @@ package org.frameworkset.tran.input.file;
 
 import com.frameworkset.util.SimpleStringUtil;
 import net.schmizz.sshj.sftp.RemoteResourceInfo;
-import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,7 @@ public class SFtpLogDirScanThread extends FtpLogDirScanThread{
      * checks of the file system
      * @param fileListenerService .
      */
-    public SFtpLogDirScanThread(final long interval, FtpConfig fileConfig, FileListenerService fileListenerService) {
+    public SFtpLogDirScanThread(final long interval, FileConfig fileConfig, FileListenerService fileListenerService) {
        super(interval,fileConfig,fileListenerService);
     }
 

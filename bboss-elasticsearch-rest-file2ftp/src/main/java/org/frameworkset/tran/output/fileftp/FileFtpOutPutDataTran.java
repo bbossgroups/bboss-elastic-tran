@@ -16,9 +16,10 @@ import org.frameworkset.tran.task.TaskCall;
 import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -58,8 +59,9 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 					.append(" remoteFileName[").append(remoteFileName).append("]")
 					;
 			taskInfo = builder.toString();
+			fileTransfer.writeHeader();
 			return fileTransfer;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new ESDataImportException("init file writer failed:"+fileName,e);
 		}
 

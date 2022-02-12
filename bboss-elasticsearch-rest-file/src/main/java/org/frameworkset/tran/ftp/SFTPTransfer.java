@@ -50,7 +50,7 @@ public class SFTPTransfer {
 		final List<RemoteResourceInfo> files = new ArrayList<RemoteResourceInfo>();
 		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
 		final FtpFileFilter ftpFileFilter = fileFtpOupputContext.getFtpFileFilter();
-		final FileConfig fileConfig = fileFtpOupputContext.getFtpConfig();
+		final FileConfig fileConfig = fileFtpOupputContext.getFileConfig();
 		handlerFile(  fileFtpOupputContext, new SFTPAction (){
 			@Override
 			public void execute(SFTPClient sftp) throws IOException {
@@ -96,7 +96,7 @@ public class SFTPTransfer {
 		final List<RemoteResourceInfo> files = new ArrayList<RemoteResourceInfo>();
 		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
 		final FtpFileFilter ftpFileFilter = fileFtpOupputContext.getFtpFileFilter();
-		final FileConfig fileConfig = fileFtpOupputContext.getFtpConfig();
+		final FileConfig fileConfig = fileFtpOupputContext.getFileConfig();
 		handlerFile(  fileFtpOupputContext, new SFTPAction (){
 			@Override
 			public void execute(SFTPClient sftp) throws IOException {

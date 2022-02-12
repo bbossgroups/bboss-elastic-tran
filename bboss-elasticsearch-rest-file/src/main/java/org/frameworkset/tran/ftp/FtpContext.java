@@ -15,6 +15,7 @@ package org.frameworkset.tran.ftp;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
 
@@ -33,6 +34,7 @@ public interface FtpContext {
 
 	int getFtpPort();
 	FtpConfig getFtpConfig();
+	FileConfig getFileConfig();
 	String getRemoteFileDir();
 	boolean deleteRemoteFile();
 

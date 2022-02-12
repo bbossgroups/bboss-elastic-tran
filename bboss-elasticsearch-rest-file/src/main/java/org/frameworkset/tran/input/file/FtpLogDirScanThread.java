@@ -2,7 +2,6 @@ package org.frameworkset.tran.input.file;
 
 import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.net.ftp.FTPFile;
-import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpContext;
 import org.frameworkset.tran.ftp.FtpContextImpl;
 import org.frameworkset.tran.ftp.FtpTransfer;
@@ -28,9 +27,9 @@ public class FtpLogDirScanThread extends LogDirScanThread{
      * checks of the file system
      * @param fileListenerService .
      */
-    public FtpLogDirScanThread(final long interval, FtpConfig fileConfig, FileListenerService fileListenerService) {
+    public FtpLogDirScanThread(final long interval, FileConfig fileConfig, FileListenerService fileListenerService) {
        super(interval,fileConfig,fileListenerService);
-       ftpContext = new FtpContextImpl(fileConfig);
+       ftpContext = new FtpContextImpl(fileConfig.getFtpConfig(),fileConfig);
     }
 
 

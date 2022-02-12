@@ -17,17 +17,18 @@ package org.frameworkset.tran.output.fileftp;
 
 import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpTransfer;
 import org.frameworkset.tran.ftp.SFTPTransfer;
+import org.frameworkset.tran.util.HeaderRecordGenerator;
+import org.frameworkset.tran.util.RecordGenerator;
+import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * <p>Description: </p>
@@ -47,6 +48,7 @@ public class FileTransfer {
 	private String taskInfo;
 	private File file;
 	private FileFtpOupputContext fileFtpOupputContext;
+	private HeaderRecordGenerator headerRecordGenerator;
 	public FileTransfer(String taskInfo, FileFtpOupputContext fileFtpOupputContext, String dir, String filePath, String remoteFilePath, int buffsize) throws IOException {
 		this.fileFtpOupputContext = fileFtpOupputContext;
 		this.taskInfo  = taskInfo;
@@ -70,9 +72,25 @@ public class FileTransfer {
 		path = new File(transferSuccessFile).getParentFile();
 		if(!path.exists())
 			path.mkdirs();
-
+		RecordGenerator recordGenerator = fileFtpOupputContext.getRecordGenerator();
+		if(recordGenerator instanceof HeaderRecordGenerator){
+			this.headerRecordGenerator = (HeaderRecordGenerator)recordGenerator;
+		}
 		fw = new FileWriter(file);
 		bw = new BufferedWriter(fw,buffsize);
+	}
+
+	/**
+	 * 添加标题行
+	 * @throws Exception
+	 */
+	public void writeHeader() throws Exception {
+		if(headerRecordGenerator != null) {
+			BBossStringWriter writer = new BBossStringWriter();
+			headerRecordGenerator.buildHeaderRecord(writer);
+			bw.write(writer.toString());
+			bw.write(TranUtil.lineSeparator);
+		}
 	}
 	public synchronized void writeData(String data) throws IOException {
 		bw.write(data);

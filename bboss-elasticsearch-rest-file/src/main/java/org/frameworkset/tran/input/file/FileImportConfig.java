@@ -1,9 +1,13 @@
 package org.frameworkset.tran.input.file;
 
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.ftp.FtpConfig;
+import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.OSInfo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -217,5 +221,16 @@ public class FileImportConfig extends BaseImportConfig {
     public FileImportConfig setUseETLScheduleForScanNewFile(boolean useETLScheduleForScanNewFile) {
         this.useETLScheduleForScanNewFile = useETLScheduleForScanNewFile;
         return this;
+    }
+
+    public FileReaderTask buildFileReaderTask(TaskContext taskContext, File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
+                                                 Status currentStatus , FileImportConfig fileImportConfig ){
+        FileReaderTask task = new FileReaderTask(taskContext,file,fileId,fileConfig,pointer,
+                fileListenerService,fileDataTran,currentStatus,fileImportConfig);
+        return task;
+    }
+    public FileReaderTask buildFileReaderTask(String fileId,  Status currentStatus,FileImportConfig fileImportConfig ){
+        FileReaderTask task =  new FileReaderTask(fileId,currentStatus,fileImportConfig);
+        return task;
     }
 }

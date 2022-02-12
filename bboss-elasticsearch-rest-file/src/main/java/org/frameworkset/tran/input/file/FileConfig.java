@@ -2,6 +2,7 @@ package org.frameworkset.tran.input.file;
 
 import org.apache.commons.lang.StringUtils;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
+import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.schedule.timer.TimeRange;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.frameworkset.util.OSInfo;
@@ -15,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author xutengfei
+ * @author xutengfei,yinbp
  * @description
  * @create 2021/3/12
  */
@@ -23,6 +24,10 @@ public class FileConfig extends FieldManager{
     private Logger logger = LoggerFactory.getLogger(FileConfig.class);
     //文件监听路径
     private String sourcePath;
+    /**
+     * ftp配置
+     */
+    private FtpConfig ftpConfig;
 
     /**
      *重命名文件监听路径：一些日志组件会指定将滚动日志文件放在与当前日志文件不同的目录下，需要通过renameFileSourcePath指定这个不同的目录地址，以便
@@ -51,6 +56,20 @@ public class FileConfig extends FieldManager{
     //文件名称正则匹配
     private String fileNameRegular;
     private Pattern fileNameRexPattern;
+
+    public int getSkipHeaderLines() {
+        return skipHeaderLines;
+    }
+
+    public FileConfig setSkipHeaderLines(int skipHeaderLines) {
+        this.skipHeaderLines = skipHeaderLines;
+        return this;
+    }
+
+    /**
+     * 忽略文件开始行数
+     */
+    private int skipHeaderLines;
 
     public FileConfig setFileFilter(FileFilter fileFilter) {
         this.fileFilter = fileFilter;
@@ -548,5 +567,14 @@ public class FileConfig extends FieldManager{
     }
     protected void buildMsg(StringBuilder stringBuilder){
         stringBuilder.append("sourcePath:").append(this.sourcePath);
+    }
+
+    public FtpConfig getFtpConfig() {
+        return ftpConfig;
+    }
+
+    public FileConfig setFtpConfig(FtpConfig ftpConfig) {
+        this.ftpConfig = ftpConfig;
+        return this;
     }
 }

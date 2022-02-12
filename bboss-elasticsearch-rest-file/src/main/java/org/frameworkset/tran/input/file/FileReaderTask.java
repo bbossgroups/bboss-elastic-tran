@@ -31,47 +31,47 @@ import static java.lang.Thread.sleep;
  */
 public class FileReaderTask extends FieldManager{
     private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
-    private FileInfo fileInfo;
-    private FileImportConfig fileImportConfig;
+    protected FileInfo fileInfo;
+    protected FileImportConfig fileImportConfig;
 
 
     /**
      * 文件监听事件服务
      */
-    private FileListenerService fileListenerService;
+    protected FileListenerService fileListenerService;
     /**
      * 文件开始行标识正则
      */
     private Pattern pattern;
     private boolean rootLevel;
-    private boolean enableMeta;
+    protected boolean enableMeta;
 
-    private BaseDataTran fileDataTran;
+    protected BaseDataTran fileDataTran;
     private RandomAccessFile raf ;
     //状态 0启用 1失效
     public static final int STATUS_OK = 0;
     public static final int STATUS_NO = 1;
     private int status = STATUS_OK;
-    private Status currentStatus;
-    private volatile boolean taskEnded;
+    protected Status currentStatus;
+    protected volatile boolean taskEnded;
     /**
      * jsondata：标识文本记录是json格式的数据，true 将值解析为json对象，false - 不解析，这样值将作为一个完整的message字段存放到上报数据中
      */
     private boolean jsondata ;
-    private Thread worker ;
-    private long oldLastModifyTime = -1;
-    private long checkFileModifyInterval = 3000l;
-    private long closeOlderTime ;
-    private CloseOldedFileAssert closeOldedFileAssert;
+    protected Thread worker ;
+    protected long oldLastModifyTime = -1;
+    protected long checkFileModifyInterval = 3000l;
+    protected long closeOlderTime ;
+    protected CloseOldedFileAssert closeOldedFileAssert;
 
-    private IgnoreFileAssert ignoreFileAssert;
-    private long ignoreOlderTime ;
-    private TaskContext taskContext;
-    private FileConfig fileConfig;
+    protected IgnoreFileAssert ignoreFileAssert;
+    protected long ignoreOlderTime ;
+    protected TaskContext taskContext;
+    protected FileConfig fileConfig;
     /**
      * 文件采集偏移量
      */
-    private long pointer;
+    protected long pointer;
 
     public FileReaderTask(TaskContext taskContext,File file, String fileId, FileConfig fileConfig,
                           FileListenerService fileListenerService,
@@ -202,7 +202,7 @@ public class FileReaderTask extends FieldManager{
     public boolean isEnableInode(){
         return fileInfo.getFileConfig().isEnableInode();
     }
-    class Work implements Runnable{
+    public class Work implements Runnable{
 
         @Override
         public void run() {
@@ -459,7 +459,7 @@ public class FileReaderTask extends FieldManager{
         }
         return false;
     }
-    private void execute() {
+    protected void execute() {
         boolean reachEOFClosed = false;
         File file = fileInfo.getFile();
         try {
@@ -485,17 +485,31 @@ public class FileReaderTask extends FieldManager{
                 List<Record> recordList = new ArrayList<Record>();
                 //批量处理记录数
                 int fetchSize = this.fileListenerService.getFileImportContext().getFetchSize();
-
+                int skipHeaderLines = this.fileConfig.getSkipHeaderLines();
+                int readLines = 0;
                 long startPointer = pointer;
+                boolean firstReader = startPointer == 0;
                 while(true){
                     line_ = readLine( startPointer);
                     reachEOFClosed = reachEOFClosed(line_);
                     if(line_.getLine() != null) {
                         line = line_.getLine();
+                        if(firstReader && skipHeaderLines > 0 && readLines < skipHeaderLines){
+                            pointer = raf.getFilePointer();
+                            startPointer =  pointer;
+                            readLines ++;
+                            if(!reachEOFClosed) {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
                         if (charsetEncode != null)
                             line = new String(line.getBytes("ISO-8859-1"), charsetEncode);
 
-                        if (null != pattern) {
+                        if (null != pattern) {//多行记录匹配模式
                             Matcher m = pattern.matcher(line);
                             if (m.find() && builder.length() > 0) {
                                 pointer = raf.getFilePointer();
@@ -509,6 +523,7 @@ public class FileReaderTask extends FieldManager{
 
                                 builder.setLength(0);
                             }
+
                             if (builder.length() > 0) {
                                 builder.append(TranUtil.lineSeparator);
                             }
@@ -587,7 +602,7 @@ public class FileReaderTask extends FieldManager{
             }
         }
     }
-    private void backupFile(String relativeParentDir,File file) throws IOException {
+    protected void backupFile(String relativeParentDir,File file) throws IOException {
         String sourcePath = fileConfig.getSourcePath();
         if(fileConfig.isScanChild()) {
             //需要备份到子目录
@@ -807,7 +822,7 @@ public class FileReaderTask extends FieldManager{
     }
 
     //公共数据
-    private Map common(File file, long pointer, Map result) {
+    protected Map common(File file, long pointer, Map result) {
         Map common = new HashMap();
         common.put("hostIp", BaseSimpleStringUtil.getIp());
         common.put("hostName",BaseSimpleStringUtil.getHostName());

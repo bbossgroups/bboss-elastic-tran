@@ -15,6 +15,7 @@ package org.frameworkset.tran.ftp;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
 
@@ -30,9 +31,10 @@ import java.util.List;
  */
 public class FtpContextImpl implements FtpContext {
 	private FtpConfig ftpConfig ;
-
-	public FtpContextImpl(FtpConfig ftpConfig) {
+	private FileConfig fileConfig;
+	public FtpContextImpl(FtpConfig ftpConfig, FileConfig fileConfig) {
 		this.ftpConfig = ftpConfig;
+		this.fileConfig = fileConfig;
 	}
 	public boolean deleteRemoteFile(){
 		return this.ftpConfig.isDeleteRemoteFile();
@@ -51,6 +53,11 @@ public class FtpContextImpl implements FtpContext {
 	@Override
 	public FtpConfig getFtpConfig() {
 		return ftpConfig;
+	}
+
+	@Override
+	public FileConfig getFileConfig() {
+		return fileConfig;
 	}
 
 	@Override

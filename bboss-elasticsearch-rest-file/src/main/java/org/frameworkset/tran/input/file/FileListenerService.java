@@ -357,10 +357,11 @@ public class FileListenerService {
      * @param remoteFileAction
      */
     private void checkRemoteNewFile(String relativeParentDir,String fileName, String remoteFile, FtpContext ftpContext, RemoteFileAction remoteFileAction) {
-        FtpConfig fileConfig = ftpContext.getFtpConfig();
+        FtpConfig ftpConfig = ftpContext.getFtpConfig();
+        FileConfig fileConfig = ftpContext.getFileConfig();
         File handleFile = new File( SimpleStringUtil.getPath(fileConfig.getSourcePath(),relativeParentDir), fileName);//正式文件,如果有子目录，则需要保存到子目录
         checkParentExist(handleFile);
-        File localFile = new File(SimpleStringUtil.getPath(fileConfig.getDownloadTempDir(),relativeParentDir),fileName);//临时下载文件，,如果有子目录，则需要保存到临时子目录，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
+        File localFile = new File(SimpleStringUtil.getPath(ftpConfig.getDownloadTempDir(),relativeParentDir),fileName);//临时下载文件，,如果有子目录，则需要保存到临时子目录，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
         checkParentExist(localFile);
         String fileId = FileInodeHandler.change(handleFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
         try {

@@ -79,6 +79,7 @@ public class FtpConfig extends FileConfig {
 	@Override
 	public FileConfig init(){
 		super.init();
+		this.setFtpConfig(this);
 		downloadTempDir = SimpleStringUtil.getPath(getSourcePath(),"temp");
 		this.setEnableInode(false);
 		this.setCloseEOF(true);//已经结束的文件内容采集完毕后关闭文件对应的采集通道，后续不再监听对应文件的内容变化
