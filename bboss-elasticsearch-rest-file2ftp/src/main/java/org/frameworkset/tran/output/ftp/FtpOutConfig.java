@@ -1,4 +1,4 @@
-package org.frameworkset.tran.output.fileftp;
+package org.frameworkset.tran.output.ftp;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -15,9 +15,7 @@ package org.frameworkset.tran.output.fileftp;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.ftp.FtpConfig;
-import org.frameworkset.tran.util.RecordGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,28 +24,16 @@ import java.util.List;
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/1/28 16:48
+ * @Date 2022/2/14 22:14
  * @author biaoping.yin
  * @version 1.0
  */
-public class FileFtpOupputConfig extends BaseImportConfig {
-	/**
-	 * 输出文件记录处理器:org.frameworkset.tran.kafka.output.fileftp.ReocordGenerator
-	 */
-	private RecordGenerator recordGenerator;
-
-	/**
-	 *  导出文件名称生成接口实现类型（必须指定）：org.frameworkset.tran.kafka.output.fileftp.FilenameGenerator
-	 */
-	private FilenameGenerator filenameGenerator;
+public class FtpOutConfig {
+ 
 	private boolean backupSuccessFiles;
 	private boolean transferEmptyFiles;
-	private String fileDir;
-	private int fileWriterBuffsize ;
-	private int maxFileRecordSize;
 	private List<String> hostKeyVerifiers;
 	private int transferProtocol = FtpConfig.TRANSFER_PROTOCOL_SFTP;
-	private boolean disableftp;
 
 	/**
 	 * 单位：毫秒,默认1分钟
@@ -57,7 +43,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return successFilesCleanInterval;
 	}
 
-	public FileFtpOupputConfig setSuccessFilesCleanInterval(long successFilesCleanInterval) {
+	public FtpOutConfig setSuccessFilesCleanInterval(long successFilesCleanInterval) {
 		this.successFilesCleanInterval = successFilesCleanInterval;
 		return  this;
 	}
@@ -71,7 +57,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 	 * 单位：秒,默认2天
 	 */
 	private int fileLiveTime = 86400*2;
-	public FileFtpOupputConfig addHostKeyVerifier(String hostKeyVerifier) {
+	public FtpOutConfig addHostKeyVerifier(String hostKeyVerifier) {
 		if(hostKeyVerifiers  == null){
 			this.hostKeyVerifiers = new ArrayList<String>();
 		}
@@ -97,7 +83,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 	private String ftpProxyPassword;
 	private String ftpProxyUser;
 	private boolean printHash;
- 	private boolean binaryTransfer = true;
+	private boolean binaryTransfer = true;
 
 	/**
 	 * 毫秒为单位
@@ -113,7 +99,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 	private String remoteFileDir;
 	private long failedFileResendInterval = 300000l;
 
-	public FileFtpOupputConfig setFailedFileResendInterval(long failedFileResendInterval) {
+	public FtpOutConfig setFailedFileResendInterval(long failedFileResendInterval) {
 		this.failedFileResendInterval = failedFileResendInterval;
 		return  this;
 	}
@@ -125,7 +111,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return ftpProtocol;
 	}
 
-	public FileFtpOupputConfig setFtpProtocol(String ftpProtocol) {
+	public FtpOutConfig setFtpProtocol(String ftpProtocol) {
 		this.ftpProtocol = ftpProtocol;
 		return  this;
 	}
@@ -134,7 +120,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return ftpTrustmgr;
 	}
 
-	public FileFtpOupputConfig setFtpTrustmgr(String ftpTrustmgr) {
+	public FtpOutConfig setFtpTrustmgr(String ftpTrustmgr) {
 		this.ftpTrustmgr = ftpTrustmgr;
 		return  this;
 	}
@@ -143,7 +129,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return ftpProxyHost;
 	}
 
-	public FileFtpOupputConfig setFtpProxyHost(String ftpProxyHost) {
+	public FtpOutConfig setFtpProxyHost(String ftpProxyHost) {
 		this.ftpProxyHost = ftpProxyHost;
 		return  this;
 	}
@@ -152,7 +138,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return ftpProxyPort;
 	}
 
-	public FileFtpOupputConfig setFtpProxyPort(int ftpProxyPort) {
+	public FtpOutConfig setFtpProxyPort(int ftpProxyPort) {
 		this.ftpProxyPort = ftpProxyPort;
 		return  this;
 	}
@@ -161,7 +147,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return ftpProxyPassword;
 	}
 
-	public FileFtpOupputConfig setFtpProxyPassword(String ftpProxyPassword) {
+	public FtpOutConfig setFtpProxyPassword(String ftpProxyPassword) {
 		this.ftpProxyPassword = ftpProxyPassword;
 		return  this;
 	}
@@ -170,7 +156,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return ftpProxyUser;
 	}
 
-	public FileFtpOupputConfig setFtpProxyUser(String ftpProxyUser) {
+	public FtpOutConfig setFtpProxyUser(String ftpProxyUser) {
 		this.ftpProxyUser = ftpProxyUser;
 		return  this;
 	}
@@ -179,7 +165,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return printHash;
 	}
 
-	public FileFtpOupputConfig setPrintHash(boolean printHash) {
+	public FtpOutConfig setPrintHash(boolean printHash) {
 		this.printHash = printHash;
 		return  this;
 	}
@@ -188,7 +174,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return binaryTransfer;
 	}
 
-	public FileFtpOupputConfig setBinaryTransfer(boolean binaryTransfer) {
+	public FtpOutConfig setBinaryTransfer(boolean binaryTransfer) {
 		this.binaryTransfer = binaryTransfer;
 		return  this;
 	}
@@ -197,7 +183,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return keepAliveTimeout;
 	}
 
-	public FileFtpOupputConfig setKeepAliveTimeout(long keepAliveTimeout) {
+	public FtpOutConfig setKeepAliveTimeout(long keepAliveTimeout) {
 		this.keepAliveTimeout = keepAliveTimeout;
 		return  this;
 	}
@@ -206,7 +192,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return controlKeepAliveReplyTimeout;
 	}
 
-	public FileFtpOupputConfig setControlKeepAliveReplyTimeout(int controlKeepAliveReplyTimeout) {
+	public FtpOutConfig setControlKeepAliveReplyTimeout(int controlKeepAliveReplyTimeout) {
 		this.controlKeepAliveReplyTimeout = controlKeepAliveReplyTimeout;
 		return  this;
 	}
@@ -215,7 +201,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return encoding;
 	}
 
-	public FileFtpOupputConfig setEncoding(String encoding) {
+	public FtpOutConfig setEncoding(String encoding) {
 		this.encoding = encoding;
 		return  this;
 	}
@@ -224,7 +210,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return ftpServerType;
 	}
 
-	public FileFtpOupputConfig setFtpServerType(String ftpServerType) {
+	public FtpOutConfig setFtpServerType(String ftpServerType) {
 		this.ftpServerType = ftpServerType;
 		return  this;
 	}
@@ -233,7 +219,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return localActive;
 	}
 
-	public FileFtpOupputConfig setLocalActive(boolean localActive) {
+	public FtpOutConfig setLocalActive(boolean localActive) {
 		this.localActive = localActive;
 		return  this;
 	}
@@ -242,7 +228,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return useEpsvWithIPv4;
 	}
 
-	public FileFtpOupputConfig setUseEpsvWithIPv4(boolean useEpsvWithIPv4) {
+	public FtpOutConfig setUseEpsvWithIPv4(boolean useEpsvWithIPv4) {
 		this.useEpsvWithIPv4 = useEpsvWithIPv4;
 		return  this;
 	}
@@ -251,7 +237,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return remoteFileDir;
 	}
 
-	public FileFtpOupputConfig setRemoteFileDir(String remoteFileDir) {
+	public FtpOutConfig setRemoteFileDir(String remoteFileDir) {
 		this.remoteFileDir = remoteFileDir;
 		return  this;
 	}
@@ -260,7 +246,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return ftpIP;
 	}
 
-	public FileFtpOupputConfig setFtpIP(String ftpIP) {
+	public FtpOutConfig setFtpIP(String ftpIP) {
 		this.ftpIP = ftpIP;
 		return  this;
 	}
@@ -270,7 +256,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return ftpPort;
 	}
 
-	public FileFtpOupputConfig setFtpPort(int ftpPort) {
+	public FtpOutConfig setFtpPort(int ftpPort) {
 		this.ftpPort = ftpPort;
 		return  this;
 	}
@@ -279,7 +265,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return ftpUser;
 	}
 
-	public FileFtpOupputConfig setFtpUser(String ftpUser) {
+	public FtpOutConfig setFtpUser(String ftpUser) {
 		this.ftpUser = ftpUser;
 		return  this;
 	}
@@ -288,7 +274,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return ftpPassword;
 	}
 
-	public FileFtpOupputConfig setFtpPassword(String ftpPassword) {
+	public FtpOutConfig setFtpPassword(String ftpPassword) {
 		this.ftpPassword = ftpPassword;
 		return  this;
 	}
@@ -296,57 +282,11 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 
 
 
-	public String getFileDir() {
-		return fileDir;
-	}
-
-	public FileFtpOupputConfig setFileDir(String fileDir) {
-		this.fileDir = fileDir;
-		return  this;
-	}
-
-	public RecordGenerator getRecordGenerator() {
-		return recordGenerator;
-	}
-
-
-	public FileFtpOupputConfig setRecordGenerator(RecordGenerator recordGenerator) {
-		this.recordGenerator = recordGenerator;
-		return  this;
-	}
-
-	public FilenameGenerator getFilenameGenerator() {
-		return filenameGenerator;
-	}
-
-	public FileFtpOupputConfig setFilenameGenerator(FilenameGenerator filenameGenerator) {
-		this.filenameGenerator = filenameGenerator;
-		return  this;
-	}
-
-	public int getFileWriterBuffsize() {
-		return fileWriterBuffsize;
-	}
-
-	public FileFtpOupputConfig setFileWriterBuffsize(int fileWriterBuffsize) {
-		this.fileWriterBuffsize = fileWriterBuffsize;
-		return  this;
-	}
-
-	public int getMaxFileRecordSize() {
-		return maxFileRecordSize;
-	}
-
-	public FileFtpOupputConfig setMaxFileRecordSize(int maxFileRecordSize) {
-		this.maxFileRecordSize = maxFileRecordSize;
-		return  this;
-	}
-
 	public int getTransferProtocol() {
 		return transferProtocol;
 	}
 
-	public FileFtpOupputConfig setTransferProtocol(int transferProtocol) {
+	public FtpOutConfig setTransferProtocol(int transferProtocol) {
 		this.transferProtocol = transferProtocol;
 		return  this;
 	}
@@ -355,7 +295,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return backupSuccessFiles;
 	}
 
-	public FileFtpOupputConfig setBackupSuccessFiles(boolean backupSuccessFiles) {
+	public FtpOutConfig setBackupSuccessFiles(boolean backupSuccessFiles) {
 		this.backupSuccessFiles = backupSuccessFiles;
 		return  this;
 	}
@@ -364,19 +304,11 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 		return transferEmptyFiles;
 	}
 
-	public FileFtpOupputConfig setTransferEmptyFiles(boolean transferEmptyFiles) {
+	public FtpOutConfig setTransferEmptyFiles(boolean transferEmptyFiles) {
 		this.transferEmptyFiles = transferEmptyFiles;
 		return  this;
 	}
 
-	public boolean isDisableftp() {
-		return disableftp;
-	}
-
-	public FileFtpOupputConfig setDisableftp(boolean disableftp) {
-		this.disableftp = disableftp;
-		return  this;
-	}
 
 	public int getFileLiveTime() {
 		return fileLiveTime;
@@ -388,7 +320,7 @@ public class FileFtpOupputConfig extends BaseImportConfig {
 	 * @return
 	 */
 
-	public FileFtpOupputConfig setFileLiveTime(int fileLiveTime) {
+	public FtpOutConfig setFileLiveTime(int fileLiveTime) {
 		this.fileLiveTime = fileLiveTime;
 		return this;
 	}

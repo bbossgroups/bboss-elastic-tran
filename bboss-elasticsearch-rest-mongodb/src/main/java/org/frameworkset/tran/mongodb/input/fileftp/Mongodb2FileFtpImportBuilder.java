@@ -19,18 +19,18 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.mongodb.MongoDBExportBuilder;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputConfig;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputContextImpl;
+import org.frameworkset.tran.output.fileftp.FileOupputConfig;
+import org.frameworkset.tran.output.fileftp.FileOupputContextImpl;
 
 public class Mongodb2FileFtpImportBuilder   extends MongoDBExportBuilder {
 
 	@JsonIgnore
-	private FileFtpOupputConfig fileFtpOupputConfig;
+	private FileOupputConfig fileOupputConfig;
 	public Mongodb2FileFtpImportBuilder(){
 
 	}
-	public Mongodb2FileFtpImportBuilder setFileFtpOupputConfig(FileFtpOupputConfig fileFtpOupputConfig) {
-		this.fileFtpOupputConfig = fileFtpOupputConfig;
+	public Mongodb2FileFtpImportBuilder setFileOupputConfig(FileOupputConfig fileOupputConfig) {
+		this.fileOupputConfig = fileOupputConfig;
 		return this;
 	}
 	@Override
@@ -47,7 +47,7 @@ public class Mongodb2FileFtpImportBuilder   extends MongoDBExportBuilder {
 
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-		FileFtpOupputContextImpl fileFtpOupputContext = new FileFtpOupputContextImpl(fileFtpOupputConfig);
+		FileOupputContextImpl fileFtpOupputContext = new FileOupputContextImpl(fileOupputConfig);
 		fileFtpOupputContext.init();
 		return fileFtpOupputContext;
 	}
@@ -56,8 +56,8 @@ public class Mongodb2FileFtpImportBuilder   extends MongoDBExportBuilder {
 
 
 	protected void setTargetImportContext(DataStream dataStream){
-		if(fileFtpOupputConfig != null)
-			dataStream.setTargetImportContext(buildTargetImportContext(fileFtpOupputConfig) );
+		if(fileOupputConfig != null)
+			dataStream.setTargetImportContext(buildTargetImportContext(fileOupputConfig) );
 		else
 			throw new DataImportException("DummyOupputConfig is null,please set it as:\n" +
 					"\t\tString ftpIp = CommonLauncher.getProperty(\"ftpIP\",\"10.13.6.127\");//同时指定了默认值\n" +

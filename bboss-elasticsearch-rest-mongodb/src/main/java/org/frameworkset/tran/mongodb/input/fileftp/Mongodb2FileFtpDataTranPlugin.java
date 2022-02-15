@@ -19,7 +19,8 @@ import com.mongodb.DBCursor;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.mongodb.MongoDBResultSet;
 import org.frameworkset.tran.mongodb.input.MongoDBInputPlugin;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputContext;
+import org.frameworkset.tran.output.fileftp.FileFtpOutPutUtil;
+import org.frameworkset.tran.output.fileftp.FileOupputContext;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -32,18 +33,18 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public class Mongodb2FileFtpDataTranPlugin  extends MongoDBInputPlugin {
-	protected FileFtpOupputContext fileFtpOupputContext;
+	protected FileOupputContext fileOupputContext;
 	public Mongodb2FileFtpDataTranPlugin(ImportContext importContext, ImportContext targetImportContext){
 		super(importContext,  targetImportContext);
 
-		fileFtpOupputContext = (FileFtpOupputContext) targetImportContext;
+		fileOupputContext = (FileOupputContext) targetImportContext;
 	}
 
 
 	@Override
 	protected void doTran(DBCursor dbCursor, TaskContext taskContext) {
 		MongoDBResultSet mongoDB2DBResultSet = new MongoDBResultSet(importContext,dbCursor);
-		FileFtpOutPutDataTran fileFtpOutPutDataTran = new FileFtpOutPutDataTran(taskContext,mongoDB2DBResultSet,importContext,   targetImportContext,  currentStatus);
+		FileFtpOutPutDataTran fileFtpOutPutDataTran = FileFtpOutPutUtil.buildFileFtpOutPutDataTran(taskContext,mongoDB2DBResultSet,importContext,   targetImportContext,  currentStatus);
 		fileFtpOutPutDataTran.init();
 		fileFtpOutPutDataTran.tran();
 	}

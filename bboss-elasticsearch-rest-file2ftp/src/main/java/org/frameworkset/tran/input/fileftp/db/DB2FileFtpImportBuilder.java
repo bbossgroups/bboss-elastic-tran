@@ -20,18 +20,18 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBExportBuilder;
 import org.frameworkset.tran.db.DBImportConfig;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputConfig;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputContextImpl;
+import org.frameworkset.tran.output.fileftp.FileOupputConfig;
+import org.frameworkset.tran.output.fileftp.FileOupputContextImpl;
 
 public class DB2FileFtpImportBuilder extends DBExportBuilder {
 
 	@JsonIgnore
-	private FileFtpOupputConfig fileFtpOupputConfig;
+	private FileOupputConfig fileOupputConfig;
 	public DB2FileFtpImportBuilder(){
 
 	}
-	public DB2FileFtpImportBuilder setFileFtpOupputConfig(FileFtpOupputConfig fileFtpOupputConfig) {
-		this.fileFtpOupputConfig = fileFtpOupputConfig;
+	public DB2FileFtpImportBuilder setFileOupputConfig(FileOupputConfig fileOupputConfig) {
+		this.fileOupputConfig = fileOupputConfig;
 		return this;
 
 	}
@@ -44,7 +44,7 @@ public class DB2FileFtpImportBuilder extends DBExportBuilder {
 
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-		FileFtpOupputContextImpl fileFtpOupputContext = new FileFtpOupputContextImpl(fileFtpOupputConfig);
+		FileOupputContextImpl fileFtpOupputContext = new FileOupputContextImpl(fileOupputConfig);
 		fileFtpOupputContext.init();
 		return fileFtpOupputContext;
 	}
@@ -72,7 +72,7 @@ public class DB2FileFtpImportBuilder extends DBExportBuilder {
 		dataStream.setImportConfig(importConfig);
 		dataStream.setConfigString(this.toString());
 		dataStream.setImportContext(this.buildImportContext(importConfig));
-		dataStream.setTargetImportContext(buildTargetImportContext(fileFtpOupputConfig));
+		dataStream.setTargetImportContext(buildTargetImportContext(fileOupputConfig));
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));
 		return dataStream;
 	}

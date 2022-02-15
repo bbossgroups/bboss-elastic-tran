@@ -32,6 +32,8 @@ public class CellMapping {
 
 	private int cell;
 	private String fieldName;
+	private String cellTitle;
+	private String cellComment;
 	private int cellType = CELL_STRING;
 	private String dateFormat;
 	private String numberFormat;
@@ -112,5 +114,21 @@ public class CellMapping {
 		else if(cellType == CELL_NUMBER) return "CELL_NUMBER";
 		else if(cellType == CELL_STRING) return "CELL_STRING";
 		else return "CELL_UNKOWN";
+	}
+
+	public String getCellTitle() {
+		return cellTitle;
+	}
+
+	public void setCellTitle(String cellTitle) {
+		this.cellTitle = cellTitle;
+	}
+
+	public String getCellComment() {
+		return cellComment;
+	}
+
+	public void setCellComment(String cellComment) {
+		this.cellComment = cellComment;
 	}
 }

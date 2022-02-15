@@ -17,6 +17,7 @@ package org.frameworkset.tran.output.fileftp;
 
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.ftp.FtpContext;
+import org.frameworkset.tran.output.ftp.FtpOutConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.RecordGenerator;
 
@@ -30,9 +31,9 @@ import java.io.Writer;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface FileFtpOupputContext extends FtpContext {
+public interface FileOupputContext extends FtpContext {
 
-
+	public FileOupputConfig getFileOupputConfig();
 	public String generateFileName(TaskContext taskContext, int fileSeq);
 	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder) throws Exception;
 	public long getFailedFileResendInterval();
@@ -50,5 +51,6 @@ public interface FileFtpOupputContext extends FtpContext {
 	public boolean backupSuccessFiles();
 	public boolean disableftp();
 	public RecordGenerator getRecordGenerator() ;
+	public FtpOutConfig getFtpOutConfig();
 
 }

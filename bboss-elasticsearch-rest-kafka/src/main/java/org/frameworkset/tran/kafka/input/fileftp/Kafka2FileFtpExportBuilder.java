@@ -22,8 +22,8 @@ import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.KafkaExportBuilder;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputConfig;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputContextImpl;
+import org.frameworkset.tran.output.fileftp.FileOupputConfig;
+import org.frameworkset.tran.output.fileftp.FileOupputContextImpl;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -40,10 +40,10 @@ public class Kafka2FileFtpExportBuilder  extends KafkaExportBuilder {
 
 
 	@JsonIgnore
-	private FileFtpOupputConfig fileFtpOupputConfig;
+	private FileOupputConfig fileOupputConfig;
 
-	public Kafka2FileFtpExportBuilder setFileFtpOupputConfig(FileFtpOupputConfig fileFtpOupputConfig) {
-		this.fileFtpOupputConfig = fileFtpOupputConfig;
+	public Kafka2FileFtpExportBuilder setFileOupputConfig(FileOupputConfig fileOupputConfig) {
+		this.fileOupputConfig = fileOupputConfig;
 		return this;
 
 	}
@@ -51,21 +51,21 @@ public class Kafka2FileFtpExportBuilder  extends KafkaExportBuilder {
 
 	@Override
 	public DataStream builder() {
-		if(fileFtpOupputConfig.getMaxFileRecordSize() == 0){//默认1万条记录一个文件
-			fileFtpOupputConfig.setMaxFileRecordSize(10000);
+		if(fileOupputConfig.getMaxFileRecordSize() == 0){//默认1万条记录一个文件
+			fileOupputConfig.setMaxFileRecordSize(10000);
 		}
 		return super.builder();
 	}
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-		FileFtpOupputContextImpl fileFtpOupputContext = new FileFtpOupputContextImpl(fileFtpOupputConfig);
+		FileOupputContextImpl fileFtpOupputContext = new FileOupputContextImpl(fileOupputConfig);
 		fileFtpOupputContext.init();
 		return fileFtpOupputContext;
 	}
 
 
 	protected void setTargetImportContext(DataStream dataStream){
-			dataStream.setTargetImportContext(buildTargetImportContext(fileFtpOupputConfig) );
+			dataStream.setTargetImportContext(buildTargetImportContext(fileOupputConfig) );
 	}
 
 //	@Override

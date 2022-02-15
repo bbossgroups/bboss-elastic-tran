@@ -1,20 +1,19 @@
-package org.frameworkset.tran.output.fileftp;
+package org.frameworkset.tran.output.excelftp;
 
 import com.frameworkset.orm.annotation.BatchContext;
-import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.ElasticSearchException;
-import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
+import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
+import org.frameworkset.tran.output.fileftp.FileOupputContext;
+import org.frameworkset.tran.output.fileftp.FileTransfer;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCall;
-import org.frameworkset.tran.util.TranUtil;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -25,140 +24,28 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
-	protected FileOupputContext fileOupputContext;
-//	protected String fileName;
-//	protected String remoteFileName;
-	protected FileTransfer fileTransfer;
-	protected String path;
-	protected int fileSeq = 1;
+public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 
-	protected CountDownLatch countDownLatch;
-	@Override
-	public void logTaskStart(Logger logger) {
-//		StringBuilder builder = new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
-//				.append("] dbuser[").append(importContext.getDbConfig().getDbUser())
-//				.append("] insert sql[").append(es2DBContext.getTargetSqlInfo() == null ?"": es2DBContext.getTargetSqlInfo().getOriginSQL()).append("] \r\nupdate sql[")
-//					.append(es2DBContext.getTargetUpdateSqlInfo() == null?"":es2DBContext.getTargetUpdateSqlInfo().getOriginSQL()).append("] \r\ndelete sql[")
-//					.append(es2DBContext.getTargetDeleteSqlInfo() == null ?"":es2DBContext.getTargetDeleteSqlInfo().getOriginSQL()).append("] start.");
-		logger.info(taskInfo + " start.");
-	}
-	protected String taskInfo ;
-	protected FileTransfer buildFileTransfer(FileOupputContext fileOupputContext,String fileName) throws IOException {
-		FileTransfer fileTransfer = new FileTransfer(taskInfo, fileOupputContext,path,fileName);
+
+	protected FileTransfer buildFileTransfer(FileOupputContext fileOupputContext, String fileName) throws IOException {
+		FileTransfer fileTransfer = new ExcelFileTransfer(taskInfo, fileOupputContext,path,fileName);
 
 		return fileTransfer;
 
 	}
-	protected FileTransfer initFileTransfer(){
-		path = fileOupputContext.getFileDir();
-		String name = fileOupputContext.generateFileName(   taskContext, fileSeq);
-		String fileName = SimpleStringUtil.getPath(path,name);
-		fileSeq ++;
-		try {
-			String remoteFileName = !fileOupputContext.disableftp()?SimpleStringUtil.getPath(fileOupputContext.getRemoteFileDir(),name):null;
-			FileTransfer fileTransfer = buildFileTransfer(fileOupputContext,fileName);
-			fileTransfer.initFtp(remoteFileName);
-			fileTransfer.initTransfer();
-			if(!fileOupputContext.disableftp() && fileOupputContext.getFtpOutConfig() != null) {
-				StringBuilder builder = new StringBuilder().append("Import data to ftp ip[").append(fileOupputContext.getFtpIP())
-						.append("] ftp user[").append(fileOupputContext.getFtpUser())
-						.append("] ftp password[******] ftp port[")
-						.append(fileOupputContext.getFtpPort()).append("] file [")
-						.append(fileName).append("]")
-						.append(" remoteFileName[").append(remoteFileName).append("]");
-				taskInfo = builder.toString();
-				if(fileOupputContext.getFailedFileResendInterval() > 0) {
-					if (failedResend == null) {
-						synchronized (FailedResend.class) {
-							if (failedResend == null) {
-								failedResend = new FailedResend(fileOupputContext);
-								failedResend.start();
-							}
-						}
-					}
-				}
-				if(fileOupputContext.getSuccessFilesCleanInterval() > 0){
-					if(successFilesClean == null){
-						synchronized (SuccessFilesClean.class) {
-							if (successFilesClean == null) {
-								successFilesClean = new SuccessFilesClean(fileOupputContext);
-								successFilesClean.start();
-							}
-						}
-					}
-				}
-			}
-			else{
-				StringBuilder builder = new StringBuilder().append("Import data to file [")
-						.append(fileName).append("]");
-				taskInfo = builder.toString();
-			}
 
-			fileTransfer.writeHeader();
-			return fileTransfer;
-		} catch (Exception e) {
-			throw new ESDataImportException("init file writer failed:"+fileName,e);
-		}
-
-	}
-	@Override
-	public void stop(){
-		if(esTranResultSet != null) {
-			esTranResultSet.stop();
-			esTranResultSet = null;
-		}
-		super.stop();
-	}
-	/**
-	 * 只停止转换作业
-	 */
-	@Override
-	public void stopTranOnly(){
-		if(esTranResultSet != null) {
-			esTranResultSet.stopTranOnly();
-			esTranResultSet = null;
-		}
-		super.stopTranOnly();
-	}
-	private static FailedResend failedResend;
-	private static SuccessFilesClean successFilesClean;
-	public void init(){
-		super.init();
-
-		fileOupputContext = (FileOupputContext)targetImportContext;
-
-		fileTransfer = initFileTransfer();
-
-
-	}
-
-	@Override
-	public String tran() throws ESDataImportException {
-		try {
-			String ret = super.tran();
-			fileTransfer.close();
-			fileTransfer = null;
-			return ret;
-		}
-		finally {
-			if(this.countDownLatch != null)
-				countDownLatch.countDown();
-		}
-	}
-	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,Status currentStatus) {
+	public ExcelFileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, Status currentStatus) {
 		super(taskContext,jdbcResultSet,importContext, targetImportContext,  currentStatus);
 	}
-	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch,Status currentStatus) {
-		super(taskContext,jdbcResultSet,importContext, targetImportContext,  currentStatus);
-		this.countDownLatch = countDownLatch;
+	public ExcelFileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch, Status currentStatus) {
+		super(taskContext,jdbcResultSet,importContext, targetImportContext,countDownLatch,  currentStatus);
 	}
 
 
+	@Override
 	public String serialExecute(){
 		logger.info("serial import data Execute started.");
-		StringBuilder builder = new StringBuilder();
-		BBossStringWriter writer = new BBossStringWriter(builder);
+		List<CommonRecord> records = new ArrayList<>();
 		Object lastValue = null;
 		Exception exception = null;
 		long start = System.currentTimeMillis();
@@ -181,14 +68,14 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 				Boolean hasNext = jdbcResultSet.next();
 				if(hasNext == null){
 					String ret = null;
-					if(builder.length() > 0) {
-						String _dd =  builder.toString();
-						builder.setLength(0);
-						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-								totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-						taskCommand.setDatas(_dd);
+					if(records.size() > 0) {
+
+						ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
+								totalCount, taskNo, importCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+						taskCommand.setDatas(records);
 						ret = TaskCall.call(taskCommand);
 						taskNo ++;
+						records = new ArrayList<>();
 					}
 					else{
 						ret = "{\"took\":0,\"errors\":false}";
@@ -232,21 +119,20 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 						continue;
 					}
 					CommonRecord record = buildRecord(  context );
+					records.add(record);
 
-					fileOupputContext.generateReocord(context,record, writer);
-					writer.write(TranUtil.lineSeparator);
 //					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));
 //					//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 					totalCount++;
 					if(fileOupputContext.getMaxFileRecordSize() > 0 && totalCount > 0
 							&& (totalCount % fileOupputContext.getMaxFileRecordSize() == 0)){//reached max file record size
-						String _dd =  builder.toString();
-						builder.setLength(0);
-						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-								totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-						taskCommand.setDatas(_dd);
+
+						ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
+								totalCount, taskNo, importCount.getJobNo(), (ExcelFileTransfer)fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+						taskCommand.setDatas(records);
 						TaskCall.call(taskCommand);
 						taskNo ++;
+						records = new ArrayList<>();
 						fileTransfer.sendFile();
 						fileTransfer = this.initFileTransfer();
 					}
@@ -254,13 +140,12 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 					throw new DataImportException(e);
 				}
 			}
-			if(builder.length() > 0) {
+			if(records.size() > 0) {
 
-				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-						totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+				ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
+						totalCount, taskNo, importCount.getJobNo(), (ExcelFileTransfer)fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 				taskNo ++;
-				taskCommand.setDatas(builder.toString());
-				builder.setLength(0);
+				taskCommand.setDatas(records);
 				TaskCall.call(taskCommand);
 
 //				importContext.flushLastValue(lastValue);
@@ -316,13 +201,13 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 	 * @return
 	 */
+	@Override
 	public String parallelBatchExecute( ){
 		if(!fileOupputContext.disableftp()){
 			return batchExecute();
 		}
 		int count = 0;
-		StringBuilder builder = new StringBuilder();
-		BBossStringWriter writer = new BBossStringWriter(builder);
+		List<CommonRecord> records = new ArrayList<>();
 		String ret = null;
 		ExecutorService	service = importContext.buildThreadPool();
 		List<Future> tasks = new ArrayList<Future>();
@@ -347,16 +232,17 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 				Boolean hasNext = jdbcResultSet.next();
 				if(hasNext == null){//强制flush操作
 					if (count > 0) {
-						String datas = builder.toString();
-						builder.setLength(0);
+
 
 
 						int _count = count;
 						count = 0;
-						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-								_count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-						taskCommand.setDatas(datas);
+						ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
+								_count, taskNo, totalCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+						taskCommand.setDatas(records);
+						records = new ArrayList<>();
 						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+
 						taskNo++;
 
 					}
@@ -389,18 +275,16 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 				}
 				CommonRecord record = buildRecord(  context );
 
-				fileOupputContext.generateReocord(context,record, writer);
-				writer.write(TranUtil.lineSeparator);
+				records.add(record);
 				count++;
 				if(count >= batchsize ){
-					String datas = builder.toString();
-					builder.setLength(0);
 
 					int _count = count;
 					count = 0;
-					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-							_count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-					taskCommand.setDatas(datas);
+					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
+							_count, taskNo, totalCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+					taskCommand.setDatas(records);
+					records = new ArrayList<>();
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 					taskNo++;
 
@@ -410,12 +294,10 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 				if(!tranErrorWrapper.assertCondition()) {
 					tranErrorWrapper.throwError();
 				}
-				String datas = builder.toString();
-				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-						count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-				taskCommand.setDatas(datas);
+				ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
+						count, taskNo, totalCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+				taskCommand.setDatas(records);
 				tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-				builder.setLength(0);
 				if(isPrintTaskLog())
 					logger.info(new StringBuilder().append("Pararrel batch submit tasks:").append(taskNo).toString());
 
@@ -444,11 +326,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 					fileTransfer.sendFile();//传输文件
 				}
 			},reachEOFClosed);
-			try {
-				writer.close();
-			} catch (Exception e) {
 
-			}
 			totalCount.setJobEndTime(new Date());
 		}
 
@@ -458,10 +336,10 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	 * 串行批处理导入
 	 * @return
 	 */
+	@Override
 	public String batchExecute(  ){
 		int count = 0;
-		StringBuilder builder = new StringBuilder();
-		BBossStringWriter writer = new BBossStringWriter(builder);
+		List<CommonRecord> records = new ArrayList<>();
 		String ret = null;
 		int taskNo = 0;
 		Exception exception = null;
@@ -485,13 +363,13 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 				Boolean hasNext = jdbcResultSet.next();
 				if(hasNext == null){
 					if(count > 0) {
-						String _dd =  builder.toString();
-						builder.setLength(0);
+
 						int _count = count;
 						count = 0;
-						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-								_count, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-						taskCommand.setDatas(_dd);
+						ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
+								_count, taskNo, importCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+						taskCommand.setDatas(records);
+						records = new ArrayList<>();
 						ret = TaskCall.call(taskCommand);
 
 
@@ -537,22 +415,18 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 				}
 				CommonRecord record = buildRecord(  context );
 
-				fileOupputContext.generateReocord(context,record, writer);
-				writer.write(TranUtil.lineSeparator);
+				records.add(record);
 				count++;
 				totalCount ++;
 				if (count >= batchsize) {
-					writer.flush();
-					String datas = builder.toString();
-					builder.setLength(0);
-					writer.close();
-					writer = new BBossStringWriter(builder);
+
 
 					int _count = count;
 					count = 0;
-					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-							_count, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-					taskCommand.setDatas(datas);
+					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
+							_count, taskNo, importCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+					taskCommand.setDatas(records);
+					records = new ArrayList<>();
 					ret = TaskCall.call(taskCommand);
 
 
@@ -570,11 +444,11 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 				if(fileOupputContext.getMaxFileRecordSize() > 0 && totalCount > 0
 						&& (totalCount % fileOupputContext.getMaxFileRecordSize() == 0)){//reached max file record size
 					if (count > 0 ) {
-						String _dd = builder.toString();
-						builder.setLength(0);
-						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext, targetImportContext,
-								count, taskNo, importCount.getJobNo(), fileTransfer, lastValue,  currentStatus,reachEOFClosed,taskContext);
-						taskCommand.setDatas(_dd);
+
+						ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(importCount, importContext, targetImportContext,
+								count, taskNo, importCount.getJobNo(), (ExcelFileTransfer) fileTransfer, lastValue,  currentStatus,reachEOFClosed,taskContext);
+						taskCommand.setDatas(records);
+						records = new ArrayList<>();
 						TaskCall.call(taskCommand);
 						count = 0;
 						taskNo++;
@@ -585,12 +459,10 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 			}
 			if (count > 0) {
-				writer.flush();
-				String datas = builder.toString();
 
-				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext, targetImportContext,
-						count, taskNo, importCount.getJobNo(), fileTransfer, lastValue,  currentStatus,reachEOFClosed,taskContext);
-				taskCommand.setDatas(datas);
+				ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(importCount, importContext, targetImportContext,
+						count, taskNo, importCount.getJobNo(), (ExcelFileTransfer) fileTransfer, lastValue,  currentStatus,reachEOFClosed,taskContext);
+				taskCommand.setDatas(records);
 				TaskCall.call(taskCommand);
 				if(isPrintTaskLog())  {
 					end = System.currentTimeMillis();
@@ -633,11 +505,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 					this.stopTranOnly();
 				}
 			}
-			try {
-				writer.close();
-			} catch (Exception e) {
 
-			}
 			importCount.setJobEndTime(new Date());
 		}
 

@@ -19,7 +19,8 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.hbase.HBaseInputPlugin;
 import org.frameworkset.tran.hbase.HBaseResultSet;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputContext;
+import org.frameworkset.tran.output.fileftp.FileFtpOutPutUtil;
+import org.frameworkset.tran.output.fileftp.FileOupputContext;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -32,11 +33,11 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public class HBase2FileFtpDataTranPlugin extends HBaseInputPlugin {
-	protected FileFtpOupputContext fileFtpOupputContext;
+	protected FileOupputContext fileOupputContext;
 	public HBase2FileFtpDataTranPlugin(ImportContext importContext, ImportContext targetImportContext){
 		super(importContext,  targetImportContext);
 
-		fileFtpOupputContext = (FileFtpOupputContext) targetImportContext;
+		fileOupputContext = (FileOupputContext) targetImportContext;
 	}
 
 
@@ -45,7 +46,7 @@ public class HBase2FileFtpDataTranPlugin extends HBaseInputPlugin {
 
 	protected void doTran(ResultScanner rs, TaskContext taskContext) {
 		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
-		FileFtpOutPutDataTran fileFtpOutPutDataTran = new FileFtpOutPutDataTran(taskContext,hBaseResultSet,importContext,   targetImportContext,  currentStatus);
+		FileFtpOutPutDataTran fileFtpOutPutDataTran = FileFtpOutPutUtil.buildFileFtpOutPutDataTran(taskContext,hBaseResultSet,importContext,   targetImportContext,  currentStatus);
 		fileFtpOutPutDataTran.init();
 		fileFtpOutPutDataTran.tran();
 	}

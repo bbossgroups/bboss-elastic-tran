@@ -31,17 +31,17 @@ import org.slf4j.LoggerFactory;
 public class SuccessFilesClean{
 	private String transferSuccessFileDir;
 	private static final Logger logger = LoggerFactory.getLogger(SuccessFilesClean.class);
-	private FileFtpOupputContext fileFtpOupputContext;
-	public SuccessFilesClean(FileFtpOupputContext fileFtpOupputContext){
-		this.fileFtpOupputContext = fileFtpOupputContext;
-		transferSuccessFileDir = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferSuccessFileDir");
+	private FileOupputContext fileOupputContext;
+	public SuccessFilesClean(FileOupputContext fileOupputContext){
+		this.fileOupputContext = fileOupputContext;
+		transferSuccessFileDir = SimpleStringUtil.getPath(fileOupputContext.getFileDir(),"transferSuccessFileDir");
 
 	}
 	public void start(){
 		FileCleanThread fileCleanThread = new FileCleanThread("SuccessFTPFilesClean-Thread",
 				transferSuccessFileDir,
-				fileFtpOupputContext.getSuccessFilesCleanInterval(),
-				fileFtpOupputContext.getFileLiveTime() * 1000L);
+				fileOupputContext.getSuccessFilesCleanInterval(),
+				fileOupputContext.getFileLiveTime() * 1000L);
 		fileCleanThread.start();
 	}
 

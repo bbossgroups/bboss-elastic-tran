@@ -46,33 +46,44 @@ public class FileTransfer {
 	private String transferFailedFile;
 	private String transferSuccessFile;
 	private String taskInfo;
-	private File file;
-	private FileFtpOupputContext fileFtpOupputContext;
+	protected File file;
+	protected FileOupputContext fileOupputContext;
 	private HeaderRecordGenerator headerRecordGenerator;
-	public FileTransfer(String taskInfo, FileFtpOupputContext fileFtpOupputContext, String dir, String filePath, String remoteFilePath, int buffsize) throws IOException {
-		this.fileFtpOupputContext = fileFtpOupputContext;
+	private int buffsize = 8192;
+	public FileTransfer(String taskInfo, FileOupputContext fileOupputContext, String dir, String filePath) throws IOException {
+		this.fileOupputContext = fileOupputContext;
 		this.taskInfo  = taskInfo;
 		File path = new File(dir);
 		if(!path.exists())
 		{
 			path.mkdirs();
 		}
+		this.buffsize = fileOupputContext.getFileWriterBuffsize();
 		if(buffsize <= 0){
 			buffsize = 8192;
 		}
 		this.filePath = filePath;
-		this.remoteFilePath = remoteFilePath;
-		file = new File(filePath);
-		transferFailedFile = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferFailedFileDir/"+file.getName());
-		path = new File(transferFailedFile).getParentFile();
-		if(!path.exists())
-			path.mkdirs();
 
-		transferSuccessFile = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferSuccessFileDir/"+file.getName());
-		path = new File(transferSuccessFile).getParentFile();
-		if(!path.exists())
-			path.mkdirs();
-		RecordGenerator recordGenerator = fileFtpOupputContext.getRecordGenerator();
+		file = new File(filePath);
+
+
+	}
+	public void initFtp(String remoteFilePath){
+		if(!fileOupputContext.disableftp()) {
+			this.remoteFilePath = remoteFilePath;
+			transferFailedFile = SimpleStringUtil.getPath(fileOupputContext.getFileDir(), "transferFailedFileDir/" + file.getName());
+			File path = new File(transferFailedFile).getParentFile();
+			if (!path.exists())
+				path.mkdirs();
+
+			transferSuccessFile = SimpleStringUtil.getPath(fileOupputContext.getFileDir(), "transferSuccessFileDir/" + file.getName());
+			path = new File(transferSuccessFile).getParentFile();
+			if (!path.exists())
+				path.mkdirs();
+		}
+	}
+	public void initTransfer() throws IOException {
+		RecordGenerator recordGenerator = fileOupputContext.getRecordGenerator();
 		if(recordGenerator instanceof HeaderRecordGenerator){
 			this.headerRecordGenerator = (HeaderRecordGenerator)recordGenerator;
 		}
@@ -102,31 +113,34 @@ public class FileTransfer {
 	}
 
 	private boolean sended;
+	protected void flush() throws IOException {
+		if(bw != null)
+			bw.flush();
+		this.close();
+	}
 	public void sendFile(){
 		if(sended)
 			return;
 		sended = true;
 		try {
-			if(bw != null)
-				bw.flush();
-			this.close();
-			if(!fileFtpOupputContext.disableftp()) {
+			flush();
+			if(!fileOupputContext.disableftp()) {
 				if (file.length() <= 0) {
-					if (fileFtpOupputContext.transferEmptyFiles()) {
-						if (fileFtpOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
-							FtpTransfer.sendFile(fileFtpOupputContext, filePath, remoteFilePath);
+					if (fileOupputContext.transferEmptyFiles()) {
+						if (fileOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
+							FtpTransfer.sendFile(fileOupputContext, filePath, remoteFilePath);
 						} else {
-							SFTPTransfer.sendFile(fileFtpOupputContext, this.filePath);
+							SFTPTransfer.sendFile(fileOupputContext, this.filePath);
 						}
 					}
 				} else {
-					if (fileFtpOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
-						FtpTransfer.sendFile(fileFtpOupputContext, filePath, remoteFilePath);
+					if (fileOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
+						FtpTransfer.sendFile(fileOupputContext, filePath, remoteFilePath);
 					} else {
-						SFTPTransfer.sendFile(fileFtpOupputContext, this.filePath);
+						SFTPTransfer.sendFile(fileOupputContext, this.filePath);
 					}
 				}
-				if (fileFtpOupputContext.backupSuccessFiles())
+				if (fileOupputContext.backupSuccessFiles())
 					FileUtil.bakFile(filePath, transferSuccessFile);//如果文件发送成功，将文件移除到成功目录，保留一天，过期自动清理
 				else
 					FileUtil.deleteFile(filePath);

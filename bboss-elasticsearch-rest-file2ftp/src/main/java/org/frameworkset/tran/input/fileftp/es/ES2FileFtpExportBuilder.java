@@ -21,8 +21,8 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.input.ESExportBuilder;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputConfig;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputContextImpl;
+import org.frameworkset.tran.output.fileftp.FileOupputConfig;
+import org.frameworkset.tran.output.fileftp.FileOupputContextImpl;
 
 /**
  * <p>Description: </p>
@@ -34,9 +34,9 @@ import org.frameworkset.tran.output.fileftp.FileFtpOupputContextImpl;
  */
 public class ES2FileFtpExportBuilder extends ESExportBuilder {
 	@JsonIgnore
-	private FileFtpOupputConfig fileFtpOupputConfig;
-	public ES2FileFtpExportBuilder setFileFtpOupputConfig(FileFtpOupputConfig fileFtpOupputConfig) {
-		this.fileFtpOupputConfig = fileFtpOupputConfig;
+	private FileOupputConfig fileOupputConfig;
+	public ES2FileFtpExportBuilder setFileOupputConfig(FileOupputConfig fileOupputConfig) {
+		this.fileOupputConfig = fileOupputConfig;
 		return this;
 	}
 
@@ -47,7 +47,7 @@ public class ES2FileFtpExportBuilder extends ESExportBuilder {
 
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-		FileFtpOupputContextImpl fileFtpOupputContext = new FileFtpOupputContextImpl(fileFtpOupputConfig);
+		FileOupputContextImpl fileFtpOupputContext = new FileOupputContextImpl(fileOupputConfig);
 		fileFtpOupputContext.init();
 		return fileFtpOupputContext;
 	}
@@ -66,8 +66,8 @@ public class ES2FileFtpExportBuilder extends ESExportBuilder {
 		}
 
 
-		if(fileFtpOupputConfig != null)
-			dataStream.setTargetImportContext(buildTargetImportContext(fileFtpOupputConfig) );
+		if(fileOupputConfig != null)
+			dataStream.setTargetImportContext(buildTargetImportContext(fileOupputConfig) );
 		else
 			dataStream.setTargetImportContext(dataStream.getImportContext());
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(dataStream.getImportContext(),dataStream.getTargetImportContext()));

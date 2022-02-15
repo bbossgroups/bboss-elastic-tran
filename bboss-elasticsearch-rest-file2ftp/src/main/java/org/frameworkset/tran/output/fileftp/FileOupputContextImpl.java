@@ -22,6 +22,7 @@ import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
+import org.frameworkset.tran.output.ftp.FtpOutConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
@@ -37,46 +38,55 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FileFtpOupputContextImpl extends BaseImportContext implements FileFtpOupputContext {
-	private FileFtpOupputConfig fileFtpOupputConfig;
-	public FileFtpOupputContextImpl(FileFtpOupputConfig fileFtpOupputConfig){
-		super(fileFtpOupputConfig);
+public class FileOupputContextImpl extends BaseImportContext implements FileOupputContext {
+	public FileOupputConfig getFileOupputConfig() {
+		return fileOupputConfig;
+	}
+
+	private FileOupputConfig fileOupputConfig;
+	private FtpOutConfig ftpOutConfig;
+	public FileOupputContextImpl(FileOupputConfig fileOupputConfig){
+		super(fileOupputConfig);
 
 	}
 	@Override
 	public void init(){
 		super.init();
-		this.fileFtpOupputConfig = (FileFtpOupputConfig)baseImportConfig;
-		if(fileFtpOupputConfig.getRecordGenerator() == null){
-			fileFtpOupputConfig.setRecordGenerator(new JsonRecordGenerator());
+		this.fileOupputConfig = (FileOupputConfig)baseImportConfig;
+		this.ftpOutConfig = this.fileOupputConfig.getFtpOutConfig();
+		if(fileOupputConfig.getRecordGenerator() == null){
+			fileOupputConfig.setRecordGenerator(new JsonRecordGenerator());
 		}
 
 	}
+	public FtpOutConfig getFtpOutConfig(){
+		return fileOupputConfig.getFtpOutConfig();
+	}
 	public boolean backupSuccessFiles(){
-		return fileFtpOupputConfig.isBackupSuccessFiles();
+		return ftpOutConfig.isBackupSuccessFiles();
 	}
 	public boolean transferEmptyFiles(){
-		return fileFtpOupputConfig.isTransferEmptyFiles();
+		return ftpOutConfig.isTransferEmptyFiles();
 	}
 	public List<String> getHostKeyVerifiers(){
-		return fileFtpOupputConfig.getHostKeyVerifiers();
+		return ftpOutConfig.getHostKeyVerifiers();
 	}
 	public int getMaxFileRecordSize(){
-		return fileFtpOupputConfig.getMaxFileRecordSize();
+		return fileOupputConfig.getMaxFileRecordSize();
 	}
 	public int getTransferProtocol(){
-		return fileFtpOupputConfig.getTransferProtocol();
+		return ftpOutConfig.getTransferProtocol();
 	}
 	public boolean disableftp(){
-		return fileFtpOupputConfig.isDisableftp();
+		return fileOupputConfig.isDisableftp() || fileOupputConfig.getFtpOutConfig() == null;
 	}
 
 	public long getSuccessFilesCleanInterval(){
-		return fileFtpOupputConfig.getSuccessFilesCleanInterval();
+		return ftpOutConfig.getSuccessFilesCleanInterval();
 	}
 
 	public String generateFileName(TaskContext taskContext, int fileSeq){
-		return fileFtpOupputConfig.getFilenameGenerator().genName(   taskContext,fileSeq);
+		return fileOupputConfig.getFilenameGenerator().genName(   taskContext,fileSeq);
 	}
 	public void generateReocord(Context taskContext, CommonRecord record, Writer builder) throws Exception{
 		if(builder == null){
@@ -87,30 +97,30 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 
 	@Override
 	public long getFailedFileResendInterval() {//300000l
-		return fileFtpOupputConfig.getFailedFileResendInterval();
+		return ftpOutConfig.getFailedFileResendInterval();
 	}
 
 	public int getFileWriterBuffsize(){
-		return fileFtpOupputConfig.getFileWriterBuffsize();
+		return fileOupputConfig.getFileWriterBuffsize();
 	}
 
 	public FilenameGenerator getFilenameGenerator() {
-		return fileFtpOupputConfig.getFilenameGenerator();
+		return fileOupputConfig.getFilenameGenerator();
 	}
 	public String getFileDir() {
-		return fileFtpOupputConfig.getFileDir();
+		return fileOupputConfig.getFileDir();
 	}
 
 
 
 	@Override
 	public String getFtpIP() {
-		return fileFtpOupputConfig.getFtpIP();
+		return ftpOutConfig.getFtpIP();
 	}
 
 	@Override
 	public int getFtpPort() {
-		return fileFtpOupputConfig.getFtpPort();
+		return ftpOutConfig.getFtpPort();
 	}
 
 	@Override
@@ -125,62 +135,62 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 
 	@Override
 	public String getFtpUser() {
-		return fileFtpOupputConfig.getFtpUser();
+		return ftpOutConfig.getFtpUser();
 	}
 
 	@Override
 	public String getFtpPassword() {
-		return fileFtpOupputConfig.getFtpPassword();
+		return ftpOutConfig.getFtpPassword();
 	}
 
 	@Override
 	public String getFtpProtocol() {
-		return fileFtpOupputConfig.getFtpProtocol();
+		return ftpOutConfig.getFtpProtocol();
 	}
 
 	@Override
 	public String getFtpTrustmgr() {
-		return fileFtpOupputConfig.getFtpTrustmgr();
+		return ftpOutConfig.getFtpTrustmgr();
 	}
 
 	@Override
 	public String getFtpProxyHost() {
-		return fileFtpOupputConfig.getFtpProxyHost();
+		return ftpOutConfig.getFtpProxyHost();
 	}
 
 	@Override
 	public int getFtpProxyPort() {
-		return fileFtpOupputConfig.getFtpProxyPort();
+		return ftpOutConfig.getFtpProxyPort();
 	}
 
 	@Override
 	public String getFtpProxyUser() {
-		return fileFtpOupputConfig.getFtpProxyUser();
+		return ftpOutConfig.getFtpProxyUser();
 	}
 
 	@Override
 	public String getFtpProxyPassword() {
-		return fileFtpOupputConfig.getFtpProxyPassword();
+		return ftpOutConfig.getFtpProxyPassword();
 	}
 
 	@Override
 	public boolean printHash() {
-		return fileFtpOupputConfig.isPrintHash();
+		return ftpOutConfig.isPrintHash();
 	}
 
 	@Override
 	public boolean binaryTransfer() {
-		return fileFtpOupputConfig.isBinaryTransfer();
+		return ftpOutConfig.isBinaryTransfer();
 	}
 
 	@Override
 	public long getKeepAliveTimeout() {
-		return fileFtpOupputConfig.getKeepAliveTimeout();
+		return ftpOutConfig.getKeepAliveTimeout();
 	}
 
 	@Override
 	public int getControlKeepAliveReplyTimeout() {
-		return fileFtpOupputConfig.getControlKeepAliveReplyTimeout();
+		return ftpOutConfig.getControlKeepAliveReplyTimeout();
 	}
 
 	@Override
@@ -195,26 +205,26 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 
 	@Override
 	public String getEncoding() {
-		return fileFtpOupputConfig.getEncoding();
+		return ftpOutConfig.getEncoding();
 	}
 
 	@Override
 	public String getFtpServerType() {
-		return fileFtpOupputConfig.getFtpServerType();
+		return ftpOutConfig.getFtpServerType();
 	}
 
 	@Override
 	public boolean localActive() {
-		return fileFtpOupputConfig.isLocalActive();
+		return ftpOutConfig.isLocalActive();
 	}
 
 	@Override
 	public boolean useEpsvWithIPv4() {
-		return fileFtpOupputConfig.isUseEpsvWithIPv4();
+		return ftpOutConfig.isUseEpsvWithIPv4();
 	}
 	@Override
 	public String getRemoteFileDir() {
-		return fileFtpOupputConfig.getRemoteFileDir();
+		return ftpOutConfig.getRemoteFileDir();
 	}
 
 	@Override
@@ -223,12 +233,12 @@ public class FileFtpOupputContextImpl extends BaseImportContext implements FileF
 	}
 	@Override
 	public int getFileLiveTime() {
-		return fileFtpOupputConfig.getFileLiveTime();
+		return ftpOutConfig.getFileLiveTime();
 	}
 
 	@Override
 	public RecordGenerator getRecordGenerator() {
-		return fileFtpOupputConfig.getRecordGenerator();
+		return fileOupputConfig.getRecordGenerator();
 	}
 
 }

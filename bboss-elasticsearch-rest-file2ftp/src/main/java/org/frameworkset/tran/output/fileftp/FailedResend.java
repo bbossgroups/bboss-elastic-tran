@@ -37,12 +37,12 @@ public class FailedResend extends Thread{
 	private String transferFailedFileDir;
 	private String transferSuccessFileDir;
 	private static final Logger logger = LoggerFactory.getLogger(FailedResend.class);
-	private FileFtpOupputContext fileFtpOupputContext;
-	public FailedResend(FileFtpOupputContext fileFtpOupputContext){
+	private FileOupputContext fileOupputContext;
+	public FailedResend(FileOupputContext fileOupputContext){
 		super("FailedFileResend-Thread");
-		this.fileFtpOupputContext = fileFtpOupputContext;
-		transferFailedFileDir = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferFailedFileDir");
-		transferSuccessFileDir = SimpleStringUtil.getPath(fileFtpOupputContext.getFileDir(),"transferSuccessFileDir");
+		this.fileOupputContext = fileOupputContext;
+		transferFailedFileDir = SimpleStringUtil.getPath(fileOupputContext.getFileDir(),"transferFailedFileDir");
+		transferSuccessFileDir = SimpleStringUtil.getPath(fileOupputContext.getFileDir(),"transferSuccessFileDir");
 
 	}
 	public void start(){
@@ -51,7 +51,7 @@ public class FailedResend extends Thread{
 	}
 	public void run(){
 		File transferFailedFileDir_ = new File(transferFailedFileDir);
-		logger.info("FailedFileResend-Thread started,transferFailedFileDir["+transferFailedFileDir+"],failedFileResendInterval:"+fileFtpOupputContext.getFailedFileResendInterval()+"毫秒");
+		logger.info("FailedFileResend-Thread started,transferFailedFileDir["+transferFailedFileDir+"],failedFileResendInterval:"+ fileOupputContext.getFailedFileResendInterval()+"毫秒");
 		while(true){
 			if(transferFailedFileDir_.exists()){
 				File[] files = transferFailedFileDir_.listFiles();
@@ -60,25 +60,25 @@ public class FailedResend extends Thread{
 					if(!file.isFile())
 						continue;
 					try {
-						String remoteFilePath = SimpleStringUtil.getPath(fileFtpOupputContext.getRemoteFileDir(), file.getName());
+						String remoteFilePath = SimpleStringUtil.getPath(fileOupputContext.getRemoteFileDir(), file.getName());
 						if (file.length() <= 0) {
-							if (fileFtpOupputContext.transferEmptyFiles()) {
-								if (fileFtpOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
-									FtpTransfer.sendFile(fileFtpOupputContext, file.getPath(), remoteFilePath);
+							if (fileOupputContext.transferEmptyFiles()) {
+								if (fileOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
+									FtpTransfer.sendFile(fileOupputContext, file.getPath(), remoteFilePath);
 								} else {
-									SFTPTransfer.sendFile(fileFtpOupputContext, file.getPath());
+									SFTPTransfer.sendFile(fileOupputContext, file.getPath());
 								}
 							}
 						} else {
-							if (fileFtpOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
+							if (fileOupputContext.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
 
-								FtpTransfer.sendFile(fileFtpOupputContext, file.getPath(), remoteFilePath);
+								FtpTransfer.sendFile(fileOupputContext, file.getPath(), remoteFilePath);
 							} else {
-								SFTPTransfer.sendFile(fileFtpOupputContext, file.getPath());
+								SFTPTransfer.sendFile(fileOupputContext, file.getPath());
 							}
 							logger.error("Resend file "+ file.getPath() + " to " + remoteFilePath + " complete.");
 						}
-						if (fileFtpOupputContext.backupSuccessFiles()) {
+						if (fileOupputContext.backupSuccessFiles()) {
 							String transferSuccessFile = SimpleStringUtil.getPath(transferSuccessFileDir, file.getName());
 							FileUtil.renameFile(file.getPath(), transferSuccessFile);//如果文件发送成功，将文件移除到成功目录，保留一天，过期自动清理
 						} else {
@@ -97,7 +97,7 @@ public class FailedResend extends Thread{
 
 			try {
 				synchronized (this) {
-					wait(fileFtpOupputContext.getFailedFileResendInterval());
+					wait(fileOupputContext.getFailedFileResendInterval());
 				}
 			} catch (InterruptedException e) {
 				logger.error("Resend file thread Interrupted",e);

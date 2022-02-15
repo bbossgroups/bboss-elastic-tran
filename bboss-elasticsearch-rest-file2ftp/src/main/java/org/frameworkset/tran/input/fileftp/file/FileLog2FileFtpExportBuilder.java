@@ -21,8 +21,8 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.input.file.FileBaseDataTranPlugin;
 import org.frameworkset.tran.output.FileLogBaseImportBuilder;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputConfig;
-import org.frameworkset.tran.output.fileftp.FileFtpOupputContextImpl;
+import org.frameworkset.tran.output.fileftp.FileOupputConfig;
+import org.frameworkset.tran.output.fileftp.FileOupputContextImpl;
 
 /**
  * <p>Description: file Log to file and ftp data tran plugin builder</p>
@@ -36,32 +36,32 @@ public class FileLog2FileFtpExportBuilder extends FileLogBaseImportBuilder {
 
 
 	@JsonIgnore
-	private FileFtpOupputConfig fileFtpOupputConfig;
+	private FileOupputConfig fileOupputConfig;
 
-	public FileLog2FileFtpExportBuilder setFileFtpOupputConfig(FileFtpOupputConfig fileFtpOupputConfig) {
-		this.fileFtpOupputConfig = fileFtpOupputConfig;
+	public FileLog2FileFtpExportBuilder setFileOupputConfig(FileOupputConfig fileOupputConfig) {
+		this.fileOupputConfig = fileOupputConfig;
 		return this;
 
 	}
 
 	@Override
 	public DataStream builder() {
-		if(fileFtpOupputConfig.getMaxFileRecordSize() == 0){//默认1万条记录一个文件
-			fileFtpOupputConfig.setMaxFileRecordSize(10000);
+		if(fileOupputConfig.getMaxFileRecordSize() == 0){//默认1万条记录一个文件
+			fileOupputConfig.setMaxFileRecordSize(10000);
 		}
 		return super.builder();
 	}
 
 
 	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
-		FileFtpOupputContextImpl fileFtpOupputContext = new FileFtpOupputContextImpl(fileFtpOupputConfig);
+		FileOupputContextImpl fileFtpOupputContext = new FileOupputContextImpl(fileOupputConfig);
 		fileFtpOupputContext.init();
 		return fileFtpOupputContext;
 	}
 
 
 	protected void setTargetImportContext(DataStream dataStream){
-			dataStream.setTargetImportContext(buildTargetImportContext(fileFtpOupputConfig) );
+			dataStream.setTargetImportContext(buildTargetImportContext(fileOupputConfig) );
 	}
 
 	@Override

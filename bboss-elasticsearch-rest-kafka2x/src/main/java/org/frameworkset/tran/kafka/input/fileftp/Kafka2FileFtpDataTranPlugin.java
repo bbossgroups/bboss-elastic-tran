@@ -20,6 +20,7 @@ import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.input.Kafka2InputPlugin;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
+import org.frameworkset.tran.output.fileftp.FileFtpOutPutUtil;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -40,7 +41,7 @@ public class Kafka2FileFtpDataTranPlugin  extends Kafka2InputPlugin {
 
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
-		FileFtpOutPutDataTran fileFtpOutPutDataTran = new FileFtpOutPutDataTran(taskContext,tranResultSet,importContext,   targetImportContext,  currentStatus);
+		FileFtpOutPutDataTran fileFtpOutPutDataTran = FileFtpOutPutUtil.buildFileFtpOutPutDataTran(taskContext,tranResultSet,importContext,   targetImportContext,  currentStatus);
 		fileFtpOutPutDataTran.init();
 		return fileFtpOutPutDataTran;
 	}
