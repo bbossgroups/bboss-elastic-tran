@@ -821,6 +821,18 @@ public abstract class BaseImportConfig {
 		importIncreamentConfig.setLastValueType(lastValueType);
 	}
 
+	/**
+	 * lastValueDateformat
+	 * @param lastValueDateformat
+	 */
+	public void setLastValueDateformat(String lastValueDateformat) {
+		importIncreamentConfig.setLastValueDateformat(lastValueDateformat);
+	}
+
+	public String getLastValueDateformat(){
+		return this.importIncreamentConfig.getLastValueDateformat();
+	}
+
 	public boolean isLastValueDateType() {
 		return this.getLastValueType() != null && this.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE;
 	}

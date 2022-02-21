@@ -28,6 +28,7 @@ import org.frameworkset.tran.es.input.db.ESDirectExporterScrollHandler;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,18 +138,36 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 			}
 		}
 	}
+
+	/**
+	 * 需要根据增量日期字段格式对date进行格式转换，避免采用默认utc格式检索出错
+	 * @param date
+	 * @return
+	 */
+	@Override
+	protected Object formatLastDateValue(Date date){
+		String lastValueDateformat = importContext.getLastValueDateformat();
+		if(lastValueDateformat != null && !lastValueDateformat.equals("")){
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(lastValueDateformat);
+			return simpleDateFormat.format(date);
+		}
+		return date;
+
+
+	}
 	protected void increamentImportData(TaskContext taskContext,BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
 		Map params = esInputContext.getParams() != null ?esInputContext.getParams():new HashMap();
-		params.put("size", importContext.getFetchSize());//每页5000条记录
+		params.put("size", importContext.getFetchSize());//每页fetchSize条记录
 		if(esInputContext.isSliceQuery()){
 			params.put("sliceMax",esInputContext.getSliceSize());
 		}
-		Object lastValue = putLastParamValue(params);
-
+		Object[] lastValues = putLastParamValue(params);
+		Object lastValue = lastValues[0];
 		if(lastValue instanceof Date) {
 			Date lastEndValue = null;
 			if(importContext.increamentEndOffset() != null){
-				lastEndValue = (Date)params.get(getLastValueVarName()+"__endTime");
+//				lastEndValue = (Date)params.get(getLastValueVarName()+"__endTime");
+				lastEndValue = (Date)lastValues[1];
 			}
 			else
 				lastEndValue = new Date();

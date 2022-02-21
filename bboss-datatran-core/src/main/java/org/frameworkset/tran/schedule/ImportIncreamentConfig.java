@@ -25,6 +25,7 @@ package org.frameworkset.tran.schedule;
  */
 public class ImportIncreamentConfig {
 	private String lastValueColumn;
+	private String lastValueDateformat;
 //	private String numberLastValueColumn;
 	public static final int NUMBER_TYPE = 0;
 	public static final int TIMESTAMP_TYPE = 1;
@@ -124,5 +125,13 @@ public class ImportIncreamentConfig {
 
 	public String getLastValueColumn() {
 		return lastValueColumn;
+	}
+
+	public String getLastValueDateformat() {
+		return lastValueDateformat;
+	}
+
+	public void setLastValueDateformat(String lastValueDateformat) {
+		this.lastValueDateformat = lastValueDateformat;
 	}
 }

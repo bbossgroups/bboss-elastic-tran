@@ -861,6 +861,19 @@ public abstract class BaseImportBuilder {
 		return this;
 	}
 
+	/**
+	 * 设置增量字段日期格式，默认采用UTC标准日期格式：yyyy-MM-ddTHH:mm:ss.SSSZ
+	 * @param lastValueDateformat
+	 * @return
+	 */
+	public BaseImportBuilder setLastValueDateformat(String lastValueDateformat) {
+		if(importIncreamentConfig == null){
+			importIncreamentConfig = new ImportIncreamentConfig();
+		}
+		this.importIncreamentConfig.setLastValueDateformat(lastValueDateformat);
+		return this;
+	}
+
 	public BaseImportBuilder setJdbcFetchSize(Integer jdbcFetchSize) {
 		_setJdbcFetchSize(  jdbcFetchSize);
 		return  this;

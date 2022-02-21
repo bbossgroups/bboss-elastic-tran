@@ -488,7 +488,12 @@ public abstract  class BaseImportContext implements ImportContext {
 
 		}
 	}
-
+	public void setLastValueDateformat(String lastValueDateformat){
+		this.baseImportConfig.setLastValueDateformat(lastValueDateformat);
+	}
+	public String getLastValueDateformat(){
+		return this.baseImportConfig.getLastValueDateformat();
+	}
 	public void setLastValueType(int lastValueType){
 		this.baseImportConfig.setLastValueType(lastValueType);
 	}

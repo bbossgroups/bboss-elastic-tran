@@ -50,6 +50,8 @@ public interface ImportContext {
 	public DataTranPlugin getDataTranPlugin();
 	public boolean isAsynFlushStatus();
 	public long getAsynFlushStatusInterval();
+
+	public String getLastValueDateformat();
 	/**
 	 *  对于有延迟的数据源，指定增量截止时间与当前时间的便宜量
 	 *  增量查询截止时间为：System.currenttime - increamentEndOffset

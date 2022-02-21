@@ -97,6 +97,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public String getLastValueVarName() {
 		return importContext.getLastValueColumn();
 	}
+
 	public Long getTimeRangeLastValue(){
 		return null;
 	}
@@ -415,8 +416,14 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 	}
 
+	protected Object formatLastDateValue(Date date){
 
-	public Object putLastParamValue(Map params){
+		return date;
+
+
+	}
+	public Object[] putLastParamValue(Map params){
+		Object[] ret = new Object[2];
 		Object lastValue = this.currentStatus.getLastValue();
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 			params.put(getLastValueVarName(), lastValue);
@@ -424,34 +431,39 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 		}
 		else{
+			Date ldate = null;
 			if(lastValue instanceof Date) {
-				params.put(getLastValueVarName(), lastValue);
+				ldate = (Date)lastValue;
+
 
 			}
 			else {
 				if(lastValue instanceof Long) {
-					params.put(getLastValueVarName(), new Date((Long)lastValue));
+					ldate = new Date((Long)lastValue);
 				}
 				else if(lastValue instanceof Integer){
-					params.put(getLastValueVarName(), new Date(((Integer) lastValue).longValue()));
+					ldate = new Date(((Integer) lastValue).longValue());
 				}
 				else if(lastValue instanceof Short){
-					params.put(getLastValueVarName(), new Date(((Short) lastValue).longValue()));
+					ldate = new Date(((Short) lastValue).longValue());
 				}
 				else{
-					params.put(getLastValueVarName(), new Date(((Number) lastValue).longValue()));
+					ldate = new Date(((Number) lastValue).longValue());
 				}
 			}
+			params.put(getLastValueVarName(), formatLastDateValue(ldate));
 
 			if(importContext.increamentEndOffset() != null){
 				Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
-				params.put(getLastValueVarName()+"__endTime", lastOffsetValue);
+				ret[1] = lastOffsetValue;
+				params.put(getLastValueVarName()+"__endTime", formatLastDateValue(lastOffsetValue));
 			}
 		}
 		if(isPrintTaskLog()){
 			logger.info(new StringBuilder().append("Current values: ").append(params).toString());
 		}
-		return lastValue;
+		ret[0] = lastValue;
+		return ret;
 	}
 
 
