@@ -18,7 +18,6 @@ package org.frameworkset.tran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -36,7 +35,6 @@ import static org.frameworkset.tran.util.TranConstant.STATUS_STOPTRANONLY;
  * @version 1.0
  */
 public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTranResultSet {
-	private Record record;
 	private List records;
 	private int pos = 0;
 	private int size;
@@ -95,15 +93,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	}
 
 
-	@Override
-	public Date getDateTimeValue(String colName) throws ESDataImportException {
-//		Object value = getValue(  colName);
-//		if(value == null)
-//			return null;
-//		return TranUtil.getDateTimeValue(colName,value,importContext);
-		return record.getDateTimeValue(colName);
 
-	}
 	@Override
 	public void stop(){
 		status = STATUS_STOP;

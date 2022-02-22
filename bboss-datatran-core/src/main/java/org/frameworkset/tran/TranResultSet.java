@@ -32,6 +32,7 @@ public interface TranResultSet {
 	public TaskContext getTaskContext();
 	public void setBaseDataTran(BaseDataTran baseDataTran);
 	public Date getDateTimeValue(String colName) throws ESDataImportException;
+	public Date getDateTimeValue(String colName,String dateFormat) throws ESDataImportException;
 	public TaskContext getRecordTaskContext();
 	/**
 	 * 如果返回null，说明是强制fush操作，true表示有数据，false表示没有数据

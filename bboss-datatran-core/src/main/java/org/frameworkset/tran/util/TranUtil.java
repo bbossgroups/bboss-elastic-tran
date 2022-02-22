@@ -355,6 +355,11 @@ public abstract class TranUtil {
 		return sql;
 	}
 	public static Date getDateTimeValue(String colName, Object value, ImportContext importContext) throws ESDataImportException {
+		return getDateTimeValue( colName,  value,  importContext,(String)null);
+	}
+
+
+	public static Date getDateTimeValue(String colName, Object value, ImportContext importContext,String dateformat) throws ESDataImportException {
 		if(value == null)
 			return null;
 		if(value instanceof Date)
@@ -364,7 +369,11 @@ public abstract class TranUtil {
 		}
 		else if(value instanceof String){
 			DateFormat dateFormat = null;
-			if(importContext.getDateFormat()!=null){
+			if(dateformat != null && !dateformat.equals("")){
+				DateFormateMeta dateFormateMeta = DateFormateMeta.buildDateFormateMeta(dateformat);
+				dateFormat = dateFormateMeta.toDateFormat();
+			}
+			else if(importContext.getDateFormat()!=null){
 				DateFormateMeta dateFormateMeta = DateFormateMeta.buildDateFormateMeta(importContext.getDateFormat(),importContext.getLocale(),importContext.getTimeZone());
 				dateFormat = dateFormateMeta.toDateFormat();
 

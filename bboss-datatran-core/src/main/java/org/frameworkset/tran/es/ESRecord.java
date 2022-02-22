@@ -20,9 +20,6 @@ import org.frameworkset.elasticsearch.entity.MetaMap;
 import org.frameworkset.tran.ESDataImportException;
 import org.frameworkset.tran.record.BaseRecord;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.TranUtil;
-
-import java.util.Date;
 
 /**
  * <p>Description: </p>
@@ -49,13 +46,13 @@ public class ESRecord  extends BaseRecord {
 		return getValue(  colName);
 	}
 
-	@Override
-	public Date getDateTimeValue(String colName) throws ESDataImportException {
-		Object value = getValue(  colName);
-		if(value == null)
-			return null;
-		return TranUtil.getDateTimeValue(colName,value,taskContext.getImportContext());
-	}
+//	@Override
+//	public Date getDateTimeValue(String colName) throws ESDataImportException {
+//		Object value = getValue(  colName);
+//		if(value == null)
+//			return null;
+//		return TranUtil.getDateTimeValue(colName,value,taskContext.getImportContext());
+//	}
 
 	@Override
 	public Object getValue(String colName) {

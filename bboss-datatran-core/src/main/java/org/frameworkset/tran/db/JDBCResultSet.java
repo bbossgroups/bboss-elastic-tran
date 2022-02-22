@@ -20,13 +20,12 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.sql.ResultSet;
-import java.util.Date;
 
 public class JDBCResultSet extends LastValue implements TranResultSet {
 	protected ResultSet resultSet;
 	protected JDBCTranMetaData metaData;
 	protected DB dbadapter;
-	protected JDBCResultRecord resultRecord;
+
 	protected boolean stoped;
 	public JDBCResultSet(){
 
@@ -35,7 +34,7 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 		this.resultSet = resultSet;
 		this.metaData = metaData;
 		this.dbadapter = dbadapter;
-		resultRecord = new JDBCResultRecord(taskContext,resultSet,metaData,dbadapter);
+		record = new JDBCResultRecord(taskContext,resultSet,metaData,dbadapter);
 
 	}
 
@@ -72,7 +71,7 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 
 	@Override
 	public Record getCurrentRecord() {
-		return resultRecord;
+		return record;
 	}
 
 	@Override
@@ -104,35 +103,31 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	@Override
 	public Object getValue(  int i, String colName,int sqlType) throws ESDataImportException
 	{
-		return resultRecord.getValue(i,colName,sqlType);
+		return record.getValue(i,colName,sqlType);
 
 	}
 
 	@Override
 	public Object getValue( String colName) throws ESDataImportException
 	{
-		return resultRecord.getValue(colName);
+		return record.getValue(colName);
 
 	}
 
 	@Override
 	public Object getKeys(){
 
-		return  resultRecord.getKeys();
+		return  record.getKeys();
 	}
 
 	@Override
 	public Object getValue( String colName,int sqlType) throws ESDataImportException
 	{
-		return resultRecord.getValue(colName,sqlType);
+		return record.getValue(colName,sqlType);
 
 	}
 
-	@Override
-	public Date getDateTimeValue(String colName) throws ESDataImportException
-	{
-		return resultRecord.getDateTimeValue(colName);
-	}
+
 
 	@Override
 
@@ -148,6 +143,6 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	}
 	@Override
 	public TaskContext getRecordTaskContext() {
-		return resultRecord.getTaskContext();
+		return record.getTaskContext();
 	}
 }

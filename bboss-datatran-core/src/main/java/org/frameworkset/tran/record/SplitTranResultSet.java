@@ -37,7 +37,7 @@ public class SplitTranResultSet  implements TranResultSet {
 	private ImportContext importContext;
 	private int splitSize;
 	private int splitPos;
-	private Record record;
+	protected Record record;
 
 	private Record baseRecord;
 	public SplitTranResultSet(ImportContext importContext, TranResultSet tranResultSet){
@@ -117,6 +117,16 @@ public class SplitTranResultSet  implements TranResultSet {
 		}
 		else {
 			return tranResultSet.getDateTimeValue(colName);
+		}
+	}
+
+	@Override
+	public Date getDateTimeValue(String colName, String dateFormat) throws ESDataImportException {
+		if(record != null){
+			return record.getDateTimeValue(colName,dateFormat);
+		}
+		else {
+			return tranResultSet.getDateTimeValue(colName,dateFormat);
 		}
 	}
 

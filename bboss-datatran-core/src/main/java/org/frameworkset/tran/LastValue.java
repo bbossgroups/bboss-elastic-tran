@@ -19,6 +19,8 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 
+import java.util.Date;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -30,6 +32,7 @@ import org.frameworkset.tran.schedule.TaskContext;
 public abstract class LastValue implements TranResultSet{
 	protected ImportContext importContext;
 	protected BaseDataTran baseDataTran;
+	protected Record record;
 	public BaseDataTran getBaseDataTran(){
 		return baseDataTran;
 	}
@@ -44,18 +47,16 @@ public abstract class LastValue implements TranResultSet{
 		this.importContext = importContext;
 	}
 	public Object getLastValue(String colName) throws ESDataImportException{
-		return getLastValue(this,importContext,colName);
-	}
-	public Object getLastOffsetValue() throws ESDataImportException{
-		Record record = this.getCurrentRecord();
-		return record.getOffset();
-	}
-	protected Object getLastValue(TranResultSet tranResultSet,ImportContext importContext,String colName) throws ESDataImportException{
 		try {
 			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
-				return tranResultSet.getValue(importContext.getLastValueColumnName());
+				return getValue(importContext.getLastValueColumnName());
 			else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
-				return tranResultSet.getDateTimeValue(importContext.getLastValueColumnName());
+				if(importContext.getLastValueDateformat() == null || importContext.getLastValueDateformat().equals("")) {
+					return getDateTimeValue(importContext.getLastValueColumnName());
+				}
+				else{
+					return getDateTimeValue(importContext.getLastValueColumnName(),importContext.getLastValueDateformat());
+				}
 			}
 		}
 		catch (ESDataImportException e){
@@ -66,4 +67,21 @@ public abstract class LastValue implements TranResultSet{
 		}
 		throw new ESDataImportException("Unsupport last value type:"+importContext.getLastValueType().intValue());
 	}
+	public Object getLastOffsetValue() throws ESDataImportException{
+		Record record = this.getCurrentRecord();
+		return record.getOffset();
+	}
+
+	@Override
+	public Date getDateTimeValue(String colName) throws ESDataImportException {
+		return record.getDateTimeValue(colName);
+
+	}
+
+	@Override
+	public Date getDateTimeValue(String colName,String format) throws ESDataImportException {
+		return record.getDateTimeValue(colName,format);
+
+	}
+
 }

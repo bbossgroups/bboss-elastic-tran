@@ -84,6 +84,27 @@ public class JDBCResultRecord extends BaseRecord {
 
 		}
 	}
+
+	@Override
+	public Date getDateTimeValue(String colName,String dateformat) throws ESDataImportException
+	{
+		if(colName == null)
+			return null;
+		try {
+			Date value = this.resultSet.getTimestamp(colName);
+			return value;
+		}
+		catch (Exception e){
+			try {
+				Date value = this.resultSet.getDate(colName);
+				return value;
+			}
+			catch (Exception ex){
+				throw new ESDataImportException(new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
+			}
+
+		}
+	}
 	@Override
 	public Object getValue( String colName,int sqlType) throws ESDataImportException
 	{

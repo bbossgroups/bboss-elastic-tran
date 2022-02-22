@@ -91,9 +91,17 @@ public class HBaseRecord extends BaseRecord{
 	public Object getValue(String colName, int sqlType) throws ESDataImportException {
 		return getValue(colName);
 	}
-
 	@Override
 	public Date getDateTimeValue(String colName) throws ESDataImportException {
+		Object value = getValue(  colName);
+		if(value == null)
+			return null;
+		Long time = Bytes.toLong((byte[])value);
+		return TranUtil.getDateTimeValue(colName,time,taskContext.getImportContext());
+
+	}
+	@Override
+	public Date getDateTimeValue(String colName,String dateformat) throws ESDataImportException {
 		Object value = getValue(  colName);
 		if(value == null)
 			return null;

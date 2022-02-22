@@ -33,16 +33,15 @@ import java.util.Date;
  */
 public class MongoDBResultSet extends LastValue implements TranResultSet {
 	private DBCursor dbCursor;
-	private DBObject record;
+	private DBObject dbObject;
 	private boolean stoped;
-	private MongoDBRecord mongoDBRecord;
 	public MongoDBResultSet(ImportContext importContext, DBCursor dbCursor) {
 		this.importContext = importContext;
 		this.dbCursor = dbCursor;
 	}
 	@Override
 	public TaskContext getRecordTaskContext() {
-		return mongoDBRecord.getTaskContext();
+		return record.getTaskContext();
 	}
 
 	@Override
@@ -52,7 +51,7 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 
 	@Override
 	public Object getValue(String colName) throws ESDataImportException {
-		return mongoDBRecord.getValue(colName);
+		return record.getValue(colName);
 
 	}
 
@@ -63,7 +62,7 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 
 	@Override
 	public Date getDateTimeValue(String colName) throws ESDataImportException {
-		return mongoDBRecord.getDateTimeValue(colName);
+		return record.getDateTimeValue(colName);
 
 	}
 
@@ -73,28 +72,28 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 			return false;
 		boolean hasNext = dbCursor.hasNext();
 		if( hasNext){
-			record = dbCursor.next();
-			mongoDBRecord = new MongoDBRecord(record,getTaskContext());
+			dbObject = dbCursor.next();
+			record = new MongoDBRecord(dbObject,getTaskContext());
 		}
 		return hasNext;
 	}
 
 	@Override
 	public TranMeta getMetaData() {
-		return new DefaultTranMetaData(record.keySet());
+		return new DefaultTranMetaData(dbObject.keySet());
 	}
 
 	public Object getKeys(){
-		return mongoDBRecord.getKeys();
+		return record.getKeys();
 	}
 	@Override
 	public Object getRecord() {
-		return record;
+		return dbObject;
 	}
 
 	@Override
 	public Record getCurrentRecord() {
-		return mongoDBRecord;
+		return record;
 	}
 
 	@Override

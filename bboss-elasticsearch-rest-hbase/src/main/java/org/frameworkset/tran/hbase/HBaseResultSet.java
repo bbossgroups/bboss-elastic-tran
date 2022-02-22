@@ -24,7 +24,6 @@ import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +37,6 @@ import java.util.Map;
  */
 public class HBaseResultSet extends LastValue implements TranResultSet {
 	private ResultScanner resultScanner;
-	protected Record record;
 	protected boolean stoped;
 	private boolean incrementByTimeRange;
 
@@ -74,11 +72,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 		return getValue(  colName);
 	}
 
-	@Override
-	public Date getDateTimeValue(String colName) throws ESDataImportException {
-		return record.getDateTimeValue(colName);
 
-	}
 
 	@Override
 	public TaskContext getRecordTaskContext() {

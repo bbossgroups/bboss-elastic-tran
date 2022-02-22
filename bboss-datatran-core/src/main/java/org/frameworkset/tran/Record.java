@@ -31,6 +31,8 @@ public interface Record {
 	public Object getValue(  int i, String colName,int sqlType) throws ESDataImportException;
 	public Object getValue( String colName,int sqlType) throws ESDataImportException;
 	public Date getDateTimeValue(String colName) throws ESDataImportException;
+
+	public Date getDateTimeValue(String colName,String dateformat) throws ESDataImportException;
 	Object getValue(String colName);
 	public Object getKeys();
 	public Object getData();
