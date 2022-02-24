@@ -52,11 +52,23 @@ public abstract class BaseImportBuilder {
 	private String statusDbname;
 	private String statusTableDML;
 	private Integer fetchSize = 5000;
+	private String sourceDbname;
+
+
+	private String targetDbname;
 
 	public String getSplitFieldName() {
 		return splitFieldName;
 	}
 
+	public String getTargetDbname() {
+		return targetDbname;
+	}
+
+	public BaseImportBuilder setTargetDbname(String targetDbname) {
+		this.targetDbname = targetDbname;
+		return this;
+	}
 	public BaseImportBuilder setSplitFieldName(String splitFieldName) {
 		this.splitFieldName = splitFieldName;
 		return this;
@@ -269,8 +281,18 @@ public abstract class BaseImportBuilder {
 			}
 			GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
 			String dbName  = propertiesContainer.getExternalProperty("db.name");
-			if(dbName == null || dbName.equals(""))
+			if(dbName == null || dbName.equals("")) {
 				return;
+			}
+			else{
+				if(sourceDbname == null || sourceDbname.equals("")){
+					sourceDbname = dbName;
+				}
+				if(targetDbname == null || targetDbname.equals("")){
+					targetDbname = dbName;
+				}
+
+			}
 			if(dbConfig == null)
 				dbConfig = new DBConfig();
 			_buildDBConfig(propertiesContainer,dbName,dbConfig, "");
@@ -538,6 +560,12 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setDbName(String dbName) {
 		_setDbName(  dbName);
+		if(sourceDbname == null){
+			this.sourceDbname = dbName;
+		}
+		if(targetDbname == null){
+			this.targetDbname = dbName;
+		}
 		return this;
 	}
 
@@ -1256,7 +1284,8 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setSortLastValue(this.sortLastValue);
 		baseImportConfig.setDbConfig(dbConfig);
 		baseImportConfig.setStatusDbConfig(statusDbConfig);
-
+		baseImportConfig.setTargetDbname(targetDbname);
+		baseImportConfig.setSourceDbname(sourceDbname);
 		baseImportConfig.setConfigs(this.configs);
 		baseImportConfig.setBatchSize(this.batchSize);
 		if(index != null) {
@@ -1699,6 +1728,15 @@ public abstract class BaseImportBuilder {
 
 	public BaseImportBuilder setCustomOutPut(CustomOutPut customOutPut) {
 		this.customOutPut = customOutPut;
+		return this;
+	}
+
+	public String getSourceDbname() {
+		return sourceDbname;
+	}
+
+	public BaseImportBuilder setSourceDbname(String sourceDbname) {
+		this.sourceDbname = sourceDbname;
 		return this;
 	}
 }

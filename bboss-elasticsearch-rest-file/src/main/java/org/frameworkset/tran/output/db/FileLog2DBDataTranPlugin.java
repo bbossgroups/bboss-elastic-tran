@@ -16,7 +16,6 @@ package org.frameworkset.tran.output.db;
  */
 
 import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
@@ -24,7 +23,6 @@ import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.input.file.FileBaseDataTranPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.TranUtil;
 
 /**
  * <p>Description: 采集日志数据并导入Database插件，支持增量和全量导入</p>
@@ -42,18 +40,20 @@ public class FileLog2DBDataTranPlugin extends FileBaseDataTranPlugin {
 	}
 	@Override
 	public void beforeInit() {
-		if(importContext.getDbConfig() != null)
-			this.initDS(importContext.getDbConfig());
-		DBConfig dbConfig = dbOutPutContext.getTargetDBConfig(null);
-		if(dbConfig != null) {
-			this.initDS(dbConfig);
-			TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
-		}
-		else{
-			dbConfig = importContext.getDbConfig();
-			if(dbConfig != null)
-				TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
-		}
+//		if(importContext.getDbConfig() != null)
+//			this.initDS(importContext.getDbConfig());
+		initSourceDatasource();
+//		DBConfig dbConfig = dbOutPutContext.getTargetDBConfig(null);
+//		if(dbConfig != null) {
+//			this.initDS(dbConfig);
+//			TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
+//		}
+//		else{
+//			dbConfig = importContext.getDbConfig();
+//			if(dbConfig != null)
+//				TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
+//		}
+		initDSAndTargetSQLInfo(dbOutPutContext,true);
 		super.beforeInit();
 	}
 	@Override

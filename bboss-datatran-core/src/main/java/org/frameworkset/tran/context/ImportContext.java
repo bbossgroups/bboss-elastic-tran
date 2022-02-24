@@ -112,7 +112,8 @@ public interface ImportContext {
 	boolean isExternalTimer();
 
 	void setStatusTableId(int hashCode);
-
+	String getTargetDBName();
+	String getSourceDBName();
 	DBConfig getDbConfig();
 
 	DataRefactor getDataRefactor();

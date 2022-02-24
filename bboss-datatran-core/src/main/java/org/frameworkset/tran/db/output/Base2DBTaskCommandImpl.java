@@ -19,7 +19,6 @@ import com.frameworkset.common.poolman.DBUtil;
 import com.frameworkset.common.poolman.NestedSQLException;
 import com.frameworkset.common.poolman.StatementInfo;
 import org.frameworkset.elasticsearch.ElasticSearchException;
-import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.Param;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBRecord;
@@ -139,13 +138,17 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 		Connection con_ = null;
 		int batchsize = importContext.getStoreBatchSize();
 		try {
-			DBConfig targetDB = es2DBContext.getTargetDBConfig(taskContext);
-			if(targetDB == null)
-				targetDB = importContext.getDbConfig();
+//			DBConfig targetDB = es2DBContext.getTargetDBConfig(taskContext);
+//			if(targetDB == null)
+//				targetDB = importContext.getDbConfig();
 //		GetCUDResult CUDResult = null;
-			String dbname = targetDB.getDbName();
+//			String dbname = targetDB.getDbName();
 //			logger.info("DBUtil.getConection(dbname)");
 //			debugDB(dbname);
+			String dbname = es2DBContext.getTargetDBName(taskContext);
+			if(dbname == null){
+				dbname = importContext.getTargetDBName();
+			}
 			con_ = DBUtil.getConection(dbname);
 			stmtInfo = new StatementInfo(dbname,
 					null,

@@ -37,13 +37,25 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 	public void init(){
 		super.init();
 		es2DBContext = targetImportContext == null ?(DBOutPutContext)importContext:(DBOutPutContext)targetImportContext;
-		DBConfig dbConfig = null;
-		if(es2DBContext.getTargetDBConfig(taskContext) == null)
+		StringBuilder builder = new StringBuilder();
+		DBConfig dbConfig = es2DBContext.getTargetDBConfig(taskContext) ;
+		if(dbConfig == null)
 			dbConfig = importContext.getDbConfig();
-		else
-			dbConfig = es2DBContext.getTargetDBConfig(taskContext);
-		StringBuilder builder = new StringBuilder().append("Import data to db[").append(dbConfig.getDbUrl())
-				.append("] dbuser[").append(dbConfig.getDbUser()).append("]");
+		if(dbConfig != null){
+			builder.append("Import data to db[").append(dbConfig.getDbUrl())
+					.append("] dbuser[").append(dbConfig.getDbUser()).append("]");
+		}
+		else{
+			String targetDBName = es2DBContext.getTargetDBName(taskContext);
+			if(targetDBName == null){
+				targetDBName = importContext.getTargetDBName();
+			}
+			builder.append("Import data to db[").append(targetDBName)
+					.append("]");
+		}
+
+
+
 		if(es2DBContext.getTargetSqlInfo(taskContext) != null ) {
 			builder.append(" insert sql[").append( es2DBContext.getTargetSqlInfo(taskContext).getOriginSQL()).append("]");
 		}

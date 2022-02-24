@@ -22,7 +22,6 @@ import org.frameworkset.tran.db.output.DBOutPutDataTran;
 import org.frameworkset.tran.mongodb.MongoDBResultSet;
 import org.frameworkset.tran.mongodb.input.MongoDBInputPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.TranUtil;
 
 /**
  * <p>Description: </p>
@@ -48,15 +47,16 @@ public class MongoDB2DBInputPlugin extends MongoDBInputPlugin {
 	@Override
 	public void beforeInit() {
 		super.beforeInit();
-		this.initDS(importContext.getDbConfig());
+		initSourceDatasource();
 	}
 
 
 
 	@Override
 	public void afterInit(){
-		DBOutPutContext dbOutPutContext = (DBOutPutContext) importContext ;
-		TranUtil.initTargetSQLInfo(dbOutPutContext,importContext.getDbConfig().getDbName());
+		initDSAndTargetSQLInfo((DBOutPutContext) importContext ,false);
+//		DBOutPutContext dbOutPutContext = (DBOutPutContext) importContext ;
+//		TranUtil.initTargetSQLInfo(dbOutPutContext,importContext.getDbConfig().getDbName());
 		super.afterInit();
 	}
 }

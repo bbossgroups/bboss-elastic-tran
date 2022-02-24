@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +48,10 @@ public abstract class BaseImportConfig {
 	protected  final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private List<DBConfig> configs;
 	private boolean sortLastValue ;
+	private String sourceDbname;
+
+
+	private String targetDbname;
 	/**
 	 * 设置强制刷新检测空闲时间间隔，单位：毫秒，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作，默认8秒,为0时关闭本机制
 	 */
@@ -153,6 +158,7 @@ public abstract class BaseImportConfig {
 	private transient EsIdGenerator esIdGenerator = DEFAULT_EsIdGenerator;
 	private ClientOptions clientOptions;
 	private DBConfig dbConfig;
+	private Map<String,DBConfig> dbConfigMap = new LinkedHashMap<>();
 	/**
 	 * 增量导入状态存储数据源
 	 */
@@ -160,7 +166,9 @@ public abstract class BaseImportConfig {
 	public boolean isPagine() {
 		return pagine;
 	}
-
+	public DBConfig getDBConfig(String dbname){
+		return dbConfigMap.get(dbname);
+	}
 	public void setPagine(boolean pagine) {
 		this.pagine = pagine;
 	}
@@ -730,13 +738,35 @@ public abstract class BaseImportConfig {
 //		}
 //		return builder.toString();
 //	}
-
+	public String getDBName(){
+		DBConfig dbConfig = getDbConfig();
+		if(dbConfig != null){
+			return dbConfig.getDbName();
+		}
+		if(sourceDbname != null){
+			return sourceDbname;
+		}
+		if(targetDbname != null){
+			return targetDbname;
+		}
+		return null;
+	}
 	public DBConfig getDbConfig() {
+		if(dbConfig == null ){
+			if(sourceDbname != null){
+				return dbConfigMap.get(sourceDbname);
+			}
+			if(targetDbname != null){
+				return dbConfigMap.get(targetDbname);
+			}
+		}
 		return dbConfig;
 	}
 
 	public void setDbConfig(DBConfig dbConfig) {
 		this.dbConfig = dbConfig;
+		if(dbConfig != null)
+			this.dbConfigMap.put(dbConfig.getDbName(),dbConfig);
 	}
 
 	public WrapedExportResultHandler getExportResultHandler() {
@@ -758,6 +788,8 @@ public abstract class BaseImportConfig {
 
 	public void setStatusDbConfig(DBConfig statusDbConfig) {
 		this.statusDbConfig = statusDbConfig;
+		if(statusDbConfig != null)
+			this.dbConfigMap.put(statusDbConfig.getDbName(),statusDbConfig);
 	}
 	public static GeoIPUtil getGeoIPUtil(Map<String, Object> geoipConfig){
 		return GeoIPUtil.getGeoIPUtil(geoipConfig);
@@ -776,6 +808,10 @@ public abstract class BaseImportConfig {
 
 	public void setConfigs(List<DBConfig> configs) {
 		this.configs = configs;
+		for(int i = 0; configs != null && i < configs.size(); i ++){
+			DBConfig dbConfig = configs.get(i);
+			this.dbConfigMap.put(dbConfig.getDbName(),dbConfig);
+		}
 	}
 
 //	public String getRefreshOption() {
@@ -984,5 +1020,21 @@ public abstract class BaseImportConfig {
 
 	public void setCustomOutPut(CustomOutPut customOutPut) {
 		this.customOutPut = customOutPut;
+	}
+
+	public String getSourceDbname() {
+		return sourceDbname;
+	}
+
+	public void setSourceDbname(String sourceDbname) {
+		this.sourceDbname = sourceDbname;
+	}
+
+	public String getTargetDbname() {
+		return targetDbname;
+	}
+
+	public void setTargetDbname(String targetDbname) {
+		this.targetDbname = targetDbname;
 	}
 }

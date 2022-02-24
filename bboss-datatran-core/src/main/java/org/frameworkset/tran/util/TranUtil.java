@@ -182,15 +182,17 @@ public abstract class TranUtil {
 			}
 			if(dbName == null) {
 				if (targetImportContext != null && targetImportContext instanceof DBOutPutContext) {
-					DBConfig dbConfig = ((DBOutPutContext) targetImportContext).getTargetDBConfig(taskContext);
-					if(dbConfig != null)
-						dbName = dbConfig.getDbName();
+//					DBConfig dbConfig = ((DBOutPutContext) targetImportContext).getTargetDBConfig(taskContext);
+//					if(dbConfig != null)
+//						dbName = dbConfig.getDbName();
+					dbName = ((DBOutPutContext) targetImportContext).getTargetDBName(taskContext);
 				}
 			}
 			if(dbName == null){
-				DBConfig dbConfig = importContext.getDbConfig();
-				if(dbConfig != null)
-					dbName = dbConfig.getDbName();
+//				DBConfig dbConfig = importContext.getDbConfig();
+//				if(dbConfig != null)
+//					dbName = dbConfig.getDbName();
+				dbName = importContext.getTargetDBName();
 
 			}
 			if(dbName != null)

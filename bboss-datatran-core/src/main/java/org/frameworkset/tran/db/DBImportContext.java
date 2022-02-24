@@ -33,6 +33,19 @@ import org.frameworkset.tran.schedule.TaskContext;
  */
 public  class DBImportContext extends BaseImportContext implements DBOutPutContext {
 	protected DBImportConfig dbImportConfig;
+	public String getTargetDBName(TaskContext taskContext){
+		DBConfig dbConfig = getTargetDBConfig(taskContext);
+		if(dbConfig != null){
+			return dbConfig.getDbName();
+		}
+		else{
+			String dbName = dbImportConfig.getTargetDbname();
+			if(dbName == null){
+				dbName = dbImportConfig.getSourceDbname();
+			}
+			return dbName;
+		}
+	}
 	public DBConfig getTargetDBConfig(TaskContext taskContext) {
 		if(taskContext != null && taskContext.getTargetDBConfig() != null)
 			return taskContext.getTargetDBConfig();

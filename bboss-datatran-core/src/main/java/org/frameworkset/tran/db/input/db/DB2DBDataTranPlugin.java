@@ -16,7 +16,6 @@ package org.frameworkset.tran.db.input.db;
  */
 
 import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -25,7 +24,6 @@ import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.db.output.DBOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.TranUtil;
 
 /**
  * <p>Description: </p>
@@ -47,15 +45,26 @@ public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 		db2DBContext = (DBOutPutContext)importContext;
 		super.init(importContext,  targetImportContext);
 	}
-
+//	protected void initDSAndTargetSQLInfo(DBOutPutContext db2DBContext){
+//		DBConfig dbConfig = db2DBContext.getTargetDBConfig(null);
+//		String targetDBName = null;
+//		if(dbConfig != null) {
+//			this.initDS(dbConfig);
+//			targetDBName = dbConfig.getDbName();
+//
+//		}
+//		else{
+//			targetDBName =  db2DBContext.getTargetDBName(null);
+//			if(targetDBName == null){
+//				targetDBName = importContext.getTargetDBName();
+//			}
+//		}
+//		TranUtil.initTargetSQLInfo(db2DBContext, targetDBName);
+//	}
 	@Override
 	public void beforeInit() {
 		super.beforeInit();
-		DBConfig dbConfig = db2DBContext.getTargetDBConfig(null);
-		if(dbConfig != null) {
-			this.initDS(dbConfig);
-			TranUtil.initTargetSQLInfo(db2DBContext, dbConfig.getDbName());
-		}
+		initDSAndTargetSQLInfo(db2DBContext,true);
 	}
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){

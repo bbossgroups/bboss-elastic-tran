@@ -215,7 +215,7 @@ public class ContextImpl implements Context {
 
 
 	public String getDBName(){
-		return baseImportConfig.getDbConfig().getDbName();
+		return baseImportConfig.getDBName();
 	}
 
 	@Override

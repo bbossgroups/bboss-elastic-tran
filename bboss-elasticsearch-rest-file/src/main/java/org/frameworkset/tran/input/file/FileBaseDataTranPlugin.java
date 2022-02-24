@@ -381,8 +381,9 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     protected abstract BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet,Status currentStatus);
     @Override
     public void beforeInit() {
-        if(importContext.getDbConfig() != null)
-            this.initDS(importContext.getDbConfig());
+//        if(importContext.getDbConfig() != null)
+//            this.initDS(importContext.getDbConfig());
+        initSourceDatasource();
     }
 
 

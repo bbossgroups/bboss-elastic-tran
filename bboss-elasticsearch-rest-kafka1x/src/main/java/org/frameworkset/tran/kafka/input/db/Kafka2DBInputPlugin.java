@@ -16,7 +16,6 @@ package org.frameworkset.tran.kafka.input.db;
  */
 
 import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
@@ -24,7 +23,6 @@ import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.kafka.input.Kafka2InputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.TranUtil;
 
 /**
  * <p>Description: </p>
@@ -45,17 +43,19 @@ public class Kafka2DBInputPlugin extends Kafka2InputPlugin {
 	public void beforeInit() {
 //		this.initES(importContext.getApplicationPropertiesFile());
 //		initOtherDSes(importContext.getConfigs());
-		if(importContext.getDbConfig() != null)
-			this.initDS(importContext.getDbConfig());
-		DBConfig dbConfig = dbOutPutContext.getTargetDBConfig(null);
-		if(dbConfig != null) {
-			this.initDS(dbConfig);
-//		initOtherDSes(importContext.getConfigs());
-			TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
-		}
-		else{
-			TranUtil.initTargetSQLInfo(dbOutPutContext, importContext.getDbConfig().getDbName());
-		}
+//		if(importContext.getDbConfig() != null)
+//			this.initDS(importContext.getDbConfig());
+		initSourceDatasource();
+//		DBConfig dbConfig = dbOutPutContext.getTargetDBConfig(null);
+//		if(dbConfig != null) {
+//			this.initDS(dbConfig);
+////		initOtherDSes(importContext.getConfigs());
+//			TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
+//		}
+//		else{
+//			TranUtil.initTargetSQLInfo(dbOutPutContext, importContext.getDbConfig().getDbName());
+//		}
+		initDSAndTargetSQLInfo(dbOutPutContext,true);
 		super.beforeInit();
 	}
 	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, Status currentStatus) {

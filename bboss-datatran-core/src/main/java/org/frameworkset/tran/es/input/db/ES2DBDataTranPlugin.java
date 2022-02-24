@@ -49,9 +49,10 @@ public class ES2DBDataTranPlugin extends ESInputPlugin implements DataTranPlugin
 	@Override
 	public void beforeInit() {
 		super.beforeInit();
-		if(dbOutPutContext.getTargetDBConfig(null) != null)
+		DBConfig targetDBConfig = dbOutPutContext.getTargetDBConfig(null);
+		if(targetDBConfig != null)
 		{
-			this.initDS(dbOutPutContext.getTargetDBConfig(null));
+			this.initDS(targetDBConfig);
 		}
 		if(importContext.getDbConfig() != null) {
 			this.initDS(importContext.getDbConfig());
@@ -61,9 +62,14 @@ public class ES2DBDataTranPlugin extends ESInputPlugin implements DataTranPlugin
 	}
 	@Override
 	public void afterInit(){
-		DBConfig dbConfig = dbOutPutContext.getTargetDBConfig(null) != null?dbOutPutContext.getTargetDBConfig(null):importContext.getDbConfig();
-		if(dbConfig != null)
-			TranUtil.initTargetSQLInfo(dbOutPutContext,dbConfig.getDbName());
+//		DBConfig dbConfig = dbOutPutContext.getTargetDBConfig(null) ;
+//		if(dbConfig == null )
+//			dbConfig = importContext.getDbConfig();
+		String targetDBName = dbOutPutContext.getTargetDBName(null);
+		if(targetDBName == null)
+			targetDBName = importContext.getTargetDBName();
+//		if(dbConfig != null)
+			TranUtil.initTargetSQLInfo(dbOutPutContext,targetDBName);
 
 	}
 	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch, Status currentStatus){

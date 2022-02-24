@@ -17,10 +17,9 @@ package org.frameworkset.tran.es.input.db;
 
 import com.frameworkset.common.poolman.ConfigSQLExecutor;
 import com.frameworkset.common.poolman.SQLExecutor;
-import org.frameworkset.tran.DBConfig;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.elasticsearch.entity.ESDatas;
 import org.frameworkset.elasticsearch.scroll.HandlerInfo;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.es.BaseESExporterScrollHandler;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -67,15 +66,19 @@ public class ESDirectExporterScrollHandler<T> extends BaseESExporterScrollHandle
 		if(logger.isInfoEnabled()){
 			logger.info("Execute task {} start.",batchNo);
 		}
-		DBConfig targetDB = es2DBContext.getTargetDBConfig(taskContext);
-		if(targetDB == null)
-			targetDB = importContext.getDbConfig();
+//		DBConfig targetDB = es2DBContext.getTargetDBConfig(taskContext);
+//		if(targetDB == null)
+//			targetDB = importContext.getDbConfig();
+		String targetDBName = es2DBContext.getTargetDBName(taskContext);
+		if(targetDBName == null){
+			targetDBName = importContext.getTargetDBName();
+		}
 		if(es2DBContext.getSql() == null) {
-			configSQLExecutor.executeBatch(targetDB.getDbName(), es2DBContext.getSqlName(),
+			configSQLExecutor.executeBatch(targetDBName, es2DBContext.getSqlName(),
 					datas, batchSize, es2DBContext.getBatchHandler());
 		}
 		else{
-			SQLExecutor.executeBatch(targetDB.getDbName(),
+			SQLExecutor.executeBatch(targetDBName,
 					es2DBContext.getSql(), datas, batchSize, es2DBContext.getBatchHandler());
 		}
 		if(logger.isInfoEnabled()){

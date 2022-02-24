@@ -26,6 +26,7 @@ import org.frameworkset.elasticsearch.boot.ElasticSearchBoot;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.ouput.custom.CustomOutPutDataTran;
 import org.frameworkset.tran.ouput.dummy.DummyOutPutDataTran;
 import org.frameworkset.tran.schedule.*;
@@ -834,6 +835,10 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 	}
 
+	protected void initSourceDatasource(){
+		if(importContext.getDbConfig() != null)
+			this.initDS(importContext.getDbConfig());
+	}
 	/**
 	 * 初始化增量采集数据状态保存数据源
 	 */
@@ -1206,7 +1211,23 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			this.scheduleService.init(importContext,targetImportContext);
 		}
 	}
+	protected void initDSAndTargetSQLInfo(DBOutPutContext db2DBContext,boolean initSourceDatasource){
+		DBConfig dbConfig = db2DBContext.getTargetDBConfig(null);
+		String targetDBName = null;
+		if(dbConfig != null) {
+			if(initSourceDatasource)
+				this.initDS(dbConfig);
+			targetDBName = dbConfig.getDbName();
 
+		}
+		else{
+			targetDBName =  db2DBContext.getTargetDBName(null);
+			if(targetDBName == null){
+				targetDBName = importContext.getTargetDBName();
+			}
+		}
+		TranUtil.initTargetSQLInfo(db2DBContext, targetDBName);
+	}
 	protected void initDS(DBConfig dbConfig){
 		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbDriver()) && SimpleStringUtil.isNotEmpty(dbConfig.getDbUrl())) {
 			DBConf temConf = new DBConf();

@@ -30,6 +30,7 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public interface DBOutPutContext extends DBContext {
+	public String getTargetDBName(TaskContext taskContext);
 	public DBConfig getTargetDBConfig(TaskContext taskContext) ;
 	/**
 	 * 数据库相关配置
