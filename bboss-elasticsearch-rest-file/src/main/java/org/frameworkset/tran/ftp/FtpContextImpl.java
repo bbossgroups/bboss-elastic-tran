@@ -91,12 +91,12 @@ public class FtpContextImpl implements FtpContext {
 	}
 
 	@Override
-	public boolean localActive() {
+	public Boolean localActive() {
 		return ftpConfig.isLocalActive();
 	}
 
 	@Override
-	public boolean useEpsvWithIPv4() {
+	public Boolean useEpsvWithIPv4() {
 		return ftpConfig.isUseEpsvWithIPv4();
 	}
 
@@ -131,7 +131,7 @@ public class FtpContextImpl implements FtpContext {
 	}
 
 	@Override
-	public boolean binaryTransfer() {
+	public Boolean binaryTransfer() {
 		return ftpConfig.isBinaryTransfer();
 	}
 

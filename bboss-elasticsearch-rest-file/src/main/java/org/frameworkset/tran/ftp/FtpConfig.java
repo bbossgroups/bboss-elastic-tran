@@ -52,10 +52,10 @@ public class FtpConfig  {
 	private String ftpProxyPassword;
 	private String ftpProxyUser;
 	private boolean printHash;
-	private boolean binaryTransfer = true;
-	private boolean localActive;
+	private Boolean binaryTransfer = true;
+	private Boolean localActive;
 
-	private boolean useEpsvWithIPv4;
+	private Boolean useEpsvWithIPv4;
 	/**
 	 * 毫秒为单位
 	 */
@@ -200,29 +200,29 @@ public class FtpConfig  {
 		return this;
 	}
 
-	public boolean isBinaryTransfer() {
+	public Boolean isBinaryTransfer() {
 		return binaryTransfer;
 	}
 
-	public FtpConfig setBinaryTransfer(boolean binaryTransfer) {
+	public FtpConfig setBinaryTransfer(Boolean binaryTransfer) {
 		this.binaryTransfer = binaryTransfer;
 		return this;
 	}
 
-	public boolean isLocalActive() {
+	public Boolean isLocalActive() {
 		return localActive;
 	}
 
-	public FtpConfig setLocalActive(boolean localActive) {
+	public FtpConfig setLocalActive(Boolean localActive) {
 		this.localActive = localActive;
 		return this;
 	}
 
-	public boolean isUseEpsvWithIPv4() {
+	public Boolean isUseEpsvWithIPv4() {
 		return useEpsvWithIPv4;
 	}
 
-	public FtpConfig setUseEpsvWithIPv4(boolean useEpsvWithIPv4) {
+	public FtpConfig setUseEpsvWithIPv4(Boolean useEpsvWithIPv4) {
 		this.useEpsvWithIPv4 = useEpsvWithIPv4;
 		return this;
 	}

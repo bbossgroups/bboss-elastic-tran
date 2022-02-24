@@ -303,24 +303,27 @@ public class FtpTransfer {
 				throw new DataImportException("Could not connect to server: ftp user[" + fileFtpOupputContext.getFtpUser() + "] , ftp password[" + fileFtpOupputContext.getFtpPassword() + "]");
 			}
 
-
-			if (fileFtpOupputContext.binaryTransfer()) {
-				ftp.setFileType(FTP.BINARY_FILE_TYPE);
-			} else {
-				// in theory this should not be necessary as servers should default to ASCII
-				// but they don't all do so - see NET-500
-				ftp.setFileType(FTP.ASCII_FILE_TYPE);
+			if(fileFtpOupputContext.binaryTransfer() != null) {
+				if (fileFtpOupputContext.binaryTransfer()) {
+					ftp.setFileType(FTP.BINARY_FILE_TYPE);
+				} else {
+					// in theory this should not be necessary as servers should default to ASCII
+					// but they don't all do so - see NET-500
+					ftp.setFileType(FTP.ASCII_FILE_TYPE);
+				}
 			}
 
 			// Use passive mode as default because most of us are
 			// behind firewalls these days.
-			if (fileFtpOupputContext.localActive()) {
-				ftp.enterLocalActiveMode();
-			} else {
-				ftp.enterLocalPassiveMode();
+			if(fileFtpOupputContext.localActive() != null) {
+				if (fileFtpOupputContext.localActive()) {
+					ftp.enterLocalActiveMode();
+				} else {
+					ftp.enterLocalPassiveMode();
+				}
 			}
-
-			ftp.setUseEPSVwithIPv4(fileFtpOupputContext.useEpsvWithIPv4());
+			if(fileFtpOupputContext.useEpsvWithIPv4() != null)
+				ftp.setUseEPSVwithIPv4(fileFtpOupputContext.useEpsvWithIPv4());
 //
 //			InputStream input = null;
 //			try   {

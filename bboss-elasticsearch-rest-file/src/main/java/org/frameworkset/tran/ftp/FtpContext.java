@@ -45,15 +45,15 @@ public interface FtpContext {
 
 	public String getFtpProtocol();
 	public String getFtpTrustmgr();
-	public boolean localActive();
-	public boolean useEpsvWithIPv4();
+	public Boolean localActive();
+	public Boolean useEpsvWithIPv4();
 	public int getTransferProtocol();
 	public String getFtpProxyHost();
 	public int getFtpProxyPort();
 	public String getFtpProxyUser();
 	public String getFtpProxyPassword();
 	public boolean printHash();
-	public boolean binaryTransfer();
+	public Boolean binaryTransfer();
 	public long getKeepAliveTimeout();
 	public int getControlKeepAliveReplyTimeout();
 	FileFilter getFileFilter();

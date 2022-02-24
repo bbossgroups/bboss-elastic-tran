@@ -179,7 +179,7 @@ public class FileOupputContextImpl extends BaseImportContext implements FileOupp
 	}
 
 	@Override
-	public boolean binaryTransfer() {
+	public Boolean binaryTransfer() {
 		return ftpOutConfig.isBinaryTransfer();
 	}
 
@@ -214,12 +214,12 @@ public class FileOupputContextImpl extends BaseImportContext implements FileOupp
 	}
 
 	@Override
-	public boolean localActive() {
+	public Boolean localActive() {
 		return ftpOutConfig.isLocalActive();
 	}
 
 	@Override
-	public boolean useEpsvWithIPv4() {
+	public Boolean useEpsvWithIPv4() {
 		return ftpOutConfig.isUseEpsvWithIPv4();
 	}
 	@Override
