@@ -18,6 +18,7 @@ package org.frameworkset.tran.db.output;
 import com.frameworkset.common.poolman.BatchHandler;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.db.DBContext;
+import org.frameworkset.tran.db.StatementHandler;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -54,6 +55,7 @@ public interface DBOutPutContext extends DBContext {
 	public String getUpdateSqlName() ;
 	public String getUpdateSql();
 	BatchHandler getBatchHandler();
+	StatementHandler getStatementHandler();
 
 
 

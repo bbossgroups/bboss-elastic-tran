@@ -196,13 +196,18 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 						statement = stmtInfo
 								.prepareStatement(sql);
 					}
-
-
-					for(int i = 0;i < record.size(); i ++)
-					{
-						Param param = record.get(i);
-						statement.setObject(param.getIndex(),param.getValue());
+					if(es2DBContext.getStatementHandler() == null) {
+						for(int i = 0;i < record.size(); i ++)
+						{
+							Param param = record.get(i);
+							statement.setObject(param.getIndex(),param.getValue());
+						}
 					}
+					else{
+						es2DBContext.getStatementHandler().handler(statement,record);
+					}
+
+
 					try {
 						statement.addBatch();
 					}
@@ -260,9 +265,14 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 						statement = stmtInfo
 								.prepareStatement(sql);
 					}
-					for (int i = 0; i < record.size(); i++) {
-						Param param = record.get(i);
-						statement.setObject(param.getIndex(), param.getValue());
+					if(es2DBContext.getStatementHandler() == null) {
+						for (int i = 0; i < record.size(); i++) {
+							Param param = record.get(i);
+							statement.setObject(param.getIndex(), param.getValue());
+						}
+					}
+					else{
+						es2DBContext.getStatementHandler().handler(statement,record);
 					}
 					statement.addBatch();
 					if ((count > 0 && count % point == 0)) {

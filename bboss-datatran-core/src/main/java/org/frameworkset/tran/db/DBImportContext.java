@@ -42,6 +42,9 @@ public  class DBImportContext extends BaseImportContext implements DBOutPutConte
 	{
 		return dbImportConfig.optimize();
 	}
+	public  StatementHandler getStatementHandler(){
+		return dbImportConfig.getStatementHandler();
+	}
 	public BatchHandler getBatchHandler(){
 		return dbImportConfig.getBatchHandler();
 	}

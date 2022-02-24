@@ -32,6 +32,7 @@ public class DBConfigBuilder {
 	protected String sqlFilepath;
 	protected String sqlName;
 	protected String sql;
+	protected StatementHandler statementHandler;
 
 	private String insertSqlName;
 	private String insertSql;
@@ -90,11 +91,18 @@ public class DBConfigBuilder {
 		dbImportConfig.setDeleteSqlName(deleteSqlName);
 		dbImportConfig.setOptimize(optimize);
 		dbImportConfig.setBatchHandler(batchHandler);
+		dbImportConfig.setStatementHandler(statementHandler);
 		return dbImportConfig;
 	}
 
+	public StatementHandler getStatementHandler() {
+		return statementHandler;
+	}
 
-
+	public DBConfigBuilder setStatementHandler(StatementHandler statementHandler) {
+		this.statementHandler = statementHandler;
+		return this;
+	}
 
 	public String getSql() {
 		return sql;

@@ -31,6 +31,15 @@ public class DBImportConfig extends BaseImportConfig {
 	protected String deleteSql;
 	protected boolean optimize;
 	protected BatchHandler batchHandler;
+	protected StatementHandler statementHandler;
+
+	public void setStatementHandler(StatementHandler statementHandler) {
+		this.statementHandler = statementHandler;
+	}
+
+	public StatementHandler getStatementHandler() {
+		return statementHandler;
+	}
 
 	public void setInsertSqlName(String insertSqlName) {
 		this.insertSqlName = insertSqlName;
