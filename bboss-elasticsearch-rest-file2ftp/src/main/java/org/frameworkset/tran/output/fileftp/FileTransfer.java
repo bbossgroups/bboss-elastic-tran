@@ -18,7 +18,6 @@ package org.frameworkset.tran.output.fileftp;
 import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.soa.BBossStringWriter;
-import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpTransfer;
 import org.frameworkset.tran.ftp.SFTPTransfer;
@@ -28,7 +27,10 @@ import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * <p>Description: </p>
@@ -124,6 +126,13 @@ public class FileTransfer {
 		sended = true;
 		try {
 			flush();
+		}
+		catch (Exception e){
+			logger.error("flush task["+taskInfo+"],file["+file.getAbsolutePath()+"] failed:",e);
+			return;
+		}
+		try {
+
 			if(!fileOupputContext.disableftp()) {
 				if (file.length() <= 0) {
 					if (fileOupputContext.transferEmptyFiles()) {
@@ -140,38 +149,43 @@ public class FileTransfer {
 						SFTPTransfer.sendFile(fileOupputContext, this.filePath);
 					}
 				}
-				if (fileOupputContext.backupSuccessFiles())
-					FileUtil.bakFile(filePath, transferSuccessFile);//如果文件发送成功，将文件移除到成功目录，保留一天，过期自动清理
-				else
-					FileUtil.deleteFile(filePath);
+				try {
+					if (fileOupputContext.backupSuccessFiles())
+						FileUtil.bakFile(filePath, transferSuccessFile);//如果文件发送成功，将文件移除到成功目录，保留一天，过期自动清理
+					else
+						FileUtil.deleteFile(filePath);
+				}
+				catch (Exception e){
+					if (fileOupputContext.backupSuccessFiles())
+						logger.error("backup Success File task["+taskInfo+"],file["+file.getAbsolutePath()+"] failed:",e);
+					else{
+						logger.error("delete Success File task["+taskInfo+"],file["+file.getAbsolutePath()+"] failed:",e);
+					}
+				}
+
 			}
 		}
-		catch (IOException e){
+		catch (Exception e){
+			logger.error("sendFile task["+taskInfo+"],file["+file.getAbsolutePath()+"] failed:",e);
 			if(file.exists() && file.length() > 0) {
 				try {
 					FileUtil.bakFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
 				} catch (IOException ioException) {
-					logger.error(taskInfo,ioException);
+					logger.error("backup failed send File task["+taskInfo+"],file["+file.getAbsolutePath()+"] failed:",ioException);
 				}
 			}
-			logger.error(taskInfo,e);
+
 		}
-		catch (DataImportException e){
-			logger.error(taskInfo,e);
-			try {
-				FileUtil.bakFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
-			} catch (IOException ioException) {
-				logger.error(taskInfo,ioException);
-			}
-		}
+
 		catch (Throwable e){
-			logger.error(taskInfo,e);
+			logger.error("sendFile task["+taskInfo+"],file["+file.getAbsolutePath()+"] failed:",e);
 			try {
 				FileUtil.bakFile(filePath,transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
 			} catch (IOException ioException) {
-				logger.error(taskInfo,ioException);
+				logger.error("backup failed send File task["+taskInfo+"],file["+file.getAbsolutePath()+"] failed:",ioException);
 			}
 		}
+
 
 
 	}
