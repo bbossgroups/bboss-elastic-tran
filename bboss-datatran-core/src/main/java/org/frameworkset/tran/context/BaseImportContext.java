@@ -157,6 +157,17 @@ public abstract  class BaseImportContext implements ImportContext {
 		return baseImportConfig.getDbConfig();
 	}
 	@Override
+	public Integer getJDBCFetchsize(){
+		if(baseImportConfig.getJdbcFetchsize() != null)
+			return baseImportConfig.getJdbcFetchsize();
+		if(baseImportConfig.getDbConfig() == null){
+			return null;
+		}
+		else{
+			return baseImportConfig.getDbConfig().getJdbcFetchSize();
+		}
+	}
+	@Override
 	public boolean isEnableDBTransaction(){
 		if(baseImportConfig.getEnableDBTransaction() != null)
 			return baseImportConfig.getEnableDBTransaction();

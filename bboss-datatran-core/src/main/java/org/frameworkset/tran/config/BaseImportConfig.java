@@ -50,7 +50,16 @@ public abstract class BaseImportConfig {
 	private boolean sortLastValue ;
 	private String sourceDbname;
 
+	public Boolean getEnableDBTransaction() {
+		return enableDBTransaction;
+	}
 
+	public void setEnableDBTransaction(Boolean enableDBTransaction) {
+		this.enableDBTransaction = enableDBTransaction;
+	}
+
+	private Boolean enableDBTransaction;
+	private Integer jdbcFetchsize;
 	private String targetDbname;
 	/**
 	 * 设置强制刷新检测空闲时间间隔，单位：毫秒，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作，默认8秒,为0时关闭本机制
@@ -1036,5 +1045,13 @@ public abstract class BaseImportConfig {
 
 	public void setTargetDbname(String targetDbname) {
 		this.targetDbname = targetDbname;
+	}
+
+	public Integer getJdbcFetchsize() {
+		return jdbcFetchsize;
+	}
+
+	public void setJdbcFetchsize(Integer jdbcFetchsize) {
+		this.jdbcFetchsize = jdbcFetchsize;
 	}
 }

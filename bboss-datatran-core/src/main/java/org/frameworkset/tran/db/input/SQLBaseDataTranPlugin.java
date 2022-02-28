@@ -18,6 +18,7 @@ package org.frameworkset.tran.db.input;
 import com.frameworkset.common.poolman.ConfigSQLExecutor;
 import com.frameworkset.common.poolman.SQLExecutor;
 import com.frameworkset.common.poolman.handle.ResultSetHandler;
+import com.frameworkset.common.poolman.util.DBOptions;
 import com.frameworkset.orm.transaction.TransactionManager;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
@@ -143,11 +144,13 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 	private void commonImportData(ResultSetHandler resultSetHandler) throws Exception {
 		String sourceDBName = getSourceDBName();
 		boolean isEnableDBTransaction = importContext.getDbConfig() != null?importContext.getDbConfig().isEnableDBTransaction():false;
+		DBOptions dbOptions = getDBOptions();
+
 		if(importContext.getDataRefactor() == null || !isEnableDBTransaction){
 			if (executor == null) {
-				SQLExecutor.queryWithDBNameByNullRowHandler(resultSetHandler, sourceDBName, dbContext.getSql());
+				SQLExecutor.queryWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSql());
 			} else {
-				executor.queryWithDBNameByNullRowHandler(resultSetHandler, sourceDBName, dbContext.getSqlName());
+				executor.queryWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSqlName());
 			}
 		}
 		else {
@@ -156,9 +159,9 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 			try {
 				transactionManager.begin(TransactionManager.RW_TRANSACTION);
 				if (executor == null) {
-					SQLExecutor.queryWithDBNameByNullRowHandler(resultSetHandler, sourceDBName, dbContext.getSql());
+					SQLExecutor.queryWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSql());
 				} else {
-					executor.queryWithDBNameByNullRowHandler(resultSetHandler, sourceDBName, dbContext.getSqlName());
+					executor.queryWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSqlName());
 				}
 				transactionManager.commit();
 			} finally {
@@ -182,14 +185,32 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 		return sourceDBName;
 
 	}
+	private DBOptions getDBOptions(){
+		DBOptions dbOptions = null;
+		if(importContext.getJDBCFetchsize() != null ) {
+			if(importContext.getJDBCFetchsize() != 0) {
+				dbOptions = new DBOptions();
+				dbOptions.setFetchSize(importContext.getJDBCFetchsize());
+			}
+		}
+//		else{
+//			if(importContext.getFetchSize()  != null && importContext.getFetchSize() > 0) {
+//				dbOptions = new DBOptions();
+//				dbOptions.setFetchSize(importContext.getFetchSize());
+//			}
+//		}
+		return dbOptions;
+	}
 	private void increamentImportData(ResultSetHandler resultSetHandler) throws Exception {
 		String sourceDBName = getSourceDBName();
+		DBOptions dbOptions = getDBOptions();
+
 		boolean isEnableDBTransaction = importContext.getDbConfig() != null?importContext.getDbConfig().isEnableDBTransaction():false;
 		if(importContext.getDataRefactor() == null || !isEnableDBTransaction){
 			if (executor == null) {
-				SQLExecutor.queryBeanWithDBNameByNullRowHandler(resultSetHandler, sourceDBName, dbContext.getSql(), getParamValue());
+				SQLExecutor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSql(), getParamValue());
 			} else {
-				executor.queryBeanWithDBNameByNullRowHandler(resultSetHandler, sourceDBName, dbContext.getSqlName(), getParamValue());
+				executor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSqlName(), getParamValue());
 
 			}
 		}
@@ -198,9 +219,9 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 			try {
 				transactionManager.begin(TransactionManager.RW_TRANSACTION);
 				if (executor == null) {
-					SQLExecutor.queryBeanWithDBNameByNullRowHandler(resultSetHandler, sourceDBName, dbContext.getSql(), getParamValue());
+					SQLExecutor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSql(), getParamValue());
 				} else {
-					executor.queryBeanWithDBNameByNullRowHandler(resultSetHandler, sourceDBName, dbContext.getSqlName(), getParamValue());
+					executor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSqlName(), getParamValue());
 
 				}
 			} finally {

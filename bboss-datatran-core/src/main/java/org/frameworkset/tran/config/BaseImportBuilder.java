@@ -54,7 +54,18 @@ public abstract class BaseImportBuilder {
 	private Integer fetchSize = 5000;
 	private String sourceDbname;
 
+	private Boolean enableDBTransaction;
 
+	public Integer getJdbcFetchsize() {
+		return jdbcFetchsize;
+	}
+
+	public BaseImportBuilder setJdbcFetchsize(Integer jdbcFetchsize) {
+		this.jdbcFetchsize = jdbcFetchsize;
+		return this;
+	}
+
+	private Integer jdbcFetchsize;
 	private String targetDbname;
 
 	public String getSplitFieldName() {
@@ -1286,6 +1297,8 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setStatusDbConfig(statusDbConfig);
 		baseImportConfig.setTargetDbname(targetDbname);
 		baseImportConfig.setSourceDbname(sourceDbname);
+		baseImportConfig.setEnableDBTransaction(enableDBTransaction);
+		baseImportConfig.setJdbcFetchsize(jdbcFetchsize);
 		baseImportConfig.setConfigs(this.configs);
 		baseImportConfig.setBatchSize(this.batchSize);
 		if(index != null) {
@@ -1739,4 +1752,13 @@ public abstract class BaseImportBuilder {
 		this.sourceDbname = sourceDbname;
 		return this;
 	}
+	public Boolean getEnableDBTransaction() {
+		return enableDBTransaction;
+	}
+
+	public BaseImportBuilder setEnableDBTransaction(Boolean enableDBTransaction) {
+		this.enableDBTransaction = enableDBTransaction;
+		return this;
+	}
+
 }

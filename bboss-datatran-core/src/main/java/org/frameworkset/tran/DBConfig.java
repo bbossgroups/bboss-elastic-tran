@@ -112,6 +112,7 @@ public class DBConfig {
 	 */
 	private boolean enableDBTransaction = false;
 
+
 	/**
 	 * https://doc.bbossgroups.com/#/persistent/encrypt
 	 * 同时如果想对账号、口令、url之间的任意两个组合加密的话，用户可以自己继承 com.frameworkset.common.poolman.security.BaseDBInfoEncrypt类，参考默认插件，实现相应的信息加密方法并配置到aop.properties中即可。

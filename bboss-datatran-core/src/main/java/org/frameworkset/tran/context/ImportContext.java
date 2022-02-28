@@ -115,6 +115,9 @@ public interface ImportContext {
 	String getTargetDBName();
 	String getSourceDBName();
 	DBConfig getDbConfig();
+
+	Integer getJDBCFetchsize();
+
 	public boolean isEnableDBTransaction();
 	DataRefactor getDataRefactor();
 
