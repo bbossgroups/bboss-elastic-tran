@@ -115,7 +115,7 @@ public interface ImportContext {
 	String getTargetDBName();
 	String getSourceDBName();
 	DBConfig getDbConfig();
-
+	public boolean isEnableDBTransaction();
 	DataRefactor getDataRefactor();
 
 	String getApplicationPropertiesFile();

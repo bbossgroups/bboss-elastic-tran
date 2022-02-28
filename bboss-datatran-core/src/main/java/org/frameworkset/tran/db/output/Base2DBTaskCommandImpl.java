@@ -203,7 +203,8 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 						for(int i = 0;i < record.size(); i ++)
 						{
 							Param param = record.get(i);
-							statement.setObject(param.getIndex(),param.getValue());
+							stmtInfo.getDbadapter().setObject(statement,null,param.getIndex(), param.getValue());
+//							statement.setObject(param.getIndex(),param.getValue());
 						}
 					}
 					else{
@@ -271,7 +272,8 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 					if(es2DBContext.getStatementHandler() == null) {
 						for (int i = 0; i < record.size(); i++) {
 							Param param = record.get(i);
-							statement.setObject(param.getIndex(), param.getValue());
+							stmtInfo.getDbadapter().setObject(statement,null,param.getIndex(), param.getValue());
+//							statement.setObject(param.getIndex(), param.getValue());
 						}
 					}
 					else{

@@ -1248,7 +1248,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			temConf.setExternaljndiName(null);
 			temConf.setShowsql(dbConfig.isShowSql());
 			temConf.setEncryptdbinfo(false);
-			temConf.setQueryfetchsize(dbConfig.getJdbcFetchSize() == null?0:dbConfig.getJdbcFetchSize());
+			temConf.setQueryfetchsize(dbConfig.getJdbcFetchSize() == null?null:dbConfig.getJdbcFetchSize());
 			temConf.setDbAdaptor(dbConfig.getDbAdaptor());
 			temConf.setDbtype(dbConfig.getDbtype());
 			temConf.setColumnLableUpperCase(dbConfig.isColumnLableUpperCase());

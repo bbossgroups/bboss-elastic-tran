@@ -156,6 +156,18 @@ public abstract  class BaseImportContext implements ImportContext {
 	public DBConfig getDbConfig() {
 		return baseImportConfig.getDbConfig();
 	}
+	@Override
+	public boolean isEnableDBTransaction(){
+		if(baseImportConfig.getEnableDBTransaction() != null)
+			return baseImportConfig.getEnableDBTransaction();
+		if(baseImportConfig.getDbConfig() == null){
+				return false;
+		}
+		else{
+			return baseImportConfig.getDbConfig().isEnableDBTransaction();
+		}
+	}
+
 	public DataRefactor getDataRefactor(){
 		return baseImportConfig.getDataRefactor();
 	}
