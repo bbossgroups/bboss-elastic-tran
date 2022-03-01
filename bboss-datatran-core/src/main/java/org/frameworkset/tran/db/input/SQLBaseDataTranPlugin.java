@@ -20,6 +20,7 @@ import com.frameworkset.common.poolman.SQLExecutor;
 import com.frameworkset.common.poolman.handle.ResultSetHandler;
 import com.frameworkset.common.poolman.util.DBOptions;
 import com.frameworkset.orm.transaction.TransactionManager;
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBContext;
@@ -174,7 +175,7 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 		DBConfig dbConfig = importContext.getDbConfig();
 		String sourceDBName  = importContext.getSourceDBName();
 		if(sourceDBName == null){
-			if(dbConfig != null)
+			if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()))
 				sourceDBName = dbConfig.getDbName();
 		}
 		if(sourceDBName == null){

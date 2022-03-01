@@ -17,6 +17,7 @@ package org.frameworkset.tran.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.spi.geoip.GeoIPUtil;
 import org.frameworkset.tran.*;
@@ -749,7 +750,7 @@ public abstract class BaseImportConfig {
 //	}
 	public String getDBName(){
 		DBConfig dbConfig = getDbConfig();
-		if(dbConfig != null){
+		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()) ){
 			return dbConfig.getDbName();
 		}
 		if(sourceDbname != null){
@@ -774,7 +775,7 @@ public abstract class BaseImportConfig {
 
 	public void setDbConfig(DBConfig dbConfig) {
 		this.dbConfig = dbConfig;
-		if(dbConfig != null)
+		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()) )
 			this.dbConfigMap.put(dbConfig.getDbName(),dbConfig);
 	}
 
@@ -797,7 +798,7 @@ public abstract class BaseImportConfig {
 
 	public void setStatusDbConfig(DBConfig statusDbConfig) {
 		this.statusDbConfig = statusDbConfig;
-		if(statusDbConfig != null)
+		if(statusDbConfig != null && SimpleStringUtil.isNotEmpty(statusDbConfig.getDbName()) )
 			this.dbConfigMap.put(statusDbConfig.getDbName(),statusDbConfig);
 	}
 	public static GeoIPUtil getGeoIPUtil(Map<String, Object> geoipConfig){
@@ -819,7 +820,8 @@ public abstract class BaseImportConfig {
 		this.configs = configs;
 		for(int i = 0; configs != null && i < configs.size(); i ++){
 			DBConfig dbConfig = configs.get(i);
-			this.dbConfigMap.put(dbConfig.getDbName(),dbConfig);
+			if(SimpleStringUtil.isNotEmpty(dbConfig.getDbName()))
+				this.dbConfigMap.put(dbConfig.getDbName(),dbConfig);
 		}
 	}
 

@@ -1220,7 +1220,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			targetDBName = dbConfig.getDbName();
 
 		}
-		else{
+		if(targetDBName == null || targetDBName.equals("")){
 			targetDBName =  db2DBContext.getTargetDBName(null);
 			if(targetDBName == null){
 				targetDBName = importContext.getTargetDBName();
@@ -1229,7 +1229,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		TranUtil.initTargetSQLInfo(db2DBContext, targetDBName);
 	}
 	protected void initDS(DBConfig dbConfig){
-		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbDriver()) && SimpleStringUtil.isNotEmpty(dbConfig.getDbUrl())) {
+		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()) && SimpleStringUtil.isNotEmpty(dbConfig.getDbDriver()) && SimpleStringUtil.isNotEmpty(dbConfig.getDbUrl())) {
 			DBConf temConf = new DBConf();
 			temConf.setPoolname(dbConfig.getDbName());
 			temConf.setDriver(dbConfig.getDbDriver());
@@ -1281,7 +1281,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	}
 
 	protected void stopDS(DBConfig dbConfig){
-		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbDriver()) && SimpleStringUtil.isNotEmpty(dbConfig.getDbUrl())){
+		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()) && SimpleStringUtil.isNotEmpty(dbConfig.getDbDriver()) && SimpleStringUtil.isNotEmpty(dbConfig.getDbUrl())){
 			try {
 				SQLUtil.stopPool(dbConfig.getDbName());
 			} catch (Exception e) {

@@ -16,6 +16,7 @@ package org.frameworkset.tran.db;
  */
 
 import com.frameworkset.common.poolman.BatchHandler;
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
@@ -35,7 +36,7 @@ public  class DBImportContext extends BaseImportContext implements DBOutPutConte
 	protected DBImportConfig dbImportConfig;
 	public String getTargetDBName(TaskContext taskContext){
 		DBConfig dbConfig = getTargetDBConfig(taskContext);
-		if(dbConfig != null){
+		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName())){
 			return dbConfig.getDbName();
 		}
 		else{

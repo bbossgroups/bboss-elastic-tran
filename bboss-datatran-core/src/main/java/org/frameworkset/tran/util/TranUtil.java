@@ -17,6 +17,7 @@ package org.frameworkset.tran.util;
 
 import bboss.org.apache.velocity.VelocityContext;
 import com.frameworkset.common.poolman.ConfigSQLExecutor;
+import com.frameworkset.util.SimpleStringUtil;
 import com.frameworkset.util.VariableHandler;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.persitent.util.GloableSQLUtil;
@@ -177,7 +178,7 @@ public abstract class TranUtil {
 			String dbName = null;
 			if(taskContext.getTargetDBConfig() != null){
 				DBConfig dbConfig = taskContext.getTargetDBConfig();
-				if(dbConfig != null)
+				if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()))
 					dbName = dbConfig.getDbName();
 			}
 			if(dbName == null) {
