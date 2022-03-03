@@ -199,7 +199,6 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 					}
 					if(es2DBContext.getStatementHandler() == null) {
 						BaseTypeMethod baseTypeMethod = null;
-						List resources = null;
 						for(int i = 0;i < record.size(); i ++)
 						{
 							Param param = record.get(i);
@@ -208,10 +207,8 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 								stmtInfo.getDbadapter().setObject(statement,null,param.getIndex(), param.getData());
 							}
 							else{
-								if(resources == null){
-									resources = new ArrayList();
-								}
-								baseTypeMethod.action(stmtInfo,param,statement,null,resources);
+
+								baseTypeMethod.action(stmtInfo,param,statement,null,(List)null);
 							}
 
 //							statement.setObject(param.getIndex(),param.getValue());
@@ -281,7 +278,6 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 					}
 					if(es2DBContext.getStatementHandler() == null) {
 						BaseTypeMethod baseTypeMethod = null;
-						List resources = null;
 						for (int i = 0; i < record.size(); i++) {
 							Param param = record.get(i);
 							baseTypeMethod = param.getMethod();
@@ -289,10 +285,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 								stmtInfo.getDbadapter().setObject(statement, null, param.getIndex(), param.getData());
 							}
 							else{
-								if(resources == null){
-									resources = new ArrayList();
-								}
-								baseTypeMethod.action(stmtInfo,param,statement,null,resources);
+								baseTypeMethod.action(stmtInfo,param,statement,null,(List)null);
 							}
 //							statement.setObject(param.getIndex(), param.getValue());
 						}
