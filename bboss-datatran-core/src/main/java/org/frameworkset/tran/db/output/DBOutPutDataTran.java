@@ -1,7 +1,9 @@
 package org.frameworkset.tran.db.output;
 
+import com.frameworkset.common.poolman.Param;
 import com.frameworkset.util.VariableHandler;
 import org.frameworkset.elasticsearch.ElasticSearchException;
+import org.frameworkset.persitent.util.PersistentSQLVariable;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
@@ -92,7 +94,7 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 
 			//		GetCUDResult CUDResult = null;
 			Object temp = null;
-			Param param = null;
+
 			List<DBRecord> records = new ArrayList<DBRecord>();
 			while (true) {
 				Boolean hasNext = jdbcResultSet.next();
@@ -284,10 +286,10 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 		}
 		super.buildRecord(dbRecord,context);
 		String varName = null;
-		List<Param> record = new ArrayList<Param>();
+		List<Param> record = new ArrayList<>();
 		for(int i = 0;i < vars.size(); i ++)
 		{
-			VariableHandler.Variable var = vars.get(i);
+			PersistentSQLVariable var = (PersistentSQLVariable)vars.get(i);
 			varName = var.getVariableName();
 			temp = dbRecord.getData(varName);
 			if(temp == null) {
@@ -297,8 +299,10 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 			param = new Param();
 			param.setVariable(var);
 			param.setIndex(var.getPosition()  +1);
-			param.setValue(temp);
+			param.setData(temp);
 			param.setName(varName);
+			param.setMethod(var.getMethod());
+
 			record.add(param);
 
 		}
@@ -377,7 +381,7 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 		try {
 			TranSQLInfo sqlinfo = es2DBContext.getTargetSqlInfo(taskContext);
 			Object temp = null;
-			Param param = null;
+
 			List<DBRecord> records = new ArrayList<DBRecord>();
 			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {

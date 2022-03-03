@@ -61,7 +61,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 			//		GetCUDResult CUDResult = null;
 			Object temp = null;
-			Param param = null;
+
 //			List<DBRecord> records = new ArrayList<DBRecord>();
 			//十分钟后打印一次等待日志数据，打印后，就等下次
 			long logInterval = 1l * 60l * 1000l;

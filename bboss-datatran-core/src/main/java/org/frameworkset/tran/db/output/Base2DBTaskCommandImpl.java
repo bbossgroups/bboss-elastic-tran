@@ -15,11 +15,9 @@ package org.frameworkset.tran.db.output;
  * limitations under the License.
  */
 
-import com.frameworkset.common.poolman.DBUtil;
-import com.frameworkset.common.poolman.NestedSQLException;
-import com.frameworkset.common.poolman.StatementInfo;
+import com.frameworkset.common.poolman.*;
 import org.frameworkset.elasticsearch.ElasticSearchException;
-import org.frameworkset.tran.Param;
+import org.frameworkset.persitent.type.BaseTypeMethod;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBRecord;
 import org.frameworkset.tran.metrics.ImportCount;
@@ -200,10 +198,22 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 								.prepareStatement(sql);
 					}
 					if(es2DBContext.getStatementHandler() == null) {
+						BaseTypeMethod baseTypeMethod = null;
+						List resources = null;
 						for(int i = 0;i < record.size(); i ++)
 						{
 							Param param = record.get(i);
-							stmtInfo.getDbadapter().setObject(statement,null,param.getIndex(), param.getValue());
+							baseTypeMethod = param.getMethod();
+							if(baseTypeMethod == null){
+								stmtInfo.getDbadapter().setObject(statement,null,param.getIndex(), param.getData());
+							}
+							else{
+								if(resources == null){
+									resources = new ArrayList();
+								}
+								baseTypeMethod.action(stmtInfo,param,statement,null,resources);
+							}
+
 //							statement.setObject(param.getIndex(),param.getValue());
 						}
 					}
@@ -270,9 +280,20 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 								.prepareStatement(sql);
 					}
 					if(es2DBContext.getStatementHandler() == null) {
+						BaseTypeMethod baseTypeMethod = null;
+						List resources = null;
 						for (int i = 0; i < record.size(); i++) {
 							Param param = record.get(i);
-							stmtInfo.getDbadapter().setObject(statement,null,param.getIndex(), param.getValue());
+							baseTypeMethod = param.getMethod();
+							if(baseTypeMethod == null) {
+								stmtInfo.getDbadapter().setObject(statement, null, param.getIndex(), param.getData());
+							}
+							else{
+								if(resources == null){
+									resources = new ArrayList();
+								}
+								baseTypeMethod.action(stmtInfo,param,statement,null,resources);
+							}
 //							statement.setObject(param.getIndex(), param.getValue());
 						}
 					}

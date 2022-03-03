@@ -175,7 +175,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 			//		GetCUDResult CUDResult = null;
 			Object temp = null;
-			Param param = null;
+
 //			List<DBRecord> records = new ArrayList<DBRecord>();
 			while (true) {
 				Boolean hasNext = jdbcResultSet.next();

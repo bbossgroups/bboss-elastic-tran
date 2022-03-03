@@ -15,8 +15,8 @@ package org.frameworkset.tran.db;
  * limitations under the License.
  */
 
+import com.frameworkset.common.poolman.Param;
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.Param;
 
 import java.util.List;
 
