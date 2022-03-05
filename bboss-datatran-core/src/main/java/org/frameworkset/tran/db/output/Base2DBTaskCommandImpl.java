@@ -25,6 +25,8 @@ import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskFailedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
@@ -45,6 +47,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 	private DBOutPutContext es2DBContext;
 	private String taskInfo;
 	private boolean needBatch;
+	private static final Logger logger = LoggerFactory.getLogger(Base2DBTaskCommandImpl.class);
 	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
 								  List<DBRecord> datas, int taskNo, String jobNo, String taskInfo,
 								  boolean needBatch, Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
@@ -159,6 +162,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 
 			String sql = null;
 			if(batchsize <= 1 || !needBatch) {//如果batchsize被设置为0或者1直接一次性批处理所有记录
+				List resources = null;
 				for(DBRecord record:datas){
 					if(record.isInsert()) {
 						sql = insertSqlinfo.getSql();
@@ -179,26 +183,27 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 					else if(!oldSql.equals(sql)){
 						try {
 							statement.executeBatch();
-							finishTask();
 						}
-						catch (Exception e){
 
-						}
 						finally {
+							DBOptionsPreparedDBUtil.releaseResources(resources);
 							try {
 								statement.close();
 							}
+
 							catch (Exception e){
 
 							}
-
 						}
+						finishTask();
+
 						oldSql = sql;
 						statement = stmtInfo
 								.prepareStatement(sql);
 					}
 					if(es2DBContext.getStatementHandler() == null) {
 						BaseTypeMethod baseTypeMethod = null;
+
 						for(int i = 0;i < record.size(); i ++)
 						{
 							Param param = record.get(i);
@@ -207,8 +212,10 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 								stmtInfo.getDbadapter().setObject(statement,null,param.getIndex(), param.getData());
 							}
 							else{
-
-								baseTypeMethod.action(stmtInfo,param,statement,null,(List)null);
+								if(resources == null){
+									resources = new ArrayList();
+								}
+								baseTypeMethod.action(stmtInfo,param,statement,null,resources);
 							}
 
 //							statement.setObject(param.getIndex(),param.getValue());
@@ -227,12 +234,18 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 					}
 				}
 				if(statement != null) {
-					statement.executeBatch();
+					try {
+						statement.executeBatch();
+					}
+					finally {
+						DBOptionsPreparedDBUtil.releaseResources(resources);
+					}
 					finishTask();
 				}
 			}
 			else
 			{
+				List resources = null;
 				int point = batchsize - 1;
 				int count = 0;
 				for(DBRecord record:datas) {
@@ -252,23 +265,22 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 								.prepareStatement(sql);
 					}
 					else if(!oldSql.equals(sql)){
-
-						try {
-							if(count > 0) {
-								statement.executeBatch();
-								finishTask();
-							}
-						}
-						catch (Exception e){
-
-						}
-						finally {
+						if(count > 0) {
 							try {
-								statement.close();
+								statement.executeBatch();
 							}
-							catch (Exception e){
 
+							finally {
+								DBOptionsPreparedDBUtil.releaseResources(resources);
+								try {
+									statement.close();
+								}
+
+								catch (Exception e){
+
+								}
 							}
+							finishTask();
 
 						}
 						count = 0;
@@ -278,6 +290,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 					}
 					if(es2DBContext.getStatementHandler() == null) {
 						BaseTypeMethod baseTypeMethod = null;
+
 						for (int i = 0; i < record.size(); i++) {
 							Param param = record.get(i);
 							baseTypeMethod = param.getMethod();
@@ -285,7 +298,10 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 								stmtInfo.getDbadapter().setObject(statement, null, param.getIndex(), param.getData());
 							}
 							else{
-								baseTypeMethod.action(stmtInfo,param,statement,null,(List)null);
+								if(resources == null){
+									resources = new ArrayList();
+								}
+								baseTypeMethod.action(stmtInfo,param,statement,null,resources);
 							}
 //							statement.setObject(param.getIndex(), param.getValue());
 						}
@@ -295,7 +311,14 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 					}
 					statement.addBatch();
 					if ((count > 0 && count % point == 0)) {
-						statement.executeBatch();
+						try {
+							statement.executeBatch();
+						}
+
+						finally {
+							DBOptionsPreparedDBUtil.releaseResources(resources);
+
+						}
 						finishTask();
 						statement.clearBatch();
 						count = 0;
@@ -304,7 +327,14 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 					count++;
 				}
 				if(count > 0) {
-					statement.executeBatch();
+					try {
+						statement.executeBatch();
+					}
+
+					finally {
+						DBOptionsPreparedDBUtil.releaseResources(resources);
+
+					}
 					finishTask();
 				}
 			}
