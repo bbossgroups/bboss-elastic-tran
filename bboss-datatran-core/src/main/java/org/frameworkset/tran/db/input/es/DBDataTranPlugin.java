@@ -49,7 +49,7 @@ public class DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranP
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
 		BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran( taskContext,tranResultSet,importContext,targetImportContext,currentStatus);
-		db2ESDataTran.init();
+		db2ESDataTran.initTran();
 		return db2ESDataTran;
 	}
 

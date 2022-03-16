@@ -58,7 +58,7 @@ public class HBase2KafkaDataTranPlugin extends HBaseInputPlugin implements DataT
 	protected void doTran(org.apache.hadoop.hbase.client.ResultScanner rs, TaskContext taskContext) {
 		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
 		KafkaOutputDataTran kafkaOutputDataTran = new KafkaOutputDataTran(  taskContext,hBaseResultSet,importContext,   targetImportContext,(CountDownLatch)null,  currentStatus);
-		kafkaOutputDataTran.init();
+		kafkaOutputDataTran.initTran();
 		kafkaOutputDataTran.tran();
 	}
 

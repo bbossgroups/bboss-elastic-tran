@@ -59,7 +59,7 @@ public class HBase2DBInputPlugin extends HBaseInputPlugin {
 	protected void doTran(ResultScanner rs, TaskContext taskContext) {
 		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
 		AsynDBOutPutDataTran asynDBOutPutDataTran = new AsynDBOutPutDataTran(  taskContext,hBaseResultSet,importContext,   targetImportContext,  currentStatus);
-		asynDBOutPutDataTran.init();
+		asynDBOutPutDataTran.initTran();
 		asynDBOutPutDataTran.tran();
 	}
 

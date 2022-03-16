@@ -60,7 +60,7 @@ public class FileLog2DBDataTranPlugin extends FileBaseDataTranPlugin {
 	protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, Status currentStatus) {
 
 		AsynDBOutPutDataTran asynDBOutPutDataTran = new AsynDBOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,  currentStatus);
-		asynDBOutPutDataTran.init();
+		asynDBOutPutDataTran.initTran();
 		return asynDBOutPutDataTran;
 
 	}

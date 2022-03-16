@@ -58,7 +58,7 @@ public class Mongodb2KafkaDataTranPlugin  extends MongoDBInputPlugin implements 
 	protected void doTran(DBCursor dbCursor, TaskContext taskContext) {
 		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);
 		KafkaOutputDataTran kafkaOutputDataTran = new KafkaOutputDataTran(  taskContext,mongoDB2ESResultSet,importContext,   targetImportContext,(CountDownLatch)null,  currentStatus);
-		kafkaOutputDataTran.init();
+		kafkaOutputDataTran.initTran();
 		kafkaOutputDataTran.tran();
 	}
 

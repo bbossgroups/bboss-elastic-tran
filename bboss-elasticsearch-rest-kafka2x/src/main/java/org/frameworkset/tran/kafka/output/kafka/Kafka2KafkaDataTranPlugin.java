@@ -57,7 +57,7 @@ public class Kafka2KafkaDataTranPlugin  extends Kafka2InputPlugin implements Dat
 	}
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, Status currentStatus){
 		KafkaOutputDataTran kafkaOutputDataTran = new KafkaOutputDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,(CountDownLatch)null,  currentStatus);
-		kafkaOutputDataTran.init();
+		kafkaOutputDataTran.initTran();
 		return kafkaOutputDataTran;
 	}
 

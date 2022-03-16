@@ -46,7 +46,7 @@ public class Mongodb2DummyDataTranPlugin extends MongoDBInputPlugin {
 		MongoDBResultSet mongoDB2DBResultSet = new MongoDBResultSet(importContext,dbCursor);
 		BaseCommonRecordDataTran dummyOutPutDataTran = super.createCustomOrDummyTran(taskContext,mongoDB2DBResultSet,currentStatus);
 		//DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,mongoDB2DBResultSet,importContext,   targetImportContext, currentStatus);
-		dummyOutPutDataTran.init();
+		dummyOutPutDataTran.initTran();
 		dummyOutPutDataTran.tran();
 	}
 

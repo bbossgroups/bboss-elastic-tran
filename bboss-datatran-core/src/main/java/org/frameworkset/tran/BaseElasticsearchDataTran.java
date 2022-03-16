@@ -1,7 +1,6 @@
 package org.frameworkset.tran;
 
 import com.frameworkset.common.poolman.handle.ValueExchange;
-import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.ElasticSearchException;
@@ -11,44 +10,35 @@ import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.frameworkset.elasticsearch.serial.CharEscapeUtil;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.elasticsearch.template.ESUtil;
-import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.JDBCGetVariableValue;
 import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.metrics.ParallImportCount;
-import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.task.TaskCall;
-import org.frameworkset.tran.task.TaskCommandImpl;
-import org.slf4j.Logger;
+import org.frameworkset.tran.task.*;
 
 import java.io.Writer;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.SQLException;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 	private ClientInterface[] clientInterfaces;
 	private boolean versionUpper7;;
-	protected String taskInfo;
 	private String elasticsearch;
-
-	@Override
-	public void logTaskStart(Logger logger) {
-
-		logger.info(taskInfo);
+	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
+		evalBuilk(writer, context, versionUpper7);
+		return null;
 	}
-
 	private void initClientInterfaces(String elasticsearchs){
 		if(elasticsearchs != null) {
 			String[] _elasticsearchs = elasticsearchs.split(",");
@@ -75,7 +65,55 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 
 //		clientInterface = ElasticSearchHelper.getRestClientUtil(elasticsearch);
 	}
+	@Override
+	protected void initTranJob(){
+		tranJob = new StringTranJob();
+	}
+	@Override
+	protected void initTranTaskCommand(){
+		parrelTranCommand = new BaseParrelTranCommand() {
+			@Override
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
+				if(datas != null) {
+					for (ClientInterface clientInterface : clientInterfaces) {
+						taskNo++;
+						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, targetImportContext,
+								dataSize, taskNo, totalCount.getJobNo(), lastValue, currentStatus, reachEOFClosed, taskContext);
+//						count = 0;
+						taskCommand.setClientInterface(clientInterface);
+						taskCommand.setDatas((String) datas);
+						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+					}
+				}
+				return taskNo;
+			}
 
+			@Override
+			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
+				return BaseElasticsearchDataTran.this.buildStringRecord(context,writer);
+			}
+
+
+		};
+		serialTranCommand = new BaseSerialTranCommand() {
+			@Override
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+				return processDataSerial(  totalCount,  dataSize,  taskNo,   lastValue,  datas,  reachEOFClosed,  record);
+			}
+
+			@Override
+			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+				return processDataSerial(  totalCount,  dataSize,  taskNo,   lastValue,  datas,  reachEOFClosed,  record);
+			}
+
+
+
+			@Override
+			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
+				return BaseElasticsearchDataTran.this.buildStringRecord(context,writer);
+			}
+		};
+	}
 	@Override
 	public void init() {
 		super.init();
@@ -83,6 +121,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 		if(targetImportContext.getEsIndexWrapper() == null){
 			throw new ESDataImportException("Global Elasticsearch index must be setted, please check your import job builder config.");
 		}
+
 		taskInfo = new StringBuilder().append("import data to elasticsearch[").append(elasticsearch).append("] ")
 				.append(" IndexName[").append(targetImportContext.getEsIndexWrapper().getIndex())
 				.append("] IndexType[").append(targetImportContext.getEsIndexWrapper().getType())
@@ -95,469 +134,25 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 //		clientInterface = ElasticSearchHelper.getRestClientUtil(esCluster);
 	}
 
-//	public BaseDataTran(String esCluster) {
-//		clientInterface = ElasticSearchHelper.getRestClientUtil(esCluster);
-//	}
 
 
 
-	/**
-	 * 并行批处理导入
-
-	 * @return
-	 */
-	public String parallelBatchExecute( ){
-		int count = 0;
-		StringBuilder builder = new StringBuilder();
-		BBossStringWriter writer = new BBossStringWriter(builder);
-		String ret = null;
-		ExecutorService	service = importContext.buildThreadPool();
-		List<Future> tasks = new ArrayList<Future>();
-		int taskNo = 0;
-		ImportCount totalCount = new ParallImportCount();
-		Exception exception = null;
-//		Status currentStatus = importContext.getCurrentStatus();
-		Status currentStatus = this.currentStatus;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		Object lastValue = null;
-		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
-		int batchsize = importContext.getStoreBatchSize();
-		boolean reachEOFClosed = false;
-		try {
-
-			BatchContext batchContext = new BatchContext();
-			while (true) {
-				if(!tranErrorWrapper.assertCondition()) {
-					jdbcResultSet.stop();
-					tranErrorWrapper.throwError();
-				}
-				Boolean hasNext = jdbcResultSet.next();
-				if(hasNext == null){//强制flush操作
-					if (count > 0) {
-						writer.flush();
-						String datas = builder.toString();
-						builder.setLength(0);
-						writer.close();
-						writer = new BBossStringWriter(builder);
-
-						int _count = count;
-						count = 0;
-						for(ClientInterface clientInterface:clientInterfaces) {
-							taskNo++;
-							TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext,
-									_count, taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
+	protected int processDataSerial(ImportCount totalCount,long dataSize,int taskNo, Object lastValue,Object datas,boolean reachEOFClosed,CommonRecord record){
+		if(datas != null) {
+			for (ClientInterface clientInterface : clientInterfaces) {
+				taskNo++;
+				TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, targetImportContext,
+						dataSize, taskNo, totalCount.getJobNo(), lastValue, currentStatus, reachEOFClosed, taskContext);
 //						count = 0;
-							taskCommand.setClientInterface(clientInterface);
-							taskCommand.setDatas(datas);
-							tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-						}
-					}
-					continue;
-				}
-				else if(!hasNext.booleanValue())
-					break;
-
-				if(lastValue == null)
-					lastValue = importContext.max(currentValue,getLastValue());
-				else{
-					lastValue = importContext.max(lastValue,getLastValue());
-				}
-				Context context = importContext.buildContext(taskContext,jdbcResultSet, batchContext);
-
-				if(!reachEOFClosed)
-					reachEOFClosed = context.reachEOFClosed();
-//				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
-				if(context.removed()){
-					if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
-						totalCount.increamentIgnoreTotalCount();
-					else
-						importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-					continue;
-				}
-				context.refactorData();
-				context.afterRefactor();
-				if (context.isDrop()) {
-					totalCount.increamentIgnoreTotalCount();
-					continue;
-				}
-				evalBuilk(this.jdbcResultSet,  batchContext,writer, context, versionUpper7);
-				count++;
-				if (count >= batchsize) {
-					writer.flush();
-					String datas = builder.toString();
-					builder.setLength(0);
-					writer.close();
-					writer = new BBossStringWriter(builder);
-					int _count = count;
-					count = 0;
-					for(ClientInterface clientInterface:clientInterfaces) {
-						taskNo++;
-						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext, _count,
-								taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
-
-						taskCommand.setClientInterface(clientInterface);
-						taskCommand.setDatas(datas);
-						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-					}
-				}
-
+				taskCommand.setClientInterface(clientInterface);
+				taskCommand.setDatas((String) datas);
+				TaskCall.call(taskCommand);
 			}
-			if (count > 0) {
-				if(!tranErrorWrapper.assertCondition()) {
-					tranErrorWrapper.throwError();
-				}
-//				if(this.error != null && !importContext.isContinueOnError()) {
-//					throw error;
-//				}
-				writer.flush();
-				String datas = builder.toString();
-				for(ClientInterface clientInterface:clientInterfaces) {
-					taskNo++;
-					TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,targetImportContext,
-							count, taskNo, totalCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
-					taskCommand.setClientInterface(clientInterface);
-					taskCommand.setDatas(datas);
-					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-
-				}
-				if(isPrintTaskLog())
-					logger.info(new StringBuilder().append("Pararrel batchsubmit tasks:").append(taskNo).toString());
-
-			}
-			else{
-				if(isPrintTaskLog())
-					logger.info(new StringBuilder().append("Pararrel batchsubmit tasks:").append(taskNo).toString());
-			}
-
-		} catch (SQLException e) {
-			exception = e;
-			throw new ElasticSearchException(e);
-
-		} catch (ElasticSearchException e) {
-			exception = e;
-			throw e;
-		} catch (Exception e) {
-			exception = e;
-			throw new ElasticSearchException(e);
 		}
-		finally {
-			waitTasksComplete(   tasks,  service,exception,  lastValue,totalCount ,tranErrorWrapper,(WaitTasksCompleteCallBack)null,reachEOFClosed);
-			try {
-				writer.close();
-			} catch (Exception e) {
-
-			}
-			totalCount.setJobEndTime(new Date());
-		}
-
-		return ret;
-	}
-	/**
-	 * 串行批处理导入
-	 * @return
-	 */
-	public String batchExecute(  ){
-		int count = 0;
-		StringBuilder builder = new StringBuilder();
-		BBossStringWriter writer = new BBossStringWriter(builder);
-		String ret = null;
-		int taskNo = 0;
-		Exception exception = null;
-//		Status currentStatus = importContext.getCurrentStatus();
-		Status currentStatus = this.currentStatus;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		Object lastValue = null;
-		long start = System.currentTimeMillis();
-		long istart = 0;
-		long end = 0;
-		long totalCount = 0;
-		long ignoreTotalCount = 0;
-
-		ImportCount importCount = new SerialImportCount();
-		int batchsize = importContext.getStoreBatchSize();
-		boolean reachEOFClosed = false;
-		try {
-			istart = start;
-			BatchContext batchContext = new BatchContext();
-			while (true) {
-				Boolean hasNext = jdbcResultSet.next();
-				if(hasNext == null){
-					if(count > 0) {
-						writer.flush();
-						String datas = builder.toString();
-						builder.setLength(0);
-						writer.close();
-						writer = new BBossStringWriter(builder);
-
-						int _count = count;
-						count = 0;
-						for(ClientInterface clientInterface:clientInterfaces) {
-							taskNo++;
-							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
-									_count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
-//						int temp = count;
-//						count = 0;
-
-							taskCommand.setClientInterface(clientInterface);
-							taskCommand.setDatas(datas);
-							ret = TaskCall.call(taskCommand);
-						}
-//						importContext.flushLastValue(lastValue);
-
-
-						if (isPrintTaskLog()) {
-							end = System.currentTimeMillis();
-							logger.info(new StringBuilder().append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
-									.append(",import ").append(_count).append(" records.").toString());
-							istart = end;
-						}
-						totalCount += _count;
-					}
-					continue;
-				}
-				else if(!hasNext.booleanValue()){
-					break;
-				}
-				if(lastValue == null)
-					lastValue = importContext.max(currentValue,getLastValue());
-				else{
-					lastValue = importContext.max(lastValue,getLastValue());
-				}
-				Context context = importContext.buildContext(taskContext,jdbcResultSet, batchContext);
-//				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
-				if(!reachEOFClosed)
-					reachEOFClosed = context.reachEOFClosed();
-				if(context.removed()){
-					if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
-						importCount.increamentIgnoreTotalCount();
-					else
-						importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-					continue;
-				}
-				context.refactorData();
-				context.afterRefactor();
-				if (context.isDrop()) {
-					importCount.increamentIgnoreTotalCount();
-					continue;
-				}
-				evalBuilk(  this.jdbcResultSet,batchContext,writer,   context, versionUpper7);
-				count++;
-				if (count >= batchsize) {
-					writer.flush();
-					String datas = builder.toString();
-					builder.setLength(0);
-					writer.close();
-					writer = new BBossStringWriter(builder);
-
-					int _count = count;
-					count = 0;
-					for(ClientInterface clientInterface:clientInterfaces) {
-						taskNo++;
-						TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
-								_count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
-//					count = 0;
-						taskCommand.setClientInterface(clientInterface);
-						taskCommand.setDatas(datas);
-						ret = TaskCall.call(taskCommand);
-					}
-//					importContext.flushLastValue(lastValue);
-
-
-					if(isPrintTaskLog())  {
-						end = System.currentTimeMillis();
-						logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
-								.append(",import ").append(batchsize).append(" records.").toString());
-						istart = end;
-					}
-					totalCount += count;
-
-
-				}
-
-			}
-			if (count > 0) {
-				writer.flush();
-				String datas = builder.toString();
-				for(ClientInterface clientInterface:clientInterfaces) {
-					taskNo++;
-					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
-							count, taskNo, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
-					taskCommand.setClientInterface(clientInterface);
-					taskCommand.setDatas(datas);
-					ret = TaskCall.call(taskCommand);
-				}
-//				importContext.flushLastValue(lastValue);
-				if(isPrintTaskLog())  {
-					end = System.currentTimeMillis();
-					logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
-							.append(",import ").append(count).append(" records,IgnoreTotalCount ")
-							.append(ignoreTotalCount).append(" records.").toString());
-
-				}
-				totalCount += count;
-			}
-			if(isPrintTaskLog()) {
-				end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("Batch import Execute Tasks:").append(taskNo).append(",All Take time:").append((end - start)).append("ms")
-						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
-						.append(ignoreTotalCount).append(" records.").toString());
-
-			}
-		} catch (SQLException e) {
-			exception = e;
-			throw new ElasticSearchException(e);
-
-		} catch (ElasticSearchException e) {
-			exception = e;
-			throw e;
-		} catch (Exception e) {
-			exception = e;
-			throw new ElasticSearchException(e);
-		}
-		finally {
-
-			if(!TranErrorWrapper.assertCondition(exception ,importContext)){
-				if(!importContext.getDataTranPlugin().isMultiTran()) {
-					this.stop();
-				} else{
-					this.stopTranOnly();
-				}
-			}
-			try {
-				writer.close();
-			} catch (Exception e) {
-
-			}
-			importCount.setJobEndTime(new Date());
-		}
-
-		return ret;
+		return taskNo;
 	}
 
-	public String serialExecute(  ){
-		StringBuilder builder = new StringBuilder();
-		BBossStringWriter writer = new BBossStringWriter(builder);
-		Object lastValue = null;
-		Exception exception = null;
-		long start = System.currentTimeMillis();
-//		Status currentStatus = importContext.getCurrentStatus();
-		Status currentStatus = this.currentStatus;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		long totalCount = 0;
-		ImportCount importCount = new SerialImportCount();
-		long ignoreTotalCount = 0;
-		boolean reachEOFClosed = false;
-		try {
-			BatchContext batchContext =  new BatchContext();
-			while (true) {
-				Boolean hasNext = jdbcResultSet.next();
-				if(hasNext == null){ //强制flush数据
-					writer.flush();
-					String ret = null;
-					if(builder.length() > 0) {
-						String _dd =  builder.toString();
-						builder.setLength(0);
-						for(ClientInterface clientInterface:clientInterfaces) {
 
-							TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
-									totalCount, 1, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
-							taskCommand.setClientInterface(clientInterface);
-							taskCommand.setDatas(_dd);
-							ret = TaskCall.call(taskCommand);
-						}
-					}
-					else{
-						ret = "{\"took\":0,\"errors\":false}";
-					}
-//					importContext.flushLastValue(lastValue);
-					if(isPrintTaskLog()) {
-
-						long end = System.currentTimeMillis();
-						logger.info(new StringBuilder().append("Serial import Force flush datas Take time:").append((end - start)).append("ms")
-								.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
-								.append(ignoreTotalCount).append(" records.").toString());
-
-					}
-					continue;
-				}
-				else if(!hasNext.booleanValue()){
-					break;
-				}
-				try {
-					if(lastValue == null)
-						lastValue = importContext.max(currentValue,getLastValue());
-					else{
-						lastValue = importContext.max(lastValue,getLastValue());
-					}
-//					Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
-					Context context = importContext.buildContext(taskContext,jdbcResultSet, batchContext);
-					if(!reachEOFClosed)
-						reachEOFClosed = context.reachEOFClosed();
-					if(context.removed()){
-						if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
-							importCount.increamentIgnoreTotalCount();
-						else
-							importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-						continue;
-					}
-					context.refactorData();
-					context.afterRefactor();
-					if (context.isDrop()) {
-						importCount.increamentIgnoreTotalCount();
-						continue;
-					}
-					evalBuilk(this.jdbcResultSet,  batchContext,writer,  context,  versionUpper7);
-					totalCount ++;
-				} catch (Exception e) {
-					throw new ElasticSearchException(e);
-				}
-
-			}
-			writer.flush();
-			String ret = null;
-			if(builder.length() > 0) {
-				String _dd =  builder.toString();
-				builder.setLength(0);
-				for(ClientInterface clientInterface:clientInterfaces) {
-
-					TaskCommandImpl taskCommand = new TaskCommandImpl(importCount, importContext,targetImportContext,
-							totalCount, 1, importCount.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
-					taskCommand.setClientInterface(clientInterface);
-					taskCommand.setDatas(_dd);
-					ret = TaskCall.call(taskCommand);
-				}
-			}
-			else{
-				ret = "{\"took\":0,\"errors\":false}";
-			}
-//			importContext.flushLastValue(lastValue);
-			if(isPrintTaskLog()) {
-
-				long end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("Serial import All Take time:").append((end - start)).append("ms")
-						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
-						.append(ignoreTotalCount).append(" records.").toString());
-
-			}
-			return ret;
-		} catch (ElasticSearchException e) {
-			exception = e;
-			throw e;
-		} catch (Exception e) {
-			exception = e;
-			throw new ElasticSearchException(e);
-		}
-		finally {
-			if(!TranErrorWrapper.assertCondition(exception ,importContext)){
-				if(!importContext.getDataTranPlugin().isMultiTran()) {
-					this.stop();
-				} else{
-					this.stopTranOnly();
-				}
-			}
-			importCount.setJobEndTime(new Date());
-		}
-	}
 	public String tran(String indexName,String indexType) throws ElasticSearchException{
 		ESIndexWrapper esIndexWrapper = new ESIndexWrapper(indexName,indexType);
 		targetImportContext.setEsIndexWrapper(esIndexWrapper);
@@ -748,8 +343,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 
 	}
 
-	public  void evalBuilk(TranResultSet jdbcResultSet,BatchContext batchContext, Writer writer, Context context, boolean upper7) throws Exception {
-		String action = context.getOperation();
+	public  void evalBuilk( Writer writer, Context context, boolean upper7) throws Exception {
 
 
 		if(context.isInsert()) {
@@ -940,32 +534,6 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 		}
 
 		writer.write("}");
-	}
-
-	public static final Class[] basePrimaryTypes = new Class[]{Integer.TYPE, Long.TYPE,
-								Boolean.TYPE, Float.TYPE, Short.TYPE, Double.TYPE,
-								Character.TYPE, Byte.TYPE, BigInteger.class, BigDecimal.class};
-
-	public static boolean isBasePrimaryType(Class type) {
-		if (!type.isArray()) {
-			if (type.isEnum()) {
-				return true;
-			} else {
-				Class[] var1 = basePrimaryTypes;
-				int var2 = var1.length;
-
-				for(int var3 = 0; var3 < var2; ++var3) {
-					Class primaryType = var1[var3];
-					if (primaryType.isAssignableFrom(type)) {
-						return true;
-					}
-				}
-
-				return false;
-			}
-		} else {
-			return false;
-		}
 	}
 
 

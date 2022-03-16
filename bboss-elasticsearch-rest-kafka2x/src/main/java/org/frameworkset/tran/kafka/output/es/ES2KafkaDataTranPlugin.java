@@ -50,7 +50,7 @@ public class ES2KafkaDataTranPlugin extends ESInputPlugin implements DataTranPlu
 	@Override
 	protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch, Status currentStatus){
 		KafkaOutputDataTran kafkaOutputDataTran = new KafkaOutputDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,countDownLatch,  currentStatus);
-		kafkaOutputDataTran.init();
+		kafkaOutputDataTran.initTran();
 		return kafkaOutputDataTran;
 	}
 	@Override

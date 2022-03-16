@@ -88,8 +88,5 @@ public class KafkaOutputConfig  extends BaseImportConfig {
 		return logsendTaskMetric;
 	}
 
-	public KafkaOutputConfig setLogsendTaskMetric(long logsendTaskMetric) {
-		this.logsendTaskMetric = logsendTaskMetric;
-		return this;
-	}
+
 }

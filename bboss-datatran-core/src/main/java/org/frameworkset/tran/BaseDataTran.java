@@ -10,6 +10,9 @@ import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.record.SplitTranResultSet;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.ParrelTranCommand;
+import org.frameworkset.tran.task.SerialTranCommand;
+import org.frameworkset.tran.task.TranJob;
 import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +35,18 @@ public abstract class BaseDataTran implements DataTran{
 	protected TranResultSet jdbcResultSet;
 	protected AsynTranResultSet esTranResultSet;
 	protected TaskContext taskContext;
+	protected SerialTranCommand serialTranCommand;
+	protected ParrelTranCommand parrelTranCommand ;
+	protected String taskInfo ;
+	protected TranJob tranJob;
+	public void logTaskStart(Logger logger) {
+//		StringBuilder builder = new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
+//				.append("] dbuser[").append(importContext.getDbConfig().getDbUser())
+//				.append("] insert sql[").append(es2DBContext.getTargetSqlInfo() == null ?"": es2DBContext.getTargetSqlInfo().getOriginSQL()).append("] \r\nupdate sql[")
+//					.append(es2DBContext.getTargetUpdateSqlInfo() == null?"":es2DBContext.getTargetUpdateSqlInfo().getOriginSQL()).append("] \r\ndelete sql[")
+//					.append(es2DBContext.getTargetDeleteSqlInfo() == null ?"":es2DBContext.getTargetDeleteSqlInfo().getOriginSQL()).append("] start.");
+		logger.info(taskInfo + " start.");
+	}
 
 	public TaskContext getTaskContext() {
 		return taskContext;
@@ -183,8 +198,19 @@ public abstract class BaseDataTran implements DataTran{
 //		init();
 	}
 
+	protected abstract void initTranJob();
+	protected abstract void initTranTaskCommand();
 	public void init(){
 
+	}
+	public void afterInit(){
+		initTranJob();
+		initTranTaskCommand();
+	}
+
+	public void initTran(){
+		init();
+		afterInit();
 	}
 
 
@@ -208,7 +234,7 @@ public abstract class BaseDataTran implements DataTran{
 		}
 	}
 
-	public abstract void logTaskStart(Logger logger);
+//	public abstract void logTaskStart(Logger logger);
 	public String tran() throws ESDataImportException {
 		try {
 			this.getDataTranPlugin().setHasTran();
@@ -261,7 +287,7 @@ public abstract class BaseDataTran implements DataTran{
 			}
 		}
 	}
-	protected boolean isPrintTaskLog(){
+	public boolean isPrintTaskLog(){
 		return importContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
 	public void waitTasksComplete(final List<Future> tasks,

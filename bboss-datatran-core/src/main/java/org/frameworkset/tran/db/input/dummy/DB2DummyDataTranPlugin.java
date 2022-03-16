@@ -46,7 +46,7 @@ public class DB2DummyDataTranPlugin extends SQLBaseDataTranPlugin implements Dat
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
 		BaseCommonRecordDataTran dummyOutPutDataTran = super.createCustomOrDummyTran(taskContext,tranResultSet,currentStatus);
 		//DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,tranResultSet,importContext,   targetImportContext, currentStatus);
-		dummyOutPutDataTran.init();
+		dummyOutPutDataTran.initTran();
 		return dummyOutPutDataTran;
 	}
 

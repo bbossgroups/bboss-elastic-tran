@@ -45,7 +45,7 @@ public class Mongodb2FileFtpDataTranPlugin  extends MongoDBInputPlugin {
 	protected void doTran(DBCursor dbCursor, TaskContext taskContext) {
 		MongoDBResultSet mongoDB2DBResultSet = new MongoDBResultSet(importContext,dbCursor);
 		FileFtpOutPutDataTran fileFtpOutPutDataTran = FileFtpOutPutUtil.buildFileFtpOutPutDataTran(taskContext,mongoDB2DBResultSet,importContext,   targetImportContext,  currentStatus);
-		fileFtpOutPutDataTran.init();
+		fileFtpOutPutDataTran.initTran();
 		fileFtpOutPutDataTran.tran();
 	}
 

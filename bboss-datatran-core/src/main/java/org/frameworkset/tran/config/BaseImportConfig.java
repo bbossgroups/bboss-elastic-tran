@@ -62,6 +62,26 @@ public abstract class BaseImportConfig {
 	private Boolean enableDBTransaction;
 	private Integer jdbcFetchsize;
 	private String targetDbname;
+
+	public boolean isSerialAllData() {
+		return serialAllData;
+	}
+
+	public void setSerialAllData(boolean serialAllData) {
+		this.serialAllData = serialAllData;
+	}
+
+	private boolean serialAllData;
+
+	public long getLogsendTaskMetric() {
+		return logsendTaskMetric;
+	}
+
+	public void setLogsendTaskMetric(long logsendTaskMetric) {
+		this.logsendTaskMetric = logsendTaskMetric;
+	}
+
+	protected long logsendTaskMetric = 10000l;
 	/**
 	 * 设置强制刷新检测空闲时间间隔，单位：毫秒，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作，默认8秒,为0时关闭本机制
 	 */

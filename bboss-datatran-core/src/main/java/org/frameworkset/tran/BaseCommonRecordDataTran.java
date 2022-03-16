@@ -23,12 +23,58 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 			logger.debug("Export Columns is null,you can set Export Columns in importconfig or not.");
 //				throw new DataImportException("Export Columns is null,Please set Export Columns in importconfig.");
 	}
-	protected CommonRecord buildRecord(Context context){
+	public CommonRecord buildRecord(Context context){
 		CommonRecord dataRecord = new CommonRecord();
 		buildRecord(dataRecord,context);
 		return dataRecord;
 	}
 
+	protected List<CommonRecord> convertDatas(Object datas){
+		if(datas == null)
+			return null;
+		List<CommonRecord> records = null;
+		if(datas instanceof List){
+			records = (List<CommonRecord>)datas;
+		}
+		else{
+			records = new ArrayList<>(1);
+			records.add((CommonRecord)datas);
+		}
+		return records;
+
+	}
+	/**
+	 * 并行批处理导入，ftp上传，不支持并行生成文件
+
+	 * @return
+	 */
+	@Override
+	public String parallelBatchExecute( ) {
+		logger.info("parallel batch import data Execute started.");
+		return tranJob.parallelBatchExecute(parrelTranCommand,currentStatus,importContext,targetImportContext,jdbcResultSet,this);
+	}
+
+	/**
+	 * 串行批处理导入
+
+	 * @return
+	 */
+	@Override
+	public String batchExecute(  ){
+
+		logger.info("batch import data Execute started.");
+		return tranJob.batchExecute(serialTranCommand,currentStatus,importContext,targetImportContext,jdbcResultSet,this);
+	}
+	/**
+	 * 串行处理导入
+
+	 * @return
+	 */
+	@Override
+	public String serialExecute(){
+		logger.info("serial import data Execute started.");
+		return tranJob.serialExecute(serialTranCommand,currentStatus,importContext,targetImportContext,jdbcResultSet,this);
+	}
 
 	protected CommonRecord buildRecord(CommonRecord dbRecord ,Context context){
 

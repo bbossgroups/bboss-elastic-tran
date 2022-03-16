@@ -1,2 +1,1 @@
-从kafka接收数据并写入elasticsearch
-codec处理
+从各种数据源导出数据到文件（文本、csv、excel），亦可以根据需要上传ftp/sftp服务器

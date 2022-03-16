@@ -44,7 +44,7 @@ public class FileLog2DummyDataTranPlugin extends FileBaseDataTranPlugin {
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
 		BaseCommonRecordDataTran dummyOutPutDataTran = super.createCustomOrDummyTran(taskContext,tranResultSet,currentStatus);//new DummyOutPutDataTran(  taskContext,tranResultSet,importContext,   targetImportContext, currentStatus);
-		dummyOutPutDataTran.init();
+		dummyOutPutDataTran.initTran();
 		return dummyOutPutDataTran;
 	}
 

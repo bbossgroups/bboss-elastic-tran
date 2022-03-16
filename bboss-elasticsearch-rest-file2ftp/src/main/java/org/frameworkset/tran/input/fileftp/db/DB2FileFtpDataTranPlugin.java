@@ -42,7 +42,7 @@ public class DB2FileFtpDataTranPlugin extends SQLBaseDataTranPlugin implements D
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
 		FileFtpOutPutDataTran fileFtpOutPutDataTran = FileFtpOutPutUtil.buildFileFtpOutPutDataTran(taskContext, tranResultSet, importContext, targetImportContext, currentStatus);
-		fileFtpOutPutDataTran.init();
+		fileFtpOutPutDataTran.initTran();
 		return fileFtpOutPutDataTran;
 	}
 

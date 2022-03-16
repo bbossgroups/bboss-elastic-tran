@@ -2,40 +2,28 @@ package org.frameworkset.tran.db.output;
 
 import com.frameworkset.common.poolman.Param;
 import com.frameworkset.util.VariableHandler;
-import org.frameworkset.elasticsearch.ElasticSearchException;
 import org.frameworkset.persitent.util.PersistentSQLVariable;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBRecord;
 import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.metrics.ParallImportCount;
-import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.BaseParrelTranCommand;
+import org.frameworkset.tran.task.BaseSerialTranCommand;
+import org.frameworkset.tran.task.CommonRecordTranJob;
 import org.frameworkset.tran.task.TaskCall;
-import org.frameworkset.tran.task.TaskCommand;
-import org.slf4j.Logger;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 	protected DBOutPutContext es2DBContext ;
-	@Override
-	public void logTaskStart(Logger logger) {
-//		StringBuilder builder = new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
-//				.append("] dbuser[").append(importContext.getDbConfig().getDbUser())
-//				.append("] insert sql[").append(es2DBContext.getTargetSqlInfo() == null ?"": es2DBContext.getTargetSqlInfo().getOriginSQL()).append("] \r\nupdate sql[")
-//					.append(es2DBContext.getTargetUpdateSqlInfo() == null?"":es2DBContext.getTargetUpdateSqlInfo().getOriginSQL()).append("] \r\ndelete sql[")
-//					.append(es2DBContext.getTargetDeleteSqlInfo() == null ?"":es2DBContext.getTargetDeleteSqlInfo().getOriginSQL()).append("] start.");
-		logger.info(taskInfo + " start.");
-	}
-	private String taskInfo ;
+
+
 	public void init(){
 		super.init();
 		es2DBContext = targetImportContext == null ?(DBOutPutContext)importContext:(DBOutPutContext)targetImportContext;
@@ -78,190 +66,8 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 	}
 
 
-	public String serialExecute(  ){
-		Object lastValue = null;
-		Exception exception = null;
-		long start = System.currentTimeMillis();
-//		Status currentStatus = importContext.getCurrentStatus();
-		Status currentStatus = this.currentStatus;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		ImportCount importCount = new SerialImportCount();
-		int taskNo = 0;
-		long totalCount = 0;
-		long ignoreTotalCount = 0;
-		boolean reachEOFClosed = false;
-		try {
-
-			//		GetCUDResult CUDResult = null;
-			Object temp = null;
-
-			List<DBRecord> records = new ArrayList<DBRecord>();
-			while (true) {
-				Boolean hasNext = jdbcResultSet.next();
-				if(hasNext == null){
-					if(records.size() > 0) {
-						taskNo ++;
-						TaskCommand<List<DBRecord>, String> taskCommand = new Base2DBTaskCommandImpl( importCount, importContext,targetImportContext, records,
-								taskNo, importCount.getJobNo(),taskInfo,true,lastValue,   currentStatus,reachEOFClosed,taskContext);
-						TaskCall.call(taskCommand);
-//						importContext.flushLastValue(lastValue);
-						records.clear();
-						if(isPrintTaskLog()) {
-							long end = System.currentTimeMillis();
-							logger.info(new StringBuilder().append("Serial import Force flush records Take time:").append((end - start)).append("ms")
-									.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
-									.append(importCount.getIgnoreTotalCount()).append(" records.").toString());
-
-						}
-
-					}
-//					importContext.flushLastValue(lastValue);
-					if(isPrintTaskLog()) {
-
-						long end = System.currentTimeMillis();
-						logger.info(new StringBuilder().append("Serial import Force flush datas Take time:").append((end - start)).append("ms")
-								.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
-								.append(ignoreTotalCount).append(" records.").toString());
-
-					}
-					continue;
-				}
-				else if(!hasNext.booleanValue()){
-					break;
-				}
-				try {
-					if (lastValue == null)
-						lastValue = importContext.max(currentValue, getLastValue());
-					else {
-						lastValue = importContext.max(lastValue, getLastValue());
-					}
-//					Context context = new ContextImpl(importContext, jdbcResultSet, null);
-					Context context = importContext.buildContext(taskContext,jdbcResultSet, null);
-					if(!reachEOFClosed)
-						reachEOFClosed = context.reachEOFClosed();
-					if(context.removed()){
-						if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
-							importCount.increamentIgnoreTotalCount();
-						else
-							importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-						continue;
-					}
-					context.refactorData();
-					context.afterRefactor();
-					if (context.isDrop()) {
-						importCount.increamentIgnoreTotalCount();
-						continue;
-					}
-					DBRecord record = buildDBRecord(  context );
-
-					records.add(record);
-					//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
-					totalCount++;
-				} catch (Exception e) {
-					throw new ElasticSearchException(e);
-				}
-			}
-			if(records.size() > 0) {
-				taskNo ++;
-				TaskCommand<List<DBRecord>, String> taskCommand = new Base2DBTaskCommandImpl(importCount, importContext, targetImportContext,records,
-						taskNo, importCount.getJobNo(),taskInfo,true,lastValue,   currentStatus,reachEOFClosed,taskContext);
-				TaskCall.call(taskCommand);
-//				importContext.flushLastValue(lastValue);
-			}
-			if(isPrintTaskLog()) {
-				long end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("Serial import All Take time:").append((end - start)).append("ms")
-						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
-						.append(importCount.getIgnoreTotalCount()).append(" records.").toString());
-
-			}
-		}
-		catch (ElasticSearchException e){
-			exception = e;
-			throw e;
-
-
-		}
-		catch (Exception e){
-			exception = e;
-			throw new ElasticSearchException(e);
-
-
-		} finally {
-
-			if(!TranErrorWrapper.assertCondition(exception ,importContext)){
-				if(!importContext.getDataTranPlugin().isMultiTran()) {
-					this.stop();
-				} else{
-					this.stopTranOnly();
-				}
-			}
-			if(importContext.isCurrentStoped()){
-				this.stopTranOnly();
-			}
-			importCount.setJobEndTime(new Date());
-		}
-		return null;
-
-	}
-	/**
-	private void appendFieldValues(List<Param> record,
-								   List<VariableHandler.Variable> vars,
-								   List<FieldMeta> fieldValueMetas,
-								   Map<String, Object> addedFields) {
-		if(fieldValueMetas ==  null || fieldValueMetas.size() == 0){
-			return;
-		}
-		Param param = null;
-		for(VariableHandler.Variable variable:vars){
-			if(addedFields.containsKey(variable.getVariableName()))
-				continue;
-			for(FieldMeta fieldMeta:fieldValueMetas){
-				if(variable.getVariableName().equals(fieldMeta.getTargetFieldName())){
-					param = new Param();
-					param.setVariable(variable);
-					param.setIndex(variable.getPosition() +1);
-					param.setValue(fieldMeta.getValue());
-					param.setName(variable.getVariableName());
-					record.add(param);
-//					statement.setObject(i +1,fieldMeta.getValue());
-					addedFields.put(variable.getVariableName(),dummy);
-					break;
-				}
-			}
-		}
-	}
-
-	protected void appendSplitFieldValues(List<Param> record,
-										  List<VariableHandler.Variable> vars,
-										  String[] splitColumns,
-										  Map<String, Object> addedFields, Context context) {
-		if(splitColumns ==  null || splitColumns.length == 0){
-			return;
-		}
-
-		Param param = null;
-		for(VariableHandler.Variable variable:vars){
-			if(addedFields.containsKey(variable.getVariableName()))
-				continue;
-			for(String fieldName:splitColumns){
-				if(variable.getVariableName().equals(fieldName)){
-					param = new Param();
-					param.setVariable(variable);
-					param.setIndex(variable.getPosition() +1);
-					param.setValue(jdbcResultSet.getValue(fieldName));
-					param.setName(variable.getVariableName());
-					record.add(param);
-//					statement.setObject(i +1,fieldMeta.getValue());
-					addedFields.put(variable.getVariableName(),dummy);
-					break;
-				}
-			}
-		}
-
-	}
-	 */
-	protected DBRecord buildDBRecord(Context context){
+	@Override
+	public CommonRecord buildRecord(Context context){
 		DBRecord dbRecord = new DBRecord();
 
 		List<VariableHandler.Variable> vars = null;
@@ -363,277 +169,69 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 		dbRecord.setParams(record);
 		return dbRecord;*/
 	}
-	@Override
-	public String parallelBatchExecute() {
-		int count = 0;
-		ExecutorService service = importContext.buildThreadPool();
-		List<Future> tasks = new ArrayList<Future>();
-		int taskNo = 0;
-		ImportCount totalCount = new ParallImportCount();
-		Exception exception = null;
-//		Status currentStatus = importContext.getCurrentStatus();
-		Status currentStatus = this.currentStatus;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		Object lastValue = null;
-		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
-		int batchsize = importContext.getStoreBatchSize();
-		boolean reachEOFClosed = false;
-		try {
-			TranSQLInfo sqlinfo = es2DBContext.getTargetSqlInfo(taskContext);
-			Object temp = null;
-
-			List<DBRecord> records = new ArrayList<DBRecord>();
-			while (true) {
-				if(!tranErrorWrapper.assertCondition()) {
-					tranErrorWrapper.throwError();
-				}
-				Boolean hasNext = jdbcResultSet.next();
-				if(hasNext == null){
-					if(count > 0) {//强制刷新数据
-						count = 0;
-						taskNo++;
-						Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl( totalCount, importContext, targetImportContext,records,
-								taskNo, totalCount.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
-						records = new ArrayList<DBRecord>();
-						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-					}
-					continue;
-				}
-				else if(!hasNext.booleanValue()){
-					break;
-				}
-				if(lastValue == null)
-					lastValue = importContext.max(currentValue,getLastValue());
-				else{
-					lastValue = importContext.max(lastValue,getLastValue());
-				}
-
-//				Context context = new ContextImpl(importContext, jdbcResultSet, null);
-				Context context = importContext.buildContext(taskContext,jdbcResultSet, null);
-
-				if(!reachEOFClosed)
-					reachEOFClosed = context.reachEOFClosed();
-				if(context.removed()){
-					if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
-						totalCount.increamentIgnoreTotalCount();
-					else
-						importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-					continue;
-				}
-				context.refactorData();
-				context.afterRefactor();
-				if (context.isDrop()) {
-					totalCount.increamentIgnoreTotalCount();
-					continue;
-				}
-				DBRecord record = buildDBRecord(  context);
-				records.add(record);
-				//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
-				count++;
-				if (count >= batchsize) {
-
-					count = 0;
-					taskNo ++;
-					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount,importContext,targetImportContext,records,taskNo,
-							totalCount.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
-					records = new ArrayList<DBRecord>();
-					tasks.add(service.submit(new TaskCall(taskCommand,  tranErrorWrapper)));
-
-
-
-				}
-
-			}
-			if (count > 0) {
-				if(!tranErrorWrapper.assertCondition()) {
-					tranErrorWrapper.throwError();
-				}
-//				if(this.error != null && !importContext.isContinueOnError()) {
-//					throw error;
-//				}
-				taskNo ++;
-				Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount,importContext,targetImportContext,
-						records,taskNo,totalCount.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
-				tasks.add(service.submit(new TaskCall(taskCommand,tranErrorWrapper)));
-
-				if(isPrintTaskLog())
-					logger.info(new StringBuilder().append("Pararrel batchsubmit tasks:").append(taskNo).toString());
-			}
-			else{
-				if(isPrintTaskLog())
-					logger.info(new StringBuilder().append("Pararrel batchsubmit tasks:").append(taskNo).toString());
-			}
-
-		} catch (SQLException e) {
-			exception = e;
-			throw new ElasticSearchException(e);
-
-		} catch (ElasticSearchException e) {
-			exception = e;
-			throw e;
-		} catch (Exception e) {
-			exception = e;
-			throw new ElasticSearchException(e);
-		}
-		finally {
-			waitTasksComplete(   tasks,  service,exception,  lastValue,totalCount ,tranErrorWrapper,(WaitTasksCompleteCallBack)null,reachEOFClosed);
-			totalCount.setJobEndTime(new Date());
-		}
-
-		return null;
-	}
 
 	@Override
-	public String batchExecute() {
-		int count = 0;
-		String ret = null;
-		int taskNo = 0;
-		Exception exception = null;
-//		Status currentStatus = importContext.getCurrentStatus();
-		Status currentStatus = this.currentStatus;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		Object lastValue = null;
-		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
-		long start = System.currentTimeMillis();
-		long istart = 0;
-		long end = 0;
-		long totalCount = 0;
-		long ignoreTotalCount = 0;
-		ImportCount importCount = new SerialImportCount();
-		int batchsize = importContext.getStoreBatchSize();
-		boolean reachEOFClosed = false;
-		try {
-			istart = start;
+	protected void initTranTaskCommand(){
+		parrelTranCommand = new BaseParrelTranCommand(){
 
-			List<DBRecord> records = new ArrayList<DBRecord>();
-			while (true) {
-				if(!tranErrorWrapper.assertCondition()) {
-					jdbcResultSet.stop();
-					tranErrorWrapper.throwError();
+			@Override
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed,
+										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
+				List<CommonRecord> records = convertDatas( datas);
+				if(records != null && records.size() > 0)  {
+					taskNo++;
+					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl( totalCount, importContext, targetImportContext,records,
+							taskNo, totalCount.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
+					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+
 				}
-				Boolean hasNext = jdbcResultSet.next();
-				if(hasNext == null){
-					if(count > 0) {//强制flush数据
-						taskNo++;
-						Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount, importContext, targetImportContext,records,
-								taskNo, importCount.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
-						int temp = count;
-						count = 0;
-						records = new ArrayList<DBRecord>();
-						ret = TaskCall.call(taskCommand);
+				return taskNo;
+			}
+
+
+		};
+		serialTranCommand = new BaseSerialTranCommand() {
+			private int action(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed){
+				List<CommonRecord> records = convertDatas( datas);
+				if(records != null && records.size() > 0)  {
+					taskNo++;
+					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount, importContext, targetImportContext,records,
+							taskNo, totalCount.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
+
+					TaskCall.call(taskCommand);
 //						importContext.flushLastValue(lastValue);
 
-						if (isPrintTaskLog()) {
-							end = System.currentTimeMillis();
-							logger.info(new StringBuilder().append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
-									.append(",import ").append(temp).append(" records.").toString());
-							istart = end;
-						}
-
-						totalCount += temp;
-					}
-					continue;
 				}
-				else if(!hasNext.booleanValue()){
-					break;
-				}
-				if(lastValue == null)
-					lastValue = importContext.max(currentValue,getLastValue());
-				else{
-					lastValue = importContext.max(lastValue,getLastValue());
-				}
-//				Context context = new ContextImpl(importContext, jdbcResultSet, null);
-				Context context = importContext.buildContext(taskContext,jdbcResultSet, null);
+				return taskNo;
+			}
+			@Override
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+//				List<CommonRecord> records = convertDatas( datas);
+//				if(records != null && records.size() > 0)  {
+//					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
+//							dataSize, taskNo, totalCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+//					taskCommand.setDatas(records);
+//					TaskCall.call(taskCommand);
+//					taskNo++;
+//				}
+				return action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed);
+			}
 
-				if(!reachEOFClosed)
-					reachEOFClosed = context.reachEOFClosed();
-				if(context.removed()){
-					if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
-						importCount.increamentIgnoreTotalCount();
-					else
-						importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-					continue;
-				}
-				context.refactorData();
-
-				context.afterRefactor();
-				if (context.isDrop()) {
-					importCount.increamentIgnoreTotalCount();
-					continue;
-				}
-				DBRecord record = buildDBRecord(  context );
-				records.add(record);
-				count++;
-				if (count >= batchsize) {
-
-					taskNo ++;
-					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount,importContext,targetImportContext,records,taskNo,
-							importCount.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
-					int temp  = count;
-					count = 0;
-					records = new ArrayList<DBRecord>();
-					ret = TaskCall.call(taskCommand);
-//					importContext.flushLastValue(lastValue);
-
-					if(isPrintTaskLog())  {
-						end = System.currentTimeMillis();
-						logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
-								.append(",import ").append(temp).append(" records.").toString());
-						istart = end;
-					}
-
-					totalCount += temp;
-
-
-				}
+			@Override
+			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+				taskNo = action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed);
+				return taskNo;
 
 			}
-			if (count > 0) {
-				if(!tranErrorWrapper.assertCondition()) {
-					tranErrorWrapper.throwError();
-				}
-				taskNo ++;
-				Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(importCount,importContext,targetImportContext,
-						records,taskNo,importCount.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
-				ret = TaskCall.call(taskCommand);
-//				importContext.flushLastValue(lastValue);
-				if(isPrintTaskLog())  {
-					end = System.currentTimeMillis();
-					logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
-							.append(",import ").append(count).append(" records.").toString());
 
-				}
-				totalCount += count;
-			}
-			if(isPrintTaskLog()) {
-				end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("Batch import Execute Tasks:").append(taskNo).append(",All Take time:").append((end - start)).append("ms")
-						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
-						.append(ignoreTotalCount).append(" records.").toString());
 
-			}
-		}  catch (ElasticSearchException e) {
-			exception = e;
-			throw e;
-		} catch (Exception e) {
-			exception = e;
-			throw new ElasticSearchException(e);
-		}
-		finally {
-			if(!tranErrorWrapper.assertCondition(exception)){
-				if(!importContext.getDataTranPlugin().isMultiTran()) {
-					this.stop();
-				} else{
-					this.stopTranOnly();
-				}
-			}
-			importCount.setJobEndTime(new Date());
-		}
-
-		return ret;
+		};
 	}
 
-
+	@Override
+	protected void initTranJob(){
+		tranJob = new CommonRecordTranJob();
+	}
 
 
 

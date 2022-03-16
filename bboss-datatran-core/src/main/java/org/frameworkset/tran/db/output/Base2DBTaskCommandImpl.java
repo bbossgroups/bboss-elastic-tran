@@ -18,6 +18,7 @@ package org.frameworkset.tran.db.output;
 import com.frameworkset.common.poolman.*;
 import org.frameworkset.elasticsearch.ElasticSearchException;
 import org.frameworkset.persitent.type.BaseTypeMethod;
+import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBRecord;
 import org.frameworkset.tran.metrics.ImportCount;
@@ -43,13 +44,13 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, String> {
+public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, String> {
 	private DBOutPutContext es2DBContext;
 	private String taskInfo;
 	private boolean needBatch;
 	private static final Logger logger = LoggerFactory.getLogger(Base2DBTaskCommandImpl.class);
 	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
-								  List<DBRecord> datas, int taskNo, String jobNo, String taskInfo,
+								  List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
 								  boolean needBatch, Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
 		super(importCount,importContext, targetImportContext,datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed,   taskContext);
 		this.needBatch = needBatch;
@@ -67,7 +68,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 		List<DBRecord> _udatas = new ArrayList<DBRecord>();
 		List<DBRecord> _ddatas = new ArrayList<DBRecord>();
 		for(int i = 0; datas != null && i < datas.size(); i ++){
-			DBRecord dbRecord = datas.get(i);
+			DBRecord dbRecord = (DBRecord)datas.get(i);
 			if(dbRecord.isInsert())
 				_idatas.add(dbRecord);
 			else if(dbRecord.isUpate()){
@@ -98,17 +99,17 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 		}
 	}
 
-	public List<DBRecord> getDatas() {
+	public List<CommonRecord> getDatas() {
 		return datas;
 	}
 
 
-	private List<DBRecord> datas;
+	private List<CommonRecord> datas;
 	private int tryCount;
 
 
 
-	public void setDatas(List<DBRecord> datas) {
+	public void setDatas(List<CommonRecord> datas) {
 		this.datas = datas;
 	}
 
@@ -163,7 +164,8 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 			String sql = null;
 			if(batchsize <= 1 || !needBatch) {//如果batchsize被设置为0或者1直接一次性批处理所有记录
 				List resources = null;
-				for(DBRecord record:datas){
+				for(CommonRecord dbRecord:datas){
+					DBRecord record = (DBRecord)dbRecord;
 					if(record.isInsert()) {
 						sql = insertSqlinfo.getSql();
 					}
@@ -248,7 +250,8 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<DBRecord>, Stri
 				List resources = null;
 				int point = batchsize - 1;
 				int count = 0;
-				for(DBRecord record:datas) {
+				for(CommonRecord dbRecord:datas) {
+					DBRecord record = (DBRecord)dbRecord;
 					if(record.isInsert()) {
 						sql = insertSqlinfo.getSql();
 					}

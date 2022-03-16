@@ -47,7 +47,7 @@ public class HBase2FileFtpDataTranPlugin extends HBaseInputPlugin {
 	protected void doTran(ResultScanner rs, TaskContext taskContext) {
 		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
 		FileFtpOutPutDataTran fileFtpOutPutDataTran = FileFtpOutPutUtil.buildFileFtpOutPutDataTran(taskContext,hBaseResultSet,importContext,   targetImportContext,  currentStatus);
-		fileFtpOutPutDataTran.init();
+		fileFtpOutPutDataTran.initTran();
 		fileFtpOutPutDataTran.tran();
 	}
 

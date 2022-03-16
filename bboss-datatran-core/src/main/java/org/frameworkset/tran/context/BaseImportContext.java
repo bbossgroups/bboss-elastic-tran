@@ -62,7 +62,13 @@ public abstract  class BaseImportContext implements ImportContext {
 	public BaseImportContext(){
 
 	}
+	public long getLogsendTaskMetric() {
+		return baseImportConfig.getLogsendTaskMetric();
+	}
 
+	public boolean serialAllData(){
+		return baseImportConfig.isSerialAllData();
+	}
 	public String getTargetDBName(){
 		String dbName = baseImportConfig.getTargetDbname();
 		if(dbName == null){

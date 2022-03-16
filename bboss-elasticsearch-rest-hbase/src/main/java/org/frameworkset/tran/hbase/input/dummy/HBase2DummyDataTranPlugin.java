@@ -45,7 +45,7 @@ public class HBase2DummyDataTranPlugin extends HBaseInputPlugin {
 	protected void doTran(ResultScanner rs, TaskContext taskContext) {
 		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
 		BaseCommonRecordDataTran baseCommonRecordDataTran = createCustomOrDummyTran( taskContext,  hBaseResultSet,currentStatus);
-		baseCommonRecordDataTran.init();
+		baseCommonRecordDataTran.initTran();
 		baseCommonRecordDataTran.tran();
 
 	}

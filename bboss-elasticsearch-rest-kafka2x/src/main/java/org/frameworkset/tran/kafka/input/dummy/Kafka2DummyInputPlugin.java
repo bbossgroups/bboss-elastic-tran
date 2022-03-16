@@ -41,7 +41,7 @@ public class Kafka2DummyInputPlugin extends Kafka2InputPlugin {
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
 		//DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,tranResultSet,importContext,   targetImportContext, currentStatus);
 		BaseCommonRecordDataTran dummyOutPutDataTran = super.createCustomOrDummyTran(taskContext,tranResultSet,currentStatus);
-		dummyOutPutDataTran.init();
+		dummyOutPutDataTran.initTran();
 		return dummyOutPutDataTran;
 	}
 

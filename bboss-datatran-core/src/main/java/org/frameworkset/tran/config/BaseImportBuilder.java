@@ -198,6 +198,21 @@ public abstract class BaseImportBuilder {
 	 * 单位：毫秒
 	 */
 	private long asynFlushStatusInterval = 10000;
+	/**
+	 * 串行多条记录处理时，把所有记录一次性加载导入，还是单条逐条导入 true 一次性加载导入， false 逐条加载导入
+	 */
+	private boolean serialAllData;
+
+	public long getLogsendTaskMetric() {
+		return logsendTaskMetric;
+	}
+
+	public BaseImportBuilder setLogsendTaskMetric(long logsendTaskMetric) {
+		this.logsendTaskMetric = logsendTaskMetric;
+		return this;
+	}
+
+	protected long logsendTaskMetric = 10000l;
 	public long getAsynResultPollTimeOut() {
 		return asynResultPollTimeOut;
 	}
@@ -1344,6 +1359,8 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setIncreamentEndOffset(this.increamentEndOffset);
 		baseImportConfig.setAsynFlushStatus(this.asynFlushStatus);
 		baseImportConfig.setAsynFlushStatusInterval(this.asynFlushStatusInterval);
+		baseImportConfig.setSerialAllData(this.serialAllData);
+		baseImportConfig.setLogsendTaskMetric(logsendTaskMetric);
 		baseImportConfig.setSplitHandler(this.getSplitHandler());
 		baseImportConfig.setSplitFieldName(getSplitFieldName());
 		baseImportConfig.setCustomOutPut(customOutPut);
@@ -1761,4 +1778,17 @@ public abstract class BaseImportBuilder {
 		return this;
 	}
 
+	public boolean isSerialAllData() {
+		return serialAllData;
+	}
+
+	/**
+	 * 串行多条记录处理时，把所有记录一次性加载导入，还是单条逐条导入 true 一次性加载导入， false 逐条加载导入
+	 * @param serialAllData
+	 * @return
+	 */
+	public BaseImportBuilder setSerialAllData(boolean serialAllData) {
+		this.serialAllData = serialAllData;
+		return this;
+	}
 }
