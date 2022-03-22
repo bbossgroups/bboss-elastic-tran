@@ -14,6 +14,7 @@ import org.frameworkset.tran.input.file.FileReaderTask;
 import org.frameworkset.tran.record.CommonData;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.TranStopReadEOFCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,10 +153,16 @@ public class ExcelFileReaderTask extends FileReaderTask {
 				recordList = new ArrayList<Record>(1);
 
 				recordList.add(new FileLogRecord(taskContext, true, pointer, reachEOFClosed));
-				fileDataTran.appendData(new CommonData(recordList));
+				fileDataTran.setTranStopReadEOFCallback(new TranStopReadEOFCallback() {
+					@Override
+					public void call() {
+						fileListenerService.moveTaskToComplete(ExcelFileReaderTask.this);
 
-				fileListenerService.moveTaskToComplete(this);
-				this.taskEnded();
+					}
+				});
+				fileDataTran.appendData(new CommonData(recordList));
+				taskEnded();
+
 
 			}
 		} catch (Exception e) {

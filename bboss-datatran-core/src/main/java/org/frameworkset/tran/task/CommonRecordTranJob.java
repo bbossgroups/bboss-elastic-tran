@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -41,7 +40,7 @@ import java.util.concurrent.Future;
  * @author biaoping.yin
  * @version 1.0
  */
-public class CommonRecordTranJob implements TranJob{
+public class CommonRecordTranJob extends BaseTranJob{
 	private static Logger logger = LoggerFactory.getLogger(CommonRecordTranJob.class);
 	/**
 	 * 串行批处理导入
@@ -238,11 +237,22 @@ public class CommonRecordTranJob implements TranJob{
 				}
 			}
 
-			importCount.setJobEndTime(new Date());
+//			Date endTime = new Date();
+//			if(baseDataTran.getTaskContext() != null)
+//				baseDataTran.getTaskContext().setJobEndTime(endTime);
+//			importCount.setJobEndTime(endTime);
+//			if(reachEOFClosed){
+//				baseDataTran.tranStopReadEOFCallback();
+//			}
+			baseDataTran.endJob( reachEOFClosed, importCount);
 		}
 
 		return ret;
 	}
+
+
+
+
 
 	/**
 	 * 并行批处理导入，ftp上传，不支持并行生成文件
@@ -366,15 +376,21 @@ public class CommonRecordTranJob implements TranJob{
 			throw new ElasticSearchException(e);
 		}
 		finally {
+			final boolean _reachEOFClosed = reachEOFClosed;
 			baseDataTran.waitTasksComplete(tasks, service, exception, lastValue, totalCount, tranErrorWrapper, new WaitTasksCompleteCallBack() {
 				@Override
 				public void call() {
 //					fileTransfer.sendFile();//传输文件
 					parrelTranCommand.parrelCompleteAction();
+//					Date endTime = new Date();
+//					if(baseDataTran.getTaskContext() != null)
+//						baseDataTran.getTaskContext().setJobEndTime(endTime);
+//					totalCount.setJobEndTime(endTime);
+
 				}
 			},reachEOFClosed);
 
-			totalCount.setJobEndTime(new Date());
+
 		}
 
 		return ret;
@@ -570,7 +586,11 @@ public class CommonRecordTranJob implements TranJob{
 
 				baseDataTran.stopTranOnly();
 			}
-			importCount.setJobEndTime(new Date());
+//			Date endTime = new Date();
+//			if(baseDataTran.getTaskContext() != null)
+//				baseDataTran.getTaskContext().setJobEndTime(endTime);
+//			importCount.setJobEndTime(endTime);
+			baseDataTran.endJob( reachEOFClosed, importCount);
 		}
 		return null;
 
@@ -732,7 +752,11 @@ public class CommonRecordTranJob implements TranJob{
 				baseDataTran.stopTranOnly();
 
 			}
-			importCount.setJobEndTime(new Date());
+//			Date endTime = new Date();
+//			if(baseDataTran.getTaskContext() != null)
+//				baseDataTran.getTaskContext().setJobEndTime(endTime);
+//			importCount.setJobEndTime(endTime);
+			baseDataTran.endJob(  reachEOFClosed, importCount);
 		}
 		return null;
 

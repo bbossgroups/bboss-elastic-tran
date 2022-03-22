@@ -18,12 +18,7 @@ package org.frameworkset.tran.task;
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.elasticsearch.ElasticSearchException;
 import org.frameworkset.soa.BBossStringWriter;
-import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.TranErrorWrapper;
-import org.frameworkset.tran.TranResultSet;
-import org.frameworkset.tran.WaitTasksCompleteCallBack;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
@@ -34,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -47,7 +41,7 @@ import java.util.concurrent.Future;
  * @author biaoping.yin
  * @version 1.0
  */
-public class StringTranJob implements TranJob{
+public class StringTranJob extends BaseTranJob{
 	private static Logger logger = LoggerFactory.getLogger(StringTranJob.class);
 	/**
 	 * 串行批处理导入
@@ -260,7 +254,11 @@ public class StringTranJob implements TranJob{
 			} catch (Exception e) {
 
 			}
-			importCount.setJobEndTime(new Date());
+			baseDataTran.endJob( reachEOFClosed, importCount);
+//			Date endTime = new Date();
+//			if(baseDataTran.getTaskContext() != null)
+//				baseDataTran.getTaskContext().setJobEndTime(endTime);
+//			importCount.setJobEndTime(endTime);
 		}
 
 		return ret;
@@ -401,6 +399,12 @@ public class StringTranJob implements TranJob{
 				public void call() {
 					serialTranCommand.parrelCompleteAction();
 //					fileTransfer.sendFile();//传输文件
+//					Date endTime = new Date();
+//					if(baseDataTran.getTaskContext() != null)
+//						baseDataTran.getTaskContext().setJobEndTime(endTime);
+//					totalCount.setJobEndTime(endTime);
+
+
 				}
 			},reachEOFClosed);
 			try {
@@ -408,7 +412,7 @@ public class StringTranJob implements TranJob{
 			} catch (Exception e) {
 
 			}
-			totalCount.setJobEndTime(new Date());
+
 		}
 
 		return ret;
@@ -629,7 +633,11 @@ public class StringTranJob implements TranJob{
 
 				baseDataTran.stopTranOnly();
 			}
-			importCount.setJobEndTime(new Date());
+//			Date endTime = new Date();
+//			if(baseDataTran.getTaskContext() != null)
+//				baseDataTran.getTaskContext().setJobEndTime(endTime);
+//			importCount.setJobEndTime(endTime);
+			baseDataTran.endJob( reachEOFClosed, importCount);
 		}
 		return null;
 
@@ -808,7 +816,11 @@ public class StringTranJob implements TranJob{
 				baseDataTran.stopTranOnly();
 
 			}
-			importCount.setJobEndTime(new Date());
+//			Date endTime = new Date();
+//			if(baseDataTran.getTaskContext() != null)
+//				baseDataTran.getTaskContext().setJobEndTime(endTime);
+//			importCount.setJobEndTime(endTime);
+			baseDataTran.endJob(  reachEOFClosed, importCount);
 		}
 		return null;
 

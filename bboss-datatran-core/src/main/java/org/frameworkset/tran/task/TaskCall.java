@@ -76,10 +76,9 @@ public class TaskCall implements Runnable {
 	}
 	public static void asynCall(TaskCommand taskCommand){
 		ImportCount importCount = taskCommand.getImportCount();
-		TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
-		taskMetrics.setJobStartTime(importCount.getJobStartTime());
-		taskMetrics.setTaskStartTime(new Date());
+
 		try {
+			taskCommand.init();
 			taskCommand.execute();
 
 		}
@@ -91,14 +90,17 @@ public class TaskCall implements Runnable {
 
 			throw new ElasticSearchException(e);
 		}
+		finally {
+			taskCommand.finished();
+		}
 	}
 	public static <DATA,RESULT> RESULT call(TaskCommand<DATA,RESULT> taskCommand){
 		ImportContext importContext = taskCommand.getImportContext();
 		ImportCount importCount = taskCommand.getImportCount();
 		TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
-		taskMetrics.setJobStartTime(importCount.getJobStartTime());
-		taskMetrics.setTaskStartTime(new Date());
+
 		try {
+			taskCommand.init();
 			RESULT data = taskCommand.execute();
 			long[] metrics = importCount.increamentSuccessCount((long)taskCommand.getDataSize());
 			taskMetrics.setTotalSuccessRecords(metrics[0]);
@@ -150,6 +152,10 @@ public class TaskCall implements Runnable {
 			}
 			throw new ElasticSearchException(e);
 		}
+		finally {
+			taskCommand.finished();
+		}
+
 
 	}
 

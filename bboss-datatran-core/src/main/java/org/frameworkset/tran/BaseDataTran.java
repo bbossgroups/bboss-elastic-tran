@@ -13,6 +13,7 @@ import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.ParrelTranCommand;
 import org.frameworkset.tran.task.SerialTranCommand;
 import org.frameworkset.tran.task.TranJob;
+import org.frameworkset.tran.task.TranStopReadEOFCallback;
 import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,6 +152,22 @@ public abstract class BaseDataTran implements DataTran{
 	public AsynTranResultSet getAsynTranResultSet(){
 		return esTranResultSet;
 	}
+	private TranStopReadEOFCallback tranStopReadEOFCallback;
+
+	public void setTranStopReadEOFCallback(TranStopReadEOFCallback tranStopReadEOFCallback) {
+		this.tranStopReadEOFCallback = tranStopReadEOFCallback;
+	}
+
+	public TranStopReadEOFCallback getTranStopReadEOFCallback() {
+		return tranStopReadEOFCallback;
+	}
+	public void tranStopReadEOFCallback(){
+		if(tranStopReadEOFCallback != null){
+			tranStopReadEOFCallback.call();
+		}
+	}
+
+
 	public void appendData(Data data){
 
 		if(esTranResultSet != null)
@@ -287,6 +304,15 @@ public abstract class BaseDataTran implements DataTran{
 			}
 		}
 	}
+	public void endJob( boolean reachEOFClosed, ImportCount importCount){
+		Date endTime = new Date();
+		if(getTaskContext() != null)
+			getTaskContext().setJobEndTime(endTime);
+		importCount.setJobEndTime(endTime);
+		if(reachEOFClosed){
+			tranStopReadEOFCallback();
+		}
+	}
 	public boolean isPrintTaskLog(){
 		return importContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
@@ -317,7 +343,7 @@ public abstract class BaseDataTran implements DataTran{
 			}
 			if(waitTasksCompleteCallBack != null)
 				waitTasksCompleteCallBack.call();
-			totalCount.setJobEndTime(new Date());
+
 			if(isPrintTaskLog()) {
 
 				logger.info(new StringBuilder().append("Parallel batch import Complete tasks:")
@@ -327,7 +353,7 @@ public abstract class BaseDataTran implements DataTran{
 						.append(totalCount.getFailedCount()).append(" records.").toString());
 			}
 			jobComplete(  service,exception,lastValue ,tranErrorWrapper,this.currentStatus,reachEOFClosed);
-			totalCount.setJobEndTime(new Date());
+			endJob(  reachEOFClosed, totalCount);
 		}
 		else{
 			Thread completeThread = new Thread(new Runnable() {

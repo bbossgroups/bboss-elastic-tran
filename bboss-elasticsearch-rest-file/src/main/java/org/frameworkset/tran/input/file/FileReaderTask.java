@@ -10,6 +10,7 @@ import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.record.CommonData;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.TranStopReadEOFCallback;
 import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -575,10 +576,16 @@ public class FileReaderTask extends FieldManager{
                     recordList = new ArrayList<Record>(1);
                     pointer = raf.getFilePointer();
                     recordList.add(new FileLogRecord(taskContext,true,pointer,reachEOFClosed));
+                    fileDataTran.setTranStopReadEOFCallback(new TranStopReadEOFCallback() {
+                        @Override
+                        public void call() {
+                            fileListenerService.moveTaskToComplete(FileReaderTask.this);
+
+                        }
+                    });
                     fileDataTran.appendData(new CommonData(recordList));
 
-                    fileListenerService.moveTaskToComplete(this);
-                    this.taskEnded();
+                    taskEnded();
 
                 }
 //            }

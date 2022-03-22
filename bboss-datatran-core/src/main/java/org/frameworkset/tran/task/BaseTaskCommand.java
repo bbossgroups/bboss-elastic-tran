@@ -20,6 +20,10 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 /**
  * <p>Description: </p>
@@ -30,6 +34,7 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,RESULT> {
+	private static Logger logger = LoggerFactory.getLogger(BaseTaskCommand.class);
 	protected ImportCount importCount;
 	protected ImportContext importContext;
 	protected ImportContext targetImportContext;
@@ -39,6 +44,15 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	protected long dataSize;
 	protected boolean reachEOFClosed;
 	protected Status currentStatus;
+	public void init(){
+		TaskMetrics taskMetrics = getTaskMetrics();
+		taskMetrics.setJobStartTime(importCount.getJobStartTime());
+		taskMetrics.setTaskStartTime(new Date());
+		if(taskContext != null){
+			taskContext.beginTask(taskMetrics);
+		}
+
+	}
 	public long getDataSize(){
 		return dataSize;
 	}
@@ -57,6 +71,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	}
 	public void finishTask(){
 		importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
+
 	}
 
 	/**
@@ -86,5 +101,21 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	}
 	public ImportCount getImportCount(){
 		return this.importCount;
+	}
+
+	@Override
+	public TaskContext getTaskContext() {
+		return taskContext;
+	}
+	@Override
+	public void finished(){
+		try {
+			if (taskContext != null && taskMetrics != null) {
+				taskContext.finishTaskMetrics(taskMetrics);
+			}
+		}
+		catch (Exception e){
+			logger.error("Task finished failed:",e);
+		}
 	}
 }

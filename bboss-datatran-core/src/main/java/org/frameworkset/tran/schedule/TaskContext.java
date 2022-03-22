@@ -19,7 +19,10 @@ import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBImportConfig;
 import org.frameworkset.tran.db.output.TranSQLInfo;
+import org.frameworkset.tran.metrics.JobTaskMetrics;
+import org.frameworkset.tran.metrics.TaskMetrics;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +36,7 @@ import java.util.Map;
  */
 public class TaskContext {
 	private Map<String,Object> taskDatas;
+	private JobTaskMetrics jobTaskMetrics;
 	/**
 	 * 获取任务级别数据库配置
 	 */
@@ -57,6 +61,7 @@ public class TaskContext {
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
 		taskDatas = new HashMap<String, Object>();
+		jobTaskMetrics = new JobTaskMetrics();
 	}
 	private ImportContext importContext;
 
@@ -169,5 +174,32 @@ public class TaskContext {
 		else{
 			return null;
 		}
+	}
+
+	public synchronized void beginTask(TaskMetrics taskMetrics){
+		jobTaskMetrics.setJobNo(taskMetrics.getJobNo());
+		jobTaskMetrics.setJobStartTime(taskMetrics.getJobStartTime());
+		jobTaskMetrics.increamentTasks();
+	}
+
+	/**
+	 * 添加任务统计数据
+	 * @param taskMetrics
+	 */
+	public synchronized void finishTaskMetrics(TaskMetrics taskMetrics){
+
+		jobTaskMetrics.setTotalFailedRecords(taskMetrics.getTotalFailedRecords());
+		jobTaskMetrics.setTotalIgnoreRecords(taskMetrics.getTotalIgnoreRecords());
+		jobTaskMetrics.setTotalRecords(taskMetrics.getTotalRecords());
+		jobTaskMetrics.setTotalSuccessRecords(taskMetrics.getTotalSuccessRecords());
+
+
+	}
+	public void setJobEndTime(Date jobEndTime) {
+		jobTaskMetrics.setJobEndTime(jobEndTime);
+	}
+
+	public JobTaskMetrics getJobTaskMetrics() {
+		return jobTaskMetrics;
 	}
 }
