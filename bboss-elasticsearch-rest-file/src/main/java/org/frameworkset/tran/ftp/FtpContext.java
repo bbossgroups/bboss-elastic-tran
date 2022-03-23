@@ -31,7 +31,7 @@ import java.util.List;
  */
 public interface FtpContext {
 	String getFtpIP();
-
+	RemoteFileValidate getRemoteFileValidate();
 	int getFtpPort();
 	FtpConfig getFtpConfig();
 	FileConfig getFileConfig();

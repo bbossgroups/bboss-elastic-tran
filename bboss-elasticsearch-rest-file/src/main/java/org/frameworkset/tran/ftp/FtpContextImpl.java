@@ -46,6 +46,11 @@ public class FtpContextImpl implements FtpContext {
 	}
 
 	@Override
+	public RemoteFileValidate getRemoteFileValidate() {
+		return ftpConfig.getRemoteFileValidate();
+	}
+
+	@Override
 	public int getFtpPort() {
 		return ftpConfig.getFtpPort();
 	}

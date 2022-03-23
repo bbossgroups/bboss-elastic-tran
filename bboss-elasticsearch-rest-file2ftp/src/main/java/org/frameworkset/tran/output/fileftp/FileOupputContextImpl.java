@@ -19,6 +19,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.ftp.FtpConfig;
+import org.frameworkset.tran.ftp.RemoteFileValidate;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
@@ -116,6 +117,11 @@ public class FileOupputContextImpl extends BaseImportContext implements FileOupp
 	@Override
 	public String getFtpIP() {
 		return ftpOutConfig.getFtpIP();
+	}
+
+	@Override
+	public RemoteFileValidate getRemoteFileValidate() {
+		return null;
 	}
 
 	@Override

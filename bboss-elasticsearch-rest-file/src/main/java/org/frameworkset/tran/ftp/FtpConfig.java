@@ -64,6 +64,7 @@ public class FtpConfig  {
 	private String remoteFileDir;
 	private String encoding;
 	private boolean deleteRemoteFile;
+	private RemoteFileValidate remoteFileValidate;
 	public FtpConfig addHostKeyVerifier(String hostKeyVerifier) {
 		if(hostKeyVerifiers  == null){
 			this.hostKeyVerifiers = new ArrayList<String>();
@@ -289,6 +290,15 @@ public class FtpConfig  {
 
 	public FtpConfig setDeleteRemoteFile(boolean deleteRemoteFile) {
 		this.deleteRemoteFile = deleteRemoteFile;
+		return this;
+	}
+
+	public RemoteFileValidate getRemoteFileValidate() {
+		return remoteFileValidate;
+	}
+
+	public FtpConfig setRemoteFileValidate(RemoteFileValidate remoteFileValidate) {
+		this.remoteFileValidate = remoteFileValidate;
 		return this;
 	}
 }

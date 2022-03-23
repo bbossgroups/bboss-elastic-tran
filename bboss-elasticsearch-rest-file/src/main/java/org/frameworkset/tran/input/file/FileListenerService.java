@@ -5,10 +5,7 @@ import net.schmizz.sshj.sftp.RemoteResourceInfo;
 import org.apache.commons.net.ftp.FTPFile;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
-import org.frameworkset.tran.ftp.FtpConfig;
-import org.frameworkset.tran.ftp.FtpContext;
-import org.frameworkset.tran.ftp.FtpTransfer;
-import org.frameworkset.tran.ftp.SFTPTransfer;
+import org.frameworkset.tran.ftp.*;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.slf4j.Logger;
@@ -258,10 +255,7 @@ public class FileListenerService {
     }
 
 
-    static interface RemoteFileAction {
-        boolean downloadFile(String localFile,String remoteFile);
-        void deleteFile(String remoteFile);
-    }
+
 
     public void checkSFtpNewFile(String relativeParentDir,RemoteResourceInfo remoteResourceInfo,  final FtpContext ftpContext) {
         checkRemoteNewFile( relativeParentDir,remoteResourceInfo.getName(), remoteResourceInfo.getPath(),  ftpContext, new RemoteFileAction() {
@@ -347,6 +341,88 @@ public class FileListenerService {
             logger.warn("Create parent dir " + parent.getAbsolutePath() + " failed:");
         }
     }
+    interface DownAction{
+        void down(int times,boolean redown);
+    }
+
+    private RemoteFileValidate.Result remoteFileValidate(String remoteFile,File dataFile, FtpContext ftpContext, RemoteFileAction remoteFileAction,DownAction downAction,boolean redown){
+        RemoteFileValidate remoteFileValidate = ftpContext.getRemoteFileValidate();
+        if(remoteFileValidate == null)
+            return RemoteFileValidate.Result.default_ok;
+        RemoteFileValidate.Result result = remoteFileValidate.validateFile(dataFile,remoteFile,ftpContext,remoteFileAction,redown);
+
+        if( result.getValidateResult() == RemoteFileValidate.FILE_VALIDATE_FAILED_DELETE){
+           if(!redown) {
+               dataFile.delete();
+               if (result.getMessage() != null ) {
+
+                   logger.warn("FILE_VALIDATE_FAILED file {},remotePath:{}  failed:{}", dataFile.getAbsolutePath(), remoteFile,result.getMessage());
+               }
+           }
+        }
+        else   if( result.getValidateResult() == RemoteFileValidate.FILE_VALIDATE_FAILED){
+            if(!redown) {
+
+                if (result.getMessage() != null ) {
+
+                    logger.warn("FILE_VALIDATE_FAILED file {},remotePath:{}  failed:{}", dataFile.getAbsolutePath(), remoteFile,result.getMessage());
+                }
+            }
+        }
+        else if(result.getValidateResult() == RemoteFileValidate.FILE_VALIDATE_FAILED_REDOWNLOAD ){
+            if(!redown) {
+                if (result.getMessage() != null ) {
+
+                    logger.warn("FILE_VALIDATE_FAILED file {},remotePath:{}  failed:{}", dataFile.getAbsolutePath(), remoteFile,result.getMessage());
+                }
+                int downloadCounts = result.getRedownloadCounts();
+                if (downloadCounts > 0) {
+                    int tmp = 0;
+                    do {
+                        try {
+                            dataFile.delete();//删除文件，再重新下载
+                        } catch (Exception e) {
+                            logger.warn("FILE_VALIDATE_FAILED_REDOWNLOAD delete file " + dataFile.getAbsolutePath() + ",remotePath:"+remoteFile+" failed:", e);
+                        }
+                        try {
+                            Thread.currentThread().sleep(10000l);//等待10秒后下载
+                        } catch (InterruptedException e) {
+                            logger.warn("", e);
+                        }
+
+                        downAction.down(tmp,true);//重下文件
+                        if(!dataFile.exists()){
+                            continue;
+                        }
+                        result = remoteFileValidate(remoteFile,dataFile, ftpContext, remoteFileAction, downAction, true);
+                        if (result.isOk()) {
+                            logger.info("File {} ,RemotePath:{} 重试{}次后下载成功.", dataFile.getAbsolutePath(),remoteFile,tmp + 1);
+                            break;
+                        }
+
+                        tmp++;
+                        if (result.getMessage() != null ) {
+
+                            logger.warn("FILE_VALIDATE_FAILED file {} ,remotePath:{} failed:{}", dataFile.getAbsolutePath(),remoteFile,result.getMessage());
+                        }
+                        if (tmp == downloadCounts) {
+                            break;
+                        }
+                    } while (true);
+                }
+                try {
+                    if (!result.isOk() && dataFile.exists())//
+                        dataFile.delete();//删除文件，再重新下载
+                } catch (Exception e) {
+                    logger.warn("FILE_VALIDATE_FAILED_REDOWNLOAD delete file " + dataFile.getAbsolutePath() + ",remotePath:"+remoteFile+" failed:", e);
+                }
+            }
+        }
+
+        return result;
+
+
+    }
 
     /**
      *
@@ -356,12 +432,12 @@ public class FileListenerService {
      * @param ftpContext
      * @param remoteFileAction
      */
-    private void checkRemoteNewFile(String relativeParentDir,String fileName, String remoteFile, FtpContext ftpContext, RemoteFileAction remoteFileAction) {
+    private void checkRemoteNewFile(String relativeParentDir,String fileName, final String remoteFile, FtpContext ftpContext, final RemoteFileAction remoteFileAction) {
         FtpConfig ftpConfig = ftpContext.getFtpConfig();
         FileConfig fileConfig = ftpContext.getFileConfig();
         File handleFile = new File( SimpleStringUtil.getPath(fileConfig.getSourcePath(),relativeParentDir), fileName);//正式文件,如果有子目录，则需要保存到子目录
         checkParentExist(handleFile);
-        File localFile = new File(SimpleStringUtil.getPath(ftpConfig.getDownloadTempDir(),relativeParentDir),fileName);//临时下载文件，,如果有子目录，则需要保存到临时子目录，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
+        final File localFile = new File(SimpleStringUtil.getPath(ftpConfig.getDownloadTempDir(),relativeParentDir),fileName);//临时下载文件，,如果有子目录，则需要保存到临时子目录，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
         checkParentExist(localFile);
         String fileId = FileInodeHandler.change(handleFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
         try {
@@ -386,14 +462,43 @@ public class FileListenerService {
                      * 支持断点续传
                      */
 //                    SFTPTransfer.downloadFile(ftpContext,remoteFile,fileConfig.getDownloadTempDir());
-                    remoteFileAction.downloadFile(localFile.getAbsolutePath(),remoteFile);
+                    DownAction downAction = new DownAction() {
+                        @Override
+                        public void down(int times,boolean redown) {
+                            if(redown){
+                                logger.warn("第{}次重试下载文件：localPath:{},remotePath:{}",times+1,localFile.getAbsolutePath(),remoteFile);
+                            }
+                            remoteFileAction.downloadFile(localFile.getAbsolutePath(),remoteFile);
+                            if(!localFile.exists()){
+                                if(!redown) {
+                                    logger.warn("下载文件失败：localPath:{},remotePath:{}", localFile.getAbsolutePath(), remoteFile);
+                                }
+                                else {
+                                    logger.warn("第{}次重试下载文件失败：localPath:{},remotePath:{}", times+1,localFile.getAbsolutePath(), remoteFile);
+                                }
+
+                            }
+                        }
+                    };
+//                    remoteFileAction.downloadFile(localFile.getAbsolutePath(),remoteFile);
+                    downAction.down(-1,false);
                     if(!localFile.exists()){
-                        logger.warn("文件下载失败：localPath:{},remotePath:{}",localFile.getAbsolutePath(),remoteFile);
                         return;
                     }
-                    localFile.renameTo(handleFile);
-                    if(logger.isInfoEnabled())
-						logger.info("Rename " + localFile.getAbsolutePath() + " to " + handleFile.getAbsolutePath());
+                    RemoteFileValidate.Result result = remoteFileValidate(remoteFile,localFile, ftpContext, remoteFileAction, downAction, false);
+                    if(!result.isOk()){
+                        logger.warn("文件校验失败：localPath:{},remotePath:{}",localFile.getAbsolutePath(),remoteFile);
+                        return;
+                    }
+                    boolean renamesuccess = localFile.renameTo(handleFile);
+                    if(renamesuccess) {
+                        if (logger.isInfoEnabled())
+                            logger.info("Rename " + localFile.getAbsolutePath() + " to " + handleFile.getAbsolutePath());
+                    }
+                    else{
+                        logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteFile,handleFile.getAbsolutePath());
+                        return;
+                    }
                 }
                 if(!handleFile.exists()){
                     logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteFile,handleFile.getAbsolutePath());
