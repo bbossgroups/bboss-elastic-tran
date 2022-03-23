@@ -188,10 +188,10 @@ public class TaskContext {
 	 */
 	public synchronized void finishTaskMetrics(TaskMetrics taskMetrics){
 
-		jobTaskMetrics.setTotalFailedRecords(taskMetrics.getTotalFailedRecords());
-		jobTaskMetrics.setTotalIgnoreRecords(taskMetrics.getTotalIgnoreRecords());
-		jobTaskMetrics.setTotalRecords(taskMetrics.getTotalRecords());
-		jobTaskMetrics.setTotalSuccessRecords(taskMetrics.getTotalSuccessRecords());
+		jobTaskMetrics.increamentFailedRecords(taskMetrics.getFailedRecords());
+		jobTaskMetrics.increamentIgnoreRecords(taskMetrics.getIgnoreRecords());
+		jobTaskMetrics.increamentRecords(taskMetrics.getRecords());
+		jobTaskMetrics.increamentSuccessRecords(taskMetrics.getSuccessRecords());
 
 
 	}

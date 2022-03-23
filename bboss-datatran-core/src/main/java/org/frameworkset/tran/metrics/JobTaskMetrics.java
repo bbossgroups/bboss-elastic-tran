@@ -52,10 +52,16 @@ public class JobTaskMetrics {
 		this.totalRecords = totalRecords;
 	}
 
+	public void increamentRecords(long records){
+		totalRecords = totalRecords + records;
+	}
+
 	public long getTotalFailedRecords() {
 		return totalFailedRecords;
 	}
-
+	public void increamentFailedRecords(long failedRecords){
+		totalFailedRecords = totalFailedRecords + failedRecords;
+	}
 	public void setTotalFailedRecords(long totalFailedRecords) {
 		this.totalFailedRecords = totalFailedRecords;
 	}
@@ -63,7 +69,9 @@ public class JobTaskMetrics {
 	public long getTotalIgnoreRecords() {
 		return totalIgnoreRecords;
 	}
-
+	public void increamentIgnoreRecords(long ignoreRecords){
+		totalIgnoreRecords = totalIgnoreRecords + ignoreRecords;
+	}
 	public void setTotalIgnoreRecords(long totalIgnoreRecords) {
 		this.totalIgnoreRecords = totalIgnoreRecords;
 	}
@@ -71,7 +79,9 @@ public class JobTaskMetrics {
 	public long getTotalSuccessRecords() {
 		return totalSuccessRecords;
 	}
-
+	public void increamentSuccessRecords(long successRecords){
+		totalSuccessRecords = totalSuccessRecords + successRecords;
+	}
 	public void setTotalSuccessRecords(long totalSuccessRecords) {
 		this.totalSuccessRecords = totalSuccessRecords;
 	}

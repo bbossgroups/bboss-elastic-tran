@@ -91,7 +91,7 @@ public class TaskCall implements Runnable {
 			throw new ElasticSearchException(e);
 		}
 		finally {
-			taskCommand.finished();
+//			taskCommand.finished();
 		}
 	}
 	public static <DATA,RESULT> RESULT call(TaskCommand<DATA,RESULT> taskCommand){
@@ -106,6 +106,8 @@ public class TaskCall implements Runnable {
 			taskMetrics.setTotalSuccessRecords(metrics[0]);
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setSuccessRecords((long)taskCommand.getDataSize());
+			taskMetrics.setRecords(taskMetrics.getSuccessRecords());
+			taskMetrics.setIgnoreRecords(importCount.getIgnoreTotalCount() - taskMetrics.getTotalIgnoreRecords());
 			taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
 			taskMetrics.setTaskEndTime(new Date());
 			if (importContext.getExportResultHandler() != null) {//处理返回值
@@ -121,8 +123,10 @@ public class TaskCall implements Runnable {
 		catch (ElasticSearchException e){
 			long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
 			taskMetrics.setFailedRecords(taskCommand.getDataSize());
+			taskMetrics.setRecords(taskMetrics.getFailedRecords());
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setTotalFailedRecords(metrics[0]);
+			taskMetrics.setIgnoreRecords(importCount.getIgnoreTotalCount() - taskMetrics.getTotalIgnoreRecords());
 			taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
 			taskMetrics.setTaskEndTime(new Date());
 			if (importContext.getExportResultHandler() != null) {
@@ -138,9 +142,12 @@ public class TaskCall implements Runnable {
 		catch (Exception e){
 			long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
 			taskMetrics.setFailedRecords(taskCommand.getDataSize());
+			taskMetrics.setRecords(taskMetrics.getFailedRecords());
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setTotalFailedRecords(metrics[0]);
+			taskMetrics.setIgnoreRecords(importCount.getIgnoreTotalCount() - taskMetrics.getTotalIgnoreRecords());
 			taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
+
 			taskMetrics.setTaskEndTime(new Date());
 			if (importContext.getExportResultHandler() != null) {
 				try {

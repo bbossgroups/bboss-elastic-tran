@@ -37,6 +37,7 @@ public class TaskMetrics {
 	private long successRecords;
 	private long failedRecords;
 	private long ignoreRecords;
+	private long records;
 	private int taskNo;
 	private String jobNo;
 
@@ -157,5 +158,13 @@ public class TaskMetrics {
 //				.append(", ignoreRecords:").append(ignoreRecords)
 				.append(", failedRecords:").append(failedRecords).append("}");
 		return builder.toString();
+	}
+
+	public long getRecords() {
+		return records;
+	}
+
+	public void setRecords(long records) {
+		this.records = records;
 	}
 }

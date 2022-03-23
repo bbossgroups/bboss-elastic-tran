@@ -54,44 +54,54 @@ public class KafkaSendImpl {
 		Callback callback = new Callback() {
 			@Override
 			public void onCompletion(RecordMetadata metadata, Exception exception) {
-				ImportContext importContext = taskCommand.getImportContext();
-				ImportCount importCount = taskCommand.getImportCount();
-				TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
-				if(exception == null) {
-					taskCommand.finishTask();
-					long[] metrics = importCount.increamentSuccessCount((long)taskCommand.getDataSize());
-					taskMetrics.setTotalSuccessRecords(metrics[0]);
-					taskMetrics.setTotalRecords(metrics[1]);
-					taskMetrics.setSuccessRecords((long)taskCommand.getDataSize());
-					taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
-					taskMetrics.setTaskEndTime(new Date());
-					if (importContext.getExportResultHandler() != null) {//处理返回值
-						try {
-							importContext.getExportResultHandler().handleResult(taskCommand, metadata);
+				try {
+					ImportContext importContext = taskCommand.getImportContext();
+					ImportCount importCount = taskCommand.getImportCount();
+					TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
+					if(exception == null) {
+						taskCommand.finishTask();
+						long[] metrics = importCount.increamentSuccessCount((long)taskCommand.getDataSize());
+						taskMetrics.setTotalSuccessRecords(metrics[0]);
+						taskMetrics.setTotalRecords(metrics[1]);
+						taskMetrics.setSuccessRecords((long)taskCommand.getDataSize());
+						taskMetrics.setRecords(taskMetrics.getSuccessRecords());
+						taskMetrics.setIgnoreRecords(importCount.getIgnoreTotalCount() - taskMetrics.getTotalIgnoreRecords());
+						taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
+						taskMetrics.setTaskEndTime(new Date());
+						if (importContext.getExportResultHandler() != null) {//处理返回值
+							try {
+								importContext.getExportResultHandler().handleResult(taskCommand, metadata);
+							}
+							catch (Exception e){
+								logger.warn("",e);
+							}
 						}
-						catch (Exception e){
-							logger.warn("",e);
-						}
-					}
 //					exportResultHandler.success(taskCommand, metadata);
-				}
-				else{
-//					exportResultHandler.exception(taskCommand,new KafkaSendException(metadata,exception));
-					long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
-					taskMetrics.setFailedRecords(taskCommand.getDataSize());
-					taskMetrics.setTotalRecords(metrics[1]);
-					taskMetrics.setTotalFailedRecords(metrics[0]);
-					taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
-					taskMetrics.setTaskEndTime(new Date());
-					if (importContext.getExportResultHandler() != null) {
-						try {
-							importContext.getExportResultHandler().handleException(taskCommand,new KafkaSendException(metadata,exception));
-						}
-						catch (Exception ee){
-							logger.warn("",ee);
-						}
 					}
+					else{
+//					exportResultHandler.exception(taskCommand,new KafkaSendException(metadata,exception));
+						long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
+						taskMetrics.setFailedRecords(taskCommand.getDataSize());
+						taskMetrics.setRecords(taskMetrics.getFailedRecords());
+						taskMetrics.setTotalRecords(metrics[1]);
+						taskMetrics.setTotalFailedRecords(metrics[0]);
+						taskMetrics.setIgnoreRecords(importCount.getIgnoreTotalCount() - taskMetrics.getTotalIgnoreRecords());
+						taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
+						taskMetrics.setTaskEndTime(new Date());
+						if (importContext.getExportResultHandler() != null) {
+							try {
+								importContext.getExportResultHandler().handleException(taskCommand,new KafkaSendException(metadata,exception));
+							}
+							catch (Exception ee){
+								logger.warn("",ee);
+							}
+						}
 //					throw new ElasticSearchException(e);
+					}
+
+				}
+				finally {
+					taskCommand.finished();
 				}
 			}
 		};
