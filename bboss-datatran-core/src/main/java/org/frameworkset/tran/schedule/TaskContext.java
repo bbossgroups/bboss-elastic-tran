@@ -61,10 +61,15 @@ public class TaskContext {
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
 		taskDatas = new HashMap<String, Object>();
-		jobTaskMetrics = new JobTaskMetrics();
+		jobTaskMetrics = targetImportContext.createJobTaskMetrics();
 	}
 	private ImportContext importContext;
-
+	public void await(){
+		jobTaskMetrics.await();
+	}
+	public void await(long waitTime){
+		jobTaskMetrics.await(waitTime);
+	}
 	public ImportContext getTargetImportContext() {
 		return targetImportContext;
 	}
@@ -177,8 +182,7 @@ public class TaskContext {
 	}
 
 	public synchronized void beginTask(TaskMetrics taskMetrics){
-		jobTaskMetrics.setJobNo(taskMetrics.getJobNo());
-		jobTaskMetrics.setJobStartTime(taskMetrics.getJobStartTime());
+
 		jobTaskMetrics.increamentTasks();
 	}
 

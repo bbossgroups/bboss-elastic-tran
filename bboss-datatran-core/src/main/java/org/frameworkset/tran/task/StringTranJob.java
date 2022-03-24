@@ -69,7 +69,7 @@ public class StringTranJob extends BaseTranJob{
 		long totalCount = 0;
 		long ignoreTotalCount = 0;
 
-		ImportCount importCount = new SerialImportCount();
+		ImportCount importCount = new SerialImportCount(baseDataTran);
 		int batchsize = importContext.getStoreBatchSize();
 		boolean reachEOFClosed = false;
 		try {
@@ -283,7 +283,7 @@ public class StringTranJob extends BaseTranJob{
 		ExecutorService service = importContext.buildThreadPool();
 		List<Future> tasks = new ArrayList<Future>();
 		int taskNo = 0;
-		ImportCount totalCount = new ParallImportCount();
+		ImportCount totalCount = new ParallImportCount(baseDataTran);
 		Exception exception = null;
 //		Status currentStatus = importContext.getCurrentStatus();
 //		Status currentStatus = this.currentStatus;
@@ -473,7 +473,7 @@ public class StringTranJob extends BaseTranJob{
 		long lastSend = 0;
 //		Status currentStatus = this.currentStatus;
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		ImportCount importCount = new SerialImportCount();
+		ImportCount importCount = new SerialImportCount(baseDataTran);
 		long totalCount = 0;
 
 		boolean reachEOFClosed = false;
@@ -667,7 +667,7 @@ public class StringTranJob extends BaseTranJob{
 //		Status currentStatus = importContext.getCurrentStatus();
 //		Status currentStatus = this.currentStatus;
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		ImportCount importCount = new SerialImportCount();
+		ImportCount importCount = new SerialImportCount(baseDataTran);
 		int taskNo = 0;
 		long totalCount = 0;
 		long ignoreTotalCount = 0;

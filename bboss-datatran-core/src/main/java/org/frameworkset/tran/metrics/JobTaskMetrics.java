@@ -29,11 +29,11 @@ import java.util.Date;
 public class JobTaskMetrics {
 	private Date jobStartTime;
 	private Date jobEndTime;
-	private long totalRecords;
+	protected long totalRecords;
 	private long totalFailedRecords;
 	private long totalIgnoreRecords;
 	private long totalSuccessRecords;
-	private int tasks;
+	protected int tasks;
 	private String jobNo;
 
 	public Date getJobStartTime() {
@@ -86,6 +86,14 @@ public class JobTaskMetrics {
 		this.totalSuccessRecords = totalSuccessRecords;
 	}
 
+	public void await(){
+
+	}
+
+	public void await(long waitime){
+
+	}
+
 	public int getTasks() {
 		return tasks;
 	}
@@ -117,6 +125,11 @@ public class JobTaskMetrics {
 	@Override
 	public String toString(){
 		StringBuilder builder = new StringBuilder();
+		buildString( builder);
+		return builder.toString();
+
+	}
+	protected void buildString(StringBuilder builder){
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		builder.append("JobNo:").append(jobNo);
 		if(jobStartTime != null)
@@ -132,7 +145,5 @@ public class JobTaskMetrics {
 		builder.append(",Total Failed Records:").append(totalFailedRecords);
 		builder.append(",Total Ignore Records:").append(totalIgnoreRecords);
 		builder.append(",Total Tasks:").append(tasks);
-		return builder.toString();
-
 	}
 }

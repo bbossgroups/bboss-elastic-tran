@@ -22,6 +22,7 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
@@ -39,6 +40,7 @@ import java.util.concurrent.ExecutorService;
  */
 public interface ImportContext {
 	public String getSplitFieldName();
+	public JobTaskMetrics createJobTaskMetrics();
 	public SplitHandler getSplitHandler();
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);
 	public String[] getExportColumns();

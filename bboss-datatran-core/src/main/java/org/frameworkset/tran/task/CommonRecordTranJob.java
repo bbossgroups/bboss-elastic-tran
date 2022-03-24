@@ -65,7 +65,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		long totalCount = 0;
 		long ignoreTotalCount = 0;
 
-		ImportCount importCount = new SerialImportCount();
+		ImportCount importCount = new SerialImportCount(baseDataTran);
 		int batchsize = importContext.getStoreBatchSize();
 		boolean reachEOFClosed = false;
 		try {
@@ -271,7 +271,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		ExecutorService	service = importContext.buildThreadPool();
 		List<Future> tasks = new ArrayList<Future>();
 		int taskNo = 0;
-		ImportCount totalCount = new ParallImportCount();
+		ImportCount totalCount = new ParallImportCount(baseDataTran);
 		Exception exception = null;
 //		Status currentStatus = importContext.getCurrentStatus();
 		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
@@ -429,7 +429,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		long lastSend = 0;
 //		Status currentStatus = this.currentStatus;
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		ImportCount importCount = new SerialImportCount();
+		ImportCount importCount = new SerialImportCount(baseDataTran);
 		long totalCount = 0;
 		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
 		boolean reachEOFClosed = false;
@@ -609,7 +609,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		long start = System.currentTimeMillis();
 //		Status currentStatus = importContext.getCurrentStatus();
 		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		ImportCount importCount = new SerialImportCount();
+		ImportCount importCount = new SerialImportCount(baseDataTran);
 		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
 		int taskNo = 0;
 		long totalCount = 0;

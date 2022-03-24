@@ -22,6 +22,7 @@ import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
@@ -42,6 +43,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract  class BaseImportContext implements ImportContext {
 	protected BaseImportConfig baseImportConfig;
+	public JobTaskMetrics createJobTaskMetrics(){
+		return new JobTaskMetrics();
+	}
 
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;

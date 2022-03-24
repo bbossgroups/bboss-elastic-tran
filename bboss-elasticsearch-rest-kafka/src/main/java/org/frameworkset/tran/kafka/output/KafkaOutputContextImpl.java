@@ -19,6 +19,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
+import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
 
@@ -39,7 +40,9 @@ public class KafkaOutputContextImpl extends BaseImportContext implements KafkaOu
 	public KafkaSend getKafkaSend() {
 		return kafkaSend;
 	}
-
+	public JobTaskMetrics createJobTaskMetrics(){
+		return new KafkaJobTaskMetrics();
+	}
 	private KafkaSend kafkaSend;
 	public KafkaOutputContextImpl(BaseImportConfig kafkaOutputConfig){
 		super(kafkaOutputConfig);

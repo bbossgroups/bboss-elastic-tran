@@ -16,6 +16,7 @@ package org.frameworkset.tran.metrics;
  */
 
 import com.frameworkset.util.UUID;
+import org.frameworkset.tran.BaseDataTran;
 
 import java.util.Date;
 
@@ -35,9 +36,14 @@ public abstract class ImportCount {
 	protected long failedCount;
 	protected long successCount;
 	protected long ignoreTotalCount;
-	public ImportCount(){
+	public ImportCount(BaseDataTran baseDataTran){
 		jobNo = UUID.randomUUID().toString();
 		this.jobStartTime = new Date();
+		if(baseDataTran.getTaskContext() != null) {
+			JobTaskMetrics jobTaskMetrics = baseDataTran.getTaskContext().getJobTaskMetrics();
+			jobTaskMetrics.setJobNo(jobNo);
+			jobTaskMetrics.setJobStartTime(jobStartTime);
+		}
 	}
 	public abstract long getTotalCount() ;
 

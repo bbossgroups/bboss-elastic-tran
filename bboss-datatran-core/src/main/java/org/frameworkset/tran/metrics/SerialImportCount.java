@@ -15,9 +15,7 @@ package org.frameworkset.tran.metrics;
  * limitations under the License.
  */
 
-import com.frameworkset.util.UUID;
-
-import java.util.Date;
+import org.frameworkset.tran.BaseDataTran;
 
 /**
  * <p>Description: </p>
@@ -29,9 +27,8 @@ import java.util.Date;
  */
 public class SerialImportCount extends ImportCount{
 
-	public SerialImportCount(){
-		jobNo = UUID.randomUUID().toString();
-		this.jobStartTime = new Date();
+	public SerialImportCount(BaseDataTran baseDataTran){
+		super(baseDataTran);
 	}
 	public long getTotalCount() {
 			return totalCount;
