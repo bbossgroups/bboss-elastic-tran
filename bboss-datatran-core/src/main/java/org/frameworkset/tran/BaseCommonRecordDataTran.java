@@ -154,7 +154,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 				 splitColumns,
 				 addedFields,context);
 		//计算全局级别字段配置值
-		fieldValueMetas = context.getESJDBCFieldValues();//全局配置
+		fieldValueMetas = context.getGlobalFieldValues();//全局配置
 		appendFieldValues(  dbRecord, columns,   fieldValueMetas,  addedFields,  useResultKeys,context);
 		//计算数据源级别字段值
 		String varName = null;

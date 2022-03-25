@@ -267,6 +267,20 @@ public abstract class BaseImportConfig {
 	 */
 	private Map<String, FieldMeta> fieldMetaMap;
 	private List<FieldMeta> fieldValues;
+
+	public Map<String, FieldMeta> getValuesIdxByName() {
+		return valuesIdxByName;
+	}
+
+	public  FieldMeta getValueIdxByName(String fieldName) {
+		return valuesIdxByName != null ?valuesIdxByName.get(fieldName):null;
+	}
+
+	public void setValuesIdxByName(Map<String, FieldMeta> valuesIdxByName) {
+		this.valuesIdxByName = valuesIdxByName;
+	}
+
+	private Map<String,FieldMeta> valuesIdxByName;
 	private DataRefactor dataRefactor;
 //	private String sql;
 //	private String sqlFilepath;

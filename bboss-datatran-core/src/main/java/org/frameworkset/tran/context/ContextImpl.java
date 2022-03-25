@@ -23,14 +23,14 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportBuilder;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.config.ClientOptions;
-import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -43,6 +43,7 @@ import java.util.*;
  */
 public class ContextImpl implements Context {
 	protected List<FieldMeta> fieldValues ;
+	protected Map<String,FieldMeta> valuesIdxByName;
 	protected Map<String,FieldMeta> fieldMetaMap;
 	private boolean useBatchContextIndexName = false;
 	protected Map<String,String> newfieldNames;
@@ -147,8 +148,8 @@ public class ContextImpl implements Context {
 	}
 
 
-
-	public List<FieldMeta> getESJDBCFieldValues() {
+	@Override
+	public List<FieldMeta> getGlobalFieldValues() {
 		return baseImportConfig.getFieldValues();
 	}
 	public Boolean getUseLowcase() {
@@ -182,25 +183,34 @@ public class ContextImpl implements Context {
 	}
 	@Override
 	public Context addFieldValue(String fieldName, Object value) {
-		if(this.fieldValues == null)
+		if(this.fieldValues == null) {
 			fieldValues = new ArrayList<FieldMeta>();
-		DB2ESImportBuilder.addFieldValue(fieldValues,fieldName,value);
+			valuesIdxByName = new LinkedHashMap<>();
+		}
+		FieldMeta fieldMeta = BaseImportBuilder.addFieldValue(fieldValues,fieldName,value);
+		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
 
 	@Override
 	public Context addFieldValue(String fieldName, String dateFormat, Object value) {
-		if(this.fieldValues == null)
+		if(this.fieldValues == null) {
 			fieldValues = new ArrayList<FieldMeta>();
-		DB2ESImportBuilder.addFieldValue(fieldValues,fieldName,dateFormat,value,baseImportConfig.getLocale(),baseImportConfig.getTimeZone());
+			valuesIdxByName = new LinkedHashMap<>();
+		}
+		FieldMeta fieldMeta = BaseImportBuilder.addFieldValue(fieldValues,fieldName,dateFormat,value,baseImportConfig.getLocale(),baseImportConfig.getTimeZone());
+		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
 
 	@Override
 	public Context addFieldValue(String fieldName, String dateFormat, Object value, String locale, String timeZone) {
-		if(this.fieldValues == null)
+		if(this.fieldValues == null) {
 			fieldValues = new ArrayList<FieldMeta>();
-		DB2ESImportBuilder.addFieldValue(fieldValues,fieldName,dateFormat,value,locale,timeZone);
+			valuesIdxByName = new LinkedHashMap<>();
+		}
+		FieldMeta fieldMeta = BaseImportBuilder.addFieldValue(fieldValues,fieldName,dateFormat,value,locale,timeZone);
+		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
 
@@ -325,9 +335,27 @@ public class ContextImpl implements Context {
 		}
 		throw new IllegalArgumentException("Convert date value failed:"+value );
 	}
+	@Override
+	public Object getResultSetValue(String fieldName){
+		Object value = jdbcResultSet.getValue(fieldName);
+		return TimeUtil.convertLocalDate(value);
+	}
 
 	public Object getValue(String fieldName) throws Exception{
-		Object value = jdbcResultSet.getValue(fieldName);
+		FieldMeta fieldMeta = null;
+		if(this.valuesIdxByName != null){
+			fieldMeta = valuesIdxByName.get(fieldName);
+
+
+		}
+		if(fieldMeta == null)
+			fieldMeta = baseImportConfig.getValueIdxByName(fieldName);
+
+		Object value = null;
+		if(fieldMeta != null)
+			value = fieldMeta.getValue();
+		else
+			value = jdbcResultSet.getValue(fieldName);
 		return TimeUtil.convertLocalDate(value);
 	}
 
@@ -335,7 +363,7 @@ public class ContextImpl implements Context {
 	public Object getMetaValue(String fieldName) throws Exception {
 		return jdbcResultSet.getMetaValue(fieldName) ;
 	}
-
+	@Override
 	public FieldMeta getMappingName(String sourceFieldName){
 		if(fieldMetaMap != null) {
 			FieldMeta fieldMeta = this.fieldMetaMap.get(sourceFieldName);

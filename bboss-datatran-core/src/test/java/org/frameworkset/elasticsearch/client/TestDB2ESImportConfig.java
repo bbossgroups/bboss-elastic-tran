@@ -16,6 +16,8 @@ import org.junit.Test;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class TestDB2ESImportConfig {
 
@@ -26,6 +28,13 @@ public class TestDB2ESImportConfig {
 				"root","123456",//数据库账号和口令
 				"select 1 " //数据库连接校验sql
 		);
+	}
+	@Test
+	public void testMap(){
+		Map<String,Object> stringObjectMap = new LinkedHashMap<>();
+		stringObjectMap.put("xxx",null);
+		boolean sss = stringObjectMap.containsKey("xxx");
+		System.out.println(sss);
 	}
 	@Test
 	public void testDB2ES() throws SQLException {

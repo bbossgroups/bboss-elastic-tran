@@ -1102,20 +1102,22 @@ public abstract class BaseImportBuilder {
 	 * @param value
 	 * @return
 	 */
-	public static void addFieldValue(List<FieldMeta> fieldValues,String fieldName,Object value){
+	public static FieldMeta addFieldValue(List<FieldMeta> fieldValues,String fieldName,Object value){
 		FieldMeta fieldMeta = new FieldMeta();
 		fieldMeta.setTargetFieldName(fieldName);
 		fieldMeta.setValue(value);
 		fieldValues.add(fieldMeta);
+		return fieldMeta;
 	}
 
 
-	public static void addFieldValue(List<FieldMeta> fieldValues,String fieldName,String dateFormat,Object value,String locale,String timeZone){
+	public static FieldMeta addFieldValue(List<FieldMeta> fieldValues,String fieldName,String dateFormat,Object value,String locale,String timeZone){
 		FieldMeta fieldMeta = new FieldMeta();
 		fieldMeta.setTargetFieldName(fieldName);
 		fieldMeta.setValue(value);
 		fieldMeta.setDateFormateMeta(buildDateFormateMeta( dateFormat,  locale,  timeZone));
 		fieldValues.add(fieldMeta);
+		return fieldMeta;
 
 	}
 
@@ -1151,6 +1153,8 @@ public abstract class BaseImportBuilder {
 	private final Map<String,FieldMeta> fieldMetaMap = new HashMap<String,FieldMeta>();
 	private String esIdGeneratorClass = "org.frameworkset.tran.DefaultEsIdGenerator";
 	private final List<FieldMeta> fieldValues = new ArrayList<FieldMeta>();
+
+	protected Map<String,FieldMeta> valuesIdxByName = new LinkedHashMap<>();
 	private transient DataRefactor dataRefactor;
 	public DateFormateMeta buildDateFormateMeta(String dateFormat){
 		return dateFormat == null?null:DateFormateMeta.buildDateFormateMeta(dateFormat,locale,timeZone);
@@ -1216,7 +1220,8 @@ public abstract class BaseImportBuilder {
 	 * @return
 	 */
 	public BaseImportBuilder addFieldValue(String fieldName, Object value){
-		addFieldValue(  fieldValues,  fieldName,  value);
+		FieldMeta fieldMeta = addFieldValue(  fieldValues,  fieldName,  value);
+		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
 
@@ -1228,11 +1233,13 @@ public abstract class BaseImportBuilder {
 	 * @return
 	 */
 	public BaseImportBuilder addFieldValue(String fieldName, String dateFormat, Object value){
-		addFieldValue(  fieldValues,  fieldName,  dateFormat,  value,  locale,  timeZone);
+		FieldMeta fieldMeta = addFieldValue(  fieldValues,  fieldName,  dateFormat,  value,  locale,  timeZone);
+		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
 	public BaseImportBuilder addFieldValue(String fieldName, String dateFormat, Object value, String locale, String timeZone){
-		addFieldValue(  fieldValues,  fieldName,  dateFormat,  value,  locale,  timeZone);
+		FieldMeta fieldMeta = addFieldValue(  fieldValues,  fieldName,  dateFormat,  value,  locale,  timeZone);
+		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
 
@@ -1306,6 +1313,7 @@ public abstract class BaseImportBuilder {
 		baseImportConfig.setUseJavaName(this.useJavaName);
 		baseImportConfig.setFieldMetaMap(this.fieldMetaMap);
 		baseImportConfig.setFieldValues(fieldValues);
+		baseImportConfig.setValuesIdxByName(valuesIdxByName);
 		baseImportConfig.setDataRefactor(this.dataRefactor);
 		baseImportConfig.setSortLastValue(this.sortLastValue);
 		baseImportConfig.setDbConfig(dbConfig);

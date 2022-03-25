@@ -42,6 +42,13 @@ public interface Context {
 	public TaskContext getTaskContext();
 	void afterRefactor();
 	void setClientOptions(ClientOptions clientOptions);
+
+	/**
+	 * 直接获取数据源记录中对应的字段值
+	 * @param fieldName
+	 * @return
+	 */
+	public Object getResultSetValue(String fieldName);
 	Context addFieldValue(String fieldName, Object value);
 	Context addFieldValue(String fieldName, String dateFormat, Object value);
 	Context addFieldValue(String fieldName, String dateFormat, Object value, String locale, String timeZone);
@@ -57,10 +64,18 @@ public interface Context {
 //	public Boolean getEsDocAsUpsert();
 //	public Object getEsDetectNoop();
 //	public Boolean getEsReturnSource();
-	List<FieldMeta> getESJDBCFieldValues();
+	List<FieldMeta> getGlobalFieldValues();
 	Object getValue(int i, String colName, int sqlType) throws Exception;
 	ImportContext getImportContext();
 	String getDBName();
+
+	/**
+	 * 获取加工字段或者源字段值，优先返回字段
+	 * 记录级添加字段优先级>全局添加字段值优先级>数据源级字段优先级
+	 * @param fieldName
+	 * @return
+	 * @throws Exception
+	 */
 	Object getValue(String fieldName) throws Exception;
 	Object getMetaValue(String fieldName) throws Exception;
 	String getStringValue(String fieldName) throws Exception;
@@ -78,6 +93,12 @@ public interface Context {
 	Date getDateValue(String fieldName, DateFormat dateFormat) throws Exception;
 	List<FieldMeta> getFieldValues();
 	Map<String,FieldMeta> getFieldMetaMap();
+
+	/**
+	 * 记录级字段映射优先级>全局字段映射优先级
+	 * @param colName
+	 * @return
+	 */
 	FieldMeta getMappingName(String colName);
 	Object getEsId() throws Exception;
 	ClientOptions getClientOptions();
