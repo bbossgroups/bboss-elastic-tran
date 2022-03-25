@@ -117,7 +117,9 @@ public class LogDirScanThread implements Runnable{
             do {
 
                 if (TimeUtil.evalateNeedScan(timerScheduleConfig)) {
-
+                    if (!running) {
+                        break;
+                    }
                     try {
                         scanNewFile();
                     } catch (Exception e) {
@@ -158,7 +160,11 @@ public class LogDirScanThread implements Runnable{
             File[] files = logDir.listFiles(filter);
             File file = null;
             for(int i = 0; files != null && i < files.length; i ++){
+                if (!running) {
+                    break;
+                }
                 file = files[i];
+
                 if(file.isFile() && file.exists()) {
                     fileListenerService.checkNewFile("",file,fileConfig);
                 }
@@ -181,6 +187,9 @@ public class LogDirScanThread implements Runnable{
             File[] files = logDir.listFiles(filter);
             File file = null;
             for(int i = 0; files != null && i < files.length; i ++){
+                if (!running) {
+                    break;
+                }
                 file = files[i];
                 if(file.isFile() && file.exists()) {
                     fileListenerService.checkNewFile(relativeParent,file,fileConfig);

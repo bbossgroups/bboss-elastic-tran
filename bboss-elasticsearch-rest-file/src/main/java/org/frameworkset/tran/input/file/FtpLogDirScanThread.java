@@ -55,6 +55,9 @@ public class FtpLogDirScanThread extends LogDirScanThread{
             return;
         }
         for(FTPFile remoteResourceInfo:files){
+            if (!running) {
+                break;
+            }
             if(remoteResourceInfo.isDirectory()) {
                 String name = remoteResourceInfo.getName().trim();
                 if(!fileConfig.isScanChild()) {
@@ -92,6 +95,9 @@ public class FtpLogDirScanThread extends LogDirScanThread{
             return;
         }
         for(FTPFile remoteResourceInfo:files){
+            if (!running) {
+                break;
+            }
             if(remoteResourceInfo.isDirectory()) {
                 String name = remoteResourceInfo.getName().trim();
                 if(!fileConfig.isScanChild()) {

@@ -22,6 +22,7 @@ public class FileImportContext extends BaseImportContext {
         this(new FileImportConfig());
 
     }
+
     public long getCheckFileModifyInterval() {
         return fileImportConfig.getCheckFileModifyInterval();
     }

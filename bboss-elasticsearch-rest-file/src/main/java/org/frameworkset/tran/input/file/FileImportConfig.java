@@ -34,6 +34,7 @@ public class FileImportConfig extends BaseImportConfig {
     private List<FileConfig> fileConfigList;
     private long checkFileModifyInterval = 3000l;
 
+
     /**
      * 备份成功文件
      * true 备份
@@ -79,7 +80,7 @@ public class FileImportConfig extends BaseImportConfig {
             fileConfigList = new ArrayList<FileConfig>();
         }
 
-        fileConfig.init();
+//        fileConfig.init();
         fileConfigList.add(fileConfig);
 
         return this;
@@ -88,14 +89,14 @@ public class FileImportConfig extends BaseImportConfig {
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
-        fileConfigList.add(new FileConfig(sourcePath,fileNameRegular,fileHeadLine).init());
+        fileConfigList.add(new FileConfig(sourcePath,fileNameRegular,fileHeadLine));
         return this;
     }
     public FileImportConfig addConfig(String sourcePath,String fileNameRegular,String fileHeadLine,boolean scanChild){
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
-        fileConfigList.add(new FileConfig(sourcePath,fileNameRegular,fileHeadLine,scanChild).init());
+        fileConfigList.add(new FileConfig(sourcePath,fileNameRegular,fileHeadLine,scanChild));
         return this;
     }
 
@@ -232,4 +233,6 @@ public class FileImportConfig extends BaseImportConfig {
         FileReaderTask task =  new FileReaderTask(fileId,currentStatus,fileImportConfig);
         return task;
     }
+
+
 }

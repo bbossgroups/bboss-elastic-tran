@@ -95,6 +95,7 @@ public abstract class FileLogBaseImportBuilder extends BaseImportBuilder {
 		FileBaseDataTranPlugin file2ESDataTranPlugin = createFileBaseDataTranPlugin(  importContext,   targetImportContext);
 		FileListenerService fileListenerService = new FileListenerService((FileImportContext) importContext,file2ESDataTranPlugin);
 //		FileListener fileListener = new FileListener(new FileListenerService((FileImportContext) importContext,file2ESDataTranPlugin));
+		fileListenerService.init();
 		file2ESDataTranPlugin.setFileListenerService(fileListenerService);
 		return file2ESDataTranPlugin;
 	}

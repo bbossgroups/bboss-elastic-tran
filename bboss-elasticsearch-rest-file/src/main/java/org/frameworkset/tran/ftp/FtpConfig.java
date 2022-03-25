@@ -18,6 +18,7 @@ package org.frameworkset.tran.ftp;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FtpFileFilter;
+import org.frameworkset.tran.input.file.RemoteFileChannel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class FtpConfig  {
 	private String ftpProxyHost;
 	private FtpFileFilter ftpFileFilter;
 	private String downloadTempDir;
+	private RemoteFileChannel remoteFileChannel;
 
 	private int ftpProxyPort;
 
@@ -65,6 +67,15 @@ public class FtpConfig  {
 	private String encoding;
 	private boolean deleteRemoteFile;
 	private RemoteFileValidate remoteFileValidate;
+	private int downloadWorkThreads = 3;
+	public int getDownloadWorkThreads() {
+		return downloadWorkThreads;
+	}
+
+	public FtpConfig setDownloadWorkThreads(int downloadWorkThreads) {
+		this.downloadWorkThreads = downloadWorkThreads;
+		return this;
+	}
 	public FtpConfig addHostKeyVerifier(String hostKeyVerifier) {
 		if(hostKeyVerifiers  == null){
 			this.hostKeyVerifiers = new ArrayList<String>();
@@ -87,8 +98,21 @@ public class FtpConfig  {
 		File f = new File(downloadTempDir);
 		if(!f.exists())
 			f.mkdirs();
+		if(getDownloadWorkThreads() > 0) {
+			remoteFileChannel = new RemoteFileChannel();
+			//用远程文件路径作为线程池名称
+			remoteFileChannel.setThreadName(remoteFileDir);
+			remoteFileChannel.setWorkThreads(getDownloadWorkThreads());
+			remoteFileChannel.init();
+
+		}
 //		return this;
 	}
+
+	public RemoteFileChannel getRemoteFileChannel() {
+		return remoteFileChannel;
+	}
+
 	public int getTransferProtocol() {
 		return transferProtocol;
 	}

@@ -80,6 +80,9 @@ public class SFtpLogDirScanThread extends FtpLogDirScanThread{
      */
     private void _scanCheck(String relativeParentDir,List<RemoteResourceInfo> files){
         for(RemoteResourceInfo remoteResourceInfo:files){
+            if (!running) {
+                break;
+            }
             if(remoteResourceInfo.isDirectory()) {
                 if(!fileConfig.isScanChild()) {
                     if (logger.isInfoEnabled()) {

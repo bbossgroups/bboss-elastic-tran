@@ -1,6 +1,6 @@
-package org.frameworkset.tran.util;
+package org.frameworkset.tran.ftp;
 /**
- * Copyright 2020 bboss
+ * Copyright 2022 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,29 +19,27 @@ package org.frameworkset.tran.util;
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/4/5 10:45
+ * @Date 2022/3/25
  * @author biaoping.yin
  * @version 1.0
  */
-public class TranConstant {
-	/**
-	 * 插件停止中
-	 */
-	public static final int PLUGIN_STOPPING = 1;
-	/**
-	 * 插件准备停止
-	 */
-	public static final int PLUGIN_STOPAPPENDING = 2;
-	/**
-	 * 插件准备停止条件具备，可以停止,但是不能作为数据采集退出的标记
-	 */
-	public static final int PLUGIN_STOPREADY = 3;
+public class FileDownException extends RuntimeException{
+	public FileDownException() {
+	}
 
-	/**
-	 * 插件启动
-	 */
-	public static final int PLUGIN_START = 0;
+	public FileDownException(String message) {
+		super(message);
+	}
 
-	public static final int STATUS_STOP = 1;
-	public static final int STATUS_STOPTRANONLY = 2;
+	public FileDownException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public FileDownException(Throwable cause) {
+		super(cause);
+	}
+
+	public FileDownException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
 }
