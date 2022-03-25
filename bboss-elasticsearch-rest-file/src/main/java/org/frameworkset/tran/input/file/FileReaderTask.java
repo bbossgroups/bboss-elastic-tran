@@ -843,7 +843,7 @@ public class FileReaderTask extends FieldManager{
             common.put("ftpDir",ftpConfig.getRemoteFileDir());
             common.put("ftpIp",ftpConfig.getFtpIP());
             common.put("ftpPort",ftpConfig.getFtpPort());
-            common.put("ftpUser",ftpConfig.getFtpUser());
+            common.put("ftpUser",ftpConfig.getFtpUser() != null?ftpConfig.getFtpUser():"-");
             common.put("ftpProtocol",ftpConfig.getTransferProtocolName());
 
         }
