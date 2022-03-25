@@ -7,6 +7,7 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
+import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.record.CommonData;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -837,6 +838,15 @@ public class FileReaderTask extends FieldManager{
 
         common.put("pointer",pointer);
         common.put("fileId",fileInfo.getFileId());
+        FtpConfig ftpConfig = this.fileConfig.getFtpConfig();
+        if(ftpConfig != null){
+            common.put("ftpDir",ftpConfig.getRemoteFileDir());
+            common.put("ftpIp",ftpConfig.getFtpIP());
+            common.put("ftpPort",ftpConfig.getFtpPort());
+            common.put("ftpUser",ftpConfig.getFtpUser());
+            common.put("ftpProtocol",ftpConfig.getTransferProtocolName());
+
+        }
         return common;
     }
 

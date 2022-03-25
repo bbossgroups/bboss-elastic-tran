@@ -68,8 +68,13 @@ public class FtpConfig  {
 	private boolean deleteRemoteFile;
 	private RemoteFileValidate remoteFileValidate;
 	private int downloadWorkThreads = 3;
+	private String transferProtocolName;
 	public int getDownloadWorkThreads() {
 		return downloadWorkThreads;
+	}
+
+	public String getTransferProtocolName() {
+		return transferProtocolName;
 	}
 
 	public FtpConfig setDownloadWorkThreads(int downloadWorkThreads) {
@@ -92,6 +97,10 @@ public class FtpConfig  {
 	public void init(FileConfig fileConfig){
 //		super.init();
 //		this.setFtpConfig(fileConfig);
+		if(transferProtocol == FtpConfig.TRANSFER_PROTOCOL_FTP)
+			this.transferProtocolName = "FTP";
+		else
+			this.transferProtocolName = "SFTP";
 		downloadTempDir = SimpleStringUtil.getPath(fileConfig.getSourcePath(),"temp");
 		fileConfig.setEnableInode(false);
 		fileConfig.setCloseEOF(true);//已经结束的文件内容采集完毕后关闭文件对应的采集通道，后续不再监听对应文件的内容变化
