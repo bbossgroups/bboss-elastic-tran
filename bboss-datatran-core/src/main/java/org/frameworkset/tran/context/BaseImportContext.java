@@ -26,6 +26,7 @@ import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
+import org.frameworkset.util.concurrent.ThreadPoolFactory;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -598,19 +599,22 @@ public abstract  class BaseImportContext implements ImportContext {
 			return blockedExecutor;
 		synchronized (this) {
 			if(blockedExecutor == null) {
-
-				blockedExecutor = new ThreadPoolExecutor(getThreadCount(), getThreadCount(),
-						0L, TimeUnit.MILLISECONDS,
-						new ArrayBlockingQueue<Runnable>(getQueue()),
-						new ThreadFactory() {
-							private AtomicInteger threadCount = new AtomicInteger(0);
-
-							@Override
-							public Thread newThread(Runnable r) {
-								int num = threadCount.incrementAndGet();
-								return new DBESThread(r, num);
-							}
-						}, new BlockedTaskRejectedExecutionHandler(rejectCounts));
+				blockedExecutor = ThreadPoolFactory.buildThreadPool("DataTranThread","DataTranThread",
+						getThreadCount(),getQueue(),
+						-1l
+						,1000);
+//				blockedExecutor = new ThreadPoolExecutor(getThreadCount(), getThreadCount(),
+//						0L, TimeUnit.MILLISECONDS,
+//						new ArrayBlockingQueue<Runnable>(getQueue()),
+//						new ThreadFactory() {
+//							private AtomicInteger threadCount = new AtomicInteger(0);
+//
+//							@Override
+//							public Thread newThread(Runnable r) {
+//								int num = threadCount.incrementAndGet();
+//								return new DBESThread(r, num);
+//							}
+//						}, new BlockedTaskRejectedExecutionHandler(rejectCounts));
 			}
 		}
 		return blockedExecutor;
