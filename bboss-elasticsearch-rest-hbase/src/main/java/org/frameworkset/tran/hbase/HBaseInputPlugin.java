@@ -56,8 +56,8 @@ public abstract class HBaseInputPlugin extends BaseDataTranPlugin implements Dat
 
 
 	}
-	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext){
-		return new HBaseRecordContextImpl(  taskContext,importContext,targetImportContext, jdbcResultSet, batchContext);
+	public Context buildContext(TaskContext taskContext, TranResultSet tranResultSet, BatchContext batchContext){
+		return new HBaseRecordContextImpl(  taskContext,importContext,targetImportContext, tranResultSet, batchContext);
 	}
 
 

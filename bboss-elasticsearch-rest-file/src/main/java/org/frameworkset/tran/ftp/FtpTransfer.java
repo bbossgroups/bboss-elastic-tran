@@ -57,10 +57,15 @@ public class FtpTransfer {
 			public void execute(FTPClient ftp) throws IOException {
 				InputStream input = null;
 				try {
+					if (logger.isInfoEnabled())
+						logger.info("Send file to ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " ,filePath[" + filePath + "],remote dir[" + remoteFilePath + "] start......");
+					long startTime = System.currentTimeMillis();
 					input = new FileInputStream(filePath);
+
 					ftp.storeFile(remoteFilePath, input);
-					if (logger.isDebugEnabled())
-						logger.debug("Send file to ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " success:filePath[" + filePath + "],remote dir[" + remoteFilePath + "]");
+					long endTime = System.currentTimeMillis();
+					if (logger.isInfoEnabled())
+						logger.info("Send file to ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " ,filePath[" + filePath + "],remote dir[" + remoteFilePath + "] complete, elapsed times:"+(endTime - startTime)+"毫秒.");
 				} catch (Exception e) {
 					throw new DataImportException("Send file to ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " failed:filePath[" + filePath + "],remote dir[" + remoteFilePath + "]", e);
 				} finally {
@@ -160,11 +165,14 @@ public class FtpTransfer {
 			public void execute(FTPClient ftp) throws IOException {
 				OutputStream output = null;
 				try {
+					if (logger.isInfoEnabled())
+						logger.info("Download file from ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " ,remote[" + remote + "],local [" + local + "] start ......");
+					long startTime = System.currentTimeMillis();
 					output = new FileOutputStream(local);
 					ftp.retrieveFile(remote, output);
-
-					if (logger.isDebugEnabled())
-						logger.debug("Download file from ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " success:remote[" + remote + "],local [" + local + "]");
+					long endTime = System.currentTimeMillis();
+					if (logger.isInfoEnabled())
+						logger.info("Download file from ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " ,remote[" + remote + "],local [" + local + "] complete, elapsed times:"+(endTime - startTime)+"毫秒.");
 				} catch (Exception e) {
 					throw new DataImportException("Download file from ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " failed:remote[" + remote + "],local [" + local + "]", e);
 				} finally {

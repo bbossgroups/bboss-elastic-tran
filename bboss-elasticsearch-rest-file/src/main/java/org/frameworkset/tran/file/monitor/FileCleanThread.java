@@ -60,6 +60,13 @@ public class FileCleanThread extends Thread{
 		super.start();
 	}
 
+	private long getBackupFileTimestamp(File file){
+		//{creationTime,lastModifiedTime,lastAccessTime};
+		long[] fileTimestamps = FileManager.getFileTimestamps(file);
+		if(fileTimestamps == null)
+			return -1;
+		return fileTimestamps[1] >= fileTimestamps[0]? fileTimestamps[1]:fileTimestamps[0];
+	}
 	private void cleanFiles(File transferSuccessFileDir){
 		long lastArchtime = System.currentTimeMillis() - fileLiveTime ;
 		if(transferSuccessFileDir.exists()){
@@ -71,7 +78,7 @@ public class FileCleanThread extends Thread{
 				}
 				else {
 					try {
-						long filetime = FileManager.getCreateTime(file);
+						long filetime = getBackupFileTimestamp(file);
 						if (filetime < 0) {
 							continue;
 						}

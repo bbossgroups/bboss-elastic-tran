@@ -289,7 +289,7 @@ public class FileListenerService {
 
             @Override
             public void deleteFile(String remoteFile) {
-                  SFTPTransfer.deleteFile(ftpContext,remoteFile);
+                SFTPTransfer.deleteFile(ftpContext,remoteFile);
             }
         });
 
@@ -596,117 +596,7 @@ public class FileListenerService {
             lock.unlock();
         }
     }
-//
-//    private void checkRemoteNewFileBackup(String relativeParentDir,String fileName, final String remoteFile, FtpContext ftpContext, final RemoteFileAction remoteFileAction) {
-//        FtpConfig ftpConfig = ftpContext.getFtpConfig();
-//        FileConfig fileConfig = ftpContext.getFileConfig();
-//        File handleFile = new File( SimpleStringUtil.getPath(fileConfig.getSourcePath(),relativeParentDir), fileName);//正式文件,如果有子目录，则需要保存到子目录
-//        checkParentExist(handleFile);
-//        final File localFile = new File(SimpleStringUtil.getPath(ftpConfig.getDownloadTempDir(),relativeParentDir),fileName);//临时下载文件，,如果有子目录，则需要保存到临时子目录，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
-//        checkParentExist(localFile);
-//        String fileId = FileInodeHandler.change(handleFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
-//        try {
-//            lock.lock();
-//            if(this.baseDataTranPlugin.isPluginStopAppending() || this.baseDataTranPlugin.isPluginStopREADY())
-//                return;
-//            FileReaderTask fileReaderTask = fileConfigMap.get(fileId);
-//
-//            if (fileReaderTask == null) {
-//                if(this.completedTasks.containsKey(fileId)) {//作业已经完成
-//                    logger.debug("Ignore complete file {}",fileId);
-//                    return;
-//                }
-//                if(this.oldedTasks.containsKey(fileId)){//作业已经被移除到过时作业清单
-//                    logger.debug("Ignore old file {}",fileId);
-//                    return;
-//                }
-//                /**
-//                 * 如果处理文件不存在，则下载文件到本地临时目录,下载后重命名为正式处理文件，避免因下载中断处理不完整文件问题
-//                 */
-//                if(!handleFile.exists()){
-//
-//                    /**
-//                     * 支持断点续传
-//                     */
-////                    SFTPTransfer.downloadFile(ftpContext,remoteFile,fileConfig.getDownloadTempDir());
-//                    DownAction downAction = new DownAction() {
-//                        @Override
-//                        public void down(int times,boolean redown) {
-//                            if(redown){
-//                                logger.warn("第{}次重试下载文件：localPath:{},remotePath:{}",times+1,localFile.getAbsolutePath(),remoteFile);
-//                            }
-//                            remoteFileAction.downloadFile(localFile.getAbsolutePath(),remoteFile);
-//                            if(!localFile.exists()){
-//                                if(!redown) {
-//                                    logger.warn("下载文件失败：localPath:{},remotePath:{}", localFile.getAbsolutePath(), remoteFile);
-//                                }
-//                                else {
-//                                    logger.warn("第{}次重试下载文件失败：localPath:{},remotePath:{}", times+1,localFile.getAbsolutePath(), remoteFile);
-//                                }
-//
-//                            }
-//                        }
-//                    };
-////                    remoteFileAction.downloadFile(localFile.getAbsolutePath(),remoteFile);
-//                    downAction.down(-1,false);
-//                    if(!localFile.exists()){
-//                        return;
-//                    }
-//                    RemoteFileValidate.Result result = remoteFileValidate(remoteFile,localFile, ftpContext, remoteFileAction, downAction, false);
-//                    if(!result.isOk()){
-//                        logger.warn("文件校验失败：localPath:{},remotePath:{}",localFile.getAbsolutePath(),remoteFile);
-//                        return;
-//                    }
-//                    boolean renamesuccess = localFile.renameTo(handleFile);
-//                    if(renamesuccess) {
-//                        if (logger.isInfoEnabled())
-//                            logger.info("Rename " + localFile.getAbsolutePath() + " to " + handleFile.getAbsolutePath());
-//                    }
-//                    else{
-//                        logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteFile,handleFile.getAbsolutePath());
-//                        return;
-//                    }
-//                }
-//                if(!handleFile.exists()){
-//                    logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteFile,handleFile.getAbsolutePath());
-//                    return;
-//                }
-//                else{
-//                    if(ftpContext.deleteRemoteFile()) {
-//                        try {
-//
-//                            remoteFileAction.deleteFile(remoteFile);
-//                            if(logger.isDebugEnabled()){
-//                                logger.debug("删除远程ftp服务器文件{}完毕",remoteFile);
-//                            }
-//                        } catch (Exception e) {
-//                            logger.warn("删除远程ftp服务器文件失败：" + remoteFile, e);
-//                        }
-//                    }
-//                }
-//                //创建新的采集任务
-//
-//                if(logger.isInfoEnabled())
-//                    logger.info("Start collect new remote file {}",fileId);
-//                Status currentStatus = new Status();
-//                currentStatus.setId(fileId.hashCode());
-//                currentStatus.setTime(new Date().getTime());
-//                currentStatus.setFileId(fileId);
-//                currentStatus.setFilePath(fileId);
-//                currentStatus.setRealPath(fileId);
-//                currentStatus.setRelativeParentDir(relativeParentDir);
-//                currentStatus.setStatus(ImportIncreamentConfig.STATUS_COLLECTING);
-//                long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
-//                currentStatus.setLastValue(pointer);
-//                boolean successed = baseDataTranPlugin.initFileTask( relativeParentDir,fileConfig, currentStatus, handleFile, pointer);
-//            }
-//
-//        } finally {
-//
-//            lock.unlock();
-//        }
-//
-//    }
+
 
 
     public void checkFtpNewFile(String relativeParentDir,String parentDir,FTPFile remoteResourceInfo,   final FtpContext ftpContext) {

@@ -50,7 +50,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 									  Status currentStatus,
 									  ImportContext importContext,
 									  ImportContext targetImportContext,
-									  TranResultSet jdbcResultSet, BaseDataTran baseDataTran){
+									  TranResultSet tranResultSet, BaseDataTran baseDataTran){
 		int count = 0;
 		List<CommonRecord> records = new ArrayList<>();
 		String ret = null;
@@ -72,7 +72,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 			istart = start;
 			BatchContext batchContext = new BatchContext();
 			while (true) {
-				Boolean hasNext = jdbcResultSet.next();
+				Boolean hasNext = tranResultSet.next();
 				if(hasNext == null){
 					if(count > 0) {
 
@@ -105,11 +105,11 @@ public class CommonRecordTranJob extends BaseTranJob{
 				else{
 					lastValue = importContext.max(lastValue,baseDataTran.getLastValue());
 				}
-				Context context = importContext.buildContext(baseDataTran.getTaskContext(),jdbcResultSet, batchContext);
+				Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 
 				if(!reachEOFClosed)
 					reachEOFClosed = context.reachEOFClosed();
-//				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
+//				Context context = new ContextImpl(importContext, tranResultSet, batchContext);
 				if(context.removed()){
 					if(!reachEOFClosed) {//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
 						importCount.increamentIgnoreTotalCount();
@@ -263,7 +263,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 										Status currentStatus,
 										ImportContext importContext,
 										ImportContext targetImportContext,
-										TranResultSet jdbcResultSet, BaseDataTran baseDataTran){
+										TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
 		int count = 0;
 		List<CommonRecord> records = new ArrayList<>();
@@ -285,10 +285,10 @@ public class CommonRecordTranJob extends BaseTranJob{
 			BatchContext batchContext = new BatchContext();
 			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {
-					jdbcResultSet.stop();
+					tranResultSet.stop();
 					tranErrorWrapper.throwError();
 				}
-				Boolean hasNext = jdbcResultSet.next();
+				Boolean hasNext = tranResultSet.next();
 				if(hasNext == null){//强制flush操作
 					if (count > 0) {
 
@@ -317,10 +317,10 @@ public class CommonRecordTranJob extends BaseTranJob{
 				else{
 					lastValue = importContext.max(lastValue,baseDataTran.getLastValue());
 				}
-				Context context = importContext.buildContext(baseDataTran.getTaskContext(),jdbcResultSet, batchContext);
+				Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 				if(!reachEOFClosed)
 					reachEOFClosed = context.reachEOFClosed();
-//				Context context = new ContextImpl(importContext, jdbcResultSet, batchContext);
+//				Context context = new ContextImpl(importContext, tranResultSet, batchContext);
 				if(context.removed()){
 					if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
 						totalCount.increamentIgnoreTotalCount();
@@ -401,27 +401,27 @@ public class CommonRecordTranJob extends BaseTranJob{
 								   Status currentStatus,
 								   ImportContext importContext,
 								   ImportContext targetImportContext,
-								   TranResultSet jdbcResultSet, BaseDataTran baseDataTran){
+								   TranResultSet tranResultSet, BaseDataTran baseDataTran){
 		if(importContext.serialAllData()){
 			return serialExecuteAllRecoreds(serialTranCommand ,
 					  currentStatus,
 					  importContext,
 					  targetImportContext,
-					  jdbcResultSet,   baseDataTran );
+					  tranResultSet,   baseDataTran );
 		}
 		else{
 			return serialExecuteOneRecord(serialTranCommand,
 					  currentStatus,
 					  importContext,
 					  targetImportContext,
-					  jdbcResultSet,   baseDataTran);
+					  tranResultSet,   baseDataTran);
 		}
 	}
 	private String serialExecuteOneRecord(SerialTranCommand serialTranCommand,
 										  Status currentStatus,
 										  ImportContext importContext,
 										  ImportContext targetImportContext,
-										  TranResultSet jdbcResultSet, BaseDataTran baseDataTran){
+										  TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
 		Object lastValue = null;
 		Exception exception = null;
@@ -444,7 +444,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 			boolean printed = false;
 			BatchContext batchContext = new BatchContext();
 			while (true) {
-				Boolean hasNext = jdbcResultSet.next();
+				Boolean hasNext = tranResultSet.next();
 				if(hasNext == null){
 					if(baseDataTran.isPrintTaskLog() && !printed) {
 						if (lastSend > 0l) {//等待状态下，需一次打印日志
@@ -478,8 +478,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 					else {
 						lastValue = importContext.max(lastValue,baseDataTran. getLastValue());
 					}
-//					Context context = new ContextImpl(importContext, jdbcResultSet, null);
-					Context context = importContext.buildContext(baseDataTran.getTaskContext(),jdbcResultSet, batchContext);
+//					Context context = new ContextImpl(importContext, tranResultSet, null);
+					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 
 
 					if(!reachEOFClosed)
@@ -507,7 +507,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 //					TaskCall.asynCall(kafkaCommand);
 
 //					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));
-//					//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
+//					//						evalBuilk(this.tranResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 					totalCount++;
 					if(serialTranCommand.splitCheck( totalCount)){//reached max file record size
 
@@ -600,7 +600,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 											Status currentStatus,
 											ImportContext importContext,
 											ImportContext targetImportContext,
-											TranResultSet jdbcResultSet, BaseDataTran baseDataTran){
+											TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
 //		logger.info("serial import data Execute started.");
 		List<CommonRecord> records = new ArrayList<>();
@@ -624,7 +624,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 //			List<DBRecord> records = new ArrayList<DBRecord>();
 			BatchContext batchContext = new BatchContext();
 			while (true) {
-				Boolean hasNext = jdbcResultSet.next();
+				Boolean hasNext = tranResultSet.next();
 				if(hasNext == null){
 					String ret = null;
 					if(records.size() > 0) {
@@ -660,8 +660,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 					else {
 						lastValue = importContext.max(lastValue, baseDataTran.getLastValue());
 					}
-//					Context context = new ContextImpl(importContext, jdbcResultSet, null);
-					Context context = importContext.buildContext(baseDataTran.getTaskContext(),jdbcResultSet, batchContext);
+//					Context context = new ContextImpl(importContext, tranResultSet, null);
+					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 					if(!reachEOFClosed)
 						reachEOFClosed = context.reachEOFClosed();
 					if(context.removed()){
@@ -682,7 +682,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					records.add(record);
 
 //					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));
-//					//						evalBuilk(this.jdbcResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
+//					//						evalBuilk(this.tranResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 					totalCount++;
 					if(serialTranCommand.splitCheck(totalCount)){//reached max file record size
 

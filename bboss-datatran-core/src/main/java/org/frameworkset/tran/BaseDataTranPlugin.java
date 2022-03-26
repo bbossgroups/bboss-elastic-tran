@@ -91,8 +91,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public boolean isComplete(Status status){
 		return status.getStatus() == ImportIncreamentConfig.STATUS_COMPLETE;
 	}
-	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext){
-		return new ContextImpl(  taskContext,importContext,targetImportContext, jdbcResultSet, batchContext);
+	public Context buildContext(TaskContext taskContext,TranResultSet tranResultSet, BatchContext batchContext){
+		return new ContextImpl(  taskContext,importContext,targetImportContext, tranResultSet, batchContext);
 	}
 	@Override
 	public String getLastValueVarName() {

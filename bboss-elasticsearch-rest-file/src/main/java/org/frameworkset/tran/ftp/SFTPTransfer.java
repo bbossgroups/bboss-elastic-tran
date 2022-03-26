@@ -55,6 +55,8 @@ public class SFTPTransfer {
 			@Override
 			public void execute(SFTPClient sftp) throws IOException {
 //				fileFtpOupputContext.getf
+				if(logger.isDebugEnabled())
+					logger.debug("List files in remote dir["+fileFtpOupputContext.getRemoteFileDir()+"} from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() +" start......");
 				if(ftpFileFilter != null){
 					List<RemoteResourceInfo> _files = sftp.ls(fileFtpOupputContext.getRemoteFileDir(), new RemoteResourceFilter() {
 						@Override
@@ -86,9 +88,9 @@ public class SFTPTransfer {
 					}
 				}
 				if(logger.isDebugEnabled())
-					logger.debug("List files in remote dir["+fileFtpOupputContext.getRemoteFileDir()+"} from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() );
+					logger.debug("List files in remote dir["+fileFtpOupputContext.getRemoteFileDir()+"} from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() +" complete.");
 			}
-		},"List files in remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed." );
+		},"List files in remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed:" );
 		return files;
 	}
 
@@ -100,6 +102,8 @@ public class SFTPTransfer {
 		handlerFile(  fileFtpOupputContext, new SFTPAction (){
 			@Override
 			public void execute(SFTPClient sftp) throws IOException {
+				if(logger.isDebugEnabled())
+					logger.debug("List files in remote dir["+parent.getPath()+"} from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() +" start......" );
 //				fileFtpOupputContext.getf
 				if(ftpFileFilter != null){
 					List<RemoteResourceInfo> _files = sftp.ls(parent.getPath(), new RemoteResourceFilter() {
@@ -132,7 +136,7 @@ public class SFTPTransfer {
 					}
 				}
 				if(logger.isDebugEnabled())
-					logger.debug("List files in remote dir["+parent.getPath()+"} from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() );
+					logger.debug("List files in remote dir["+parent.getPath()+"} from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() +" complete." );
 			}
 		},"List files in remote dir["+parent.getPath()+"] from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed." );
 		return files;
@@ -148,11 +152,15 @@ public class SFTPTransfer {
 
 			@Override
 			public void execute(SFTPClient sftp) throws IOException {
-				sftp.get(sourceFile, new FileSystemFile(destDir));
 				if(logger.isInfoEnabled())
-					logger.info("Download file "+sourceFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success to ["+destDir+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"]");
+					logger.info("Download file "+sourceFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " to ["+destDir+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] start......");
+				long startTime = System.currentTimeMillis();
+				sftp.get(sourceFile, new FileSystemFile(destDir));
+				long endTime = System.currentTimeMillis();
+				if(logger.isInfoEnabled())
+					logger.info("Download file "+sourceFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " to ["+destDir+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] complete, elapsed time:"+(endTime - startTime) + " 毫秒.");
 			}
-		}, "Download file "+sourceFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed to ["+destDir+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"]");
+		}, "Download file "+sourceFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " to ["+destDir+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] failed:");
 
 	}
 
@@ -167,11 +175,13 @@ public class SFTPTransfer {
 
 			@Override
 			public void execute(SFTPClient sftp) throws IOException {
+				if(logger.isInfoEnabled())
+					logger.info("Delete file "+remoteFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " start......");
 				sftp.rm(remoteFile);
 				if(logger.isInfoEnabled())
-					logger.info("Delete file "+remoteFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success.");
+					logger.info("Delete file "+remoteFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " complete.");
 			}
-		}, "Delete file "+remoteFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed.");
+		}, "Delete file "+remoteFile+" from sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed:");
 
 	}
 
@@ -226,11 +236,16 @@ public class SFTPTransfer {
 
 			@Override
 			public void execute(SFTPClient sftp) throws IOException {
-				sftp.put(new FileSystemFile(filePath), fileFtpOupputContext.getRemoteFileDir());
+
 				if(logger.isInfoEnabled())
-					logger.info("Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " success:filePath["+filePath+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"]");
+					logger.info("Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " ,filePath["+filePath+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] start ......");
+				long startTime = System.currentTimeMillis();
+				sftp.put(new FileSystemFile(filePath), fileFtpOupputContext.getRemoteFileDir());
+				long endTime = System.currentTimeMillis();
+				if(logger.isInfoEnabled())
+					logger.info("Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " ,filePath["+filePath+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] complete, elapsed time:"+(endTime - startTime) + " 毫秒.");
 			}
-		}, "Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " failed:filePath["+filePath+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"]");
+		}, "Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " ,filePath["+filePath+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] failed:");
 
 	}
 

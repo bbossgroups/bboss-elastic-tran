@@ -104,8 +104,8 @@ public abstract  class BaseImportContext implements ImportContext {
 	public String getSplitFieldName() {
 		return baseImportConfig.getSplitFieldName();
 	}
-	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext){
-		return dataTranPlugin.buildContext( taskContext,jdbcResultSet,batchContext);
+	public Context buildContext(TaskContext taskContext,TranResultSet tranResultSet, BatchContext batchContext){
+		return dataTranPlugin.buildContext( taskContext,tranResultSet,batchContext);
 	}
 	public Long getTimeRangeLastValue(){
 		return dataTranPlugin.getTimeRangeLastValue();

@@ -33,9 +33,9 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 
 	@Override
 	public void stop(){
-		if(esTranResultSet != null) {
-			esTranResultSet.stop();
-			esTranResultSet = null;
+		if(asynTranResultSet != null) {
+			asynTranResultSet.stop();
+			asynTranResultSet = null;
 		}
 		super.stop();
 	}
@@ -44,9 +44,9 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 	 */
 	@Override
 	public void stopTranOnly(){
-		if(esTranResultSet != null) {
-			esTranResultSet.stopTranOnly();
-			esTranResultSet = null;
+		if(asynTranResultSet != null) {
+			asynTranResultSet.stopTranOnly();
+			asynTranResultSet = null;
 		}
 		super.stopTranOnly();
 	}

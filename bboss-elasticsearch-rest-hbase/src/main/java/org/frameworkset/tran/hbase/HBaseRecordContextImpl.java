@@ -36,8 +36,8 @@ import java.util.Date;
  */
 public class HBaseRecordContextImpl extends ContextImpl {
 
-	public HBaseRecordContextImpl(TaskContext taskContext, ImportContext importContext, ImportContext targetImportContext, TranResultSet jdbcResultSet, BatchContext batchContext){
-		super(  taskContext,importContext,targetImportContext,jdbcResultSet,batchContext);
+	public HBaseRecordContextImpl(TaskContext taskContext, ImportContext importContext, ImportContext targetImportContext, TranResultSet tranResultSet, BatchContext batchContext){
+		super(  taskContext,importContext,targetImportContext,tranResultSet,batchContext);
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class HBaseRecordContextImpl extends ContextImpl {
 
 	@Override
 	public IpInfo getIpInfo(String fieldName) throws Exception{
-		Object _ip = jdbcResultSet.getValue(fieldName);
+		Object _ip = tranResultSet.getValue(fieldName);
 		if(_ip == null){
 			return null;
 		}

@@ -46,7 +46,7 @@ public interface ImportContext {
 	public String[] getExportColumns();
 //	DataTranPlugin buildDataTranPlugin();
 	public String getTargetElasticsearch();
-	Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext);
+	Context buildContext(TaskContext taskContext,TranResultSet tranResultSet, BatchContext batchContext);
 	ESConfig getESConfig();
 	public Long getTimeRangeLastValue();
 	public DataTranPlugin getDataTranPlugin();

@@ -37,16 +37,24 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class FileManager {
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 
-	public static  long getCreateTime(File file ){
+	/**
+	 * {creationTime,lastModifiedTime,lastAccessTime};
+	 * @param file
+	 * @return
+	 */
+	public static  long[] getFileTimestamps(File file ){
 		try {
 			Path path =  file.toPath();
 			BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
 			// 创建时间
 //			Instant instant = attr.creationTime().toInstant();
-			return attr.creationTime().toMillis();
+			long[] times = new long[]
+					{attr.creationTime().toMillis(),attr.lastModifiedTime().toMillis(),attr.lastAccessTime().toMillis()};
+			return times;
 		} catch (IOException e) {
+
 			logger.error("Get createtime of file "+ file.getAbsolutePath() +" failed :",e);
-			return -1;
+			return null;
 		}
 
 	}

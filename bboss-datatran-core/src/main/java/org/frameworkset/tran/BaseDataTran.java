@@ -33,8 +33,8 @@ public abstract class BaseDataTran implements DataTran{
 	protected static Object dummy = new Object();
 	protected ImportContext importContext;
 	protected ImportContext targetImportContext;
-	protected TranResultSet jdbcResultSet;
-	protected AsynTranResultSet esTranResultSet;
+	protected TranResultSet tranResultSet;
+	protected AsynTranResultSet asynTranResultSet;
 	protected TaskContext taskContext;
 	protected SerialTranCommand serialTranCommand;
 	protected ParrelTranCommand parrelTranCommand ;
@@ -76,7 +76,7 @@ public abstract class BaseDataTran implements DataTran{
 			}
 			if (addedFields.containsKey(varName))
 				continue;
-			addRecordValue( record, varName,jdbcResultSet.getValue(fieldName),fieldMeta ,context);
+			addRecordValue( record, varName, tranResultSet.getValue(fieldName),fieldMeta ,context);
 //			record.addData(fieldName, jdbcResultSet.getValue(fieldName));
 			addedFields.put(varName, dummy);
 
@@ -150,7 +150,7 @@ public abstract class BaseDataTran implements DataTran{
 	protected Status currentStatus;
 	protected volatile boolean tranFinished;
 	public AsynTranResultSet getAsynTranResultSet(){
-		return esTranResultSet;
+		return asynTranResultSet;
 	}
 	private TranStopReadEOFCallback tranStopReadEOFCallback;
 
@@ -170,8 +170,8 @@ public abstract class BaseDataTran implements DataTran{
 
 	public void appendData(Data data){
 
-		if(esTranResultSet != null)
-			esTranResultSet.appendData(data);
+		if(asynTranResultSet != null)
+			asynTranResultSet.appendData(data);
 	}
 
 
@@ -189,29 +189,29 @@ public abstract class BaseDataTran implements DataTran{
 	}
 
 	private BreakableScrollHandler breakableScrollHandler;
-	public BaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,Status currentStatus) {
+	public BaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, ImportContext importContext, ImportContext targetImportContext, Status currentStatus) {
 		this.currentStatus = currentStatus;
 		this.taskContext = taskContext;
 
 		if(importContext.getSplitHandler() != null){
-			if(jdbcResultSet instanceof AsynTranResultSet) {
-				AsynSplitTranResultSet asynSplitTranResultSet = new AsynSplitTranResultSet(importContext, (AsynTranResultSet) jdbcResultSet);
-				this.esTranResultSet = asynSplitTranResultSet;
-				this.jdbcResultSet = asynSplitTranResultSet;
+			if(tranResultSet instanceof AsynTranResultSet) {
+				AsynSplitTranResultSet asynSplitTranResultSet = new AsynSplitTranResultSet(importContext, (AsynTranResultSet) tranResultSet);
+				this.asynTranResultSet = asynSplitTranResultSet;
+				this.tranResultSet = asynSplitTranResultSet;
 			}
 			else {
-				this.jdbcResultSet = new SplitTranResultSet(importContext, jdbcResultSet);
+				this.tranResultSet = new SplitTranResultSet(importContext, tranResultSet);
 			}
 		}
 		else{
-			this.jdbcResultSet = jdbcResultSet;
+			this.tranResultSet = tranResultSet;
 
-			if(jdbcResultSet instanceof AsynTranResultSet)
-				this.esTranResultSet = (AsynTranResultSet)jdbcResultSet;
+			if(tranResultSet instanceof AsynTranResultSet)
+				this.asynTranResultSet = (AsynTranResultSet) tranResultSet;
 		}
 		this.importContext = importContext;
 		this.targetImportContext = targetImportContext;
-		jdbcResultSet.setBaseDataTran(this);
+		tranResultSet.setBaseDataTran(this);
 //		init();
 	}
 
@@ -255,7 +255,7 @@ public abstract class BaseDataTran implements DataTran{
 	public String tran() throws ESDataImportException {
 		try {
 			this.getDataTranPlugin().setHasTran();
-			if (jdbcResultSet == null)
+			if (tranResultSet == null)
 				return null;
 			if (isPrintTaskLog()) {
 				logTaskStart(logger);
@@ -432,10 +432,10 @@ public abstract class BaseDataTran implements DataTran{
 			if (importContext.getLastValueColumnName() == null) {
 				return null;
 			}
-			return jdbcResultSet.getLastValue(importContext.getLastValueColumnName());
+			return tranResultSet.getLastValue(importContext.getLastValueColumnName());
 		}
 		else{
-			return jdbcResultSet.getLastOffsetValue();
+			return tranResultSet.getLastOffsetValue();
 		}
 //		try {
 //			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
