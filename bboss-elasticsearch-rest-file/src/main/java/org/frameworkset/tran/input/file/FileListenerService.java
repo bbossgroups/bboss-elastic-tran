@@ -316,7 +316,7 @@ public class FileListenerService {
         RemoteFileValidate remoteFileValidate = ftpContext.getRemoteFileValidate();
         if(remoteFileValidate == null)
             return RemoteFileValidate.Result.default_ok;
-        RemoteFileValidate.Result result = remoteFileValidate.validateFile(dataFile,remoteFile,ftpContext,remoteFileAction,redown);
+        RemoteFileValidate.Result result = remoteFileValidate.validateFile(new ValidateContext(dataFile,remoteFile,ftpContext,remoteFileAction,redown));
 
         if( result.getValidateResult() == RemoteFileValidate.FILE_VALIDATE_FAILED_DELETE){
            if(!redown) {

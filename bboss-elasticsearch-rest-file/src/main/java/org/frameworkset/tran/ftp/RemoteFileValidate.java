@@ -15,8 +15,6 @@ package org.frameworkset.tran.ftp;
  * limitations under the License.
  */
 
-import java.io.File;
-
 /**
  * <p>Description: 数据文件校验接口</p>
  * <p></p>
@@ -52,7 +50,15 @@ public interface RemoteFileValidate {
 		public static final Result default_ok = new Result();
 		private int validateResult = FILE_VALIDATE_OK;
 		private int redownloadCounts = 3;
+		/**
+		 * 放置文件校验失败原因
+		 */
 		private String message;
+
+		/**
+		 * 标记校验是否成功，数据文件是否有效：true 有效，false 无效
+		 * @return
+		 */
 		public boolean isOk(){
 			return validateResult == FILE_VALIDATE_OK;
 		}
@@ -83,11 +89,14 @@ public interface RemoteFileValidate {
 
 
 	/**
-	 * 校验数据文件
-	 * @param dataFile 下载的零时数据文件
-	 * @param ftpContext ftp配置上下文
-	 * @param remoteFileAction  下载文件和删除远程文件接口
-	 * @param redownload 标记是否重新下载校验处理
+	 * 校验数据文件合法性
+
+	 * @param validateContext 封装校验数据文件信息
+	 *     dataFile 待校验零时数据文件，可以根据文件名称获取对应文件的md5签名文件名、数据量稽核文件名称等信息，
+	 *     remoteFile 通过数据文件对应的ftp/sftp文件路径，计算对应的目录获取md5签名文件、数据量稽核文件所在的目录地址
+	 *     ftpContext ftp配置上下文对象
+	 *     然后通过remoteFileAction下载md5签名文件、数据量稽核文件，再对数据文件进行校验即可
+	 *     redownload 标记校验来源是否是因校验失败重新下载文件导致的校验操作，true 为重下后 文件校验，false为第一次下载校验
 	 * @return int
 	 * 文件内容校验成功
 	 * 	RemoteFileValidate.FILE_VALIDATE_OK = 1;
@@ -98,5 +107,5 @@ public interface RemoteFileValidate {
 	 * 	文件内容校验失败并删除已下载文件
 	 * 	RemoteFileValidate.FILE_VALIDATE_FAILED_DELETE = 5;
 	 */
-	public Result validateFile(File dataFile, String remoteFile,FtpContext ftpContext, RemoteFileAction remoteFileAction,boolean redownload);
+	public Result validateFile(ValidateContext validateContext);
 }
