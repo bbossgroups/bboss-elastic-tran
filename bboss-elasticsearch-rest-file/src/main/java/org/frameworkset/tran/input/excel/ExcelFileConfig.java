@@ -83,6 +83,24 @@ public class ExcelFileConfig extends FileConfig {
         cellMapping.setNumberFormat(numberformat);
         return addCellMapping(  cellMapping );
     }
+    public ExcelFileConfig addCellMappingWithType(int cell,String field,int cellType ){
+
+        CellMapping cellMapping = new CellMapping();
+        cellMapping.setCell(cell);
+        cellMapping.setFieldName(field);
+        cellMapping.setCellType(cellType);
+        return addCellMapping(  cellMapping );
+    }
+
+    public ExcelFileConfig addCellMappingWithType(int cell,String field,int cellType ,Object defaultValue){
+
+        CellMapping cellMapping = new CellMapping();
+        cellMapping.setCell(cell);
+        cellMapping.setFieldName(field);
+        cellMapping.setCellType(cellType);
+        cellMapping.setDefaultValue(defaultValue);
+        return addCellMapping(  cellMapping );
+    }
     public ExcelFileConfig addCellMapping(CellMapping cellMapping ){
 
         cellMappingList.add(cellMapping);

@@ -208,7 +208,7 @@ public class ExcelFileReaderTask extends FileReaderTask {
 
 		for (CellMapping cellMapping : cellMappings) {
 			XSSFCell xssfCell = xssfRow.getCell(cellMapping.getCell());
-
+			xssfCell.getCellType();
 			if(xssfCell == null){
 				if(cellMapping.getDefaultValue() != null) {
 					json.put(cellMapping.getFieldName(), cellMapping.getDefaultValue());
@@ -241,9 +241,32 @@ public class ExcelFileReaderTask extends FileReaderTask {
 				json.put(cellMapping.getFieldName(),_value);
 
 				allIsNull = false;
+				/**
+				 * CELL_NUMBER_INTEGER = 6;
+				 * 	public static final int CELL_NUMBER_LONG = 7;
+				 * 	public static final int CELL_NUMBER_FLOAT = 8;
+				 * 	public static final int CELL_NUMBER_SHORT = 9;
+				 */
 			} else if (cellMapping.getCellType() == CellMapping.CELL_NUMBER) {
 				double value = xssfCell.getNumericCellValue();
 				json.put(cellMapping.getFieldName(), value);
+				allIsNull = false;
+			} else if (cellMapping.getCellType() == CellMapping.CELL_NUMBER_INTEGER) {
+				Double value = new Double(xssfCell.getNumericCellValue());
+
+				json.put(cellMapping.getFieldName(), value.intValue());
+				allIsNull = false;
+			} else if (cellMapping.getCellType() == CellMapping.CELL_NUMBER_LONG) {
+				Double value = new Double(xssfCell.getNumericCellValue());
+				json.put(cellMapping.getFieldName(), value.longValue());
+				allIsNull = false;
+			} else if (cellMapping.getCellType() == CellMapping.CELL_NUMBER_FLOAT) {
+				Double value = new Double(xssfCell.getNumericCellValue());
+				json.put(cellMapping.getFieldName(), value.floatValue());
+				allIsNull = false;
+			} else if (cellMapping.getCellType() == CellMapping.CELL_NUMBER_SHORT) {
+				Double value = new Double(xssfCell.getNumericCellValue());
+				json.put(cellMapping.getFieldName(), value.shortValue());
 				allIsNull = false;
 			} else if (cellMapping.getCellType() == CellMapping.CELL_DATE) {
 				Date value = xssfCell.getDateCellValue();

@@ -28,6 +28,10 @@ public class CellMapping {
 	public static final int CELL_DATE = 3;
 
 	public static final int CELL_NUMBER = 2;
+	public static final int CELL_NUMBER_INTEGER = 6;
+	public static final int CELL_NUMBER_LONG = 7;
+	public static final int CELL_NUMBER_FLOAT = 8;
+	public static final int CELL_NUMBER_SHORT = 9;
 	public static final int CELL_STRING = 1;
 
 	private int cell;
