@@ -53,6 +53,7 @@ public class KafkaSendImpl {
 		Callback callback = new Callback() {
 			@Override
 			public void onCompletion(RecordMetadata metadata, Exception exception) {
+				Date endTime = new Date();
 				ImportContext importContext = taskCommand.getImportContext();
 				ImportCount importCount = taskCommand.getImportCount();
 				TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
@@ -62,8 +63,10 @@ public class KafkaSendImpl {
 					taskMetrics.setTotalSuccessRecords(metrics[0]);
 					taskMetrics.setTotalRecords(metrics[1]);
 					taskMetrics.setSuccessRecords((long)taskCommand.getDataSize());
-					taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
-					taskMetrics.setTaskEndTime(new Date());
+					long ignoreTotalCount = importCount.getIgnoreTotalCount();
+					taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
+					taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
+					taskMetrics.setTaskEndTime(endTime);
 					if (importContext.getExportResultHandler() != null) {//处理返回值
 						try {
 							importContext.getExportResultHandler().handleResult(taskCommand, metadata);
@@ -80,8 +83,10 @@ public class KafkaSendImpl {
 					taskMetrics.setFailedRecords(taskCommand.getDataSize());
 					taskMetrics.setTotalRecords(metrics[1]);
 					taskMetrics.setTotalFailedRecords(metrics[0]);
-					taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
-					taskMetrics.setTaskEndTime(new Date());
+					long ignoreTotalCount = importCount.getIgnoreTotalCount();
+					taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
+					taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
+					taskMetrics.setTaskEndTime(endTime);
 					if (importContext.getExportResultHandler() != null) {
 						try {
 							importContext.getExportResultHandler().handleException(taskCommand,new KafkaSendException(metadata,exception));

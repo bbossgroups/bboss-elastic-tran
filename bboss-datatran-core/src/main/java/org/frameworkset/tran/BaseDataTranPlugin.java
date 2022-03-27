@@ -265,7 +265,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 
 
-	public abstract void beforeInit();
+	public  void beforeInit(){
+		initOtherDSes(importContext.getConfigs());
+	}
 	public abstract void afterInit();
 	public abstract void initStatusTableId();
 	protected void initStatusManager(){
@@ -1272,11 +1274,28 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			);*/
 		}
 	}
-	protected void initOtherDSes(List<DBConfig> dbConfigs){
-		if(dbConfigs != null && dbConfigs.size() > 0){
-			for (DBConfig dbConfig:dbConfigs){
-				initDS( dbConfig);
+	protected void initTargetDS2ndOtherDSes(DBOutPutContext dbOutPutContext){
+		if(dbOutPutContext != null) {
+			DBConfig targetDBConfig = dbOutPutContext.getTargetDBConfig(null);
+			if (targetDBConfig != null) {
+				this.initDS(targetDBConfig);
 			}
+		}
+		initOtherDSes(importContext.getConfigs());
+	}
+	protected boolean initOtherDSes ;
+	protected void initOtherDSes(List<DBConfig> dbConfigs){
+		if(initOtherDSes )
+			return;
+		try {
+			if (dbConfigs != null && dbConfigs.size() > 0) {
+				for (DBConfig dbConfig : dbConfigs) {
+					initDS(dbConfig);
+				}
+			}
+		}
+		finally {
+			initOtherDSes = true;
 		}
 	}
 

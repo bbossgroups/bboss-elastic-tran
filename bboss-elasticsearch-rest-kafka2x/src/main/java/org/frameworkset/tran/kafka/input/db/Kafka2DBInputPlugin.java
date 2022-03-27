@@ -55,7 +55,8 @@ public class Kafka2DBInputPlugin  extends Kafka2InputPlugin {
 //		else{
 //			TranUtil.initTargetSQLInfo(dbOutPutContext, importContext.getDbConfig().getDbName());
 //		}
-		initDSAndTargetSQLInfo(dbOutPutContext,true);
+		initTargetDS2ndOtherDSes( dbOutPutContext);
+		initDSAndTargetSQLInfo(dbOutPutContext,false);
 		super.beforeInit();
 	}
 	protected  BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, Status currentStatus) {

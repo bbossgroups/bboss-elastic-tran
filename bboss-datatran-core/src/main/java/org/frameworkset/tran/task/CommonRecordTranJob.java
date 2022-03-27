@@ -348,7 +348,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 //
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 //					taskNo++;
-					parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper);
+					taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper);
 					records = new ArrayList<>();
 
 				}
@@ -361,7 +361,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 //						count, taskNo, totalCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 //				taskCommand.setDatas(records);
 //				tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-				parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper);
+				taskNo = parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper);
 
 			}
 			if(baseDataTran.isPrintTaskLog())

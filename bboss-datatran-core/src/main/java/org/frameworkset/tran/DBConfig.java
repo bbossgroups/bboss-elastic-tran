@@ -16,6 +16,7 @@ package org.frameworkset.tran;
  */
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.orm.adapter.DBFactory;
 
 /**
@@ -33,6 +34,7 @@ public class DBConfig {
 	private String dbUrl;
 	private String dbUser;
 
+	@JsonIgnore
 	private String dbPassword;
 
 	private int initSize = 10;
@@ -248,11 +250,11 @@ public class DBConfig {
 	public void setDbUser(String dbUser) {
 		this.dbUser = dbUser;
 	}
-
+	@JsonIgnore
 	public String getDbPassword() {
 		return dbPassword;
 	}
-
+	@JsonIgnore
 	public void setDbPassword(String dbPassword) {
 		this.dbPassword = dbPassword;
 	}

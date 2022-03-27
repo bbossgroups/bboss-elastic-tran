@@ -174,7 +174,7 @@ public class StringTranJob extends BaseTranJob{
 						count = 0;
 
 					}
-					serialTranCommand.splitSerialActionTask(importCount,_count,taskNo,lastValue,_dd,reachEOFClosed,null);
+					taskNo = serialTranCommand.splitSerialActionTask(importCount,_count,taskNo,lastValue,_dd,reachEOFClosed,null);
 //					if(_dd != null) {
 //						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext, targetImportContext,
 //								count, taskNo, importCount.getJobNo(), fileTransfer, lastValue, currentStatus, reachEOFClosed, taskContext);

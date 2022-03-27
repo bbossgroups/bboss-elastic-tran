@@ -53,7 +53,14 @@ public class FileLog2DBDataTranPlugin extends FileBaseDataTranPlugin {
 //			if(dbConfig != null)
 //				TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
 //		}
-		initDSAndTargetSQLInfo(dbOutPutContext,true);
+//		DBConfig targetDBConfig = dbOutPutContext.getTargetDBConfig(null);
+//		if(targetDBConfig != null)
+//		{
+//			this.initDS(targetDBConfig);
+//		}
+//		initOtherDSes(importContext.getConfigs());
+		initTargetDS2ndOtherDSes( dbOutPutContext);
+		initDSAndTargetSQLInfo(dbOutPutContext,false);
 		super.beforeInit();
 	}
 	@Override

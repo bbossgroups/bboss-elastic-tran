@@ -80,8 +80,8 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	 * @return
 	 */
 	public long getElapsed(){
-		if (taskMetrics != null && taskMetrics.getTaskStartTime() != null && taskMetrics.getTaskEndTime() != null)
-			return taskMetrics.getTaskEndTime().getTime() - taskMetrics.getTaskStartTime().getTime();
+		if (taskMetrics != null )
+			return taskMetrics.getElapsed();
 		return -1;
 	}
 	public BaseTaskCommand(ImportCount importCount,

@@ -50,7 +50,8 @@ public class HBase2DBInputPlugin extends HBaseInputPlugin {
 //			if(dbConfig != null)
 //				TranUtil.initTargetSQLInfo(dbOutPutContext, dbConfig.getDbName());
 //		}
-		initDSAndTargetSQLInfo(dbOutPutContext,true);
+		initTargetDS2ndOtherDSes( dbOutPutContext);
+		initDSAndTargetSQLInfo(dbOutPutContext,false);
 		super.beforeInit();
 
 	}

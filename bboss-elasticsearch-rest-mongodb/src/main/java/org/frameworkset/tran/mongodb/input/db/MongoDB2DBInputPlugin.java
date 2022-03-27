@@ -32,8 +32,12 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public class MongoDB2DBInputPlugin extends MongoDBInputPlugin {
+	protected DBOutPutContext dbOutPutContext;
 	public MongoDB2DBInputPlugin(ImportContext importContext, ImportContext targetImportContext) {
 		super(  importContext,   targetImportContext);
+		if(dbOutPutContext instanceof DBOutPutContext){
+			dbOutPutContext = (DBOutPutContext) targetImportContext;
+		}
 	}
 
 	@Override
@@ -47,6 +51,7 @@ public class MongoDB2DBInputPlugin extends MongoDBInputPlugin {
 	@Override
 	public void beforeInit() {
 		super.beforeInit();
+		initTargetDS2ndOtherDSes( dbOutPutContext);
 		initSourceDatasource();
 	}
 
@@ -54,6 +59,7 @@ public class MongoDB2DBInputPlugin extends MongoDBInputPlugin {
 
 	@Override
 	public void afterInit(){
+
 		initDSAndTargetSQLInfo((DBOutPutContext) importContext ,false);
 //		DBOutPutContext dbOutPutContext = (DBOutPutContext) importContext ;
 //		TranUtil.initTargetSQLInfo(dbOutPutContext,importContext.getDbConfig().getDbName());

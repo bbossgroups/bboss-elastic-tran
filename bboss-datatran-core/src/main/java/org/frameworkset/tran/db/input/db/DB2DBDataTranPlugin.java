@@ -34,7 +34,7 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTranPlugin {
-	private DBOutPutContext db2DBContext;
+	private DBOutPutContext dbOutPutContext;
 	public DB2DBDataTranPlugin(ImportContext importContext,ImportContext targetImportContext){
 		super(importContext,  targetImportContext);
 
@@ -42,7 +42,7 @@ public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 	}
 	@Override
 	public void init(ImportContext importContext,ImportContext targetImportContext){
-		db2DBContext = (DBOutPutContext)importContext;
+		dbOutPutContext = (DBOutPutContext)importContext;
 		super.init(importContext,  targetImportContext);
 	}
 //	protected void initDSAndTargetSQLInfo(DBOutPutContext db2DBContext){
@@ -64,7 +64,8 @@ public class DB2DBDataTranPlugin extends SQLBaseDataTranPlugin implements DataTr
 	@Override
 	public void beforeInit() {
 		super.beforeInit();
-		initDSAndTargetSQLInfo(db2DBContext,true);
+		initTargetDS2ndOtherDSes( dbOutPutContext);
+		initDSAndTargetSQLInfo(dbOutPutContext,false);
 	}
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){

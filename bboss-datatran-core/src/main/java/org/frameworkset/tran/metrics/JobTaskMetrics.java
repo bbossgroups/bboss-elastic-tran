@@ -145,5 +145,16 @@ public class JobTaskMetrics {
 		builder.append(",Total Failed Records:").append(totalFailedRecords);
 		builder.append(",Total Ignore Records:").append(totalIgnoreRecords);
 		builder.append(",Total Tasks:").append(tasks);
+		builder.append(",Elapsed Time:").append(getElapsed()).append("ms");
+	}
+	/**
+	 * 获取任务执行耗时
+	 * -1 表示没有执行耗时
+	 * @return
+	 */
+	public long getElapsed(){
+		if (getJobStartTime() != null && getJobEndTime() != null)
+			return getJobEndTime().getTime() - getJobStartTime().getTime();
+		return -1;
 	}
 }

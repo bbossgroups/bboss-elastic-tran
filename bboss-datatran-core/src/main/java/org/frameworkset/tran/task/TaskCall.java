@@ -102,14 +102,16 @@ public class TaskCall implements Runnable {
 		try {
 			taskCommand.init();
 			RESULT data = taskCommand.execute();
+			Date endTime = new Date();
 			long[] metrics = importCount.increamentSuccessCount((long)taskCommand.getDataSize());
 			taskMetrics.setTotalSuccessRecords(metrics[0]);
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setSuccessRecords((long)taskCommand.getDataSize());
 			taskMetrics.setRecords(taskMetrics.getSuccessRecords());
-			taskMetrics.setIgnoreRecords(importCount.getIgnoreTotalCount() - taskMetrics.getTotalIgnoreRecords());
-			taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
-			taskMetrics.setTaskEndTime(new Date());
+			long ignoreTotalCount = importCount.getIgnoreTotalCount();
+			taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
+			taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
+			taskMetrics.setTaskEndTime(endTime);
 			if (importContext.getExportResultHandler() != null) {//处理返回值
 				try {
 					importContext.getExportResultHandler().handleResult(taskCommand, data);
@@ -126,8 +128,9 @@ public class TaskCall implements Runnable {
 			taskMetrics.setRecords(taskMetrics.getFailedRecords());
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setTotalFailedRecords(metrics[0]);
-			taskMetrics.setIgnoreRecords(importCount.getIgnoreTotalCount() - taskMetrics.getTotalIgnoreRecords());
-			taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
+			long ignoreTotalCount = importCount.getIgnoreTotalCount();
+			taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
+			taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
 			taskMetrics.setTaskEndTime(new Date());
 			if (importContext.getExportResultHandler() != null) {
 				try {
@@ -145,8 +148,9 @@ public class TaskCall implements Runnable {
 			taskMetrics.setRecords(taskMetrics.getFailedRecords());
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setTotalFailedRecords(metrics[0]);
-			taskMetrics.setIgnoreRecords(importCount.getIgnoreTotalCount() - taskMetrics.getTotalIgnoreRecords());
-			taskMetrics.setTotalIgnoreRecords(importCount.getIgnoreTotalCount());
+			long ignoreTotalCount = importCount.getIgnoreTotalCount();
+			taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
+			taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
 
 			taskMetrics.setTaskEndTime(new Date());
 			if (importContext.getExportResultHandler() != null) {

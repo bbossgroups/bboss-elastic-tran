@@ -156,10 +156,20 @@ public class TaskMetrics {
 				.append(", totalFailedRecords:").append(totalFailedRecords)
 				.append(", successRecords:").append(successRecords)
 //				.append(", ignoreRecords:").append(ignoreRecords)
-				.append(", failedRecords:").append(failedRecords).append("}");
+				.append(", failedRecords:").append(failedRecords)
+				.append(", elapsedTime:").append(getElapsed()).append("ms}");
 		return builder.toString();
 	}
-
+	/**
+	 * 获取任务执行耗时
+	 * -1 表示没有执行耗时
+	 * @return
+	 */
+	public long getElapsed(){
+		if (getTaskStartTime() != null && getTaskEndTime() != null)
+			return getTaskEndTime().getTime() - getTaskStartTime().getTime();
+		return -1;
+	}
 	public long getRecords() {
 		return records;
 	}
