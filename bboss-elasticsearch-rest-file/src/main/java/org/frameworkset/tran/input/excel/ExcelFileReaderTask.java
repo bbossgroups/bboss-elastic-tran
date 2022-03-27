@@ -208,7 +208,6 @@ public class ExcelFileReaderTask extends FileReaderTask {
 
 		for (CellMapping cellMapping : cellMappings) {
 			XSSFCell xssfCell = xssfRow.getCell(cellMapping.getCell());
-			xssfCell.getCellType();
 			if(xssfCell == null){
 				if(cellMapping.getDefaultValue() != null) {
 					json.put(cellMapping.getFieldName(), cellMapping.getDefaultValue());
