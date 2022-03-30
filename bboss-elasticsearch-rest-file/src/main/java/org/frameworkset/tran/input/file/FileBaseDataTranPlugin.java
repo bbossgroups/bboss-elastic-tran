@@ -480,6 +480,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                         logDirScanThreads = new ArrayList<>(fileConfigs.size());
                         for (FileConfig fileConfig : fileConfigs) {
                             LogDirScanThread logDirScanThread = logDirScanThread(  fileConfig );
+                            logDirScanThread.statusRunning();
                             logDirScanThreads.add(logDirScanThread);
                             logDirScanThread.scanNewFile();
                         }

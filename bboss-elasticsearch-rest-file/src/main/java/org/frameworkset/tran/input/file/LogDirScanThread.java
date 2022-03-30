@@ -52,17 +52,20 @@ public class LogDirScanThread implements Runnable{
     }
 
 
+    public synchronized void statusRunning(){
+        if (running) {
+            throw new IllegalStateException("Monitor is already running");
+        }
+
+        running = true;
+    }
     /**
      * Starts monitoring.
      *
      * @throws Exception if an error occurs initializing the observer
      */
     public synchronized void start() throws IllegalStateException {
-        if (running) {
-            throw new IllegalStateException("Monitor is already running");
-        }
-
-        running = true;
+        statusRunning();
 
         thread = new Thread(this,"LogFile-Change-monitor|"+fileConfig.getSourcePath());
         thread.setDaemon(false);
