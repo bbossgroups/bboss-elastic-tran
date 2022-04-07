@@ -15,12 +15,12 @@ package org.frameworkset.tran.es.input.dummy;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.BaseCommonRecordDataTran;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.es.input.ESInputPlugin;
-import org.frameworkset.tran.ouput.dummy.DummyOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -38,8 +38,12 @@ public class ES2EDummyDataTranPlugin extends ESInputPlugin implements DataTranPl
 
 
 	@Override
-	protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch, Status currentStatus){
-		DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,countDownLatch,  currentStatus);
+	protected BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch, Status currentStatus){
+//		DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,jdbcResultSet,importContext,   targetImportContext,countDownLatch,  currentStatus);
+//		dummyOutPutDataTran.initTran();
+//		return dummyOutPutDataTran;
+		BaseCommonRecordDataTran dummyOutPutDataTran = super.createCustomOrDummyTran(taskContext,tranResultSet,countDownLatch,currentStatus);
+		//DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,tranResultSet,importContext,   targetImportContext, currentStatus);
 		dummyOutPutDataTran.initTran();
 		return dummyOutPutDataTran;
 	}

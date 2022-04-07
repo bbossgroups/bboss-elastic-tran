@@ -47,6 +47,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -77,6 +78,20 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		}
 		else{
 			baseCommonRecordDataTran = new CustomOutPutDataTran(taskContext, tranResultSet, importContext, targetImportContext, currentStatus);
+
+		}
+
+		return baseCommonRecordDataTran;
+	}
+
+	protected BaseCommonRecordDataTran createCustomOrDummyTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch, Status currentStatus){
+		BaseCommonRecordDataTran baseCommonRecordDataTran = null;
+		if(importContext.getCustomOutPut() == null) {
+			baseCommonRecordDataTran = new DummyOutPutDataTran(taskContext, tranResultSet, importContext, targetImportContext, countDownLatch,currentStatus);
+
+		}
+		else{
+			baseCommonRecordDataTran = new CustomOutPutDataTran(taskContext, tranResultSet, importContext, targetImportContext,countDownLatch, currentStatus);
 
 		}
 
