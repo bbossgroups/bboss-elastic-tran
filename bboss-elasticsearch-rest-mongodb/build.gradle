@@ -28,7 +28,7 @@ sourceSets {
 dependencies {
 
 	api project(':bboss-elasticsearch-rest-file2ftp')
-	api([group: 'com.bbossgroups', name: 'bboss-data', version: "${PROJ_BBOSS_VERSION}", transitive: true])
+	api([group: 'com.bbossgroups', name: 'bboss-data', version: "${PROJ_BBOSS_DATA_VERSION}", transitive: true])
 
 }
 
