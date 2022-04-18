@@ -66,6 +66,7 @@ public class KafkaSendImpl {
 						taskMetrics.setTotalRecords(metrics[1]);
 						taskMetrics.setSuccessRecords((long)taskCommand.getDataSize());
 						taskMetrics.setRecords(taskMetrics.getSuccessRecords());
+						taskMetrics.setLastValue(taskCommand.getLastValue());
 						taskMetrics.setIgnoreRecords(importCount.getIgnoreTotalCount() - taskMetrics.getTotalIgnoreRecords());
 						long ignoreTotalCount = importCount.getIgnoreTotalCount();
 						taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
@@ -86,6 +87,7 @@ public class KafkaSendImpl {
 						long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
 						taskMetrics.setFailedRecords(taskCommand.getDataSize());
 						taskMetrics.setRecords(taskMetrics.getFailedRecords());
+						taskMetrics.setLastValue(taskCommand.getLastValue());
 						taskMetrics.setTotalRecords(metrics[1]);
 						taskMetrics.setTotalFailedRecords(metrics[0]);
 						long ignoreTotalCount = importCount.getIgnoreTotalCount();

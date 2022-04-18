@@ -53,6 +53,12 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		}
 
 	}
+
+	@Override
+	public Object getLastValue() {
+		return lastValue;
+	}
+
 	public long getDataSize(){
 		return dataSize;
 	}

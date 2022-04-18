@@ -40,6 +40,7 @@ public class TaskMetrics {
 	private long records;
 	private int taskNo;
 	private String jobNo;
+	private Object lastValue;
 
 	public long getTotalRecords() {
 		return totalRecords;
@@ -157,6 +158,7 @@ public class TaskMetrics {
 				.append(", successRecords:").append(successRecords)
 //				.append(", ignoreRecords:").append(ignoreRecords)
 				.append(", failedRecords:").append(failedRecords)
+				.append(", lastValue:").append(lastValue)
 				.append(", elapsedTime:").append(getElapsed()).append("ms}");
 		return builder.toString();
 	}
@@ -176,5 +178,15 @@ public class TaskMetrics {
 
 	public void setRecords(long records) {
 		this.records = records;
+	}
+
+
+
+	public Object getLastValue() {
+		return lastValue;
+	}
+
+	public void setLastValue(Object lastValue) {
+		this.lastValue = lastValue;
 	}
 }

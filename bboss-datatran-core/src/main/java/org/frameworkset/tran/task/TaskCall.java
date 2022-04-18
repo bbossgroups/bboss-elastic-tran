@@ -105,6 +105,7 @@ public class TaskCall implements Runnable {
 			Date endTime = new Date();
 			long[] metrics = importCount.increamentSuccessCount((long)taskCommand.getDataSize());
 			taskMetrics.setTotalSuccessRecords(metrics[0]);
+			taskMetrics.setLastValue(taskCommand.getLastValue());
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setSuccessRecords((long)taskCommand.getDataSize());
 			taskMetrics.setRecords(taskMetrics.getSuccessRecords());
@@ -126,6 +127,7 @@ public class TaskCall implements Runnable {
 			long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
 			taskMetrics.setFailedRecords(taskCommand.getDataSize());
 			taskMetrics.setRecords(taskMetrics.getFailedRecords());
+			taskMetrics.setLastValue(taskCommand.getLastValue());
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setTotalFailedRecords(metrics[0]);
 			long ignoreTotalCount = importCount.getIgnoreTotalCount();
@@ -146,6 +148,7 @@ public class TaskCall implements Runnable {
 			long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
 			taskMetrics.setFailedRecords(taskCommand.getDataSize());
 			taskMetrics.setRecords(taskMetrics.getFailedRecords());
+			taskMetrics.setLastValue(taskCommand.getLastValue());
 			taskMetrics.setTotalRecords(metrics[1]);
 			taskMetrics.setTotalFailedRecords(metrics[0]);
 			long ignoreTotalCount = importCount.getIgnoreTotalCount();

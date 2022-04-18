@@ -29,7 +29,7 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public interface TaskCommand<DATA,RESULT> {
-
+	public Object getLastValue();
 	public DATA getDatas() ;
 	public void init();
 	public TaskContext getTaskContext();

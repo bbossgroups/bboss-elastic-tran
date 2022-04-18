@@ -15,6 +15,8 @@ package org.frameworkset.tran.metrics;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.status.BaseStatusManager;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -35,6 +37,7 @@ public class JobTaskMetrics {
 	private long totalSuccessRecords;
 	protected int tasks;
 	private String jobNo;
+	private Object lastValue;
 
 	public Date getJobStartTime() {
 		return jobStartTime;
@@ -55,6 +58,8 @@ public class JobTaskMetrics {
 	public void increamentRecords(long records){
 		totalRecords = totalRecords + records;
 	}
+
+
 
 	public long getTotalFailedRecords() {
 		return totalFailedRecords;
@@ -145,6 +150,7 @@ public class JobTaskMetrics {
 		builder.append(",Total Failed Records:").append(totalFailedRecords);
 		builder.append(",Total Ignore Records:").append(totalIgnoreRecords);
 		builder.append(",Total Tasks:").append(tasks);
+		builder.append(",Total lastValue:").append(lastValue);
 		builder.append(",Elapsed Time:").append(getElapsed()).append("ms");
 	}
 	/**
@@ -156,5 +162,16 @@ public class JobTaskMetrics {
 		if (getJobStartTime() != null && getJobEndTime() != null)
 			return getJobEndTime().getTime() - getJobStartTime().getTime();
 		return -1;
+	}
+
+	public Object getLastValue() {
+		return lastValue;
+	}
+
+	public void setLastValue(Object lastValue) {
+		this.lastValue = lastValue;
+	}
+	public void putLastValue(Integer lastValueType,Object lastValue){
+		this.lastValue = BaseStatusManager.max(lastValueType,this.lastValue,lastValue);
 	}
 }

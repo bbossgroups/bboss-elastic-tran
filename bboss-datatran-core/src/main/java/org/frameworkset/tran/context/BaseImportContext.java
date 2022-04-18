@@ -26,12 +26,12 @@ import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
+import org.frameworkset.tran.status.BaseStatusManager;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -367,172 +367,12 @@ public abstract  class BaseImportContext implements ImportContext {
 	}
 
 	public boolean needUpdate(Object oldValue,Object newValue){
-		if(newValue == null)
-			return false;
+		return BaseStatusManager.needUpdate(this.getLastValueType(),oldValue,  newValue);
 
-		if(oldValue == null)
-			return true;
-//		this.getLastValueType()
-		if(this.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
-			Date oldValueDate = (Date)oldValue;
-			Date newValueDate = (Date)newValue;
-			if(newValueDate.after(oldValueDate))
-				return true;
-			else
-				return false;
-		}
-		else{
-//			Method compareTo = oldValue.getClass().getMethod("compareTo");
-			if(oldValue instanceof Integer && newValue instanceof Integer){
-				int e = ((Integer)oldValue).compareTo ((Integer)newValue);
-				if(e < 0)
-					return true;
-				else
-					return false;
-			}
-			else if(oldValue instanceof Long || newValue instanceof Long){
-				boolean e = ((Number)oldValue).longValue() <= ((Number)newValue).longValue();
-				if(e)
-					return true;
-				else
-					return false;
-			}
-			else if(oldValue instanceof BigDecimal && newValue instanceof BigDecimal){
-				int e = ((BigDecimal)oldValue).compareTo ((BigDecimal)newValue);
-				if(e < 0)
-					return true;
-				else
-					return false;
-			}
-			else if(oldValue instanceof BigDecimal && newValue instanceof Integer){
-				boolean e = ((BigDecimal)oldValue).longValue() > ((Integer)newValue).intValue();
-				if(!e )
-					return true;
-				else
-					return false;
-			}
-			else if(oldValue instanceof Integer && newValue instanceof BigDecimal){
-				boolean e = ((BigDecimal)newValue).longValue() > ((Integer)oldValue).intValue();
-				if(!e )
-					return false;
-				else
-					return true;
-			}
-			else if(oldValue instanceof Double || newValue instanceof Double){
-				int e = Double.compare(((Number)oldValue).doubleValue(), ((Number)newValue).doubleValue());
-				if(e < 0)
-					return true;
-				else
-					return false;
-			}
-			else if(oldValue instanceof Float || newValue instanceof Float){
-				int e = Float.compare(((Number)oldValue).floatValue(), ((Number)newValue).floatValue());
-				if(e < 0)
-					return true;
-				else
-					return false;
-			}
-
-			else if(oldValue instanceof BigDecimal || newValue instanceof BigDecimal){
-				int e = Double.compare(((Number)oldValue).doubleValue(), ((Number)newValue).doubleValue());
-				if(e < 0)
-					return true;
-				else
-					return false;
-			}
-			else {
-				boolean e = ((Number)oldValue).intValue() <= ((Number)newValue).intValue();
-				if(e)
-					return true;
-				else
-					return false;
-			}
-
-		}
 	}
 	public Object max(Object oldValue,Object newValue){
-		if(newValue == null)
-			return oldValue;
+		return BaseStatusManager.max(this.getLastValueType(),oldValue,newValue);
 
-		if(oldValue == null)
-			return newValue;
-//		this.getLastValueType()
-		if(this.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
-			Date oldValueDate = (Date)oldValue;
-			Date newValueDate = (Date)newValue;
-			if(newValueDate.after(oldValueDate))
-				return newValue;
-			else
-				return oldValue;
-		}
-		else{
-//			Method compareTo = oldValue.getClass().getMethod("compareTo");
-			if(oldValue instanceof Integer && newValue instanceof Integer){
-				int e = ((Integer)oldValue).compareTo ((Integer)newValue);
-				if(e < 0)
-					return newValue;
-				else
-					return oldValue;
-			}
-			else if(oldValue instanceof Long || newValue instanceof Long){
-				boolean e = ((Number)oldValue).longValue() <= ((Number)newValue).longValue();
-				if(e)
-					return newValue;
-				else
-					return oldValue;
-			}
-			else if(oldValue instanceof BigDecimal && newValue instanceof BigDecimal){
-				int e = ((BigDecimal)oldValue).compareTo ((BigDecimal)newValue);
-				if(e < 0)
-					return newValue;
-				else
-					return oldValue;
-			}
-			else if(oldValue instanceof BigDecimal && newValue instanceof Integer){
-				boolean e = ((BigDecimal)oldValue).longValue() > ((Integer)newValue).intValue();
-				if(!e )
-					return newValue;
-				else
-					return oldValue;
-			}
-			else if(oldValue instanceof Integer && newValue instanceof BigDecimal){
-				boolean e = ((BigDecimal)newValue).longValue() > ((Integer)oldValue).intValue();
-				if(!e )
-					return oldValue;
-				else
-					return newValue;
-			}
-			else if(oldValue instanceof Double || newValue instanceof Double){
-				int e = Double.compare(((Number)oldValue).doubleValue(), ((Number)newValue).doubleValue());
-				if(e < 0)
-					return newValue;
-				else
-					return oldValue;
-			}
-			else if(oldValue instanceof Float || newValue instanceof Float){
-				int e = Float.compare(((Number)oldValue).floatValue(), ((Number)newValue).floatValue());
-				if(e < 0)
-					return newValue;
-				else
-					return oldValue;
-			}
-
-			else if(oldValue instanceof BigDecimal || newValue instanceof BigDecimal){
-				int e = Double.compare(((Number)oldValue).doubleValue(), ((Number)newValue).doubleValue());
-				if(e < 0)
-					return newValue;
-				else
-					return oldValue;
-			}
-			else {
-				boolean e = ((Number)oldValue).intValue() <= ((Number)newValue).intValue();
-				if(e)
-					return newValue;
-				else
-					return oldValue;
-			}
-
-		}
 	}
 	public void setLastValueDateformat(String lastValueDateformat){
 		this.baseImportConfig.setLastValueDateformat(lastValueDateformat);
