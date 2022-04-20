@@ -165,6 +165,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 	protected Date initLastDate = null;
 	protected String statusDbname;
+	protected boolean useOuterStatusDb = false;
 	protected String statusTableName;
 	protected String historyStatusTableName;
 	protected String statusStorePath;
@@ -423,8 +424,12 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		if(statusManager != null)
 			statusManager.stop();
 		try {
-			if(statusDbname != null && !statusDbname.equals(""))
-				SQLUtil.stopPool(this.statusDbname);
+			if(statusDbname != null && !statusDbname.equals("")) {
+				//如果使用的不是外部数据源，那么就需要停止数据源
+				if(!useOuterStatusDb) {
+					SQLUtil.stopPool(this.statusDbname);
+				}
+			}
 		}
 		catch (Exception e){
 			logger.error("Stop status db pool["+statusDbname+"] failed:",e);
@@ -975,6 +980,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 						throw new ESDataImportException(e);
 					}
 
+				}
+				else{
+					useOuterStatusDb = true;
 				}
 
 				createStatusTableSQL = statusDBConfig.getStatusTableDML();
