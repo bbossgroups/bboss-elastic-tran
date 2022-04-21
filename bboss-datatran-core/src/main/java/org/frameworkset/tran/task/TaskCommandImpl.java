@@ -45,12 +45,12 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 
 
 
-	private ClientInterface clientInterface;
+	private ClientInterface[] clientInterfaces;
 
 
 
-	public ClientInterface getClientInterface() {
-		return clientInterface;
+	public ClientInterface[] getClientInterfaces() {
+		return clientInterfaces;
 	}
 
 	public String getDatas() {
@@ -63,8 +63,8 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 
 
 
-	public void setClientInterface(ClientInterface clientInterface) {
-		this.clientInterface = clientInterface;
+	public void setClientInterfaces(ClientInterface[] clientInterfaces) {
+		this.clientInterfaces = clientInterfaces;
 	}
 
 	public void setDatas(String datas) {
@@ -81,9 +81,12 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
 		}
 		this.tryCount ++;
+		String actionUrl = BuildTool.buildActionUrl(targetImportContext.getClientOptions(), BulkConfig.ERROR_FILTER_PATH);
 		if(importContext.isDebugResponse()) {
 
-			data = clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions(), BulkConfig.ERROR_FILTER_PATH), datas, ClientUtil.HTTP_POST);
+			for (ClientInterface clientInterface : clientInterfaces) {
+				data = clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST);
+			}
 			finishTask();
 			if(logger.isInfoEnabled())
 				logger.info(data);
@@ -91,15 +94,20 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 		}
 		else{
 			if(importContext.isDiscardBulkResponse() && importContext.getExportResultHandler() == null) {
-				ESVoidResponseHandler esVoidResponseHandler = new ESVoidResponseHandler();
-				clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions(), BulkConfig.ERROR_FILTER_PATH), datas, ClientUtil.HTTP_POST,esVoidResponseHandler);
-				if(esVoidResponseHandler.getElasticSearchException() != null)
-					throw esVoidResponseHandler.getElasticSearchException();
+				for (ClientInterface clientInterface : clientInterfaces) {
+					ESVoidResponseHandler esVoidResponseHandler = new ESVoidResponseHandler();
+					clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST, esVoidResponseHandler);
+
+					if (esVoidResponseHandler.getElasticSearchException() != null)
+						throw esVoidResponseHandler.getElasticSearchException();
+				}
 				finishTask();
 				return null;
 			}
 			else{
-				data = clientInterface.executeHttp(BuildTool.buildActionUrl(targetImportContext.getClientOptions(), BulkConfig.ERROR_FILTER_PATH), datas, ClientUtil.HTTP_POST);
+				for (ClientInterface clientInterface : clientInterfaces) {
+					data = clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST);
+				}
 				finishTask();
 			}
 		}

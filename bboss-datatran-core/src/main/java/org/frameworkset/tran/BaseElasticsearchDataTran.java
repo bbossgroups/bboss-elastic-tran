@@ -75,15 +75,15 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 			@Override
 			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
 				if(datas != null) {
-					for (ClientInterface clientInterface : clientInterfaces) {
+//					for (ClientInterface clientInterface : clientInterfaces) {
 						taskNo++;
 						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, targetImportContext,
 								dataSize, taskNo, totalCount.getJobNo(), lastValue, currentStatus, reachEOFClosed, taskContext);
 //						count = 0;
-						taskCommand.setClientInterface(clientInterface);
+						taskCommand.setClientInterfaces(clientInterfaces);
 						taskCommand.setDatas((String) datas);
 						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-					}
+//					}
 				}
 				return taskNo;
 			}
@@ -139,15 +139,15 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 
 	protected int processDataSerial(ImportCount totalCount,long dataSize,int taskNo, Object lastValue,Object datas,boolean reachEOFClosed,CommonRecord record){
 		if(datas != null) {
-			for (ClientInterface clientInterface : clientInterfaces) {
+//			for (ClientInterface clientInterface : clientInterfaces) {
 				taskNo++;
 				TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, targetImportContext,
 						dataSize, taskNo, totalCount.getJobNo(), lastValue, currentStatus, reachEOFClosed, taskContext);
 //						count = 0;
-				taskCommand.setClientInterface(clientInterface);
+				taskCommand.setClientInterfaces(clientInterfaces);
 				taskCommand.setDatas((String) datas);
 				TaskCall.call(taskCommand);
-			}
+//			}
 		}
 		return taskNo;
 	}
