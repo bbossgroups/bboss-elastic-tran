@@ -861,6 +861,71 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		if(importContext.getDbConfig() != null)
 			this.initDS(importContext.getDbConfig());
 	}
+
+	private void initSQLiteStatusDB(String statusDbname,String dbJNDIName){
+
+		try {
+			createStatusTableSQL = new StringBuilder().append("create table " ).append( statusTableName)
+					.append( " (ID number(10),")  //记录标识
+					.append( "lasttime number(10),") //最后更新时间
+					.append( "lastvalue number(10),")  //增量字段值，值可能是日期类型，也可能是数字类型
+					.append( "lastvaluetype number(1),") //值类型 0-数字 1-日期
+					.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+					.append( "filePath varchar(500) ,")  //日志文件路径
+					.append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径
+
+					.append( "fileId varchar(500) ,")  //日志文件indoe标识
+					.append( "PRIMARY KEY (ID))").toString();
+			createHistoryStatusTableSQL = new StringBuilder().append("create table " ).append( historyStatusTableName)
+					.append( " (ID varchar(100),")  //记录标识
+					.append( "lasttime number(10),") //最后更新时间
+					.append( "lastvalue number(10),")  //增量字段值，值可能是日期类型，也可能是数字类型
+					.append( "lastvaluetype number(1),") //值类型 0-数字 1-日期
+					.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+					.append( "filePath varchar(500) ,")  //日志文件路径
+					.append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径
+					.append( "fileId varchar(500) ,")  //日志文件indoe标识
+					.append( "statusId number(10) ,")  //状态表中使用的主键标识
+					.append( "PRIMARY KEY (ID))").toString();
+			File dbpath = new File(statusStorePath);
+			logger.info("initDatasource dbpath:" + dbpath.getCanonicalPath());
+			DBConf tempConf = new DBConf();
+			tempConf.setPoolname(statusDbname);
+			tempConf.setDriver("org.sqlite.JDBC");
+			tempConf.setJdbcurl("jdbc:sqlite://" + dbpath.getCanonicalPath());
+			tempConf.setUsername("root");
+			tempConf.setPassword("root");
+			tempConf.setReadOnly((String)null);
+			tempConf.setTxIsolationLevel((String)null);
+			tempConf.setValidationQuery("select 1");
+			tempConf.setJndiName(dbJNDIName);
+			tempConf.setInitialConnections(1);
+			tempConf.setMinimumSize(1);
+			tempConf.setMaximumSize(1);
+			tempConf.setUsepool(true);
+			tempConf.setExternal(false);
+			tempConf.setExternaljndiName((String)null);
+			tempConf.setShowsql(false);
+			tempConf.setEncryptdbinfo(false);
+			tempConf.setQueryfetchsize(null);
+			SQLUtil.startPoolWithDBConf(tempConf);
+			JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
+			if(jdbcPool == null){
+				throw new ESDataImportException("status_datasource["+statusDbname+"] not started.");
+			}
+		} catch (Exception e) {
+			throw new ESDataImportException(e);
+		}
+	}
+	private void initStatusSQL(DBConfig statusDBConfig ){
+		createStatusTableSQL = statusDBConfig.getStatusTableDML();
+		if(createStatusTableSQL == null){
+			createStatusTableSQL = statusDBConfig.getCreateStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
+		}
+		createHistoryStatusTableSQL = statusDBConfig.getCreateHistoryStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
+		createStatusTableSQL = createStatusTableSQL.replace("$statusTableName",statusTableName);
+		createHistoryStatusTableSQL = createHistoryStatusTableSQL.replace("$historyStatusTableName",historyStatusTableName);
+	}
 	/**
 	 * 初始化增量采集数据状态保存数据源
 	 */
@@ -870,68 +935,18 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			if(importContext.getStatusDbConfig() == null) {
 				statusDbname =  "_status_datasource";
 				String dbJNDIName ="_status_datasource_jndi";
-				try {
-					createStatusTableSQL = new StringBuilder().append("create table " ).append( statusTableName)
-							.append( " (ID number(10),")  //记录标识
-							.append( "lasttime number(10),") //最后更新时间
-							.append( "lastvalue number(10),")  //增量字段值，值可能是日期类型，也可能是数字类型
-							.append( "lastvaluetype number(1),") //值类型 0-数字 1-日期
-							.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
-							.append( "filePath varchar(500) ,")  //日志文件路径
-							.append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径
-
-							.append( "fileId varchar(500) ,")  //日志文件indoe标识
-							.append( "PRIMARY KEY (ID))").toString();
-					createHistoryStatusTableSQL = new StringBuilder().append("create table " ).append( historyStatusTableName)
-							.append( " (ID varchar(100),")  //记录标识
-							.append( "lasttime number(10),") //最后更新时间
-							.append( "lastvalue number(10),")  //增量字段值，值可能是日期类型，也可能是数字类型
-							.append( "lastvaluetype number(1),") //值类型 0-数字 1-日期
-							.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
-							.append( "filePath varchar(500) ,")  //日志文件路径
-							.append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径
-							.append( "fileId varchar(500) ,")  //日志文件indoe标识
-							.append( "statusId number(10) ,")  //状态表中使用的主键标识
-							.append( "PRIMARY KEY (ID))").toString();
-					File dbpath = new File(statusStorePath);
-					logger.info("initDatasource dbpath:" + dbpath.getCanonicalPath());
-					DBConf tempConf = new DBConf();
-					tempConf.setPoolname(statusDbname);
-					tempConf.setDriver("org.sqlite.JDBC");
-					tempConf.setJdbcurl("jdbc:sqlite://" + dbpath.getCanonicalPath());
-					tempConf.setUsername("root");
-					tempConf.setPassword("root");
-					tempConf.setReadOnly((String)null);
-					tempConf.setTxIsolationLevel((String)null);
-					tempConf.setValidationQuery("select 1");
-					tempConf.setJndiName(dbJNDIName);
-					tempConf.setInitialConnections(1);
-					tempConf.setMinimumSize(1);
-					tempConf.setMaximumSize(1);
-					tempConf.setUsepool(true);
-					tempConf.setExternal(false);
-					tempConf.setExternaljndiName((String)null);
-					tempConf.setShowsql(false);
-					tempConf.setEncryptdbinfo(false);
-					tempConf.setQueryfetchsize(null);
-					SQLUtil.startPoolWithDBConf(tempConf);
-					JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
-					if(jdbcPool == null){
-						throw new ESDataImportException("status_datasource["+statusDbname+"] not started.");
-					}
-				} catch (Exception e) {
-					throw new ESDataImportException(e);
-				}
+				initSQLiteStatusDB(statusDbname,dbJNDIName);
 
 			}
 			else{
 				DBConfig statusDBConfig = importContext.getStatusDbConfig();
 
-				statusDbname = importContext.getStatusDbConfig().getDbName();
-				if(statusDbname == null || statusDbname.trim().equals(""))
-					statusDbname =  "_status_datasource";
+				statusDbname = statusDBConfig.getDbName();
 
 				if(statusDBConfig.getDbDriver() != null && !statusDBConfig.getDbDriver().trim().equals("")){
+					if(statusDbname == null || statusDbname.trim().equals(""))
+						statusDbname =  "_status_datasource";
+
 					String dbJNDIName = statusDbname+"_jndi";
 					try {
 
@@ -979,19 +994,22 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 					} catch (Exception e) {
 						throw new ESDataImportException(e);
 					}
-
+					initStatusSQL( statusDBConfig );
 				}
 				else{
-					useOuterStatusDb = true;
+					if(statusStorePath != null && !statusStorePath.equals("")){
+						if(statusDbname == null || statusDbname.trim().equals(""))
+							statusDbname =  "_status_datasource";
+						String dbJNDIName =statusDbname+"_jndi";
+						initSQLiteStatusDB(statusDbname,dbJNDIName);
+					}
+					else {
+						useOuterStatusDb = true;
+						initStatusSQL( statusDBConfig );
+					}
 				}
 
-				createStatusTableSQL = statusDBConfig.getStatusTableDML();
-				if(createStatusTableSQL == null){
-					createStatusTableSQL = statusDBConfig.getCreateStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
-				}
-				createHistoryStatusTableSQL = statusDBConfig.getCreateHistoryStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
-				createStatusTableSQL = createStatusTableSQL.replace("$statusTableName",statusTableName);
-				createHistoryStatusTableSQL = createHistoryStatusTableSQL.replace("$historyStatusTableName",historyStatusTableName);
+
 			}
 			if (importContext.getLastValueType() != null) {
 				this.lastValueType = importContext.getLastValueType();
