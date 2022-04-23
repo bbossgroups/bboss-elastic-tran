@@ -22,7 +22,9 @@ import com.frameworkset.common.poolman.util.SQLManager;
 import com.frameworkset.common.poolman.util.SQLUtil;
 import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.boot.ElasticSearchBoot;
+import org.frameworkset.elasticsearch.boot.ElasticsearchBootResult;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
@@ -436,6 +438,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		}
 		this.stopDS(importContext.getDbConfig());
 		this.stopOtherDSES(importContext.getConfigs());
+		this.stopES();
 
 	}
 
@@ -1205,6 +1208,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 	//	private String indexType;
 	private TranErrorWrapper errorWrapper;
+
 	public TranErrorWrapper getErrorWrapper() {
 		return errorWrapper;
 	}
@@ -1239,11 +1243,24 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			return errorWrapper.assertCondition(e);
 		return true;
 	}
+	private ElasticsearchBootResult elasticsearchBootResult ;
 	protected void initES(String applicationPropertiesFile){
 		if(SimpleStringUtil.isNotEmpty(applicationPropertiesFile ))
-			ElasticSearchBoot.boot(applicationPropertiesFile);
+			elasticsearchBootResult = ElasticSearchBoot.boot(applicationPropertiesFile);
 		if(this.importContext.getESConfig() != null){
-			ElasticSearchBoot.boot(importContext.getESConfig().getConfigs());
+			elasticsearchBootResult = ElasticSearchBoot.boot(importContext.getESConfig().getConfigs());
+		}
+	}
+
+	/**
+	 * 停止采集作业内部启动的Elasticsearch数据源
+	 */
+	protected void stopES(){
+		if(elasticsearchBootResult != null && elasticsearchBootResult.getInitedElasticsearchs() != null){
+			List<String> initedElasticsearchs = elasticsearchBootResult.getInitedElasticsearchs();
+			if(initedElasticsearchs != null && initedElasticsearchs.size() > 0 ){
+				ElasticSearchHelper.stopElasticsearchs(initedElasticsearchs);
+			}
 		}
 	}
 
