@@ -844,7 +844,10 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				statusTableName = "increament_tab";
 			}
 			if (importContext.getLastValueStorePath() == null || importContext.getLastValueStorePath().equals("")) {
-				statusStorePath = "StatusStoreDB";
+				DBConfig statusDBConfig = importContext.getStatusDbConfig();
+				if(statusDBConfig == null){
+					statusStorePath = "StatusStoreDB";
+				}
 			} else {
 				statusStorePath = importContext.getLastValueStorePath();
 			}
