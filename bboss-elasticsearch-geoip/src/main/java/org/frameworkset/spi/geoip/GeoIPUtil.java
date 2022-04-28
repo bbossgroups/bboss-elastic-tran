@@ -200,7 +200,7 @@ public class GeoIPUtil {
 				ipInfo.setIp(ip);
 			}
 
-			if(ipInfo.getArea() == null || ipInfo.getArea().equals("0")) {
+			if(ipInfo.getArea() != null && ipInfo.getArea().equals("0")) {
 				ipInfo.setArea("");
 				ipInfo.setAreaId("");
 			}
@@ -234,8 +234,8 @@ public class GeoIPUtil {
 		else if(ipInfo == null){//如果没有
 			needHanldle = false;
 			ipInfo = new IpInfo();
-			ipInfo.setArea("");
-			ipInfo.setAreaId("");
+//			ipInfo.setArea("");
+//			ipInfo.setAreaId("");
 			ipInfo.setCity("未知");
 			ipInfo.setCityId("未知");
 			ipInfo.setCountry("未知");

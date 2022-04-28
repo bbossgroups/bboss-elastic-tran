@@ -1,5 +1,6 @@
 package org.frameworkset.spi.geoip;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.frameworkset.elasticsearch.entity.geo.GeoPoint;
 
 /**
@@ -46,41 +47,55 @@ public class IpInfo implements java.io.Serializable{
 //	private String code;
 
 	// 国家。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String country;
 	// 国家代码。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String countryId;
 	// 地区名称（华南、华北...）。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String area;
 	// 地区编号。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String areaId;
 	// 省名称。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String region;
 	// 省编号。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String regionId;
 	// 市名称。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String city;
 	// 市编号。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String cityId;
 	// 县名称。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String county;
 	// 县编号。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String countyId;
 	// ISP服务商名称（电信/联通/铁通/移动...）。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String isp;
 	/**
 	 * 根据ip获取的原始isp信息
 	 */
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String orinIsp;
 	// ISP服务商编号。
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Integer ispId;
 	// 查询的IP地址
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String ip;
 	/**
 	 * 纬度
 
 	 * 经度
 	 */
-
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private GeoPoint geoPoint;
 
 	public String getCountry() {
