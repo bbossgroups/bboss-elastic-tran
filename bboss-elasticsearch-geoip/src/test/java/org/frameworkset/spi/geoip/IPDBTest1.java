@@ -44,9 +44,9 @@ public class IPDBTest1 {
 			addressUtils.setIp2regionDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\ip2region.db");
 			addressUtils.setCachesize(2000);
 			addressUtils.init();
-			IpInfo address = addressUtils.getAddressMapResult("223.104.130.11");
+			IpInfo address = addressUtils.getIpInfo("223.104.130.11");
 			System.out.println(SimpleStringUtil.object2json(address));
-			address = addressUtils.getAddressMapResult("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");//ipv6
+			address = addressUtils.getIpInfo("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");//ipv6
 			System.out.println(SimpleStringUtil.object2json(address));
 
 

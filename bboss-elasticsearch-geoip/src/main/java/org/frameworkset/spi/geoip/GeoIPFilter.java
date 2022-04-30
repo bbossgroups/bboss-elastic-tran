@@ -30,6 +30,7 @@ import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.model.CountryResponse;
 import com.maxmind.geoip2.model.IspResponse;
 import com.maxmind.geoip2.record.*;
+import org.frameworkset.elasticsearch.entity.geo.GeoPoint;
 import org.frameworkset.spi.BaseApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -252,6 +253,115 @@ public class GeoIPFilter {
     }
     return geoData;
 //    return applyGeoData(geoData, event);
+  }
+  public boolean  handleIpInfo(IpInfo ipInfo) {
+    try {
+      final InetAddress ipAddress = InetAddress.getByName(ipInfo.getIp());
+      retrieveCityGeoData(  ipInfo,  ipAddress);
+      retrieveAsnGeoData( ipInfo, ipAddress);
+      return true;
+    } catch (UnknownHostException e) {
+      if(logger.isDebugEnabled())
+        logger.debug("IP Field contained invalid IP address or hostname. exception={}", e);
+    } catch (AddressNotFoundException e) {
+      if(logger.isDebugEnabled())
+        logger.debug("IP not found! exception={}", e);
+    } catch (GeoIp2Exception  e) {
+      if(logger.isDebugEnabled())
+        logger.debug("GeoIP2 Exception. exception={}", e);
+    }
+      catch (  IOException e) {
+        if(logger.isDebugEnabled())
+          logger.debug("GeoIP2 Exception. exception={}", e);
+    }
+    return false;
+  }
+
+  private void retrieveCityGeoData(IpInfo ipInfo,InetAddress ipAddress) throws GeoIp2Exception, IOException {
+    CityResponse response = databaseReader.city(ipAddress);
+    Country country = response.getCountry();
+    City city = response.getCity();
+    Location location = response.getLocation();
+    Continent continent = response.getContinent();
+    Postal postal = response.getPostal();
+    Subdivision subdivision = response.getMostSpecificSubdivision();
+
+//    // if location is empty, there is no point populating geo data
+//    // and most likely all other fields are empty as well
+//    if (location.getLatitude() == null && location.getLongitude() == null) {
+//      return geoData;
+//    }
+
+        if(ipInfo.getCity() == null) {
+          String cityName = city.getNames().get("zh-CN");
+          if (cityName != null) {
+            ipInfo.setCity( cityName);
+          }
+        }
+    String continentCode = continent.getCode();
+    if (continentCode != null) {
+      ipInfo.setContinentCode( continentCode);
+    }
+      String continentName = continent.getNames().get("zh-CN");
+      if (continentName != null) {
+        ipInfo.setContinentName(continentName);
+      }
+    if(ipInfo.getCountry() == null) {
+      String countryName = country.getNames().get("zh-CN");
+      if (countryName != null) {
+        ipInfo.setCountry( countryName);
+      }
+    }
+    if(ipInfo.getCountryId() == null) {
+      String countryCode2 = country.getIsoCode();
+      if (countryCode2 != null) {
+        ipInfo.setCountryId( countryCode2);
+      }
+    }
+
+//        case POSTAL_CODE:
+//          String postalCode = postal.getCode();
+//          if (postalCode != null) {
+//            geoData.put(Fields.POSTAL_CODE.fieldName(), postalCode);
+//          }
+//          break;
+//        case DMA_CODE:
+//          Integer dmaCode = location.getMetroCode();
+//          if (dmaCode != null) {
+//            geoData.put(Fields.DMA_CODE.fieldName(), dmaCode);
+//          }
+//          break;
+    if(ipInfo.getRegion() == null) {
+      String subdivisionName = subdivision.getNames().get("zh-CN");
+      if (subdivisionName != null) {
+        ipInfo.setRegion( subdivisionName);
+      }
+    }
+    if(ipInfo.getRegionId() == null) {
+      String subdivisionCode = subdivision.getIsoCode();
+      if (subdivisionCode != null) {
+        ipInfo.setRegionId( subdivisionCode);
+      }
+    }
+    String locationTimeZone = location.getTimeZone();
+    if (locationTimeZone != null) {
+      ipInfo.setTimeZone( locationTimeZone);
+    }
+
+
+      if(location != null ) {
+        Double latitude = location.getLatitude();
+        Double longitude = location.getLongitude();
+        if (latitude != null && longitude != null) {
+          GeoPoint geoPoint = new GeoPoint();
+          geoPoint.setLat(latitude);
+          geoPoint.setLon(longitude);
+          ipInfo.setGeoPoint(geoPoint);
+
+        }
+      }
+
+
   }
   public Map<String, Object>  handleIp(String ip) {
     if (ip.trim().isEmpty()){
@@ -491,6 +601,21 @@ public class GeoIPFilter {
     return geoData;
   }
 
+  private void retrieveAsnGeoData(IpInfo ipInfo,InetAddress ipAddress) throws GeoIp2Exception, IOException {
+    AsnResponse response = asnDatabaseReader.asn(ipAddress);
+    Integer asn = response.getAutonomousSystemNumber();
+    if (asn != null) {
+
+      ipInfo.setIspId(asn);
+    }
+    String aso = response.getAutonomousSystemOrganization();
+    if (aso != null) {
+      ipInfo.setIsp(aso);
+      ipInfo.setOrinIsp(aso);
+
+    }
+
+  }
   private Map<String, Object> retrieveAsnGeoData(InetAddress ipAddress) throws GeoIp2Exception, IOException {
     AsnResponse response = asnDatabaseReader.asn(ipAddress);
 //    CityResponse cresponse = databaseReader.city(ipAddress);

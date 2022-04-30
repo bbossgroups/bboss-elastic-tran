@@ -18,7 +18,6 @@ package org.frameworkset.spi.geoip;
 
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
-import org.frameworkset.elasticsearch.entity.geo.GeoPoint;
 import org.frameworkset.spi.ip2region.IP2Region;
 import org.frameworkset.spi.remote.http.HttpRequestUtil;
 import org.slf4j.Logger;
@@ -159,6 +158,13 @@ public class GeoIPUtil {
 	private String ipUrl;
 
 
+	/**
+	 *
+	 * @param ip
+	 * @return
+	 * @deprecated see public IpInfo getIpInfo(String ip)
+	 */
+	@Deprecated
 	public String getAddressResult(String ip)  {
 
 		StringBuilder url = new StringBuilder();
@@ -177,14 +183,49 @@ public class GeoIPUtil {
 		}
 	}
 
+	/**
+	 *
+	 * @param ip
+	 * @return
+	 * @deprecated see public IpInfo getIpInfo(String ip)
+	 */
+	@Deprecated
 	public IpInfo getAddressMapResult(String ip)  {
 
 		IpInfo ipInfo = null;
+		boolean needHandle = false;
 		if(ip2Region != null){
 			ipInfo = ip2Region.getAddressMapResult(ip);
 
 		}
+		if(ipInfo == null){
+			ipInfo = new IpInfo();
+			ipInfo.setIp(ip);
+		}
+		else{
+			needHandle = true;
+		}
+		if(geoIPFilter != null ) {
+			geoIPFilter.handleIpInfo( ipInfo);
+			needHandle = true;
+		}
+		if (ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
+			ipInfo.setIsp("未知");
+		if (ipInfo.getArea() != null && ipInfo.getArea().equals("0"))
+			ipInfo.setArea(null);
+		if (ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
+			ipInfo.setCountry("未知");
+		if (ipInfo.getCounty() != null && ipInfo.getCounty().equals("0"))
+			ipInfo.setCounty("未知");
+		if (ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
+			ipInfo.setRegion("未知");
+		if (ipInfo.getCity() == null || ipInfo.getCity().equals("0"))
+			ipInfo.setCity("未知");
+		if(needHandle)
+			_IPConverter.convert(ipInfo);
 
+		return ipInfo;
+		/**
 //			ip = "240e:c0:f450:cb84:5dc4:928c:cd42:342b";
 		//从geolite2获取ip地址信息
 		Map<String,Object> geoData_ = geoIPFilter != null ?this.geoIPFilter.handleIp(ip):new HashMap<String, Object>();
@@ -195,18 +236,15 @@ public class GeoIPUtil {
 
 		if(geoData_ != null && geoData_.size() > 0) {//处理从geolite2获取ip地址信息
 			Map<String, Object> asnData_ = this.geoIPFilter.handleIpAsn(ip);
-			if(ipInfo == null) {
-				ipInfo = new IpInfo();
-				ipInfo.setIp(ip);
-			}
+
 
 			if(ipInfo.getArea() != null && ipInfo.getArea().equals("0")) {
-				ipInfo.setArea("");
-				ipInfo.setAreaId("");
+				ipInfo.setArea(null);
+				ipInfo.setAreaId(null);
 			}
 			if(ipInfo.getCity() == null || ipInfo.getCity().equals("0")) {
 				ipInfo.setCity((String) geoData_.get("cityName"));
-				ipInfo.setCityId("");
+				ipInfo.setCityId(null);
 			}
 			if(ipInfo.getCountry() == null || ipInfo.getCountry().equals("0")) {
 				ipInfo.setCountry((String) geoData_.get("countryName"));
@@ -237,27 +275,27 @@ public class GeoIPUtil {
 //			ipInfo.setArea("");
 //			ipInfo.setAreaId("");
 			ipInfo.setCity("未知");
-			ipInfo.setCityId("未知");
+			ipInfo.setCityId(null);
 			ipInfo.setCountry("未知");
 			ipInfo.setCountryId("未知");
-			ipInfo.setCounty("未知");
-			ipInfo.setCountyId("未知");
+			ipInfo.setCounty(null);
+			ipInfo.setCountyId(null);
 			ipInfo.setIp(ip);
 			ipInfo.setIsp("未知");
 			ipInfo.setIspId(null);
 			ipInfo.setRegion("未知");
-			ipInfo.setRegionId("未知");
+			ipInfo.setRegionId(null);
 //				return ipInfo;
 
 		}
 		if(needHanldle) {
 			if (ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
 				ipInfo.setIsp("未知");
-			if (ipInfo.getArea() == null || ipInfo.getArea().equals("0"))
+			if (ipInfo.getArea() != null && ipInfo.getArea().equals("0"))
 				ipInfo.setArea("未知");
 			if (ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
 				ipInfo.setCountry("未知");
-			if (ipInfo.getCounty() == null || ipInfo.getCounty().equals("0"))
+			if (ipInfo.getCounty() != null && ipInfo.getCounty().equals("0"))
 				ipInfo.setCounty("未知");
 			if (ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
 				ipInfo.setRegion("未知");
@@ -266,6 +304,18 @@ public class GeoIPUtil {
 			_IPConverter.convert(ipInfo);
 		}
 		return ipInfo;
+		 */
+
+	}
+
+	/**
+	 * 根据IP地址获取IP信息
+	 * @param ip
+	 * @return
+	 */
+	public IpInfo getIpInfo(String ip)  {
+
+		return getAddressMapResult(ip);
 	}
 
 	public String getDatabase() {

@@ -128,7 +128,36 @@ public class IP2Region {
 		if(searcher == null)
 			throw new IP2RegionException("ip2region searcher database "+ip2regionDatabase + " not inited.");
 	}
+	public IpInfo getIpInfo(String ip){
+		assertInit();
+		if ( Util.isIpAddress(ip) == false ){
+			return null;
+		}
+		try {
+			DataBlock dataBlock = searcher.memorySearch(ip);
+			if(dataBlock == null)
+				return null;
+			String region = dataBlock.getRegion();
+			String[] infos = region.split("\\|");
+			if(infos.length != 5){
+				return null;
+			}
+			IpInfo ipInfo = new IpInfo();
+			ipInfo.setCountry(infos[0]);
+			ipInfo.setArea(infos[1]);
+			ipInfo.setRegion(infos[2]);
+			ipInfo.setCity(infos[3]);
+			ipInfo.setIsp(infos[4]);
+			ipInfo.setCityId(dataBlock.getCityId()+"");
+			ipInfo.setIp(ip);
+			return ipInfo;
 
+
+		} catch (IOException e) {
+			logger.error(ip,e);
+			return null;
+		}
+	}
 	public IpInfo getAddressMapResult(String ip){
 		assertInit();
 		if ( Util.isIpAddress(ip) == false ){

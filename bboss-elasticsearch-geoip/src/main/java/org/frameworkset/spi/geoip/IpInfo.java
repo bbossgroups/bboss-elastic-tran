@@ -90,6 +90,34 @@ public class IpInfo implements java.io.Serializable{
 	// 查询的IP地址
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String ip;
+	//时区
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String timeZone;
+
+	//大洲编码
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String continentCode;
+
+	public String getContinentCode() {
+		return continentCode;
+	}
+
+	public void setContinentCode(String continentCode) {
+		this.continentCode = continentCode;
+	}
+
+	public String getContinentName() {
+		return continentName;
+	}
+
+	public void setContinentName(String continentName) {
+		this.continentName = continentName;
+	}
+
+	//大洲名称
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String continentName;
+
 	/**
 	 * 纬度
 
@@ -218,5 +246,13 @@ public class IpInfo implements java.io.Serializable{
 
 	public void setOrinIsp(String orinIsp) {
 		this.orinIsp = orinIsp;
+	}
+
+	public String getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
 	}
 }

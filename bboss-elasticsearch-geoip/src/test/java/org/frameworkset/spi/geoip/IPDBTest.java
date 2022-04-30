@@ -15,17 +15,19 @@ package org.frameworkset.spi.geoip;
  * limitations under the License.
  */
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.frameworkset.util.SimpleStringUtil;
 import com.maxmind.db.CHMCache;
 import com.maxmind.db.Reader;
-import com.maxmind.db.Record;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.record.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Map;
 
 /**
  * <p>Description: </p>
@@ -36,6 +38,7 @@ import java.net.InetAddress;
  * @version 1.0
  */
 public class IPDBTest {
+	private static Logger logger = LoggerFactory.getLogger(IPDBTest.class);
 	public static void main(String[] args)  throws IOException{
 		test() ;
 	}
@@ -91,17 +94,13 @@ public class IPDBTest {
 			Reader reader = new Reader(database,new CHMCache(4096));
 			InetAddress address = InetAddress.getByName("36.148.49.213");
 
-			// get() returns just the data for the associated record
-			JsonNode recordData = reader.get(address);
-
-			System.out.println(recordData);
 
 			// getRecord() returns a Record class that contains both
 			// the data for the record and associated metadata.
-			Record record = reader.getRecord(address);
+			Map record = reader.get(address,Map.class);
 
-			System.out.println(record.getData());
-			System.out.println(record.getNetwork());
+			logger.info(SimpleStringUtil.object2json(record));
+
 
 
 			database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
@@ -109,16 +108,13 @@ public class IPDBTest {
 			address = InetAddress.getByName("183.15.204.103");
 
 			// get() returns just the data for the associated record
-			recordData = reader.get(address);
+		record = reader.get(address,Map.class);
 
-			System.out.println(recordData);
+		logger.info(SimpleStringUtil.object2json(record));
 
 			// getRecord() returns a Record class that contains both
 			// the data for the record and associated metadata.
-			record = reader.getRecord(address);
 
-			System.out.println(record.getData());
-			System.out.println(record.getNetwork());
 			// 输出结果为：中国 湖北省 武汉市
 
 			database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-Country.mmdb");
@@ -126,15 +122,8 @@ public class IPDBTest {
 			address = InetAddress.getByName("183.15.204.103");
 
 			// get() returns just the data for the associated record
-			recordData = reader.get(address);
+		record = reader.get(address,Map.class);
 
-			System.out.println(recordData);
-
-			// getRecord() returns a Record class that contains both
-			// the data for the record and associated metadata.
-			record = reader.getRecord(address);
-
-			System.out.println(record.getData());
-			System.out.println(record.getNetwork());
+		logger.info(SimpleStringUtil.object2json(record));
 	}
 }
