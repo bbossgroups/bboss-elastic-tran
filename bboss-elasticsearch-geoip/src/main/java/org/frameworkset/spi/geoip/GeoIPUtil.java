@@ -19,11 +19,9 @@ package org.frameworkset.spi.geoip;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.spi.ip2region.IP2Region;
-import org.frameworkset.spi.remote.http.HttpRequestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -167,20 +165,26 @@ public class GeoIPUtil {
 	@Deprecated
 	public String getAddressResult(String ip)  {
 
-		StringBuilder url = new StringBuilder();
-		url.append(ipUrl).append("?ip=").append(ip);
-		Map header = new HashMap();
-		header.put("Content-Type","text/html;charset=UTF-8");
-		header.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36");
-		try {
-			return HttpRequestUtil.httpGetforString(url.toString(),header);
-		} catch (Exception e) {
-			url.setLength(0);
-			url.append("获取运营商区域信息异常:").append(ipUrl).append("?ip=").append(ip)
-					.append(",User-Agent:Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36")
-					.append(",Content-Type:text/html;charset=UTF-8");
-			throw new GeoIPHandlerException("获取运营商区域信息异常:"+url.toString(),e);
-		}
+//		StringBuilder url = new StringBuilder();
+//		url.append(ipUrl).append("?ip=").append(ip);
+//		Map header = new HashMap();
+//		header.put("Content-Type","text/html;charset=UTF-8");
+//		header.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36");
+//		try {
+//			return HttpRequestUtil.httpGetforString(url.toString(),header);
+//		} catch (Exception e) {
+//			url.setLength(0);
+//			url.append("获取运营商区域信息异常:").append(ipUrl).append("?ip=").append(ip)
+//					.append(",User-Agent:Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36")
+//					.append(",Content-Type:text/html;charset=UTF-8");
+//			throw new GeoIPHandlerException("获取运营商区域信息异常:"+url.toString(),e);
+//		}
+		IpInfo ipInfo = getIpInfo(ip);
+		if(ipInfo != null)
+			return SimpleStringUtil.object2json(ipInfo);
+		else
+			return null;
+
 	}
 
 	/**
@@ -192,39 +196,7 @@ public class GeoIPUtil {
 	@Deprecated
 	public IpInfo getAddressMapResult(String ip)  {
 
-		IpInfo ipInfo = null;
-		boolean needHandle = false;
-		if(ip2Region != null){
-			ipInfo = ip2Region.getAddressMapResult(ip);
-
-		}
-		if(ipInfo == null){
-			ipInfo = new IpInfo();
-			ipInfo.setIp(ip);
-		}
-		else{
-			needHandle = true;
-		}
-		if(geoIPFilter != null ) {
-			geoIPFilter.handleIpInfo( ipInfo);
-			needHandle = true;
-		}
-		if (ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
-			ipInfo.setIsp("未知");
-		if (ipInfo.getArea() != null && ipInfo.getArea().equals("0"))
-			ipInfo.setArea(null);
-		if (ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
-			ipInfo.setCountry("未知");
-		if (ipInfo.getCounty() != null && ipInfo.getCounty().equals("0"))
-			ipInfo.setCounty("未知");
-		if (ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
-			ipInfo.setRegion("未知");
-		if (ipInfo.getCity() == null || ipInfo.getCity().equals("0"))
-			ipInfo.setCity("未知");
-		if(needHandle)
-			_IPConverter.convert(ipInfo);
-
-		return ipInfo;
+		return getIpInfo(ip);
 		/**
 //			ip = "240e:c0:f450:cb84:5dc4:928c:cd42:342b";
 		//从geolite2获取ip地址信息
@@ -315,7 +287,39 @@ public class GeoIPUtil {
 	 */
 	public IpInfo getIpInfo(String ip)  {
 
-		return getAddressMapResult(ip);
+		IpInfo ipInfo = null;
+		boolean needHandle = false;
+		if(ip2Region != null){
+			ipInfo = ip2Region.getAddressMapResult(ip);
+
+		}
+		if(ipInfo == null){
+			ipInfo = new IpInfo();
+			ipInfo.setIp(ip);
+		}
+		else{
+			needHandle = true;
+		}
+		if(geoIPFilter != null ) {
+			geoIPFilter.handleIpInfo( ipInfo);
+			needHandle = true;
+		}
+		if (ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
+			ipInfo.setIsp("未知");
+		if (ipInfo.getArea() != null && ipInfo.getArea().equals("0"))
+			ipInfo.setArea(null);
+		if (ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
+			ipInfo.setCountry("未知");
+		if (ipInfo.getCounty() != null && ipInfo.getCounty().equals("0"))
+			ipInfo.setCounty("未知");
+		if (ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
+			ipInfo.setRegion("未知");
+		if (ipInfo.getCity() == null || ipInfo.getCity().equals("0"))
+			ipInfo.setCity("未知");
+		if(needHandle)
+			_IPConverter.convert(ipInfo);
+
+		return ipInfo;
 	}
 
 	public String getDatabase() {

@@ -397,7 +397,7 @@ public class ContextImpl implements Context {
 			return null;
 		}
 		if(BaseImportConfig.getGeoIPUtil(getGeoipConfig()) != null) {
-			return BaseImportConfig.getGeoIPUtil(getGeoipConfig()).getAddressMapResult(String.valueOf(_ip));
+			return BaseImportConfig.getGeoIPUtil(getGeoipConfig()).getIpInfo(String.valueOf(_ip));
 		}
 		return null;
 	}
@@ -405,7 +405,7 @@ public class ContextImpl implements Context {
 	@Override
 	public IpInfo getIpInfoByIp(String ip) {
 		if(BaseImportConfig.getGeoIPUtil(getGeoipConfig()) != null) {
-			return BaseImportConfig.getGeoIPUtil(getGeoipConfig()).getAddressMapResult(ip);
+			return BaseImportConfig.getGeoIPUtil(getGeoipConfig()).getIpInfo(ip);
 		}
 		return null;
 	}

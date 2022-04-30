@@ -56,9 +56,9 @@ public class IPDBTest {
 				addressUtils.setCachesize(2000);
 				addressUtils.init();
 //				addressUtils.setIpUrl("http://ip.taobao.com/service/getIpInfo.php");
-				IpInfo address = addressUtils.getAddressMapResult("223.104.130.11");
+				IpInfo address = addressUtils.getIpInfo("223.104.130.11");
 				System.out.println(address);
-				address = addressUtils.getAddressMapResult("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");
+				address = addressUtils.getIpInfo("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");
 				System.out.println(address);
 				DatabaseReader databaseReader = new DatabaseReader.Builder(new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb"))
 																  .withCache(new CHMCache(2000)).build();
@@ -71,19 +71,19 @@ public class IPDBTest {
 				Postal postal = response.getPostal();
 				Subdivision subdivision = response.getMostSpecificSubdivision();
 
-				address = addressUtils.getAddressMapResult("185.180.222.151");
+				address = addressUtils.getIpInfo("185.180.222.151");
 				System.out.println(address);
-				address = addressUtils.getAddressMapResult("103.254.69.246");
+				address = addressUtils.getIpInfo("103.254.69.246");
 				System.out.println(address);
-				address = addressUtils.getAddressMapResult("180.168.192.126");
+				address = addressUtils.getIpInfo("180.168.192.126");
 				System.out.println(address);
-				address = addressUtils.getAddressMapResult("2408:84e2:1db:c9ec:4062:61d4:9340:85f7");
+				address = addressUtils.getIpInfo("2408:84e2:1db:c9ec:4062:61d4:9340:85f7");
 				System.out.println(address);
-				address = addressUtils.getAddressMapResult("172.168.22.26");
+				address = addressUtils.getIpInfo("172.168.22.26");
 				System.out.println(address);
-				address = addressUtils.getAddressMapResult("36.148.49.213");
+				address = addressUtils.getIpInfo("36.148.49.213");
 				System.out.println(address);
-				address = addressUtils.getAddressMapResult("10.11.13.12");
+				address = addressUtils.getIpInfo("10.11.13.12");
 
 				System.out.println(address);
 
