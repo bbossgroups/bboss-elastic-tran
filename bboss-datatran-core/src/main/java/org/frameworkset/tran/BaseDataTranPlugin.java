@@ -1317,22 +1317,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			temConf.setColumnLableUpperCase(dbConfig.isColumnLableUpperCase());
 			temConf.setDbInfoEncryptClass(dbConfig.getDbInfoEncryptClass());
 			SQLManager.startPool(temConf);
-			/**
-			SQLUtil.startPool(dbConfig.getDbName(),//数据源名称
-					dbConfig.getDbDriver(),//oracle驱动
-					dbConfig.getDbUrl(),//mysql链接串
-					dbConfig.getDbUser(), dbConfig.getDbPassword(),//数据库账号和口令
-					null,//"false",
-					null,// "READ_UNCOMMITTED",
-					dbConfig.getValidateSQL(),//数据库连接校验sql
-					dbConfig.getDbName()+"_jndi",
-					dbConfig.getInitSize(),
-					dbConfig.getMinIdleSize(),
-					dbConfig.getMaxSize(),
-					dbConfig.isUsePool(),
-					false,
-					null, dbConfig.isShowSql(), false,dbConfig.getJdbcFetchSize() == null?0:dbConfig.getJdbcFetchSize(),dbConfig.getDbtype(),dbConfig.getDbAdaptor()
-			);*/
+
 		}
 	}
 	protected void initTargetDS2ndOtherDSes(DBOutPutContext dbOutPutContext){
