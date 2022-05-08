@@ -71,8 +71,9 @@ public class ES2KafkaExportBuilder extends ESExportBuilder {
 		kafkaOutputContext.init();
 		return kafkaOutputContext;
 	}
-	public DataStream builder(){
-		DataStream dataStream = super.builder();
+	@Override
+	protected DataStream innerBuilder(){
+		DataStream dataStream = super.innerBuilder();
 
 		try {
 			if(logger.isInfoEnabled()) {

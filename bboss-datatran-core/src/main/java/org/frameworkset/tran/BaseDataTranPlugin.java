@@ -68,11 +68,25 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	private boolean increamentImport = true;
 	private ExportCount exportCount;
 	protected StatusManager statusManager;
+	protected ScheduleAssert scheduleAssert;
 	public ExportCount getExportCount() {
 		return exportCount;
 	}
 
-	protected BaseCommonRecordDataTran createCustomOrDummyTran(TaskContext taskContext,TranResultSet tranResultSet,Status currentStatus){
+	@Override
+	public ScheduleAssert getScheduleAssert() {
+		return scheduleAssert;
+	}
+
+	public void setScheduleAssert(ScheduleAssert scheduleAssert){
+		this.scheduleAssert = scheduleAssert;
+	}
+	public boolean isSchedulePaussed(boolean autoPause){
+		if(this.scheduleAssert != null)
+			return !this.scheduleAssert.assertSchedule(  autoPause);
+		return false;
+	}
+	protected BaseCommonRecordDataTran createCustomOrDummyTran(TaskContext taskContext, TranResultSet tranResultSet, Status currentStatus){
 		BaseCommonRecordDataTran baseCommonRecordDataTran = null;
 		if(importContext.getCustomOutPut() == null) {
 			baseCommonRecordDataTran = new DummyOutPutDataTran(taskContext, tranResultSet, importContext, targetImportContext, currentStatus);
@@ -264,7 +278,15 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				if (!this.importContext.isExternalTimer()) {//内部定时任务引擎
 					scheduleService.timeSchedule( );
 				} else { //外部定时任务引擎执行的方法，比如quartz之类的
-					scheduleService.externalTimeSchedule( );
+					if(importContext.isSchedulePaussed(true)){
+						if(logger.isInfoEnabled()){
+							logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+						}
+						return;
+					}
+					else {
+						scheduleService.externalTimeSchedule();
+					}
 				}
 			}
 			catch (ESDataImportException e)

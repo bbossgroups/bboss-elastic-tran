@@ -51,8 +51,8 @@ public class DB2DBExportBuilder extends DBExportBuilder {
 			targetDBConfig = new DBConfig();
 	}
 
-
-	public DataStream builder(){
+	@Override
+	protected DataStream innerBuilder(){
 		super.builderConfig();
 
 		try {

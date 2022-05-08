@@ -72,7 +72,8 @@ public abstract class ESExportBuilder extends BaseImportBuilder {
 	}
 
 
-	public DataStream builder(){
+	@Override
+	protected DataStream innerBuilder(){
 		super.builderConfig();
 //		this.buildDBConfig();
 //		this.buildStatusDBConfig();

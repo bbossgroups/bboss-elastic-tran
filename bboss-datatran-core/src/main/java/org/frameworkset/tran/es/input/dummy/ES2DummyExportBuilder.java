@@ -40,8 +40,9 @@ public class ES2DummyExportBuilder extends ESExportBuilder {
 		return new ES2EDummyDataTranPlugin(  importContext,  targetImportContext);
 	}
 
-	public DataStream builder(){
-		DataStream dataStream = super.builder();
+	@Override
+	protected DataStream innerBuilder(){
+		DataStream dataStream = super.innerBuilder();
 //		this.buildDBConfig();
 //		this.buildStatusDBConfig();
 		try {

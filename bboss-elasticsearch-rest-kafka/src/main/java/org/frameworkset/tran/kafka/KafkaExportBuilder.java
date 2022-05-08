@@ -128,7 +128,7 @@ public abstract class KafkaExportBuilder extends BaseImportBuilder {
 	}
 
 	@Override
-	public DataStream builder() {
+	protected DataStream innerBuilder(){
 		super.builderConfig();
 //		this.buildDBConfig();
 //		this.buildStatusDBConfig();

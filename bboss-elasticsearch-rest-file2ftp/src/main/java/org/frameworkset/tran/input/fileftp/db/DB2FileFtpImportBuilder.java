@@ -51,8 +51,8 @@ public class DB2FileFtpImportBuilder extends DBExportBuilder {
 
 
 
-
-	public DataStream builder(){
+	@Override
+	protected DataStream innerBuilder(){
 		super.builderConfig();
 		try {
 			if(logger.isInfoEnabled()) {

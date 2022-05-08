@@ -51,8 +51,9 @@ public class ES2FileFtpExportBuilder extends ESExportBuilder {
 		fileFtpOupputContext.init();
 		return fileFtpOupputContext;
 	}
-	public DataStream builder(){
-		DataStream dataStream = super.builder();
+	@Override
+	protected DataStream innerBuilder(){
+		DataStream dataStream = super.innerBuilder();
 //		this.buildDBConfig();
 //		this.buildStatusDBConfig();
 		try {

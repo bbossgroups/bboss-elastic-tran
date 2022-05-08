@@ -25,7 +25,10 @@ public class SFtpLogDirScanThread extends FtpLogDirScanThread{
      * @param fileListenerService .
      */
     public SFtpLogDirScanThread(final long interval, FileConfig fileConfig, FileListenerService fileListenerService) {
-       super(interval,fileConfig,fileListenerService);
+       this(interval,fileConfig,fileListenerService,true);
+    }
+    public SFtpLogDirScanThread(final long interval, FileConfig fileConfig, FileListenerService fileListenerService,boolean autoSchedulePaused) {
+        super(interval,fileConfig,fileListenerService,  autoSchedulePaused);
     }
 
 

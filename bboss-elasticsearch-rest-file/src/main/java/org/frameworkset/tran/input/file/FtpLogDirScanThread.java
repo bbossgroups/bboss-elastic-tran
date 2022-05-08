@@ -28,8 +28,12 @@ public class FtpLogDirScanThread extends LogDirScanThread{
      * @param fileListenerService .
      */
     public FtpLogDirScanThread(final long interval, FileConfig fileConfig, FileListenerService fileListenerService) {
-       super(interval,fileConfig,fileListenerService);
-       ftpContext = new FtpContextImpl(fileConfig.getFtpConfig(),fileConfig);
+        this(interval, fileConfig,  fileListenerService,true);
+    }
+
+    public FtpLogDirScanThread(final long interval, FileConfig fileConfig, FileListenerService fileListenerService,boolean autoSchedulePaused) {
+        super(interval,fileConfig,fileListenerService,autoSchedulePaused);
+        ftpContext = new FtpContextImpl(fileConfig.getFtpConfig(),fileConfig);
     }
 
 

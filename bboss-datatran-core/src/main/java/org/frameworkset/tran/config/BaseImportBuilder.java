@@ -27,9 +27,7 @@ import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.es.ESField;
 import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.record.SplitHandler;
-import org.frameworkset.tran.schedule.CallInterceptor;
-import org.frameworkset.tran.schedule.ImportIncreamentConfig;
-import org.frameworkset.tran.schedule.ScheduleConfig;
+import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
@@ -55,6 +53,8 @@ public abstract class BaseImportBuilder {
 	private String sourceDbname;
 
 	private Boolean enableDBTransaction;
+
+
 
 	public Integer getJdbcFetchsize() {
 		return jdbcFetchsize;
@@ -1567,7 +1567,47 @@ public abstract class BaseImportBuilder {
 		this.fetchSize = fetchSize;
 		return this;
 	}
-	public abstract DataStream builder();
+	protected abstract DataStream innerBuilder();
+
+	/**
+	 * 创建持续运行的数据同步作业
+	 * @return
+	 */
+	public DataStream builder(){
+		return builder(false);
+	}
+
+	/**
+	 * 创建数据同步作业
+	 * enableSchdulePause为true时，创建具备暂停功能的数据同步作业，控制调度执行后将作业自动标记为暂停状态，等待下一个resumeShedule指令才继续允许作业调度执行，
+	 * enableSchdulePause为false时，创建持续运行的数据同步作业
+	 * @param enableSchdulePause
+	 * @return
+	 */
+	public DataStream builder(boolean enableSchdulePause){
+		ScheduleAssert scheduleAssert = null;
+		if(enableSchdulePause){
+
+			if(logger.isInfoEnabled())
+				logger.info("Use AutopauseScheduleAssert.");
+			scheduleAssert = new AutopauseScheduleAssert();
+		}
+		return builder(scheduleAssert);
+	}
+	/**
+	 * 创建创建具备暂停功能的数据同步作业，设置调度暂停器ScheduleAssert，接口scheduleAssert.assertSchedule方法为true时，等待下一个resumeShedule指令才继续允许作业调度执行
+	 * 可以直接通过scheduleAssert的pauseSchedule方法发出暂停调度指令，通过resumeSchedule发出继续调度指令
+	 * 亦可以通过DataStream的pauseSchedule方法发出暂停调度指令，通过resumeSchedule发出继续调度指令
+	 * @param scheduleAssert
+	 * @return
+	 */
+	public DataStream builder(ScheduleAssert scheduleAssert){
+		DataStream dataStream = innerBuilder();
+		if(scheduleAssert != null){
+			dataStream.setScheduleAssert(scheduleAssert);
+		}
+		return dataStream;
+	}
 	public BaseImportBuilder setTranDataBufferQueue(int tranDataBufferQueue) {
 		this.tranDataBufferQueue = tranDataBufferQueue;
 		return this;

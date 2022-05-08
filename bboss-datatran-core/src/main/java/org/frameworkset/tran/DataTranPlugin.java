@@ -18,6 +18,7 @@ package org.frameworkset.tran;
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.ScheduleAssert;
 import org.frameworkset.tran.schedule.ScheduleService;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -33,6 +34,9 @@ import java.util.List;
  * @version 1.0
  */
 public interface DataTranPlugin {
+	public boolean isSchedulePaussed(boolean autoPause);
+	public ScheduleAssert getScheduleAssert();
+	public void setScheduleAssert(ScheduleAssert scheduleAssert);
 	public void preCall(TaskContext taskContext);
 	public void afterCall(TaskContext taskContext);
 	public void init(ImportContext importContext,ImportContext targetImportContext);

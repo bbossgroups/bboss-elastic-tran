@@ -53,6 +53,10 @@ public class FileListenerService {
 //        remoteFileChannel.init();
     }
 
+    public boolean isSchedulePaussed(boolean autoPause){
+        return this.baseDataTranPlugin.isSchedulePaussed(  autoPause);
+
+    }
     public void moveTaskToComplete(FileReaderTask fileReaderTask){
         try {
             lock.lock();

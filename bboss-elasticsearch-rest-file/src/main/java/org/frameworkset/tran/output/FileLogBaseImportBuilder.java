@@ -50,7 +50,8 @@ public abstract class FileLogBaseImportBuilder extends BaseImportBuilder {
 //	protected ImportContext buildTargetImportContext(BaseImportConfig importConfig){
 //		return new ESImportContext(importConfig);
 //	}
-	public DataStream builder(){
+@Override
+protected DataStream innerBuilder(){
 		super.builderConfig();
 		super.buildImportConfig(fileImportConfig);
 		DataStream dataStream = createDataStream();

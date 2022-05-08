@@ -437,23 +437,23 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         return fileConfig.getFtpConfig();
 
     }
-    private LogDirScanThread logDirScanThread(FileConfig fileConfig ){
+    private LogDirScanThread logDirScanThread(FileConfig fileConfig ,boolean autoSchedulePaused){
         LogDirScanThread logDirScanThread = null;
         FtpConfig ftpConfig = getFtpConfig(fileConfig);
         if (ftpConfig != null) {
 //            FtpConfig ftpConfig = (FtpConfig) fileConfig;
             if(ftpConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
                 logDirScanThread = new FtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                        fileConfig, getFileListenerService());
+                        fileConfig, getFileListenerService(),autoSchedulePaused);
             }
             else{
                 logDirScanThread = new SFtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                        fileConfig, getFileListenerService());
+                        fileConfig, getFileListenerService(),autoSchedulePaused);
             }
 
         } else {
             logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                    fileConfig, getFileListenerService());
+                    fileConfig, getFileListenerService(),autoSchedulePaused);
 
         }
         return logDirScanThread;
@@ -469,17 +469,19 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 
                     logDirScanThreads = new ArrayList<>(fileConfigs.size());
                     for (FileConfig fileConfig : fileConfigs) {
-                        LogDirScanThread logDirScanThread = logDirScanThread(  fileConfig );
+                        //多个文件目录配置时，不能自动暂停，否则可以
+                        LogDirScanThread logDirScanThread = logDirScanThread(  fileConfig,fileConfigs.size() > 0?false:true );
 
                         logDirScanThreads.add(logDirScanThread);
                         logDirScanThread.start();
                     }
 
                 } else {//采用外部新文件扫描调度机制：jdk timer,quartz,xxl-job
-                    if(logDirScanThreads == null){
+
+                    if(logDirScanThreads == null){ //初始执行不判断是否调度暂停，后续需要进行判断
                         logDirScanThreads = new ArrayList<>(fileConfigs.size());
                         for (FileConfig fileConfig : fileConfigs) {
-                            LogDirScanThread logDirScanThread = logDirScanThread(  fileConfig );
+                            LogDirScanThread logDirScanThread = logDirScanThread(  fileConfig,true );
                             logDirScanThread.statusRunning();
                             logDirScanThreads.add(logDirScanThread);
                             logDirScanThread.scanNewFile();
@@ -487,12 +489,19 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 
                     }
                     else{
-                        for(LogDirScanThread logDirScanThread: logDirScanThreads){
-                            try {
-                                logDirScanThread.scanNewFile();
+                        boolean schedulePaused = this.fileListenerService.isSchedulePaussed(true);
+                        if(!schedulePaused) {
+                            for (LogDirScanThread logDirScanThread : logDirScanThreads) {
+                                try {
+                                    logDirScanThread.scanNewFile();
+                                } catch (Exception e) {
+                                    logger.error("扫描新文件异常:" + logDirScanThread.getFileConfig().toString(), e);
+                                }
                             }
-                            catch (Exception e){
-                                logger.error("扫描新文件异常:"+logDirScanThread.getFileConfig().toString(),e);
+                        }
+                        else{
+                            if(logger.isInfoEnabled()){
+                                logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
                             }
                         }
                     }

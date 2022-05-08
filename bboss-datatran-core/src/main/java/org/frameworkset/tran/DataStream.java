@@ -16,6 +16,7 @@ package org.frameworkset.tran;/*
 
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.ScheduleAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DataStream {
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	protected ScheduleAssert scheduleAssert;
 
 	public ImportContext getImportContext() {
 		return importContext;
@@ -179,5 +181,30 @@ public class DataStream {
 
 			lock.unlock();
 		}
+	}
+	/**
+	 * 暂停调度
+	 */
+	public boolean pauseSchedule(){
+		if(scheduleAssert != null){
+			return this.scheduleAssert.pauseSchedule();
+		}
+		return false;
+
+	}
+	/**
+	 * 继续调度
+	 */
+	public boolean resumeSchedule(){
+		if(scheduleAssert != null){
+			return this.scheduleAssert.resumeSchedule();
+		}
+		return false;
+	}
+
+	public void setScheduleAssert(ScheduleAssert scheduleAssert) {
+		this.scheduleAssert = scheduleAssert;
+		if(dataTranPlugin != null)
+			this.dataTranPlugin.setScheduleAssert(scheduleAssert);
 	}
 }

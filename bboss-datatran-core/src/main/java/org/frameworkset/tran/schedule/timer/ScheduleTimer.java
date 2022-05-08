@@ -16,6 +16,8 @@ package org.frameworkset.tran.schedule.timer;
  */
 
 import org.frameworkset.tran.schedule.ScheduleService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Description: </p>
@@ -28,6 +30,7 @@ import org.frameworkset.tran.schedule.ScheduleService;
 public class ScheduleTimer implements Runnable{
 	private TimerScheduleConfig timerScheduleConfig;
 	private ScheduleService scheduleService;
+	private static Logger logger = LoggerFactory.getLogger(ScheduleTimer.class);
 	private Thread thread = null;
 	protected volatile boolean running = false;
 	public ScheduleTimer(TimerScheduleConfig timerScheduleConfig,ScheduleService scheduleService ){
@@ -105,8 +108,15 @@ public class ScheduleTimer implements Runnable{
 			do {
 
 				if (TimeUtil.evalateNeedScan(timerScheduleConfig)) {
-
-					scheduleService.externalTimeSchedule();
+					if(this.scheduleService.isSchedulePaussed(true)){
+						if(logger.isInfoEnabled()){
+							logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+						}
+						return;
+					}
+					else {
+						scheduleService.externalTimeSchedule();
+					}
 					break;
 				}
 				else {

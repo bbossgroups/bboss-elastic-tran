@@ -69,8 +69,8 @@ public class DB2ESImportBuilder extends DBExportBuilder {
 	}
 
 
-
-	public DataStream builder(){
+	@Override
+	protected DataStream innerBuilder(){
 		super.builderConfig();
 		try {
 			if(logger.isInfoEnabled()) {

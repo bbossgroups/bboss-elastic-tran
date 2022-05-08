@@ -109,7 +109,9 @@ public class ScheduleService {
 			}
 		}
 	}
-
+	public boolean isSchedulePaussed(boolean autoSchedulePaused){
+		return this.importContext.isSchedulePaussed(autoSchedulePaused);
+	}
 	private void throwException(TaskContext taskContext,Exception e){
 		List<CallInterceptor> callInterceptors = importContext.getCallInterceptors();
 		if(callInterceptors == null || callInterceptors.size() == 0)
@@ -143,7 +145,15 @@ public class ScheduleService {
 //					throwException(taskContext,e);
 //					logger.error("scheduleImportData failed:",e);
 //				}
-				externalTimeSchedule( );
+				if(importContext.isSchedulePaussed(true)){
+					if(logger.isInfoEnabled()){
+						logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+					}
+					return;
+				}
+				else {
+					externalTimeSchedule();
+				}
 			}
 		};
 		Date scheduleDate = scheduleConfig.getScheduleDate();
@@ -205,6 +215,7 @@ public class ScheduleService {
 	public synchronized void externalTimeSchedule()  {
 
 		TaskContext taskContext = isEnablePluginTaskIntercept()?new TaskContext(importContext,targetImportContext):null;
+
 		long importStartTime = System.currentTimeMillis();
 		try {
 			if(isEnablePluginTaskIntercept())

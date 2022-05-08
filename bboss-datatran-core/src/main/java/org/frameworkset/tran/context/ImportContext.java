@@ -50,6 +50,14 @@ public interface ImportContext {
 	ESConfig getESConfig();
 	public Long getTimeRangeLastValue();
 	public DataTranPlugin getDataTranPlugin();
+
+
+	/**
+	 * 判断调度任务是否被暂停
+	 * @return
+	 */
+	public boolean isSchedulePaussed(boolean autoPause);
+
 	public boolean isAsynFlushStatus();
 	public long getAsynFlushStatusInterval();
 	public boolean serialAllData();

@@ -51,8 +51,8 @@ public class DB2DummyExportBuilder extends DBExportBuilder {
 
 
 
-
-	public DataStream builder(){
+	@Override
+	protected DataStream innerBuilder(){
 		super.builderConfig();
 		try {
 			if(logger.isInfoEnabled()) {

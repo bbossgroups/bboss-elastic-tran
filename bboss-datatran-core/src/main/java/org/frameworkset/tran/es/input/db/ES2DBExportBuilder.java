@@ -49,8 +49,9 @@ public class ES2DBExportBuilder extends ESExportBuilder {
 		dbImportContext.init();
 		return dbImportContext;
 	}
-	public DataStream builder(){
-		DataStream dataStream = super.builder();
+	@Override
+	protected DataStream innerBuilder(){
+		DataStream dataStream = super.innerBuilder();
 //		this.buildDBConfig();
 //		this.buildStatusDBConfig();
 		try {

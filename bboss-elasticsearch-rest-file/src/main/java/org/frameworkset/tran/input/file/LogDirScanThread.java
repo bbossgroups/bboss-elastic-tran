@@ -21,7 +21,7 @@ public class LogDirScanThread implements Runnable{
     protected FileConfig fileConfig;
     private Thread thread = null;
     protected volatile boolean running = false;
-
+    protected boolean autoSchedulePaused;
     protected FileListenerService fileListenerService;
 
 
@@ -32,10 +32,22 @@ public class LogDirScanThread implements Runnable{
      * checks of the file system
      * @param fileListenerService .
      */
-    public LogDirScanThread(final long interval, FileConfig fileConfig,FileListenerService fileListenerService) {
+    public LogDirScanThread(final long interval, FileConfig fileConfig,FileListenerService fileListenerService,boolean autoSchedulePaused) {
         this.interval = interval;
         this.fileConfig = fileConfig;
         this.fileListenerService = fileListenerService;
+        this.autoSchedulePaused = autoSchedulePaused;
+    }
+
+    /**
+     * Constructs a monitor with the specified interval and set of observers.
+     *
+     * @param interval The amount of time in milliseconds to wait between
+     * checks of the file system
+     * @param fileListenerService .
+     */
+    public LogDirScanThread(final long interval, FileConfig fileConfig,FileListenerService fileListenerService) {
+        this( interval,  fileConfig, fileListenerService,true);
     }
 
     public FileConfig getFileConfig() {
@@ -124,7 +136,15 @@ public class LogDirScanThread implements Runnable{
                         break;
                     }
                     try {
-                        scanNewFile();
+                        boolean schedulePaused = this.fileListenerService.isSchedulePaussed(autoSchedulePaused);
+                        if(!schedulePaused) {
+                            scanNewFile();
+                        }
+                        else{
+                            if(logger.isInfoEnabled()){
+                                logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+                            }
+                        }
                     } catch (Exception e) {
                         logger.error("扫描新文件失败", e);
                     }
@@ -154,6 +174,7 @@ public class LogDirScanThread implements Runnable{
      * 识别新增的文件，如果有新增文件，将启动新的文件采集作业
      */
     public void scanNewFile(){
+
         if(logger.isDebugEnabled()){
             logger.debug("scan new log file in dir {} with filename regex {}.",fileConfig.getLogDir(),fileConfig.getFileNameRegular());
         }

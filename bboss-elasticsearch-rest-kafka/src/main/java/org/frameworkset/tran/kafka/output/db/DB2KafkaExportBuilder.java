@@ -71,8 +71,8 @@ public class DB2KafkaExportBuilder extends DBExportBuilder {
 		esOutputContext.init();
 		return esOutputContext;
 	}
-
-	public DataStream builder(){
+	@Override
+	protected DataStream innerBuilder(){
 		super.builderConfig();
 		try {
 			if(logger.isInfoEnabled()) {
