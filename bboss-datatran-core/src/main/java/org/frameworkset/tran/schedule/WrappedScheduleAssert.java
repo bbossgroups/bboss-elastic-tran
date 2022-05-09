@@ -16,15 +16,18 @@ package org.frameworkset.tran.schedule;
  */
 
 /**
- * <p>Description: 作业启动后持续运行，需要人工手动暂停才能暂停作业，当暂停后需执行resume作业才能继续调度执行</p>
+ * <p>Description: 作业暂停、继续控制信号器</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2022/5/7
  * @author biaoping.yin
  * @version 1.0
  */
-public class DefaultScheduleAssert implements ScheduleAssert {
-	protected boolean paused = false;
+public class WrappedScheduleAssert implements ScheduleAssert {
+	protected ScheduleAssert scheduleAssert;
+	public WrappedScheduleAssert(ScheduleAssert scheduleAssert){
+		this.scheduleAssert = scheduleAssert;
+	}
 
 	/**
 	 * 自动暂停对单文件FileConfig线程自动调度有效，对多文件FileConfig线程自动调度无效，需要手动进行暂停才有效
@@ -33,47 +36,22 @@ public class DefaultScheduleAssert implements ScheduleAssert {
 	 * @return
 	 */
 	@Override
-	public boolean assertSchedule(boolean autoPause) {
-		if(!checkPaused(  autoPause)) {
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
-	protected boolean checkPaused(boolean autoPause){
-		if(paused){
-
-			return true;
-		}
-		else{
-			return false;
-		}
+	public synchronized boolean assertSchedule(boolean autoPause) {
+			return scheduleAssert.assertSchedule(autoPause);
 	}
 
 	/**
 	 * 暂停调度
 	 */
-	public boolean pauseSchedule(){
-		if(!paused) {
-			this.paused = true;
-			return true;
-		}
-		else
-			return false;
+	public synchronized boolean pauseSchedule(){
+		return scheduleAssert.pauseSchedule();
 
 	}
 
 	/**
 	 * 继续调度
 	 */
-	public boolean resumeSchedule(){
-		if(paused) {
-			this.paused = false;
-			return true;
-		}
-		else{
-			return false;
-		}
+	public synchronized boolean resumeSchedule(){
+		return scheduleAssert.resumeSchedule();
 	}
 }

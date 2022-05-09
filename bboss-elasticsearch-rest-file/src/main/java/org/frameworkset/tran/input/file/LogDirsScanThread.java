@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 扫描新增日志文件
+ * 扫描新增数据文件
  * @author biaoping.yin
  * @description
  * @create 2021/3/23

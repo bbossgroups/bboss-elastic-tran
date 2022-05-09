@@ -1604,7 +1604,11 @@ public abstract class BaseImportBuilder {
 	public DataStream builder(ScheduleAssert scheduleAssert){
 		DataStream dataStream = innerBuilder();
 		if(scheduleAssert != null){
-			dataStream.setScheduleAssert(scheduleAssert);
+			if(scheduleAssert instanceof WrappedScheduleAssert)
+				dataStream.setScheduleAssert(scheduleAssert);
+			else{
+				dataStream.setScheduleAssert(new WrappedScheduleAssert(scheduleAssert));
+			}
 		}
 		return dataStream;
 	}
