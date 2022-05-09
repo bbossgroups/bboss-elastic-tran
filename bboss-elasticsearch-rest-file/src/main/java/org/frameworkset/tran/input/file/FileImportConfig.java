@@ -4,6 +4,8 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.schedule.timer.TimeRange;
+import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.frameworkset.util.OSInfo;
 
 import java.io.File;
@@ -34,7 +36,11 @@ public class FileImportConfig extends BaseImportConfig {
     private List<FileConfig> fileConfigList;
     private long checkFileModifyInterval = 3000l;
 
+    public TimerScheduleConfig getTimerScheduleConfig() {
+        return timerScheduleConfig;
+    }
 
+    private TimerScheduleConfig timerScheduleConfig;
     /**
      * 备份成功文件
      * true 备份
@@ -233,6 +239,49 @@ public class FileImportConfig extends BaseImportConfig {
         FileReaderTask task =  new FileReaderTask(fileId,currentStatus,fileImportConfig);
         return task;
     }
+    /**
+     * 添加不扫码新文件的时间段
+     * timeRange必须是以下三种类型格式
+     * 11:30-12:30  每天在11:30和12:30之间运行
+     * 11:30-    每天11:30开始执行,到23:59结束
+     * -12:30    每天从00:00开始到12:30
+     * @param timeRange
+     * @return
+     */
+    public FileImportConfig addSkipScanNewFileTimeRange(String timeRange){
+        if(timerScheduleConfig == null){
+            timerScheduleConfig = new TimerScheduleConfig();
+        }
+        timerScheduleConfig.addSkipScanNewFileTimeRange(timeRange);
+        return this;
+    }
 
+    /**
+     * 添加扫码新文件的时间段，每天扫描新文件时间段，优先级高于不扫码时间段，先计算是否在扫描时间段，如果是则扫描，不是则不扫码
+     * timeRange必须是以下三种类型格式
+     * 11:30-12:30  每天在11:30和12:30之间运行
+     * 11:30-    每天11:30开始执行,到23:59结束
+     * -12:30    每天从00:00开始到12:30
+     * @param timeRange
+     * @return
+     */
+    public FileImportConfig addScanNewFileTimeRange(String timeRange){
+        if(timerScheduleConfig == null){
+            timerScheduleConfig = new TimerScheduleConfig();
+        }
+        timerScheduleConfig.addSkipScanNewFileTimeRange(timeRange);
+
+        return this;
+    }
+
+
+
+    public List<TimeRange> getScanNewFileTimeRanges() {
+        return timerScheduleConfig != null?timerScheduleConfig.getScanNewFileTimeRanges():null;
+    }
+
+    public List<TimeRange> getSkipScanNewFileTimeRanges() {
+        return timerScheduleConfig != null?timerScheduleConfig.getSkipScanNewFileTimeRanges():null;
+    }
 
 }

@@ -25,9 +25,9 @@ import java.util.List;
  */
 public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
     protected FileImportContext fileImportContext;
-    protected List<LogDirScanThread> logDirScanThreads;
+    protected List<LogDirScan> logDirScans;
     protected FileListenerService fileListenerService;
-
+    protected LogDirsScanThread logDirsScanThread ;
     private static BackupSuccessFilesClean backupSuccessFilesClean;
 //    protected FileListener fileListener;
 //    protected List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
@@ -355,18 +355,29 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 
     }
     private void stopScanThread(){
-        if(logDirScanThreads != null){
+//        if(logDirScanThreads != null){
+//
+//            logger.info("StopScanThread:LogDirScanThread");
+//            for(LogDirScanThread logDirScanThread: logDirScanThreads){
+//                try {
+//                    logDirScanThread.stop();
+//                }
+//                catch (Exception e){
+//
+//                }
+//            }
+//            logDirScanThreads = null;
+//        }
+
+        if(logDirsScanThread != null){
 
             logger.info("StopScanThread:LogDirScanThread");
-            for(LogDirScanThread logDirScanThread: logDirScanThreads){
-                try {
-                    logDirScanThread.stop();
-                }
-                catch (Exception e){
+            try {
+                logDirsScanThread.stop();
+            } catch (Exception e) {
 
-                }
             }
-            logDirScanThreads = null;
+//            logDirsScanThread = null;
         }
     }
     @Override
@@ -437,26 +448,26 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         return fileConfig.getFtpConfig();
 
     }
-    private LogDirScanThread logDirScanThread(FileConfig fileConfig ,boolean autoSchedulePaused){
-        LogDirScanThread logDirScanThread = null;
+    private LogDirScan logDirScanThread(LogDirsScanThread logDirsScanThread, FileConfig fileConfig ){
+        LogDirScan logDirScan = null;
         FtpConfig ftpConfig = getFtpConfig(fileConfig);
         if (ftpConfig != null) {
 //            FtpConfig ftpConfig = (FtpConfig) fileConfig;
             if(ftpConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
-                logDirScanThread = new FtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                        fileConfig, getFileListenerService(),autoSchedulePaused);
+                logDirScan = new FtpLogDirScan(logDirsScanThread,
+                        fileConfig, getFileListenerService());
             }
             else{
-                logDirScanThread = new SFtpLogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                        fileConfig, getFileListenerService(),autoSchedulePaused);
+                logDirScan = new SFtpLogDirScan(logDirsScanThread,
+                        fileConfig, getFileListenerService());
             }
 
         } else {
-            logDirScanThread = new LogDirScanThread(fileImportContext.getFileImportConfig().getScanNewFileInterval(),
-                    fileConfig, getFileListenerService(),autoSchedulePaused);
+            logDirScan = new LogDirScan(logDirsScanThread,
+                    fileConfig, getFileListenerService());
 
         }
-        return logDirScanThread;
+        return logDirScan;
     }
     @Override
     public void doImportData(TaskContext taskContext) throws ESDataImportException {
@@ -465,37 +476,16 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         {
             List<FileConfig> fileConfigs = this.fileImportContext.getFileConfigList();
             if (fileConfigs != null && fileConfigs.size() > 0) {
-                if (!fileImportContext.isUseETLScheduleForScanNewFile()) {//采用内置新文件扫描调度机制
-
-                    logDirScanThreads = new ArrayList<>(fileConfigs.size());
-                    for (FileConfig fileConfig : fileConfigs) {
-                        //多个文件目录配置时，不能自动暂停，否则可以
-                        LogDirScanThread logDirScanThread = logDirScanThread(  fileConfig,fileConfigs.size() > 0?false:true );
-
-                        logDirScanThreads.add(logDirScanThread);
-                        logDirScanThread.start();
-                    }
-
-                } else {//采用外部新文件扫描调度机制：jdk timer,quartz,xxl-job
-
-                    if(logDirScanThreads == null){ //初始执行不判断是否调度暂停，后续需要进行判断
-                        logDirScanThreads = new ArrayList<>(fileConfigs.size());
-                        for (FileConfig fileConfig : fileConfigs) {
-                            LogDirScanThread logDirScanThread = logDirScanThread(  fileConfig,true );
-                            logDirScanThread.statusRunning();
-                            logDirScanThreads.add(logDirScanThread);
-                            logDirScanThread.scanNewFile();
-                        }
-
-                    }
-                    else{
-                        boolean schedulePaused = this.fileListenerService.isSchedulePaussed(true);
+                Runnable scan = new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean schedulePaused = fileListenerService.isSchedulePaussed(true);
                         if(!schedulePaused) {
-                            for (LogDirScanThread logDirScanThread : logDirScanThreads) {
+                            for (LogDirScan logDirScan : logDirScans) {
                                 try {
-                                    logDirScanThread.scanNewFile();
+                                    logDirScan.scanNewFile();
                                 } catch (Exception e) {
-                                    logger.error("扫描新文件异常:" + logDirScanThread.getFileConfig().toString(), e);
+                                    logger.error("扫描新文件异常:" + logDirScan.getFileConfig().toString(), e);
                                 }
                             }
                         }
@@ -504,6 +494,53 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                                 logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
                             }
                         }
+                    }
+                };
+
+                if (!fileImportContext.isUseETLScheduleForScanNewFile()) {//采用内置新文件扫描调度机制
+                    logDirsScanThread = new LogDirsScanThread(scan,fileImportContext);
+                    logDirScans = new ArrayList<>(fileConfigs.size());
+                    for (FileConfig fileConfig : fileConfigs) {
+                        //多个文件目录配置时，不能自动暂停，否则可以
+                        LogDirScan logDirScan = logDirScanThread( logDirsScanThread, fileConfig);
+
+                        logDirScans.add(logDirScan);
+//                        logDirScanThread.start();
+                    }
+
+                    logDirsScanThread.start();
+
+
+                } else {//采用外部新文件扫描调度机制：jdk timer,quartz,xxl-job
+
+                    if(logDirScans == null){ //初始执行不判断是否调度暂停，后续需要进行判断
+                        logDirsScanThread = new LogDirsScanThread(scan,fileImportContext);
+                        logDirScans = new ArrayList<>(fileConfigs.size());
+                        logDirsScanThread.statusRunning();
+                        for (FileConfig fileConfig : fileConfigs) {
+                            LogDirScan logDirScan = logDirScanThread(logDirsScanThread,  fileConfig);
+                            logDirScans.add(logDirScan);
+                            logDirScan.scanNewFile();
+                        }
+
+                    }
+                    else{
+//                        boolean schedulePaused = this.fileListenerService.isSchedulePaussed(true);
+//                        if(!schedulePaused) {
+//                            for (LogDirScanThread logDirScanThread : logDirScanThreads) {
+//                                try {
+//                                    logDirScanThread.scanNewFile();
+//                                } catch (Exception e) {
+//                                    logger.error("扫描新文件异常:" + logDirScanThread.getFileConfig().toString(), e);
+//                                }
+//                            }
+//                        }
+//                        else{
+//                            if(logger.isInfoEnabled()){
+//                                logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+//                            }
+//                        }
+                        scan.run();
                     }
 
                 }

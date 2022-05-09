@@ -14,21 +14,18 @@ import java.util.List;
  * @description
  * @create 2021/3/23
  */
-public class SFtpLogDirScanThread extends FtpLogDirScanThread{
-    private Logger logger = LoggerFactory.getLogger(SFtpLogDirScanThread.class);
+public class SFtpLogDirScan extends FtpLogDirScan {
+    private Logger logger = LoggerFactory.getLogger(SFtpLogDirScan.class);
 
     /**
      * Constructs a monitor with the specified interval and set of observers.
      *
-     * @param interval The amount of time in milliseconds to wait between
-     * checks of the file system
+     * @param logDirsScanThread
      * @param fileListenerService .
      */
-    public SFtpLogDirScanThread(final long interval, FileConfig fileConfig, FileListenerService fileListenerService) {
-       this(interval,fileConfig,fileListenerService,true);
-    }
-    public SFtpLogDirScanThread(final long interval, FileConfig fileConfig, FileListenerService fileListenerService,boolean autoSchedulePaused) {
-        super(interval,fileConfig,fileListenerService,  autoSchedulePaused);
+
+    public SFtpLogDirScan(LogDirsScanThread logDirsScanThread, FileConfig fileConfig, FileListenerService fileListenerService) {
+        super(  logDirsScanThread,fileConfig,fileListenerService);
     }
 
 
@@ -83,7 +80,7 @@ public class SFtpLogDirScanThread extends FtpLogDirScanThread{
      */
     private void _scanCheck(String relativeParentDir,List<RemoteResourceInfo> files){
         for(RemoteResourceInfo remoteResourceInfo:files){
-            if (!running) {
+            if (!logDirsScanThread.isRunning()) {
                 break;
             }
             if(remoteResourceInfo.isDirectory()) {

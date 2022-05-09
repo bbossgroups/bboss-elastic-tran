@@ -17,9 +17,7 @@ package org.frameworkset.tran.schedule;
 
 /**
  * <p>Description: 调度执行后将作业自动标记为暂停状态，等待下一个resumeShedule指令才继续允许作业调度执行，执行后再次自动暂停，等待下一个resumeShedule指令才继续允许作业调度执行，执行后再次自动暂停
- *
- * 	 自动暂停对单文件FileConfig线程自动调度有效，对多文件FileConfig线程自动调度无效，需要手动进行暂停才有效
- * 	 外部多文件扫描调度自动暂停对单文件FileConfig和多文件FileConfig都有效
+
  * </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>

@@ -16,23 +16,14 @@ import java.util.List;
  * @description
  * @create 2021/3/23
  */
-public class FtpLogDirScanThread extends LogDirScanThread{
-    private Logger logger = LoggerFactory.getLogger(FtpLogDirScanThread.class);
+public class FtpLogDirScan extends LogDirScan {
+    private Logger logger = LoggerFactory.getLogger(FtpLogDirScan.class);
     protected FtpContext ftpContext ;
 
-    /**
-     * Constructs a monitor with the specified interval and set of observers.
-     *
-     * @param interval The amount of time in milliseconds to wait between
-     * checks of the file system
-     * @param fileListenerService .
-     */
-    public FtpLogDirScanThread(final long interval, FileConfig fileConfig, FileListenerService fileListenerService) {
-        this(interval, fileConfig,  fileListenerService,true);
-    }
 
-    public FtpLogDirScanThread(final long interval, FileConfig fileConfig, FileListenerService fileListenerService,boolean autoSchedulePaused) {
-        super(interval,fileConfig,fileListenerService,autoSchedulePaused);
+
+    public FtpLogDirScan(LogDirsScanThread logDirsScanThread, FileConfig fileConfig, FileListenerService fileListenerService) {
+        super( logDirsScanThread,fileConfig,fileListenerService);
         ftpContext = new FtpContextImpl(fileConfig.getFtpConfig(),fileConfig);
     }
 
@@ -59,7 +50,7 @@ public class FtpLogDirScanThread extends LogDirScanThread{
             return;
         }
         for(FTPFile remoteResourceInfo:files){
-            if (!running) {
+            if (!logDirsScanThread.isRunning()) {
                 break;
             }
             if(remoteResourceInfo.isDirectory()) {
@@ -99,7 +90,7 @@ public class FtpLogDirScanThread extends LogDirScanThread{
             return;
         }
         for(FTPFile remoteResourceInfo:files){
-            if (!running) {
+            if (!logDirsScanThread.isRunning()) {
                 break;
             }
             if(remoteResourceInfo.isDirectory()) {
