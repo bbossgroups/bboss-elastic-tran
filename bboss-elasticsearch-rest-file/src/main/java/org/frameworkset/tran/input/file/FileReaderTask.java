@@ -61,7 +61,7 @@ public class FileReaderTask extends FieldManager{
      */
     private boolean jsondata ;
     protected Thread worker ;
-    protected long oldLastModifyTime = -1;
+    protected long oldLastModifyTime = -1l;
     protected long checkFileModifyInterval = 3000l;
     protected long closeOlderTime ;
     protected CloseOldedFileAssert closeOldedFileAssert;
@@ -212,6 +212,7 @@ public class FileReaderTask extends FieldManager{
             boolean olded = false;
             File file = fileInfo.getFile();
             String fileId = fileInfo.getFileId();
+            long pauseScheduleTimeStamp = 0l;
             do {
                 if(taskEnded || fileListenerService.getBaseDataTranPlugin().checkTranToStop()){
                     break;
@@ -219,14 +220,18 @@ public class FileReaderTask extends FieldManager{
                 if(file.exists()){
 
                     long lastModifyTime = file.lastModified();
-                    if(oldLastModifyTime == -1){
+                    if(oldLastModifyTime == -1l){
                         oldLastModifyTime = lastModifyTime;
                         execute();
                         continue;
                     }
                     else if(oldLastModifyTime == lastModifyTime){
                         long idleTime = System.currentTimeMillis() - oldLastModifyTime;
-                        if(closeOlderTime > 0 && idleTime >= closeOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
+                        if(pauseScheduleTimeStamp > 0l){//计算暂停时间,并将暂停时间从空闲时间中剔除
+                            long pauseScheduleTime = System.currentTimeMillis() - pauseScheduleTimeStamp;
+                            idleTime = idleTime - pauseScheduleTime;
+                        }
+                        if(closeOlderTime > 0l && idleTime >= closeOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
 
                             if(closeOldedFileAssert == null) {
 
@@ -249,7 +254,7 @@ public class FileReaderTask extends FieldManager{
                                 break;
                             }
                         }
-                        if(ignoreOlderTime > 0 && idleTime >= ignoreOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
+                        if(ignoreOlderTime > 0l && idleTime >= ignoreOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
 //                            logger.info("file[{}|{}] idleTime:{},ignoreOlderTime:{}",fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,ignoreOlderTime);
 
 
@@ -291,6 +296,14 @@ public class FileReaderTask extends FieldManager{
                         continue;
                     }
                     else{
+                        boolean pauseSchedule = fileListenerService.isSchedulePaussed(false);//这里需要关闭采集自动暂停机制，不能影响其他并行采集的文件调度
+                        if(pauseSchedule){
+                            pauseScheduleTimeStamp = System.currentTimeMillis();
+                            continue;
+                        }
+                        else{
+                            pauseScheduleTimeStamp = 0l;
+                        }
                         if(fileRenamed(file)) //文件重命名，等待文件被清理重新更新新的File对象
                         {
                             File fileIdFile = FileInodeHandler.getFileByInode(fileConfig,fileId);//查找重命名后的文件

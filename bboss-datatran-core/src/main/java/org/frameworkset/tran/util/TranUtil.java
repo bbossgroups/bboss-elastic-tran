@@ -48,8 +48,9 @@ import java.util.List;
 public abstract class TranUtil {
 	public static final String lineSeparator;
 	static{
-		lineSeparator = java.security.AccessController.doPrivileged(
-				new sun.security.action.GetPropertyAction("line.separator"));
+//		lineSeparator = java.security.AccessController.doPrivileged(
+//				new sun.security.action.GetPropertyAction("line.separator"));
+		lineSeparator = System.getProperty("line.separator");
 	}
 /**
 	public static void initSQLInfo(DBOutPutContext dbContext, ImportContext importContext) throws ESDataImportException {

@@ -270,7 +270,7 @@ public class StringTranJob extends BaseTranJob{
 	 * @return
 	 */
 	@Override
-	public String parallelBatchExecute(final ParrelTranCommand serialTranCommand ,
+	public String parallelBatchExecute(final ParrelTranCommand parrelTranCommand ,
 										Status currentStatus,
 										ImportContext importContext,
 										ImportContext targetImportContext,
@@ -312,7 +312,7 @@ public class StringTranJob extends BaseTranJob{
 //						taskCommand.setDatas(datas);
 //						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 //						taskNo++;
-						taskNo = serialTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,reachEOFClosed,null,
+						taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,reachEOFClosed,null,
 								service,tasks,tranErrorWrapper);
 
 					}
@@ -347,7 +347,7 @@ public class StringTranJob extends BaseTranJob{
 //
 //				fileOupputContext.generateReocord(context,record, writer);
 //				writer.write(TranUtil.lineSeparator);
-				serialTranCommand.buildStringRecord(context,writer);
+				parrelTranCommand.buildStringRecord(context,writer);
 				count++;
 				if(count >= batchsize ){
 					String datas = builder.toString();
@@ -360,7 +360,7 @@ public class StringTranJob extends BaseTranJob{
 //					taskCommand.setDatas(datas);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 //					taskNo++;
-					taskNo = serialTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,reachEOFClosed,null,
+					taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,reachEOFClosed,null,
 							service,tasks,tranErrorWrapper);
 
 				}
@@ -371,7 +371,7 @@ public class StringTranJob extends BaseTranJob{
 				}
 				String datas = builder.toString();
 				builder.setLength(0);
-				taskNo = serialTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,datas,reachEOFClosed,null,
+				taskNo = parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,datas,reachEOFClosed,null,
 						service,tasks,tranErrorWrapper);
 //				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
 //						count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
@@ -397,7 +397,7 @@ public class StringTranJob extends BaseTranJob{
 			baseDataTran.waitTasksComplete(tasks, service, exception, lastValue, totalCount, tranErrorWrapper, new WaitTasksCompleteCallBack() {
 				@Override
 				public void call() {
-					serialTranCommand.parrelCompleteAction();
+					parrelTranCommand.parrelCompleteAction();
 //					fileTransfer.sendFile();//传输文件
 //					Date endTime = new Date();
 //					if(baseDataTran.getTaskContext() != null)
