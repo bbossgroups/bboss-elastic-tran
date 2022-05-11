@@ -108,15 +108,7 @@ public class ScheduleTimer implements Runnable{
 			do {
 
 				if (TimeUtil.evalateNeedScan(timerScheduleConfig)) {
-					if(this.scheduleService.isSchedulePaussed(true)){
-						if(logger.isInfoEnabled()){
-							logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
-						}
-						return;
-					}
-					else {
-						scheduleService.externalTimeSchedule();
-					}
+					scheduleService.externalTimeSchedule();
 					break;
 				}
 				else {

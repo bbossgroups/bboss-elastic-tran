@@ -34,8 +34,9 @@ public class FileImportConfig extends BaseImportConfig {
     private boolean enableMeta;
     private String charsetEncode = "UTF-8";
     private List<FileConfig> fileConfigList;
-    private long checkFileModifyInterval = 3000l;
+    private long checkFileModifyInterval = 2000l;
 
+    protected long sleepAwaitTimeAfterFetch = 0l;
     public TimerScheduleConfig getTimerScheduleConfig() {
         return timerScheduleConfig;
     }
@@ -76,14 +77,24 @@ public class FileImportConfig extends BaseImportConfig {
     public List<FileConfig> getFileConfigList() {
         return fileConfigList;
     }
+    private boolean enableAutoPauseScheduled = true;
+
+    public boolean isEnableAutoPauseScheduled() {
+        return enableAutoPauseScheduled;
+    }
+
     public FileImportConfig addConfig(FileConfig fileConfig){
 
-        if(fileConfig.getFtpConfig() != null || fileConfig.isScanChild() || OSInfo.isWindows()){
-            fileConfig.setEnableInode(false);//ftp需禁用inode机制
-        }
+
 
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
+        }
+        if(fileConfig.getFtpConfig() != null || fileConfig.isScanChild() || OSInfo.isWindows()){
+            fileConfig.setEnableInode(false);//ftp需禁用inode机制
+        }
+        if(!fileConfig.isCloseEOF()){
+            enableAutoPauseScheduled = false;
         }
 
 //        fileConfig.init();
@@ -95,14 +106,28 @@ public class FileImportConfig extends BaseImportConfig {
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
-        fileConfigList.add(new FileConfig(sourcePath,fileNameRegular,fileHeadLine));
+        FileConfig fileConfig = new FileConfig(sourcePath,fileNameRegular,fileHeadLine);
+        if(OSInfo.isWindows()){
+            fileConfig.setEnableInode(false);//ftp需禁用inode机制
+        }
+        if(!fileConfig.isCloseEOF()){
+            enableAutoPauseScheduled = false;
+        }
+        fileConfigList.add(fileConfig);
         return this;
     }
     public FileImportConfig addConfig(String sourcePath,String fileNameRegular,String fileHeadLine,boolean scanChild){
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
-        fileConfigList.add(new FileConfig(sourcePath,fileNameRegular,fileHeadLine,scanChild));
+        FileConfig fileConfig = new FileConfig(sourcePath,fileNameRegular,fileHeadLine,scanChild);
+        if(scanChild || OSInfo.isWindows()){
+            fileConfig.setEnableInode(false);//ftp需禁用inode机制
+        }
+        if(!fileConfig.isCloseEOF()){
+            enableAutoPauseScheduled = false;
+        }
+        fileConfigList.add(fileConfig);
         return this;
     }
 
@@ -284,4 +309,12 @@ public class FileImportConfig extends BaseImportConfig {
         return timerScheduleConfig != null?timerScheduleConfig.getSkipScanNewFileTimeRanges():null;
     }
 
+    public FileImportConfig setSleepAwaitTimeAfterFetch(long sleepAwaitTimeAfterFetch) {
+        this.sleepAwaitTimeAfterFetch = sleepAwaitTimeAfterFetch;
+        return this;
+    }
+
+    public long getSleepAwaitTimeAfterFetch() {
+        return sleepAwaitTimeAfterFetch;
+    }
 }

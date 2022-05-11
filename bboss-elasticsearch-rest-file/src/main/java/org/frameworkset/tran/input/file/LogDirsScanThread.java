@@ -16,7 +16,7 @@ public class LogDirsScanThread implements Runnable{
     protected final long interval;
     private Thread thread = null;
     protected volatile boolean running = false;
-    protected Runnable scan;
+    protected ScanNewFile scan;
     protected TimerScheduleConfig timerScheduleConfig;
     protected FileImportContext fileImportContext;
     /**
@@ -25,7 +25,7 @@ public class LogDirsScanThread implements Runnable{
      * @param fileImportContext The amount of time in milliseconds to wait between
      * checks of the file system
      */
-    public LogDirsScanThread(Runnable scan,FileImportContext fileImportContext) {
+    public LogDirsScanThread(ScanNewFile scan,FileImportContext fileImportContext) {
         this.scan = scan;
         //The amount of time in milliseconds to wait between
 //        checks of the file system
@@ -63,7 +63,7 @@ public class LogDirsScanThread implements Runnable{
     public synchronized void start() throws IllegalStateException {
         statusRunning();
 
-        thread = new Thread(this,"NewORModifyFiles-Scan");
+        thread = new Thread(this,"NewFiles-Scan");
         thread.setDaemon(false);
         thread.start();
     }

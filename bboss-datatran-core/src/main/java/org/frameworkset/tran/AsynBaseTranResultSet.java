@@ -55,12 +55,12 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 		return record;
 	}
 
-	public void appendData(Data datas){
+	public void appendData(Data datas) throws InterruptedException{
 
 		try {
 			queue.put(datas);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			throw e;
 		}
 //		this.esDatas = datas;
 //		this.records = esDatas.getDatas();

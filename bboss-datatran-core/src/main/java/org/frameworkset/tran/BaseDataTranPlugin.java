@@ -16,10 +16,7 @@ package org.frameworkset.tran;
  */
 
 import com.frameworkset.common.poolman.SQLExecutor;
-import com.frameworkset.common.poolman.util.DBConf;
-import com.frameworkset.common.poolman.util.JDBCPool;
-import com.frameworkset.common.poolman.util.SQLManager;
-import com.frameworkset.common.poolman.util.SQLUtil;
+import com.frameworkset.common.poolman.util.*;
 import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
@@ -45,10 +42,7 @@ import java.io.File;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -69,6 +63,10 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	private ExportCount exportCount;
 	protected StatusManager statusManager;
 	protected ScheduleAssert scheduleAssert;
+	/**
+	 * 包含所有启动成功的db数据源
+	 */
+	protected DBStartResult dbStartResult = new DBStartResult();
 	public ExportCount getExportCount() {
 		return exportCount;
 	}
@@ -249,6 +247,10 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 	}
 	@Override
+	public boolean isEnableAutoPauseScheduled(){
+		return true;
+	}
+	@Override
 	public void importData() throws ESDataImportException {
 
 		if(this.scheduleService == null) {//一次性执行数据导入操作
@@ -278,15 +280,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				if (!this.importContext.isExternalTimer()) {//内部定时任务引擎
 					scheduleService.timeSchedule( );
 				} else { //外部定时任务引擎执行的方法，比如quartz之类的
-					if(importContext.isSchedulePaussed(true)){
-						if(logger.isInfoEnabled()){
-							logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
-						}
-						return;
-					}
-					else {
-						scheduleService.externalTimeSchedule();
-					}
+					scheduleService.externalTimeSchedule();
+
 				}
 			}
 			catch (ESDataImportException e)
@@ -459,9 +454,30 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			logger.error("Stop status db pool["+statusDbname+"] failed:",e);
 		}
 		this.stopDS(importContext.getDbConfig());
-		this.stopOtherDSES(importContext.getConfigs());
+//		this.stopOtherDSES(importContext.getConfigs());
+		stopDatasources();
 		this.stopES();
 
+	}
+
+	protected void stopDatasources(){
+		if(dbStartResult != null ){
+			Map<String,Object> dbs = dbStartResult.getDbstartResult();
+			if(dbs != null && dbs.size() > 0){
+				Iterator<Map.Entry<String, Object>> iterator = dbs.entrySet().iterator();
+				while(iterator.hasNext()){
+					Map.Entry<String, Object> entry = iterator.next();
+
+					String db = entry.getKey();
+					try {
+						SQLUtil.stopPool(db);
+					} catch (Exception e) {
+						if(logger.isErrorEnabled())
+							logger.error("SQLUtil.stopPool("+db+") failed:",e);
+					}
+				}
+			}
+		}
 	}
 
 	protected Object formatLastDateValue(Date date){
@@ -936,9 +952,9 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			tempConf.setShowsql(false);
 			tempConf.setEncryptdbinfo(false);
 			tempConf.setQueryfetchsize(null);
-			SQLUtil.startPoolWithDBConf(tempConf);
-			JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
-			if(jdbcPool == null){
+			boolean ret = SQLUtil.startPoolWithDBConf(tempConf);
+//			JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
+			if(!ret ){
 				throw new ESDataImportException("status_datasource["+statusDbname+"] not started.");
 			}
 		} catch (Exception e) {
@@ -1014,11 +1030,14 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 						tempConf.setEncryptdbinfo(false);
 						tempConf.setQueryfetchsize(null);
 						tempConf.setDbInfoEncryptClass(statusDBConfig.getDbInfoEncryptClass());
-						SQLUtil.startPoolWithDBConf(tempConf);
-						JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
-						if(jdbcPool == null){
+						boolean ret = SQLUtil.startPoolWithDBConf(tempConf);
+//						JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
+						if(!ret){
 							throw new ESDataImportException("status_datasource["+statusDbname+"] not started.");
 						}
+//						else{
+//							dbStartResult.addDBStartResult(tempConf.getPoolname());
+//						}
 					} catch (Exception e) {
 						throw new ESDataImportException(e);
 					}
@@ -1338,7 +1357,10 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 			temConf.setDbtype(dbConfig.getDbtype());
 			temConf.setColumnLableUpperCase(dbConfig.isColumnLableUpperCase());
 			temConf.setDbInfoEncryptClass(dbConfig.getDbInfoEncryptClass());
-			SQLManager.startPool(temConf);
+			boolean ret = SQLManager.startPool(temConf);
+			if(ret){
+				dbStartResult.addDBStartResult(temConf.getPoolname());
+			}
 
 		}
 	}

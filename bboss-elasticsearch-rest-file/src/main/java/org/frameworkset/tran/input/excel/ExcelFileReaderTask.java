@@ -136,12 +136,22 @@ public class ExcelFileReaderTask extends FileReaderTask {
 				//分批处理数据
 				if (fetchSize > 0 && (recordList.size() >= fetchSize)) {
 					fileDataTran.appendData(new CommonData(recordList));
+					try {
+						fetchAwaitSleep();
+					} catch (InterruptedException e) {
+						break;
+					}
 					recordList = new ArrayList<Record>();
 				}
 
 			}
 			if (recordList.size() > 0) {
 				fileDataTran.appendData(new CommonData(recordList));
+				try {
+					fetchAwaitSleep();
+				} catch (InterruptedException e) {
+
+				}
 			}
 			//如果设置了文件结束，及结束作业，则进行相应处理，需迁移到通道结束处进行归档和删除处理
 			if (reachEOFClosed) {

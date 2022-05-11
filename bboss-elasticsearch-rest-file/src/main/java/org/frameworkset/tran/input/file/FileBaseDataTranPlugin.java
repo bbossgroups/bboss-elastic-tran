@@ -423,6 +423,10 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 
     }
     @Override
+    public boolean isEnableAutoPauseScheduled(){
+        return fileImportContext.isEnableAutoPauseScheduled();
+    }
+    @Override
     public void initStatusTableId() {
 
     }
@@ -476,28 +480,30 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
         {
             List<FileConfig> fileConfigs = this.fileImportContext.getFileConfigList();
             if (fileConfigs != null && fileConfigs.size() > 0) {
-                Runnable scan = new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean schedulePaused = fileListenerService.isSchedulePaussed(true);
-                        if(!schedulePaused) {
-                            for (LogDirScan logDirScan : logDirScans) {
-                                try {
-                                    logDirScan.scanNewFile();
-                                } catch (Exception e) {
-                                    logger.error("扫描新文件异常:" + logDirScan.getFileConfig().toString(), e);
-                                }
-                            }
-                        }
-                        else{
-                            if(logger.isInfoEnabled()){
-                                logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
-                            }
-                        }
-                    }
-                };
+
 
                 if (!fileImportContext.isUseETLScheduleForScanNewFile()) {//采用内置新文件扫描调度机制
+                    ScanNewFile scan = new ScanNewFile() {
+                        @Override
+                        public boolean run() {
+                            boolean schedulePaused = fileListenerService.isSchedulePaussed(fileImportContext.isEnableAutoPauseScheduled());
+                            if(!schedulePaused) {
+                                for (LogDirScan logDirScan : logDirScans) {
+                                    try {
+                                        logDirScan.scanNewFile();
+                                    } catch (Exception e) {
+                                        logger.error("扫描新文件异常:" + logDirScan.getFileConfig().toString(), e);
+                                    }
+                                }
+                            }
+                            else{
+                                if(logger.isInfoEnabled()){
+                                    logger.info("Ignore Scan new files for Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+                                }
+                            }
+                            return schedulePaused;
+                        }
+                    };
                     logDirsScanThread = new LogDirsScanThread(scan,fileImportContext);
                     logDirScans = new ArrayList<>(fileConfigs.size());
                     for (FileConfig fileConfig : fileConfigs) {
@@ -514,7 +520,7 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
                 } else {//采用外部新文件扫描调度机制：jdk timer,quartz,xxl-job
 
                     if(logDirScans == null){ //初始执行不判断是否调度暂停，后续需要进行判断
-                        logDirsScanThread = new LogDirsScanThread(scan,fileImportContext);
+                        logDirsScanThread = new LogDirsScanThread(null,fileImportContext);
                         logDirScans = new ArrayList<>(fileConfigs.size());
                         logDirsScanThread.statusRunning();
                         for (FileConfig fileConfig : fileConfigs) {
@@ -540,7 +546,13 @@ public abstract class FileBaseDataTranPlugin extends BaseDataTranPlugin {
 //                                logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
 //                            }
 //                        }
-                        scan.run();
+                        for (LogDirScan logDirScan : logDirScans) {
+                            try {
+                                logDirScan.scanNewFile();
+                            } catch (Exception e) {
+                                logger.error("扫描新文件异常:" + logDirScan.getFileConfig().toString(), e);
+                            }
+                        }
                     }
 
                 }

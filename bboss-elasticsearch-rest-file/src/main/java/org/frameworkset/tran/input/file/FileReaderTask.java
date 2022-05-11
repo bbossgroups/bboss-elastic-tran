@@ -62,7 +62,7 @@ public class FileReaderTask extends FieldManager{
     private boolean jsondata ;
     protected Thread worker ;
     protected long oldLastModifyTime = -1l;
-    protected long checkFileModifyInterval = 3000l;
+    protected long checkFileModifyInterval = 1000l;
     protected long closeOlderTime ;
     protected CloseOldedFileAssert closeOldedFileAssert;
 
@@ -80,6 +80,7 @@ public class FileReaderTask extends FieldManager{
                           BaseDataTran fileDataTran,
                           Status currentStatus ,FileImportConfig fileImportConfig ) {
         this.fileImportConfig = fileImportConfig;
+        this.sleepAwaitTimeAfterFetch = fileImportConfig.getSleepAwaitTimeAfterFetch();
         this.fileListenerService = fileListenerService;
         String charSet = fileConfig.getCharsetEncode() ;
         if(charSet == null || charSet.equals("")){
@@ -114,6 +115,7 @@ public class FileReaderTask extends FieldManager{
         this.fileImportConfig = fileImportConfig;
         this.currentStatus = currentStatus;
         this.fileInfo = new FileInfo( fileId);
+        this.sleepAwaitTimeAfterFetch = fileImportConfig.getSleepAwaitTimeAfterFetch();
     }
 
     public FileInfo getFileInfo() {
@@ -299,6 +301,13 @@ public class FileReaderTask extends FieldManager{
                         boolean pauseSchedule = fileListenerService.isSchedulePaussed(false);//这里需要关闭采集自动暂停机制，不能影响其他并行采集的文件调度
                         if(pauseSchedule){
                             pauseScheduleTimeStamp = System.currentTimeMillis();
+                            if(logger.isInfoEnabled())
+                                logger.info("Ignore Paused FileReader[{}] Task,waiting for next resume schedule sign to continue.",fileInfo.getFilePath());
+                            try {
+                                sleep(checkFileModifyInterval);
+                            } catch (InterruptedException e) {
+                                break;
+                            }
                             continue;
                         }
                         else{
@@ -324,6 +333,18 @@ public class FileReaderTask extends FieldManager{
                         }
                         oldLastModifyTime = lastModifyTime;
                         execute();
+                        if(sleepAwaitTimeAfterFetch <= 0l){
+							try {
+								sleep(60l);//采集完毕后休息一会儿再继续
+							} catch (InterruptedException e) {
+								break;
+							}
+						}
+//                        try {
+//                            sleep(checkFileModifyInterval);//采集完毕后休息一会儿再继续
+//                        } catch (InterruptedException e) {
+//                            break;
+//                        }
                         continue;
                     }
                 }
@@ -474,6 +495,7 @@ public class FileReaderTask extends FieldManager{
         }
         return false;
     }
+    protected long sleepAwaitTimeAfterFetch = 0l;
     protected void execute() {
         boolean reachEOFClosed = false;
         File file = fileInfo.getFile();
@@ -533,6 +555,11 @@ public class FileReaderTask extends FieldManager{
                                 //分批处理数据
                                 if (fetchSize > 0 && ( recordList.size() >= fetchSize)) {
                                     fileDataTran.appendData(new CommonData(recordList));
+                                    try {
+                                        fetchAwaitSleep();
+                                    } catch (InterruptedException e) {
+                                        break;
+                                    }
                                     recordList = new ArrayList<Record>();
                                 }
 
@@ -558,6 +585,11 @@ public class FileReaderTask extends FieldManager{
                             //分批处理数据
                             if (fetchSize > 0 && recordList.size() >= fetchSize) {
                                 fileDataTran.appendData(new CommonData(recordList));
+                                try {
+                                    fetchAwaitSleep();
+                                } catch (InterruptedException e) {
+                                    break;
+                                }
                                 recordList = new ArrayList<Record>();
                             }
                             if(reachEOFClosed)
@@ -579,6 +611,11 @@ public class FileReaderTask extends FieldManager{
                 }
                 if(recordList.size() > 0 ){
                     fileDataTran.appendData(new CommonData(recordList));
+                    try {
+                        fetchAwaitSleep();
+                    } catch (InterruptedException e) {
+
+                    }
                 }
                 //如果设置了文件结束，及结束作业，则进行相应处理，需迁移到通道结束处进行归档和删除处理
                 if(reachEOFClosed){
@@ -916,5 +953,13 @@ public class FileReaderTask extends FieldManager{
     public BaseDataTran getFileDataTran() {
         return fileDataTran;
     }
-
+    protected void fetchAwaitSleep() throws InterruptedException{
+        if(sleepAwaitTimeAfterFetch > 0l) {
+            try {
+                sleep(sleepAwaitTimeAfterFetch);
+            } catch (InterruptedException e) {
+                throw e;
+            }
+        }
+    }
 }

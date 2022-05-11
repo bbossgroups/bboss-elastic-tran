@@ -168,7 +168,7 @@ public abstract class BaseDataTran implements DataTran{
 	}
 
 
-	public void appendData(Data data){
+	public void appendData(Data data) throws InterruptedException{
 
 		if(asynTranResultSet != null)
 			asynTranResultSet.appendData(data);

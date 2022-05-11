@@ -34,7 +34,7 @@ public class AsynSplitTranResultSet extends SplitTranResultSet implements AsynTr
 		this.tranResultSet = tranResultSet;
 	}
 	@Override
-	public void appendData(Data datas) {
+	public void appendData(Data datas) throws InterruptedException{
 		tranResultSet.appendData(datas);
 	}
 }

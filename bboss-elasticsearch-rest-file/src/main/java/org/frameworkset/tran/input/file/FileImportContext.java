@@ -46,6 +46,10 @@ public class FileImportContext extends BaseImportContext {
         return fileImportConfig.getFileConfigList();
     }
 
+    public boolean isEnableAutoPauseScheduled(){
+        return fileImportConfig.isEnableAutoPauseScheduled();
+    }
+
 
     /**
      * 判断是否采用外部新文件扫描调度机制：jdk timer,quartz,xxl-job

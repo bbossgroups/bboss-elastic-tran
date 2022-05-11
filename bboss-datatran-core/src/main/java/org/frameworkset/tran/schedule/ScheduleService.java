@@ -15,6 +15,7 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.timer.ScheduleTimer;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
@@ -135,25 +136,9 @@ public class ScheduleService {
 		TimerTask timerTask = new TimerTask() {
 			@Override
 			public void run() {
-//				TaskContext taskContext = new TaskContext(dataTranPlugin);
-//				try {
-//					preCall(taskContext);
-//					scheduleImportData(dataTranPlugin.getScheduleBatchSize());
-//					afterCall(taskContext);
-//				}
-//				catch (Exception e){
-//					throwException(taskContext,e);
-//					logger.error("scheduleImportData failed:",e);
-//				}
-				if(importContext.isSchedulePaussed(true)){
-					if(logger.isInfoEnabled()){
-						logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
-					}
-					return;
-				}
-				else {
+
 					externalTimeSchedule();
-				}
+
 			}
 		};
 		Date scheduleDate = scheduleConfig.getScheduleDate();
@@ -213,7 +198,13 @@ public class ScheduleService {
 	 * 通过synchronized关键字，控制任务按顺序执行
 	 */
 	public synchronized void externalTimeSchedule()  {
-
+		DataTranPlugin dataTranPlugin = this.importContext.getDataTranPlugin();
+		if(this.isSchedulePaussed(dataTranPlugin.isEnableAutoPauseScheduled())){
+			if(logger.isInfoEnabled()){
+				logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+			}
+			return;
+		}
 		TaskContext taskContext = isEnablePluginTaskIntercept()?new TaskContext(importContext,targetImportContext):null;
 
 		long importStartTime = System.currentTimeMillis();

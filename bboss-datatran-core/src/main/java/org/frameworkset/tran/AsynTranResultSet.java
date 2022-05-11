@@ -17,5 +17,5 @@ package org.frameworkset.tran;/*
 public interface AsynTranResultSet extends TranResultSet{
 
 
-	public void appendData(Data datas);
+	public void appendData(Data datas) throws InterruptedException;
 }

@@ -34,6 +34,7 @@ import java.util.List;
  * @version 1.0
  */
 public interface DataTranPlugin {
+	public boolean isEnableAutoPauseScheduled();
 	public boolean isSchedulePaussed(boolean autoPause);
 	public ScheduleAssert getScheduleAssert();
 	public void setScheduleAssert(ScheduleAssert scheduleAssert);
