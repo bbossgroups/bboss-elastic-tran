@@ -280,6 +280,12 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 				if (!this.importContext.isExternalTimer()) {//内部定时任务引擎
 					scheduleService.timeSchedule( );
 				} else { //外部定时任务引擎执行的方法，比如quartz之类的
+					if(scheduleService.isSchedulePaused(isEnableAutoPauseScheduled())){
+						if(logger.isInfoEnabled()){
+							logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+						}
+						return;
+					}
 					scheduleService.externalTimeSchedule();
 
 				}

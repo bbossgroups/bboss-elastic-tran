@@ -486,7 +486,7 @@ public abstract  class BaseImportContext implements ImportContext {
 		baseImportConfig.setBatchSize(batchSize);
 	}
 	@Override
-	public boolean isSchedulePaussed(boolean autoPause){
+	public boolean isSchedulePaused(boolean autoPause){
 		return this.dataTranPlugin.isSchedulePaussed(  autoPause);
 	}
 

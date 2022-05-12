@@ -81,6 +81,7 @@ public class FileReaderTask extends FieldManager{
                           Status currentStatus ,FileImportConfig fileImportConfig ) {
         this.fileImportConfig = fileImportConfig;
         this.sleepAwaitTimeAfterFetch = fileImportConfig.getSleepAwaitTimeAfterFetch();
+		this.sleepAwaitTimeAfterCollect = fileImportConfig.getSleepAwaitTimeAfterCollect();
         this.fileListenerService = fileListenerService;
         String charSet = fileConfig.getCharsetEncode() ;
         if(charSet == null || charSet.equals("")){
@@ -116,6 +117,7 @@ public class FileReaderTask extends FieldManager{
         this.currentStatus = currentStatus;
         this.fileInfo = new FileInfo( fileId);
         this.sleepAwaitTimeAfterFetch = fileImportConfig.getSleepAwaitTimeAfterFetch();
+		this.sleepAwaitTimeAfterCollect = fileImportConfig.getSleepAwaitTimeAfterCollect();
     }
 
     public FileInfo getFileInfo() {
@@ -333,9 +335,9 @@ public class FileReaderTask extends FieldManager{
                         }
                         oldLastModifyTime = lastModifyTime;
                         execute();
-                        if(sleepAwaitTimeAfterFetch <= 0l){
+                        if(sleepAwaitTimeAfterFetch <= 0l && sleepAwaitTimeAfterCollect > 0l){
 							try {
-								sleep(60l);//采集完毕后休息一会儿再继续
+								sleep(sleepAwaitTimeAfterCollect);//采集完毕后休息一会儿再继续
 							} catch (InterruptedException e) {
 								break;
 							}
@@ -495,7 +497,17 @@ public class FileReaderTask extends FieldManager{
         }
         return false;
     }
-    protected long sleepAwaitTimeAfterFetch = 0l;
+
+	/**
+	 * 单位：毫秒
+	 * 从文件采集（fetch）一个batch的数据后，休息一会，避免cpu占用过高，在大量文件同时采集时可以设置，大于0有效，默认值0
+	 */
+	protected long sleepAwaitTimeAfterFetch = 0l;
+	/**
+	 * 单位：毫秒
+	 * 从文件采集完成一个任务后，休息一会，避免cpu占用过高，在大量文件同时采集时可以设置，大于0有效，默认值0
+	 */
+	protected long sleepAwaitTimeAfterCollect = 0l;
     protected void execute() {
         boolean reachEOFClosed = false;
         File file = fileInfo.getFile();

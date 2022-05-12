@@ -56,7 +56,7 @@ public interface ImportContext {
 	 * 判断调度任务是否被暂停
 	 * @return
 	 */
-	public boolean isSchedulePaussed(boolean autoPause);
+	public boolean isSchedulePaused(boolean autoPause);
 
 	public boolean isAsynFlushStatus();
 	public long getAsynFlushStatusInterval();

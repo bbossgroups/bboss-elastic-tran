@@ -35,8 +35,16 @@ public class FileImportConfig extends BaseImportConfig {
     private String charsetEncode = "UTF-8";
     private List<FileConfig> fileConfigList;
     private long checkFileModifyInterval = 2000l;
-
+    /**
+     * 单位：毫秒
+     * 从文件采集（fetch）一个batch的数据后，休息一会，避免cpu占用过高，在大量文件同时采集时可以设置，大于0有效，默认值0
+     */
     protected long sleepAwaitTimeAfterFetch = 0l;
+    /**
+     * 单位：毫秒
+     * 从文件采集完成一个任务后，休息一会，避免cpu占用过高，在大量文件同时采集时可以设置，大于0有效，默认值0
+     */
+    protected long sleepAwaitTimeAfterCollect = 0l;
     public TimerScheduleConfig getTimerScheduleConfig() {
         return timerScheduleConfig;
     }
@@ -316,5 +324,14 @@ public class FileImportConfig extends BaseImportConfig {
 
     public long getSleepAwaitTimeAfterFetch() {
         return sleepAwaitTimeAfterFetch;
+    }
+
+    public FileImportConfig setSleepAwaitTimeAfterCollect(long sleepAwaitTimeAfterCollect) {
+        this.sleepAwaitTimeAfterCollect = sleepAwaitTimeAfterCollect;
+        return this;
+    }
+
+    public long getSleepAwaitTimeAfterCollect() {
+        return sleepAwaitTimeAfterCollect;
     }
 }

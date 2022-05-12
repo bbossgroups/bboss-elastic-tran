@@ -110,8 +110,8 @@ public class ScheduleService {
 			}
 		}
 	}
-	public boolean isSchedulePaussed(boolean autoSchedulePaused){
-		return this.importContext.isSchedulePaussed(autoSchedulePaused);
+	public boolean isSchedulePaused(boolean autoSchedulePaused){
+		return this.importContext.isSchedulePaused(autoSchedulePaused);
 	}
 	private void throwException(TaskContext taskContext,Exception e){
 		List<CallInterceptor> callInterceptors = importContext.getCallInterceptors();
@@ -129,6 +129,10 @@ public class ScheduleService {
 		}
 
 	}
+	public boolean isEnableAutoPauseScheduled(){
+		DataTranPlugin dataTranPlugin = importContext.getDataTranPlugin();
+		return dataTranPlugin.isEnableAutoPauseScheduled();
+	}
 	private void jdkTimeSchedule(ScheduleConfig scheduleConfig ) throws Exception{
 		//		scheduleImportData(dataTranPlugin.getBatchSize());
 
@@ -136,8 +140,13 @@ public class ScheduleService {
 		TimerTask timerTask = new TimerTask() {
 			@Override
 			public void run() {
-
-					externalTimeSchedule();
+				if(isSchedulePaused(isEnableAutoPauseScheduled())){
+					if(logger.isInfoEnabled()){
+						logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+					}
+					return;
+				}
+				externalTimeSchedule();
 
 			}
 		};
@@ -198,13 +207,13 @@ public class ScheduleService {
 	 * 通过synchronized关键字，控制任务按顺序执行
 	 */
 	public synchronized void externalTimeSchedule()  {
-		DataTranPlugin dataTranPlugin = this.importContext.getDataTranPlugin();
-		if(this.isSchedulePaussed(dataTranPlugin.isEnableAutoPauseScheduled())){
-			if(logger.isInfoEnabled()){
-				logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
-			}
-			return;
-		}
+//		DataTranPlugin dataTranPlugin = this.importContext.getDataTranPlugin();
+//		if(this.isSchedulePaused(dataTranPlugin.isEnableAutoPauseScheduled())){
+//			if(logger.isInfoEnabled()){
+//				logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+//			}
+//			return;
+//		}
 		TaskContext taskContext = isEnablePluginTaskIntercept()?new TaskContext(importContext,targetImportContext):null;
 
 		long importStartTime = System.currentTimeMillis();
