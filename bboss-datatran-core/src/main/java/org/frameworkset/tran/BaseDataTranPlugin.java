@@ -459,7 +459,7 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 		catch (Exception e){
 			logger.error("Stop status db pool["+statusDbname+"] failed:",e);
 		}
-		this.stopDS(importContext.getDbConfig());
+//		this.stopDS(importContext.getDbConfig());
 //		this.stopOtherDSES(importContext.getConfigs());
 		stopDatasources();
 		this.stopES();
