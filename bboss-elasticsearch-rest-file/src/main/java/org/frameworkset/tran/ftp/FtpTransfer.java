@@ -78,6 +78,42 @@ public class FtpTransfer {
 	}
 
 	/**
+	 * 上传文件
+	 * @param fileFtpOupputContext
+	 * @param file
+	 * @param remoteFilePath
+	 */
+	public static void sendFile(final FtpContext fileFtpOupputContext, final File file,
+								final String remoteFilePath) {
+
+
+		handle(fileFtpOupputContext, new FTPAction() {
+
+			@Override
+			public void execute(FTPClient ftp) throws IOException {
+				InputStream input = null;
+				try {
+					if (logger.isInfoEnabled())
+						logger.info("Send file to ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " ,filePath[" + file.getAbsolutePath() + "],remote dir[" + remoteFilePath + "] start......");
+					long startTime = System.currentTimeMillis();
+					input = new FileInputStream(file);
+
+					ftp.storeFile(remoteFilePath, input);
+					long endTime = System.currentTimeMillis();
+					if (logger.isInfoEnabled())
+						logger.info("Send file to ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " ,filePath[" + file.getAbsolutePath() + "],remote dir[" + remoteFilePath + "] complete, elapsed times:"+(endTime - startTime)+"毫秒.");
+				} catch (Exception e) {
+					throw new DataImportException("Send file to ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " failed:filePath[" + file.getAbsolutePath() + "],remote dir[" + remoteFilePath + "]", e);
+				} finally {
+					if (input != null) {
+						input.close();
+					}
+				}
+			}
+		});
+	}
+
+	/**
 	 * 列出文件
 	 * @param fileFtpOupputContext
 	 * @return

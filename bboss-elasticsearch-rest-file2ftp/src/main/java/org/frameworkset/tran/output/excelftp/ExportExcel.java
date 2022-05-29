@@ -28,7 +28,7 @@ import java.util.*;
 public class ExportExcel extends BaseExcelInf{
 
     private static final Logger log = LoggerFactory.getLogger(ExportExcel.class);
-
+    private ExcelFileOupputConfig excelFileOupputConfig;
 
 
     /**
@@ -62,8 +62,9 @@ public class ExportExcel extends BaseExcelInf{
      * @param title      表格标题，传“空值”，表示无标题
      * @param cellMappingList 表头列表
      */
-    public ExportExcel(SXSSFWorkbook sxssfWorkbook, String sheetName,String title, List<CellMapping> cellMappingList) {
+    public ExportExcel(ExcelFileOupputConfig excelFileOupputConfig,SXSSFWorkbook sxssfWorkbook, String sheetName,String title, List<CellMapping> cellMappingList) {
         this.cellMappingList = cellMappingList;
+        this.excelFileOupputConfig = excelFileOupputConfig;
         initialize(sxssfWorkbook,  sheetName,title, cellMappingList);
     }
     private String handleSheetName(String sheetName){
@@ -87,7 +88,7 @@ public class ExportExcel extends BaseExcelInf{
      * @param cellMappingList 表头列表
      */
     private void initialize(SXSSFWorkbook sxssfWorkbook,String sheetName,String title, List<CellMapping> cellMappingList) {
-        this.wb = sxssfWorkbook == null?new SXSSFWorkbook(500):sxssfWorkbook;
+        this.wb = sxssfWorkbook == null?new SXSSFWorkbook(excelFileOupputConfig.getFlushRows()):sxssfWorkbook;
         this.sheet = wb.createSheet(handleSheetName( sheetName));
         this.sheet.trackAllColumnsForAutoSizing();
         this.styles = createStyles(wb);

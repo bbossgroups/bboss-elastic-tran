@@ -39,6 +39,11 @@ public class ExcelFileOupputConfig extends FileOupputConfig {
 	 */
 	private String sheetName;
 	/**
+	 * 设置excel临时文件记录大小，达到flushRows时，将内存中的excel记录写入临时文件
+	 * 默认5000条记录
+	 */
+	private int flushRows = 5000;
+	/**
 	 * 列索引、列名称、列对应的字段field名称映射关系
 	 */
 	private List<CellMapping> cellMappingList = new ArrayList<>();
@@ -123,4 +128,12 @@ public class ExcelFileOupputConfig extends FileOupputConfig {
 		return this;
 	}
 
+	public ExcelFileOupputConfig setFlushRows(int flushRows) {
+		this.flushRows = flushRows;
+		return this;
+	}
+
+	public int getFlushRows() {
+		return flushRows;
+	}
 }

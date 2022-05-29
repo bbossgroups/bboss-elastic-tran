@@ -31,6 +31,7 @@ import org.frameworkset.tran.input.file.SFTPFilterFileInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -246,6 +247,52 @@ public class SFTPTransfer {
 					logger.info("Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " ,filePath["+filePath+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] complete, elapsed time:"+(endTime - startTime) + " 毫秒.");
 			}
 		}, "Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " ,filePath["+filePath+"],remote dir["+fileFtpOupputContext.getRemoteFileDir()+"] failed:");
+
+	}
+
+	/**
+	 * 文件上传
+	 * @param fileFtpOupputContext
+	 * @param filePath
+	 */
+	public static void sendFile(final FtpContext fileFtpOupputContext, final String filePath,final String remoteDir){
+		handlerFile(  fileFtpOupputContext, new SFTPAction (){
+
+			@Override
+			public void execute(SFTPClient sftp) throws IOException {
+
+				if(logger.isInfoEnabled())
+					logger.info("Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " ,filePath["+filePath+"],remote dir["+remoteDir+"] start ......");
+				long startTime = System.currentTimeMillis();
+				sftp.put(new FileSystemFile(filePath), remoteDir);
+				long endTime = System.currentTimeMillis();
+				if(logger.isInfoEnabled())
+					logger.info("Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " ,filePath["+filePath+"],remote dir["+remoteDir+"] complete, elapsed time:"+(endTime - startTime) + " 毫秒.");
+			}
+		}, "Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " ,filePath["+filePath+"],remote dir["+remoteDir+"] failed:");
+
+	}
+
+	/**
+	 * 文件上传
+	 * @param fileFtpOupputContext
+	 * @param file
+	 */
+	public static void sendFile(final FtpContext fileFtpOupputContext, final File file, final String remoteDir){
+		handlerFile(  fileFtpOupputContext, new SFTPAction (){
+
+			@Override
+			public void execute(SFTPClient sftp) throws IOException {
+
+				if(logger.isInfoEnabled())
+					logger.info("Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " ,filePath["+file.getAbsolutePath()+"],remote dir["+remoteDir+"] start ......");
+				long startTime = System.currentTimeMillis();
+				sftp.put(new FileSystemFile(file), remoteDir);
+				long endTime = System.currentTimeMillis();
+				if(logger.isInfoEnabled())
+					logger.info("Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " ,filePath["+file.getAbsolutePath()+"],remote dir["+remoteDir+"] complete, elapsed time:"+(endTime - startTime) + " 毫秒.");
+			}
+		}, "Send file to sftp " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " ,filePath["+file.getAbsolutePath()+"],remote dir["+remoteDir+"] failed:");
 
 	}
 

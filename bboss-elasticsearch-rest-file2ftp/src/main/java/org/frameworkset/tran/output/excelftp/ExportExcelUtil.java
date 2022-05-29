@@ -41,7 +41,7 @@ public class ExportExcelUtil extends BaseExcelInf{
      * @return
      */
     public ExportExcelUtil buildSheet(ExcelFileOupputConfig excelFileOupputConfig, FileOupputContext fileOupputContext){
-        currentExportExcel = new ExportExcel(wb,excelFileOupputConfig.getSheetName(),excelFileOupputConfig.getTitle(), excelFileOupputConfig.getCellMappingList());
+        currentExportExcel = new ExportExcel(excelFileOupputConfig,wb,excelFileOupputConfig.getSheetName(),excelFileOupputConfig.getTitle(), excelFileOupputConfig.getCellMappingList());
         exportExcelMap.put(excelFileOupputConfig.getSheetName(),currentExportExcel);
 //        new ExportExcel(wb,sheetName,dataTitle, headerList).setMapDataList(list, columns);
         return this;
