@@ -25,7 +25,7 @@ import java.io.File;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FileTransfer {
+public class RemoteFileTransfer {
 	/**
 	 * 文件下载
 	 * @param ftpConfig
@@ -75,4 +75,5 @@ public class FileTransfer {
 			SFTPTransfer.sendFile(ftpContext, file,remote);
 		}
 	}
+
 }
