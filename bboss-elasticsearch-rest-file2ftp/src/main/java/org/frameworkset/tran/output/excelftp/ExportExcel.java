@@ -98,9 +98,11 @@ public class ExportExcel extends BaseExcelInf{
             titleRow.setHeightInPoints(30);
             Cell titleCell = titleRow.createCell(0);
             titleCell.setCellStyle(styles.get("title"));
-            titleCell.setCellValue(title);
-            sheet.addMergedRegion(new CellRangeAddress(titleRow.getRowNum(),
-                    titleRow.getRowNum(), titleRow.getRowNum(), cellMappingList.size() - 1));
+            titleCell.setCellValue(new XSSFRichTextString(title));
+            if(cellMappingList.size() > 1) {
+                sheet.addMergedRegion(new CellRangeAddress(titleRow.getRowNum(),
+                        titleRow.getRowNum(), titleRow.getRowNum(), cellMappingList.size() - 1));
+            }
         }
         // Create header
         if (cellMappingList == null) {
@@ -123,7 +125,7 @@ public class ExportExcel extends BaseExcelInf{
                 comment.setString(new XSSFRichTextString(cellMapping.getCellComment()));
                 cell.setCellComment(comment);
             }
-                cell.setCellValue(cellTitle);
+                cell.setCellValue(new XSSFRichTextString(cellTitle));
             sheet.autoSizeColumn(cellMapping.getCell());
         }
         for (int i = 0; i < cellMappingList.size(); i++) {
@@ -229,7 +231,7 @@ public class ExportExcel extends BaseExcelInf{
         CellStyle style = styles.get("data" + (align >= 1 && align <= 3 ? align : ""));
         try {
             if (val instanceof String) {
-                cell.setCellValue((String) val);
+                cell.setCellValue(new XSSFRichTextString((String) val));
             } else if (val instanceof Integer) {
 
                 if(cellMapping.getNumberFormat() != null && !cellMapping.getNumberFormat().equals("")) {
@@ -268,13 +270,13 @@ public class ExportExcel extends BaseExcelInf{
 
             } else {
                 if (fieldType != Class.class) {
-                    cell.setCellValue( SimpleStringUtil.object2json(val));
+                    cell.setCellValue( new XSSFRichTextString(SimpleStringUtil.object2json(val)));
                 }
             }
         } catch (Exception ex) {
             if(log.isErrorEnabled())
                 log.error("Set cell value [" + row.getRowNum() + "," + column + "] error: " + ex.toString(),ex);
-            cell.setCellValue(val.toString());
+            cell.setCellValue(new XSSFRichTextString(val.toString()));
         }
         cell.setCellStyle(style);
         return cell;
