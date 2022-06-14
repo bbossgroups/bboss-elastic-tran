@@ -31,6 +31,7 @@ import org.frameworkset.util.concurrent.ThreadPoolFactory;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,7 +48,13 @@ public abstract  class BaseImportContext implements ImportContext {
 	public JobTaskMetrics createJobTaskMetrics(){
 		return new JobTaskMetrics();
 	}
+	public boolean isLastValueColumnSetted() {
+		return baseImportConfig.isLastValueColumnSetted();
+	}
 
+	public Map getParams(){
+		return baseImportConfig.getParams();
+	}
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;
 	}
@@ -325,7 +332,9 @@ public abstract  class BaseImportContext implements ImportContext {
 	public String getLastValueColumnName(){
 		return dataTranPlugin.getLastValueClumnName();
 	}
-
+	public boolean isImportIncreamentConfigSetted(){
+		return baseImportConfig.isImportIncreamentConfigSetted();
+	}
 
 	@Override
 	public Object getConfigLastValue() {

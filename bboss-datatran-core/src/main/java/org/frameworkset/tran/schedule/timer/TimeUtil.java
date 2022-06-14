@@ -15,6 +15,8 @@ package org.frameworkset.tran.schedule.timer;
  * limitations under the License.
  */
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.Calendar;
 import java.util.Date;
@@ -213,6 +215,15 @@ public class TimeUtil {
 
 		}
 		return localDate;
+	}
+
+	public static Date parserDate(String pattern,String date) throws TimeException {
+		SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+		try {
+			return dateFormat.parse(date);
+		} catch (ParseException e) {
+			throw new TimeException("ParserDate(pattern="+pattern+",date="+date+") failed:",e);
+		}
 	}
 
 }

@@ -44,6 +44,7 @@ import java.util.*;
  * @version 1.0
  */
 public abstract class BaseImportBuilder {
+	private Map params;
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	private DBConfig dbConfig ;
 	private DBConfig statusDbConfig ;
@@ -70,6 +71,12 @@ public abstract class BaseImportBuilder {
 
 	public String getSplitFieldName() {
 		return splitFieldName;
+	}
+	public BaseImportBuilder addParam(String key, Object value){
+		if(params == null)
+			params = new HashMap();
+		this.params.put(key,value);
+		return this;
 	}
 
 	public String getTargetDbname() {
@@ -853,12 +860,13 @@ public abstract class BaseImportBuilder {
 		return setLastValueColumn(dateLastValueColumn);
 	}
 
-
+	private boolean  lastValueColumnSetted = false;
 	public BaseImportBuilder setLastValueColumn(String numberLastValueColumn) {
 		if(importIncreamentConfig == null){
 			importIncreamentConfig = new ImportIncreamentConfig();
 		}
 		this.importIncreamentConfig.setLastValueColumn(numberLastValueColumn);
+		lastValueColumnSetted = true;
 		return this;
 	}
 
@@ -1292,6 +1300,8 @@ public abstract class BaseImportBuilder {
 		System.out.println("meta:_id".substring(5));//""
 	}
 	protected void buildImportConfig(BaseImportConfig baseImportConfig){
+		baseImportConfig.setParams(this.params);
+		baseImportConfig.setLastValueColumnSetted(this.lastValueColumnSetted);
 		if(getTargetElasticsearch() != null && !getTargetElasticsearch().equals(""))
 			baseImportConfig.setTargetElasticsearch(this.getTargetElasticsearch());
 		if(getSourceElasticsearch() != null && !getSourceElasticsearch().equals(""))

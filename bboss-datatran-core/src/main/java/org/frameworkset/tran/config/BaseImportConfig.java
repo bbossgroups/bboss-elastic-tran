@@ -51,6 +51,18 @@ public abstract class BaseImportConfig {
 	private boolean sortLastValue ;
 	private String sourceDbname;
 
+	public boolean isLastValueColumnSetted() {
+		return lastValueColumnSetted;
+	}
+
+	public void setLastValueColumnSetted(boolean lastValueColumnSetted) {
+		this.lastValueColumnSetted = lastValueColumnSetted;
+	}
+
+	private boolean  lastValueColumnSetted = false;
+	public boolean isImportIncreamentConfigSetted(){
+		return this.importIncreamentConfig != null;
+	}
 	public Boolean getEnableDBTransaction() {
 		return enableDBTransaction;
 	}
@@ -62,6 +74,15 @@ public abstract class BaseImportConfig {
 	private Boolean enableDBTransaction;
 	private Integer jdbcFetchsize;
 	private String targetDbname;
+	public Map getParams() {
+		return params;
+	}
+
+	public void setParams(Map params) {
+		this.params = params;
+	}
+
+	private Map params;
 
 	public boolean isSerialAllData() {
 		return serialAllData;
@@ -1090,4 +1111,6 @@ public abstract class BaseImportConfig {
 	public void setJdbcFetchsize(Integer jdbcFetchsize) {
 		this.jdbcFetchsize = jdbcFetchsize;
 	}
+
+
 }

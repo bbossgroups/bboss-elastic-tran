@@ -140,16 +140,30 @@ public class TaskMetrics {
 	public String toString(){
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		StringBuilder builder = new StringBuilder();
-		builder.append("{taskNo:").append(taskNo)
-				.append(", jobNo:").append(jobNo);
+		if(jobNo != null) {
+			builder.append("{jobNo:").append(jobNo);
+		}
+		else{
+			builder.append("{jobNo:-");
+		}
+		builder.append(", taskNo:").append(taskNo);
 		if(jobStartTime != null) {
 			builder.append(", jobStartTime:").append(dateFormat.format(jobStartTime));
+		}
+		else{
+			builder.append(", jobStartTime:-");
 		}
 		if(taskStartTime != null) {
 			builder.append(", taskStartTime:").append(dateFormat.format(taskStartTime));
 		}
+		else{
+			builder.append(", taskStartTime:-");
+		}
 		if(taskEndTime != null) {
 			builder.append(", taskEndTime:").append(dateFormat.format(taskEndTime));
+		}
+		else{
+			builder.append(", taskEndTime:-");
 		}
 		builder.append(", totalRecords:").append(totalRecords)
 				.append(", totalSuccessRecords:").append(totalSuccessRecords)

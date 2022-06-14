@@ -32,6 +32,7 @@ import org.frameworkset.util.tokenizer.TextGrammarParser;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Description: </p>
@@ -67,8 +68,8 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 	public void afterInit(){
 		if(sqlInfo != null
 				&& sqlInfo.getParamSize() > 0
-				&& !this.isIncreamentImport()){
-			throw new TaskFailedException("Parameter variables cannot be set in non-incremental import SQL statements："+dbContext.getSql());
+				&& !this.isIncreamentImport() && this.importContext.getParams() == null){
+			throw new TaskFailedException("1.Parameter variables cannot be set in non-increament import SQL statements："+dbContext.getSql() +"\r\n2.Parameter values must be setted by BaseImportBuilder.addParam(String,Object) method.");
 		}
 //		this.externalTimer = this.importContext.isExternalTimer();
 	}
@@ -118,7 +119,7 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 			}
 			else {
 				builder.append("?");
-				if(paramSize == 0){
+				if(paramSize == 0 && !importContext.isLastValueColumnSetted() && importContext.isImportIncreamentConfigSetted()){//如果没有指定增量列名称，则默认使用第一个变量参数作为增量字段
 					_sqlInfo.setLastValueVarName(token.getText());
 				}
 				paramSize ++;
@@ -135,8 +136,14 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 		return sqlInfo;
 	}
 
+	@Override
 	public String getLastValueVarName(){
-		return this.sqlInfo != null?this.sqlInfo.getLastValueVarName():null;
+		if(!importContext.isLastValueColumnSetted() && importContext.isImportIncreamentConfigSetted()) {
+			return this.sqlInfo != null ? this.sqlInfo.getLastValueVarName() : null;
+		}
+		else{
+			return super.getLastValueVarName();
+		}
 	}
 
 
@@ -146,27 +153,51 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 		String sourceDBName = getSourceDBName();
 		boolean isEnableDBTransaction = importContext.getDbConfig() != null?importContext.getDbConfig().isEnableDBTransaction():false;
 		DBOptions dbOptions = getDBOptions();
-
-		if(importContext.getDataRefactor() == null || !isEnableDBTransaction){
-			if (executor == null) {
-				SQLExecutor.queryWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSql());
+		Map params = getJobParams();
+		if(params == null || params.size() == 0 ) {
+			if (importContext.getDataRefactor() == null || !isEnableDBTransaction) {
+				if (executor == null) {
+					SQLExecutor.queryWithDBNameByNullRowHandler(dbOptions, resultSetHandler, sourceDBName, dbContext.getSql());
+				} else {
+					executor.queryWithDBNameByNullRowHandler(dbOptions, resultSetHandler, sourceDBName, dbContext.getSqlName());
+				}
 			} else {
-				executor.queryWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSqlName());
+
+				TransactionManager transactionManager = new TransactionManager();
+				try {
+					transactionManager.begin(TransactionManager.RW_TRANSACTION);
+					if (executor == null) {
+						SQLExecutor.queryWithDBNameByNullRowHandler(dbOptions, resultSetHandler, sourceDBName, dbContext.getSql());
+					} else {
+						executor.queryWithDBNameByNullRowHandler(dbOptions, resultSetHandler, sourceDBName, dbContext.getSqlName());
+					}
+					transactionManager.commit();
+				} finally {
+					transactionManager.releasenolog();
+				}
 			}
 		}
-		else {
-
-			TransactionManager transactionManager = new TransactionManager();
-			try {
-				transactionManager.begin(TransactionManager.RW_TRANSACTION);
+		else{
+			if (importContext.getDataRefactor() == null || !isEnableDBTransaction) {
 				if (executor == null) {
-					SQLExecutor.queryWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSql());
+					SQLExecutor.queryBeanWithDBNameByNullRowHandler(dbOptions, resultSetHandler, sourceDBName, dbContext.getSql(),params);
 				} else {
-					executor.queryWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSqlName());
+					executor.queryBeanWithDBNameByNullRowHandler(dbOptions, resultSetHandler, sourceDBName, dbContext.getSqlName(),params);
 				}
-				transactionManager.commit();
-			} finally {
-				transactionManager.releasenolog();
+			} else {
+
+				TransactionManager transactionManager = new TransactionManager();
+				try {
+					transactionManager.begin(TransactionManager.RW_TRANSACTION);
+					if (executor == null) {
+						SQLExecutor.queryBeanWithDBNameByNullRowHandler(dbOptions, resultSetHandler, sourceDBName, dbContext.getSql(),params);
+					} else {
+						executor.queryBeanWithDBNameByNullRowHandler(dbOptions, resultSetHandler, sourceDBName, dbContext.getSqlName(),params);
+					}
+					transactionManager.commit();
+				} finally {
+					transactionManager.releasenolog();
+				}
 			}
 		}
 	}
@@ -205,13 +236,13 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 	private void increamentImportData(ResultSetHandler resultSetHandler) throws Exception {
 		String sourceDBName = getSourceDBName();
 		DBOptions dbOptions = getDBOptions();
-
+		Map params = getJobParams();
 		boolean isEnableDBTransaction = importContext.getDbConfig() != null?importContext.getDbConfig().isEnableDBTransaction():false;
 		if(importContext.getDataRefactor() == null || !isEnableDBTransaction){
 			if (executor == null) {
-				SQLExecutor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSql(), getParamValue());
+				SQLExecutor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSql(), getParamValue(params));
 			} else {
-				executor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSqlName(), getParamValue());
+				executor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSqlName(), getParamValue(params));
 
 			}
 		}
@@ -220,9 +251,9 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 			try {
 				transactionManager.begin(TransactionManager.RW_TRANSACTION);
 				if (executor == null) {
-					SQLExecutor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSql(), getParamValue());
+					SQLExecutor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSql(), getParamValue(params));
 				} else {
-					executor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSqlName(), getParamValue());
+					executor.queryBeanWithDBNameByNullRowHandler(dbOptions,resultSetHandler, sourceDBName, dbContext.getSqlName(), getParamValue(params));
 
 				}
 			} finally {
@@ -237,55 +268,15 @@ public abstract class SQLBaseDataTranPlugin extends BaseDataTranPlugin {
 
 		try {
 			if (sqlInfo.getParamSize() == 0) {
-//			if(importContext.getDataRefactor() == null || !importContext.getDbConfig().isEnableDBTransaction()){
-//				if (executor == null) {
-//					SQLExecutor.queryWithDBNameByNullRowHandler(resultSetHandler, importContext.getDbConfig().getDbName(), importContext.getSql());
-//				} else {
-//					executor.queryBeanWithDBNameByNullRowHandler(resultSetHandler, importContext.getDbConfig().getDbName(), importContext.getSqlName(), (Map) null);
-//				}
-//			}
-//			else {
-//				TransactionManager transactionManager = new TransactionManager();
-//				try {
-//					transactionManager.begin(TransactionManager.RW_TRANSACTION);
-//					if (executor == null) {
-//						SQLExecutor.queryWithDBNameByNullRowHandler(resultSetHandler, importContext.getDbConfig().getDbName(), importContext.getSql());
-//					} else {
-//						executor.queryBeanWithDBNameByNullRowHandler(resultSetHandler, importContext.getDbConfig().getDbName(), importContext.getSqlName(), (Map) null);
-//					}
-//					transactionManager.commit();
-//				} finally {
-//					transactionManager.releasenolog();
-//				}
-//			}
+
 				commonImportData(resultSetHandler);
 
 			} else {
 				if (!isIncreamentImport()) {
-					setForceStop();
+//					setForceStop();
+					commonImportData(resultSetHandler);
 				} else {
-//				if(importContext.getDataRefactor() == null || !importContext.getDbConfig().isEnableDBTransaction()){
-//					if (executor == null) {
-//						SQLExecutor.queryBeanWithDBNameByNullRowHandler(resultSetHandler, importContext.getDbConfig().getDbName(), importContext.getSql(), getParamValue());
-//					} else {
-//						executor.queryBeanWithDBNameByNullRowHandler(resultSetHandler, importContext.getDbConfig().getDbName(), importContext.getSqlName(), getParamValue());
-//
-//					}
-//				}
-//				else {
-//					TransactionManager transactionManager = new TransactionManager();
-//					try {
-//						transactionManager.begin(TransactionManager.RW_TRANSACTION);
-//						if (executor == null) {
-//							SQLExecutor.queryBeanWithDBNameByNullRowHandler(resultSetHandler, importContext.getDbConfig().getDbName(), importContext.getSql(), getParamValue());
-//						} else {
-//							executor.queryBeanWithDBNameByNullRowHandler(resultSetHandler, importContext.getDbConfig().getDbName(), importContext.getSqlName(), getParamValue());
-//
-//						}
-//					} finally {
-//						transactionManager.releasenolog();
-//					}
-//				}
+
 					increamentImportData(resultSetHandler);
 
 				}

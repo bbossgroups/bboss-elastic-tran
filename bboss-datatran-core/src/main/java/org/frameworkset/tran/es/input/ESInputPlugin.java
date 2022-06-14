@@ -30,7 +30,6 @@ import org.frameworkset.tran.schedule.TaskContext;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -84,7 +83,8 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 
 
 	protected void commonImportData(TaskContext taskContext,BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
-		Map params = esInputContext.getParams() != null ?esInputContext.getParams():new HashMap();
+		Map params = getJobParams();
+
 		params.put("size", importContext.getFetchSize());//每页5000条记录
 		if(esInputContext.isSliceQuery()){
 			params.put("sliceMax",esInputContext.getSliceSize());
@@ -156,7 +156,7 @@ public abstract class ESInputPlugin extends BaseDataTranPlugin implements DataTr
 
 	}
 	protected void increamentImportData(TaskContext taskContext,BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
-		Map params = esInputContext.getParams() != null ?esInputContext.getParams():new HashMap();
+		Map params = getJobParams();
 		params.put("size", importContext.getFetchSize());//每页fetchSize条记录
 		if(esInputContext.isSliceQuery()){
 			params.put("sliceMax",esInputContext.getSliceSize());

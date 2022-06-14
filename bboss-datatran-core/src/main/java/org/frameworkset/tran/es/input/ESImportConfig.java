@@ -18,8 +18,6 @@ package org.frameworkset.tran.es.input;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.frameworkset.tran.config.BaseImportConfig;
 
-import java.util.Map;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -44,15 +42,6 @@ public class ESImportConfig extends BaseImportConfig {
 	private boolean sliceQuery;
 	private int sliceSize;
 
-	public Map getParams() {
-		return params;
-	}
-
-	public void setParams(Map params) {
-		this.params = params;
-	}
-
-	private Map params;
 
 
 

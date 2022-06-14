@@ -136,7 +136,10 @@ public class JobTaskMetrics {
 	}
 	protected void buildString(StringBuilder builder){
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		builder.append("JobNo:").append(jobNo);
+		if(jobNo != null)
+			builder.append("JobNo:").append(jobNo);
+		else
+			builder.append("JobNo:-");
 		if(jobStartTime != null)
 			builder.append(",JobStartTime:").append(dateFormat.format(jobStartTime));
 		else

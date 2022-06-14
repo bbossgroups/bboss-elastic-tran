@@ -28,6 +28,7 @@ import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -39,6 +40,7 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0
  */
 public interface ImportContext {
+	public boolean isLastValueColumnSetted();
 	public String getSplitFieldName();
 	public JobTaskMetrics createJobTaskMetrics();
 	public SplitHandler getSplitHandler();
@@ -50,7 +52,7 @@ public interface ImportContext {
 	ESConfig getESConfig();
 	public Long getTimeRangeLastValue();
 	public DataTranPlugin getDataTranPlugin();
-
+	Map getParams();
 
 	/**
 	 * 判断调度任务是否被暂停
@@ -167,6 +169,7 @@ public interface ImportContext {
 	 * @return
 	 */
 	public String getLastValueColumn();
+	public boolean isImportIncreamentConfigSetted();
 
 	/**
 	 * 返回最终运算出来的增量字段名称

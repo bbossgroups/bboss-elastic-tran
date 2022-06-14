@@ -18,8 +18,6 @@ package org.frameworkset.tran.es.input;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.BaseImportContext;
 
-import java.util.Map;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -49,10 +47,7 @@ public class ESImportContext extends BaseImportContext implements ESInputContext
 	}
 
 
-	@Override
-	public Map getParams() {
-		return es2esImportConfig.getParams();
-	}
+
 
 	@Override
 	public boolean isSliceQuery() {

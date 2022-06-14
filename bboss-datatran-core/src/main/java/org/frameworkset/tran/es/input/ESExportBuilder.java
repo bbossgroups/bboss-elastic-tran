@@ -24,9 +24,6 @@ import org.frameworkset.tran.config.BaseImportBuilder;
 import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -39,7 +36,7 @@ public abstract class ESExportBuilder extends BaseImportBuilder {
 
 	private String scrollLiveTime = "100m";
 
-	private Map params;
+
 	/**indexName/_search*/
 	private String queryUrl;
 	@JsonIgnore
@@ -93,7 +90,7 @@ public abstract class ESExportBuilder extends BaseImportBuilder {
 		es2DBImportConfig.setDslName(this.dslName);
 		es2DBImportConfig.setSliceQuery(this.sliceQuery);
 		es2DBImportConfig.setSliceSize(this.sliceSize);
-		es2DBImportConfig.setParams(this.params);
+
 
 
 		DataStream dataStream = createDataStream();
@@ -162,12 +159,6 @@ public abstract class ESExportBuilder extends BaseImportBuilder {
 
 	public ESExportBuilder setSliceSize(int sliceSize) {
 		this.sliceSize = sliceSize;
-		return this;
-	}
-	public ESExportBuilder addParam(String key, Object value){
-		if(params == null)
-			params = new HashMap();
-		this.params.put(key,value);
 		return this;
 	}
 

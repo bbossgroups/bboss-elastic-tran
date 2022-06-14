@@ -79,6 +79,14 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 	public void setScheduleAssert(ScheduleAssert scheduleAssert){
 		this.scheduleAssert = scheduleAssert;
 	}
+	protected Map getJobParams() {
+		Map _params = importContext.getParams();
+		Map params = new HashMap();
+		if (_params != null && _params.size() > 0) {
+			params.putAll(_params);
+		}
+		return params;
+	}
 	public boolean isSchedulePaussed(boolean autoPause){
 		if(this.scheduleAssert != null)
 			return !this.scheduleAssert.assertSchedule(  autoPause);
@@ -538,9 +546,8 @@ public abstract class BaseDataTranPlugin implements DataTranPlugin {
 
 
 
-	public Map getParamValue(){
+	public Map getParamValue(Map params){
 		Object lastValue = this.currentStatus.getLastValue();
-		Map params = new HashMap();
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 			params.put(getLastValueVarName(), lastValue);
 		}
