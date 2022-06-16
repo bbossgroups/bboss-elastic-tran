@@ -22,7 +22,9 @@ package org.frameworkset.tran.schedule.quartz;
  * @Date 2019/4/20 22:51
  * @author biaoping.yin
  * @version 1.0
+ * @Deprecated AbstractDB2ESQuartzJobHandler will be remove in the feature，you can use AbstractQuartzJobHandler.
  */
+@Deprecated
 public abstract class AbstractDB2ESQuartzJobHandler extends AbstractQuartzJobHandler {
 
 }
