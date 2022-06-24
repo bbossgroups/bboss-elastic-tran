@@ -102,6 +102,7 @@ public  class BaseImportContext implements ImportContext {
 	}
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;
+
 	}
 	public CustomOutPut getCustomOutPut(){
 		return baseImportConfig.getCustomOutPut();

@@ -135,8 +135,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	public DataTranPluginImpl(ImportContext importContext){
 		this.importContext = importContext;
 		importContext.setDataTranPlugin(this);
-		this.inputPlugin = importContext.getInputPlugin();
-		this.outputPlugin = importContext.getOutputPlugin();
+
+
 
 //		init(importContext,targetImportContext);
 
@@ -374,8 +374,14 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
 	@Override
 	public void init(ImportContext importContext) {
+
 		this.importContext = importContext;
+
 		exportCount = new ExportCount();
+		this.inputPlugin = importContext.getInputPlugin();
+		this.outputPlugin = importContext.getOutputPlugin();
+		inputPlugin.setDataTranPlugin(this);
+		outputPlugin.setDataTranPlugin(this);
 		beforeInit();
 		initOtherDSes();
 		this.inputPlugin.init();

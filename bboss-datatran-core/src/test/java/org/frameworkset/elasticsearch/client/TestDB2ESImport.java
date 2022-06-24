@@ -60,7 +60,7 @@ public class TestDB2ESImport {
 //		importBuilder.addIgnoreFieldMapping("remark1");
 //		importBuilder.setSql("select * from td_sm_log ");
 		ElasticsearchOutputConfig elasticsearchOutputConfig = new ElasticsearchOutputConfig();
-		elasticsearchOutputConfig.setTargetElasticsearch("test");
+		elasticsearchOutputConfig.setTargetElasticsearch("default");
 		elasticsearchOutputConfig.setIndex("dbdemo");
 		elasticsearchOutputConfig.setEsIdField("log_id");//设置文档主键，不设置，则自动产生文档id
 

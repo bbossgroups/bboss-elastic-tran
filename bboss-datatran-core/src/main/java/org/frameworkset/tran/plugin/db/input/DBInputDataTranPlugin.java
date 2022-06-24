@@ -149,7 +149,7 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 			return this.sqlInfo != null ? this.sqlInfo.getLastValueVarName() : null;
 		}
 		else{
-			return dataTranPlugin.getLastValueVarName();
+			return super.getLastValueVarName();
 		}
 	}
 

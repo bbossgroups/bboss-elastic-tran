@@ -57,7 +57,9 @@ public abstract class BasePlugin {
 		return date;
 	}
 
-
+	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
+		this.dataTranPlugin = dataTranPlugin;
+	}
 
 	public boolean isEnablePluginTaskIntercept() {
 		return true;

@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin;
 
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
@@ -45,4 +46,5 @@ public interface InputPlugin {
 
 	public boolean isEnablePluginTaskIntercept() ;
 	public boolean isEnableAutoPauseScheduled();
+	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);
 }

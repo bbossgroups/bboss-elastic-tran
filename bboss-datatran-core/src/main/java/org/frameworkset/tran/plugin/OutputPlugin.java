@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin;
  */
 
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.Status;
@@ -37,6 +38,6 @@ public interface OutputPlugin {
 	public void afterInit();
 	public void beforeInit();
 	public void init();
-
+	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);
 	public void destroy(boolean waitTranStop);
 }
