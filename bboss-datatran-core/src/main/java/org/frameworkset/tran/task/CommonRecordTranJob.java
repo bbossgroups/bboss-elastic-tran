@@ -49,7 +49,6 @@ public class CommonRecordTranJob extends BaseTranJob{
 	public String batchExecute(SerialTranCommand serialTranCommand ,
 									  Status currentStatus,
 									  ImportContext importContext,
-									  ImportContext targetImportContext,
 									  TranResultSet tranResultSet, BaseDataTran baseDataTran){
 		int count = 0;
 		List<CommonRecord> records = new ArrayList<>();
@@ -262,7 +261,6 @@ public class CommonRecordTranJob extends BaseTranJob{
 	public String parallelBatchExecute(final ParrelTranCommand parrelTranCommand ,
 										Status currentStatus,
 										ImportContext importContext,
-										ImportContext targetImportContext,
 										TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
 		int count = 0;
@@ -400,27 +398,23 @@ public class CommonRecordTranJob extends BaseTranJob{
 	public String serialExecute(SerialTranCommand serialTranCommand,
 								   Status currentStatus,
 								   ImportContext importContext,
-								   ImportContext targetImportContext,
 								   TranResultSet tranResultSet, BaseDataTran baseDataTran){
 		if(importContext.serialAllData()){
 			return serialExecuteAllRecoreds(serialTranCommand ,
 					  currentStatus,
 					  importContext,
-					  targetImportContext,
 					  tranResultSet,   baseDataTran );
 		}
 		else{
 			return serialExecuteOneRecord(serialTranCommand,
 					  currentStatus,
 					  importContext,
-					  targetImportContext,
 					  tranResultSet,   baseDataTran);
 		}
 	}
 	private String serialExecuteOneRecord(SerialTranCommand serialTranCommand,
 										  Status currentStatus,
 										  ImportContext importContext,
-										  ImportContext targetImportContext,
 										  TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
 		Object lastValue = null;
@@ -599,7 +593,6 @@ public class CommonRecordTranJob extends BaseTranJob{
 	private String serialExecuteAllRecoreds(SerialTranCommand serialTranCommand,
 											Status currentStatus,
 											ImportContext importContext,
-											ImportContext targetImportContext,
 											TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
 //		logger.info("serial import data Execute started.");

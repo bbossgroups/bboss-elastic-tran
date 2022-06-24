@@ -26,7 +26,7 @@ sourceSets {
 
 
 dependencies {
-	api (project(':bboss-elasticsearch-geoip'))
+	api (project(':bboss-datatran-geoip'))
 	testImplementation (
 
 			[group: 'mysql', name: 'mysql-connector-java', version: "${mysqlconnectorversion}", transitive: false]

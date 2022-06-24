@@ -51,7 +51,6 @@ public class StringTranJob extends BaseTranJob{
 	public String batchExecute(SerialTranCommand serialTranCommand ,
 									  Status currentStatus,
 									  ImportContext importContext,
-									  ImportContext targetImportContext,
 									  TranResultSet tranResultSet, BaseDataTran baseDataTran){
 		int count = 0;
 		StringBuilder builder = new StringBuilder();
@@ -273,7 +272,6 @@ public class StringTranJob extends BaseTranJob{
 	public String parallelBatchExecute(final ParrelTranCommand parrelTranCommand ,
 										Status currentStatus,
 										ImportContext importContext,
-										ImportContext targetImportContext,
 										TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
 		int count = 0;
@@ -424,7 +422,6 @@ public class StringTranJob extends BaseTranJob{
 	 * @param serialTranCommand
 	 * @param currentStatus
 	 * @param importContext
-	 * @param targetImportContext
 	 * @param tranResultSet
 	 * @param baseDataTran
 	 * @return
@@ -433,20 +430,17 @@ public class StringTranJob extends BaseTranJob{
 	public String serialExecute(SerialTranCommand serialTranCommand,
 								   Status currentStatus,
 								   ImportContext importContext,
-								   ImportContext targetImportContext,
 								   TranResultSet tranResultSet, BaseDataTran baseDataTran){
 		if(importContext.serialAllData()){
 			return serialExecuteAllRecoreds(serialTranCommand ,
 					  currentStatus,
 					  importContext,
-					  targetImportContext,
 					  tranResultSet,   baseDataTran );
 		}
 		else{
 			return serialExecuteOneRecord(serialTranCommand,
 					  currentStatus,
 					  importContext,
-					  targetImportContext,
 					  tranResultSet,   baseDataTran);
 		}
 	}
@@ -456,7 +450,6 @@ public class StringTranJob extends BaseTranJob{
 	 * @param serialTranCommand
 	 * @param currentStatus
 	 * @param importContext
-	 * @param targetImportContext
 	 * @param tranResultSet
 	 * @param baseDataTran
 	 * @return
@@ -464,7 +457,6 @@ public class StringTranJob extends BaseTranJob{
 	private String serialExecuteOneRecord(SerialTranCommand serialTranCommand,
 										  Status currentStatus,
 										  ImportContext importContext,
-										  ImportContext targetImportContext,
 										  TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
 		Object lastValue = null;
@@ -656,7 +648,6 @@ public class StringTranJob extends BaseTranJob{
 	private String serialExecuteAllRecoreds(SerialTranCommand serialTranCommand,
 											Status currentStatus,
 											ImportContext importContext,
-											ImportContext targetImportContext,
 											TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
 		StringBuilder builder = new StringBuilder();

@@ -25,13 +25,13 @@ package org.frameworkset.tran;
  * @version 1.0
  */
 public interface TranMeta {
-	int getColumnCount() throws ESDataImportException;
+	int getColumnCount() throws DataImportException;
 
-	String getColumnLabelByIndex(int i) throws ESDataImportException;
+	String getColumnLabelByIndex(int i) throws DataImportException;
 
-	int getColumnTypeByIndex(int i) throws ESDataImportException;
+	int getColumnTypeByIndex(int i) throws DataImportException;
 
-	String getColumnJavaNameByIndex(int i) throws ESDataImportException;
+	String getColumnJavaNameByIndex(int i) throws DataImportException;
 
-	String getColumnLabelLowerByIndex(int i) throws ESDataImportException;
+	String getColumnLabelLowerByIndex(int i) throws DataImportException;
 }

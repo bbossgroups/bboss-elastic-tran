@@ -33,12 +33,10 @@ import org.slf4j.LoggerFactory;
 public abstract class BaseESExporterScrollHandler<T> extends ParralBreakableScrollHandler<T> {
 	protected ImportContext importContext ;
 
-	protected ImportContext targetImportContext;
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-	public BaseESExporterScrollHandler(ImportContext importContext ,ImportContext targetImportContext) {
+	public BaseESExporterScrollHandler(ImportContext importContext) {
 		this.importContext = importContext;
 
-		this.targetImportContext = targetImportContext;
 
 	}
 

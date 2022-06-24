@@ -49,7 +49,7 @@ public interface DataTran {
 	 * 逐条导入
 	 * @return
 	 */
-	String serialExecute(   ) throws ESDataImportException;
+	String serialExecute(   ) throws DataImportException;
 	public BreakableScrollHandler getBreakableScrollHandler();
 	void waitTasksComplete(final List<Future> tasks,
 						   final ExecutorService service, Exception exception, Object lastValue, final ImportCount totalCount ,

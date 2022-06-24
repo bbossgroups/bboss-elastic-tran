@@ -7,9 +7,13 @@ import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.ouput.custom.CustomOutPutDataTran;
+import org.frameworkset.tran.plugin.dummy.output.DummyOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.task.*;
+import org.frameworkset.tran.task.BaseParrelTranCommand;
+import org.frameworkset.tran.task.BaseSerialTranCommand;
+import org.frameworkset.tran.task.StringTranJob;
+import org.frameworkset.tran.task.TaskCall;
 import org.frameworkset.tran.util.TranUtil;
 
 import java.io.Writer;
@@ -19,30 +23,30 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 public class DummyOutPutDataTran extends CustomOutPutDataTran {
-	protected DummyOupputContext dummyOupputContext ;
+	protected DummyOutputConfig dummyOupputConfig ;
 //	protected String fileName;
 //	protected String remoteFileName;
 
-	public DummyOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, Status currentStatus) {
-		super(taskContext,jdbcResultSet,importContext, targetImportContext,  currentStatus);
+	public DummyOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  Status currentStatus) {
+		super(taskContext,jdbcResultSet,importContext, currentStatus);
 	}
-	public DummyOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch, Status currentStatus) {
-		super(taskContext, jdbcResultSet, importContext, targetImportContext, countDownLatch, currentStatus);
+	public DummyOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  CountDownLatch countDownLatch, Status currentStatus) {
+		super(taskContext, jdbcResultSet, importContext, countDownLatch, currentStatus);
 	}
 
 
 	public void init(){
 		super.init();
 
-		dummyOupputContext = (DummyOupputContext)targetImportContext;
+//		dummyOupputContext = (DummyOupputContext)targetImportContext;
 		taskInfo = new StringBuilder().append("import data to dummy").toString();
 
 
 	}
 	public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
 		CommonRecord record = buildRecord(  context );
-		dummyOupputContext.generateReocord(context,record, writer);
-		if(dummyOupputContext.isPrintRecord()) {
+		dummyOupputConfig.generateReocord(context,record, writer);
+		if(dummyOupputConfig.isPrintRecord()) {
 			writer.write(TranUtil.lineSeparator);
 		}
 		return record;
@@ -57,7 +61,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 				if(datas != null )  {
 					taskNo++;
-					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,targetImportContext,
+					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas((String)datas);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
@@ -77,7 +81,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 			private int action(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed){
 				if(datas != null )  {
 					taskNo++;
-					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,targetImportContext,
+					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas((String)datas);
 					TaskCall.call(taskCommand);

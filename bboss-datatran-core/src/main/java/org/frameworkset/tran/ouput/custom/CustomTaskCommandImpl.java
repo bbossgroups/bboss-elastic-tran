@@ -18,6 +18,7 @@ package org.frameworkset.tran.ouput.custom;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.plugin.custom.output.CustomOupputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
@@ -38,12 +39,14 @@ public class CustomTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, S
 	private Logger logger = LoggerFactory.getLogger(CustomTaskCommandImpl.class);
 	private List<CommonRecord> datas;
 	private TaskContext taskContext;
-	public CustomTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
+	private CustomOupputConfig customOupputConfig;
+	public CustomTaskCommandImpl(ImportCount importCount, ImportContext importContext,
 								 long dataSize, int taskNo, String jobNo,
 								 Object lastValue, Status currentStatus, boolean reachEOFClosed,TaskContext taskContext) {
-		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,taskContext);
+		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,taskContext);
+		customOupputConfig = (CustomOupputConfig) importContext.getOutputConfig();
 		if(this.taskContext == null)
-			this.taskContext = new TaskContext(importContext,targetImportContext);
+			this.taskContext = new TaskContext(importContext);
 	}
 
 
@@ -66,7 +69,7 @@ public class CustomTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, S
 
 
 	public String execute(){
-		importContext.getCustomOutPut().handleData(taskContext, datas);
+		customOupputConfig.getCustomOutPut().handleData(taskContext, datas);
 		finishTask();
 		return null;
 	}

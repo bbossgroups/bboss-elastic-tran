@@ -46,7 +46,7 @@ public abstract class LastValue implements TranResultSet{
 	public void setImportContext(ImportContext importContext) {
 		this.importContext = importContext;
 	}
-	public Object getLastValue(String colName) throws ESDataImportException{
+	public Object getLastValue(String colName) throws DataImportException {
 		try {
 			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
 				return getValue(importContext.getLastValueColumnName());
@@ -59,27 +59,27 @@ public abstract class LastValue implements TranResultSet{
 				}
 			}
 		}
-		catch (ESDataImportException e){
+		catch (DataImportException e){
 			throw (e);
 		}
 		catch (Exception e){
-			throw new ESDataImportException(e);
+			throw new DataImportException(e);
 		}
-		throw new ESDataImportException("Unsupport last value type:"+importContext.getLastValueType().intValue());
+		throw new DataImportException("Unsupport last value type:"+importContext.getLastValueType().intValue());
 	}
-	public Object getLastOffsetValue() throws ESDataImportException{
+	public Object getLastOffsetValue() throws DataImportException {
 		Record record = this.getCurrentRecord();
 		return record.getOffset();
 	}
 
 	@Override
-	public Date getDateTimeValue(String colName) throws ESDataImportException {
+	public Date getDateTimeValue(String colName) throws DataImportException {
 		return record.getDateTimeValue(colName);
 
 	}
 
 	@Override
-	public Date getDateTimeValue(String colName,String format) throws ESDataImportException {
+	public Date getDateTimeValue(String colName,String format) throws DataImportException {
 		return record.getDateTimeValue(colName,format);
 
 	}

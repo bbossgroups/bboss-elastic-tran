@@ -1,6 +1,6 @@
 package org.frameworkset.tran.db.output;
 
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.Status;
@@ -12,11 +12,11 @@ public class AsynDBOutPutDataTran extends DBOutPutDataTran {
 	private CountDownLatch countDownLatch;
 
 
-	public AsynDBOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, Status currentStatus) {
-		super( taskContext,jdbcResultSet,importContext,   targetImportContext,  currentStatus);
+	public AsynDBOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, Status currentStatus) {
+		super( taskContext,jdbcResultSet,importContext,    currentStatus);
 	}
-	public AsynDBOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch,Status currentStatus) {
-		super( taskContext,jdbcResultSet,importContext,   targetImportContext,  currentStatus);
+	public AsynDBOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, CountDownLatch countDownLatch,Status currentStatus) {
+		super( taskContext,jdbcResultSet,importContext,     currentStatus);
 		this.countDownLatch = countDownLatch;
 	}
 //	public void appendData(ESDatas datas){
@@ -45,7 +45,7 @@ public class AsynDBOutPutDataTran extends DBOutPutDataTran {
 	}
 
 	@Override
-	public String tran() throws ESDataImportException {
+	public String tran() throws DataImportException {
 		try {
 			return super.tran();
 		}

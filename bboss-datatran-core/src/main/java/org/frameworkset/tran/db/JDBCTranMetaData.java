@@ -16,7 +16,7 @@ package org.frameworkset.tran.db;
  */
 
 import com.frameworkset.common.poolman.sql.PoolManResultSetMetaData;
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.TranMeta;
 
 import java.sql.SQLException;
@@ -41,40 +41,40 @@ public class JDBCTranMetaData implements TranMeta {
 	}
 
 	@Override
-	public int getColumnCount()  throws ESDataImportException {
+	public int getColumnCount()  throws DataImportException {
 		try {
 			return poolManResultSetMetaData.getColumnCount();
 		} catch (SQLException e) {
-			throw new  ESDataImportException(e);
+			throw new DataImportException(e);
 		}
 	}
 
 	@Override
-	public String getColumnLabelByIndex(int i)  throws ESDataImportException{
+	public String getColumnLabelByIndex(int i)  throws DataImportException {
 		try {
 			return poolManResultSetMetaData.getColumnLabelByIndex(i);
 		} catch (SQLException e) {
-			throw new ESDataImportException(e);
+			throw new DataImportException(e);
 		}
 	}
 
 	@Override
-	public int getColumnTypeByIndex(int i)  throws ESDataImportException{
+	public int getColumnTypeByIndex(int i)  throws DataImportException {
 		try {
 			return poolManResultSetMetaData.getColumnTypeByIndex(i);
 		} catch (SQLException e) {
-			throw new  ESDataImportException(e);
+			throw new DataImportException(e);
 		}
 	}
 
 	@Override
-	public String getColumnJavaNameByIndex(int i)  throws ESDataImportException{
+	public String getColumnJavaNameByIndex(int i)  throws DataImportException {
 			return poolManResultSetMetaData.getColumnJavaNameByIndex(  i);
 
 	}
 
 	@Override
-	public String getColumnLabelLowerByIndex(int i)  throws ESDataImportException{
+	public String getColumnLabelLowerByIndex(int i)  throws DataImportException {
 		return poolManResultSetMetaData.getColumnLabelLowerByIndex( i);
 
 	}

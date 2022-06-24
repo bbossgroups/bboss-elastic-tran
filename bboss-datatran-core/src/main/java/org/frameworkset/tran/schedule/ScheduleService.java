@@ -71,7 +71,8 @@ public class ScheduleService {
 				logger.warn(new StringBuilder().append("Task Assert Execute Condition Failed, Ignore").toString());
 			return;
 		}
-		importContext.doImportData(  taskContext);
+		DataTranPlugin dataTranPlugin = importContext.getDataTranPlugin();
+		dataTranPlugin.doImportData(  taskContext);
 //		SQLInfo sqlInfo = getLastValueSQL();
 
 
@@ -90,8 +91,8 @@ public class ScheduleService {
 		}
 
 		if(taskContext.getDbmportConfig() != null) {
-			TranUtil.initTaskContextSQLInfo(taskContext, importContext,
-					targetImportContext);
+			TranUtil.initTaskContextSQLInfo(taskContext, importContext
+					);
 		}
 
 	}
@@ -214,7 +215,7 @@ public class ScheduleService {
 //			}
 //			return;
 //		}
-		TaskContext taskContext = isEnablePluginTaskIntercept()?new TaskContext(importContext,targetImportContext):null;
+		TaskContext taskContext = isEnablePluginTaskIntercept()?new TaskContext(importContext):null;
 
 		long importStartTime = System.currentTimeMillis();
 		try {
@@ -242,9 +243,8 @@ public class ScheduleService {
 //		storeStatusTask = new StoreStatusTask(this);
 //		storeStatusTask.start();
 //	}
-	public void init(ImportContext importContext,ImportContext targetImportContext){
+	public void init(ImportContext importContext){
 		this.importContext = importContext;
-		this.targetImportContext = targetImportContext;
 	}
 
 	public void stop(){

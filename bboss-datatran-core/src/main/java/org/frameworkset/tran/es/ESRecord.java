@@ -17,7 +17,7 @@ package org.frameworkset.tran.es;
 
 
 import org.frameworkset.elasticsearch.entity.MetaMap;
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.record.BaseRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -37,12 +37,12 @@ public class ESRecord  extends BaseRecord {
 	}
 
 	@Override
-	public Object getValue(int i, String colName, int sqlType) throws ESDataImportException {
+	public Object getValue(int i, String colName, int sqlType) throws DataImportException {
 		return getValue(  colName);
 	}
 
 	@Override
-	public Object getValue(String colName, int sqlType) throws ESDataImportException {
+	public Object getValue(String colName, int sqlType) throws DataImportException {
 		return getValue(  colName);
 	}
 
@@ -141,7 +141,7 @@ public class ESRecord  extends BaseRecord {
 //		private long primaryTerm;//"_index": "trace-2017.09.01",
 		if(colName.equals("primaryTerm"))
 			return data.getPrimaryTerm();
-		throw new ESDataImportException("Get Meta Value failed: " + colName + " is not a elasticsearch document meta field.");
+		throw new DataImportException("Get Meta Value failed: " + colName + " is not a elasticsearch document meta field.");
 	}
 
 	@Override

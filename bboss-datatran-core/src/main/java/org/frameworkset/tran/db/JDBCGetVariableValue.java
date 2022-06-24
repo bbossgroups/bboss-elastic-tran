@@ -16,7 +16,7 @@ package org.frameworkset.tran.db;
  */
 
 import com.frameworkset.orm.annotation.BaseESGetVariableValue;
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.Context;
 
 /**
@@ -39,7 +39,7 @@ public class JDBCGetVariableValue extends BaseESGetVariableValue {
 		try {
 			return context.getValue(field);
 		} catch (Exception e) {
-			throw new ESDataImportException(new StringBuilder()
+			throw new DataImportException(new StringBuilder()
 											.append("JDBCGetVariableValue getValue failed:")
 											.append(field).toString(),e);
 		}

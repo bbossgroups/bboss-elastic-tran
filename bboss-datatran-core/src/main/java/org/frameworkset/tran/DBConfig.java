@@ -137,7 +137,7 @@ public class DBConfig {
 		else if(dbtype.equals("sqlserver")){
 			return sqlserver_createStatusTableSQL;
 		}
-		throw new ESDataImportException("getCreateStatusTableSQL failed: unsupport dbtype "+ dbtype);
+		throw new DataImportException("getCreateStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 	public static String getCreateHistoryStatusTableSQL(String dbtype){
 		if(dbtype.equals("mysql")){
@@ -152,7 +152,7 @@ public class DBConfig {
 		else if(dbtype.equals("sqlserver")){
 			return sqlserver_createHistoryStatusTableSQL;
 		}
-		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
 	public static String getStatusTableDefaultValue(String dbtype){
@@ -171,7 +171,7 @@ public class DBConfig {
 		else if(dbtype.equals(DBFactory.SQLITEX)){
 			return "0";
 		}
-		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
 	public static String getStatusTableType(String dbtype){
@@ -190,7 +190,7 @@ public class DBConfig {
 		else if(dbtype.equals(DBFactory.SQLITEX)){
 			return "VARCHAR";
 		}
-		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
 	public static String getStatusTableTypeNumber(String dbtype){
@@ -209,7 +209,7 @@ public class DBConfig {
 		else if(dbtype.equals(DBFactory.SQLITEX)){
 			return "number";
 		}
-		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
 	public static String getStatusTableTypeBigNumber(String dbtype){
@@ -228,7 +228,7 @@ public class DBConfig {
 		else if(dbtype.equals(DBFactory.SQLITEX)){
 			return "number";
 		}
-		throw new ESDataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
 	public void setDbDriver(String dbDriver) {

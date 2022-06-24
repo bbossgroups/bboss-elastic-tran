@@ -16,14 +16,15 @@ package org.frameworkset.tran.context;
  */
 
 import com.frameworkset.orm.annotation.BatchContext;
-import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
-import org.frameworkset.tran.config.ClientOptions;
-import org.frameworkset.tran.es.ESConfig;
-import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.config.ImportBuilder;
+import org.frameworkset.tran.config.InputConfig;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.ouput.custom.CustomOutPut;
+import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.status.BaseStatusManager;
@@ -33,7 +34,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>Description: </p>
@@ -43,11 +43,56 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract  class BaseImportContext implements ImportContext {
+public  class BaseImportContext implements ImportContext {
 	protected BaseImportConfig baseImportConfig;
+	protected InputConfig inputConfig;
+	protected OutputConfig outputConfig;
 	public JobTaskMetrics createJobTaskMetrics(){
 		return new JobTaskMetrics();
 	}
+	public DataTranPlugin buildDataTranPlugin(){
+		return inputConfig.buildDataTranPlugin(this);
+	}
+	@Override
+	public boolean isIncreamentImport(){
+		return dataTranPlugin.isIncreamentImport();
+	}
+	public void setBaseImportConfig(BaseImportConfig baseImportConfig) {
+		this.baseImportConfig = baseImportConfig;
+	}
+
+	public void setInputConfig(InputConfig inputConfig) {
+		this.inputConfig = inputConfig;
+	}
+
+	public void setOutputConfig(OutputConfig outputConfig) {
+		this.outputConfig = outputConfig;
+	}
+	public void afterBuild(ImportBuilder importBuilder){
+		inputConfig.afterBuild(importBuilder,this);
+		outputConfig.afterBuild(importBuilder,this);
+	}
+
+	@Override
+	public InputConfig getInputConfig() {
+		return inputConfig;
+	}
+
+	@Override
+	public OutputConfig getOutputConfig() {
+		return outputConfig;
+	}
+
+	@Override
+	public InputPlugin getInputPlugin() {
+		return inputConfig.getInputPlugin(this);
+	}
+
+	@Override
+	public OutputPlugin getOutputPlugin() {
+		return outputConfig.getOutputPlugin(this);
+	}
+
 	public boolean isLastValueColumnSetted() {
 		return baseImportConfig.isLastValueColumnSetted();
 	}
@@ -81,17 +126,7 @@ public abstract  class BaseImportContext implements ImportContext {
 	public boolean serialAllData(){
 		return baseImportConfig.isSerialAllData();
 	}
-	public String getTargetDBName(){
-		String dbName = baseImportConfig.getTargetDbname();
-		if(dbName == null){
-			dbName = getSourceDBName();
-		}
-		return dbName;
 
-	}
-	public String getSourceDBName(){
-		return baseImportConfig.getSourceDbname();
-	}
 	/**
 	 *  对于有延迟的数据源，指定增量截止时间与当前时间的便宜量
 	 *  增量查询截止时间为：System.currenttime - increamentEndOffset
@@ -118,9 +153,7 @@ public abstract  class BaseImportContext implements ImportContext {
 	public Long getTimeRangeLastValue(){
 		return dataTranPlugin.getTimeRangeLastValue();
 	}
-	public ESConfig getESConfig(){
-		return baseImportConfig.getESConfig();
-	}
+
 	/**
 	 * 异步消费数据时，强制刷新检测空闲时间间隔，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作
 	 * @return
@@ -135,12 +168,7 @@ public abstract  class BaseImportContext implements ImportContext {
 	public boolean isIgnoreNullValueField(){
 		return baseImportConfig.isIgnoreNullValueField();
 	}
-	public void setEsIdField(ESField esIdField) {
-		baseImportConfig.setEsIdField(  esIdField);
-	}
-	public void setEsIdField(String esIdField) {
-		baseImportConfig.setEsIdField( new ESField(false, esIdField));
-	}
+
 	public boolean isSortLastValue() {
 		return baseImportConfig.isSortLastValue();
 	}
@@ -170,32 +198,6 @@ public abstract  class BaseImportContext implements ImportContext {
 		baseImportConfig.setStatusTableId(hashCode);
 	}
 
-	@Override
-	public DBConfig getDbConfig() {
-		return baseImportConfig.getDbConfig();
-	}
-	@Override
-	public Integer getJDBCFetchsize(){
-		if(baseImportConfig.getJdbcFetchsize() != null)
-			return baseImportConfig.getJdbcFetchsize();
-		if(baseImportConfig.getDbConfig() == null){
-			return null;
-		}
-		else{
-			return baseImportConfig.getDbConfig().getJdbcFetchSize();
-		}
-	}
-	@Override
-	public boolean isEnableDBTransaction(){
-		if(baseImportConfig.getEnableDBTransaction() != null)
-			return baseImportConfig.getEnableDBTransaction();
-		if(baseImportConfig.getDbConfig() == null){
-				return false;
-		}
-		else{
-			return baseImportConfig.getDbConfig().isEnableDBTransaction();
-		}
-	}
 
 	public DataRefactor getDataRefactor(){
 		return baseImportConfig.getDataRefactor();
@@ -216,16 +218,6 @@ public abstract  class BaseImportContext implements ImportContext {
 	}
 	public void setDataRefactor( DataRefactor dataRefactor){
 		this.baseImportConfig.setDataRefactor(dataRefactor);
-	}
-	public String getTargetElasticsearch(){
-		return baseImportConfig.getTargetElasticsearch();
-	}
-	public String getSourceElasticsearch(){
-		return baseImportConfig.getSourceElasticsearch();
-	}
-	@Override
-	public ClientOptions getClientOptions() {
-		return baseImportConfig.getClientOptions();
 	}
 
 	@Override
@@ -258,13 +250,11 @@ public abstract  class BaseImportContext implements ImportContext {
 	public List<CallInterceptor> getCallInterceptors(){
 		return baseImportConfig.getCallInterceptors();
 	}
+
+
+
 	public boolean isCurrentStoped(){
 		return this.currentStoped;
-	}
-	@Override
-	public void doImportData(TaskContext taskContext) {
-		if(dataTranPlugin != null)
-			dataTranPlugin.doImportData(  taskContext);
 	}
 
 	public ScheduleConfig getScheduleConfig(){
@@ -288,13 +278,7 @@ public abstract  class BaseImportContext implements ImportContext {
 		return baseImportConfig.isAsyn();
 	}
 
-	public boolean isDebugResponse(){
-		return baseImportConfig.isDebugResponse();
-	}
 
-	public boolean isDiscardBulkResponse(){
-		return baseImportConfig.isDiscardBulkResponse();
-	}
 	public WrapedExportResultHandler getExportResultHandler(){
 		return baseImportConfig.getExportResultHandler();
 	}
@@ -402,14 +386,7 @@ public abstract  class BaseImportContext implements ImportContext {
 	public int getQueue(){
 		return baseImportConfig.getQueue();
 	}
-	public ESIndexWrapper getEsIndexWrapper(){
-		return baseImportConfig.getEsIndexWrapper();
-	}
 
-
-	public void setEsIndexWrapper(ESIndexWrapper esIndexWrapper) {
-		this.baseImportConfig.setEsIndexWrapper( esIndexWrapper);
-	}
 
 //	public Object getValue(String columnName) throws ESDataImportException {
 //		try {
@@ -441,7 +418,7 @@ public abstract  class BaseImportContext implements ImportContext {
 	public String getTimeZone(){
 		return this.baseImportConfig.getTimeZone();
 	}
-	private AtomicInteger rejectCounts = new AtomicInteger();
+//	private AtomicInteger rejectCounts = new AtomicInteger();
 	private ExecutorService blockedExecutor;
 	public ExecutorService buildThreadPool(){
 		if(blockedExecutor != null)
@@ -482,14 +459,6 @@ public abstract  class BaseImportContext implements ImportContext {
 	}
 
 
-
-	public void setRefreshOption(String refreshOption){
-		baseImportConfig.setRefreshOption(refreshOption);
-	}
-	public String getRefreshOption(){
-		ClientOptions clientOptions = baseImportConfig.getClientOptions();
-		return clientOptions != null?clientOptions.getRefreshOption():null;
-	}
 
 	public void setBatchSize(int batchSize){
 		baseImportConfig.setBatchSize(batchSize);

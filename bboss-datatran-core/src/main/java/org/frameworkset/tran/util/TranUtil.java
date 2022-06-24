@@ -24,10 +24,11 @@ import org.frameworkset.persitent.util.GloableSQLUtil;
 import org.frameworkset.persitent.util.SQLInfo;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.DBConfig;
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.output.DBOutPutContext;
 import org.frameworkset.tran.db.output.TranSQLInfo;
+import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.annotations.DateFormateMeta;
 
@@ -107,65 +108,65 @@ public abstract class TranUtil {
 			sqlInfo.setVars(vars);
 			return sqlInfo;
 		} catch (SQLException e) {
-			throw new ESDataImportException("Init TargetSQLInfo failed",e);
+			throw new DataImportException("Init TargetSQLInfo failed",e);
 		}
 	}
 //	private static void assertNull(DBOutPutContext dbContext, DBConfig db){
 //		if(dbContext.getTargetSqlInfo() == null && dbContext.getTargetDeleteSqlInfo() == null && dbContext.getTargetDeleteSqlInfo() == null )
 //			throw new ESDataImportException("Init TargetSQLInfo  failed:InsertSqlName="+dbContext.getInsertSqlName() + " and insertSql = "+dbContext.getInsertSql());
 //	}
-	public static void initTargetSQLInfo(DBOutPutContext dbContext, String db) throws ESDataImportException {
+	public static void initTargetSQLInfo(DBOutputConfig dbOutputConfig, String db) throws DataImportException {
 		TranSQLInfo sqlInfo = null;
 		SQLInfo sqlinfo = null;
-		String sqlName = dbContext.getInsertSqlName();
+		String sqlName = dbOutputConfig.getInsertSqlName();
 
 		if(sqlName == null) {
-			sqlName = dbContext.getInsertSql();
-			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext.getSqlFilepath(),   db);
+			sqlName = dbOutputConfig.getInsertSql();
+			sqlInfo = buildTranSQLInfo( sqlName,true,  dbOutputConfig.getSqlFilepath(),   db);
 
 
 		}
 		else{
-			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext.getSqlFilepath(),   db);
+			sqlInfo = buildTranSQLInfo( sqlName,false,  dbOutputConfig.getSqlFilepath(),   db);
 		}
 
 		if(sqlInfo != null){
-			dbContext.setTargetSqlInfo(sqlInfo);
+			dbOutputConfig.setTargetSqlInfo(sqlInfo);
 			sqlInfo = null;
 		}
 
-		sqlName = dbContext.getUpdateSqlName();
+		sqlName = dbOutputConfig.getUpdateSqlName();
 
 		if(sqlName == null) {
-			sqlName = dbContext.getUpdateSql();
-			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext.getSqlFilepath(),   db);
+			sqlName = dbOutputConfig.getUpdateSql();
+			sqlInfo = buildTranSQLInfo( sqlName,true,  dbOutputConfig.getSqlFilepath(),   db);
 
 
 		}
 		else{
 
-			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext.getSqlFilepath(),   db);
+			sqlInfo = buildTranSQLInfo( sqlName,false,  dbOutputConfig.getSqlFilepath(),   db);
 		}
 
 		if(sqlInfo != null){
-			dbContext.setTargetUpdateSqlInfo(sqlInfo);
+			dbOutputConfig.setTargetUpdateSqlInfo(sqlInfo);
 			sqlInfo = null;
 		}
-		sqlName = dbContext.getDeleteSqlName();
+		sqlName = dbOutputConfig.getDeleteSqlName();
 
 		if(sqlName == null) {
-			sqlName = dbContext.getDeleteSql();
-			sqlInfo = buildTranSQLInfo( sqlName,true,  dbContext.getSqlFilepath(),   db);
+			sqlName = dbOutputConfig.getDeleteSql();
+			sqlInfo = buildTranSQLInfo( sqlName,true,  dbOutputConfig.getSqlFilepath(),   db);
 
 
 		}
 		else{
 
-			sqlInfo = buildTranSQLInfo( sqlName,false,  dbContext.getSqlFilepath(),   db);
+			sqlInfo = buildTranSQLInfo( sqlName,false,  dbOutputConfig.getSqlFilepath(),   db);
 		}
 
 		if(sqlInfo != null){
-			dbContext.setTargetDeleteSqlInfo(sqlInfo);
+			dbOutputConfig.setTargetDeleteSqlInfo(sqlInfo);
 			sqlInfo = null;
 		}
 //		assertNull(dbContext,  db);
@@ -173,8 +174,8 @@ public abstract class TranUtil {
 
 	}
 
-	public static void initTaskContextSQLInfo(TaskContext taskContext,ImportContext importContext,
-			 									ImportContext targetImportContext){
+	public static void initTaskContextSQLInfo(TaskContext taskContext,ImportContext importContext
+			 									){
 		if(taskContext != null && taskContext.getDbmportConfig() != null) {
 			String dbName = null;
 			if(taskContext.getTargetDBConfig() != null){
@@ -182,30 +183,33 @@ public abstract class TranUtil {
 				if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()))
 					dbName = dbConfig.getDbName();
 			}
+			OutputConfig outputConfig = importContext.getOutputConfig();
 			if(dbName == null) {
-				if (targetImportContext != null && targetImportContext instanceof DBOutPutContext) {
+				if (outputConfig != null && outputConfig instanceof DBOutputConfig) {
 //					DBConfig dbConfig = ((DBOutPutContext) targetImportContext).getTargetDBConfig(taskContext);
 //					if(dbConfig != null)
 //						dbName = dbConfig.getDbName();
-					dbName = ((DBOutPutContext) targetImportContext).getTargetDBName(taskContext);
+					dbName = ((DBOutputConfig) outputConfig).getTargetDBName(taskContext);
 				}
 			}
+			/**
 			if(dbName == null){
 //				DBConfig dbConfig = importContext.getDbConfig();
 //				if(dbConfig != null)
 //					dbName = dbConfig.getDbName();
 				dbName = importContext.getTargetDBName();
 
-			}
+			}*/
 			if(dbName != null)
 				TranUtil.initTargetSQLInfo(taskContext, dbName);
 		}
 	}
-	public static void initTargetSQLInfo(TaskContext dbContext, String db) throws ESDataImportException {
+	public static void initTargetSQLInfo(TaskContext dbContext, String db) throws DataImportException {
 		if(dbContext == null)
 			return;
-		ImportContext targetImportContext = dbContext.getTargetImportContext();
-		if(!(targetImportContext instanceof DBOutPutContext)){
+		ImportContext importContext = dbContext.getImportContext();
+		OutputConfig outputConfig = importContext.getOutputConfig();
+		if(!(outputConfig instanceof DBOutputConfig)){
 			return ;
 		}
 		TranSQLInfo sqlInfo = null;
@@ -214,7 +218,7 @@ public abstract class TranUtil {
 		String sqlFilePath = dbContext.getSqlFilepath();
 		if(sqlFilePath == null){
 
-			sqlFilePath = ((DBOutPutContext)targetImportContext).getSqlFilepath();
+			sqlFilePath = ((DBOutputConfig)outputConfig).getSqlFilepath();
 
 		}
 		if(sqlName == null) {
@@ -358,12 +362,12 @@ public abstract class TranUtil {
 		}
 		return sql;
 	}
-	public static Date getDateTimeValue(String colName, Object value, ImportContext importContext) throws ESDataImportException {
+	public static Date getDateTimeValue(String colName, Object value, ImportContext importContext) throws DataImportException {
 		return getDateTimeValue( colName,  value,  importContext,(String)null);
 	}
 
 
-	public static Date getDateTimeValue(String colName, Object value, ImportContext importContext,String dateformat) throws ESDataImportException {
+	public static Date getDateTimeValue(String colName, Object value, ImportContext importContext,String dateformat) throws DataImportException {
 		if(value == null)
 			return null;
 		if(value instanceof Date)
@@ -388,11 +392,11 @@ public abstract class TranUtil {
 			try {
 				return dateFormat.parse((String)value);
 			} catch (ParseException e) {
-				throw new ESDataImportException("Illegment colName["+colName+"] date value:"+(String)value,e);
+				throw new DataImportException("Illegment colName["+colName+"] date value:"+(String)value,e);
 			}
 		}
 		else{
-			throw new ESDataImportException("Illegment colName["+colName+"] date value:"+(String)value);
+			throw new DataImportException("Illegment colName["+colName+"] date value:"+(String)value);
 		}
 	}
 

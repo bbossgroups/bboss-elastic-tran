@@ -16,14 +16,13 @@ package org.frameworkset.tran.context;
  */
 
 import com.frameworkset.orm.annotation.BatchContext;
-import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
-import org.frameworkset.tran.config.ClientOptions;
-import org.frameworkset.tran.es.ESConfig;
-import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.config.InputConfig;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
-import org.frameworkset.tran.ouput.custom.CustomOutPut;
+import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 
@@ -40,6 +39,13 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0
  */
 public interface ImportContext {
+//	BaseImportConfig getBaseImportConfig();
+	InputConfig getInputConfig();
+	OutputConfig getOutputConfig();
+	InputPlugin getInputPlugin();
+	OutputPlugin getOutputPlugin();
+	DataTranPlugin buildDataTranPlugin();
+
 	public boolean isLastValueColumnSetted();
 	public String getSplitFieldName();
 	public JobTaskMetrics createJobTaskMetrics();
@@ -47,9 +53,9 @@ public interface ImportContext {
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);
 	public String[] getExportColumns();
 //	DataTranPlugin buildDataTranPlugin();
-	public String getTargetElasticsearch();
+//	public String getTargetElasticsearch();
 	Context buildContext(TaskContext taskContext,TranResultSet tranResultSet, BatchContext batchContext);
-	ESConfig getESConfig();
+//	ESConfig getESConfig();
 	public Long getTimeRangeLastValue();
 	public DataTranPlugin getDataTranPlugin();
 	Map getParams();
@@ -84,11 +90,11 @@ public interface ImportContext {
 	 */
 	boolean isIgnoreNullValueField();
 	boolean isPrintTaskLog();
-	void setRefreshOption(String refreshOption);
+//	void setRefreshOption(String refreshOption);
 	void setBatchSize(int batchSize);
 	public Integer getFetchSize() ;
-	public void setEsIdField(ESField esIdField);
-	public void setEsIdField(String esIdField);
+//	public void setEsIdField(ESField esIdField);
+//	public void setEsIdField(String esIdField);
 	void destroy(boolean waitTranStop);
 	public ExportCount getExportCount();
 	public Object max(Object oldValue,Object newValue);
@@ -102,7 +108,7 @@ public interface ImportContext {
 
 	List<CallInterceptor> getCallInterceptors();
 
-	void doImportData(TaskContext taskContext);
+//	void doImportData(TaskContext taskContext);
 
 	Integer getStatusTableId();
 
@@ -125,26 +131,26 @@ public interface ImportContext {
 	boolean isExternalTimer();
 
 	void setStatusTableId(int hashCode);
-	String getTargetDBName();
-	String getSourceDBName();
-	DBConfig getDbConfig();
+//	String getTargetDBName();
+//	String getSourceDBName();
+//	DBConfig getDbConfig();
 
-	Integer getJDBCFetchsize();
+//	Integer getJDBCFetchsize();
 
-	public boolean isEnableDBTransaction();
+//	public boolean isEnableDBTransaction();
 	DataRefactor getDataRefactor();
 
 	String getApplicationPropertiesFile();
 
-	List<DBConfig> getConfigs();
+//	List<DBConfig> getConfigs();
 
 	void setLastValueType(int lastValueType);
 
 	int getMaxRetry();
 
-	boolean isDebugResponse();
-
-	boolean isDiscardBulkResponse();
+//	boolean isDebugResponse();
+//
+//	boolean isDiscardBulkResponse();
 
 	WrapedExportResultHandler getExportResultHandler();
 
@@ -153,16 +159,16 @@ public interface ImportContext {
 	int getQueue();
 
 
-	String getRefreshOption();
+//	String getRefreshOption();
 
 	BaseImportConfig getImportConfig();
 
 	void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed);
 	public boolean needUpdate(Object oldValue,Object newValue);
 
-	void setEsIndexWrapper(ESIndexWrapper esIndexWrapper);
-
-	ESIndexWrapper getEsIndexWrapper();
+//	void setEsIndexWrapper(ESIndexWrapper esIndexWrapper);
+//
+//	ESIndexWrapper getEsIndexWrapper();
 
 	/**
 	 * 返回配置的增量字段名称
@@ -197,8 +203,8 @@ public interface ImportContext {
 //	public Object getDateTimeValue(String columnName) throws ESDataImportException;
 	void setDataRefactor( DataRefactor dataRefactor);
 
-	ClientOptions getClientOptions();
-
-	String getSourceElasticsearch();
-	CustomOutPut getCustomOutPut();
+//	ClientOptions getClientOptions();
+//
+//	String getSourceElasticsearch();
+	public boolean isIncreamentImport();
 }

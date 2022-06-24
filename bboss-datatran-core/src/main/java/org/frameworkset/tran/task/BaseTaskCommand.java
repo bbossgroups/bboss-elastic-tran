@@ -37,7 +37,6 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	private static Logger logger = LoggerFactory.getLogger(BaseTaskCommand.class);
 	protected ImportCount importCount;
 	protected ImportContext importContext;
-	protected ImportContext targetImportContext;
 	protected TaskMetrics taskMetrics;
 	protected TaskContext taskContext;
 	protected Object lastValue;
@@ -91,11 +90,10 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		return -1;
 	}
 	public BaseTaskCommand(ImportCount importCount,
-						   ImportContext importContext,ImportContext targetImportContext,
+						   ImportContext importContext,
 						   long dataSize,int taskNo,String jobNo,Object lastValue,Status currentStatus,boolean reachEOFClosed,TaskContext taskContext){
 		this.importCount = importCount;
 		this.importContext =  importContext;
-		this.targetImportContext = targetImportContext;
 		this.dataSize = dataSize;
 		this.taskMetrics = new TaskMetrics();
 		taskMetrics.setTaskNo(taskNo);

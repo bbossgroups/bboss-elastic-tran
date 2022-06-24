@@ -57,7 +57,7 @@ public class SplitTranResultSet  implements TranResultSet {
 	}
 
 	@Override
-	public Object getValue(int i, String colName, int sqlType) throws ESDataImportException {
+	public Object getValue(int i, String colName, int sqlType) throws DataImportException {
 		if(record != null)
 			return record.getValue(i,colName,sqlType);
 		else {
@@ -67,7 +67,7 @@ public class SplitTranResultSet  implements TranResultSet {
 	}
 
 	@Override
-	public Object getValue(String colName) throws ESDataImportException {
+	public Object getValue(String colName) throws DataImportException {
 		if(record != null)
 			return record.getValue(colName);
 		else {
@@ -76,17 +76,17 @@ public class SplitTranResultSet  implements TranResultSet {
 	}
 
 	@Override
-	public Object getLastValue(String colName) throws ESDataImportException {
+	public Object getLastValue(String colName) throws DataImportException {
 		return tranResultSet.getLastValue(colName);
 	}
 
 	@Override
-	public Object getLastOffsetValue() throws ESDataImportException {
+	public Object getLastOffsetValue() throws DataImportException {
 		return tranResultSet.getLastOffsetValue();
 	}
 
 	@Override
-	public Object getValue(String colName, int sqlType) throws ESDataImportException {
+	public Object getValue(String colName, int sqlType) throws DataImportException {
 		if(record != null){
 			return record.getValue(colName,sqlType);
 		}
@@ -111,7 +111,7 @@ public class SplitTranResultSet  implements TranResultSet {
 	}
 
 	@Override
-	public Date getDateTimeValue(String colName) throws ESDataImportException {
+	public Date getDateTimeValue(String colName) throws DataImportException {
 		if(record != null){
 			return record.getDateTimeValue(colName);
 		}
@@ -121,7 +121,7 @@ public class SplitTranResultSet  implements TranResultSet {
 	}
 
 	@Override
-	public Date getDateTimeValue(String colName, String dateFormat) throws ESDataImportException {
+	public Date getDateTimeValue(String colName, String dateFormat) throws DataImportException {
 		if(record != null){
 			return record.getDateTimeValue(colName,dateFormat);
 		}
@@ -149,7 +149,7 @@ public class SplitTranResultSet  implements TranResultSet {
 	}
 
 	@Override
-	public Boolean next() throws ESDataImportException {
+	public Boolean next() throws DataImportException {
 		if(!readEnd() ){
 			KeyMap<String,Object> keyMap = splitRecords.get(splitPos);
 			if(keyMap.getKey() != null)

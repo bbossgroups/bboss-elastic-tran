@@ -15,14 +15,13 @@ package org.frameworkset.tran.config;
  * limitations under the License.
  */
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.frameworkset.orm.annotation.ESIndexWrapper;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.spi.geoip.GeoIPUtil;
-import org.frameworkset.tran.*;
-import org.frameworkset.tran.es.ESConfig;
-import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.DBConfig;
+import org.frameworkset.tran.DataRefactor;
+import org.frameworkset.tran.FieldMeta;
+import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.CallInterceptor;
@@ -45,11 +44,13 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class BaseImportConfig {
+public class BaseImportConfig {
 	protected  final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private List<DBConfig> configs;
+
+	private Map<String,DBConfig> dbConfigMap = new LinkedHashMap<>();
 	private boolean sortLastValue ;
-	private String sourceDbname;
+
 
 	public boolean isLastValueColumnSetted() {
 		return lastValueColumnSetted;
@@ -63,17 +64,7 @@ public abstract class BaseImportConfig {
 	public boolean isImportIncreamentConfigSetted(){
 		return this.importIncreamentConfig != null;
 	}
-	public Boolean getEnableDBTransaction() {
-		return enableDBTransaction;
-	}
 
-	public void setEnableDBTransaction(Boolean enableDBTransaction) {
-		this.enableDBTransaction = enableDBTransaction;
-	}
-
-	private Boolean enableDBTransaction;
-	private Integer jdbcFetchsize;
-	private String targetDbname;
 	public Map getParams() {
 		return params;
 	}
@@ -149,19 +140,7 @@ public abstract class BaseImportConfig {
 
 	private String[] exportColumns;
 
-	public void setTargetElasticsearch(String targetElasticsearch) {
-		this.targetElasticsearch = targetElasticsearch;
-	}
-	private String sourceElasticsearch = "default";
-	private ESConfig esConfig;
-	private String targetElasticsearch;
-	public String getSourceElasticsearch() {
-		return sourceElasticsearch;
-	}
 
-	public void setSourceElasticsearch(String sourceElasticsearch) {
-		this.sourceElasticsearch = sourceElasticsearch;
-	}
 	public boolean isIgnoreNullValueField() {
 		return ignoreNullValueField;
 	}
@@ -205,26 +184,13 @@ public abstract class BaseImportConfig {
 //	protected String timeout = "30s";
 //	protected String masterTimeout = "30s";
 //	protected Integer waitForActiveShards;
-	public static EsIdGenerator DEFAULT_EsIdGenerator = new DefaultEsIdGenerator();
-	private transient EsIdGenerator esIdGenerator = DEFAULT_EsIdGenerator;
-	private ClientOptions clientOptions;
-	private DBConfig dbConfig;
-	private Map<String,DBConfig> dbConfigMap = new LinkedHashMap<>();
+
+
 	/**
 	 * 增量导入状态存储数据源
 	 */
 	private DBConfig statusDbConfig;
-	public boolean isPagine() {
-		return pagine;
-	}
-	public DBConfig getDBConfig(String dbname){
-		return dbConfigMap.get(dbname);
-	}
-	public void setPagine(boolean pagine) {
-		this.pagine = pagine;
-	}
-	//是否采用分页抽取数据
-	protected boolean pagine ;
+
 	/**
 	 * 打印任务日志
 	 */
@@ -315,27 +281,11 @@ public abstract class BaseImportConfig {
 	private Integer scheduleBatchSize ;
 //	private String index;
 
-	public ESIndexWrapper getEsIndexWrapper() {
-		return esIndexWrapper;
-	}
 
-	public void setEsIndexWrapper(ESIndexWrapper esIndexWrapper) {
-		this.esIndexWrapper = esIndexWrapper;
-	}
-
-	private ESIndexWrapper esIndexWrapper;
 
 
 	private boolean asyn;
 	private boolean continueOnError;
-
-	/**
-	 * 是否不需要返回响应，不需要的情况下，可以设置为true，默认为true
-	 * 提升性能，如果debugResponse设置为true，那么强制返回并打印响应到日志文件中
-	 */
-	private boolean discardBulkResponse = true;
-	/**是否调试bulk响应日志，true启用，false 不启用，*/
-	private boolean debugResponse;
 
 
 	private ScheduleConfig scheduleConfig;
@@ -647,21 +597,7 @@ public abstract class BaseImportConfig {
 //		this.esVersionValue = esVersionValue;
 //	}
 
-	public boolean isDiscardBulkResponse() {
-		return discardBulkResponse;
-	}
 
-	public void setDiscardBulkResponse(boolean discardBulkResponse) {
-		this.discardBulkResponse = discardBulkResponse;
-	}
-
-	public boolean isDebugResponse() {
-		return debugResponse;
-	}
-
-	public void setDebugResponse(boolean debugResponse) {
-		this.debugResponse = debugResponse;
-	}
 
 	public ScheduleConfig getScheduleConfig() {
 		return scheduleConfig;
@@ -772,15 +708,6 @@ public abstract class BaseImportConfig {
 	}
 
 
-	@JsonIgnore
-	public EsIdGenerator getEsIdGenerator() {
-		return esIdGenerator;
-	}
-	@JsonIgnore
-	public void setEsIdGenerator(EsIdGenerator esIdGenerator) {
-		if(esIdGenerator != null)
-			this.esIdGenerator = esIdGenerator;
-	}
 
 //	public IndexPattern getIndexPattern() {
 //		return indexPattern;
@@ -803,36 +730,9 @@ public abstract class BaseImportConfig {
 //		}
 //		return builder.toString();
 //	}
-	public String getDBName(){
-		DBConfig dbConfig = getDbConfig();
-		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()) ){
-			return dbConfig.getDbName();
-		}
-		if(sourceDbname != null){
-			return sourceDbname;
-		}
-		if(targetDbname != null){
-			return targetDbname;
-		}
-		return null;
-	}
-	public DBConfig getDbConfig() {
-		if(dbConfig == null ){
-			if(sourceDbname != null){
-				return dbConfigMap.get(sourceDbname);
-			}
-			if(targetDbname != null){
-				return dbConfigMap.get(targetDbname);
-			}
-		}
-		return dbConfig;
-	}
 
-	public void setDbConfig(DBConfig dbConfig) {
-		this.dbConfig = dbConfig;
-		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()) )
-			this.dbConfigMap.put(dbConfig.getDbName(),dbConfig);
-	}
+
+
 
 	public WrapedExportResultHandler getExportResultHandler() {
 		return exportResultHandler;
@@ -1014,39 +914,6 @@ public abstract class BaseImportConfig {
 //		this.sourceUpdateIncludes = sourceUpdateIncludes;
 //	}
 
-	public ClientOptions getClientOptions() {
-		return clientOptions;
-	}
-
-	public void setClientOptions(ClientOptions clientOptions) {
-		this.clientOptions = clientOptions;
-	}
-
-	public void setEsIdField(ESField esIdField) {
-		if(this.clientOptions == null){
-			clientOptions = new ClientOptions();
-		}
-		clientOptions.setIdField(esIdField);
-	}
-
-	public void setRefreshOption(String refreshOption) {
-		if(this.clientOptions == null){
-			clientOptions = new ClientOptions();
-		}
-		clientOptions.setRefreshOption(  refreshOption);
-	}
-
-	public String getTargetElasticsearch() {
-		return targetElasticsearch;
-	}
-
-	public ESConfig getESConfig() {
-		return esConfig;
-	}
-
-	public void setEsConfig(ESConfig esConfig) {
-		this.esConfig = esConfig;
-	}
 
 
 	public Map<String, Object> getGeoipConfig() {
@@ -1088,29 +955,6 @@ public abstract class BaseImportConfig {
 		this.customOutPut = customOutPut;
 	}
 
-	public String getSourceDbname() {
-		return sourceDbname;
-	}
-
-	public void setSourceDbname(String sourceDbname) {
-		this.sourceDbname = sourceDbname;
-	}
-
-	public String getTargetDbname() {
-		return targetDbname;
-	}
-
-	public void setTargetDbname(String targetDbname) {
-		this.targetDbname = targetDbname;
-	}
-
-	public Integer getJdbcFetchsize() {
-		return jdbcFetchsize;
-	}
-
-	public void setJdbcFetchsize(Integer jdbcFetchsize) {
-		this.jdbcFetchsize = jdbcFetchsize;
-	}
 
 
 }

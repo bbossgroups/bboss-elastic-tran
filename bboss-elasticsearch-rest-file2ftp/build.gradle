@@ -26,7 +26,7 @@ sourceSets {
 
 
 dependencies {
-	api project(':bboss-elasticsearch-rest-file')
+	api project(':bboss-datatran-fileftp')
 
 	// https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
 //	implementation 'com.jcraft:jsch:0.1.55'

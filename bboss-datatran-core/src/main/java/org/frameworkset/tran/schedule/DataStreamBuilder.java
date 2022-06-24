@@ -15,7 +15,8 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.config.BaseImportBuilder;
+
+import org.frameworkset.tran.config.ImportBuilder;
 
 /**
  * <p>Description: </p>
@@ -26,5 +27,5 @@ import org.frameworkset.tran.config.BaseImportBuilder;
  * @version 1.0
  */
 public interface DataStreamBuilder {
-	public BaseImportBuilder builder(Object params);
+	public ImportBuilder builder(Object params);
 }

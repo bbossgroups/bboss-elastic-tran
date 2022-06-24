@@ -20,8 +20,8 @@ import com.frameworkset.common.poolman.SQLExecutor;
 import org.frameworkset.elasticsearch.entity.ESDatas;
 import org.frameworkset.elasticsearch.scroll.HandlerInfo;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.DBImportContext;
 import org.frameworkset.tran.es.BaseESExporterScrollHandler;
+import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.List;
@@ -36,13 +36,14 @@ import java.util.List;
  */
 public class ESDirectExporterScrollHandler<T> extends BaseESExporterScrollHandler<T> {
 	protected ConfigSQLExecutor configSQLExecutor;
-	protected DBImportContext es2DBContext ;
+	protected DBOutputConfig dbOutputConfig ;
 	protected TaskContext taskContext;
 //	private ESTranResultSet esTranResultSet ;
-	public ESDirectExporterScrollHandler(TaskContext taskContext,ImportContext importContext, ImportContext targetImportContext, ConfigSQLExecutor configSQLExecutor ) {
-		super(  importContext,targetImportContext);
+	public ESDirectExporterScrollHandler(TaskContext taskContext,ImportContext importContext, ConfigSQLExecutor configSQLExecutor ) {
+		super(  importContext);
 		this.configSQLExecutor = configSQLExecutor;
-		this.es2DBContext = (DBImportContext)targetImportContext;
+		if(importContext.getOutputConfig() instanceof DBOutputConfig)
+			this.dbOutputConfig = (DBOutputConfig)importContext.getOutputConfig();
 		this.taskContext = taskContext;
 	}
 
@@ -69,17 +70,17 @@ public class ESDirectExporterScrollHandler<T> extends BaseESExporterScrollHandle
 //		DBConfig targetDB = es2DBContext.getTargetDBConfig(taskContext);
 //		if(targetDB == null)
 //			targetDB = importContext.getDbConfig();
-		String targetDBName = es2DBContext.getTargetDBName(taskContext);
+		String targetDBName = dbOutputConfig.getTargetDBName(taskContext);
 		if(targetDBName == null){
-			targetDBName = importContext.getTargetDBName();
+			targetDBName = dbOutputConfig.getTargetDbname();
 		}
-		if(es2DBContext.getSql() == null) {
-			configSQLExecutor.executeBatch(targetDBName, es2DBContext.getSqlName(),
-					datas, batchSize, es2DBContext.getBatchHandler());
+		if(dbOutputConfig.getSql() == null) {
+			configSQLExecutor.executeBatch(targetDBName, dbOutputConfig.getSqlName(),
+					datas, batchSize, dbOutputConfig.getBatchHandler());
 		}
 		else{
 			SQLExecutor.executeBatch(targetDBName,
-					es2DBContext.getSql(), datas, batchSize, es2DBContext.getBatchHandler());
+					dbOutputConfig.getSql(), datas, batchSize, dbOutputConfig.getBatchHandler());
 		}
 		if(logger.isInfoEnabled()){
 			logger.info("Execute task {} complete and export data {} record.",batchNo,datas.size());

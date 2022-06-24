@@ -41,30 +41,30 @@ public class DefaultTranMetaData implements TranMeta {
 
 	private String[] keys;
 	@Override
-	public int getColumnCount()  throws ESDataImportException {
+	public int getColumnCount()  throws DataImportException {
 
 			return keys.length;
 
 	}
 
 	@Override
-	public String getColumnLabelByIndex(int i)  throws ESDataImportException{
+	public String getColumnLabelByIndex(int i)  throws DataImportException {
 		return keys[i];
 	}
 
 	@Override
-	public int getColumnTypeByIndex(int i)  throws ESDataImportException{
+	public int getColumnTypeByIndex(int i)  throws DataImportException {
 		return -1;
 	}
 
 	@Override
-	public String getColumnJavaNameByIndex(int i)  throws ESDataImportException{
+	public String getColumnJavaNameByIndex(int i)  throws DataImportException {
 		return keys[i];
 
 	}
 
 	@Override
-	public String getColumnLabelLowerByIndex(int i)  throws ESDataImportException{
+	public String getColumnLabelLowerByIndex(int i)  throws DataImportException {
 		return keys[i].toLowerCase();
 
 	}

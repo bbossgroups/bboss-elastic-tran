@@ -15,7 +15,7 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Map;
@@ -51,12 +51,12 @@ public class CommonMapRecord extends BaseRecord {
 
 
 	@Override
-	public Object getValue(int i, String colName, int sqlType) throws ESDataImportException {
+	public Object getValue(int i, String colName, int sqlType) throws DataImportException {
 		return getValue(colName);
 	}
 
 	@Override
-	public Object getValue(String colName, int sqlType) throws ESDataImportException {
+	public Object getValue(String colName, int sqlType) throws DataImportException {
 		return getValue(colName);
 	}
 

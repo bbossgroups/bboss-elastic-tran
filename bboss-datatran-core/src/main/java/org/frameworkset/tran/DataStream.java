@@ -14,7 +14,6 @@ package org.frameworkset.tran;/*
  *  limitations under the License.
  */
 
-import org.frameworkset.tran.config.BaseImportConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ScheduleAssert;
 import org.slf4j.Logger;
@@ -33,13 +32,12 @@ public class DataStream {
 	}
 
 	protected ImportContext importContext;
-	protected ImportContext targetImportContext;
-	protected BaseImportConfig importConfig ;
+//	protected ImportContext targetImportContext;
+//	protected BaseImportConfig importConfig ;
 
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;
-		this.dataTranPlugin.init(importContext,targetImportContext);
-		this.dataTranPlugin.init();
+		this.dataTranPlugin.init(importContext);
 
 
 	}
@@ -50,31 +48,31 @@ public class DataStream {
 //		this.esjdbc.setExternalTimer(externalTimer);
 //	}
 	private Lock lock = new ReentrantLock();
-	public void setImportConfig(BaseImportConfig importConfig){
-		this.importConfig = importConfig;
-	}
+//	public void setImportConfig(BaseImportConfig importConfig){
+//		this.importConfig = importConfig;
+//	}
 
-	public void setTargetImportContext(ImportContext targetImportContext) {
-		this.targetImportContext = targetImportContext;
-	}
+//	public void setTargetImportContext(ImportContext targetImportContext) {
+//		this.targetImportContext = targetImportContext;
+//	}
 	public void setImportContext(ImportContext importContext) {
 		this.importContext = importContext;
 	}
 
-	public ImportContext getTargetImportContext() {
-		return targetImportContext;
-	}
+//	public ImportContext getTargetImportContext() {
+//		return targetImportContext;
+//	}
 
 	/**
 	 *
-	 * @throws ESDataImportException
+	 * @throws DataImportException
 	 */
-	public void execute() throws ESDataImportException {
+	public void execute() throws DataImportException {
 
 		try {
 			this.init();
 //			importContext.importData();
-			DataTranPlugin dataTranPlugin = importContext.getDataTranPlugin();
+//			DataTranPlugin dataTranPlugin = importContext.getDataTranPlugin();
 			if(dataTranPlugin != null){
 				dataTranPlugin.importData();
 			}
@@ -99,7 +97,7 @@ public class DataStream {
 //			}
 		}
 		catch (Exception e) {
-			throw new ESDataImportException(e);
+			throw new DataImportException(e);
 		}
 		finally{
 
@@ -151,8 +149,9 @@ public class DataStream {
 			importContext.resume();
 			return;
 		}
-		if(importConfig == null){
-			throw new ESDataImportException("import Config is null.");
+		if(importContext == null || importContext.getImportConfig() == null
+				|| importContext.getInputConfig() == null || importContext.getOutputConfig() == null){
+			throw new DataImportException("import Config is null.");
 		}
 
 		try {
@@ -174,7 +173,7 @@ public class DataStream {
 		}
 		catch (Exception e) {
 			inited = true;
-			throw new ESDataImportException(e);
+			throw new DataImportException(e);
 		}
 		finally{
 

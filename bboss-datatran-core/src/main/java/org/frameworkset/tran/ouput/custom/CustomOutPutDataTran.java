@@ -53,7 +53,7 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 
 
 	@Override
-	public String tran() throws ESDataImportException {
+	public String tran() throws DataImportException {
 		try {
 			String ret = super.tran();
 
@@ -74,11 +74,11 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 
 
 
-	public CustomOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, Status currentStatus) {
-		super(taskContext,jdbcResultSet,importContext, targetImportContext,  currentStatus);
+	public CustomOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  Status currentStatus) {
+		super(taskContext,jdbcResultSet,importContext,   currentStatus);
 	}
-	public CustomOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, CountDownLatch countDownLatch, Status currentStatus) {
-		super(taskContext,jdbcResultSet,importContext, targetImportContext,  currentStatus);
+	public CustomOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  CountDownLatch countDownLatch, Status currentStatus) {
+		super(taskContext,jdbcResultSet,importContext,  currentStatus);
 		this.countDownLatch = countDownLatch;
 	}
 	@Override
@@ -91,7 +91,7 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
 					taskNo++;
-					CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(totalCount, importContext,targetImportContext,
+					CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas(records);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
@@ -107,7 +107,7 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
 					taskNo++;
-					CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(totalCount, importContext,targetImportContext,
+					CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, totalCount.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas(records);
 					TaskCall.call(taskCommand);

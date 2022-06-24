@@ -17,6 +17,7 @@ package org.frameworkset.tran.ouput.dummy;
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.plugin.dummy.output.DummyOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
@@ -33,13 +34,14 @@ import org.slf4j.LoggerFactory;
  */
 public class DummyTaskCommandImpl extends BaseTaskCommand<String,String> {
 	private Logger logger = LoggerFactory.getLogger(DummyTaskCommandImpl.class);
-	private DummyOupputContext dummyOupputContext ;
-	public DummyTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
+	private DummyOutputConfig dummyOutputConfig ;
+	public DummyTaskCommandImpl(ImportCount importCount, ImportContext importContext,
 								long dataSize, int taskNo, String jobNo,
 								Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,  taskContext);
-		if(targetImportContext instanceof DummyOupputContext)
-			dummyOupputContext = (DummyOupputContext)targetImportContext;
+		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,  taskContext);
+//		if(targetImportContext instanceof DummyOupputContext)
+//			dummyOupputContext = (DummyOupputContext)targetImportContext;
+		dummyOutputConfig = (DummyOutputConfig) importContext.getOutputConfig();
 	}
 
 
@@ -64,7 +66,7 @@ public class DummyTaskCommandImpl extends BaseTaskCommand<String,String> {
 
 	public String execute(){
 
-		if(dummyOupputContext.isPrintRecord())
+		if(dummyOutputConfig.isPrintRecord())
 			logger.info(datas);
 		finishTask();
 		return null;

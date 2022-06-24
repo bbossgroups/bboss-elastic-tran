@@ -32,7 +32,6 @@ public abstract class BaseDataTran implements DataTran{
 	protected  Logger logger = LoggerFactory.getLogger(this.getClass());
 	protected static Object dummy = new Object();
 	protected ImportContext importContext;
-	protected ImportContext targetImportContext;
 	protected TranResultSet tranResultSet;
 	protected AsynTranResultSet asynTranResultSet;
 	protected TaskContext taskContext;
@@ -189,7 +188,7 @@ public abstract class BaseDataTran implements DataTran{
 	}
 
 	private BreakableScrollHandler breakableScrollHandler;
-	public BaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, ImportContext importContext, ImportContext targetImportContext, Status currentStatus) {
+	public BaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, ImportContext importContext, Status currentStatus) {
 		this.currentStatus = currentStatus;
 		this.taskContext = taskContext;
 
@@ -210,7 +209,6 @@ public abstract class BaseDataTran implements DataTran{
 				this.asynTranResultSet = (AsynTranResultSet) tranResultSet;
 		}
 		this.importContext = importContext;
-		this.targetImportContext = targetImportContext;
 		tranResultSet.setBaseDataTran(this);
 //		init();
 	}
@@ -252,7 +250,7 @@ public abstract class BaseDataTran implements DataTran{
 	}
 
 //	public abstract void logTaskStart(Logger logger);
-	public String tran() throws ESDataImportException {
+	public String tran() throws DataImportException {
 		try {
 			this.getDataTranPlugin().setHasTran();
 			if (tranResultSet == null)
@@ -426,7 +424,7 @@ public abstract class BaseDataTran implements DataTran{
 	public DataTranPlugin getDataTranPlugin(){
 		return importContext.getDataTranPlugin();
 	}
-	public Object getLastValue() throws ESDataImportException {
+	public Object getLastValue() throws DataImportException {
 
 		if(!importContext.useFilePointer()) {
 			if (importContext.getLastValueColumnName() == null) {
@@ -444,11 +442,11 @@ public abstract class BaseDataTran implements DataTran{
 //				return jdbcResultSet.getDateTimeValue(importContext.getLastValueClumnName());
 //			}
 //		}
-//		catch (ESDataImportException e){
+//		catch (DataImportException e){
 //			throw (e);
 //		}
 //		catch (Exception e){
-//			throw new ESDataImportException(e);
+//			throw new DataImportException(e);
 //		}
 //		return null;
 

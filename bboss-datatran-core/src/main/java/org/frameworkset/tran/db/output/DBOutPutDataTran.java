@@ -8,6 +8,7 @@ import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBRecord;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseParrelTranCommand;
@@ -21,24 +22,24 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 public class DBOutPutDataTran extends BaseCommonRecordDataTran {
-	protected DBOutPutContext es2DBContext ;
+	protected DBOutputConfig dbOutputConfig ;
 
 
 	public void init(){
 		super.init();
-		es2DBContext = targetImportContext == null ?(DBOutPutContext)importContext:(DBOutPutContext)targetImportContext;
+		dbOutputConfig = (DBOutputConfig) importContext.getOutputConfig();
 		StringBuilder builder = new StringBuilder();
-		DBConfig dbConfig = es2DBContext.getTargetDBConfig(taskContext) ;
+		DBConfig dbConfig = dbOutputConfig.getTargetDBConfig(taskContext) ;
 		if(dbConfig == null)
-			dbConfig = importContext.getDbConfig();
+			dbConfig = dbOutputConfig.getTargetDBConfig();
 		if(dbConfig != null){
 			builder.append("Import data to db[").append(dbConfig.getDbUrl())
 					.append("] dbuser[").append(dbConfig.getDbUser()).append("]");
 		}
 		else{
-			String targetDBName = es2DBContext.getTargetDBName(taskContext);
+			String targetDBName = dbOutputConfig.getTargetDBName(taskContext);
 			if(targetDBName == null){
-				targetDBName = importContext.getTargetDBName();
+				targetDBName = dbOutputConfig.getTargetDbname();
 			}
 			builder.append("Import data to db[").append(targetDBName)
 					.append("]");
@@ -46,23 +47,23 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 
 
 
-		if(es2DBContext.getTargetSqlInfo(taskContext) != null ) {
-			builder.append(" insert sql[").append( es2DBContext.getTargetSqlInfo(taskContext).getOriginSQL()).append("]");
+		if(dbOutputConfig.getTargetSqlInfo(taskContext) != null ) {
+			builder.append(" insert sql[").append( dbOutputConfig.getTargetSqlInfo(taskContext).getOriginSQL()).append("]");
 		}
-		if(es2DBContext.getTargetUpdateSqlInfo(taskContext) != null ) {
+		if(dbOutputConfig.getTargetUpdateSqlInfo(taskContext) != null ) {
 			builder.append("\r\nupdate sql[")
-					.append(es2DBContext.getTargetUpdateSqlInfo(taskContext).getOriginSQL()).append("]");
+					.append(dbOutputConfig.getTargetUpdateSqlInfo(taskContext).getOriginSQL()).append("]");
 		}
-		if(es2DBContext.getTargetDeleteSqlInfo(taskContext) != null ) {
+		if(dbOutputConfig.getTargetDeleteSqlInfo(taskContext) != null ) {
 			builder.append("\r\ndelete sql[")
-					.append(es2DBContext.getTargetDeleteSqlInfo(taskContext).getOriginSQL()).append("]");
+					.append(dbOutputConfig.getTargetDeleteSqlInfo(taskContext).getOriginSQL()).append("]");
 		}
 		taskInfo = builder.toString();
 	}
 
 
-	public DBOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,Status currentStatus) {
-		super(   taskContext,jdbcResultSet,importContext, targetImportContext,  currentStatus);
+	public DBOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext,Status currentStatus) {
+		super(   taskContext,jdbcResultSet,importContext,   currentStatus);
 	}
 
 
@@ -75,9 +76,9 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 		Param param = null;
 
 
-		TranSQLInfo insertSqlinfo = es2DBContext.getTargetSqlInfo(context.getTaskContext());
-		TranSQLInfo updateSqlinfo = es2DBContext.getTargetUpdateSqlInfo(context.getTaskContext());
-		TranSQLInfo deleteSqlinfo = es2DBContext.getTargetDeleteSqlInfo(context.getTaskContext());
+		TranSQLInfo insertSqlinfo = dbOutputConfig.getTargetSqlInfo(context.getTaskContext());
+		TranSQLInfo updateSqlinfo = dbOutputConfig.getTargetUpdateSqlInfo(context.getTaskContext());
+		TranSQLInfo deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(context.getTaskContext());
 		if(context.isInsert()) {
 			dbRecord.setAction(DBRecord.INSERT);
 			vars = insertSqlinfo.getVars();
@@ -180,7 +181,7 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
 					taskNo++;
-					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl( totalCount, importContext, targetImportContext,records,
+					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl( totalCount, importContext, records,
 							taskNo, totalCount.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
@@ -195,7 +196,7 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
 					taskNo++;
-					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount, importContext, targetImportContext,records,
+					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount, importContext, records,
 							taskNo, totalCount.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
 
 					TaskCall.call(taskCommand);

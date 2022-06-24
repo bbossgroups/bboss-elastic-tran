@@ -73,18 +73,18 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	}
 
 	@Override
-	public Object getValue(int i, String colName, int sqlType) throws ESDataImportException {
+	public Object getValue(int i, String colName, int sqlType) throws DataImportException {
 		return record.getValue(  i,colName,sqlType);
 	}
 
 	@Override
-	public Object getValue(String colName) throws ESDataImportException {
+	public Object getValue(String colName) throws DataImportException {
 		return record.getValue(colName);
 	}
 
 
 	@Override
-	public Object getValue(String colName, int sqlType) throws ESDataImportException {
+	public Object getValue(String colName, int sqlType) throws DataImportException {
 		return record.getValue(  colName,sqlType);
 	}
 	@Override
@@ -115,7 +115,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 		return  status == STATUS_STOPTRANONLY || importContext.getDataTranPlugin().isPluginStopAppending() || importContext.getDataTranPlugin().isPluginStopREADY();
 	}
 	@Override
-	public Boolean next() throws ESDataImportException {
+	public Boolean next() throws DataImportException {
 		/**
 		 * 要把数据处理完毕，才停迭代器
 		 */

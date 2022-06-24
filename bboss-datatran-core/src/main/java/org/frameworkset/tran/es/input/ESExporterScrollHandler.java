@@ -33,8 +33,8 @@ import org.frameworkset.tran.es.ESDatasWraper;
 public class ESExporterScrollHandler<T>  extends BaseESExporterScrollHandler<T> {
 
 	protected BaseDataTran es2DBDataTran ;
-	public ESExporterScrollHandler(ImportContext importContext, ImportContext targetImportContext, BaseDataTran es2DBDataTran ) {
-		super(  importContext,targetImportContext);
+	public ESExporterScrollHandler(ImportContext importContext,  BaseDataTran es2DBDataTran ) {
+		super(  importContext);
 		this.es2DBDataTran = es2DBDataTran;
 		this.es2DBDataTran.setBreakableScrollHandler(this);
 	}

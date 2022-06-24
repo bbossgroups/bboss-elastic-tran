@@ -21,25 +21,25 @@ import java.util.Date;
 
 public interface TranResultSet {
 
-	public Object getValue(  int i, String colName,int sqlType) throws ESDataImportException;
+	public Object getValue(  int i, String colName,int sqlType) throws DataImportException;
 
-	public Object getValue( String colName) throws ESDataImportException;
-	public Object getLastValue(String colName) throws ESDataImportException;
-	public Object getLastOffsetValue() throws ESDataImportException;
+	public Object getValue( String colName) throws DataImportException;
+	public Object getLastValue(String colName) throws DataImportException;
+	public Object getLastOffsetValue() throws DataImportException;
 
-	public Object getValue( String colName,int sqlType) throws ESDataImportException;
+	public Object getValue( String colName,int sqlType) throws DataImportException;
 	public BaseDataTran getBaseDataTran();
 	public TaskContext getTaskContext();
 	public void setBaseDataTran(BaseDataTran baseDataTran);
-	public Date getDateTimeValue(String colName) throws ESDataImportException;
-	public Date getDateTimeValue(String colName,String dateFormat) throws ESDataImportException;
+	public Date getDateTimeValue(String colName) throws DataImportException;
+	public Date getDateTimeValue(String colName,String dateFormat) throws DataImportException;
 	public TaskContext getRecordTaskContext();
 	/**
 	 * 如果返回null，说明是强制fush操作，true表示有数据，false表示没有数据
 	 * @return
-	 * @throws ESDataImportException
+	 * @throws DataImportException
 	 */
-	public Boolean next() throws ESDataImportException ;
+	public Boolean next() throws DataImportException;
 	public TranMeta getMetaData();
 
 	/**

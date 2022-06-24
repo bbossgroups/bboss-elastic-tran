@@ -101,14 +101,14 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	}
 
 	@Override
-	public Object getValue(  int i, String colName,int sqlType) throws ESDataImportException
+	public Object getValue(  int i, String colName,int sqlType) throws DataImportException
 	{
 		return record.getValue(i,colName,sqlType);
 
 	}
 
 	@Override
-	public Object getValue( String colName) throws ESDataImportException
+	public Object getValue( String colName) throws DataImportException
 	{
 		return record.getValue(colName);
 
@@ -121,7 +121,7 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	}
 
 	@Override
-	public Object getValue( String colName,int sqlType) throws ESDataImportException
+	public Object getValue( String colName,int sqlType) throws DataImportException
 	{
 		return record.getValue(colName,sqlType);
 
@@ -131,14 +131,14 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 
 	@Override
 
-	public Boolean next() throws ESDataImportException {
+	public Boolean next() throws DataImportException {
 		try {
 			if(stoped)
 				return false;
 			return resultSet.next();
 		}
 		catch (Exception e){
-			throw new ESDataImportException(e);
+			throw new DataImportException(e);
 		}
 	}
 	@Override

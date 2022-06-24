@@ -16,7 +16,7 @@ package org.frameworkset.tran.db;
  */
 
 import com.frameworkset.orm.adapter.DB;
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.record.BaseRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
@@ -47,7 +47,7 @@ public class JDBCResultRecord extends BaseRecord {
 	}
 
 	@Override
-	public Object getValue(  int i, String colName,int sqlType) throws ESDataImportException{
+	public Object getValue(  int i, String colName,int sqlType) throws DataImportException {
 		try {
 			if(!this.isOracleTimestamp(sqlType)) {
 				Object value = this.resultSet.getObject(i + 1);
@@ -59,13 +59,13 @@ public class JDBCResultRecord extends BaseRecord {
 			}
 		}
 		catch (Exception ex){
-			throw new ESDataImportException(new StringBuilder().append("getValue(  ")
+			throw new DataImportException(new StringBuilder().append("getValue(  ")
 					.append(i).append(", ").append(colName).append(",").append(sqlType).append(")").toString(),ex);
 		}
 	}
 
 	@Override
-	public Date getDateTimeValue(String colName) throws ESDataImportException
+	public Date getDateTimeValue(String colName) throws DataImportException
 	{
 		if(colName == null)
 			return null;
@@ -79,14 +79,14 @@ public class JDBCResultRecord extends BaseRecord {
 				return value;
 			}
 			catch (Exception ex){
-				throw new ESDataImportException(new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
+				throw new DataImportException(new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
 			}
 
 		}
 	}
 
 	@Override
-	public Date getDateTimeValue(String colName,String dateformat) throws ESDataImportException
+	public Date getDateTimeValue(String colName,String dateformat) throws DataImportException
 	{
 		if(colName == null)
 			return null;
@@ -100,13 +100,13 @@ public class JDBCResultRecord extends BaseRecord {
 				return value;
 			}
 			catch (Exception ex){
-				throw new ESDataImportException(new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
+				throw new DataImportException(new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
 			}
 
 		}
 	}
 	@Override
-	public Object getValue( String colName,int sqlType) throws ESDataImportException
+	public Object getValue( String colName,int sqlType) throws DataImportException
 	{
 		if(colName == null)
 			return null;
@@ -121,7 +121,7 @@ public class JDBCResultRecord extends BaseRecord {
 			}
 		}
 		catch (Exception ex){
-			throw new ESDataImportException(new StringBuilder().append("getValue(  ")
+			throw new DataImportException(new StringBuilder().append("getValue(  ")
 					.append(colName).append(",").append(sqlType).append(")").toString(),ex);
 		}
 
@@ -137,7 +137,7 @@ public class JDBCResultRecord extends BaseRecord {
 			return value;
 		}
 		catch (Exception ex){
-			throw new ESDataImportException(new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
+			throw new DataImportException(new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
 		}
 	}
 

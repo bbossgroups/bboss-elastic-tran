@@ -14,8 +14,8 @@ import java.util.*;
 
 public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 
-	public BaseCommonRecordDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, Status currentStatus) {
-		super(taskContext, jdbcResultSet, importContext, targetImportContext,  currentStatus);
+	public BaseCommonRecordDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, Status currentStatus) {
+		super(taskContext, jdbcResultSet, importContext,   currentStatus);
 	}
 
 	protected void logColumnsInfo(){
@@ -51,7 +51,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 	@Override
 	public String parallelBatchExecute( ) {
 		logger.info("parallel batch import data Execute started.");
-		return tranJob.parallelBatchExecute(parrelTranCommand,currentStatus,importContext,targetImportContext, tranResultSet,this);
+		return tranJob.parallelBatchExecute(parrelTranCommand,currentStatus,importContext, tranResultSet,this);
 	}
 
 	/**
@@ -63,7 +63,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 	public String batchExecute(  ){
 
 		logger.info("batch import data Execute started.");
-		return tranJob.batchExecute(serialTranCommand,currentStatus,importContext,targetImportContext, tranResultSet,this);
+		return tranJob.batchExecute(serialTranCommand,currentStatus,importContext, tranResultSet,this);
 	}
 	/**
 	 * 串行处理导入
@@ -73,12 +73,12 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 	@Override
 	public String serialExecute(){
 		logger.info("serial import data Execute started.");
-		return tranJob.serialExecute(serialTranCommand,currentStatus,importContext,targetImportContext, tranResultSet,this);
+		return tranJob.serialExecute(serialTranCommand,currentStatus,importContext, tranResultSet,this);
 	}
 
 	protected CommonRecord buildRecord(CommonRecord dbRecord ,Context context){
 
-		String[] columns = targetImportContext.getExportColumns();
+		String[] columns = importContext.getExportColumns();
 		//如果采用结果集中的字段集，就需要考虑全局添加或者记录级别添加的字段，通过配置设置导出的字段集不需要考虑全局添加或者记录级别添加的字段
 		boolean useResultKeys = false;
 		//记录切割时，每条记录对应切割出来的字段信息，切割记录

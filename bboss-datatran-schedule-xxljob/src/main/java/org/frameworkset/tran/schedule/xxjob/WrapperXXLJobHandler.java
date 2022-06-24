@@ -16,7 +16,7 @@ package org.frameworkset.tran.schedule.xxjob;
  */
 
 import com.xxl.job.core.handler.IJobHandler;
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.DataImportException;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -50,14 +50,14 @@ public class WrapperXXLJobHandler extends IJobHandler {
 				iJobHandler.init();
 				inited = true;
 			}
-			catch (ESDataImportException e){
+			catch (DataImportException e){
 				throw e;
 			}
 			catch (Exception e){
-				throw new ESDataImportException("Init iJobHandler failed:" ,e);
+				throw new DataImportException("Init iJobHandler failed:" ,e);
 			}
 			catch (Throwable e){
-				throw new ESDataImportException("Init iJobHandler failed:" ,e);
+				throw new DataImportException("Init iJobHandler failed:" ,e);
 			}
 			finally {
 				if(!inited)

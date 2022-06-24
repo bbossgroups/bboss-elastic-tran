@@ -14,8 +14,9 @@ package org.frameworkset.tran;/*
  *  limitations under the License.
  */
 
-public class DataImportException extends RuntimeException {
+public class DataImportException extends RuntimeException{
 	public DataImportException() {
+		super();
 	}
 
 	public DataImportException(String message) {

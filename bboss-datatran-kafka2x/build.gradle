@@ -1,0 +1,58 @@
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+           
+        }
+        resources {
+			srcDir 'src/main/resources'
+			srcDir 'src/main/java'  exclude '**/*.java'
+        }
+        
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+           
+        }
+        resources {
+			srcDir 'src/test/resources'
+			srcDir 'src/test/java'  exclude '**/*.java'
+        }
+        
+    }
+    
+}
+
+
+dependencies {
+	api project(':bboss-datatran-kafka')
+	api([group: 'com.bbossgroups.plugins', name: 'bboss-plugin-kafka2x', version: "${kafka_plugin}", transitive: true])
+	compileOnly([group: 'org.apache.hbase', name: 'hbase-shaded-client', version: "2.2.3", transitive: true])
+
+	compileOnly (
+			[group: 'org.apache.kafka', name: 'kafka_2.12', version: "${kafka2x}", transitive: true],
+	){
+		exclude group: 'log4j', module: 'log4j'
+		exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+	}
+
+	compileOnly ([group: 'org.apache.kafka', name: 'kafka-tools', version: "${kafka2x}", transitive: true],){
+		exclude group: 'log4j', module: 'log4j'
+		exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+	}
+
+	compileOnly ([group: 'org.apache.kafka', name: 'kafka-clients', version: "${kafka2x}", transitive: true],){
+		exclude group: 'log4j', module: 'log4j'
+		exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+	}
+
+	compileOnly ([group: 'org.apache.kafka', name: 'kafka-streams', version: "${kafka2x}", transitive: true],){
+		exclude group: 'log4j', module: 'log4j'
+		exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+	}
+
+
+
+}
+

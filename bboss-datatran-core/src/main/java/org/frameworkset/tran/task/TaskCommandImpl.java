@@ -22,6 +22,7 @@ import org.frameworkset.elasticsearch.client.ClientUtil;
 import org.frameworkset.elasticsearch.handler.ESVoidResponseHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
@@ -36,10 +37,11 @@ import org.slf4j.LoggerFactory;
  * @version 1.0
  */
 public class TaskCommandImpl extends BaseTaskCommand<String,String> {
-
-	public TaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
+	private ElasticsearchOutputConfig elasticsearchOutputConfig;
+	public TaskCommandImpl(ImportCount importCount, ImportContext importContext, ElasticsearchOutputConfig elasticsearchOutputConfig ,
 						   long dataSize, int taskNo, String jobNo, Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext,  targetImportContext,  dataSize,  taskNo,  jobNo,  lastValue,  currentStatus,reachEOFClosed,  taskContext);
+		super(importCount,importContext,    dataSize,  taskNo,  jobNo,  lastValue,  currentStatus,reachEOFClosed,  taskContext);
+		this.elasticsearchOutputConfig = elasticsearchOutputConfig;
 	}
 
 
@@ -81,8 +83,8 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
 		}
 		this.tryCount ++;
-		String actionUrl = BuildTool.buildActionUrl(targetImportContext.getClientOptions(), BulkConfig.ERROR_FILTER_PATH);
-		if(importContext.isDebugResponse()) {
+		String actionUrl = BuildTool.buildActionUrl(elasticsearchOutputConfig.getClientOptions(), BulkConfig.ERROR_FILTER_PATH);
+		if(elasticsearchOutputConfig.isDebugResponse()) {
 
 			for (ClientInterface clientInterface : clientInterfaces) {
 				data = clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST);
@@ -93,7 +95,7 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 
 		}
 		else{
-			if(importContext.isDiscardBulkResponse() && importContext.getExportResultHandler() == null) {
+			if(elasticsearchOutputConfig.isDiscardBulkResponse() && importContext.getExportResultHandler() == null) {
 				for (ClientInterface clientInterface : clientInterfaces) {
 					ESVoidResponseHandler esVoidResponseHandler = new ESVoidResponseHandler();
 					clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST, esVoidResponseHandler);

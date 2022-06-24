@@ -20,10 +20,11 @@ import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.elasticsearch.client.ResultUtil;
 import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.tran.*;
-import org.frameworkset.tran.config.BaseImportBuilder;
-import org.frameworkset.tran.config.BaseImportConfig;
-import org.frameworkset.tran.config.ClientOptions;
+import org.frameworkset.tran.config.*;
 import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.plugin.db.input.DBInputConfig;
+import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
+import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 
@@ -58,12 +59,23 @@ public class ContextImpl implements Context {
 	protected ESIndexWrapper esIndexWrapper;
 	protected ClientOptions clientOptions;
 	protected ImportContext importContext;
-	protected ImportContext targetImportContext;
 	protected TaskContext taskContext;
-	public ContextImpl(TaskContext taskContext, ImportContext importContext, ImportContext targetImportContext, TranResultSet tranResultSet, BatchContext batchContext){
+	protected ElasticsearchOutputConfig elasticsearchOutputConfig;
+	protected DBInputConfig dbInputConfig;
+	protected DBOutputConfig dbOutputConfig;
+	public ContextImpl(TaskContext taskContext, ImportContext importContext, TranResultSet tranResultSet, BatchContext batchContext){
 		this.baseImportConfig = importContext.getImportConfig();
 		this.importContext = importContext;
-		this.targetImportContext = targetImportContext;
+		OutputConfig outputConfig = importContext.getOutputConfig();
+		if(outputConfig instanceof ElasticsearchOutputConfig)
+			elasticsearchOutputConfig = (ElasticsearchOutputConfig)outputConfig;
+		else if(outputConfig instanceof DBOutputConfig){
+			dbOutputConfig = (DBOutputConfig)outputConfig;
+		}
+		InputConfig inputConfig = importContext.getInputConfig();
+		if(inputConfig instanceof DBInputConfig){
+			dbInputConfig = (DBInputConfig)inputConfig;
+		}
 		this.tranResultSet = tranResultSet;
 		this.batchContext = batchContext;
 		if(taskContext != null) {
@@ -105,13 +117,18 @@ public class ContextImpl implements Context {
 		return baseImportConfig.getGeoipConfig();
 	}
 	public void afterRefactor(){
-		if(index != null && !index.equals("")){
-			if(indexType == null)
-				esIndexWrapper = new ESIndexWrapper(index,targetImportContext.getEsIndexWrapper().getType());
-			else{
-				esIndexWrapper = new ESIndexWrapper(index,indexType);
-			}
+
+		if(elasticsearchOutputConfig != null) {
+
+			if (index != null && !index.equals("")) {
+				if (indexType == null) {
+					esIndexWrapper = new ESIndexWrapper(index, elasticsearchOutputConfig.getEsIndexWrapper().getType());
+				}
+				else {
+					esIndexWrapper = new ESIndexWrapper(index, indexType);
+				}
 //			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);
+			}
 		}
 	}
 
@@ -119,8 +136,8 @@ public class ContextImpl implements Context {
 	public void setClientOptions(ClientOptions clientOptions) {
 
 		this.clientOptions = clientOptions;
-		if(targetImportContext.getClientOptions() != null && clientOptions != null){
-			clientOptions.setParentClientOptions(targetImportContext.getClientOptions());
+		if(elasticsearchOutputConfig.getClientOptions() != null && clientOptions != null){
+			clientOptions.setParentClientOptions(elasticsearchOutputConfig.getClientOptions());
 		}
 	}
 
@@ -129,7 +146,7 @@ public class ContextImpl implements Context {
 			return clientOptions;
 		}
 		else{
-			return targetImportContext.getClientOptions();
+			return elasticsearchOutputConfig != null ?elasticsearchOutputConfig.getClientOptions():null;
 		}
 	}
 	public String getOperation(){
@@ -187,7 +204,7 @@ public class ContextImpl implements Context {
 			fieldValues = new ArrayList<FieldMeta>();
 			valuesIdxByName = new LinkedHashMap<>();
 		}
-		FieldMeta fieldMeta = BaseImportBuilder.addFieldValue(fieldValues,fieldName,value);
+		FieldMeta fieldMeta = ImportBuilder.addFieldValue(fieldValues,fieldName,value);
 		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
@@ -198,7 +215,7 @@ public class ContextImpl implements Context {
 			fieldValues = new ArrayList<FieldMeta>();
 			valuesIdxByName = new LinkedHashMap<>();
 		}
-		FieldMeta fieldMeta = BaseImportBuilder.addFieldValue(fieldValues,fieldName,dateFormat,value,baseImportConfig.getLocale(),baseImportConfig.getTimeZone());
+		FieldMeta fieldMeta = ImportBuilder.addFieldValue(fieldValues,fieldName,dateFormat,value,baseImportConfig.getLocale(),baseImportConfig.getTimeZone());
 		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
@@ -209,7 +226,7 @@ public class ContextImpl implements Context {
 			fieldValues = new ArrayList<FieldMeta>();
 			valuesIdxByName = new LinkedHashMap<>();
 		}
-		FieldMeta fieldMeta = BaseImportBuilder.addFieldValue(fieldValues,fieldName,dateFormat,value,locale,timeZone);
+		FieldMeta fieldMeta = ImportBuilder.addFieldValue(fieldValues,fieldName,dateFormat,value,locale,timeZone);
 		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
@@ -219,13 +236,19 @@ public class ContextImpl implements Context {
 		if(fieldMetaMap == null){
 			fieldMetaMap = new HashMap<String,FieldMeta>();
 		}
-		BaseImportBuilder.addIgnoreFieldMapping(fieldMetaMap,sourceFieldName);
+		ImportBuilder.addIgnoreFieldMapping(fieldMetaMap,sourceFieldName);
 		return this;
 	}
 
 
 	public String getDBName(){
-		return baseImportConfig.getDBName();
+		if(dbInputConfig != null)
+			return dbInputConfig.getDBName();
+		else if(dbOutputConfig != null){
+			return dbInputConfig.getDBName();
+		}
+		else
+			return null;
 	}
 
 	@Override
@@ -377,7 +400,7 @@ public class ContextImpl implements Context {
 	@Override
 	public Object getEsId() throws Exception {
 
-		return baseImportConfig.getEsIdGenerator().genId(this);
+		return elasticsearchOutputConfig.getEsIdGenerator().genId(this);
 	}
 
 
@@ -512,7 +535,7 @@ public class ContextImpl implements Context {
 
 	public ESIndexWrapper getESIndexWrapper(){
 		if(esIndexWrapper == null)
-			return targetImportContext.getEsIndexWrapper();
+			return elasticsearchOutputConfig != null?elasticsearchOutputConfig.getEsIndexWrapper():null;
 		else
 			return esIndexWrapper;
 	}

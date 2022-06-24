@@ -28,11 +28,11 @@ import java.util.Date;
  * @version 1.0
  */
 public interface Record {
-	public Object getValue(  int i, String colName,int sqlType) throws ESDataImportException;
-	public Object getValue( String colName,int sqlType) throws ESDataImportException;
-	public Date getDateTimeValue(String colName) throws ESDataImportException;
+	public Object getValue(  int i, String colName,int sqlType) throws DataImportException;
+	public Object getValue( String colName,int sqlType) throws DataImportException;
+	public Date getDateTimeValue(String colName) throws DataImportException;
 
-	public Date getDateTimeValue(String colName,String dateformat) throws ESDataImportException;
+	public Date getDateTimeValue(String colName,String dateformat) throws DataImportException;
 	Object getValue(String colName);
 	public Object getKeys();
 	public Object getData();

@@ -18,6 +18,7 @@ package org.frameworkset.tran.db.input;
 import com.frameworkset.common.poolman.StatementInfo;
 import com.frameworkset.common.poolman.handle.ResultSetHandler;
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.JDBCResultSet;
 import org.frameworkset.tran.db.JDBCTranMetaData;
@@ -35,13 +36,11 @@ import java.sql.ResultSet;
  */
 public class DefaultResultSetHandler extends ResultSetHandler {
 	private ImportContext importContext ;
-	private ImportContext targetImportContext;
-	private SQLBaseDataTranPlugin sqlBaseDataTranPlugin ;
+	private DataTranPlugin dataTranPlugin ;
 	private TaskContext taskContext;
-	public DefaultResultSetHandler( TaskContext taskContext,ImportContext importContext,ImportContext targetImportContext,SQLBaseDataTranPlugin sqlBaseDataTranPlugin){
+	public DefaultResultSetHandler(TaskContext taskContext, ImportContext importContext, DataTranPlugin dataTranPlugin){
 		this.importContext = importContext;
-		this.targetImportContext = targetImportContext;
-		this.sqlBaseDataTranPlugin = sqlBaseDataTranPlugin;
+		this.dataTranPlugin = dataTranPlugin;
 		this.taskContext = taskContext;
 
 	}
@@ -52,7 +51,7 @@ public class DefaultResultSetHandler extends ResultSetHandler {
 //		jdbcResultSet.setResultSet(resultSet);
 //		jdbcResultSet.setMetaData(statementInfo.getMeta());
 //		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-		BaseDataTran baseDataTran = sqlBaseDataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet,sqlBaseDataTranPlugin.getCurrentStatus());
+		BaseDataTran baseDataTran = dataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet,null);
 		baseDataTran.tran(  );
 	}
 }

@@ -17,10 +17,10 @@ package org.frameworkset.tran.schedule;
 
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.DBImportConfig;
 import org.frameworkset.tran.db.output.TranSQLInfo;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -40,28 +40,27 @@ public class TaskContext {
 	/**
 	 * 获取任务级别数据库配置
 	 */
-	public DBImportConfig getDbmportConfig() {
+	public DBOutputConfig getDbmportConfig() {
 		return dbmportConfig;
 	}
 	/**
 	 * 设置任务级别数据库配置
 	 */
-	public void setDbmportConfig(DBImportConfig dbmportConfig) {
+	public void setDbmportConfig(DBOutputConfig dbmportConfig) {
 		this.dbmportConfig = dbmportConfig;
 	}
 
 	/**
 	 * 设置任务级别数据库配置，适用场景，不同文件到不同数据库表输出插件
 	 */
-	private DBImportConfig dbmportConfig;
+	private DBOutputConfig dbmportConfig;
 	private TranSQLInfo targetSqlInfo;
 	private TranSQLInfo targetUpdateSqlInfo;
 	private TranSQLInfo targetDeleteSqlInfo;
-	public TaskContext(ImportContext importContext,ImportContext targetImportContext){
+	public TaskContext(ImportContext importContext){
 		this.importContext = importContext;
-		this.targetImportContext = targetImportContext;
 		taskDatas = new HashMap<String, Object>();
-		jobTaskMetrics = targetImportContext.createJobTaskMetrics();
+		jobTaskMetrics = importContext.createJobTaskMetrics();
 	}
 	private ImportContext importContext;
 	public void await(){
@@ -70,9 +69,7 @@ public class TaskContext {
 	public void await(long waitTime){
 		jobTaskMetrics.await(waitTime);
 	}
-	public ImportContext getTargetImportContext() {
-		return targetImportContext;
-	}
+
 	public TaskContext addTaskData(String name,Object value){
 		taskDatas.put(name,value);
 		return this;
@@ -84,11 +81,7 @@ public class TaskContext {
 	public Object getTaskData(String name){
 		return taskDatas.get(name);
 	}
-	public void setTargetImportContext(ImportContext targetImportContext) {
-		this.targetImportContext = targetImportContext;
-	}
 
-	private ImportContext targetImportContext;
 	public ImportContext getImportContext() {
 		return importContext;
 	}

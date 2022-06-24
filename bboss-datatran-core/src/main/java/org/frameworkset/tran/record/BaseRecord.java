@@ -15,7 +15,7 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
@@ -45,7 +45,7 @@ public abstract class BaseRecord implements Record {
 		this.taskContext = taskContext;
 	}
 	@Override
-	public Date getDateTimeValue(String colName) throws ESDataImportException {
+	public Date getDateTimeValue(String colName) throws DataImportException {
 		Object value = getValue(  colName);
 		if(value == null)
 			return null;
@@ -54,7 +54,7 @@ public abstract class BaseRecord implements Record {
 	}
 
 	@Override
-	public Date getDateTimeValue(String colName,String dateformat) throws ESDataImportException {
+	public Date getDateTimeValue(String colName,String dateformat) throws DataImportException {
 		Object value = getValue(  colName);
 		if(value == null)
 			return null;

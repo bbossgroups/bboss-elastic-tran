@@ -37,7 +37,7 @@ public interface TranJob {
 	public String batchExecute(SerialTranCommand serialTranCommand ,
 							   Status currentStatus,
 							   ImportContext importContext,
-							   ImportContext targetImportContext,
+
 							   TranResultSet jdbcResultSet, BaseDataTran baseDataTran);
 	/**
 	 * 并行批处理导入，ftp上传，不支持并行生成文件
@@ -47,7 +47,7 @@ public interface TranJob {
 	public String parallelBatchExecute(final ParrelTranCommand serialTranCommand ,
 									   Status currentStatus,
 									   ImportContext importContext,
-									   ImportContext targetImportContext,
+
 									   TranResultSet jdbcResultSet, BaseDataTran baseDataTran);
 
 	/**
@@ -55,7 +55,6 @@ public interface TranJob {
 	 * @param serialTranCommand
 	 * @param currentStatus
 	 * @param importContext
-	 * @param targetImportContext
 	 * @param jdbcResultSet
 	 * @param baseDataTran
 	 * @return
@@ -63,6 +62,6 @@ public interface TranJob {
 	public String serialExecute(SerialTranCommand serialTranCommand,
 								Status currentStatus,
 								ImportContext importContext,
-								ImportContext targetImportContext,
+
 								TranResultSet jdbcResultSet, BaseDataTran baseDataTran);
 }

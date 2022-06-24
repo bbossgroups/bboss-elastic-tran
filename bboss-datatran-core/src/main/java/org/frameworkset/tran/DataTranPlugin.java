@@ -18,12 +18,16 @@ package org.frameworkset.tran;
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.ScheduleAssert;
 import org.frameworkset.tran.schedule.ScheduleService;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>Description: </p>
@@ -34,13 +38,22 @@ import java.util.List;
  * @version 1.0
  */
 public interface DataTranPlugin {
+	public int getLastValueType();
+	public InputPlugin getInputPlugin() ;
+	public boolean checkTranToStop();
+	public OutputPlugin getOutputPlugin();
+	public Object[] putLastParamValue(Map params);
+	public boolean isIncreamentImport();
+	public Map getJobParams();
+	public Map getParamValue(Map params);
+//	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet);
+
 	public boolean isEnableAutoPauseScheduled();
 	public boolean isSchedulePaussed(boolean autoPause);
 	public ScheduleAssert getScheduleAssert();
 	public void setScheduleAssert(ScheduleAssert scheduleAssert);
 	public void preCall(TaskContext taskContext);
 	public void afterCall(TaskContext taskContext);
-	public void init(ImportContext importContext,ImportContext targetImportContext);
 
 		public void throwException(TaskContext taskContext,Exception e);
 	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext);
@@ -51,8 +64,8 @@ public interface DataTranPlugin {
 
 	void setErrorWrapper(TranErrorWrapper tranErrorWrapper);
 
-	void doImportData(TaskContext taskContext)  throws ESDataImportException;
-	void importData() throws ESDataImportException;
+//	void doImportData(TaskContext taskContext)  throws ESDataImportException;
+	void importData() throws DataImportException;
 	public String getLastValueVarName();
 	ScheduleService getScheduleService();
 	ImportContext getImportContext();
@@ -71,7 +84,7 @@ public interface DataTranPlugin {
 	public void setNoTran();
 	public boolean isPluginStopAppending();
 	boolean isPluginStopREADY();
-	void init();
+	void init(ImportContext importContext);
 
 //	Object getValue(String columnName) throws ESDataImportException;
 //
@@ -89,4 +102,9 @@ public interface DataTranPlugin {
 	ExportCount getExportCount();
 
 	boolean isMultiTran();
+
+	BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch);
+
+	void doImportData(TaskContext taskContext);
+	public void addStatus(Status currentStatus) throws DataImportException;
 }

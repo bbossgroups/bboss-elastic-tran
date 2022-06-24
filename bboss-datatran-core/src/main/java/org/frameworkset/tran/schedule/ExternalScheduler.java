@@ -15,9 +15,9 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataStream;
-import org.frameworkset.tran.ESDataImportException;
-import org.frameworkset.tran.config.BaseImportBuilder;
+import org.frameworkset.tran.config.ImportBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class ExternalScheduler {
 			try {
 //				lock.lock();
 				if(dataStream == null) {
-					BaseImportBuilder db2ESImportBuilder = dataStreamBuilder.builder( params);
+					ImportBuilder db2ESImportBuilder = dataStreamBuilder.builder( params);
 					if (!db2ESImportBuilder.isExternalTimer())//强制设置为外部定时器模式
 						db2ESImportBuilder.setExternalTimer(true);
 					if(db2ESImportBuilder.isAsyn()){//强制设置为同步等待模式
@@ -52,7 +52,7 @@ public class ExternalScheduler {
 					dataStream = db2ESImportBuilder.builder();
 				}
 			}
-			catch (ESDataImportException e){
+			catch (DataImportException e){
 				if(logger.isErrorEnabled())
 					logger.error("ExternalScheduler execute failed:",e);
 				throw e;
@@ -60,19 +60,19 @@ public class ExternalScheduler {
 			catch (Exception e){
 				if(logger.isErrorEnabled())
 					logger.error("ExternalScheduler execute failed:",e);
-				throw new ESDataImportException("ExternalScheduler execute failed:",e);
+				throw new DataImportException("ExternalScheduler execute failed:",e);
 			}
 			catch (Throwable e){
 				if(logger.isErrorEnabled())
 					logger.error("ExternalScheduler execute failed:",e);
-				throw new ESDataImportException("ExternalScheduler execute failed:",e);
+				throw new DataImportException("ExternalScheduler execute failed:",e);
 			}
 			finally {
 //				lock.unlock();
 			}
 			if(dataStream == null)
 			{
-				throw new ESDataImportException("ExternalScheduler failed: datastream build failed");
+				throw new DataImportException("ExternalScheduler failed: datastream build failed");
 			}
 
 

@@ -15,7 +15,7 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.ESDataImportException;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -52,12 +52,12 @@ public class CommonStringRecord  extends BaseRecord {
 	}
 
 	@Override
-	public Object getValue(int i, String colName, int sqlType) throws ESDataImportException {
+	public Object getValue(int i, String colName, int sqlType) throws DataImportException {
 		return record;
 	}
 
 	@Override
-	public Object getValue(String colName, int sqlType) throws ESDataImportException {
+	public Object getValue(String colName, int sqlType) throws DataImportException {
 		return record;
 	}
 

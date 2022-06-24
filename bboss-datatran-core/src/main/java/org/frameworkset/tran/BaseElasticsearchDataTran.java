@@ -15,6 +15,7 @@ import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.JDBCGetVariableValue;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -35,6 +36,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 	private ClientInterface[] clientInterfaces;
 	private boolean versionUpper7;;
 	private String elasticsearch;
+	protected ElasticsearchOutputConfig elasticsearchOutputConfig ;
 	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
 		evalBuilk(writer, context, versionUpper7);
 		return null;
@@ -55,10 +57,10 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 		if(clientInterfaces != null && clientInterfaces.length > 0)
 			versionUpper7 = clientInterfaces[0].isVersionUpper7();
 	}
-	public BaseElasticsearchDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext,Status currentStatus) {
-		super(taskContext,jdbcResultSet,importContext,targetImportContext,  currentStatus);
-
-		String elasticsearch =  targetImportContext.getTargetElasticsearch();
+	public BaseElasticsearchDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext,Status currentStatus) {
+		super(taskContext,jdbcResultSet,importContext,  currentStatus);
+		elasticsearchOutputConfig = (ElasticsearchOutputConfig) importContext.getOutputConfig();
+		String elasticsearch =  elasticsearchOutputConfig.getTargetElasticsearch();
 		if(elasticsearch == null)
 			elasticsearch = "default";
 		this.elasticsearch = elasticsearch;
@@ -77,7 +79,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 				if(datas != null) {
 //					for (ClientInterface clientInterface : clientInterfaces) {
 						taskNo++;
-						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, targetImportContext,
+						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,  elasticsearchOutputConfig,
 								dataSize, taskNo, totalCount.getJobNo(), lastValue, currentStatus, reachEOFClosed, taskContext);
 //						count = 0;
 						taskCommand.setClientInterfaces(clientInterfaces);
@@ -118,18 +120,19 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 	public void init() {
 		super.init();
 		initClientInterfaces(elasticsearch);
-		if(targetImportContext.getEsIndexWrapper() == null){
-			throw new ESDataImportException("Global Elasticsearch index must be setted, please check your import job builder config.");
+		if(elasticsearchOutputConfig.getEsIndexWrapper() == null){
+			throw new DataImportException("Global Elasticsearch index must be setted, please check your import job builder config.");
 		}
 
 		taskInfo = new StringBuilder().append("import data to elasticsearch[").append(elasticsearch).append("] ")
-				.append(" IndexName[").append(targetImportContext.getEsIndexWrapper().getIndex())
-				.append("] IndexType[").append(targetImportContext.getEsIndexWrapper().getType())
+				.append(" IndexName[").append(elasticsearchOutputConfig.getEsIndexWrapper().getIndex())
+				.append("] IndexType[").append(elasticsearchOutputConfig.getEsIndexWrapper().getType())
 				.append("] start.").toString();
 	}
 
-	public BaseElasticsearchDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext, ImportContext targetImportContext, String esCluster,Status currentStatus) {
-		super(  taskContext,jdbcResultSet,importContext,   targetImportContext,  currentStatus);
+	public BaseElasticsearchDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext,  String esCluster,Status currentStatus) {
+		super(  taskContext,jdbcResultSet,importContext,     currentStatus);
+		elasticsearchOutputConfig = (ElasticsearchOutputConfig) importContext.getOutputConfig();
 		this.elasticsearch = esCluster;
 //		clientInterface = ElasticSearchHelper.getRestClientUtil(esCluster);
 	}
@@ -141,7 +144,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 		if(datas != null) {
 //			for (ClientInterface clientInterface : clientInterfaces) {
 				taskNo++;
-				TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, targetImportContext,
+				TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, elasticsearchOutputConfig,
 						dataSize, taskNo, totalCount.getJobNo(), lastValue, currentStatus, reachEOFClosed, taskContext);
 //						count = 0;
 				taskCommand.setClientInterfaces(clientInterfaces);
@@ -155,7 +158,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 
 	public String tran(String indexName,String indexType) throws ElasticSearchException{
 		ESIndexWrapper esIndexWrapper = new ESIndexWrapper(indexName,indexType);
-		targetImportContext.setEsIndexWrapper(esIndexWrapper);
+		elasticsearchOutputConfig.setEsIndexWrapper(esIndexWrapper);
 		return tran();
 	}
 
@@ -176,7 +179,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 		writer.write("\" : { \"_index\" : \"");
 
 		if (esIndexWrapper == null ) {
-			throw new ESDataImportException(" ESIndex not seted." );
+			throw new DataImportException(" ESIndex not seted." );
 		}
 		BuildTool.buildIndiceName(esIndexWrapper,writer,jdbcGetVariableValue);
 
@@ -184,11 +187,11 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 		if(!upper7) {
 			writer.write(", \"_type\" : \"");
 			if (esIndexWrapper == null ) {
-				throw new ESDataImportException(" ESIndex type not seted." );
+				throw new DataImportException(" ESIndex type not seted." );
 			}
 			String indexType = BuildTool.buildIndiceType(esIndexWrapper,jdbcGetVariableValue);
 			if(indexType == null || indexType.equals("")){
-				throw new ESDataImportException(" ESIndex type not seted." );
+				throw new DataImportException(" ESIndex type not seted." );
 			}
 			writer.write(indexType);
 			writer.write("\"");
@@ -439,7 +442,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 			if(!isUpper7) {
 				writer.write(", \"_type\" : \"");
 				if (esIndexWrapper == null ) {
-					throw new ESDataImportException(" ESIndex type not seted." );
+					throw new DataImportException(" ESIndex type not seted." );
 				}
 				BuildTool.buildIndiceType(esIndexWrapper,writer,jdbcGetVariableValue);
 				writer.write("\"");

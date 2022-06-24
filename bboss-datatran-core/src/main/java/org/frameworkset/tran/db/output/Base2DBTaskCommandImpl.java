@@ -22,6 +22,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBRecord;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
@@ -45,20 +46,20 @@ import java.util.List;
  * @version 1.0
  */
 public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, String> {
-	private DBOutPutContext es2DBContext;
+	private DBOutputConfig dbOutputConfig;
 	private String taskInfo;
 	private boolean needBatch;
 	private static final Logger logger = LoggerFactory.getLogger(Base2DBTaskCommandImpl.class);
-	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext, ImportContext targetImportContext,
+	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext,
 								  List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
 								  boolean needBatch, Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext, targetImportContext,datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed,   taskContext);
+		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed,   taskContext);
 		this.needBatch = needBatch;
 		this.importContext = importContext;
 		this.datas = datas;
-		es2DBContext = (DBOutPutContext )targetImportContext;
+		dbOutputConfig = (DBOutputConfig) importContext.getOutputConfig();
 		this.taskInfo = taskInfo;
-		if(es2DBContext.optimize()){
+		if(dbOutputConfig.optimize()){
 			sortData();
 		}
 	}
@@ -134,9 +135,9 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 
 		StatementInfo stmtInfo = null;
 		PreparedStatement statement = null;
-		TranSQLInfo insertSqlinfo = es2DBContext.getTargetSqlInfo(taskContext);
-		TranSQLInfo updateSqlinfo = es2DBContext.getTargetUpdateSqlInfo(taskContext);
-		TranSQLInfo deleteSqlinfo = es2DBContext.getTargetDeleteSqlInfo(taskContext);
+		TranSQLInfo insertSqlinfo = dbOutputConfig.getTargetSqlInfo(taskContext);
+		TranSQLInfo updateSqlinfo = dbOutputConfig.getTargetUpdateSqlInfo(taskContext);
+		TranSQLInfo deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(taskContext);
 		Connection con_ = null;
 		int batchsize = importContext.getStoreBatchSize();
 		try {
@@ -147,9 +148,9 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 //			String dbname = targetDB.getDbName();
 //			logger.info("DBUtil.getConection(dbname)");
 //			debugDB(dbname);
-			String dbname = es2DBContext.getTargetDBName(taskContext);
+			String dbname = dbOutputConfig.getTargetDBName(taskContext);
 			if(dbname == null){
-				dbname = importContext.getTargetDBName();
+				dbname = dbOutputConfig.getTargetDbname();
 			}
 			con_ = DBUtil.getConection(dbname);
 			stmtInfo = new StatementInfo(dbname,
@@ -203,7 +204,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 						statement = stmtInfo
 								.prepareStatement(sql);
 					}
-					if(es2DBContext.getStatementHandler() == null) {
+					if(dbOutputConfig.getStatementHandler() == null) {
 						BaseTypeMethod baseTypeMethod = null;
 
 						for(int i = 0;i < record.size(); i ++)
@@ -224,7 +225,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 						}
 					}
 					else{
-						es2DBContext.getStatementHandler().handler(statement,record);
+						dbOutputConfig.getStatementHandler().handler(statement,record);
 					}
 
 
@@ -291,7 +292,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 						statement = stmtInfo
 								.prepareStatement(sql);
 					}
-					if(es2DBContext.getStatementHandler() == null) {
+					if(dbOutputConfig.getStatementHandler() == null) {
 						BaseTypeMethod baseTypeMethod = null;
 
 						for (int i = 0; i < record.size(); i++) {
@@ -310,7 +311,7 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 						}
 					}
 					else{
-						es2DBContext.getStatementHandler().handler(statement,record);
+						dbOutputConfig.getStatementHandler().handler(statement,record);
 					}
 					statement.addBatch();
 					if ((count > 0 && count % point == 0)) {
