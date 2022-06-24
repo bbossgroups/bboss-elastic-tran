@@ -46,8 +46,9 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 		return kafkaAsynSend;
 	}
 
-	public void setKafkaSend(KafkaSend kafkaSend) {
+	public KafkaOutputConfig setKafkaSend(KafkaSend kafkaSend) {
 		this.kafkaSend = kafkaSend;
+		return this;
 	}
 
 	public KafkaSend getKafkaSend() {

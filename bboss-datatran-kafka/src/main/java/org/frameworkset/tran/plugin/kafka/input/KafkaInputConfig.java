@@ -58,12 +58,14 @@ public abstract class KafkaInputConfig extends BaseConfig implements InputConfig
 	 * 并行消费处理拒绝消息
 	 */
 	private String discardRejectMessage ;
-	public void setKafkaConfigs(Properties kafkaConfigs) {
+	public KafkaInputConfig setKafkaConfigs(Properties kafkaConfigs) {
 		this.kafkaConfigs = kafkaConfigs;
+		return this;
 	}
 
-	public void setKafkaTopic(String kafkaTopic) {
+	public KafkaInputConfig setKafkaTopic(String kafkaTopic) {
 		this.kafkaTopic = kafkaTopic;
+		return this;
 	}
 
 	public Properties getKafkaConfigs(){
@@ -78,48 +80,54 @@ public abstract class KafkaInputConfig extends BaseConfig implements InputConfig
 		return checkinterval;
 	}
 
-	public void setCheckinterval(long checkinterval) {
+	public KafkaInputConfig setCheckinterval(long checkinterval) {
 		this.checkinterval = checkinterval;
+		return this;
 	}
 
 	public String getDiscardRejectMessage() {
 		return discardRejectMessage;
 	}
 
-	public void setDiscardRejectMessage(String discardRejectMessage) {
+	public KafkaInputConfig setDiscardRejectMessage(String discardRejectMessage) {
 		this.discardRejectMessage = discardRejectMessage;
+		return this;
 	}
 
 	public int getConsumerThreads() {
 		return consumerThreads;
 	}
 
-	public void setConsumerThreads(int threads) {
+	public KafkaInputConfig setConsumerThreads(int threads) {
 		this.consumerThreads = threads;
+		return this;
 	}
 
 	public long getPollTimeOut() {
 		return pollTimeOut;
 	}
 
-	public void setPollTimeOut(long pollTimeOut) {
+	public KafkaInputConfig setPollTimeOut(long pollTimeOut) {
 		this.pollTimeOut = pollTimeOut;
+		return this;
 	}
 
 	public String getValueCodec() {
 		return valueCodec;
 	}
 
-	public void setValueCodec(String valueCodec) {
+	public KafkaInputConfig setValueCodec(String valueCodec) {
 		this.valueCodec = valueCodec;
+		return this;
 	}
 
 	public String getKeyCodec() {
 		return keyCodec;
 	}
 
-	public void setKeyCodec(String keyCodec) {
+	public KafkaInputConfig setKeyCodec(String keyCodec) {
 		this.keyCodec = keyCodec;
+		return this;
 	}
 	private Integer kafkaWorkThreads;
 	private Integer kafkaWorkQueue;
@@ -130,12 +138,14 @@ public abstract class KafkaInputConfig extends BaseConfig implements InputConfig
 		return kafkaWorkQueue;
 	}
 
-	public void setKafkaWorkThreads(Integer kafkaWorkThreads) {
+	public KafkaInputConfig setKafkaWorkThreads(Integer kafkaWorkThreads) {
 		this.kafkaWorkThreads = kafkaWorkThreads;
+		return this;
 	}
 
-	public void setKafkaWorkQueue(Integer kafkaWorkQueue) {
+	public KafkaInputConfig setKafkaWorkQueue(Integer kafkaWorkQueue) {
 		this.kafkaWorkQueue = kafkaWorkQueue;
+		return this;
 	}
 
 	private void preHandlerCodec(){

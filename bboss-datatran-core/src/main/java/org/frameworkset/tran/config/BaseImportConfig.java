@@ -22,7 +22,6 @@ import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataRefactor;
 import org.frameworkset.tran.FieldMeta;
 import org.frameworkset.tran.WrapedExportResultHandler;
-import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
@@ -116,7 +115,6 @@ public class BaseImportConfig {
 
 
 	private SplitHandler splitHandler;
-	private CustomOutPut customOutPut;
 	public long getAsynFlushStatusInterval() {
 		return asynFlushStatusInterval;
 	}
@@ -947,13 +945,7 @@ public class BaseImportConfig {
 		this.splitHandler = splitHandler;
 	}
 
-	public CustomOutPut getCustomOutPut() {
-		return customOutPut;
-	}
 
-	public void setCustomOutPut(CustomOutPut customOutPut) {
-		this.customOutPut = customOutPut;
-	}
 
 
 

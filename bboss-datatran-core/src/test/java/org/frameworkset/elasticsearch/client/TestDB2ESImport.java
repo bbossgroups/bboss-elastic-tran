@@ -52,7 +52,8 @@ public class TestDB2ESImport {
 		// 通过setLastValueType方法告诉工具增量字段的类型，默认是数字类型
 
 //		importBuilder.setSql("select * from td_sm_log where LOG_OPERTIME > #[LOG_OPERTIME]");
-		dbInputConfig.setSql("select * from td_sm_log where log_id > #[log_id]");
+		dbInputConfig.setSql("select * from td_sm_log where log_id > #[log_id]")
+				     .setDbName("test");
 		importBuilder.setInputConfig(dbInputConfig);
 
 
@@ -60,12 +61,11 @@ public class TestDB2ESImport {
 //		importBuilder.addIgnoreFieldMapping("remark1");
 //		importBuilder.setSql("select * from td_sm_log ");
 		ElasticsearchOutputConfig elasticsearchOutputConfig = new ElasticsearchOutputConfig();
-		elasticsearchOutputConfig.setTargetElasticsearch("default");
-		elasticsearchOutputConfig.setIndex("dbdemo");
-		elasticsearchOutputConfig.setEsIdField("log_id");//设置文档主键，不设置，则自动产生文档id
-
-		elasticsearchOutputConfig.setDebugResponse(false);//设置是否将每次处理的reponse打印到日志文件中，默认false
-		elasticsearchOutputConfig.setDiscardBulkResponse(false);//设置是否需要批量处理的响应报文，不需要设置为false，true为需要，默认false
+		elasticsearchOutputConfig.setTargetElasticsearch("default")
+				            .setIndex("dbdemo")
+							.setEsIdField("log_id")//设置文档主键，不设置，则自动产生文档id
+							.setDebugResponse(false)//设置是否将每次处理的reponse打印到日志文件中，默认false
+							.setDiscardBulkResponse(false);//设置是否需要批量处理的响应报文，不需要设置为false，true为需要，默认false
 		/**
 		 elasticsearchOutputConfig.setEsIdGenerator(new EsIdGenerator() {
 		 //如果指定EsIdGenerator，则根据下面的方法生成文档id，

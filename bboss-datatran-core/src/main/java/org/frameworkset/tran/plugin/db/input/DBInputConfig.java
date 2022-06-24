@@ -22,8 +22,8 @@ import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.plugin.db.BaseDBConfig;
 import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.plugin.db.BaseDBConfig;
 
 /**
  * <p>Description: </p>
@@ -158,5 +158,81 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 
 
 
+	public DBInputConfig setColumnLableUpperCase(boolean columnLableUpperCase) {
+		_setColumnLableUpperCase(columnLableUpperCase);
+		return this;
+	}
+
+	public DBInputConfig setDbInitSize(int dbInitSize) {
+		_setDbInitSize( dbInitSize);
+		return this;
+	}
+	public DBInputConfig setDbMaxSize(int dbMaxSize) {
+		_setDbMaxSize(  dbMaxSize);
+		return this;
+	}
+	public DBInputConfig setDbMinIdleSize(int dbMinIdleSize) {
+		_setDbMinIdleSize(  dbMinIdleSize);
+		return this;
+	}
+
+
+
+	public DBInputConfig setDbDriver(String dbDriver) {
+		_setDbDriver(  dbDriver);
+		return this;
+	}
+	public DBInputConfig setEnableDBTransaction(boolean enableDBTransaction) {
+		_setEnableDBTransaction(  enableDBTransaction);
+		return this;
+	}
+
+
+	public DBInputConfig setDbUrl(String dbUrl) {
+		_setDbUrl( dbUrl);
+		return this;
+	}
+
+	public DBInputConfig setDbAdaptor(String dbAdaptor) {
+		_setDbAdaptor(  dbAdaptor);
+		return this;
+
+	}
+
+	public DBInputConfig setDbtype(String dbtype) {
+		_setDbtype(  dbtype);
+		return this;
+	}
+
+	public DBInputConfig setDbUser(String dbUser) {
+		_setDbUser(  dbUser);
+		return this;
+	}
+
+	public DBInputConfig setDbPassword(String dbPassword) {
+		_setDbPassword(  dbPassword);
+		return this;
+	}
+
+	public DBInputConfig setValidateSQL(String validateSQL) {
+		_setValidateSQL(  validateSQL);
+		return this;
+	}
+
+	public DBInputConfig setUsePool(boolean usePool) {
+		_setUsePool(  usePool);
+		return this;
+	}
+
+
+	public DBInputConfig setDbInfoEncryptClass(String dbInfoEncryptClass){
+		_setDbInfoEncryptClass(dbInfoEncryptClass);
+		return this;
+	}
+
+	public DBInputConfig setJdbcFetchSize(Integer jdbcFetchSize) {
+		_setJdbcFetchSize(  jdbcFetchSize);
+		return  this;
+	}
 
 }

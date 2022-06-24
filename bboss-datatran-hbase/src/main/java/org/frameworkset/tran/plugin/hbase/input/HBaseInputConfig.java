@@ -68,168 +68,189 @@ public class HBaseInputConfig extends BaseConfig implements InputConfig {
 		return hbaseClientProperties;
 	}
 
-	public void setHbaseClientProperties(Map<String, String> properties) {
+	public HBaseInputConfig setHbaseClientProperties(Map<String, String> properties) {
 		this.hbaseClientProperties = properties;
+		return this;
 	}
 
 	public int getHbaseClientThreadCount() {
 		return hbaseClientThreadCount;
 	}
 
-	public void setHbaseClientThreadCount(int hbaseClientThreadCount) {
+	public HBaseInputConfig setHbaseClientThreadCount(int hbaseClientThreadCount) {
 		this.hbaseClientThreadCount = hbaseClientThreadCount;
+		return this;
 	}
 
 	public int getHbaseClientThreadQueue() {
 		return hbaseClientThreadQueue;
 	}
 
-	public void setHbaseClientThreadQueue(int hbaseClientThreadQueue) {
+	public HBaseInputConfig setHbaseClientThreadQueue(int hbaseClientThreadQueue) {
 		this.hbaseClientThreadQueue = hbaseClientThreadQueue;
+		return this;
 	}
 
 	public long getHbaseClientKeepAliveTime() {
 		return hbaseClientKeepAliveTime;
 	}
 
-	public void setHbaseClientKeepAliveTime(long hbaseClientKeepAliveTime) {
+	public HBaseInputConfig setHbaseClientKeepAliveTime(long hbaseClientKeepAliveTime) {
 		this.hbaseClientKeepAliveTime = hbaseClientKeepAliveTime;
+		return this;
 	}
 
 	public long getHbaseClientBlockedWaitTimeout() {
 		return hbaseClientBlockedWaitTimeout;
 	}
 
-	public void setHbaseClientBlockedWaitTimeout(long hbaseClientBlockedWaitTimeout) {
+	public HBaseInputConfig setHbaseClientBlockedWaitTimeout(long hbaseClientBlockedWaitTimeout) {
 		this.hbaseClientBlockedWaitTimeout = hbaseClientBlockedWaitTimeout;
+		return this;
 	}
 
 	public int getHbaseClientWarnMultsRejects() {
 		return hbaseClientWarnMultsRejects;
 	}
 
-	public void setHbaseClientWarnMultsRejects(int hbaseClientWarnMultsRejects) {
+	public HBaseInputConfig setHbaseClientWarnMultsRejects(int hbaseClientWarnMultsRejects) {
 		this.hbaseClientWarnMultsRejects = hbaseClientWarnMultsRejects;
+		return this;
 	}
 
 	public boolean isHbaseClientPreStartAllCoreThreads() {
 		return hbaseClientPreStartAllCoreThreads;
 	}
 
-	public void setHbaseClientPreStartAllCoreThreads(boolean hbaseClientPreStartAllCoreThreads) {
+	public HBaseInputConfig setHbaseClientPreStartAllCoreThreads(boolean hbaseClientPreStartAllCoreThreads) {
 		this.hbaseClientPreStartAllCoreThreads = hbaseClientPreStartAllCoreThreads;
+		return this;
 	}
 
 	public Boolean getHbaseClientThreadDaemon() {
 		return hbaseClientThreadDaemon;
 	}
 
-	public void setHbaseClientThreadDaemon(Boolean hbaseClientThreadDaemon) {
+	public HBaseInputConfig setHbaseClientThreadDaemon(Boolean hbaseClientThreadDaemon) {
 		this.hbaseClientThreadDaemon = hbaseClientThreadDaemon;
+		return this;
 	}
 
 	public String getHbaseTable() {
 		return hbaseTable;
 	}
 
-	public void setHbaseTable(String hbaseTable) {
+	public HBaseInputConfig setHbaseTable(String hbaseTable) {
 		this.hbaseTable = hbaseTable;
+		return this;
 	}
 
 	public String getStartRow() {
 		return startRow;
 	}
 
-	public void setStartRow(String startRow) {
+	public HBaseInputConfig setStartRow(String startRow) {
 		this.startRow = startRow;
+		return this;
 	}
 
 	public String getEndRow() {
 		return endRow;
 	}
 
-	public void setEndRow(String endRow) {
+	public HBaseInputConfig setEndRow(String endRow) {
 		this.endRow = endRow;
+		return this;
 	}
 
 	public Long getMaxResultSize() {
 		return maxResultSize;
 	}
 
-	public void setMaxResultSize(Long maxResultSize) {
+	public HBaseInputConfig setMaxResultSize(Long maxResultSize) {
 		this.maxResultSize = maxResultSize;
+		return this;
 	}
 
 	public Integer getHbaseBatch() {
 		return hbaseBatch;
 	}
 
-	public void setHbaseBatch(Integer hbaseBatch) {
+	public HBaseInputConfig setHbaseBatch(Integer hbaseBatch) {
 		this.hbaseBatch = hbaseBatch;
+		return this;
 	}
 
 	public FilterList getFilterList() {
 		return filterList;
 	}
 
-	public void setFilterList(FilterList filterList) {
+	public HBaseInputConfig setFilterList(FilterList filterList) {
 		this.filterList = filterList;
+		return this;
 	}
 
 	public Boolean getFilterIfMissing() {
 		return filterIfMissing;
 	}
 
-	public void setFilterIfMissing(Boolean filterIfMissing) {
+	public HBaseInputConfig setFilterIfMissing(Boolean filterIfMissing) {
 		this.filterIfMissing = filterIfMissing;
+		return this;
 	}
 
 	public String getIncrementFamilyName() {
 		return incrementFamilyName;
 	}
 
-	public void setIncrementFamilyName(String incrementFamilyName) {
+	public HBaseInputConfig setIncrementFamilyName(String incrementFamilyName) {
 		this.incrementFamilyName = incrementFamilyName;
+		return this;
 	}
 
 	public Long getStartTimestamp() {
 		return startTimestamp;
 	}
 
-	public void setStartTimestamp(Long startTimestamp) {
+	public HBaseInputConfig setStartTimestamp(Long startTimestamp) {
 		this.startTimestamp = startTimestamp;
+		return this;
 	}
 
 	public Long getEndTimestamp() {
 		return endTimestamp;
 	}
 
-	public void setEndTimestamp(Long endTimestamp) {
+	public HBaseInputConfig setEndTimestamp(Long endTimestamp) {
 		this.endTimestamp = endTimestamp;
+		return this;
 	}
 
 	public boolean isIncrementByTimeRange() {
 		return incrementByTimeRange;
 	}
 
-	public void setIncrementByTimeRange(boolean incrementByTimeRange) {
+	public HBaseInputConfig setIncrementByTimeRange(boolean incrementByTimeRange) {
 		this.incrementByTimeRange = incrementByTimeRange;
+		return this;
 	}
 
 	public Filter getFilter() {
 		return filter;
 	}
 
-	public void setFilter(Filter filter) {
+	public HBaseInputConfig setFilter(Filter filter) {
 		this.filter = filter;
+		return this;
 	}
 	public Boolean getHbaseAsynMetricsEnable(){
 		return hbaseAsynMetricsEnable;
 
 	}
 
-	public void setHbaseAsynMetricsEnable(Boolean hbaseAsynMetricsEnable) {
+	public HBaseInputConfig setHbaseAsynMetricsEnable(Boolean hbaseAsynMetricsEnable) {
 		this.hbaseAsynMetricsEnable = hbaseAsynMetricsEnable;
+		return this;
 	}
 
 	@Override

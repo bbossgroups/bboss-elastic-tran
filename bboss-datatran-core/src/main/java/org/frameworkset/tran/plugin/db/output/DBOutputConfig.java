@@ -60,24 +60,35 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 	private String targetDbname;
 
 
+	public DBOutputConfig setDbName(String dbName) {
+		_setDbName(  dbName);
+		if(targetDbname == null){
+			this.targetDbname = dbName;
+		}
+
+		return this;
+	} 
 	public String getTargetDbname() {
 		return targetDbname;
 	}
 
-	public void setTargetDbname(String targetDbname) {
+	public DBOutputConfig setTargetDbname(String targetDbname) {
 		this.targetDbname = targetDbname;
+		return this;
 	}
 
-	public void setStatementHandler(StatementHandler statementHandler) {
+	public DBOutputConfig setStatementHandler(StatementHandler statementHandler) {
 		this.statementHandler = statementHandler;
+		return this;
 	}
 
 	public StatementHandler getStatementHandler() {
 		return statementHandler;
 	}
 
-	public void setInsertSqlName(String insertSqlName) {
+	public DBOutputConfig setInsertSqlName(String insertSqlName) {
 		this.insertSqlName = insertSqlName;
+		return this;
 	}
 
 
@@ -91,8 +102,9 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 
 	}
 
-	public void setInsertSql(String insertSql) {
+	public DBOutputConfig setInsertSql(String insertSql) {
 		this.insertSql = insertSql;
+		return this;
 	}
 	public DBConfig getTargetDBConfig() {
 
@@ -107,8 +119,9 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return getTargetDBConfig();
 	}
 
-	public void setTargetDBConfig(DBConfig targetDBConfig) {
+	public DBOutputConfig setTargetDBConfig(DBConfig targetDBConfig) {
 		this.targetDBConfig = targetDBConfig;
+		return this;
 	}
 
 	public String getSql() {
@@ -116,8 +129,9 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 	}
 
 
-	public void setSql(String sql) {
+	public DBOutputConfig setSql(String sql) {
 		this.sql = sql;
+		return this;
 	}
 
 
@@ -126,8 +140,9 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return sqlFilepath;
 	}
 
-	public void setSqlFilepath(String sqlFilepath) {
+	public DBOutputConfig setSqlFilepath(String sqlFilepath) {
 		this.sqlFilepath = sqlFilepath;
+		return this;
 	}
 
 
@@ -136,52 +151,59 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return sqlName;
 	}
 
-	public void setSqlName(String sqlName) {
+	public DBOutputConfig setSqlName(String sqlName) {
 		this.sqlName = sqlName;
+		return this;
 	}
 
 	public String getDeleteSql() {
 		return deleteSql;
 	}
 
-	public void setDeleteSql(String deleteSql) {
+	public DBOutputConfig setDeleteSql(String deleteSql) {
 		this.deleteSql = deleteSql;
+		return this;
 	}
 
 	public String getDeleteSqlName() {
 		return deleteSqlName;
 	}
 
-	public void setDeleteSqlName(String deleteSqlName) {
+	public DBOutputConfig setDeleteSqlName(String deleteSqlName) {
 		this.deleteSqlName = deleteSqlName;
+		return this;
 	}
 
 	public String getUpdateSql() {
 		return updateSql;
 	}
 
-	public void setUpdateSql(String updateSql) {
+	public DBOutputConfig setUpdateSql(String updateSql) {
 		this.updateSql = updateSql;
+		return this;
 	}
 
 	public String getUpdateSqlName() {
 		return updateSqlName;
 	}
 
-	public void setUpdateSqlName(String updateSqlName) {
+	public DBOutputConfig setUpdateSqlName(String updateSqlName) {
 		this.updateSqlName = updateSqlName;
+		return this;
 	}
 
-	public void setOptimize(boolean optimize) {
+	public DBOutputConfig setOptimize(boolean optimize) {
 		this.optimize = optimize;
+		return this;
 	}
 
 	public boolean optimize() {
 		return optimize;
 	}
 
-	public void setBatchHandler(BatchHandler batchHandler) {
+	public DBOutputConfig setBatchHandler(BatchHandler batchHandler) {
 		this.batchHandler = batchHandler;
+		return this;
 	}
 
 	public BatchHandler getBatchHandler() {
@@ -208,7 +230,7 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		}
 		else{
 			targetDbname = targetDBConfig.getDbName();
-			dbConfig = targetDBConfig;
+			dbConfig = targetDBConfig;			
 		}
 	}
 	public String getTargetDBName(TaskContext taskContext){
@@ -227,8 +249,9 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return targetSqlInfo;
 	}
 
-	public void setTargetSqlInfo(TranSQLInfo targetSqlInfo) {
+	public DBOutputConfig setTargetSqlInfo(TranSQLInfo targetSqlInfo) {
 		this.targetSqlInfo = targetSqlInfo;
+		return this;
 	}
 
 	public TranSQLInfo getTargetUpdateSqlInfo(TaskContext taskContext) {
@@ -237,8 +260,9 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return targetUpdateSqlInfo;
 	}
 
-	public void setTargetUpdateSqlInfo(TranSQLInfo sqlInfo) {
+	public DBOutputConfig setTargetUpdateSqlInfo(TranSQLInfo sqlInfo) {
 		this.targetUpdateSqlInfo = sqlInfo;
+		return this;
 	}
 	public TranSQLInfo getTargetDeleteSqlInfo(TaskContext taskContext) {
 		if(taskContext != null && taskContext.getTargetDeleteSqlInfo() != null)
@@ -246,8 +270,9 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return targetDeleteSqlInfo;
 	}
 
-	public void setTargetDeleteSqlInfo(TranSQLInfo sqlInfo) {
+	public DBOutputConfig setTargetDeleteSqlInfo(TranSQLInfo sqlInfo) {
 		this.targetDeleteSqlInfo = sqlInfo;
+		return this;
 	}
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
@@ -256,6 +281,84 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 	@Override
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
 		return new DefualtExportResultHandler<String,String>(exportResultHandler);
+	}
+
+
+	public DBOutputConfig setColumnLableUpperCase(boolean columnLableUpperCase) {
+		_setColumnLableUpperCase(columnLableUpperCase);
+		return this;
+	}
+
+	public DBOutputConfig setDbInitSize(int dbInitSize) {
+		_setDbInitSize( dbInitSize);
+		return this;
+	}
+	public DBOutputConfig setDbMaxSize(int dbMaxSize) {
+		_setDbMaxSize(  dbMaxSize);
+		return this;
+	}
+	public DBOutputConfig setDbMinIdleSize(int dbMinIdleSize) {
+		_setDbMinIdleSize(  dbMinIdleSize);
+		return this;
+	}
+
+
+
+	public DBOutputConfig setDbDriver(String dbDriver) {
+		_setDbDriver(  dbDriver);
+		return this;
+	}
+	public DBOutputConfig setEnableDBTransaction(boolean enableDBTransaction) {
+		_setEnableDBTransaction(  enableDBTransaction);
+		return this;
+	}
+
+
+	public DBOutputConfig setDbUrl(String dbUrl) {
+		_setDbUrl( dbUrl);
+		return this;
+	}
+
+	public DBOutputConfig setDbAdaptor(String dbAdaptor) {
+		_setDbAdaptor(  dbAdaptor);
+		return this;
+
+	}
+
+	public DBOutputConfig setDbtype(String dbtype) {
+		_setDbtype(  dbtype);
+		return this;
+	}
+
+	public DBOutputConfig setDbUser(String dbUser) {
+		_setDbUser(  dbUser);
+		return this;
+	}
+
+	public DBOutputConfig setDbPassword(String dbPassword) {
+		_setDbPassword(  dbPassword);
+		return this;
+	}
+
+	public DBOutputConfig setValidateSQL(String validateSQL) {
+		_setValidateSQL(  validateSQL);
+		return this;
+	}
+
+	public DBOutputConfig setUsePool(boolean usePool) {
+		_setUsePool(  usePool);
+		return this;
+	}
+
+
+	public DBOutputConfig setDbInfoEncryptClass(String dbInfoEncryptClass){
+		_setDbInfoEncryptClass(dbInfoEncryptClass);
+		return this;
+	}
+
+	public DBOutputConfig setJdbcFetchSize(Integer jdbcFetchSize) {
+		_setJdbcFetchSize(  jdbcFetchSize);
+		return  this;
 	}
 
 }

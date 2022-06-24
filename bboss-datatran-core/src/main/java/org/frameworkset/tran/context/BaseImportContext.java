@@ -22,7 +22,6 @@ import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
-import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.record.SplitHandler;
@@ -104,9 +103,7 @@ public  class BaseImportContext implements ImportContext {
 		this.dataTranPlugin = dataTranPlugin;
 
 	}
-	public CustomOutPut getCustomOutPut(){
-		return baseImportConfig.getCustomOutPut();
-	}
+
 	public String[] getExportColumns(){
 		return  baseImportConfig.getExportColumns();
 	}

@@ -22,7 +22,6 @@ import org.frameworkset.spi.assemble.GetProperties;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
@@ -54,12 +53,14 @@ public class ImportBuilder {
 
 	private Boolean enableDBTransaction;
 
-	public void setInputConfig(InputConfig inputConfig) {
+	public ImportBuilder setInputConfig(InputConfig inputConfig) {
 		this.inputConfig = inputConfig;
+		return this;
 	}
 
-	public void setOutputConfig(OutputConfig outputConfig) {
+	public ImportBuilder setOutputConfig(OutputConfig outputConfig) {
 		this.outputConfig = outputConfig;
+		return this;
 	}
 
 
@@ -83,7 +84,6 @@ public class ImportBuilder {
 	private String splitFieldName;
 
 	private transient SplitHandler splitHandler;
-	private transient CustomOutPut customOutPut;
 	/**
 	 * 设置强制刷新检测空闲时间间隔，单位：毫秒，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作，默认8秒,为0时关闭本机制
 	 */
@@ -1047,7 +1047,6 @@ public class ImportBuilder {
 		baseImportConfig.setLogsendTaskMetric(logsendTaskMetric);
 		baseImportConfig.setSplitHandler(this.getSplitHandler());
 		baseImportConfig.setSplitFieldName(getSplitFieldName());
-		baseImportConfig.setCustomOutPut(customOutPut);
 //		baseImportConfig.setEsDetectNoop(this.esDetectNoop);
 
 	}
@@ -1151,6 +1150,9 @@ public class ImportBuilder {
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(importContext));
 		return dataStream;
 	}
+	public static ImportBuilder newInstance(){
+		return new ImportBuilder();
+	}
 
 
 	/**
@@ -1186,6 +1188,12 @@ public class ImportBuilder {
 	 * @return
 	 */
 	public DataStream builder(ScheduleAssert scheduleAssert){
+		if(inputConfig == null){
+			throw new DataImportException("InputConfig is null and must be set by ImportBuilder.");
+		}
+		if(outputConfig == null){
+			throw new DataImportException("OutputConfig is null and must be set by ImportBuilder.");
+		}
 		DataStream dataStream = innerBuilder();
 		if(scheduleAssert != null){
 			if(scheduleAssert instanceof WrappedScheduleAssert)
@@ -1320,15 +1328,7 @@ public class ImportBuilder {
 		this.splitHandler = splitHandler;
 		return this;
 	}
-	@JsonIgnore
-	public CustomOutPut getCustomOutPut() {
-		return customOutPut;
-	}
 
-	public ImportBuilder setCustomOutPut(CustomOutPut customOutPut) {
-		this.customOutPut = customOutPut;
-		return this;
-	}
 
 	public String getSourceDbname() {
 		return sourceDbname;
