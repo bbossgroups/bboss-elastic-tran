@@ -27,7 +27,7 @@ import java.util.Map;
  * @version 1.0
  */
 public class ESConfig implements java.io.Serializable{
-	private String name;
+
 	private Map<String,Object> configs;
 	public ESConfig(){
 		this.configs = new HashMap<String, Object>();
@@ -36,14 +36,9 @@ public class ESConfig implements java.io.Serializable{
 		return configs;
 	}
 
-	public String getName() {
-		return name;
-	}
 
-	public ESConfig setName(String name) {
-		this.name = name;
-		return this;
-	}
+
+
 	public ESConfig addElasticsearchProperty(String name,String value){
 		configs.put(name,value);
 		return this;

@@ -61,7 +61,9 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 
 	@Override
 	public void beforeInit() {
-		this.initES(importContext.getApplicationPropertiesFile());
+		this.esConfig = elasticsearchInputConfig.getEsConfig();
+		this.applicationPropertiesFile = importContext.getApplicationPropertiesFile();
+		this.initES();
 
 
 	}

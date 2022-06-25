@@ -39,13 +39,12 @@ public abstract class BaseESPlugin extends BasePlugin {
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	protected ESConfig esConfig;
+	protected String applicationPropertiesFile;
 	public BaseESPlugin(ImportContext importContext) {
 		super(importContext);
 	}
 	private ElasticsearchBootResult elasticsearchBootResult ;
-	protected void initES(String applicationPropertiesFile){
-		if(SimpleStringUtil.isNotEmpty(applicationPropertiesFile ))
-			elasticsearchBootResult = ElasticSearchBoot.boot(applicationPropertiesFile);
+	protected void initES(){
 		if(esConfig != null){
 			ElasticsearchBootResult _elasticsearchBootResult = ElasticSearchBoot.boot(esConfig.getConfigs());
 			if(_elasticsearchBootResult != null){
@@ -56,6 +55,17 @@ public abstract class BaseESPlugin extends BasePlugin {
 				}
 			}
 		}
+		if(SimpleStringUtil.isNotEmpty(applicationPropertiesFile )) {
+			ElasticsearchBootResult _elasticsearchBootResult = ElasticSearchBoot.boot(applicationPropertiesFile);
+			if(_elasticsearchBootResult != null){
+				if(this.elasticsearchBootResult == null)
+					this.elasticsearchBootResult = _elasticsearchBootResult;
+				else{
+					this.elasticsearchBootResult.addInitedElasticsearchs(_elasticsearchBootResult.getInitedElasticsearchs());
+				}
+			}
+		}
+
 	}
 
 	/**

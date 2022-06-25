@@ -17,7 +17,6 @@ package org.frameworkset.tran.plugin.es.output;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
-import org.frameworkset.elasticsearch.boot.ElasticSearchPropertiesFilePlugin;
 import org.frameworkset.tran.DefaultEsIdGenerator;
 import org.frameworkset.tran.EsIdGenerator;
 import org.frameworkset.tran.ExportResultHandler;
@@ -141,6 +140,10 @@ public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfi
 	}
 	private ESConfig esConfig;
 
+	public ESConfig getEsConfig() {
+		return esConfig;
+	}
+
 	private ClientOptions clientOptions;
 	public ElasticsearchOutputConfig setTargetElasticsearch(String targetElasticsearch) {
 		this.targetElasticsearch = targetElasticsearch;
@@ -151,19 +154,44 @@ public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfi
 		return targetElasticsearch;
 	}
 
+
+	public ElasticsearchOutputConfig setEsConfig(ESConfig esConfig) {
+		this.esConfig = esConfig;
+		return this;
+	}
 	public ClientOptions getClientOptions() {
 		return clientOptions;
 	}
 
 
 
+	/**
+	 * 添加es客户端配置属性，具体的配置项参考文档：
+	 * https://esdoc.bbossgroups.com/#/development?id=_2-elasticsearch%e9%85%8d%e7%bd%ae
+	 *
+	 * 如果在代码中指定配置项，就不会去加载application.properties中指定的数据源配置，如果没有配置则去加载applciation.properties中的对应数据源配置
+	 * @param name
+	 * @param value
+	 * @return
+	 */
+	public ElasticsearchOutputConfig addElasticsearchProperty(String name, String value){
+		if(this.esConfig == null){
+			esConfig = new ESConfig();
+		}
+		esConfig.addElasticsearchProperty(name,value);
+		return this;
+	}
+
 	@Override
 	public void build(ImportBuilder importBuilder) {
-		if (importBuilder.getApplicationPropertiesFile() != null) {
-
-			ElasticSearchPropertiesFilePlugin.init(importBuilder.getApplicationPropertiesFile());
-//					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
-		}
+//		if(esConfig != null){
+//			ElasticSearchPropertiesFilePlugin.init(esConfig.getConfigs());
+//		}
+//		else if (importBuilder.getApplicationPropertiesFile() != null) {
+//
+//			ElasticSearchPropertiesFilePlugin.init(importBuilder.getApplicationPropertiesFile());
+////					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+//		}
 		if(index != null) {
 			ESIndexWrapper esIndexWrapper = new ESIndexWrapper(index, indexType);
 //			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);

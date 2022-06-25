@@ -51,7 +51,9 @@ public class ElasticsearchOutputDataTranPlugin extends BaseESPlugin implements O
 
 	@Override
 	public void beforeInit() {
-		this.initES(importContext.getApplicationPropertiesFile());
+		this.esConfig = elasticsearchOutputConfig.getEsConfig();
+		this.applicationPropertiesFile = importContext.getApplicationPropertiesFile();
+		this.initES();
 
 
 	}

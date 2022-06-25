@@ -16,7 +16,6 @@ package org.frameworkset.tran.plugin.es.input;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.frameworkset.elasticsearch.boot.ElasticSearchPropertiesFilePlugin;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
@@ -88,9 +87,7 @@ public class ElasticsearchInputConfig extends BaseConfig implements InputConfig 
 
 
 
-	public ESConfig getESConfig() {
-		return esConfig;
-	}
+
 
 	public ElasticsearchInputConfig setEsConfig(ESConfig esConfig) {
 		this.esConfig = esConfig;
@@ -99,11 +96,18 @@ public class ElasticsearchInputConfig extends BaseConfig implements InputConfig 
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
-		if (importBuilder.getApplicationPropertiesFile() != null) {
+//		if(esConfig != null){
+//			ElasticSearchPropertiesFilePlugin.init(esConfig.getConfigs());
+//		}
+//		if (importBuilder.getApplicationPropertiesFile() != null) {
+//
+//			ElasticSearchPropertiesFilePlugin.init(importBuilder.getApplicationPropertiesFile());
+////					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
+//		}
+	}
 
-			ElasticSearchPropertiesFilePlugin.init(importBuilder.getApplicationPropertiesFile());
-//					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
-		}
+	public ESConfig getEsConfig() {
+		return esConfig;
 	}
 
 	@Override
