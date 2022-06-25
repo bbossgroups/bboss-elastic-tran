@@ -1,6 +1,6 @@
 package org.frameworkset.tran.input.file;
 
-import org.frameworkset.tran.plugin.file.input.FileInputInputConfig;
+import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.slf4j.Logger;
@@ -19,14 +19,14 @@ public class LogDirsScanThread implements Runnable{
     protected volatile boolean running = false;
     protected ScanNewFile scan;
     protected TimerScheduleConfig timerScheduleConfig;
-    protected FileInputInputConfig fileInputConfig;
+    protected FileInputConfig fileInputConfig;
     /**
      * Constructs a monitor with the specified interval and set of observers.
      *
      * @param fileInputConfig The amount of time in milliseconds to wait between
      * checks of the file system
      */
-    public LogDirsScanThread(ScanNewFile scan, FileInputInputConfig fileInputConfig) {
+    public LogDirsScanThread(ScanNewFile scan, FileInputConfig fileInputConfig) {
         this.scan = scan;
         //The amount of time in milliseconds to wait between
 //        checks of the file system

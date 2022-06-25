@@ -8,7 +8,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.ftp.FtpConfig;
-import org.frameworkset.tran.plugin.file.input.FileInputInputConfig;
+import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.frameworkset.tran.record.CommonData;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -35,7 +35,7 @@ import static java.lang.Thread.sleep;
 public class FileReaderTask extends FieldManager{
     private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
     protected FileInfo fileInfo;
-    protected FileInputInputConfig fileImportConfig;
+    protected FileInputConfig fileImportConfig;
 
 
     /**
@@ -79,7 +79,7 @@ public class FileReaderTask extends FieldManager{
     public FileReaderTask(TaskContext taskContext, File file, String fileId, FileConfig fileConfig,
 						  FileListenerService fileListenerService,
 						  BaseDataTran fileDataTran,
-						  Status currentStatus , FileInputInputConfig fileImportConfig ) {
+						  Status currentStatus , FileInputConfig fileImportConfig ) {
         this.fileImportConfig = fileImportConfig;
         this.sleepAwaitTimeAfterFetch = fileImportConfig.getSleepAwaitTimeAfterFetch();
 		this.sleepAwaitTimeAfterCollect = fileImportConfig.getSleepAwaitTimeAfterCollect();
@@ -112,7 +112,7 @@ public class FileReaderTask extends FieldManager{
 
 
     }
-    public FileReaderTask(String fileId, Status currentStatus, FileInputInputConfig fileImportConfig ) {
+    public FileReaderTask(String fileId, Status currentStatus, FileInputConfig fileImportConfig ) {
         this.fileImportConfig = fileImportConfig;
         this.currentStatus = currentStatus;
         this.fileInfo = new FileInfo( fileId);
@@ -182,7 +182,7 @@ public class FileReaderTask extends FieldManager{
     }
 
     public FileReaderTask(TaskContext taskContext, File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
-                          Status currentStatus , FileInputInputConfig fileImportConfig   ) {
+                          Status currentStatus , FileInputConfig fileImportConfig   ) {
         this(  taskContext,file,fileId,  fileConfig,fileListenerService,fileDataTran,currentStatus,  fileImportConfig );
         this.pointer = pointer;
     }

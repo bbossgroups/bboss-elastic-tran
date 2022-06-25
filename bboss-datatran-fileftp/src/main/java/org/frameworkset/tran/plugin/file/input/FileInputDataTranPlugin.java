@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class FileInputDataTranPlugin extends BaseInputPlugin {
     private static Logger logger = LoggerFactory.getLogger(FileInputDataTranPlugin.class);
-    protected FileInputInputConfig fileInputConfig;
+    protected FileInputConfig fileInputConfig;
     protected List<LogDirScan> logDirScans;
     protected FileListenerService fileListenerService;
     protected LogDirsScanThread logDirsScanThread ;
@@ -33,7 +33,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
 //    protected List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
     public FileInputDataTranPlugin(ImportContext importContext) {
         super(importContext);
-        this.fileInputConfig = (FileInputInputConfig) importContext.getInputConfig();
+        this.fileInputConfig = (FileInputConfig) importContext.getInputConfig();
     }
     @Override
     public boolean isEnablePluginTaskIntercept(){
@@ -75,12 +75,12 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
     }
 
     protected FileReaderTask buildFileReaderTask(TaskContext taskContext, File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
-												 Status currentStatus , FileInputInputConfig fileImportConfig ){
+												 Status currentStatus , FileInputConfig fileImportConfig ){
         FileReaderTask task = fileImportConfig.buildFileReaderTask(taskContext,file,fileId,fileConfig,pointer,
                 fileListenerService,fileDataTran,currentStatus,fileImportConfig);
         return task;
     }
-    protected FileReaderTask buildFileReaderTask(String fileId, Status currentStatus, FileInputInputConfig fileImportConfig ){
+    protected FileReaderTask buildFileReaderTask(String fileId, Status currentStatus, FileInputConfig fileImportConfig ){
         FileReaderTask task =  fileImportConfig.buildFileReaderTask(fileId,currentStatus,fileImportConfig);
         return task;
     }

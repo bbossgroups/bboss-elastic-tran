@@ -16,17 +16,17 @@ import java.io.File;
  * @description
  * @create 2021/3/12
  */
-public class ExcelFileInputConfig extends FileInputInputConfig {
+public class ExcelFileInputConfig extends FileInputConfig {
 
     @Override
     public FileReaderTask buildFileReaderTask(TaskContext taskContext, File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
-											  Status currentStatus , FileInputInputConfig fileImportConfig ){
+											  Status currentStatus , FileInputConfig fileImportConfig ){
         FileReaderTask task = new ExcelFileReaderTask(taskContext,file,fileId,(ExcelFileConfig)fileConfig,pointer,
                 fileListenerService,fileDataTran,currentStatus,fileImportConfig);
         return task;
     }
     @Override
-    public FileReaderTask buildFileReaderTask(String fileId, Status currentStatus, FileInputInputConfig fileImportConfig ){
+    public FileReaderTask buildFileReaderTask(String fileId, Status currentStatus, FileInputConfig fileImportConfig ){
         FileReaderTask task =  new ExcelFileReaderTask(fileId,currentStatus,fileImportConfig);
         return task;
     }

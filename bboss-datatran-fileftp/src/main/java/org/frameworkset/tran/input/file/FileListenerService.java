@@ -8,7 +8,7 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.ftp.*;
-import org.frameworkset.tran.plugin.file.input.FileInputInputConfig;
+import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.frameworkset.tran.plugin.file.input.FileInputDataTranPlugin;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
@@ -34,7 +34,7 @@ public class FileListenerService {
     private Map<String, FileReaderTask> completedTasks;
     private Map<String, FileReaderTask> oldedTasks;
     private ImportContext importContext;
-    private FileInputInputConfig fileInputConfig;
+    private FileInputConfig fileInputConfig;
     private FileInputDataTranPlugin fileInputDataTranPlugin;
     private DataTranPlugin dataTranPlugin;
     private Object dummy = new Object();
@@ -45,7 +45,7 @@ public class FileListenerService {
         this.oldedTasks = new HashMap<String, FileReaderTask>();
         downLoadTraces = new HashMap<>();
         this.importContext = fileImportContext;
-        this.fileInputConfig = (FileInputInputConfig) importContext.getInputConfig();
+        this.fileInputConfig = (FileInputConfig) importContext.getInputConfig();
         this.dataTranPlugin = fileImportContext.getDataTranPlugin();
         this.fileInputDataTranPlugin = (FileInputDataTranPlugin) dataTranPlugin.getInputPlugin();
 
@@ -210,7 +210,7 @@ public class FileListenerService {
 ////            fileReaderTask.execute();
 //        }
 //    }
-    public FileInputInputConfig getFileInputConfig() {
+    public FileInputConfig getFileInputConfig() {
         return fileInputConfig;
     }
 

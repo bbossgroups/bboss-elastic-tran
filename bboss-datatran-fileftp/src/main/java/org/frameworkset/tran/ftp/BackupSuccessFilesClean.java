@@ -16,7 +16,7 @@ package org.frameworkset.tran.ftp;
  */
 
 import org.frameworkset.tran.file.monitor.FileCleanThread;
-import org.frameworkset.tran.plugin.file.input.FileInputInputConfig;
+import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
  */
 public class BackupSuccessFilesClean {
 	private static final Logger logger = LoggerFactory.getLogger(BackupSuccessFilesClean.class);
-	private FileInputInputConfig fileImportConfig;
+	private FileInputConfig fileImportConfig;
 
-	public BackupSuccessFilesClean(FileInputInputConfig fileImportConfig){
+	public BackupSuccessFilesClean(FileInputConfig fileImportConfig){
 		this.fileImportConfig = fileImportConfig;
 
 	}

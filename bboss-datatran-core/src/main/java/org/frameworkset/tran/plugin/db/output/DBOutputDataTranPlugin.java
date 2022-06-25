@@ -75,6 +75,9 @@ public class DBOutputDataTranPlugin extends BaseDBPlugin implements OutputPlugin
 			targetDBName = dbConfig.getDbName();
 
 		}
+		if(targetDBName == null){
+			targetDBName = dbOutputConfig.getTargetDbname();
+		}
 
 		TranUtil.initTargetSQLInfo(dbOutputConfig, targetDBName);
 	}

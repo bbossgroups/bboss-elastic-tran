@@ -300,7 +300,6 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
 
 
-
 	public  void beforeInit(){
 //		initOtherDSes(importContext.getConfigs());
 		this.inputPlugin.beforeInit();
@@ -323,6 +322,20 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 	}
 	protected boolean initOtherDSes ;
+	protected boolean initDefaultDS;
+	public void initDefaultDS(){
+		if(initDefaultDS )
+			return;
+		try {
+			DBConfig dbConfig = importContext.getImportConfig().getDefaultDBConfig();
+			if (dbConfig != null ) {
+				initDS(dbStartResult,dbConfig);
+			}
+		}
+		finally {
+			initDefaultDS = true;
+		}
+	}
 	public void initOtherDSes(){
 		if(initOtherDSes )
 			return;
@@ -340,7 +353,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	}
 
 	public static void initDS(DBStartResult dbStartResult,DBConfig dbConfig){
-		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()) && SimpleStringUtil.isNotEmpty(dbConfig.getDbDriver()) && SimpleStringUtil.isNotEmpty(dbConfig.getDbUrl())) {
+		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName())
+				&& SimpleStringUtil.isNotEmpty(dbConfig.getDbDriver())
+				&& SimpleStringUtil.isNotEmpty(dbConfig.getDbUrl()) && !dbStartResult.contain(dbConfig.getDbName())) {
 			DBConf temConf = new DBConf();
 			temConf.setPoolname(dbConfig.getDbName());
 			temConf.setDriver(dbConfig.getDbDriver());
@@ -383,6 +398,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		inputPlugin.setDataTranPlugin(this);
 		outputPlugin.setDataTranPlugin(this);
 		beforeInit();
+		initDefaultDS();
 		initOtherDSes();
 		this.inputPlugin.init();
 		this.outputPlugin.init();

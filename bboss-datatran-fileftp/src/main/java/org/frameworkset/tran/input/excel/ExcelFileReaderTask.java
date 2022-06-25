@@ -10,7 +10,7 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.input.file.FileListenerService;
 import org.frameworkset.tran.input.file.FileLogRecord;
 import org.frameworkset.tran.input.file.FileReaderTask;
-import org.frameworkset.tran.plugin.file.input.FileInputInputConfig;
+import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.frameworkset.tran.record.CommonData;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -41,7 +41,7 @@ public class ExcelFileReaderTask extends FileReaderTask {
 	public ExcelFileReaderTask(TaskContext taskContext, File file, String fileId, ExcelFileConfig fileConfig,
 							   FileListenerService fileListenerService,
 							   BaseDataTran fileDataTran,
-							   Status currentStatus, FileInputInputConfig fileImportConfig) {
+							   Status currentStatus, FileInputConfig fileImportConfig) {
 
 		super(taskContext, file, fileId, fileConfig,
 				fileListenerService,
@@ -51,13 +51,13 @@ public class ExcelFileReaderTask extends FileReaderTask {
 
 	}
 
-	public ExcelFileReaderTask(String fileId, Status currentStatus, FileInputInputConfig fileImportConfig) {
+	public ExcelFileReaderTask(String fileId, Status currentStatus, FileInputConfig fileImportConfig) {
 		super(fileId, currentStatus, fileImportConfig);
 	}
 
 
 	public ExcelFileReaderTask(TaskContext taskContext, File file, String fileId, ExcelFileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
-							   Status currentStatus, FileInputInputConfig fileImportConfig) {
+							   Status currentStatus, FileInputConfig fileImportConfig) {
 		this(taskContext, file, fileId, fileConfig, fileListenerService, fileDataTran, currentStatus, fileImportConfig);
 
 		this.pointer = pointer;

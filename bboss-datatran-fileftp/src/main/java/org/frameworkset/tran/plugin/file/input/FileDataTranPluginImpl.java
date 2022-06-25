@@ -45,17 +45,26 @@ import java.util.List;
  */
 public class FileDataTranPluginImpl extends DataTranPluginImpl {
 	private FileInputDataTranPlugin fileInputDataTranPlugin;
-	private FileInputInputConfig fileInputConfig;
+	private FileInputConfig fileInputConfig;
 	protected static Logger logger = LoggerFactory.getLogger(FileDataTranPluginImpl.class);
 	@Override
 	public void initLastValueClumnName(){
 
 	}
 
+
+	@Override
+	public  void beforeInit() {
+		fileInputDataTranPlugin = (FileInputDataTranPlugin) inputPlugin;
+		super.beforeInit();
+
+
+	}
+
 	public FileDataTranPluginImpl(ImportContext importContext){
 		super(importContext);
-		fileInputDataTranPlugin  = (FileInputDataTranPlugin) inputPlugin;
-		fileInputConfig = (FileInputInputConfig) importContext.getInputConfig();
+
+		fileInputConfig = (FileInputConfig) importContext.getInputConfig();
 
 	}
 	public Status getCurrentStatus(){

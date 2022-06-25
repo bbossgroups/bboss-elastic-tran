@@ -46,7 +46,7 @@ import java.util.Map;
 public class BaseImportConfig {
 	protected  final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private List<DBConfig> configs;
-
+	private DBConfig defaultDBConfig ;
 	private Map<String,DBConfig> dbConfigMap = new LinkedHashMap<>();
 	private boolean sortLastValue ;
 
@@ -946,7 +946,11 @@ public class BaseImportConfig {
 	}
 
 
+	public DBConfig getDefaultDBConfig() {
+		return defaultDBConfig;
+	}
 
-
-
+	public void setDefaultDBConfig(DBConfig defaultDBConfig) {
+		this.defaultDBConfig = defaultDBConfig;
+	}
 }

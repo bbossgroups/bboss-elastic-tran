@@ -25,7 +25,7 @@ import java.util.List;
  * @description
  * @create 2021/3/12
  */
-public class FileInputInputConfig extends BaseConfig implements InputConfig {
+public class FileInputConfig extends BaseConfig implements InputConfig {
     /**
      * 每次扫描新文件时间间隔
      */
@@ -84,7 +84,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
      *     true 采用，false 不采用，默认false
      */
     private boolean useETLScheduleForScanNewFile;
-    public FileInputInputConfig() {
+    public FileInputConfig() {
     }
 
 
@@ -99,7 +99,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return enableAutoPauseScheduled;
     }
 
-    public FileInputInputConfig addConfig(FileConfig fileConfig){
+    public FileInputConfig addConfig(FileConfig fileConfig){
 
 
 
@@ -118,7 +118,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
 
         return this;
     }
-    public FileInputInputConfig addConfig(String sourcePath, String fileNameRegular, String fileHeadLine){
+    public FileInputConfig addConfig(String sourcePath, String fileNameRegular, String fileHeadLine){
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
@@ -132,7 +132,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         fileConfigList.add(fileConfig);
         return this;
     }
-    public FileInputInputConfig addConfig(String sourcePath, String fileNameRegular, String fileHeadLine, boolean scanChild){
+    public FileInputConfig addConfig(String sourcePath, String fileNameRegular, String fileHeadLine, boolean scanChild){
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
@@ -154,10 +154,10 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
      * @return
      */
     @Deprecated
-    public FileInputInputConfig setInterval(Long interval) {
+    public FileInputConfig setInterval(Long interval) {
         return setScanNewFileInterval(interval);
     }
-    public FileInputInputConfig setScanNewFileInterval(Long scanNewFileInterval) {
+    public FileInputConfig setScanNewFileInterval(Long scanNewFileInterval) {
         this.scanNewFileInterval = scanNewFileInterval;
         return this;
     }
@@ -173,12 +173,12 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return jsondata;
     }
 
-    public FileInputInputConfig setRootLevel(boolean rootLevel) {
+    public FileInputConfig setRootLevel(boolean rootLevel) {
         this.rootLevel = rootLevel;
         return this;
     }
 
-    public FileInputInputConfig setJsondata(boolean jsondata) {
+    public FileInputConfig setJsondata(boolean jsondata) {
         this.jsondata = jsondata;
         return this;
     }
@@ -187,7 +187,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return charsetEncode;
     }
 
-    public FileInputInputConfig setCharsetEncode(String charsetEncode) {
+    public FileInputConfig setCharsetEncode(String charsetEncode) {
         this.charsetEncode = charsetEncode;
         return this;
     }
@@ -196,7 +196,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return enableMeta;
     }
 
-    public FileInputInputConfig setEnableMeta(boolean enableMeta) {
+    public FileInputConfig setEnableMeta(boolean enableMeta) {
         this.enableMeta = enableMeta;
         return this;
     }
@@ -205,7 +205,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return registLiveTime;
     }
 
-    public FileInputInputConfig setRegistLiveTime(Long registLiveTime) {
+    public FileInputConfig setRegistLiveTime(Long registLiveTime) {
         this.registLiveTime = registLiveTime;
         return this;
     }
@@ -215,7 +215,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return checkFileModifyInterval;
     }
 
-    public FileInputInputConfig setCheckFileModifyInterval(long checkFileModifyInterval) {
+    public FileInputConfig setCheckFileModifyInterval(long checkFileModifyInterval) {
         this.checkFileModifyInterval = checkFileModifyInterval;
         return this;
     }
@@ -223,7 +223,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return backupSuccessFiles;
     }
 
-    public FileInputInputConfig setBackupSuccessFiles(boolean backupSuccessFiles) {
+    public FileInputConfig setBackupSuccessFiles(boolean backupSuccessFiles) {
         this.backupSuccessFiles = backupSuccessFiles;
         return this;
     }
@@ -232,7 +232,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return backupSuccessFileDir;
     }
 
-    public FileInputInputConfig setBackupSuccessFileDir(String backupSuccessFileDir) {
+    public FileInputConfig setBackupSuccessFileDir(String backupSuccessFileDir) {
         this.backupSuccessFileDir = backupSuccessFileDir;
         return this;
     }
@@ -241,7 +241,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return backupSuccessFileInterval;
     }
 
-    public FileInputInputConfig setBackupSuccessFileInterval(long backupSuccessFileInterval) {
+    public FileInputConfig setBackupSuccessFileInterval(long backupSuccessFileInterval) {
         this.backupSuccessFileInterval = backupSuccessFileInterval;
         return this;
     }
@@ -250,7 +250,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return backupSuccessFileLiveTime;
     }
 
-    public FileInputInputConfig setBackupSuccessFileLiveTime(long backupSuccessFileLiveTime) {
+    public FileInputConfig setBackupSuccessFileLiveTime(long backupSuccessFileLiveTime) {
         this.backupSuccessFileLiveTime = backupSuccessFileLiveTime;
         return this;
     }
@@ -265,18 +265,18 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
      * @param useETLScheduleForScanNewFile
      * @return
      */
-    public FileInputInputConfig setUseETLScheduleForScanNewFile(boolean useETLScheduleForScanNewFile) {
+    public FileInputConfig setUseETLScheduleForScanNewFile(boolean useETLScheduleForScanNewFile) {
         this.useETLScheduleForScanNewFile = useETLScheduleForScanNewFile;
         return this;
     }
 
     public FileReaderTask buildFileReaderTask(TaskContext taskContext, File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
-											  Status currentStatus , FileInputInputConfig fileImportConfig ){
+											  Status currentStatus , FileInputConfig fileImportConfig ){
         FileReaderTask task = new FileReaderTask(taskContext,file,fileId,fileConfig,pointer,
                 fileListenerService,fileDataTran,currentStatus,fileImportConfig);
         return task;
     }
-    public FileReaderTask buildFileReaderTask(String fileId, Status currentStatus, FileInputInputConfig fileImportConfig ){
+    public FileReaderTask buildFileReaderTask(String fileId, Status currentStatus, FileInputConfig fileImportConfig ){
         FileReaderTask task =  new FileReaderTask(fileId,currentStatus,fileImportConfig);
         return task;
     }
@@ -289,7 +289,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
      * @param timeRange
      * @return
      */
-    public FileInputInputConfig addSkipScanNewFileTimeRange(String timeRange){
+    public FileInputConfig addSkipScanNewFileTimeRange(String timeRange){
         if(timerScheduleConfig == null){
             timerScheduleConfig = new TimerScheduleConfig();
         }
@@ -306,7 +306,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
      * @param timeRange
      * @return
      */
-    public FileInputInputConfig addScanNewFileTimeRange(String timeRange){
+    public FileInputConfig addScanNewFileTimeRange(String timeRange){
         if(timerScheduleConfig == null){
             timerScheduleConfig = new TimerScheduleConfig();
         }
@@ -325,7 +325,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return timerScheduleConfig != null?timerScheduleConfig.getSkipScanNewFileTimeRanges():null;
     }
 
-    public FileInputInputConfig setSleepAwaitTimeAfterFetch(long sleepAwaitTimeAfterFetch) {
+    public FileInputConfig setSleepAwaitTimeAfterFetch(long sleepAwaitTimeAfterFetch) {
         this.sleepAwaitTimeAfterFetch = sleepAwaitTimeAfterFetch;
         return this;
     }
@@ -334,7 +334,7 @@ public class FileInputInputConfig extends BaseConfig implements InputConfig {
         return sleepAwaitTimeAfterFetch;
     }
 
-    public FileInputInputConfig setSleepAwaitTimeAfterCollect(long sleepAwaitTimeAfterCollect) {
+    public FileInputConfig setSleepAwaitTimeAfterCollect(long sleepAwaitTimeAfterCollect) {
         this.sleepAwaitTimeAfterCollect = sleepAwaitTimeAfterCollect;
         return this;
     }

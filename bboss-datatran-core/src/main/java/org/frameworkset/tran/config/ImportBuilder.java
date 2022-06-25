@@ -359,6 +359,24 @@ public class ImportBuilder {
 			}
 
 	}
+	private DBConfig defaultDBConfig ;
+	protected void buildDBConfig(){
+
+		GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
+		String dbName  = propertiesContainer.getExternalProperty("db.name");
+		if(dbName == null || dbName.equals("")) {
+			return;
+		}
+
+
+		defaultDBConfig = new DBConfig();
+		_buildDBConfig(propertiesContainer,dbName,defaultDBConfig, "");
+
+	}
+
+	public DBConfig getDefaultDBConfig() {
+		return defaultDBConfig;
+	}
 
 	/**
 	 * 在数据导入过程可能需要使用的其他数据名称，需要在配置文件中定义相关名称的db配置
@@ -1007,7 +1025,7 @@ public class ImportBuilder {
 //		baseImportConfig.setJdbcFetchsize(jdbcFetchsize);
 		baseImportConfig.setConfigs(this.configs);
 		baseImportConfig.setBatchSize(this.batchSize);
-
+		baseImportConfig.setDefaultDBConfig(defaultDBConfig);
 
 
 		baseImportConfig.setApplicationPropertiesFile(this.applicationPropertiesFile);
@@ -1106,6 +1124,7 @@ public class ImportBuilder {
 
 	protected DataStream innerBuilder(){
 		this.buildGeoipConfig();
+		buildDBConfig();
 		this.buildOtherDBConfigs();
 		this.buildStatusDBConfig();
 
