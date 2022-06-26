@@ -70,7 +70,10 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	public ExportCount getExportCount() {
 		return exportCount;
 	}
-
+	@Override
+	public boolean useFilePointer(){
+		return false;
+	}
 	public InputPlugin getInputPlugin() {
 		return inputPlugin;
 	}

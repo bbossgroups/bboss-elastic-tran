@@ -108,7 +108,7 @@ public  class BaseImportContext implements ImportContext {
 		return  baseImportConfig.getExportColumns();
 	}
 	public boolean useFilePointer(){
-		return false;
+		return dataTranPlugin.useFilePointer();
 	}
 	//	private JDBCResultSet jdbcResultSet;
 	private DataTranPlugin dataTranPlugin;

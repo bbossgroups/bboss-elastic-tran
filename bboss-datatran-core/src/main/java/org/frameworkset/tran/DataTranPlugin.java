@@ -108,4 +108,6 @@ public interface DataTranPlugin {
 
 	void doImportData(TaskContext taskContext);
 	public void addStatus(Status currentStatus) throws DataImportException;
+
+	boolean useFilePointer();
 }

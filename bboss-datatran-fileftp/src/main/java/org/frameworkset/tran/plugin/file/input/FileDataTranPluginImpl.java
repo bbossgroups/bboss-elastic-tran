@@ -51,7 +51,10 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 	public void initLastValueClumnName(){
 
 	}
-
+	@Override
+	public boolean useFilePointer(){
+		return true;
+	}
 
 	@Override
 	public  void beforeInit() {
