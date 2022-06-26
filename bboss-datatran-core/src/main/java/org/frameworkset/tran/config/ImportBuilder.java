@@ -99,13 +99,7 @@ public class ImportBuilder {
 		DataTranPlugin dataTranPlugin = importContext.buildDataTranPlugin();
 		return dataTranPlugin;
 	}
-	/**
-	 * 是否不需要返回响应，不需要的情况下，可以设置为true，
-	 * 提升性能，如果debugResponse设置为true，那么强制返回并打印响应到日志文件中
-	 */
-	private boolean discardBulkResponse = true;
-	/**是否调试bulk响应日志，true启用，false 不启用，*/
-	private boolean debugResponse;
+
 	private ScheduleConfig scheduleConfig;
 	protected ImportIncreamentConfig importIncreamentConfig;
 	public boolean isExternalTimer() {
@@ -1131,7 +1125,7 @@ public class ImportBuilder {
 
 		try {
 			if(logger.isInfoEnabled()) {
-				logger.info("DB2DB Import Configs:");
+				logger.info("Import Configs:");
 				logger.info(this.toString());
 			}
 		}

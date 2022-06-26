@@ -1,6 +1,5 @@
 package org.frameworkset.tran;
 
-import org.frameworkset.elasticsearch.ElasticSearchException;
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
@@ -68,7 +67,7 @@ public abstract class BaseDataTran implements DataTran{
 					continue;
 				varName = fieldMeta.getTargetFieldName();//获取映射字段
 				if(varName == null || varName.equals(""))
-					throw new ElasticSearchException("fieldName["+fieldName+"]名称映射配置错误：varName="+varName);
+					throw new DataImportException("fieldName["+fieldName+"]名称映射配置错误：varName="+varName);
 			}
 			else{
 				varName = fieldName;

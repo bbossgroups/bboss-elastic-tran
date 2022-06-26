@@ -62,7 +62,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	private String fileDir;
 	private int fileWriterBuffsize ;
 	private int maxFileRecordSize;
-	private boolean disableftp;
+	private boolean disableftp ;
 
 	@Override
 	public boolean deleteRemoteFile() {
@@ -185,6 +185,10 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
+		if(ftpOutConfig == null){
+			disableftp = true;
+		}
+
 		if(getMaxFileRecordSize() == 0){//默认1万条记录一个文件
 			setMaxFileRecordSize(10000);
 		}
@@ -195,7 +199,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return null;
+		return new FileOutputDataTranPlugin(importContext);
 	}
 
 	@Override

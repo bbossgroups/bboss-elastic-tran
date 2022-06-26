@@ -137,8 +137,10 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
             }
             return true;
         } catch (DataImportException e) {
+            dataTranPlugin.throwException(taskContext,e);
             throw e;
         } catch (Exception e) {
+            dataTranPlugin.throwException(taskContext,e);
             throw new DataImportException(e);
         }
 

@@ -16,9 +16,9 @@ package org.frameworkset.tran.db.output;
  */
 
 import com.frameworkset.common.poolman.*;
-import org.frameworkset.elasticsearch.ElasticSearchException;
 import org.frameworkset.persitent.type.BaseTypeMethod;
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.db.DBRecord;
 import org.frameworkset.tran.metrics.ImportCount;
@@ -350,10 +350,10 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 				try {
 					stmtInfo.errorHandle(error);
 				} catch (SQLException ex) {
-					throw new ElasticSearchException(taskInfo,error);
+					throw new DataImportException(taskInfo,error);
 				}
 			}
-			throw new ElasticSearchException(taskInfo,error);
+			throw new DataImportException(taskInfo,error);
 		}
 		catch (Exception e) {
 			if(stmtInfo != null) {
@@ -361,10 +361,10 @@ public class Base2DBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 				try {
 					stmtInfo.errorHandle(e);
 				} catch (SQLException ex) {
-					throw new ElasticSearchException(taskInfo,e);
+					throw new DataImportException(taskInfo,e);
 				}
 			}
-			throw new ElasticSearchException(taskInfo,e);
+			throw new DataImportException(taskInfo,e);
 
 		} finally {
 			if(stmtInfo != null)

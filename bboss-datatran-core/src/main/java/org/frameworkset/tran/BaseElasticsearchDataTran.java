@@ -3,7 +3,6 @@ package org.frameworkset.tran;
 import com.frameworkset.common.poolman.handle.ValueExchange;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.elasticsearch.ElasticSearchException;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.client.BuildTool;
 import org.frameworkset.elasticsearch.client.ClientInterface;
@@ -156,7 +155,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 	}
 
 
-	public String tran(String indexName,String indexType) throws ElasticSearchException{
+	public String tran(String indexName,String indexType) throws DataImportException{
 		ESIndexWrapper esIndexWrapper = new ESIndexWrapper(indexName,indexType);
 		elasticsearchOutputConfig.setEsIndexWrapper(esIndexWrapper);
 		return tran();
@@ -453,7 +452,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 
 
 		} catch (Exception e) {
-			throw new ElasticSearchException(e);
+			throw new DataImportException(e);
 		}*/
 		buildMeta(context,writer,isUpper7);
 

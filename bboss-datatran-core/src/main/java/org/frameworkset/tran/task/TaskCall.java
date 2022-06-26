@@ -15,10 +15,10 @@ package org.frameworkset.tran.task;
  * limitations under the License.
  */
 
-import org.frameworkset.elasticsearch.ElasticSearchException;
-import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.TranErrorWrapper;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,13 +82,13 @@ public class TaskCall implements Runnable {
 			taskCommand.execute();
 
 		}
-		catch (ElasticSearchException e){
+		catch (DataImportException e){
 
 			throw e;
 		}
 		catch (Exception e){
 
-			throw new ElasticSearchException(e);
+			throw new DataImportException(e);
 		}
 		finally {
 //			taskCommand.finished();
@@ -123,7 +123,7 @@ public class TaskCall implements Runnable {
 			}
 			return data;
 		}
-		catch (ElasticSearchException e){
+		catch (DataImportException e){
 			long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
 			taskMetrics.setFailedRecords(taskCommand.getDataSize());
 			taskMetrics.setRecords(taskMetrics.getFailedRecords());
@@ -164,7 +164,7 @@ public class TaskCall implements Runnable {
 					logger.warn("",e);
 				}
 			}
-			throw new ElasticSearchException(e);
+			throw new DataImportException(e);
 		}
 		finally {
 			taskCommand.finished();
@@ -237,14 +237,13 @@ public class TaskCall implements Runnable {
 			}
 			else
 			{
-				if(isPrintTaskLog()) {
-					long end = System.currentTimeMillis();
-					info.setLength(0);
-					info.append("Task[").append(taskCommand.getTaskNo()).append("] failed: ")
-						.append(taskCommand.getDataSize())
-						.append(" records,but continue On Error! Take time:").append((end - start)).append("ms");
-					logger.info(info.toString(),e);
-				}
+				long end = System.currentTimeMillis();
+				info.setLength(0);
+				info.append("Task[").append(taskCommand.getTaskNo()).append("] failed: ")
+					.append(taskCommand.getDataSize())
+					.append(" records,but continue On Error! Take time:").append((end - start)).append("ms");
+				logger.info(info.toString(),e);
+
 
 			}
 

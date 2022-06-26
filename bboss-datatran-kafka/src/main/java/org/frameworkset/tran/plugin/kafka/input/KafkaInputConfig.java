@@ -62,7 +62,12 @@ public abstract class KafkaInputConfig extends BaseConfig implements InputConfig
 		this.kafkaConfigs = kafkaConfigs;
 		return this;
 	}
-
+	public KafkaInputConfig addKafkaConfig(String key,Object value){
+		if(kafkaConfigs == null)
+			kafkaConfigs = new Properties();
+		kafkaConfigs.put(key,value);
+		return this;
+	}
 	public KafkaInputConfig setKafkaTopic(String kafkaTopic) {
 		this.kafkaTopic = kafkaTopic;
 		return this;

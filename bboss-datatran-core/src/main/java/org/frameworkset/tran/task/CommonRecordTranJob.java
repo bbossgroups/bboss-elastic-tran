@@ -16,7 +16,6 @@ package org.frameworkset.tran.task;
  */
 
 import com.frameworkset.orm.annotation.BatchContext;
-import org.frameworkset.elasticsearch.ElasticSearchException;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
@@ -219,12 +218,12 @@ public class CommonRecordTranJob extends BaseTranJob{
 						.append(ignoreTotalCount).append(" records.").toString());
 
 			}
-		} catch (ElasticSearchException e) {
+		} catch (DataImportException e) {
 			exception = e;
 			throw e;
 		} catch (Exception e) {
 			exception = e;
-			throw new ElasticSearchException(e);
+			throw new DataImportException(e);
 		}
 		finally {
 
@@ -366,12 +365,12 @@ public class CommonRecordTranJob extends BaseTranJob{
 				logger.info(new StringBuilder().append("Pararrel batch submit tasks:").append(taskNo).toString());
 
 
-		} catch (ElasticSearchException e) {
+		} catch (DataImportException e) {
 			exception = e;
 			throw e;
 		} catch (Exception e) {
 			exception = e;
-			throw new ElasticSearchException(e);
+			throw new DataImportException(e);
 		}
 		finally {
 			final boolean _reachEOFClosed = reachEOFClosed;

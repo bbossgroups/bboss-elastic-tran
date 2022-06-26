@@ -16,7 +16,6 @@ package org.frameworkset.tran.task;
  */
 
 import com.frameworkset.orm.annotation.BatchContext;
-import org.frameworkset.elasticsearch.ElasticSearchException;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
@@ -232,12 +231,12 @@ public class StringTranJob extends BaseTranJob{
 						.append(ignoreTotalCount).append(" records.").toString());
 
 			}
-		}  catch (ElasticSearchException e) {
+		}  catch (DataImportException e) {
 			exception = e;
 			throw e;
 		} catch (Exception e) {
 			exception = e;
-			throw new ElasticSearchException(e);
+			throw new DataImportException(e);
 		}
 		finally {
 
@@ -384,12 +383,12 @@ public class StringTranJob extends BaseTranJob{
 
 
 
-		} catch (ElasticSearchException e) {
+		} catch (DataImportException e) {
 			exception = e;
 			throw e;
 		} catch (Exception e) {
 			exception = e;
-			throw new ElasticSearchException(e);
+			throw new DataImportException(e);
 		}
 		finally {
 			baseDataTran.waitTasksComplete(tasks, service, exception, lastValue, totalCount, tranErrorWrapper, new WaitTasksCompleteCallBack() {

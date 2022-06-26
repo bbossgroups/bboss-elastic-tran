@@ -20,6 +20,7 @@ import org.frameworkset.elasticsearch.client.BuildTool;
 import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.frameworkset.elasticsearch.client.ClientUtil;
 import org.frameworkset.elasticsearch.handler.ESVoidResponseHandler;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
@@ -101,7 +102,7 @@ public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 					clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST, esVoidResponseHandler);
 
 					if (esVoidResponseHandler.getElasticSearchException() != null)
-						throw esVoidResponseHandler.getElasticSearchException();
+						throw new DataImportException(esVoidResponseHandler.getElasticSearchException());
 				}
 				finishTask();
 				return null;

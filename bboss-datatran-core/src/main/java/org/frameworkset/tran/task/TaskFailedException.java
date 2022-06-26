@@ -15,7 +15,7 @@ package org.frameworkset.tran.task;
  * limitations under the License.
  */
 
-import org.frameworkset.elasticsearch.ElasticSearchException;
+import org.frameworkset.tran.DataImportException;
 
 /**
  * <p>Description: </p>
@@ -25,26 +25,8 @@ import org.frameworkset.elasticsearch.ElasticSearchException;
  * @author biaoping.yin
  * @version 1.0
  */
-public class TaskFailedException extends ElasticSearchException {
-	public TaskFailedException(int httpStatusCode) {
-		super(httpStatusCode);
-	}
+public class TaskFailedException extends DataImportException {
 
-	public TaskFailedException(String message, int httpStatusCode) {
-		super(message, httpStatusCode);
-	}
-
-	public TaskFailedException(Throwable cause, int httpStatusCode) {
-		super(cause, httpStatusCode);
-	}
-
-	public TaskFailedException(String message, Throwable cause, int httpStatusCode) {
-		super(message, cause, httpStatusCode);
-	}
-
-	public TaskFailedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, int httpStatusCode) {
-		super(message, cause, enableSuppression, writableStackTrace, httpStatusCode);
-	}
 
 	public TaskFailedException() {
 	}

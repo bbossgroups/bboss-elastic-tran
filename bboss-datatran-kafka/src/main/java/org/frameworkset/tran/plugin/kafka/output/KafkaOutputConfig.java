@@ -111,6 +111,10 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 		return logsendTaskMetric;
 	}
 
+	public KafkaOutputConfig setLogsendTaskMetric(long logsendTaskMetric) {
+		this.logsendTaskMetric = logsendTaskMetric;
+		return this;
+	}
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
