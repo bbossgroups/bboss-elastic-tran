@@ -27,15 +27,13 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 //	protected String fileName;
 //	protected String remoteFileName;
 
-	public DummyOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, Status currentStatus) {
-		super(taskContext,jdbcResultSet,importContext, currentStatus);
-		dummyOupputConfig = (DummyOutputConfig) importContext.getOutputConfig();
-	}
+
 	public DummyOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, CountDownLatch countDownLatch, Status currentStatus) {
 		super(taskContext, jdbcResultSet, importContext, countDownLatch, currentStatus);
+		dummyOupputConfig = (DummyOutputConfig) importContext.getOutputConfig();
 	}
 
-
+	@Override
 	public void init(){
 		super.init();
 
@@ -44,6 +42,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 
 	}
+
 	public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
 		CommonRecord record = buildRecord(  context );
 		dummyOupputConfig.generateReocord(context,record, writer);
