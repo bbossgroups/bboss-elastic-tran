@@ -471,8 +471,13 @@ public class FileListenerService {
 				remoteFileChannel.submitNewTask(new Runnable() {
 					@Override
 					public void run() {
-						downAndCollectFile(handleFile, localFile, fileId,
-								relativeParentDir, remoteFile, ftpContext, remoteFileAction);
+					    try {
+                            downAndCollectFile(handleFile, localFile, fileId,
+                                    relativeParentDir, remoteFile, ftpContext, remoteFileAction);
+                        }
+					    catch (Exception e){
+					        logger.error("Download remoteFile" + remoteFile+ " to " + localFile+ " And Collect File failed：",e);
+                        }
 					}
 				});
 			}
