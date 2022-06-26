@@ -39,6 +39,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public interface DataTranPlugin {
 	public int getLastValueType();
+
 	public InputPlugin getInputPlugin() ;
 	public boolean checkTranToStop();
 	public OutputPlugin getOutputPlugin();
@@ -103,7 +104,7 @@ public interface DataTranPlugin {
 
 	boolean isMultiTran();
 
-	BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch);
+	BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch,Status currentStatus);
 
 	void doImportData(TaskContext taskContext);
 	public void addStatus(Status currentStatus) throws DataImportException;

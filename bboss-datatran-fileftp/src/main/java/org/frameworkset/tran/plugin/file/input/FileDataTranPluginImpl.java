@@ -184,7 +184,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 				//创建一个文件对应的交换通道
 				FileResultSet kafkaResultSet = new FileResultSet(this.importContext);
 				FileTaskContext taskContext = new FileTaskContext(importContext);
-				final BaseDataTran fileDataTran = createBaseDataTran(taskContext,kafkaResultSet,null);
+				final BaseDataTran fileDataTran = createBaseDataTran(taskContext,kafkaResultSet,null,status);
 
 				Thread tranThread = null;
 				try {

@@ -51,7 +51,7 @@ public class DefaultResultSetHandler extends ResultSetHandler {
 //		jdbcResultSet.setResultSet(resultSet);
 //		jdbcResultSet.setMetaData(statementInfo.getMeta());
 //		jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-		BaseDataTran baseDataTran = dataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet,null);
+		BaseDataTran baseDataTran = dataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet,null,dataTranPlugin.getCurrentStatus());
 		baseDataTran.tran(  );
 	}
 }

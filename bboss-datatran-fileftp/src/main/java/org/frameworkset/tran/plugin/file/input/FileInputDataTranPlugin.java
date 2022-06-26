@@ -95,7 +95,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
 //		final CountDownLatch countDownLatch = new CountDownLatch(1);
         FileTaskContext taskContext = new FileTaskContext(importContext);
 
-        final BaseDataTran fileDataTran = dataTranPlugin.createBaseDataTran(taskContext,kafkaResultSet,null);
+        final BaseDataTran fileDataTran = dataTranPlugin.createBaseDataTran(taskContext,kafkaResultSet,null,status);
         Thread tranThread = null;
         try {
             if(fileDataTran != null) {

@@ -174,7 +174,7 @@ public class MongoDBInputDatatranPlugin extends BaseInputPlugin {
 	}
 	protected  void doTran(DBCursor dbCursor, TaskContext taskContext){
 		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);
-		BaseDataTran mongoDB2ESDataTran = dataTranPlugin.createBaseDataTran(taskContext,mongoDB2ESResultSet,null);//new BaseElasticsearchDataTran( taskContext,mongoDB2ESResultSet,importContext,targetImportContext,this.currentStatus);
+		BaseDataTran mongoDB2ESDataTran = dataTranPlugin.createBaseDataTran(taskContext,mongoDB2ESResultSet,null,dataTranPlugin.getCurrentStatus());//new BaseElasticsearchDataTran( taskContext,mongoDB2ESResultSet,importContext,targetImportContext,this.currentStatus);
 		mongoDB2ESDataTran.initTran();
 		mongoDB2ESDataTran.tran();
 	}

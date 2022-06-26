@@ -90,7 +90,7 @@ public  class HBaseInputDatatranPlugin extends BaseInputPlugin {
 	}
 	protected void doTran(ResultScanner rs,TaskContext taskContext){
 		HBaseResultSet hBaseResultSet = new HBaseResultSet(importContext,rs);
-		BaseDataTran baseDataTran = dataTranPlugin.createBaseDataTran(taskContext,hBaseResultSet,null);
+		BaseDataTran baseDataTran = dataTranPlugin.createBaseDataTran(taskContext,hBaseResultSet,null,dataTranPlugin.getCurrentStatus());
 		baseDataTran.initTran();
 		baseDataTran.tran();
 	}

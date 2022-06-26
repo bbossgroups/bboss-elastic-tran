@@ -100,7 +100,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			return !this.scheduleAssert.assertSchedule(  autoPause);
 		return false;
 	}
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet,CountDownLatch countDownLatch){
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet,CountDownLatch countDownLatch,Status currentStatus){
 		return this.outputPlugin.createBaseDataTran(taskContext,tranResultSet,countDownLatch,currentStatus);
 	}
 
