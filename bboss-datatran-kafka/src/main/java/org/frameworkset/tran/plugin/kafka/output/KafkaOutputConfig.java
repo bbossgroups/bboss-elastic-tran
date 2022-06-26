@@ -23,6 +23,7 @@ import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.kafka.output.KafkaSend;
 import org.frameworkset.tran.plugin.BaseConfig;
+import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
 
 import java.io.Writer;
@@ -113,7 +114,9 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
-
+		if(recordGenerator == null){
+			recordGenerator = new JsonRecordGenerator();
+		}
 	}
 
 	@Override
