@@ -15,11 +15,12 @@ package org.frameworkset.tran.plugin.es.input;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.frameworkset.elasticsearch.entity.ESDatas;
 import org.frameworkset.elasticsearch.entity.MetaMap;
-import org.frameworkset.elasticsearch.template.ESInfo;
+import org.frameworkset.elasticsearch.template.*;
 import org.frameworkset.tran.AsynBaseTranResultSet;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
@@ -34,6 +35,7 @@ import org.frameworkset.tran.schedule.TaskContext;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -72,13 +74,19 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 
 	}
 	public void initStatusTableId(){
-		if(dataTranPlugin.isIncreamentImport() && elasticsearchInputConfig.getDslFile() != null && !elasticsearchInputConfig.getDslFile().equals("")) {
-			try {
-				ClientInterface clientInterface = ElasticSearchHelper.getConfigRestClientUtil(elasticsearchInputConfig.getSourceElasticsearch(),elasticsearchInputConfig.getDslFile());
-				ESInfo esInfo = clientInterface.getESInfo(elasticsearchInputConfig.getDslName());
-				importContext.setStatusTableId(esInfo.getTemplate().hashCode());
-			} catch (Exception e) {
-				throw new DataImportException(e);
+		if(dataTranPlugin.isIncreamentImport()) {
+			if( elasticsearchInputConfig.getDslFile() != null && !elasticsearchInputConfig.getDslFile().equals("")
+					&& SimpleStringUtil.isNotEmpty(elasticsearchInputConfig.getDslName())) {
+				try {
+					ClientInterface clientInterface = ElasticSearchHelper.getConfigRestClientUtil(elasticsearchInputConfig.getSourceElasticsearch(), elasticsearchInputConfig.getDslFile());
+					ESInfo esInfo = clientInterface.getESInfo(elasticsearchInputConfig.getDslName());
+					importContext.setStatusTableId(esInfo.getTemplate().hashCode());
+				} catch (Exception e) {
+					throw new DataImportException(e);
+				}
+			}
+			else if(SimpleStringUtil.isNotEmpty(elasticsearchInputConfig.getDsl())){
+				importContext.setStatusTableId(elasticsearchInputConfig.getDsl().hashCode());
 			}
 		}
 	}
@@ -107,29 +115,70 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 	}
 
 	protected void exportESData(TaskContext taskContext,BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,Map params,Date lastStartValue,Date lastEndValue){
+		if( SimpleStringUtil.isNotEmpty(elasticsearchInputConfig.getDslFile()) && SimpleStringUtil.isNotEmpty(elasticsearchInputConfig.getDslName()) ){
+			ClientInterface clientUtil = ElasticSearchHelper.getConfigRestClientUtil(elasticsearchInputConfig.getSourceElasticsearch(),elasticsearchInputConfig.getDslFile());
+			dslScriptByConfig( clientUtil,elasticsearchInputConfig.getDslName(),taskContext,esExporterScrollHandler, params, lastStartValue, lastEndValue);
+		}
+		else if(SimpleStringUtil.isNotEmpty(elasticsearchInputConfig.getDsl())){
+			String dslName = "datatranDslName";
+			//创建一个从数据库加载命名空间为"datatranDslNamespace-"+SimpleStringUtil.getUUID()的dsl语句的ClientInterface组件实例
+			ClientInterface clientUtil = ElasticSearchHelper.getConfigRestClientUtil(elasticsearchInputConfig.getSourceElasticsearch(),new BaseTemplateContainerImpl("datatranDslNamespace-"+SimpleStringUtil.getUUID()) {
+				@Override
+				protected Map<String, TemplateMeta> loadTemplateMetas(String namespace) {
+					try {
+						BaseTemplateMeta baseTemplateMeta = new BaseTemplateMeta();
+						baseTemplateMeta.setName(dslName);
+						baseTemplateMeta.setNamespace(namespace);
+						baseTemplateMeta.setDslTemplate(elasticsearchInputConfig.getDsl());
+						baseTemplateMeta.setMultiparser(true);
+						Map<String,TemplateMeta> templateMetaMap = new LinkedHashMap<>();
+						templateMetaMap.put(baseTemplateMeta.getName(),baseTemplateMeta);
+						return templateMetaMap;
+					} catch (Exception e) {
+						throw new DSLParserException(e);
+					}
+				}
 
-		//采用自定义handler函数处理每个scroll的结果集后，response中只会包含总记录数，不会包含记录集合
+				@Override
+				protected long getLastModifyTime(String namespace) {
+					// 获取dsl更新时间戳：模拟每次都更新，返回当前时间戳
+					// 如果检测到时间戳有变化，框架就将调用loadTemplateMetas方法加载最新的dsl配置
+					return -1;
+				}
+			});
+			dslScriptByConfig( clientUtil,dslName,taskContext,esExporterScrollHandler, params, lastStartValue, lastEndValue);
+		}
+		else{
+			throw new DataImportException("DslFile or DslName or Dsl Script is not setted by ElasticsearchInputConfig.");
+		}
+
+	}
+
+	private void dslScriptByConfig(ClientInterface clientUtil,String dslName,
+								   TaskContext taskContext,BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,
+								   Map params,Date lastStartValue,Date lastEndValue){
+//采用自定义handler函数处理每个scroll的结果集后，response中只会包含总记录数，不会包含记录集合
 		//scroll上下文有效期1分钟；大数据量时可以采用handler函数来处理每次scroll检索的结果，规避数据量大时存在的oom内存溢出风险
 
-		ClientInterface clientUtil = ElasticSearchHelper.getConfigRestClientUtil(elasticsearchInputConfig.getSourceElasticsearch(),elasticsearchInputConfig.getDslFile());
+
 
 		ESDatas<MetaMap> response = null;
 		if(!elasticsearchInputConfig.isSliceQuery()) {
 
 			if(importContext.isParallel() && esExporterScrollHandler instanceof ESDirectExporterScrollHandler) {
 				response = clientUtil.scrollParallel(getQueryUrl(  taskContext,lastStartValue,lastEndValue),
-						elasticsearchInputConfig.getDslName(), elasticsearchInputConfig.getScrollLiveTime(),
+						dslName, elasticsearchInputConfig.getScrollLiveTime(),
 						params, MetaMap.class, esExporterScrollHandler);
 			}
 			else
 			{
 				response = clientUtil.scroll(getQueryUrl(  taskContext,lastStartValue,lastEndValue),
-						elasticsearchInputConfig.getDslName(), elasticsearchInputConfig.getScrollLiveTime(),
+						dslName, elasticsearchInputConfig.getScrollLiveTime(),
 						params, MetaMap.class, esExporterScrollHandler);
 			}
 		}
 		else{
-			response = clientUtil.scrollSliceParallel(getQueryUrl(  taskContext,lastStartValue,lastEndValue), elasticsearchInputConfig.getDslName(),
+			response = clientUtil.scrollSliceParallel(getQueryUrl(  taskContext,lastStartValue,lastEndValue), dslName,
 					params, elasticsearchInputConfig.getScrollLiveTime(),MetaMap.class, esExporterScrollHandler);
 		}
 		if(logger.isInfoEnabled()) {
@@ -141,6 +190,9 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 			}
 		}
 	}
+
+
+
 
 	/**
 	 * 需要根据增量日期字段格式对date进行格式转换，避免采用默认utc格式检索出错

@@ -91,7 +91,7 @@ configure(subprojects) { subproject ->
 
 }
 //,project(":bboss-elasticsearch-rest-file")
-configure([project(":bboss-elasticsearch-rest-jdbc"),project(":bboss-datatran-geoip"),
+configure([project(":bboss-datatran-jdbc"),project(":bboss-elasticsearch-rest-jdbc"),project(":bboss-datatran-geoip"),
 		   project(":bboss-elasticsearch-rest-mongodb"),
 		   project(":bboss-datatran-kafka"),
 		   project(":bboss-datatran-kafka1x"),

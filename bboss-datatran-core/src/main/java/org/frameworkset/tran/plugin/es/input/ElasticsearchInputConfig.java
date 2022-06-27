@@ -46,6 +46,7 @@ public class ElasticsearchInputConfig extends BaseConfig implements InputConfig 
 	private QueryUrlFunction queryUrlFunction;
 	private String dslFile;
 	private String dslName;
+	private String dsl;
 	private boolean sliceQuery;
 	private int sliceSize;
 	private ESConfig esConfig;
@@ -199,6 +200,15 @@ public class ElasticsearchInputConfig extends BaseConfig implements InputConfig 
 			esConfig = new ESConfig();
 		}
 		esConfig.addElasticsearchProperty(name,value);
+		return this;
+	}
+
+	public String getDsl() {
+		return dsl;
+	}
+
+	public ElasticsearchInputConfig setDsl(String dsl) {
+		this.dsl = dsl;
 		return this;
 	}
 }

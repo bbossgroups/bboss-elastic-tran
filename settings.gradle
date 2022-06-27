@@ -1,5 +1,6 @@
 include 'bboss-datatran-geoip'
 include 'bboss-elasticsearch-rest-jdbc'
+include 'bboss-datatran-jdbc'
 include 'bboss-elasticsearch-rest-mongodb'
 include 'bboss-datatran-kafka'
 include 'bboss-datatran-kafka1x'
