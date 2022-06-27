@@ -41,8 +41,8 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		logger.info(taskInfo + " start.");
 	}
 	protected String taskInfo ;
-	protected FileTransfer buildFileTransfer(FileOutputConfig fileOupputContext, String fileName) throws IOException {
-		FileTransfer fileTransfer = new FileTransfer(taskInfo, fileOupputContext,path,fileName);
+	protected FileTransfer buildFileTransfer(FileOutputConfig fileOutputConfig, String fileName) throws IOException {
+		FileTransfer fileTransfer = new FileTransfer(taskInfo, fileOutputConfig,path,fileName);
 
 		return fileTransfer;
 

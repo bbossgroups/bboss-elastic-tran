@@ -8,6 +8,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
 import org.frameworkset.tran.output.fileftp.FileTransfer;
 import org.frameworkset.tran.plugin.file.output.ExcelFileOutputConfig;
+import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseParrelTranCommand;
@@ -24,8 +25,9 @@ import java.util.concurrent.Future;
 public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 
 
-	protected FileTransfer buildFileTransfer(ExcelFileOutputConfig fileOutputConfig, String fileName) throws IOException {
-		FileTransfer fileTransfer = new ExcelFileTransfer(taskInfo, fileOutputConfig,path,fileName);
+	@Override
+	protected FileTransfer buildFileTransfer(FileOutputConfig fileOutputConfig, String fileName) throws IOException {
+		FileTransfer fileTransfer = new ExcelFileTransfer(taskInfo, (ExcelFileOutputConfig) fileOutputConfig,path,fileName);
 
 		return fileTransfer;
 
