@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.es.input;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
@@ -46,6 +47,13 @@ public class ElasticsearchInputConfig extends BaseConfig implements InputConfig 
 	private QueryUrlFunction queryUrlFunction;
 	private String dslFile;
 	private String dslName;
+
+	public ElasticsearchInputConfig setDslNamespace(String dslNamespace) {
+		this.dslNamespace = dslNamespace;
+		return this;
+	}
+
+	private String dslNamespace;
 	private String dsl;
 	private boolean sliceQuery;
 	private int sliceSize;
@@ -105,6 +113,13 @@ public class ElasticsearchInputConfig extends BaseConfig implements InputConfig 
 //			ElasticSearchPropertiesFilePlugin.init(importBuilder.getApplicationPropertiesFile());
 ////					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
 //		}
+		if(SimpleStringUtil.isNotEmpty(dsl)) {
+			if(SimpleStringUtil.isEmpty(dslName))
+				dslName = "datatranDslName";
+			if(SimpleStringUtil.isEmpty(dslNamespace))
+				dslNamespace = "datatranDslName"+SimpleStringUtil.getUUID();
+
+		}
 	}
 
 	public ESConfig getEsConfig() {
@@ -210,5 +225,9 @@ public class ElasticsearchInputConfig extends BaseConfig implements InputConfig 
 	public ElasticsearchInputConfig setDsl(String dsl) {
 		this.dsl = dsl;
 		return this;
+	}
+
+	public String getDslNamespace() {
+		return dslNamespace;
 	}
 }

@@ -49,7 +49,8 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 	 */
 	@Override
 	public String parallelBatchExecute( ) {
-		logger.info("parallel batch import data Execute started.");
+		if(logger.isDebugEnabled())
+			logger.debug("parallel batch import data Execute started.");
 		return tranJob.parallelBatchExecute(parrelTranCommand,currentStatus,importContext, tranResultSet,this);
 	}
 
@@ -61,7 +62,8 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 	@Override
 	public String batchExecute(  ){
 
-		logger.info("batch import data Execute started.");
+		if(logger.isDebugEnabled())
+			logger.debug("batch import data Execute started.");
 		return tranJob.batchExecute(serialTranCommand,currentStatus,importContext, tranResultSet,this);
 	}
 	/**
@@ -71,7 +73,8 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 	 */
 	@Override
 	public String serialExecute(){
-		logger.info("serial import data Execute started.");
+		if(logger.isDebugEnabled())
+			logger.debug("serial import data Execute started.");
 		return tranJob.serialExecute(serialTranCommand,currentStatus,importContext, tranResultSet,this);
 	}
 

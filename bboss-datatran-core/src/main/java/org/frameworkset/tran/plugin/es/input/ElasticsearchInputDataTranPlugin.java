@@ -120,9 +120,9 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 			dslScriptByConfig( clientUtil,elasticsearchInputConfig.getDslName(),taskContext,esExporterScrollHandler, params, lastStartValue, lastEndValue);
 		}
 		else if(SimpleStringUtil.isNotEmpty(elasticsearchInputConfig.getDsl())){
-			String dslName = "datatranDslName";
+			String dslName = elasticsearchInputConfig.getDslName();
 			//创建一个从数据库加载命名空间为"datatranDslNamespace-"+SimpleStringUtil.getUUID()的dsl语句的ClientInterface组件实例
-			ClientInterface clientUtil = ElasticSearchHelper.getConfigRestClientUtil(elasticsearchInputConfig.getSourceElasticsearch(),new BaseTemplateContainerImpl("datatranDslNamespace-"+SimpleStringUtil.getUUID()) {
+			ClientInterface clientUtil = ElasticSearchHelper.getConfigRestClientUtil(elasticsearchInputConfig.getSourceElasticsearch(),new BaseTemplateContainerImpl(elasticsearchInputConfig.getDslNamespace()) {
 				@Override
 				protected Map<String, TemplateMeta> loadTemplateMetas(String namespace) {
 					try {

@@ -15,6 +15,8 @@ package org.frameworkset.tran.plugin.mongodb.input;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.frameworkset.util.SimpleStringUtil;
 import com.mongodb.DBObject;
 import com.mongodb.client.model.DBCollectionFindOptions;
 import org.frameworkset.nosql.mongodb.ClientMongoCredential;
@@ -235,11 +237,13 @@ public class MongoDBInputConfig extends BaseConfig implements InputConfig {
 
 	private String mechanism;
 	private String userName;
+	@JsonIgnore
 	private String password;
 	@Override
 	public void build(ImportBuilder importBuilder) {
 
-			if(credentials == null) {
+		if(SimpleStringUtil.isNotEmpty(userName) && SimpleStringUtil.isNotEmpty(password)) {
+			if (credentials == null) {
 				credentials = new ArrayList<ClientMongoCredential>();
 
 				ClientMongoCredential clientMongoCredential = new ClientMongoCredential();
@@ -249,6 +253,7 @@ public class MongoDBInputConfig extends BaseConfig implements InputConfig {
 				clientMongoCredential.setPassword(password);
 				credentials.add(clientMongoCredential);
 			}
+		}
 	}
 
 	@Override

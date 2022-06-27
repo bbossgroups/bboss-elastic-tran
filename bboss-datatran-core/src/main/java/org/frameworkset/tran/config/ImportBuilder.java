@@ -1202,10 +1202,10 @@ public class ImportBuilder {
 	 */
 	public DataStream builder(ScheduleAssert scheduleAssert){
 		if(inputConfig == null){
-			throw new DataImportException("InputConfig is null and must be set by ImportBuilder.");
+			throw new DataImportException("InputConfig is null and must be set to ImportBuilder.");
 		}
 		if(outputConfig == null){
-			throw new DataImportException("OutputConfig is null and must be set by ImportBuilder.");
+			throw new DataImportException("OutputConfig is null and must be set to ImportBuilder.");
 		}
 		DataStream dataStream = innerBuilder();
 		if(scheduleAssert != null){

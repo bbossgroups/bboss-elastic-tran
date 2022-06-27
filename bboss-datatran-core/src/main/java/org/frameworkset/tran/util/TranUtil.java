@@ -119,6 +119,9 @@ public abstract class TranUtil {
 		TranSQLInfo sqlInfo = null;
 		SQLInfo sqlinfo = null;
 		String sqlName = dbOutputConfig.getInsertSqlName();
+		if(SimpleStringUtil.isEmpty(sqlName)){
+			sqlName = dbOutputConfig.getSqlName();
+		}
 
 		if(sqlName == null) {
 			sqlName = dbOutputConfig.getInsertSql();
