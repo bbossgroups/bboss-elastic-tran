@@ -189,9 +189,9 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 			disableftp = true;
 		}
 
-		if(getMaxFileRecordSize() == 0){//默认1万条记录一个文件
-			setMaxFileRecordSize(10000);
-		}
+//		if(getMaxFileRecordSize() == 0){//默认1万条记录一个文件
+//			setMaxFileRecordSize(50000);
+//		}
 		if(getRecordGenerator() == null){
 			setRecordGenerator(new JsonRecordGenerator());
 		}

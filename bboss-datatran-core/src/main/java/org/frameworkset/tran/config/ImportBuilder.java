@@ -176,6 +176,7 @@ public class ImportBuilder {
 	 *  对于有延迟的数据源，指定增量截止时间与当前时间的便宜量
 	 *  增量查询截止时间值为：System.currenttime - increamentEndOffset
 	 *  对应的变量名称：getLastValueVarName()+"__endTime"
+	 *  单位：秒
 	 * @return
 	 */
 	private Integer increamentEndOffset;
@@ -216,6 +217,7 @@ public class ImportBuilder {
 	 *  对于有延迟的数据源，指定增量截止时间与当前时间的便宜量
 	 *  增量查询截止时间为：System.currenttime - increamentEndOffset
 	 *  对应的变量名称：getLastValueVarName()+"__endTime"
+	 *  单位：秒
 	 * @return
 	 */
 	public ImportBuilder setIncreamentEndOffset(Integer increamentEndOffset) {
