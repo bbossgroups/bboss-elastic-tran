@@ -49,6 +49,12 @@ public  class BaseImportContext implements ImportContext {
 	public JobTaskMetrics createJobTaskMetrics(){
 		return new JobTaskMetrics();
 	}
+	public DBConfig getDefaultDBConfig(){
+		return baseImportConfig.getDefaultDBConfig();
+	}
+	public List<DBConfig> getOhterDBConfigs(){
+		return baseImportConfig.getConfigs();
+	}
 	public DataTranPlugin buildDataTranPlugin(){
 		return inputConfig.buildDataTranPlugin(this);
 	}

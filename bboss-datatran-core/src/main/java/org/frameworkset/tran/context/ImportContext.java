@@ -45,7 +45,8 @@ public interface ImportContext {
 	InputPlugin getInputPlugin();
 	OutputPlugin getOutputPlugin();
 	DataTranPlugin buildDataTranPlugin();
-
+	public DBConfig getDefaultDBConfig();
+	public List<DBConfig> getOhterDBConfigs();
 	public boolean isLastValueColumnSetted();
 	public String getSplitFieldName();
 	public JobTaskMetrics createJobTaskMetrics();

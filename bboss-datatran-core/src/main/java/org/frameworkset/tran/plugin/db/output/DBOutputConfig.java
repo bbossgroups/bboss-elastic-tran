@@ -17,12 +17,7 @@ package org.frameworkset.tran.plugin.db.output;
 
 import com.frameworkset.common.poolman.BatchHandler;
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.spi.DefaultApplicationContext;
-import org.frameworkset.spi.assemble.GetProperties;
-import org.frameworkset.tran.DBConfig;
-import org.frameworkset.tran.DefualtExportResultHandler;
-import org.frameworkset.tran.ExportResultHandler;
-import org.frameworkset.tran.WrapedExportResultHandler;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
@@ -62,9 +57,9 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 
 	public DBOutputConfig setDbName(String dbName) {
 		_setDbName(  dbName);
-		if(targetDbname == null){
+//		if(targetDbname == null){
 			this.targetDbname = dbName;
-		}
+//		}
 
 		return this;
 	} 
@@ -72,10 +67,10 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return targetDbname;
 	}
 
-	public DBOutputConfig setTargetDbname(String targetDbname) {
-		this.targetDbname = targetDbname;
-		return this;
-	}
+//	public DBOutputConfig setTargetDbname(String targetDbname) {
+//		this.targetDbname = targetDbname;
+//		return this;
+//	}
 
 	public DBOutputConfig setStatementHandler(StatementHandler statementHandler) {
 		this.statementHandler = statementHandler;
@@ -212,26 +207,35 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
-		if(targetDBConfig == null) {
-			GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml", false);
-			String dbName = propertiesContainer.getExternalProperty("db.name");
-			if (dbName == null || dbName.equals("")) {
-				return;
-			} else {
-
-				if (targetDbname == null || targetDbname.equals("")) {
-					targetDbname = dbName;
-				}
-
+		if(targetDBConfig == null ) {
+			if(dbConfig == null) {
+//				GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml", false);
+//				String dbName = propertiesContainer.getExternalProperty("db.name");
+//				if (SimpleStringUtil.isNotEmpty(dbName)) {
+//					dbConfig = new DBConfig();
+//					_buildDBConfig(propertiesContainer, dbName, dbConfig, "");
+//					targetDBConfig = dbConfig;
+//
+//				}
+				dbConfig = importBuilder.getDefaultDBConfig();
+				if(dbConfig != null)
+					targetDBConfig = dbConfig;
 			}
-			if (dbConfig == null)
-				dbConfig = new DBConfig();
-			_buildDBConfig(propertiesContainer, dbName, dbConfig, "");
+			else{
+				targetDBConfig = dbConfig;
+			}
+
+
+
+
 		}
-		else{
+		if(targetDBConfig == null)
+			throw new DataImportException("Target DB Config not config to dboutputconfig.");
+		if(SimpleStringUtil.isEmpty(targetDbname)) {
 			targetDbname = targetDBConfig.getDbName();
-			dbConfig = targetDBConfig;			
 		}
+
+
 	}
 	public String getTargetDBName(TaskContext taskContext){
 		DBConfig dbConfig = getTargetDBConfig(taskContext);

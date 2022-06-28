@@ -330,7 +330,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		if(initDefaultDS )
 			return;
 		try {
-			DBConfig dbConfig = importContext.getImportConfig().getDefaultDBConfig();
+			DBConfig dbConfig = importContext.getDefaultDBConfig();
 			if (dbConfig != null ) {
 				initDS(dbStartResult,dbConfig);
 			}
@@ -343,7 +343,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		if(initOtherDSes )
 			return;
 		try {
-			List<DBConfig> dbConfigs = importContext.getImportConfig().getConfigs();
+			List<DBConfig> dbConfigs = importContext.getOhterDBConfigs();
 			if (dbConfigs != null && dbConfigs.size() > 0) {
 				for (DBConfig dbConfig : dbConfigs) {
 					initDS(dbStartResult,dbConfig);
@@ -400,9 +400,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		this.outputPlugin = importContext.getOutputPlugin();
 		inputPlugin.setDataTranPlugin(this);
 		outputPlugin.setDataTranPlugin(this);
-		beforeInit();
 		initDefaultDS();
 		initOtherDSes();
+		beforeInit();
 		this.inputPlugin.init();
 		this.outputPlugin.init();
 

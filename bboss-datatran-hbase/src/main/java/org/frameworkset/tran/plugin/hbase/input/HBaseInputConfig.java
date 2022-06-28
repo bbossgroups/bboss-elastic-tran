@@ -25,6 +25,7 @@ import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -68,6 +69,13 @@ public class HBaseInputConfig extends BaseConfig implements InputConfig {
 		return hbaseClientProperties;
 	}
 
+	public HBaseInputConfig addHbaseClientProperty(String name,String value){
+		if(hbaseClientProperties == null){
+			hbaseClientProperties = new LinkedHashMap<>();
+		}
+		hbaseClientProperties.put(name,value);
+		return this;
+	}
 	public HBaseInputConfig setHbaseClientProperties(Map<String, String> properties) {
 		this.hbaseClientProperties = properties;
 		return this;

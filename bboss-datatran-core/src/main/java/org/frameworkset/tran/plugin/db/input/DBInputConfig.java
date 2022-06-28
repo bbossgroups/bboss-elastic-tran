@@ -16,9 +16,8 @@ package org.frameworkset.tran.plugin.db.input;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.spi.DefaultApplicationContext;
-import org.frameworkset.spi.assemble.GetProperties;
 import org.frameworkset.tran.DBConfig;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
@@ -48,9 +47,7 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 	}
 	public DBInputConfig setDbName(String dbName) {
 		_setDbName(  dbName);
-		if(sourceDbname == null){
-			this.sourceDbname = dbName;
-		}
+		this.sourceDbname = dbName;
 
 		return this;
 	}
@@ -73,11 +70,11 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 	public String getSourceDbname() {
 		return sourceDbname;
 	}
-
-	public DBInputConfig setSourceDbname(String sourceDbname) {
-		this.sourceDbname = sourceDbname;
-		return this;
-	}
+//
+//	public DBInputConfig setSourceDbname(String sourceDbname) {
+//		this.sourceDbname = sourceDbname;
+//		return this;
+//	}
 	public String getDBName(){
 		DBConfig dbConfig = getDbConfig();
 		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()) ){
@@ -134,21 +131,24 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
-		GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
-		String dbName  = propertiesContainer.getExternalProperty("db.name");
-		if(dbName == null || dbName.equals("")) {
-			return;
-		}
-		else{
-			if(sourceDbname == null || sourceDbname.equals("")){
-				sourceDbname = dbName;
-			}
 
-
+		if(dbConfig == null ){
+//			GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
+//			String dbName  = propertiesContainer.getExternalProperty("db.name");
+//			if(SimpleStringUtil.isNotEmpty(dbName)){
+//				dbConfig = new DBConfig();
+//				_buildDBConfig(propertiesContainer, dbName, dbConfig, "");
+//				this.dbConfigMap.put(dbConfig.getDbName(),dbConfig);
+//			}
+			dbConfig = importBuilder.getDefaultDBConfig();
+			this.dbConfigMap.put(dbConfig.getDbName(),dbConfig);
 		}
-		if(dbConfig == null)
-			dbConfig = new DBConfig();
-		_buildDBConfig(propertiesContainer,dbName,dbConfig, "");
+		if(dbConfig == null){
+			throw new DataImportException("Source DB Config not config to dbinputconfig.");
+		}
+		if(SimpleStringUtil.isEmpty(sourceDbname))
+			sourceDbname = dbConfig.getDbName();
+
 	}
 
 	@Override
