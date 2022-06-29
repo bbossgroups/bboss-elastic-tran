@@ -238,7 +238,12 @@ public class TaskCall implements Runnable {
 			else
 			{
 				long end = System.currentTimeMillis();
-				info.setLength(0);
+				if(info == null){
+					info = new StringBuilder();
+				}
+				else {
+					info.setLength(0);
+				}
 				info.append("Task[").append(taskCommand.getTaskNo()).append("] failed: ")
 					.append(taskCommand.getDataSize())
 					.append(" records,but continue On Error! Take time:").append((end - start)).append("ms");

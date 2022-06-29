@@ -197,9 +197,15 @@ public class ElasticsearchInputConfig extends BaseConfig implements InputConfig 
 
 
 
- 
 
- 
+
+	public ElasticsearchInputConfig addSourceElasticsearch(String name,String sourceElasticsearch) {
+		this.sourceElasticsearch = sourceElasticsearch;
+		if(this.esConfig == null){
+			esConfig = new ESConfig();
+		}
+		return addElasticsearchProperty( name, sourceElasticsearch);
+	}
 
 	/**
 	 * 添加es客户端配置属性，具体的配置项参考文档：

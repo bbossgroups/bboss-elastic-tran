@@ -182,6 +182,11 @@ public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfi
 		return this;
 	}
 
+	public ElasticsearchOutputConfig addTargetElasticsearch(String name,String targetElasticsearch) {
+		this.targetElasticsearch = targetElasticsearch;
+		return addElasticsearchProperty( name, targetElasticsearch);
+	}
+
 	@Override
 	public void build(ImportBuilder importBuilder) {
 //		if(esConfig != null){
