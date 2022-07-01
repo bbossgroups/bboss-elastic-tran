@@ -107,7 +107,6 @@ configure([project(":bboss-datatran-jdbc"),project(":bboss-elasticsearch-rest-jd
 		   project(":bboss-datatran-mongodb"),
 		   project(":bboss-datatran-schedule-quartz"),
 		   project(":bboss-datatran-schedule-xxljob")
-//		   ,project(":bboss-elasticsearch-rest-http")
 ]) { subproject ->
 
 

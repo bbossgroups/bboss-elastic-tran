@@ -87,6 +87,12 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 				//计算增量记录id
 				importContext.setStatusTableId(dbInputConfig.getSql().hashCode());
 			}
+			else{
+				String sqlFile = dbInputConfig.getSqlFilepath();
+				String sqlName = dbInputConfig.getSqlName();
+				//计算增量记录id
+				importContext.setStatusTableId((sqlFile+"$$"+sqlName ).hashCode());
+			}
 		}
 
 	}

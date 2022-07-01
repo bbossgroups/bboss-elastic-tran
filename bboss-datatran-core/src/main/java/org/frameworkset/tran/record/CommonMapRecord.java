@@ -44,6 +44,11 @@ public class CommonMapRecord extends BaseRecord {
 		this.record = record;
 		this.offset = offset;
 	}
+
+	public CommonMapRecord(TaskContext taskContext, Map<String,Object> record){
+		super(taskContext);
+		this.record = record;
+	}
 	@Override
 	public boolean reachEOFClosed(){
 		return false;

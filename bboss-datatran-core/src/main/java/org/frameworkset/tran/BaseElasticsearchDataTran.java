@@ -8,7 +8,7 @@ import org.frameworkset.elasticsearch.client.BuildTool;
 import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.frameworkset.elasticsearch.serial.CharEscapeUtil;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
-import org.frameworkset.elasticsearch.template.ESUtil;
+import org.frameworkset.elasticsearch.template.ConfigDSLUtil;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
@@ -504,7 +504,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran{
 				} else if (value instanceof Date) {
 					DateFormat dateFormat = recordColumnInfo.getDateFormat();
 
-					String dataStr = ESUtil.getDate((Date) value,dateFormat);
+					String dataStr = ConfigDSLUtil.getDate((Date) value,dateFormat);
 					writer.write("\"");
 					writer.write(dataStr);
 					writer.write("\"");

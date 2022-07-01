@@ -132,6 +132,11 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 	@Override
 	public void build(ImportBuilder importBuilder) {
 
+		if(SimpleStringUtil.isEmpty(this.getSql())){
+			if(SimpleStringUtil.isEmpty(getSqlFilepath()) || SimpleStringUtil.isEmpty(getSqlName()) ){
+				throw new DataImportException("Input sql is not setted.");
+			}
+		}
 		if(dbConfig == null ){
 //			GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
 //			String dbName  = propertiesContainer.getExternalProperty("db.name");
