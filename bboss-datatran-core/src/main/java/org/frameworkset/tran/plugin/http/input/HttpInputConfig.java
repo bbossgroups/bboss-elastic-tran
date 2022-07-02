@@ -42,6 +42,8 @@ public class HttpInputConfig extends BaseConfig implements InputConfig {
 	private String dslNamespace;
 	private String dslFile;
 	private String queryUrl;
+	private boolean showDsl;
+	private String httpMethod;
 	private int pageSize;
 	public final static String pagineFromKey = "httpPagineFrom";
 	public final static String pagineSizeKey = "httpPagineSize";
@@ -60,7 +62,7 @@ public class HttpInputConfig extends BaseConfig implements InputConfig {
 
 	/**
 	 * 控制是否分页获取数据，需要对应的http服务提供支持，在数据量比较大，并且http服务支持分页查询是有效
-	 * from:分页起始位置
+	 * from:分页起始位置,从0开始
 	 * size：每页数据记录数，如果实际返回的记录数小于size或者为0，则标识分页获取数据结束
 	 */
 	private boolean pagine;
@@ -80,7 +82,7 @@ public class HttpInputConfig extends BaseConfig implements InputConfig {
 		return this;
 	}
 
-	public HttpInputConfig addHttpInputConfig(String property,String value){
+	public HttpInputConfig addHttpInputConfig(String property,Object value){
 		checkConfigs();
 		this.httpConfigs.put(property,value);
 		return this;
@@ -140,6 +142,13 @@ public class HttpInputConfig extends BaseConfig implements InputConfig {
 
 			throw new DataImportException("Input http query url is not setted.");
 		}
+		if(SimpleStringUtil.isEmpty(httpMethod)){
+			httpMethod = "post";
+		}
+
+		if(!httpMethod.equals("post") && !httpMethod.equals("put") ){
+			throw new DataImportException("Input httpMethod must be post or put.");
+		}
 		pageSize = importBuilder.getFetchSize() > 0? importBuilder.getFetchSize():5000;
 	}
 
@@ -158,6 +167,24 @@ public class HttpInputConfig extends BaseConfig implements InputConfig {
 
 	public HttpInputConfig setQueryUrl(String queryUrl) {
 		this.queryUrl = queryUrl;
+		return this;
+	}
+
+	public boolean isShowDsl() {
+		return showDsl;
+	}
+
+	public HttpInputConfig setShowDsl(boolean showDsl) {
+		this.showDsl = showDsl;
+		return this;
+	}
+
+	public String getHttpMethod() {
+		return httpMethod;
+	}
+
+	public HttpInputConfig setHttpMethod(String httpMethod) {
+		this.httpMethod = httpMethod;
 		return this;
 	}
 }

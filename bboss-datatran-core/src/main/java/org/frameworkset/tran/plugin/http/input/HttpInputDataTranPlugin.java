@@ -110,8 +110,15 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 					int pageSize = httpInputConfig.getPageSize();
 					params.put(HttpInputConfig.pagineSizeKey,pageSize);
 				}
-				HttpResult<Map> httpResult =  httpConfigClientProxy.sendBodyForList(httpInputConfig.getSourceHttpPool(),
-						httpInputConfig.getQueryUrl(),httpInputConfig.getQueryDslName(),params,Map.class);
+				HttpResult<Map> httpResult =  null;
+				if(httpInputConfig.getHttpMethod() == null || httpInputConfig.getHttpMethod().equals("post")) {
+					httpResult = httpConfigClientProxy.sendBodyForList(httpInputConfig, httpInputConfig.getSourceHttpPool(),
+							httpInputConfig.getQueryUrl(), httpInputConfig.getQueryDslName(), params, Map.class);
+				}
+				else if( httpInputConfig.getHttpMethod().equals("put")) {
+					httpResult = httpConfigClientProxy.putBodyForList(httpInputConfig, httpInputConfig.getSourceHttpPool(),
+							httpInputConfig.getQueryUrl(), httpInputConfig.getQueryDslName(), params, Map.class);
+				}
 				if(httpInputConfig.isPagine()) {
 					if(httpResult.size() == httpInputConfig.getPageSize()) {
 						hasMore = true;

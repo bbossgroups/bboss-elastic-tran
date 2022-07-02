@@ -27,6 +27,7 @@ import org.frameworkset.spi.remote.http.BaseURLResponseHandler;
 import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.spi.remote.http.ResponseUtil;
 import org.frameworkset.spi.remote.http.proxy.HttpProxyRequestException;
+import org.frameworkset.tran.plugin.http.input.HttpInputConfig;
 import org.frameworkset.util.shutdown.ShutdownUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,10 +108,49 @@ public class HttpConfigClientProxy {
 	public  <D,T> D httpGetforTypeObject(String poolName,String url,final Class<D> containType,final Class<T> resultType) throws HttpProxyRequestException {
 		return HttpRequestProxy.httpGetforTypeObject(  poolName,  url,  containType, resultType);
 	}
+	public   <T> HttpResult<T>  putBodyForList(HttpInputConfig httpInputConfig,String poolname, String url, String dslName, Map params, final Class<T> resultType) throws HttpProxyRequestException {
+		final HttpResult<T> httpResult = new HttpResult<>();
+		String dsl = this.evalTemplate(dslName,params);
+		if(logger.isInfoEnabled() && httpInputConfig.isShowDsl()){
+			logger.info(dsl);
+		}
+		//String poolname,String requestBody, String url, final Map<String, String> headers,ContentType contentType,final ResponseHandler<T> responseHandler
+		List<T> datas =  HttpRequestProxy.putBody(  poolname,  dsl,   url, (Map<String, String>)null, ContentType.APPLICATION_JSON, new BaseURLResponseHandler<List<T>>() {
+			@Override
+			public List<T> handleResponse(final HttpResponse response)
+					throws ClientProtocolException, IOException {
+				httpResult.setResponse(response);
+				return ResponseUtil.handleListResponse( url, response, resultType);
+			}
+		});
+		httpResult.setDatas(datas);
+		return httpResult;
+	}
 
+	public   <T> HttpResult<T>  sendBodyForList(HttpInputConfig httpInputConfig,String poolname, String url, String dslName, Map params, final Class<T> resultType) throws HttpProxyRequestException {
+		final HttpResult<T> httpResult = new HttpResult<>();
+		String dsl = this.evalTemplate(dslName,params);
+		if(logger.isInfoEnabled() && httpInputConfig.isShowDsl()){
+			logger.info(dsl);
+		}
+		List<T> datas =  HttpRequestProxy.sendBody(  poolname,  dsl,   url, (Map<String, String>)null, ContentType.APPLICATION_JSON, new BaseURLResponseHandler<List<T>>() {
+			@Override
+			public List<T> handleResponse(final HttpResponse response)
+					throws ClientProtocolException, IOException {
+				httpResult.setResponse(response);
+				return ResponseUtil.handleListResponse( url, response, resultType);
+			}
+		});
+		httpResult.setDatas(datas);
+		return httpResult;
+	}
 	public   <T> HttpResult<T>  sendBodyForList(String poolname, String url,String dslName,Map params,final Class<T> resultType) throws HttpProxyRequestException {
 		final HttpResult<T> httpResult = new HttpResult<>();
-		List<T> datas =  HttpRequestProxy.sendBody(  poolname,  this.evalTemplate(dslName,params),   url, (Map<String, String>)null, ContentType.APPLICATION_JSON, new BaseURLResponseHandler<List<T>>() {
+		String dsl = this.evalTemplate(dslName,params);
+		if(logger.isInfoEnabled()){
+			logger.info(dsl);
+		}
+		List<T> datas =  HttpRequestProxy.sendBody(  poolname,  dsl,   url, (Map<String, String>)null, ContentType.APPLICATION_JSON, new BaseURLResponseHandler<List<T>>() {
 			@Override
 			public List<T> handleResponse(final HttpResponse response)
 					throws ClientProtocolException, IOException {
