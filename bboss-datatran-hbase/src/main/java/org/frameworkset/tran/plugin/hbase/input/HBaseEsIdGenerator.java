@@ -19,7 +19,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.tran.EsIdGenerator;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.plugin.es.ESField;
 
 /**
  * <p>Description: 将hbase的id设置为es的文档_id</p>

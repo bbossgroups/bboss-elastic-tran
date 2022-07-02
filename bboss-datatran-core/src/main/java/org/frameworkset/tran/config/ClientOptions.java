@@ -16,7 +16,7 @@ package org.frameworkset.tran.config;
  */
 
 import org.frameworkset.elasticsearch.bulk.BulkActionConfig;
-import org.frameworkset.tran.es.ESField;
+import org.frameworkset.tran.plugin.es.ESField;
 
 import java.io.Serializable;
 import java.util.ArrayList;

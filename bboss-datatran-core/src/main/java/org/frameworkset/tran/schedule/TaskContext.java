@@ -17,7 +17,7 @@ package org.frameworkset.tran.schedule;
 
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.output.TranSQLInfo;
+import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.db.output.DBOutputConfig;

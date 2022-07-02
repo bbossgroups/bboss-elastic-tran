@@ -1,4 +1,4 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.plugin.es.input;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,31 +15,28 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.config.ClientOptions;
-import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.plugin.es.ESField;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.AsynBaseTranResultSet;
+import org.frameworkset.tran.Record;
 
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- *
+ * @Date 2019/10/28 22:37
  * @author biaoping.yin
  * @version 1.0
- * @Date 2018/12/4 11:35
  */
-public class DefaultEsIdGenerator implements EsIdGenerator {
-	@Override
-	public Object genId(Context context) throws Exception {
-		ClientOptions clientOptions = context.getClientOptions();
-		ESField esIdField = clientOptions != null?clientOptions.getIdField():null;
-		if (esIdField != null) {
-			if(!esIdField.isMeta())
-				return context.getValue(esIdField.getField());
-			else
-				return context.getMetaValue(esIdField.getField());
+public class ES2TranResultSet extends AsynBaseTranResultSet {
 
-		}
-		return null;
+	public ES2TranResultSet(ImportContext importContext) {
+		super(importContext);
+
 	}
+	@Override
+	protected Record buildRecord(Object data){
+		return new ESRecord(getTaskContext(),data);
+	}
+
+
 }

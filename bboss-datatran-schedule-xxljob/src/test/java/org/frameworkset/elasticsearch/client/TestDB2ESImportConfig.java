@@ -1,21 +1,12 @@
 package org.frameworkset.elasticsearch.client;
 
-import com.frameworkset.common.poolman.SQLExecutor;
-import com.frameworkset.common.poolman.StatementInfo;
-import com.frameworkset.common.poolman.handle.ResultSetHandler;
 import com.frameworkset.common.poolman.util.SQLUtil;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
-import org.frameworkset.tran.BaseElasticsearchDataTran;
 import org.frameworkset.tran.DataStream;
-import org.frameworkset.tran.db.JDBCResultSet;
-import org.frameworkset.tran.db.input.es.DB2ESImportBuilder;
-import org.frameworkset.tran.es.input.ESImportContext;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.config.ImportBuilder;
+import org.frameworkset.tran.plugin.db.input.DBInputConfig;
+import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 import org.junit.Test;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class TestDB2ESImportConfig {
 
@@ -27,78 +18,10 @@ public class TestDB2ESImportConfig {
 				"select 1 " //数据库连接校验sql
 		);
 	}
-	@Test
-	public void testDB2ES() throws SQLException {
-		initDBSource();
-		try {
-			ElasticSearchHelper.getRestClientUtil().dropIndice("dbdemo");
-		}
-		catch (Exception e){
 
-		}
-		final ESImportContext importContext = new ESImportContext();
-		importContext.init();
-		importContext.setBatchSize(10);
-		importContext.setRefreshOption("refresh=true");
-		final TaskContext taskContext = new TaskContext(importContext,importContext);
-		SQLExecutor.queryByNullRowHandler(new ResultSetHandler() {
-			@Override
-			public void handleResult(ResultSet resultSet, StatementInfo statementInfo) throws Exception {
-
-
-				JDBCResultSet jdbcResultSet = new JDBCResultSet();
-				jdbcResultSet.setImportContext(importContext);
-				jdbcResultSet.setResultSet(resultSet);
-				jdbcResultSet.setMetaData(statementInfo.getMeta());
-				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(taskContext,jdbcResultSet,importContext,importContext,(Status)null);
-				db2ESDataTran.initTran();
-				db2ESDataTran.tran("dbdemo","dbdemo");
-			}
-		},"select * from td_sm_log");
-
-		long dbcount = SQLExecutor.queryObject(long.class,"select count(*) from td_sm_log");
-		long escount = ElasticSearchHelper.getRestClientUtil().countAll("dbdemo");
-		System.out.println("dbcount:"+dbcount+","+"escount:"+escount);
-
-	}
-
-	@Test
-	public void testDB2ESClob() throws SQLException {
-		initDBSource();
-		try {
-			ElasticSearchHelper.getRestClientUtil().dropIndice("dbclobdemo");
-		}
-		catch (Exception e){
-
-		}
-		final ESImportContext importContext = new ESImportContext();
-		importContext.init();
-		importContext.setBatchSize(10);
-		importContext.setRefreshOption("refresh=true");
-		final TaskContext taskContext = new TaskContext(importContext,importContext);
-		SQLExecutor.queryByNullRowHandler(new ResultSetHandler() {
-			@Override
-			public void handleResult(ResultSet resultSet, StatementInfo statementInfo) throws Exception {
-				JDBCResultSet jdbcResultSet = new JDBCResultSet();
-				jdbcResultSet.setImportContext(importContext);
-				jdbcResultSet.setResultSet(resultSet);
-				jdbcResultSet.setMetaData(statementInfo.getMeta());
-				jdbcResultSet.setDbadapter(statementInfo.getDbadapter());
-				BaseElasticsearchDataTran db2ESDataTran = new BaseElasticsearchDataTran(taskContext,jdbcResultSet,importContext,importContext,(Status) null);
-				db2ESDataTran.initTran();
-				db2ESDataTran.tran("dbclobdemo","dbclobdemo");
-			}
-		},"select * from td_cms_document");
-
-		long dbcount = SQLExecutor.queryObject(long.class,"select count(*) from td_cms_document");
-		long escount = ElasticSearchHelper.getRestClientUtil().countAll("dbclobdemo");
-		System.out.println("dbcount:"+dbcount+","+"escount:"+escount);
-
-	}
 	@Test
 	public void testDB2ESImportBuilder(){
-		DB2ESImportBuilder importBuilder = DB2ESImportBuilder.newInstance();
+		ImportBuilder importBuilder = ImportBuilder.newInstance();
 		try {
 			//清除测试表
 			ElasticSearchHelper.getRestClientUtil().dropIndice("dbclobdemo");
@@ -107,7 +30,8 @@ public class TestDB2ESImportConfig {
 
 		}
 		//数据源相关配置，可选项，可以在外部启动数据源
-		importBuilder.setDbName("test")
+		DBInputConfig dbInputConfig = new DBInputConfig();
+		dbInputConfig.setDbName("test")
 				.setDbDriver("com.mysql.cj.jdbc.Driver") //数据库驱动程序，必须导入相关数据库的驱动jar包
 				.setDbUrl("jdbc:mysql://localhost:3306/bboss")
 				.setDbUser("root")
@@ -117,15 +41,15 @@ public class TestDB2ESImportConfig {
 
 
 		//指定导入数据的sql语句，必填项，可以设置自己的提取逻辑
-		importBuilder.setSql("select * from td_cms_document");
+		dbInputConfig.setSql("select * from td_cms_document");
+		importBuilder.setInputConfig(dbInputConfig);
 		/**
 		 * es相关配置
 		 */
-		importBuilder
+		ElasticsearchOutputConfig elasticsearchOutputConfig = new ElasticsearchOutputConfig();
+		elasticsearchOutputConfig
 				.setIndex("dbclobdemo") //必填项
-				.setIndexType("dbclobdemo") //必填项
-				.setRefreshOption(null)//可选项，null表示不实时刷新，importBuilder.setRefreshOption("refresh");
-				.setUseJavaName(true) //可选项,将数据库字段名称转换为java驼峰规范的名称，例如:doc_id -> docId
+//				.setIndexType("dbclobdemo") //必填项
 				.setEsIdField("documentId")//可选项
 				.setEsParentIdField(null) //可选项,如果不指定，es自动为文档产生id
 				.setRoutingValue(null) //可选项		importBuilder.setRoutingField(null);
@@ -134,9 +58,15 @@ public class TestDB2ESImportConfig {
 				.setEsReturnSource(false)//可选项
 				.setEsVersionField(null)//可选项
 				.setEsVersionType(null)//可选项
+				.setRefreshOption(null);//可选项，null表示不实时刷新，importBuilder.setRefreshOption("refresh");
+
+		importBuilder.setOutputConfig(elasticsearchOutputConfig)
 				.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") //可选项,默认日期格式
 				.setLocale("zh_CN")  //可选项,默认locale
-				.setTimeZone("Etc/UTC")  //可选项,默认时区
+				.setTimeZone("Etc/UTC");  //可选项,默认时区
+
+		importBuilder.setUseJavaName(true) //可选项,将数据库字段名称转换为java驼峰规范的名称，例如:doc_id -> docId
+
 				.setBatchSize(1000);  //可选项,批量导入es的记录数，默认为-1，逐条处理，> 0时批量处理
 
 		/**
@@ -156,7 +86,7 @@ public class TestDB2ESImportConfig {
 
 	@Test
 	public void testSimpleDB2ESImportBuilder(){
-		DB2ESImportBuilder importBuilder = DB2ESImportBuilder.newInstance();
+		ImportBuilder importBuilder = ImportBuilder.newInstance();
 		try {
 			//清除测试表
 			ElasticSearchHelper.getRestClientUtil().dropIndice("dbclobdemo");
@@ -165,24 +95,32 @@ public class TestDB2ESImportConfig {
 
 		}
 		//数据源相关配置，可选项，可以在外部启动数据源
-		importBuilder.setDbName("test")
+		DBInputConfig dbInputConfig = new DBInputConfig();
+		dbInputConfig.setDbName("test")
 				.setDbDriver("com.mysql.cj.jdbc.Driver") //数据库驱动程序，必须导入相关数据库的驱动jar包
 				.setDbUrl("jdbc:mysql://localhost:3306/bboss")
 				.setDbUser("root")
 				.setDbPassword("123456")
 				.setValidateSQL("select 1")
-				.setUsePool(false);//是否使用连接池
+				.setUsePool(false).setSql("select * from td_cms_document");//是否使用连接池
 
 
 		//指定导入数据的sql语句，必填项，可以设置自己的提取逻辑
-		importBuilder.setSql("select * from td_cms_document");
+		importBuilder.setInputConfig(dbInputConfig);
 		/**
 		 * es相关配置
 		 */
-		importBuilder
+		ElasticsearchOutputConfig elasticsearchOutputConfig = new ElasticsearchOutputConfig();
+
+
+		/**
+		 * es相关配置
+		 */
+		elasticsearchOutputConfig
 				.setIndex("dbclobdemo") //必填项
 				.setIndexType("dbclobdemo") //必填项
-				.setRefreshOption(null)//可选项，null表示不实时刷新，importBuilder.setRefreshOption("refresh");表示实时刷新
+				.setRefreshOption(null);//可选项，null表示不实时刷新，importBuilder.setRefreshOption("refresh");表示实时刷新
+		importBuilder.setOutputConfig(elasticsearchOutputConfig)
 				.setUseJavaName(true) //可选项,将数据库字段名称转换为java驼峰规范的名称，例如:doc_id -> docId
 				.setBatchSize(1000);  //可选项,批量导入es的记录数，默认为-1，逐条处理，> 0时批量处理
 
@@ -199,7 +137,7 @@ public class TestDB2ESImportConfig {
 	 */
 	@Test
 	public void testSimpleDB2ESImportBuilderFromExternalDBConfig(){
-		DB2ESImportBuilder importBuilder = DB2ESImportBuilder.newInstance();
+		ImportBuilder importBuilder = ImportBuilder.newInstance();
 		try {
 			//清除测试表
 			ElasticSearchHelper.getRestClientUtil().dropIndice("dbclobdemo");
@@ -210,14 +148,20 @@ public class TestDB2ESImportConfig {
 
 
 		//指定导入数据的sql语句，必填项，可以设置自己的提取逻辑
-		importBuilder.setSql("select * from td_cms_document");
+		DBInputConfig dbInputConfig = new DBInputConfig();
+		dbInputConfig.setSql("select * from td_cms_document");
+		importBuilder.setInputConfig(dbInputConfig);
 		/**
 		 * es相关配置
 		 */
-		importBuilder
+		ElasticsearchOutputConfig elasticsearchOutputConfig = new ElasticsearchOutputConfig();
+
+
+		elasticsearchOutputConfig
 				.setIndex("dbclobdemo") //必填项
 				.setIndexType("dbclobdemo") //必填项
-				.setRefreshOption(null)//可选项，null表示不实时刷新，importBuilder.setRefreshOption("refresh");表示实时刷新
+				.setRefreshOption(null);//可选项，null表示不实时刷新，importBuilder.setRefreshOption("refresh");表示实时刷新
+		importBuilder.setOutputConfig(elasticsearchOutputConfig)
 				.setUseJavaName(true) //可选项,将数据库字段名称转换为java驼峰规范的名称，例如:doc_id -> docId
 				.setBatchSize(1000);  //可选项,批量导入es的记录数，默认为-1，逐条处理，> 0时批量处理
 

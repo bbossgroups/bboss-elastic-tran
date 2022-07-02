@@ -16,10 +16,8 @@ package org.frameworkset.tran.plugin.es.output;
  */
 
 import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.BaseElasticsearchDataTran;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.es.output.AsynESOutPutDataTran;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.es.BaseESPlugin;
 import org.frameworkset.tran.schedule.Status;

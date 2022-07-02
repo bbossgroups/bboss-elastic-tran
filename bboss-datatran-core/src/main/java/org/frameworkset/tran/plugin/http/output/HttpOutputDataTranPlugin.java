@@ -1,4 +1,4 @@
-package org.frameworkset.tran.plugin.custom.output;
+package org.frameworkset.tran.plugin.http.output;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,7 +15,7 @@ package org.frameworkset.tran.plugin.custom.output;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.BaseCommonRecordDataTran;
+import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -23,6 +23,7 @@ import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.util.ResourceStartResult;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -34,19 +35,13 @@ import java.util.concurrent.CountDownLatch;
  * @author biaoping.yin
  * @version 1.0
  */
-public class CustomOutputDataTranPlugin extends BasePlugin implements OutputPlugin {
-
-	public CustomOutputDataTranPlugin(ImportContext importContext){
+public class HttpOutputDataTranPlugin extends BasePlugin implements OutputPlugin {
+	protected HttpOutputConfig httpOutputConfig ;
+	private ResourceStartResult resourceStartResult ;
+	public HttpOutputDataTranPlugin(ImportContext importContext){
 		super(importContext);
+		httpOutputConfig = (HttpOutputConfig) importContext.getOutputConfig();
 
-
-	}
-
-	@Override
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch, Status currentStatus) {
-		BaseCommonRecordDataTran baseCommonRecordDataTran = new CustomOutPutDataTran(taskContext, tranResultSet, importContext,countDownLatch, currentStatus);
-		baseCommonRecordDataTran.initTran();
-		return baseCommonRecordDataTran;
 	}
 
 	@Override
@@ -59,14 +54,21 @@ public class CustomOutputDataTranPlugin extends BasePlugin implements OutputPlug
 
 	}
 
+
 	@Override
 	public void init() {
-
+		if(httpOutputConfig != null && httpOutputConfig.getHttpConfigs() != null){
+			resourceStartResult = HttpRequestProxy.startHttpPools(httpOutputConfig.getHttpConfigs());
+		}
 	}
 
 	@Override
 	public void destroy(boolean waitTranStop) {
+		if(resourceStartResult != null){
+			HttpRequestProxy.stopHttpClients(resourceStartResult);
 
+
+		}
 	}
 
 
@@ -74,7 +76,11 @@ public class CustomOutputDataTranPlugin extends BasePlugin implements OutputPlug
 
 
 
-
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch, Status currentStatus){
+		BaseDataTran db2ESDataTran = new HttpOutPutDataTran(  taskContext,   tranResultSet,   importContext,   countDownLatch,   currentStatus);
+		db2ESDataTran.initTran();
+		return db2ESDataTran;
+	}
 
 
 }

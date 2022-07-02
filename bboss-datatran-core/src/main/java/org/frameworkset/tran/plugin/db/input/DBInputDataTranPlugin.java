@@ -25,7 +25,6 @@ import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPluginImpl;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.input.DefaultResultSetHandler;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.db.BaseDBPlugin;
 import org.frameworkset.tran.schedule.SQLInfo;

@@ -1,4 +1,4 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.plugin.es.input;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,31 +15,27 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.config.ClientOptions;
-import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.plugin.es.ESField;
+import org.frameworkset.elasticsearch.entity.ESDatas;
+import org.frameworkset.elasticsearch.entity.MetaMap;
+import org.frameworkset.tran.Data;
+
+import java.util.List;
 
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- *
+ * @Date 2019/11/7 23:54
  * @author biaoping.yin
  * @version 1.0
- * @Date 2018/12/4 11:35
  */
-public class DefaultEsIdGenerator implements EsIdGenerator {
+public class ESDatasWraper implements Data<MetaMap> {
+	private ESDatas<MetaMap> esDatas;
+	public ESDatasWraper(ESDatas esDatas){
+		this.esDatas = esDatas;
+	}
 	@Override
-	public Object genId(Context context) throws Exception {
-		ClientOptions clientOptions = context.getClientOptions();
-		ESField esIdField = clientOptions != null?clientOptions.getIdField():null;
-		if (esIdField != null) {
-			if(!esIdField.isMeta())
-				return context.getValue(esIdField.getField());
-			else
-				return context.getMetaValue(esIdField.getField());
-
-		}
-		return null;
+	public List<MetaMap> getDatas() {
+		return esDatas.getDatas();
 	}
 }

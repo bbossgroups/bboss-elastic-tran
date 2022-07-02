@@ -1,4 +1,4 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.plugin.es;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,31 +15,42 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.config.ClientOptions;
-import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.plugin.es.ESField;
+import java.io.Serializable;
 
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- *
+ * @Date 2019/12/9 12:06
  * @author biaoping.yin
  * @version 1.0
- * @Date 2018/12/4 11:35
  */
-public class DefaultEsIdGenerator implements EsIdGenerator {
-	@Override
-	public Object genId(Context context) throws Exception {
-		ClientOptions clientOptions = context.getClientOptions();
-		ESField esIdField = clientOptions != null?clientOptions.getIdField():null;
-		if (esIdField != null) {
-			if(!esIdField.isMeta())
-				return context.getValue(esIdField.getField());
-			else
-				return context.getMetaValue(esIdField.getField());
+public class ESField implements Serializable {
+	private boolean meta;
 
-		}
-		return null;
+	public ESField(boolean meta, String field) {
+		this.meta = meta;
+		this.field = field;
+	}
+	public ESField(String field) {
+		this(false,  field);
+	}
+
+	private String field;
+
+	public boolean isMeta() {
+		return meta;
+	}
+
+	public void setMeta(boolean meta) {
+		this.meta = meta;
+	}
+
+	public String getField() {
+		return field;
+	}
+
+	public void setField(String field) {
+		this.field = field;
 	}
 }

@@ -1,4 +1,4 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.plugin.es;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,31 +15,32 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.config.ClientOptions;
-import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.plugin.es.ESField;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * <p>Description: </p>
+ * <p>Description: es数据源配置</p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- *
+ * @Date 2020/1/4 11:48
  * @author biaoping.yin
  * @version 1.0
- * @Date 2018/12/4 11:35
  */
-public class DefaultEsIdGenerator implements EsIdGenerator {
-	@Override
-	public Object genId(Context context) throws Exception {
-		ClientOptions clientOptions = context.getClientOptions();
-		ESField esIdField = clientOptions != null?clientOptions.getIdField():null;
-		if (esIdField != null) {
-			if(!esIdField.isMeta())
-				return context.getValue(esIdField.getField());
-			else
-				return context.getMetaValue(esIdField.getField());
+public class ESConfig implements java.io.Serializable{
 
-		}
-		return null;
+	private Map<String,Object> configs;
+	public ESConfig(){
+		this.configs = new HashMap<String, Object>();
+	}
+	public Map<String, Object> getConfigs() {
+		return configs;
+	}
+
+
+
+
+	public ESConfig addElasticsearchProperty(String name,String value){
+		configs.put(name,value);
+		return this;
 	}
 }

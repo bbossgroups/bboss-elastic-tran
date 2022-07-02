@@ -21,8 +21,8 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.StatementHandler;
-import org.frameworkset.tran.db.output.TranSQLInfo;
+import org.frameworkset.tran.plugin.db.input.StatementHandler;
+import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.db.BaseDBConfig;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -282,10 +282,7 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
 		return new DBOutputDataTranPlugin(  importContext);
 	}
-	@Override
-	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		return new DefualtExportResultHandler<String,String>(exportResultHandler);
-	}
+
 
 
 	public DBOutputConfig setColumnLableUpperCase(boolean columnLableUpperCase) {

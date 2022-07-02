@@ -1,4 +1,4 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.plugin.db.output;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,31 +15,33 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.config.ClientOptions;
+import com.frameworkset.orm.annotation.BaseESGetVariableValue;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.plugin.es.ESField;
 
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- *
+ * @Date 2019/5/6 21:36
  * @author biaoping.yin
  * @version 1.0
- * @Date 2018/12/4 11:35
  */
-public class DefaultEsIdGenerator implements EsIdGenerator {
+public class JDBCGetVariableValue extends BaseESGetVariableValue {
+	private Context context;
+	public JDBCGetVariableValue(Context context){
+		this.context = context;
+		this.batchContext = context.getBatchContext();
+	}
 	@Override
-	public Object genId(Context context) throws Exception {
-		ClientOptions clientOptions = context.getClientOptions();
-		ESField esIdField = clientOptions != null?clientOptions.getIdField():null;
-		if (esIdField != null) {
-			if(!esIdField.isMeta())
-				return context.getValue(esIdField.getField());
-			else
-				return context.getMetaValue(esIdField.getField());
+	public Object getValue(String field) {
 
+		try {
+			return context.getValue(field);
+		} catch (Exception e) {
+			throw new DataImportException(new StringBuilder()
+											.append("JDBCGetVariableValue getValue failed:")
+											.append(field).toString(),e);
 		}
-		return null;
 	}
 }

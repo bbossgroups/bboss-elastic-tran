@@ -20,7 +20,6 @@ import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.boot.ElasticSearchBoot;
 import org.frameworkset.elasticsearch.boot.ElasticsearchBootResult;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.es.ESConfig;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

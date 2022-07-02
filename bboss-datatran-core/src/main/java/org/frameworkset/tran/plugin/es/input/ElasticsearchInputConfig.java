@@ -21,9 +21,8 @@ import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.es.ESConfig;
-import org.frameworkset.tran.es.ESField;
-import org.frameworkset.tran.es.input.QueryUrlFunction;
+import org.frameworkset.tran.plugin.es.ESConfig;
+import org.frameworkset.tran.plugin.es.ESField;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.InputPlugin;
 

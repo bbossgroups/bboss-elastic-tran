@@ -15,13 +15,9 @@ package org.frameworkset.tran.plugin.custom.output;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DefualtExportResultHandler;
-import org.frameworkset.tran.ExportResultHandler;
-import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.ouput.custom.CustomOutPut;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.OutputPlugin;
 
@@ -57,9 +53,5 @@ public class CustomOupputConfig extends BaseConfig implements OutputConfig {
 		return customOutPut;
 	}
 
-	@Override
-	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		DefualtExportResultHandler db2ESExportResultHandler = new DefualtExportResultHandler(exportResultHandler);
-		return db2ESExportResultHandler;
-	}
+
 }

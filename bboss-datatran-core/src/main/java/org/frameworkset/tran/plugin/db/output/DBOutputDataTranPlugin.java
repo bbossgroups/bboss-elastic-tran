@@ -17,9 +17,7 @@ package org.frameworkset.tran.plugin.db.output;
 
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.plugin.db.BaseDBPlugin;
-import org.frameworkset.tran.db.output.DBOutPutDataTran;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;

@@ -16,9 +16,6 @@ package org.frameworkset.tran.plugin.kafka.output;
  */
 
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DefualtExportResultHandler;
-import org.frameworkset.tran.ExportResultHandler;
-import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.kafka.output.KafkaSend;
@@ -123,8 +120,5 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 		}
 	}
 
-	@Override
-	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		return new DefualtExportResultHandler(exportResultHandler);
-	}
+
 }

@@ -1,4 +1,4 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.plugin.db;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,31 +15,44 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.config.ClientOptions;
-import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.plugin.es.ESField;
+import com.frameworkset.util.VariableHandler;
+
+import java.util.List;
 
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
- *
+ * @Date 2019/11/15 21:27
  * @author biaoping.yin
  * @version 1.0
- * @Date 2018/12/4 11:35
  */
-public class DefaultEsIdGenerator implements EsIdGenerator {
-	@Override
-	public Object genId(Context context) throws Exception {
-		ClientOptions clientOptions = context.getClientOptions();
-		ESField esIdField = clientOptions != null?clientOptions.getIdField():null;
-		if (esIdField != null) {
-			if(!esIdField.isMeta())
-				return context.getValue(esIdField.getField());
-			else
-				return context.getMetaValue(esIdField.getField());
+public class TranSQLInfo {
+	private String originSQL;
+	private String sql;
+	private List<VariableHandler.Variable> vars;
 
-		}
-		return null;
+	public String getOriginSQL() {
+		return originSQL;
+	}
+
+	public void setOriginSQL(String originSQL) {
+		this.originSQL = originSQL;
+	}
+
+	public String getSql() {
+		return sql;
+	}
+
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
+
+	public List<VariableHandler.Variable> getVars() {
+		return vars;
+	}
+
+	public void setVars(List<VariableHandler.Variable> vars) {
+		this.vars = vars;
 	}
 }

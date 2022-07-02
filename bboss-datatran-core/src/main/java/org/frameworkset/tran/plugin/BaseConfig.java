@@ -15,8 +15,7 @@ package org.frameworkset.tran.plugin;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DataTranPlugin;
-import org.frameworkset.tran.DataTranPluginImpl;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.context.ImportContext;
 
@@ -35,5 +34,9 @@ public abstract class BaseConfig  {
 	}
 	public void afterBuild(ImportBuilder importBuilder, ImportContext importContext){
 
+	}
+	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
+		DefualtExportResultHandler db2ESExportResultHandler = new DefualtExportResultHandler(exportResultHandler);
+		return db2ESExportResultHandler;
 	}
 }
