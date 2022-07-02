@@ -77,7 +77,7 @@ public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 		if(httpConfigs == null)
 			httpConfigs = new LinkedHashMap<>();
 	}
-	public HttpOutputConfig addSourceHttpPoolName(String nameProperty,String httpPoolName){
+	public HttpOutputConfig addTargetHttpPoolName(String nameProperty,String httpPoolName){
 		checkConfigs();
 		this.httpConfigs.put(nameProperty,httpPoolName);
 		this.targetHttpPool = httpPoolName;

@@ -80,7 +80,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 
 			@Override
 			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return buildStringRecord(context,writer);
+				return HttpOutPutDataTran.this.buildStringRecord(context,writer);
 			}
 
 			@Override
@@ -131,7 +131,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 
 			@Override
 			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return buildStringRecord(context,writer);
+				return HttpOutPutDataTran.this.buildStringRecord(context,writer);
 			}
 		};
 	}
