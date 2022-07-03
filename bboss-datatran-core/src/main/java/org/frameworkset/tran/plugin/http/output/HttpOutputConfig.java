@@ -25,6 +25,7 @@ import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
+import org.frameworkset.tran.util.TranUtil;
 
 import java.io.Writer;
 import java.util.LinkedHashMap;
@@ -41,6 +42,17 @@ import java.util.Map;
 public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 
 	private Map<String,Object> httpConfigs;
+
+	public String getLineSeparator() {
+		return lineSeparator;
+	}
+
+	public HttpOutputConfig setLineSeparator(String lineSeparator) {
+		this.lineSeparator = lineSeparator;
+		return this;
+	}
+
+	private String lineSeparator;
 
 	public String getTargetHttpPool() {
 		return targetHttpPool;
@@ -103,6 +115,8 @@ public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 		if(getRecordGenerator() == null){
 			setRecordGenerator(new JsonRecordGenerator());//默认采用json格式输出数据
 		}
+		if(SimpleStringUtil.isEmpty(lineSeparator))
+			lineSeparator = TranUtil.lineSeparator;
 
 	}
 
