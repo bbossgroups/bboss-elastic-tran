@@ -34,8 +34,8 @@ First add the maven dependency of BBoss to your pom.xml:
 ```xml
        <dependency>
             <groupId>com.bbossgroups.plugins</groupId>
-            <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-            <version>6.6.0</version>
+            <artifactId>datatran</artifactId>
+            <version>6.7.0</version>
         </dependency>
 ```
 and more see:
