@@ -16,7 +16,6 @@ package org.frameworkset.tran.config;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.spi.DefaultApplicationContext;
 import org.frameworkset.spi.assemble.GetProperties;
 import org.frameworkset.tran.*;
@@ -42,7 +41,7 @@ import java.util.*;
 public class ImportBuilder {
 	protected InputConfig inputConfig;
 	protected OutputConfig outputConfig;
-
+	protected ImportStartAction importStartAction;
 	private Map params;
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	private DBConfig statusDbConfig ;
@@ -56,6 +55,15 @@ public class ImportBuilder {
 	public ImportBuilder setInputConfig(InputConfig inputConfig) {
 		this.inputConfig = inputConfig;
 		return this;
+	}
+
+	public ImportBuilder setImportStartAction(ImportStartAction importStartAction) {
+		this.importStartAction = importStartAction;
+		return this;
+	}
+
+	public ImportStartAction getImportStartAction() {
+		return importStartAction;
 	}
 
 	public ImportBuilder setOutputConfig(OutputConfig outputConfig) {
@@ -773,7 +781,13 @@ public class ImportBuilder {
 			return configString;
 		try {
 			StringBuilder ret = new StringBuilder();
-			ret.append(SimpleStringUtil.object2json(this));
+			ret.append("parallel=").append(parallel);
+			if(scheduleConfig != null)
+				ret.append(",scheduleConfig=").append(scheduleConfig.toString());
+			if(importIncreamentConfig != null)
+				ret.append("importIncreamentConfig=").append(importIncreamentConfig.toString());
+
+//			ret.append(SimpleStringUtil.object2json(this));
 			if(splitHandler != null)
 				ret.append(",splitHandler="+splitHandler.getClass().getCanonicalName());
 			else
@@ -986,6 +1000,7 @@ public class ImportBuilder {
 		System.out.println("meta:_id".substring(5));//""
 	}
 	protected void buildImportConfig(BaseImportConfig baseImportConfig){
+		baseImportConfig.setImportStartAction(importStartAction);
 		baseImportConfig.setUseJavaName(false);
 		baseImportConfig.setParams(this.params);
 		baseImportConfig.setLastValueColumnSetted(this.lastValueColumnSetted);

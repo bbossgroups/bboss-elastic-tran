@@ -18,10 +18,7 @@ package org.frameworkset.tran.config;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.spi.geoip.GeoIPUtil;
-import org.frameworkset.tran.DBConfig;
-import org.frameworkset.tran.DataRefactor;
-import org.frameworkset.tran.FieldMeta;
-import org.frameworkset.tran.WrapedExportResultHandler;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
@@ -50,6 +47,15 @@ public class BaseImportConfig {
 	private Map<String,DBConfig> dbConfigMap = new LinkedHashMap<>();
 	private boolean sortLastValue ;
 
+	private ImportStartAction importStartAction;
+
+	public void setImportStartAction(ImportStartAction importStartAction) {
+		this.importStartAction = importStartAction;
+	}
+
+	public ImportStartAction getImportStartAction() {
+		return importStartAction;
+	}
 
 	public boolean isLastValueColumnSetted() {
 		return lastValueColumnSetted;

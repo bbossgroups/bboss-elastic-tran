@@ -15,6 +15,8 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
+
 import java.util.Date;
 
 /**
@@ -78,6 +80,10 @@ public class ScheduleConfig {
 
 	public void setFixedRate(Boolean fixedRate) {
 		this.fixedRate = fixedRate;
+	}
+
+	public String toString(){
+		return SimpleStringUtil.object2json(this);
 	}
 
 }

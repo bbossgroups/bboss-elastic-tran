@@ -15,6 +15,8 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
+
 /**
  * <p>Description: 定时增量采集数据元数据配置</p>
  * <p></p>
@@ -133,5 +135,8 @@ public class ImportIncreamentConfig {
 
 	public void setLastValueDateformat(String lastValueDateformat) {
 		this.lastValueDateformat = lastValueDateformat;
+	}
+	public String toString(){
+		return SimpleStringUtil.object2json(this);
 	}
 }

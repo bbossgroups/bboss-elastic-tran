@@ -74,6 +74,7 @@ public class DataStream {
 //			importContext.importData();
 //			DataTranPlugin dataTranPlugin = importContext.getDataTranPlugin();
 			if(dataTranPlugin != null){
+				dataTranPlugin.startAction();
 				dataTranPlugin.importData();
 			}
 //			if(this.scheduleService == null) {//一次性执行数据导入操作

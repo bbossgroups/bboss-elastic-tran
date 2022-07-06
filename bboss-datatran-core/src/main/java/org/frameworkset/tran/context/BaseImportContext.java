@@ -46,9 +46,14 @@ public  class BaseImportContext implements ImportContext {
 	protected BaseImportConfig baseImportConfig;
 	protected InputConfig inputConfig;
 	protected OutputConfig outputConfig;
+
 	public JobTaskMetrics createJobTaskMetrics(){
 		return new JobTaskMetrics();
 	}
+	public ImportStartAction getImportStartAction(){
+		return baseImportConfig.getImportStartAction();
+	}
+
 	public DBConfig getDefaultDBConfig(){
 		return baseImportConfig.getDefaultDBConfig();
 	}

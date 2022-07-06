@@ -248,6 +248,17 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		return true;
 	}
 	@Override
+	public void startAction(){
+		if(this.importContext.getImportStartAction() != null){
+			try {
+				this.importContext.getImportStartAction().startAction(importContext);
+			}
+			catch (Exception e){
+				logger.warn("",e);
+			}
+		}
+	}
+	@Override
 	public void importData() throws DataImportException {
 
 		if(this.scheduleService == null) {//一次性执行数据导入操作

@@ -52,6 +52,11 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 		return this;
 	}
 
+	public DBInputConfig setShowSql(boolean showsql) {
+		_setShowSql(  showsql);
+		return this;
+	}
+
 	public DBInputConfig setEnableDBTransaction(Boolean enableDBTransaction) {
 		this.enableDBTransaction = enableDBTransaction;
 		return this;

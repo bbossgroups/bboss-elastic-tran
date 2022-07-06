@@ -41,6 +41,7 @@ import java.util.concurrent.ExecutorService;
 public interface ImportContext {
 //	BaseImportConfig getBaseImportConfig();
 	InputConfig getInputConfig();
+	ImportStartAction getImportStartAction();
 	OutputConfig getOutputConfig();
 	InputPlugin getInputPlugin();
 	OutputPlugin getOutputPlugin();
