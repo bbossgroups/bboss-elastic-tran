@@ -48,9 +48,7 @@ public class ImportBuilder {
 	private String statusDbname;
 	private String statusTableDML;
 	private Integer fetchSize = 5000;
-	private String sourceDbname;
 
-	private Boolean enableDBTransaction;
 
 	public ImportBuilder setInputConfig(InputConfig inputConfig) {
 		this.inputConfig = inputConfig;
@@ -306,7 +304,6 @@ public class ImportBuilder {
 	private Object geoipIspConverter;
 	private String geoip2regionDatabase;
 	private Integer geoipCachesize;
-	private String geoipTaobaoServiceURL;
 	protected void buildGeoipConfig(){
 		if(geoipDatabase != null){
 			if(this.geoipConfig == null){
@@ -332,9 +329,7 @@ public class ImportBuilder {
 				geoipConfig.put("ip.cachesize",
 						"10000");
 			}
-			if(geoipTaobaoServiceURL != null)
-				geoipConfig.put("ip.serviceUrl",
-						geoipTaobaoServiceURL);
+
 		}
 	}
 
@@ -785,7 +780,27 @@ public class ImportBuilder {
 			if(scheduleConfig != null)
 				ret.append(",scheduleConfig=").append(scheduleConfig.toString());
 			if(importIncreamentConfig != null)
-				ret.append("importIncreamentConfig=").append(importIncreamentConfig.toString());
+				ret.append(",importIncreamentConfig=").append(importIncreamentConfig.toString());
+
+
+			if(geoipConfig != null) {
+				ret.append(",geoipConfig=").append(this.geoipConfig);
+			}
+
+			ret.append(",useJavaName=").append(this.useJavaName);
+			ret.append(",useLowcase=").append(this.useLowcase);
+			ret.append(",fetchSize=").append(this.fetchSize);
+			ret.append(",batchSize=").append(this.batchSize);
+
+			ret.append(",continueOnError=").append(this.continueOnError);
+			ret.append(",flushInterval=").append(this.flushInterval);
+
+			ret.append(",asynFlushStatus=").append(this.asynFlushStatus);
+			ret.append(",asynFlushStatusInterval=").append(this.asynFlushStatusInterval);
+			ret.append(",asyn=").append(this.asyn);
+
+			ret.append(",statusDbname=").append(this.statusDbname);
+			ret.append(",statusTableDML=").append(this.statusTableDML);
 
 //			ret.append(SimpleStringUtil.object2json(this));
 			if(splitHandler != null)
@@ -1313,10 +1328,6 @@ public class ImportBuilder {
 		return this;
 	}
 
-	public ImportBuilder setGeoipTaobaoServiceURL(String geoipTaobaoServiceURL) {
-		this.geoipTaobaoServiceURL = geoipTaobaoServiceURL;
-		return this;
-	}
 
 	public String getStatusDbname() {
 		return statusDbname;
@@ -1360,22 +1371,7 @@ public class ImportBuilder {
 	}
 
 
-	public String getSourceDbname() {
-		return sourceDbname;
-	}
 
-	public ImportBuilder setSourceDbname(String sourceDbname) {
-		this.sourceDbname = sourceDbname;
-		return this;
-	}
-	public Boolean getEnableDBTransaction() {
-		return enableDBTransaction;
-	}
-
-	public ImportBuilder setEnableDBTransaction(Boolean enableDBTransaction) {
-		this.enableDBTransaction = enableDBTransaction;
-		return this;
-	}
 
 	public boolean isSerialAllData() {
 		return serialAllData;
