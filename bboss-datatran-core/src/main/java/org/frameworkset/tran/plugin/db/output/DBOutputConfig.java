@@ -17,14 +17,15 @@ package org.frameworkset.tran.plugin.db.output;
 
 import com.frameworkset.common.poolman.BatchHandler;
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.tran.*;
+import org.frameworkset.tran.DBConfig;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.plugin.db.input.StatementHandler;
-import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.db.BaseDBConfig;
+import org.frameworkset.tran.plugin.db.TranSQLInfo;
+import org.frameworkset.tran.plugin.db.input.StatementHandler;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -140,7 +141,10 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return this;
 	}
 
-
+	public DBOutputConfig setShowSql(boolean showsql) {
+		_setShowSql(  showsql);
+		return this;
+	}
 
 	public String getSqlName() {
 		return sqlName;
