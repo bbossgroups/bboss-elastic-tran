@@ -343,7 +343,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
 					}
 					boolean scheduled = scheduleService.timeSchedule(   );
-					if(scheduled){
+					if(scheduled && scheduleEndDate != null){
 
 						final long waitTime = scheduleEndDate.getTime() - System.currentTimeMillis();
 
