@@ -259,10 +259,56 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 	}
 	@Override
-	public void importData() throws DataImportException {
+	public void endAction(Exception e){
+		if(this.importContext.getImportEndAction() != null){
+			try {
+				this.importContext.getImportEndAction().endAction(importContext,e);
+			}
+			catch (Exception ee){
+				logger.warn("",ee);
+			}
+		}
+	}
+	protected Thread delayThread ;
+	protected Thread scheduledEndThread;
+	protected void delay(){
+		Long deyLay = importContext.getDeyLay();
+		Date date = importContext.getScheduleDate();
+		long _delay = 0l;
+		if(date != null){
+			_delay = date.getTime() - System.currentTimeMillis();
+		}
+		else if(deyLay != null && deyLay > 0l){
+			_delay = deyLay;
+		}
+		final long tmp = _delay;
+		if(tmp >  0) {
+			delayThread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						sleep(tmp);
+					} catch (InterruptedException e) {
+						logger.info("job delay is interrupted.");
+					}
+				}
+			},"Datatran-DelayThread");
+			delayThread.start();
+			try {
+				delayThread.join();//等待线程执行完毕
+			} catch (InterruptedException e) {
+				logger.info("job delay join is interrupted.");
+			}
+			delayThread = null;
+		}
+	}
+	@Override
+	public void importData(ScheduleEndCall scheduleEndCall) throws DataImportException {
 
 		if(this.scheduleService == null) {//一次性执行数据导入操作
-
+			delay();//针对一次性作业进行延迟处理
+			if(status == TranConstant.PLUGIN_STOPPED || status == TranConstant.PLUGIN_STOPAPPENDING)
+				return;
 			long importStartTime = System.currentTimeMillis();
 
 			TaskContext taskContext = inputPlugin.isEnablePluginTaskIntercept()?new TaskContext(importContext):null;
@@ -287,7 +333,39 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		else{//定时增量导入数据操作
 			try {
 				if (!this.importContext.isExternalTimer()) {//内部定时任务引擎
-					scheduleService.timeSchedule( );
+					Date scheduleEndDate = importContext.getScheduleEndDate();
+					Date now = new Date();
+					if(scheduleEndDate != null) {
+						if (now.after(scheduleEndDate)) {
+							logger.info("Job scheduleEndDate reached,Ignore schedule this job.");
+							return;
+						}
+
+					}
+					boolean scheduled = scheduleService.timeSchedule(   );
+					if(scheduled){
+
+						final long waitTime = scheduleEndDate.getTime() - System.currentTimeMillis();
+
+						scheduledEndThread = new Thread(new Runnable() {
+							@Override
+							public void run() {
+								if(waitTime > 0 ) {
+									try {
+										sleep(waitTime);
+										scheduleEndCall.call();
+									} catch (InterruptedException e) {
+
+									}
+								}
+								else{
+									scheduleEndCall.call();
+								}
+
+							}
+						},"Datatran-ScheduledEndThread");
+						scheduledEndThread.start();
+					}
 				} else { //外部定时任务引擎执行的方法，比如quartz之类的
 					if(scheduleService.isSchedulePaused(isEnableAutoPauseScheduled())){
 						if(logger.isInfoEnabled()){
@@ -516,7 +594,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		try {
 			lock.lock();
 			return status == TranConstant.PLUGIN_STOPAPPENDING
-				|| status == TranConstant.PLUGIN_STOPREADY || hasTran == false;
+				|| status == TranConstant.PLUGIN_STOPREADY || status == TranConstant.PLUGIN_STOPPED || hasTran == false;
 		}
 		finally {
 			lock.unlock();
@@ -525,21 +603,29 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
 
 	@Override
-	public void destroy(boolean waitTranStop) {
-//
-//		this.status = TranConstant.PLUGIN_STOPAPPENDING;
-//		do{
-//			if(status == TranConstant.PLUGIN_STOPREADY){
-//				break;
-//			}
-//			try {
-//				sleep(1000l);
-//			} catch (InterruptedException e) {
-//
-//			}
-//		}while(true);
-
+	public void destroy(boolean waitTranStop,boolean fromScheduleEnd) {
 		this.status = TranConstant.PLUGIN_STOPAPPENDING;
+		if(delayThread != null){
+			try {
+				delayThread.interrupt();
+
+			}
+			catch (Exception e){
+
+			}
+		}
+		if(!fromScheduleEnd) {
+			if (scheduledEndThread != null) {
+				try {
+					scheduledEndThread.interrupt();
+
+				} catch (Exception e) {
+
+				}
+				scheduledEndThread = null;
+			}
+		}
+
 		if(waitTranStop) {
 			do {
 				if (status == TranConstant.PLUGIN_STOPREADY || !hasTran) {
@@ -573,6 +659,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		stopDatasources(dbStartResult);
 		inputPlugin.destroy(waitTranStop);
 		outputPlugin.destroy(waitTranStop);
+		status = TranConstant.PLUGIN_STOPPED;
 
 	}
 

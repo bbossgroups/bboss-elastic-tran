@@ -639,7 +639,6 @@ public class StringTranJob extends BaseTranJob{
 	 * @param serialTranCommand
 	 * @param currentStatus
 	 * @param importContext
-	 * @param targetImportContext
 	 * @param tranResultSet
 	 * @param baseDataTran
 	 * @return

@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.kafka.input;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPluginImpl;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class KafkaDataTranPluginImpl extends DataTranPluginImpl {
 	}
 
 	@Override
-	public void importData() throws DataImportException {
+	public void importData(ScheduleEndCall scheduleEndCall) throws DataImportException {
 
 
 		long importStartTime = System.currentTimeMillis();

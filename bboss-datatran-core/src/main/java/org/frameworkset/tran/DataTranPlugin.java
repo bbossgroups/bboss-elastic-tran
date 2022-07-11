@@ -20,10 +20,7 @@ import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
-import org.frameworkset.tran.schedule.ScheduleAssert;
-import org.frameworkset.tran.schedule.ScheduleService;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.schedule.*;
 
 import java.util.List;
 import java.util.Map;
@@ -67,7 +64,8 @@ public interface DataTranPlugin {
 
 //	void doImportData(TaskContext taskContext)  throws ESDataImportException;
 	void startAction();
-	void importData() throws DataImportException;
+	void endAction(Exception e);
+	void importData(ScheduleEndCall scheduleEndCall) throws DataImportException;
 	public String getLastValueVarName();
 	ScheduleService getScheduleService();
 	ImportContext getImportContext();
@@ -80,7 +78,7 @@ public interface DataTranPlugin {
 
 
 
-	void destroy(boolean waitTranStop);
+	void destroy(boolean waitTranStop,boolean fromScheduleEnd);
 
 	public void setHasTran();
 	public void setNoTran();

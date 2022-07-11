@@ -16,9 +16,11 @@ package org.frameworkset.tran;/*
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ScheduleAssert;
+import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -75,7 +77,18 @@ public class DataStream {
 //			DataTranPlugin dataTranPlugin = importContext.getDataTranPlugin();
 			if(dataTranPlugin != null){
 				dataTranPlugin.startAction();
-				dataTranPlugin.importData();
+				dataTranPlugin.importData(new ScheduleEndCall() {
+					@Override
+					public void call() {
+						//任务到期自动结束
+						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						String date = dateFormat.format(importContext.getScheduleEndDate());
+						logger.info("Schedule job end date[{}] reached,schedule job stop begin....",date);
+						DataStream.this.destroy(true);
+						logger.info("Schedule job end date[{}] reached,schedule job stop complete.",date);
+					}
+				});
+				dataTranPlugin.endAction(null);
 			}
 //			if(this.scheduleService == null) {//一次性执行数据导入操作
 //
@@ -98,6 +111,8 @@ public class DataStream {
 //			}
 		}
 		catch (Exception e) {
+
+			dataTranPlugin.endAction(e);
 			throw new DataImportException(e);
 		}
 		finally{
@@ -117,11 +132,25 @@ public class DataStream {
 	 *
 	 * @param waitTranStopped true 等待同步作业处理完成后停止作业 false 不等待
 	 */
-	public void destroy(boolean waitTranStopped) {
+	public synchronized void destroy(boolean waitTranStopped) {
+
+		destroy(waitTranStopped, false);
+
+
+
+//		this.esjdbc.stop();
+	}
+
+	/**
+	 *
+	 * @param waitTranStopped true 等待同步作业处理完成后停止作业 false 不等待
+	 * @param fromScheduleEnd 销毁操作是否来自于自动停止作业操作
+	 */
+	public synchronized void destroy(boolean waitTranStopped,boolean fromScheduleEnd) {
 
 		if(importContext != null) {
 			logger.info("Destroy DataStream begin,waitTranStopped[{}].",waitTranStopped);
-			this.importContext.destroy(waitTranStopped);
+			this.importContext.destroy(waitTranStopped, fromScheduleEnd);
 			importContext = null;
 			logger.info("DataStream stopped.");
 		}

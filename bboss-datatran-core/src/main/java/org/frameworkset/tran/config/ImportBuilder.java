@@ -42,6 +42,7 @@ public class ImportBuilder {
 	protected InputConfig inputConfig;
 	protected OutputConfig outputConfig;
 	protected ImportStartAction importStartAction;
+	protected ImportEndAction importEndAction;
 	private Map params;
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	private DBConfig statusDbConfig ;
@@ -49,6 +50,14 @@ public class ImportBuilder {
 	private String statusTableDML;
 	private Integer fetchSize = 5000;
 
+	public ImportBuilder setImportEndAction(ImportEndAction importEndAction) {
+		this.importEndAction = importEndAction;
+		return this;
+	}
+
+	public ImportEndAction getImportEndAction() {
+		return importEndAction;
+	}
 
 	public ImportBuilder setInputConfig(InputConfig inputConfig) {
 		this.inputConfig = inputConfig;
@@ -105,6 +114,33 @@ public class ImportBuilder {
 		DataTranPlugin dataTranPlugin = importContext.buildDataTranPlugin();
 		return dataTranPlugin;
 	}
+	/**
+	 * 任务开始时间
+	 */
+	private Date scheduleDate;
+	/**
+	 * 任务结束时间
+	 */
+	private Date scheduleEndDate;
+
+	private Long deyLay;
+
+	public Date getScheduleDate() {
+		return scheduleDate;
+	}
+
+	public ImportBuilder setScheduleDate(Date scheduleDate) {
+		this.scheduleDate = scheduleDate;
+		return this;
+	}
+
+	public Long getDeyLay() {
+		return deyLay;
+	}
+
+//	public void setDeyLay(Long deyLay) {
+//		this.deyLay = deyLay;
+//	}
 
 	private ScheduleConfig scheduleConfig;
 	protected ImportIncreamentConfig importIncreamentConfig;
@@ -571,27 +607,40 @@ public class ImportBuilder {
 		this.scheduleConfig.setPeriod(period);
 		return this;
 	}
+	/**
+	 * 任务结束时间
+	 */
+	public ImportBuilder setScheduleEndDate(Date scheduleEndDate) {
+//		if(scheduleConfig == null){
+//			scheduleConfig = new ScheduleConfig();
+//		}
+//		this.scheduleConfig.setScheduleEndDate(scheduleEndDate);
+		this.scheduleEndDate = scheduleEndDate;
+		return this;
+	}
+
 
 
 	public ImportBuilder setDeyLay(Long deyLay) {
-		if(scheduleConfig == null){
-			scheduleConfig = new ScheduleConfig();
-		}
-		this.scheduleConfig.setDeyLay(deyLay);
+//		if(scheduleConfig == null){
+//			scheduleConfig = new ScheduleConfig();
+//		}
+//		this.scheduleConfig.setDeyLay(deyLay);
+		this.deyLay = deyLay;
 		return this;
 	}
 
 
-
-	public ImportBuilder setScheduleDate(Date scheduleDate) {
-		if(scheduleConfig == null){
-			scheduleConfig = new ScheduleConfig();
-		}
-		else if(scheduleConfig instanceof TimerScheduleConfig)
-			return this;
-		this.scheduleConfig.setScheduleDate(scheduleDate);
-		return this;
-	}
+//
+//	public ImportBuilder setScheduleDate(Date scheduleDate) {
+//		if(scheduleConfig == null){
+//			scheduleConfig = new ScheduleConfig();
+//		}
+//		else if(scheduleConfig instanceof TimerScheduleConfig)
+//			return this;
+//		this.scheduleConfig.setScheduleDate(scheduleDate);
+//		return this;
+//	}
 
 	public ImportBuilder setScheduleSelf(){
 		if(scheduleConfig == null){
@@ -1016,6 +1065,7 @@ public class ImportBuilder {
 	}
 	protected void buildImportConfig(BaseImportConfig baseImportConfig){
 		baseImportConfig.setImportStartAction(importStartAction);
+		baseImportConfig.setImportEndAction(importEndAction);
 		baseImportConfig.setUseJavaName(false);
 		baseImportConfig.setParams(this.params);
 		baseImportConfig.setLastValueColumnSetted(this.lastValueColumnSetted);
@@ -1092,6 +1142,10 @@ public class ImportBuilder {
 		baseImportConfig.setSplitHandler(this.getSplitHandler());
 		baseImportConfig.setSplitFieldName(getSplitFieldName());
 //		baseImportConfig.setEsDetectNoop(this.esDetectNoop);
+
+		baseImportConfig.setDeyLay(deyLay);
+		baseImportConfig.setScheduleDate(scheduleDate);
+		baseImportConfig.setScheduleEndDate(scheduleEndDate);
 
 	}
 

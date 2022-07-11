@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,18 @@ public class BaseImportConfig {
 	private boolean sortLastValue ;
 
 	private ImportStartAction importStartAction;
+
+	private ImportEndAction importEndAction;
+	/**
+	 * 任务开始时间
+	 */
+	private Date scheduleDate;
+	/**
+	 * 任务结束时间
+	 */
+	private Date scheduleEndDate;
+
+	private Long deyLay;
 
 	public void setImportStartAction(ImportStartAction importStartAction) {
 		this.importStartAction = importStartAction;
@@ -966,5 +979,37 @@ public class BaseImportConfig {
 
 	public void setDefaultDBConfig(DBConfig defaultDBConfig) {
 		this.defaultDBConfig = defaultDBConfig;
+	}
+
+	public Long getDeyLay() {
+		return deyLay;
+	}
+
+	public void setDeyLay(Long deyLay) {
+		this.deyLay = deyLay;
+	}
+
+	public Date getScheduleEndDate() {
+		return scheduleEndDate;
+	}
+
+	public void setScheduleEndDate(Date scheduleEndDate) {
+		this.scheduleEndDate = scheduleEndDate;
+	}
+
+	public Date getScheduleDate() {
+		return scheduleDate;
+	}
+
+	public void setScheduleDate(Date scheduleDate) {
+		this.scheduleDate = scheduleDate;
+	}
+
+	public ImportEndAction getImportEndAction() {
+		return importEndAction;
+	}
+
+	public void setImportEndAction(ImportEndAction importEndAction) {
+		this.importEndAction = importEndAction;
 	}
 }

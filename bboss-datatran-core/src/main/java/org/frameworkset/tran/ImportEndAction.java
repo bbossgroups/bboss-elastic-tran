@@ -18,13 +18,18 @@ package org.frameworkset.tran;
 import org.frameworkset.tran.context.ImportContext;
 
 /**
- * <p>Description: 导数据之前处理逻辑</p>
+ * <p>Description: 任务结束处理逻辑</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2022/7/6
  * @author biaoping.yin
  * @version 1.0
  */
-public interface ImportStartAction {
-	void startAction(ImportContext importContext);
+public interface ImportEndAction {
+	/**
+	 * 作业任务执行完毕后的处理操作
+	 * @param importContext 作业定义配置上下文
+	 * @param e  对应作业异常结束时的异常信息
+	 */
+	void endAction(ImportContext importContext,Exception e);
 }

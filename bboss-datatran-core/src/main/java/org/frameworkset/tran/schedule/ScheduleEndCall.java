@@ -1,4 +1,4 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.schedule;
 /**
  * Copyright 2022 bboss
  * <p>
@@ -15,16 +15,14 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.context.ImportContext;
-
 /**
- * <p>Description: 导数据之前处理逻辑</p>
+ * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2022/7/6
+ * @Date 2022/7/11
  * @author biaoping.yin
  * @version 1.0
  */
-public interface ImportStartAction {
-	void startAction(ImportContext importContext);
+public interface ScheduleEndCall {
+	public void call();
 }

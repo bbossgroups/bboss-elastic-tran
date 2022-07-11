@@ -15,6 +15,7 @@ package org.frameworkset.tran.schedule.timer;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ScheduleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +94,8 @@ public class ScheduleTimer implements Runnable{
 		if(interval == null){
 			interval = 100000l;
 		}
-		Long deyLay = timerScheduleConfig.getDeyLay();
+		ImportContext importContext = scheduleService.getImportContext();
+		Long deyLay = importContext.getDeyLay();
 		if(deyLay != null){
 			try {
 				Thread.sleep(deyLay.longValue());

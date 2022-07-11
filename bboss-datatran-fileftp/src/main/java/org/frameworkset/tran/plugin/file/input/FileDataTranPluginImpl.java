@@ -25,6 +25,7 @@ import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileReaderTask;
 import org.frameworkset.tran.input.file.FileResultSet;
 import org.frameworkset.tran.input.file.FileTaskContext;
+import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.status.MultiStatusManager;
 import org.frameworkset.tran.util.TranConstant;
@@ -74,12 +75,12 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 		throw new UnsupportedOperationException("getCurrentStatus");
 	}
 	@Override
-	public void destroy(boolean waitTranStop){
+	public void destroy(boolean waitTranStop,boolean fromScheduleEnd){
 		this.status = TranConstant.PLUGIN_STOPAPPENDING;
 //		stopScanThread();
 //		fileListenerService.checkTranFinished();//检查所有的作业是否已经结束，并等待作业结束
 		fileInputDataTranPlugin.destroy(waitTranStop);
-		super.destroy( waitTranStop);//之前为什么是false super.destroy( false);
+		super.destroy( waitTranStop,  fromScheduleEnd);//之前为什么是false super.destroy( false);
 		// todo
 	}
 
@@ -265,7 +266,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 
 	}
 	@Override
-	public void importData() throws DataImportException {
+	public void importData(ScheduleEndCall scheduleEndCall) throws DataImportException {
 
 		if (!fileInputConfig.isUseETLScheduleForScanNewFile()) {//采用内置新文件扫描调度机制
 			long importStartTime = System.currentTimeMillis();
@@ -275,7 +276,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 				logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
 		}
 		else{
-			super.importData();
+			super.importData(scheduleEndCall);
 		}
 
 	}

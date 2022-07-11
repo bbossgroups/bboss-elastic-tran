@@ -42,6 +42,11 @@ public class TranConstant {
 	 */
 	public static final int PLUGIN_START = 0;
 
+	/**
+	 * 插件启动
+	 */
+	public static final int PLUGIN_STOPPED = 5;
+
 	public static final int STATUS_STOP = 1;
 	public static final int STATUS_STOPTRANONLY = 2;
 }

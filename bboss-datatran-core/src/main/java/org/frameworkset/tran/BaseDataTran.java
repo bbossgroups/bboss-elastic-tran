@@ -235,7 +235,7 @@ public abstract class BaseDataTran implements DataTran{
 		if(breakableScrollHandler != null) {
 			breakableScrollHandler.setBreaked(true);
 		}
-		importContext.destroy(false);
+		importContext.destroy(false,false);
 
 	}
 

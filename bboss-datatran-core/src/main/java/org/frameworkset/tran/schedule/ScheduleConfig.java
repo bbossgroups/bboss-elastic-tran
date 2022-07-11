@@ -17,8 +17,6 @@ package org.frameworkset.tran.schedule;
 
 import com.frameworkset.util.SimpleStringUtil;
 
-import java.util.Date;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -29,8 +27,7 @@ import java.util.Date;
  */
 public class ScheduleConfig {
 
-	private Date scheduleDate;
-	private Long deyLay;
+
 	private Long period;
 	private Boolean fixedRate;
 
@@ -50,21 +47,6 @@ public class ScheduleConfig {
 	 */
 	protected boolean externalTimer;
 
-	public Date getScheduleDate() {
-		return scheduleDate;
-	}
-
-	public void setScheduleDate(Date scheduleDate) {
-		this.scheduleDate = scheduleDate;
-	}
-
-	public Long getDeyLay() {
-		return deyLay;
-	}
-
-	public void setDeyLay(Long deyLay) {
-		this.deyLay = deyLay;
-	}
 
 	public Long getPeriod() {
 		return period;
@@ -86,4 +68,5 @@ public class ScheduleConfig {
 		return SimpleStringUtil.object2json(this);
 	}
 
+	
 }

@@ -26,6 +26,7 @@ import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -98,7 +99,7 @@ public interface ImportContext {
 	public Integer getFetchSize() ;
 //	public void setEsIdField(ESField esIdField);
 //	public void setEsIdField(String esIdField);
-	void destroy(boolean waitTranStop);
+	void destroy(boolean waitTranStop,boolean fromScheduleEnd);
 	public ExportCount getExportCount();
 	public Object max(Object oldValue,Object newValue);
 	boolean isContinueOnError();
@@ -210,4 +211,11 @@ public interface ImportContext {
 //
 //	String getSourceElasticsearch();
 	public boolean isIncreamentImport();
+	public ImportEndAction getImportEndAction();
+
+	public Date getScheduleDate();
+
+	public Date getScheduleEndDate();
+
+	public Long getDeyLay();
 }

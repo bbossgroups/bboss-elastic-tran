@@ -231,11 +231,11 @@ public  class BaseImportContext implements ImportContext {
 	}
 
 	@Override
-	public void destroy(boolean waitTranStop) {
+	public void destroy(boolean waitTranStop,boolean fromScheduleEnd) {
 //		if(dataTranPlugin != null){
 //			dataTranPlugin.destroy();
 //		}
-		this.dataTranPlugin.destroy(  waitTranStop);
+		this.dataTranPlugin.destroy(  waitTranStop,  fromScheduleEnd);
 		try {
 			if (blockedExecutor != null) {
 				blockedExecutor.shutdown();
@@ -476,6 +476,22 @@ public  class BaseImportContext implements ImportContext {
 	@Override
 	public boolean isSchedulePaused(boolean autoPause){
 		return this.dataTranPlugin.isSchedulePaussed(  autoPause);
+	}
+
+	public ImportEndAction getImportEndAction(){
+		return this.baseImportConfig.getImportEndAction();
+	}
+
+	public Date getScheduleDate(){
+		return this.baseImportConfig.getScheduleDate();
+	}
+
+	public Date getScheduleEndDate(){
+		return this.baseImportConfig.getScheduleEndDate();
+	}
+
+	public Long getDeyLay(){
+		return this.baseImportConfig.getDeyLay();
 	}
 
 }

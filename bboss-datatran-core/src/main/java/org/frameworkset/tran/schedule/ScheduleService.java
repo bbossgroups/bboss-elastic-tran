@@ -58,9 +58,9 @@ public class ScheduleService {
 
 	private ImportContext importContext;
 
-	private ImportContext targetImportContext;
-
-
+	public ImportContext getImportContext() {
+		return importContext;
+	}
 
 	private Timer timer ;
 	private ScheduleTimer scheduleTimer;
@@ -151,8 +151,8 @@ public class ScheduleService {
 
 			}
 		};
-		Date scheduleDate = scheduleConfig.getScheduleDate();
-		Long delay = scheduleConfig.getDeyLay();
+		Date scheduleDate = importContext.getScheduleDate();
+		Long delay = importContext.getDeyLay();
 		if(scheduleDate != null) {
 			if (scheduleConfig.getFixedRate() != null && scheduleConfig.getFixedRate()) {
 
@@ -192,7 +192,9 @@ public class ScheduleService {
 		scheduleTimer.start();
 
 	}
-	public void timeSchedule() throws Exception {
+	public boolean timeSchedule() throws Exception {
+
+
 		ScheduleConfig scheduleConfig = importContext.getScheduleConfig();
 		if(scheduleConfig instanceof TimerScheduleConfig){
 			innerimeSchedule((TimerScheduleConfig)scheduleConfig);
@@ -200,6 +202,11 @@ public class ScheduleService {
 		else{
 			this.jdkTimeSchedule(scheduleConfig);
 		}
+		return true;
+
+
+
+
 
 
 	}
