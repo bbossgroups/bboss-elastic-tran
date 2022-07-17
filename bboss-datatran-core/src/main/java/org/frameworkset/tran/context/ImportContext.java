@@ -25,6 +25,8 @@ import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
+import org.frameworkset.util.ResourceEnd;
+import org.frameworkset.util.ResourceStart;
 
 import java.util.Date;
 import java.util.List;
@@ -40,7 +42,18 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0
  */
 public interface ImportContext {
-//	BaseImportConfig getBaseImportConfig();
+	/**
+	 * 对作业依赖的资源进行初始化处理
+	 * @return
+	 */
+	public ImportContext addResourceStart(ResourceStart resourceStart);
+
+	/**
+	 * 销毁initResources初始化阶段的初始化的依赖资源
+	 */
+	public void destroyResources(ResourceEnd resourceEnd);
+
+	//	BaseImportConfig getBaseImportConfig();
 	InputConfig getInputConfig();
 	ImportStartAction getImportStartAction();
 	OutputConfig getOutputConfig();

@@ -88,7 +88,7 @@ public class DataStream {
 						logger.info("Schedule job end date[{}] reached,schedule job stop complete.",date);
 					}
 				});
-				dataTranPlugin.endAction(null);
+
 			}
 //			if(this.scheduleService == null) {//一次性执行数据导入操作
 //

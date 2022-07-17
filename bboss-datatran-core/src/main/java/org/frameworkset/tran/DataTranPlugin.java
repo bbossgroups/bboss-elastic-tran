@@ -21,6 +21,8 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.*;
+import org.frameworkset.util.ResourceEnd;
+import org.frameworkset.util.ResourceStart;
 
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,8 @@ import java.util.concurrent.CountDownLatch;
  * @version 1.0
  */
 public interface DataTranPlugin {
+	public void initResources(ResourceStart resourceStart) ;
+	public void destroyResources(ResourceEnd resourceEnd) ;
 	public int getLastValueType();
 
 	public InputPlugin getInputPlugin() ;

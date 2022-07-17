@@ -31,7 +31,7 @@ import com.maxmind.geoip2.model.CountryResponse;
 import com.maxmind.geoip2.model.IspResponse;
 import com.maxmind.geoip2.record.*;
 import org.frameworkset.elasticsearch.entity.geo.GeoPoint;
-import org.frameworkset.spi.BaseApplicationContext;
+import org.frameworkset.util.shutdown.ShutdownUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class GeoIPFilter {
   private static final Logger logger = LoggerFactory.getLogger(GeoIPFilter.class);
@@ -101,7 +103,7 @@ public class GeoIPFilter {
         }
       });
       daemonThread.start();
-      BaseApplicationContext.addShutdownHook(new Runnable() {
+      ShutdownUtil.addShutdownHook(new Runnable() {
         @Override
         public void run() {
           daemonThread.stopped();

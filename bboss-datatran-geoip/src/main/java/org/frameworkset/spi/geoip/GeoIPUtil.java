@@ -19,6 +19,8 @@ package org.frameworkset.spi.geoip;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.spi.ip2region.IP2Region;
+import org.frameworkset.spi.ip2region.IP2RegionV1;
+import org.frameworkset.spi.ip2regionv2.xdb.IP2RegionV2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,9 +68,16 @@ import java.util.Map;
 public class GeoIPUtil {
 	private GeoIPFilter geoIPFilter;
 	private IP2Region ip2Region;
+	public static final String ip2RegionVersion_V1 = "V1";
+	public static final String ip2RegionVersion_V2 = "V2";
+	private String ip2RegionVersion = ip2RegionVersion_V2;
 
 	public Object getIspConverter() {
 		return ispConverter;
+	}
+
+	public void setIp2RegionVersion(String ip2RegionVersion) {
+		this.ip2RegionVersion = ip2RegionVersion;
 	}
 
 	public void setIspConverter(Object ispConverter) {
@@ -119,9 +128,16 @@ public class GeoIPUtil {
 		}
 
 		if(ip2regionDatabase != null && !ip2regionDatabase.equals("")){
-			IP2Region ip2Region = new IP2Region();
-			ip2Region.init(ip2regionDatabase,false);
-			this.ip2Region = ip2Region;
+			if(ip2RegionVersion.equals(ip2RegionVersion_V2)) {
+				IP2RegionV2 ip2Region = new IP2RegionV2();
+				ip2Region.init(ip2regionDatabase, false);
+				this.ip2Region = ip2Region;
+			}
+			else{
+				IP2RegionV1 ip2Region = new IP2RegionV1();
+				ip2Region.init(ip2regionDatabase, false);
+				this.ip2Region = ip2Region;
+			}
 		}
 	}
 
@@ -304,17 +320,17 @@ public class GeoIPUtil {
 			geoIPFilter.handleIpInfo( ipInfo);
 			needHandle = true;
 		}
-		if (ipInfo.getIsp() == null || ipInfo.getIsp().equals("0"))
+		if (ipInfo.getIsp() == null )
 			ipInfo.setIsp("未知");
-		if (ipInfo.getArea() != null && ipInfo.getArea().equals("0"))
-			ipInfo.setArea(null);
-		if (ipInfo.getCountry() == null || ipInfo.getCountry().equals("0"))
+//		if (ipInfo.getArea() != null && ipInfo.getArea().equals("0"))
+//			ipInfo.setArea(null);
+		if (ipInfo.getCountry() == null )
 			ipInfo.setCountry("未知");
-		if (ipInfo.getCounty() != null && ipInfo.getCounty().equals("0"))
+		if (ipInfo.getCounty() != null )
 			ipInfo.setCounty("未知");
-		if (ipInfo.getRegion() == null || ipInfo.getRegion().equals("0"))
+		if (ipInfo.getRegion() == null )
 			ipInfo.setRegion("未知");
-		if (ipInfo.getCity() == null || ipInfo.getCity().equals("0"))
+		if (ipInfo.getCity() == null)
 			ipInfo.setCity("未知");
 		if(needHandle)
 			_IPConverter.convert(ipInfo);

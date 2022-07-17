@@ -32,6 +32,9 @@ import org.frameworkset.tran.status.SingleStatusManager;
 import org.frameworkset.tran.status.StatusManager;
 import org.frameworkset.tran.util.TranConstant;
 import org.frameworkset.tran.util.TranUtil;
+import org.frameworkset.util.ResourceEnd;
+import org.frameworkset.util.ResourceStart;
+import org.frameworkset.util.ResourceStartResult;
 import org.frameworkset.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -258,8 +261,15 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			}
 		}
 	}
+	private boolean endActioned = false;
 	@Override
 	public void endAction(Exception e){
+		synchronized (this) {
+			if (endActioned) {
+				return;
+			}
+			endActioned = true;
+		}
 		if(this.importContext.getImportEndAction() != null){
 			try {
 				this.importContext.getImportEndAction().endAction(importContext,e);
@@ -659,6 +669,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		stopDatasources(dbStartResult);
 		inputPlugin.destroy(waitTranStop);
 		outputPlugin.destroy(waitTranStop);
+		endAction(null);
 		status = TranConstant.PLUGIN_STOPPED;
 
 	}
@@ -1482,8 +1493,39 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			this.scheduleService.init(importContext);
 		}
 	}
+	private List<ResourceStartResult> resourceStartResults;
+	@Override
+	public void initResources(ResourceStart resourceStart) {
 
+		try {
+			ResourceStartResult resourceStartResult = resourceStart.startResource();
 
+			if(resourceStartResult != null) {
+				if(resourceStartResults == null){
+					resourceStartResults = new ArrayList<>();
+				}
+				resourceStartResults.add(resourceStartResult);
+			}
+		}
+		catch (Exception e){
+			logger.error("Resource Start failed:",e);
+		}
+
+	}
+
+	@Override
+	public void destroyResources(ResourceEnd resourceEnd) {
+		if(resourceStartResults != null){
+			for(ResourceStartResult resourceStartResult: resourceStartResults){
+				try {
+					resourceEnd.endResource(resourceStartResult);
+				}
+				catch (Exception e){
+					logger.error("End Resource failed:",e);
+				}
+			}
+		}
+	}
 
 
 

@@ -27,6 +27,8 @@ import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.status.BaseStatusManager;
+import org.frameworkset.util.ResourceEnd;
+import org.frameworkset.util.ResourceStart;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
 
 import java.util.Date;
@@ -81,6 +83,19 @@ public  class BaseImportContext implements ImportContext {
 	public void afterBuild(ImportBuilder importBuilder){
 		inputConfig.afterBuild(importBuilder,this);
 		outputConfig.afterBuild(importBuilder,this);
+	}
+
+	@Override
+	public ImportContext addResourceStart(ResourceStart resourceStart) {
+		if(resourceStart != null)
+			dataTranPlugin.initResources(resourceStart);
+		return this;
+	}
+
+	@Override
+	public void destroyResources(ResourceEnd resourceEnd) {
+		if(resourceEnd != null)
+			dataTranPlugin.destroyResources(resourceEnd);
 	}
 
 	@Override
@@ -235,6 +250,7 @@ public  class BaseImportContext implements ImportContext {
 //		if(dataTranPlugin != null){
 //			dataTranPlugin.destroy();
 //		}
+
 		this.dataTranPlugin.destroy(  waitTranStop,  fromScheduleEnd);
 		try {
 			if (blockedExecutor != null) {

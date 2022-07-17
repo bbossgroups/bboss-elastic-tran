@@ -24,7 +24,7 @@ import org.frameworkset.tran.plugin.BasePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Description: </p>
@@ -50,7 +50,7 @@ public abstract class BaseESPlugin extends BasePlugin {
 				if(this.elasticsearchBootResult == null)
 					this.elasticsearchBootResult = _elasticsearchBootResult;
 				else{
-					this.elasticsearchBootResult.addInitedElasticsearchs(_elasticsearchBootResult.getInitedElasticsearchs());
+					this.elasticsearchBootResult.addResourceStartResults(_elasticsearchBootResult.getResourceStartResult());
 				}
 			}
 		}
@@ -60,7 +60,7 @@ public abstract class BaseESPlugin extends BasePlugin {
 				if(this.elasticsearchBootResult == null)
 					this.elasticsearchBootResult = _elasticsearchBootResult;
 				else{
-					this.elasticsearchBootResult.addInitedElasticsearchs(_elasticsearchBootResult.getInitedElasticsearchs());
+					this.elasticsearchBootResult.addResourceStartResults(_elasticsearchBootResult.getResourceStartResult());
 				}
 			}
 		}
@@ -71,8 +71,8 @@ public abstract class BaseESPlugin extends BasePlugin {
 	 * 停止采集作业内部启动的Elasticsearch数据源
 	 */
 	protected void stopES(){
-		if(elasticsearchBootResult != null && elasticsearchBootResult.getInitedElasticsearchs() != null){
-			List<String> initedElasticsearchs = elasticsearchBootResult.getInitedElasticsearchs();
+		if(elasticsearchBootResult != null && elasticsearchBootResult.getResourceStartResult() != null){
+			Map<String,Object> initedElasticsearchs = elasticsearchBootResult.getResourceStartResult();
 			if(initedElasticsearchs != null && initedElasticsearchs.size() > 0 ){
 				ElasticSearchHelper.stopElasticsearchs(initedElasticsearchs);
 			}
