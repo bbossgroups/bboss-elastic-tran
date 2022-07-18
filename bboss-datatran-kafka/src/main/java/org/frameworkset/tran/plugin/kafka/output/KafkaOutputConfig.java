@@ -38,7 +38,7 @@ import java.util.Properties;
 public abstract class KafkaOutputConfig extends BaseConfig implements OutputConfig {
 	private Properties kafkaConfigs = null;
 	private KafkaSend kafkaSend;
-	private long logsendTaskMetric = 10000l;
+//	private long logsendTaskMetric = 10000l;
 
 	public boolean isKafkaAsynSend() {
 		return kafkaAsynSend;
@@ -104,14 +104,14 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 		return kafkaConfigs;
 	}
 
-	public long getLogsendTaskMetric() {
-		return logsendTaskMetric;
-	}
-
-	public KafkaOutputConfig setLogsendTaskMetric(long logsendTaskMetric) {
-		this.logsendTaskMetric = logsendTaskMetric;
-		return this;
-	}
+//	public long getLogsendTaskMetric() {
+//		return logsendTaskMetric;
+//	}
+//
+//	public KafkaOutputConfig setLogsendTaskMetric(long logsendTaskMetric) {
+//		this.logsendTaskMetric = logsendTaskMetric;
+//		return this;
+//	}
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
