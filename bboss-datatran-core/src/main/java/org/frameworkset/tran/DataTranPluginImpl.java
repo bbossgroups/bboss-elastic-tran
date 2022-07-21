@@ -250,35 +250,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	public boolean isEnableAutoPauseScheduled(){
 		return true;
 	}
-	@Override
-	public void startAction(){
-		if(this.importContext.getImportStartAction() != null){
-			try {
-				this.importContext.getImportStartAction().startAction(importContext);
-			}
-			catch (Exception e){
-				logger.warn("",e);
-			}
-		}
-	}
-	private boolean endActioned = false;
-	@Override
-	public void endAction(Exception e){
-		synchronized (this) {
-			if (endActioned) {
-				return;
-			}
-			endActioned = true;
-		}
-		if(this.importContext.getImportEndAction() != null){
-			try {
-				this.importContext.getImportEndAction().endAction(importContext,e);
-			}
-			catch (Exception ee){
-				logger.warn("",ee);
-			}
-		}
-	}
+
+
 	protected Thread delayThread ;
 	protected Thread scheduledEndThread;
 	protected void delay(){
@@ -493,7 +466,6 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	public void init(ImportContext importContext) {
 
 		this.importContext = importContext;
-
 		exportCount = new ExportCount();
 		this.inputPlugin = importContext.getInputPlugin();
 		this.outputPlugin = importContext.getOutputPlugin();
@@ -669,7 +641,6 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		stopDatasources(dbStartResult);
 		inputPlugin.destroy(waitTranStop);
 		outputPlugin.destroy(waitTranStop);
-		endAction(null);
 		status = TranConstant.PLUGIN_STOPPED;
 
 	}
@@ -1152,7 +1123,13 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			boolean ret = SQLUtil.startPoolWithDBConf(tempConf);
 //			JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
 			if(!ret ){
-				throw new DataImportException("status_datasource["+statusDbname+"] not started.");
+//				throw new DataImportException("status_datasource["+statusDbname+"] not started.");
+				logger.warn("Ignore start started Status_datasource["+statusDbname+"].");
+				this.useOuterStatusDb = true;
+				initStatusSQL(statusTableName );
+			}
+			else{
+				logger.warn("Start Status_datasource["+statusDbname+"] complete.");
 			}
 		} catch (Exception e) {
 			throw new DataImportException(e);
@@ -1164,6 +1141,14 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			createStatusTableSQL = statusDBConfig.getCreateStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
 		}
 		createHistoryStatusTableSQL = statusDBConfig.getCreateHistoryStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
+		createStatusTableSQL = createStatusTableSQL.replace("$statusTableName",statusTableName);
+		createHistoryStatusTableSQL = createHistoryStatusTableSQL.replace("$historyStatusTableName",historyStatusTableName);
+	}
+
+	private void initStatusSQL(String statusDbname ){
+		createStatusTableSQL = DBConfig.getCreateStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
+
+		createHistoryStatusTableSQL = DBConfig.getCreateHistoryStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
 		createStatusTableSQL = createStatusTableSQL.replace("$statusTableName",statusTableName);
 		createHistoryStatusTableSQL = createHistoryStatusTableSQL.replace("$historyStatusTableName",historyStatusTableName);
 	}
@@ -1230,7 +1215,10 @@ public class DataTranPluginImpl implements DataTranPlugin {
 						boolean ret = SQLUtil.startPoolWithDBConf(tempConf);
 //						JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
 						if(!ret){
-							throw new DataImportException("status_datasource["+statusDbname+"] not started.");
+//							throw new DataImportException("status_datasource["+statusDbname+"] not started.");
+							logger.warn("Ignore start started Status_datasource["+statusDbname+"].");
+							this.useOuterStatusDb = true;
+							initStatusSQL(statusTableName );
 						}
 //						else{
 //							dbStartResult.addDBStartResult(tempConf.getPoolname());

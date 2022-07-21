@@ -1,5 +1,6 @@
 package org.frameworkset.tran.plugin.http.output;
 
+import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
@@ -137,7 +138,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 	public void init(){
 		super.init();
 
- 		taskInfo = "http output datatran job";
+ 		taskInfo = "Http output datatran job";
 
 	}
 
@@ -169,13 +170,39 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 
 	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
 		CommonRecord record = buildRecord(  context );
+		if(writer == null){
+			httpOutputConfig.generateReocord(context, record, writer);
+			writer.write(httpOutputConfig.getLineSeparator());
 
-		httpOutputConfig.generateReocord(context,record, writer);
-		writer.write(httpOutputConfig.getLineSeparator());
+		}
+		else {
+			if (writer instanceof BBossStringWriter) {
+				BBossStringWriter bBossStringWriter = (BBossStringWriter) writer;
+				if (bBossStringWriter.getBuffer().length() == 0) {
+					if(httpOutputConfig.isJson())
+						writer.write("[");
+					httpOutputConfig.generateReocord(context, record, writer);
+
+				} else {
+					writer.write(httpOutputConfig.getLineSeparator());
+					httpOutputConfig.generateReocord(context, record, writer);
+				}
+			} else {
+				httpOutputConfig.generateReocord(context, record, writer);
+				writer.write(httpOutputConfig.getLineSeparator());
+			}
+		}
 		return record;
+
 	}
 
+	@Override
+	public void beforeOutputData(BBossStringWriter writer){
+		if(httpOutputConfig.isJson() && writer.getBuffer().length() >  0){
+			writer.write("]");
+		}
 
+	}
 
 
 

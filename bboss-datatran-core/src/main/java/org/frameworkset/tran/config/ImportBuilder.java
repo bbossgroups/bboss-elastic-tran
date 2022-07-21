@@ -1247,6 +1247,7 @@ public class ImportBuilder {
 //		dataStream.setTargetImportContext(this.buildTargetImportContext(db2DBImportConfig));
 //		dataStream.setTargetImportContext(dataStream.getImportContext());
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(importContext));
+		dataStream.initDatastream();
 		return dataStream;
 	}
 	public static ImportBuilder newInstance(){

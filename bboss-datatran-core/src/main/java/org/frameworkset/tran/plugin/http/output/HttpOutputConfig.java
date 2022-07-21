@@ -42,9 +42,22 @@ import java.util.Map;
 public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 
 	private Map<String,Object> httpConfigs;
+//	public static String JSON_DATA = "json";
+//	public static String TEXT_DATA = "text";
+//	private String dataType = JSON_DATA;
+	private boolean json = true;
 
 	public String getLineSeparator() {
 		return lineSeparator;
+	}
+
+	public HttpOutputConfig setJson(boolean json) {
+		this.json = json;
+		return this;
+	}
+
+	public boolean isJson() {
+		return json;
 	}
 
 	public HttpOutputConfig setLineSeparator(String lineSeparator) {
@@ -113,10 +126,17 @@ public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 			throw new DataImportException("Input httpMethod must be post or put.");
 		}
 		if(getRecordGenerator() == null){
+			if(!json)
+				json = true;
 			setRecordGenerator(new JsonRecordGenerator());//默认采用json格式输出数据
 		}
-		if(SimpleStringUtil.isEmpty(lineSeparator))
-			lineSeparator = TranUtil.lineSeparator;
+		if(json) {
+			lineSeparator = ",";
+		}
+		else {
+			if (SimpleStringUtil.isEmpty(lineSeparator))
+				lineSeparator = TranUtil.lineSeparator;
+		}
 
 	}
 
@@ -155,6 +175,8 @@ public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 		if(builder == null){
 			builder = RecordGenerator.tranDummyWriter;
 		}
-		getRecordGenerator().buildRecord(  taskContext, record,  builder);
+
+		getRecordGenerator().buildRecord(taskContext, record, builder);
 	}
+
 }

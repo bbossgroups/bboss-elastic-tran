@@ -16,6 +16,7 @@ package org.frameworkset.tran;
  */
 
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
+import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.metrics.ImportCount;
 
 import java.util.List;
@@ -31,6 +32,8 @@ import java.util.concurrent.Future;
  * @version 1.0
  */
 public interface DataTran {
+
+	public void beforeOutputData(BBossStringWriter writer);
 	/**
 	 * 并行批处理导入
 

@@ -67,8 +67,6 @@ public interface DataTranPlugin {
 	void setErrorWrapper(TranErrorWrapper tranErrorWrapper);
 
 //	void doImportData(TaskContext taskContext)  throws ESDataImportException;
-	void startAction();
-	void endAction(Exception e);
 	void importData(ScheduleEndCall scheduleEndCall) throws DataImportException;
 	public String getLastValueVarName();
 	ScheduleService getScheduleService();

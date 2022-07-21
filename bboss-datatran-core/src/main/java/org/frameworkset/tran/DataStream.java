@@ -36,12 +36,36 @@ public class DataStream {
 	protected ImportContext importContext;
 //	protected ImportContext targetImportContext;
 //	protected BaseImportConfig importConfig ;
+	public void startAction(){
+		if(importContext.getImportStartAction() != null){
+			try {
+				importContext.getImportStartAction().startAction(importContext);
+			}
+			catch (Exception e){
+				logger.warn("",e);
+			}
+		}
+	}
 
+	public void afterStartAction(){
+		if(importContext.getImportStartAction() != null){
+			try {
+				importContext.getImportStartAction().afterStartAction(importContext);
+			}
+			catch (Exception e){
+				logger.warn("",e);
+			}
+		}
+	}
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;
+
+
+	}
+	public void initDatastream(){
+		startAction();
 		this.dataTranPlugin.init(importContext);
-
-
+		afterStartAction();
 	}
 
 	private DataTranPlugin dataTranPlugin;
@@ -76,7 +100,7 @@ public class DataStream {
 //			importContext.importData();
 //			DataTranPlugin dataTranPlugin = importContext.getDataTranPlugin();
 			if(dataTranPlugin != null){
-				dataTranPlugin.startAction();
+
 				dataTranPlugin.importData(new ScheduleEndCall() {
 					@Override
 					public void call() {
@@ -112,14 +136,30 @@ public class DataStream {
 		}
 		catch (Exception e) {
 
-			dataTranPlugin.endAction(e);
+			endAction(e);
 			throw new DataImportException(e);
 		}
 		finally{
 
 		}
 	}
-
+	private boolean endActioned = false;
+	public void endAction(Exception e){
+		synchronized (this) {
+			if (endActioned) {
+				return;
+			}
+			endActioned = true;
+		}
+		if(this.importContext.getImportEndAction() != null){
+			try {
+				this.importContext.getImportEndAction().endAction(importContext,e);
+			}
+			catch (Exception ee){
+				logger.warn("",ee);
+			}
+		}
+	}
 	public void destroy() {
 		destroy(false);
 
@@ -136,7 +176,7 @@ public class DataStream {
 
 		destroy(waitTranStopped, false);
 
-
+		endAction(null);
 
 //		this.esjdbc.stop();
 	}

@@ -26,5 +26,15 @@ import org.frameworkset.tran.context.ImportContext;
  * @version 1.0
  */
 public interface ImportStartAction {
+	/**
+	 * 初始化之前执行的处理操作，比如后续初始化操作、数据处理过程中依赖的资源初始化
+	 * @param importContext
+	 */
 	void startAction(ImportContext importContext);
+
+	/**
+	 * 所有初始化操作完成后，导出数据之前执行的操作
+	 * @param importContext
+	 */
+	void afterStartAction(ImportContext importContext);
 }

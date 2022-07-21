@@ -77,15 +77,11 @@ public class StringTranJob extends BaseTranJob{
 				Boolean hasNext = tranResultSet.next();
 				if(hasNext == null){
 					if(count > 0) {
+						baseDataTran.beforeOutputData(writer);
 						String _dd =  builder.toString();
 						builder.setLength(0);
 						int _count = count;
 						count = 0;
-//						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-//								_count, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//						taskCommand.setDatas(_dd);
-//						ret = TaskCall.call(taskCommand);
-//						taskNo ++;
 						taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,_dd,reachEOFClosed,null);
 
 						if (baseDataTran.isPrintTaskLog()) {
@@ -128,14 +124,11 @@ public class StringTranJob extends BaseTranJob{
 					importCount.increamentIgnoreTotalCount();
 					continue;
 				}
-//				CommonRecord record = buildRecord(  context );
-//
-//				fileOupputContext.generateReocord(context,record, writer);
-//				writer.write(TranUtil.lineSeparator);
 				serialTranCommand.buildStringRecord(context,writer);
 				count++;
 				totalCount ++;
 				if (count >= batchsize) {
+					baseDataTran.beforeOutputData(writer);
 					writer.flush();
 					String datas = builder.toString();
 					builder.setLength(0);
@@ -144,11 +137,6 @@ public class StringTranJob extends BaseTranJob{
 
 					int _count = count;
 					count = 0;
-//					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-//							_count, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//					taskCommand.setDatas(datas);
-//					ret = TaskCall.call(taskCommand);
-//					taskNo ++;
 
 					taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,datas,reachEOFClosed,null);
 					if(baseDataTran.isPrintTaskLog())  {
@@ -161,33 +149,24 @@ public class StringTranJob extends BaseTranJob{
 
 				}
 
-//				if(fileOupputContext.getMaxFileRecordSize() > 0 && totalCount > 0
-//						&& (totalCount % fileOupputContext.getMaxFileRecordSize() == 0)){//reached max file record size
 				if(serialTranCommand.splitCheck(totalCount)){
 					String _dd = null;
 					int _count = count;
 					if (count > 0 ) {
+						baseDataTran.beforeOutputData(writer);
 						_dd = builder.toString();
 						builder.setLength(0);
 						count = 0;
 
 					}
 					taskNo = serialTranCommand.splitSerialActionTask(importCount,_count,taskNo,lastValue,_dd,reachEOFClosed,null);
-//					if(_dd != null) {
-//						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext, targetImportContext,
-//								count, taskNo, importCount.getJobNo(), fileTransfer, lastValue, currentStatus, reachEOFClosed, taskContext);
-//						taskCommand.setDatas(_dd);
-//						TaskCall.call(taskCommand);
-//						taskNo++;
-//					}
-//					sendFile(true);
-//					fileTransfer.sendFile();
-//					fileTransfer = this.initFileTransfer();
+
 				}
 
 			}
 			String datas = null;
 			if (count > 0) {
+				baseDataTran.beforeOutputData(writer);
 				datas = builder.toString();
 				builder.setLength(0);
 			}
@@ -202,28 +181,7 @@ public class StringTranJob extends BaseTranJob{
 
 				}
 			}
-//			if (count > 0) {
-//				writer.flush();
-//				String datas = builder.toString();
-//
-//				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext, targetImportContext,
-//						count, taskNo, importCount.getJobNo(), fileTransfer, lastValue,  currentStatus,reachEOFClosed,taskContext);
-//				taskCommand.setDatas(datas);
-//				TaskCall.call(taskCommand);
-//				if(isPrintTaskLog())  {
-//					end = System.currentTimeMillis();
-//					logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
-//							.append(",import ").append(count).append(" records,IgnoreTotalCount ")
-//							.append(ignoreTotalCount).append(" records.").toString());
-//
-//				}
-//				fileTransfer.sendFile();
-//			}
-//			else{
-//				if(!fileTransfer.isSended()){
-//					fileTransfer.sendFile();
-//				}
-//			}
+
 			if(baseDataTran.isPrintTaskLog()) {
 				end = System.currentTimeMillis();
 				logger.info(new StringBuilder().append("Batch import Execute Tasks:").append(taskNo).append(",All Take time:").append((end - start)).append("ms")
@@ -253,10 +211,6 @@ public class StringTranJob extends BaseTranJob{
 
 			}
 			baseDataTran.endJob( reachEOFClosed, importCount);
-//			Date endTime = new Date();
-//			if(baseDataTran.getTaskContext() != null)
-//				baseDataTran.getTaskContext().setJobEndTime(endTime);
-//			importCount.setJobEndTime(endTime);
 		}
 
 		return ret;
@@ -300,15 +254,11 @@ public class StringTranJob extends BaseTranJob{
 				Boolean hasNext = tranResultSet.next();
 				if(hasNext == null){//强制flush操作
 					if (count > 0) {
+						baseDataTran.beforeOutputData(writer);
 						String datas = builder.toString();
 						builder.setLength(0);
 						int _count = count;
 						count = 0;
-//						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-//								_count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//						taskCommand.setDatas(datas);
-//						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-//						taskNo++;
 						taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,reachEOFClosed,null,
 								service,tasks,tranErrorWrapper);
 
@@ -326,7 +276,6 @@ public class StringTranJob extends BaseTranJob{
 				Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 				if(!reachEOFClosed)
 					reachEOFClosed = context.reachEOFClosed();
-//				Context context = new ContextImpl(importContext, tranResultSet, batchContext);
 				if(context.removed()){
 					if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
 						totalCount.increamentIgnoreTotalCount();
@@ -340,23 +289,15 @@ public class StringTranJob extends BaseTranJob{
 					totalCount.increamentIgnoreTotalCount();
 					continue;
 				}
-//				CommonRecord record = buildRecord(  context );
-//
-//				fileOupputContext.generateReocord(context,record, writer);
-//				writer.write(TranUtil.lineSeparator);
 				parrelTranCommand.buildStringRecord(context,writer);
 				count++;
 				if(count >= batchsize ){
+					baseDataTran.beforeOutputData(writer);
 					String datas = builder.toString();
 					builder.setLength(0);
 
 					int _count = count;
 					count = 0;
-//					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-//							_count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//					taskCommand.setDatas(datas);
-//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-//					taskNo++;
 					taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,reachEOFClosed,null,
 							service,tasks,tranErrorWrapper);
 
@@ -366,14 +307,11 @@ public class StringTranJob extends BaseTranJob{
 				if(!tranErrorWrapper.assertCondition()) {
 					tranErrorWrapper.throwError();
 				}
+				baseDataTran.beforeOutputData(writer);
 				String datas = builder.toString();
 				builder.setLength(0);
 				taskNo = parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,datas,reachEOFClosed,null,
 						service,tasks,tranErrorWrapper);
-//				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-//						count, taskNo, totalCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//				taskCommand.setDatas(datas);
-//				tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 
 
@@ -395,11 +333,6 @@ public class StringTranJob extends BaseTranJob{
 				@Override
 				public void call() {
 					parrelTranCommand.parrelCompleteAction();
-//					fileTransfer.sendFile();//传输文件
-//					Date endTime = new Date();
-//					if(baseDataTran.getTaskContext() != null)
-//						baseDataTran.getTaskContext().setJobEndTime(endTime);
-//					totalCount.setJobEndTime(endTime);
 
 
 				}
@@ -536,30 +469,15 @@ public class StringTranJob extends BaseTranJob{
 					BBossStringWriter writer = new BBossStringWriter(builder);
 					CommonRecord record = serialTranCommand.buildStringRecord(  context,writer );
 
-//					kafkaOutputContext.generateReocord(context,record, writer);
-//					KafkaCommand kafkaCommand = new KafkaCommand(importCount, importContext,targetImportContext,
-//							1, -1, importCount.getJobNo(), lastValue,taskContext,  currentStatus,reachEOFClosed);
-//					kafkaCommand.setDatas(builder.toString());
-//					kafkaCommand.setKey(record.getRecordKey());
-//					TaskCall.asynCall(kafkaCommand);
-
-//					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));
-//					//						evalBuilk(this.tranResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 					totalCount++;
 					if(serialTranCommand.splitCheck( totalCount)){//reached max file record size
+						baseDataTran.beforeOutputData(writer);
 						String _dd =  builder.toString();
 						builder.setLength(0);
-//						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-//								totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//						taskCommand.setDatas(_dd);
-//						TaskCall.call(taskCommand);
-//						taskNo ++;
-////						fileTransfer.sendFile();
-////						fileTransfer = this.initFileTransfer();
-//						sendFile(true);
 						serialTranCommand.splitSerialActionTask(importCount,1,-1,lastValue,_dd,reachEOFClosed,null);
 					}
 					else{
+						baseDataTran.beforeOutputData(writer);
 						serialTranCommand.hanBatchActionTask(importCount,1, -1,lastValue,builder.toString(),reachEOFClosed,record);
 						builder.setLength(0);
 					}
@@ -624,10 +542,6 @@ public class StringTranJob extends BaseTranJob{
 
 				baseDataTran.stopTranOnly();
 			}
-//			Date endTime = new Date();
-//			if(baseDataTran.getTaskContext() != null)
-//				baseDataTran.getTaskContext().setJobEndTime(endTime);
-//			importCount.setJobEndTime(endTime);
 			baseDataTran.endJob( reachEOFClosed, importCount);
 		}
 		return null;
@@ -669,13 +583,9 @@ public class StringTranJob extends BaseTranJob{
 				if(hasNext == null){
 					String ret = null;
 					if(builder.length() > 0) {
+						baseDataTran.beforeOutputData(writer);
 						String _dd =  builder.toString();
 						builder.setLength(0);
-//						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-//								totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//						taskCommand.setDatas(_dd);
-//						ret = TaskCall.call(taskCommand);
-//						taskNo ++;
 						taskNo = serialTranCommand.hanBatchActionTask(importCount,totalCount,taskNo,lastValue,_dd,reachEOFClosed,null);
 					}
 					else{
@@ -719,25 +629,12 @@ public class StringTranJob extends BaseTranJob{
 						importCount.increamentIgnoreTotalCount();
 						continue;
 					}
-//					CommonRecord record = buildRecord(  context );
-//
-//					fileOupputContext.generateReocord(context,record, writer);
-//					writer.write(TranUtil.lineSeparator);
 					serialTranCommand.buildStringRecord(context,writer);
-//					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));
-//					//						evalBuilk(this.tranResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 					totalCount++;
 					if(serialTranCommand.splitCheck( totalCount)){//reached max file record size
+						baseDataTran.beforeOutputData(writer);
 						String _dd =  builder.toString();
 						builder.setLength(0);
-//						FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-//								totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//						taskCommand.setDatas(_dd);
-//						TaskCall.call(taskCommand);
-//						taskNo ++;
-////						fileTransfer.sendFile();
-////						fileTransfer = this.initFileTransfer();
-//						sendFile(true);
 						taskNo = serialTranCommand.splitSerialActionTask(importCount,totalCount,taskNo,lastValue,_dd,reachEOFClosed,null);
 					}
 				} catch (Exception e) {
@@ -746,31 +643,11 @@ public class StringTranJob extends BaseTranJob{
 			}
 			String datas = null;
 			if(builder.length() > 0) {
+				baseDataTran.beforeOutputData(writer);
 				datas = builder.toString();
 				builder.setLength(0);
 			}
 			taskNo = serialTranCommand.endSerialActionTask(importCount,totalCount,taskNo,lastValue,datas,reachEOFClosed,null);
-//			if(builder.length() > 0) {
-//
-//				FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-//						totalCount, taskNo, importCount.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//				taskNo ++;
-//				taskCommand.setDatas(builder.toString());
-//				builder.setLength(0);
-//				TaskCall.call(taskCommand);
-//
-////				importContext.flushLastValue(lastValue);
-////				fileTransfer.sendFile();//传输文件
-//				sendFile(false);
-//
-//			}
-//
-//			else{
-//				sendFile(false);
-////				if(!fileTransfer.isSended()){
-////					fileTransfer.sendFile();
-////				}
-//			}
 			if(baseDataTran.isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
 				logger.info(new StringBuilder().append("Serial import Take time:").append((end - start)).append("ms")
@@ -805,10 +682,6 @@ public class StringTranJob extends BaseTranJob{
 				baseDataTran.stopTranOnly();
 
 			}
-//			Date endTime = new Date();
-//			if(baseDataTran.getTaskContext() != null)
-//				baseDataTran.getTaskContext().setJobEndTime(endTime);
-//			importCount.setJobEndTime(endTime);
 			baseDataTran.endJob(  reachEOFClosed, importCount);
 		}
 		return null;

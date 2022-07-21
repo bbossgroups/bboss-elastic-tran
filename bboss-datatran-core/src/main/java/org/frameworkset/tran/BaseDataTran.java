@@ -1,6 +1,7 @@
 package org.frameworkset.tran;
 
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
+import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
@@ -38,6 +39,11 @@ public abstract class BaseDataTran implements DataTran{
 	protected ParrelTranCommand parrelTranCommand ;
 	protected String taskInfo ;
 	protected TranJob tranJob;
+
+	@Override
+	public void beforeOutputData(BBossStringWriter writer){
+
+	}
 	public void logTaskStart(Logger logger) {
 //		StringBuilder builder = new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
 //				.append("] dbuser[").append(importContext.getDbConfig().getDbUser())
