@@ -68,7 +68,7 @@ public class HttpTaskCommandImpl extends BaseTaskCommand<String,String> {
 	private static Logger logger = LoggerFactory.getLogger(TaskCommand.class);
 
 	public String execute(){
-		String data = null;
+
 		if(this.importContext.getMaxRetry() > 0){
 			if(this.tryCount >= this.importContext.getMaxRetry())
 				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
@@ -76,15 +76,17 @@ public class HttpTaskCommandImpl extends BaseTaskCommand<String,String> {
 		this.tryCount ++;
 
 		try {
+			String data = null;
 			if(httpOutputConfig.getHttpMethod().equals("post"))
 				data = HttpRequestProxy.sendJsonBody(httpOutputConfig.getTargetHttpPool(),datas,httpOutputConfig.getServiceUrl());
 			else
 				data = HttpRequestProxy.putJson(httpOutputConfig.getTargetHttpPool(),datas,httpOutputConfig.getServiceUrl());
 			finishTask();
+			return data;
 		} catch (Exception e) {
 			throw new DataImportException(datas,e);
 		}
-		return data;
+
 	}
 
 	public int getTryCount() {

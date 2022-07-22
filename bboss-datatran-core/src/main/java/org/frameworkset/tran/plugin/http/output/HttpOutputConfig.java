@@ -126,8 +126,6 @@ public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 			throw new DataImportException("Input httpMethod must be post or put.");
 		}
 		if(getRecordGenerator() == null){
-			if(!json)
-				json = true;
 			setRecordGenerator(new JsonRecordGenerator());//默认采用json格式输出数据
 		}
 		if(json) {
