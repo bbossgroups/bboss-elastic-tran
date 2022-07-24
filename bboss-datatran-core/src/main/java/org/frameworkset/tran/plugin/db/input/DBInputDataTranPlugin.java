@@ -74,7 +74,7 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 	public void afterInit(){
 		if(sqlInfo != null
 				&& sqlInfo.getParamSize() > 0
-				&& !dataTranPlugin.isIncreamentImport() && this.importContext.getParams() == null){
+				&& !dataTranPlugin.isIncreamentImport() && this.importContext.getJobInputParams() == null){
 			throw new TaskFailedException("1.Parameter variables cannot be set in non-increament import SQL statements："+dbInputConfig.getSql() +"\r\n2.Parameter values must be setted by BaseImportBuilder.addParam(String,Object) method.");
 		}
 //		this.externalTimer = this.importContext.isExternalTimer();
@@ -161,11 +161,11 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 
 
 
-	private void commonImportData(ResultSetHandler resultSetHandler) throws Exception {
+	private void commonImportData(TaskContext taskContext,ResultSetHandler resultSetHandler) throws Exception {
 		String sourceDBName = getSourceDBName();
 		boolean isEnableDBTransaction = dbInputConfig.getDbConfig() != null? dbInputConfig.getDbConfig().isEnableDBTransaction():false;
 		DBOptions dbOptions = getDBOptions();
-		Map params = dataTranPlugin.getJobParams();
+		Map params = dataTranPlugin.getJobInputParams(taskContext);
 		if(params == null || params.size() == 0 ) {
 			if (importContext.getDataRefactor() == null || !isEnableDBTransaction) {
 				if (executor == null) {
@@ -245,10 +245,10 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 //		}
 		return dbOptions;
 	}
-	private void increamentImportData(ResultSetHandler resultSetHandler) throws Exception {
+	private void increamentImportData(TaskContext taskContext,ResultSetHandler resultSetHandler) throws Exception {
 		String sourceDBName = getSourceDBName();
 		DBOptions dbOptions = getDBOptions();
-		Map params = dataTranPlugin.getJobParams();
+		Map params = dataTranPlugin.getJobInputParams(  taskContext);
 		boolean isEnableDBTransaction = dbInputConfig.getDbConfig() != null? dbInputConfig.getDbConfig().isEnableDBTransaction():false;
 		if(importContext.getDataRefactor() == null || !isEnableDBTransaction){
 			if (executor == null) {
@@ -280,15 +280,15 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 		try {
 			if (sqlInfo.getParamSize() == 0) {
 
-				commonImportData(resultSetHandler);
+				commonImportData(taskContext,resultSetHandler);
 
 			} else {
 				if (!dataTranPlugin.isIncreamentImport()) {
 //					setForceStop();
-					commonImportData(resultSetHandler);
+					commonImportData(taskContext,resultSetHandler);
 				} else {
 
-					increamentImportData(resultSetHandler);
+					increamentImportData(taskContext,resultSetHandler);
 
 				}
 			}

@@ -16,6 +16,7 @@ package org.frameworkset.tran;
  */
 
 import com.frameworkset.orm.annotation.BatchContext;
+import org.frameworkset.tran.config.DynamicParamContext;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
@@ -46,7 +47,10 @@ public interface DataTranPlugin {
 	public OutputPlugin getOutputPlugin();
 	public Object[] putLastParamValue(Map params);
 	public boolean isIncreamentImport();
-	public Map getJobParams();
+	public Map getJobInputParams(TaskContext taskContext);
+	public Map getJobOutputParams(TaskContext taskContext);
+	public Map getJobInputParams(DynamicParamContext dynamicParamContext);
+	public Map getJobOutputParams(DynamicParamContext dynamicParamContext);
 	public Map getParamValue(Map params);
 //	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet);
 

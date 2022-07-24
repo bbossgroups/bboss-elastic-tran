@@ -83,22 +83,48 @@ public class BaseImportConfig {
 		return this.importIncreamentConfig != null;
 	}
 
-	public Map getParams() {
-		return params;
+	public Map getJobInputParams() {
+		return jobInputParams;
 	}
 
-	public void setParams(Map params) {
-		this.params = params;
+	public void setJobInputParams(Map jobInputParams) {
+		this.jobInputParams = jobInputParams;
 	}
 
-	private Map params;
+	private Map jobInputParams;
 
+	public Map getJobOutputParams() {
+		return jobOutputParams;
+	}
+
+	public void setJobOutputParams(Map jobOutputParams) {
+		this.jobOutputParams = jobOutputParams;
+	}
+	private Map<String,DynamicParam> jobDynamicInputParams;
+	private Map<String,DynamicParam> jobDynamicOutputParams;
+	private Map jobOutputParams;
 	public boolean isSerialAllData() {
 		return serialAllData;
 	}
 
 	public void setSerialAllData(boolean serialAllData) {
 		this.serialAllData = serialAllData;
+	}
+
+
+
+	public void setJobDynamicInputParams(Map<String, DynamicParam> jobDynamicInputParams) {
+		this.jobDynamicInputParams = jobDynamicInputParams;
+	}
+	public Map<String, DynamicParam> getJobDynamicInputParams() {
+		return jobDynamicInputParams;
+	}
+	public Map<String, DynamicParam> getJobDynamicOutputParams() {
+		return jobDynamicOutputParams;
+	}
+
+	public void setJobDynamicOutputParams(Map<String, DynamicParam> jobDynamicOutputParams) {
+		this.jobDynamicOutputParams = jobDynamicOutputParams;
 	}
 
 	private boolean serialAllData;

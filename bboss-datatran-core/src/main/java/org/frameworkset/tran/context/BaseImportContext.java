@@ -17,10 +17,7 @@ package org.frameworkset.tran.context;
 
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.*;
-import org.frameworkset.tran.config.BaseImportConfig;
-import org.frameworkset.tran.config.ImportBuilder;
-import org.frameworkset.tran.config.InputConfig;
-import org.frameworkset.tran.config.OutputConfig;
+import org.frameworkset.tran.config.*;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
@@ -121,9 +118,18 @@ public  class BaseImportContext implements ImportContext {
 	public boolean isLastValueColumnSetted() {
 		return baseImportConfig.isLastValueColumnSetted();
 	}
+	public Map getJobOutputParams(){
+		return baseImportConfig.getJobOutputParams();
+	}
+	public Map getJobInputParams(){
+		return baseImportConfig.getJobInputParams();
+	}
 
-	public Map getParams(){
-		return baseImportConfig.getParams();
+	public Map<String, DynamicParam> getJobDynamicInputParams() {
+		return baseImportConfig.getJobDynamicInputParams();
+	}
+	public Map<String, DynamicParam> getJobDynamicOutputParams() {
+		return baseImportConfig.getJobDynamicOutputParams();
 	}
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;

@@ -18,6 +18,7 @@ package org.frameworkset.tran.context;
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.BaseImportConfig;
+import org.frameworkset.tran.config.DynamicParam;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
@@ -42,6 +43,9 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0
  */
 public interface ImportContext {
+	public Map<String, DynamicParam> getJobDynamicInputParams() ;
+	public Map<String, DynamicParam> getJobDynamicOutputParams();
+	public Map getJobOutputParams();
 	/**
 	 * 对作业依赖的资源进行初始化处理
 	 * @return
@@ -74,7 +78,7 @@ public interface ImportContext {
 //	ESConfig getESConfig();
 	public Long getTimeRangeLastValue();
 	public DataTranPlugin getDataTranPlugin();
-	Map getParams();
+	Map getJobInputParams();
 
 	/**
 	 * 判断调度任务是否被暂停

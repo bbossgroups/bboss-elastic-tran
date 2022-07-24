@@ -90,7 +90,7 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 
 
 	protected void commonImportData(TaskContext taskContext, BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
-		Map params = dataTranPlugin.getJobParams();
+		Map params = dataTranPlugin.getJobInputParams(taskContext);
 
 		params.put("size", importContext.getFetchSize());//每页5000条记录
 		if(elasticsearchInputConfig.isSliceQuery()){
@@ -207,7 +207,7 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 
 	}
 	protected void increamentImportData(TaskContext taskContext,BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
-		Map params = dataTranPlugin.getJobParams();
+		Map params = dataTranPlugin.getJobInputParams(taskContext);
 		params.put("size", importContext.getFetchSize());//每页fetchSize条记录
 		if(elasticsearchInputConfig.isSliceQuery()){
 			params.put("sliceMax",elasticsearchInputConfig.getSliceSize());

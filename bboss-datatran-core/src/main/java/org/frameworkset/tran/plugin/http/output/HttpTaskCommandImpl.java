@@ -15,10 +15,16 @@ package org.frameworkset.tran.plugin.http.output;
  * limitations under the License.
  */
 
+import org.apache.http.entity.ContentType;
 import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.config.DynamicParam;
+import org.frameworkset.tran.config.DynamicParamContext;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.plugin.http.DynamicHeaderContext;
+import org.frameworkset.tran.plugin.http.HttpConfigClientProxy;
+import org.frameworkset.tran.plugin.http.HttpProxyHelper;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
@@ -26,6 +32,8 @@ import org.frameworkset.tran.task.TaskCommand;
 import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * <p>Description: </p>
@@ -77,16 +85,66 @@ public class HttpTaskCommandImpl extends BaseTaskCommand<String,String> {
 
 		try {
 			String data = null;
-			if(httpOutputConfig.getHttpMethod().equals("post"))
-				data = HttpRequestProxy.sendJsonBody(httpOutputConfig.getTargetHttpPool(),datas,httpOutputConfig.getServiceUrl());
-			else
-				data = HttpRequestProxy.putJson(httpOutputConfig.getTargetHttpPool(),datas,httpOutputConfig.getServiceUrl());
+			if(httpOutputConfig.isDirectSendData()) {
+				data = directSendData();
+			}
+			else {
+				data = unDirectSendData();
+			}
+
 			finishTask();
 			return data;
 		} catch (Exception e) {
 			throw new DataImportException(datas,e);
 		}
 
+	}
+	private String directSendData(){
+		String data = null;
+		HttpOutputDataTranPlugin httpOutputDataTranPlugin = (HttpOutputDataTranPlugin) importContext.getOutputPlugin();
+		DynamicHeaderContext dynamicHeaderContext = null;
+		if(httpOutputConfig.getDynamicHeaders() != null) {
+			dynamicHeaderContext = new DynamicHeaderContext();
+			dynamicHeaderContext.setDatas(datas);
+			dynamicHeaderContext.setTaskContext(taskContext);
+			dynamicHeaderContext.setImportContext(httpOutputDataTranPlugin.getImportContext());
+		}
+		if(httpOutputConfig.isPostMethod() )
+			data = HttpRequestProxy.sendBody(httpOutputConfig.getTargetHttpPool(),datas,httpOutputConfig.getServiceUrl()
+					, HttpProxyHelper.getHttpHeaders(httpOutputConfig,dynamicHeaderContext), ContentType.APPLICATION_JSON);
+		else
+			data = HttpRequestProxy.putJson(httpOutputConfig.getTargetHttpPool(),datas,httpOutputConfig.getServiceUrl(),
+					HttpProxyHelper.getHttpHeaders(httpOutputConfig,dynamicHeaderContext));
+		return data;
+	}
+
+	private String unDirectSendData(){
+		String data = null;
+		HttpOutputDataTranPlugin httpOutputDataTranPlugin = (HttpOutputDataTranPlugin) importContext.getOutputPlugin();
+		HttpConfigClientProxy httpConfigClientProxy = httpOutputDataTranPlugin.getHttpConfigClientProxy();
+
+		DynamicHeaderContext dynamicHeaderContext = null;
+		if(httpOutputConfig.getDynamicHeaders() != null) {
+			dynamicHeaderContext = new DynamicHeaderContext();
+			dynamicHeaderContext.setDatas(datas);
+			dynamicHeaderContext.setTaskContext(taskContext);
+			dynamicHeaderContext.setImportContext(httpOutputDataTranPlugin.getImportContext());
+		}
+		Map<String, DynamicParam> dynamicParams = importContext.getJobDynamicOutputParams();
+		DynamicParamContext dynamicParamContext = null;
+		if(dynamicParams != null && dynamicParams.size() > 0){
+			dynamicParamContext = new DynamicParamContext();
+			dynamicParamContext.setImportContext(importContext);
+			dynamicParamContext.setTaskContext(taskContext);
+			dynamicParamContext.setDatas(datas);
+		}
+		Map params = importContext.getDataTranPlugin().getJobOutputParams(dynamicParamContext);
+		params.put(httpOutputConfig.getDataKey(),datas);
+		if(httpOutputConfig.isPostMethod())
+			data = httpConfigClientProxy.sendBody(httpOutputDataTranPlugin,dynamicHeaderContext,params);
+		else
+			data = httpConfigClientProxy.putJson(httpOutputDataTranPlugin,dynamicHeaderContext,params);
+		return data;
 	}
 
 	public int getTryCount() {

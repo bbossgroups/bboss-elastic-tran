@@ -21,8 +21,9 @@ import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.plugin.http.BaseHttpConfig;
+import org.frameworkset.tran.plugin.http.DynamicHeader;
 import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
 import org.frameworkset.tran.util.TranUtil;
@@ -39,14 +40,18 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class HttpOutputConfig extends BaseConfig implements OutputConfig {
+public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 
 	private Map<String,Object> httpConfigs;
-//	public static String JSON_DATA = "json";
-//	public static String TEXT_DATA = "text";
-//	private String dataType = JSON_DATA;
-	private boolean json = true;
 
+	private String dataDslName;
+	private String dataDsl;
+	private String dataKey;
+	private boolean json = true;
+	public HttpOutputConfig setDslFile(String dslFile){
+		this.dslFile = dslFile;
+		return this;
+	}
 	public String getLineSeparator() {
 		return lineSeparator;
 	}
@@ -59,7 +64,10 @@ public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 	public boolean isJson() {
 		return json;
 	}
-
+	public HttpOutputConfig setDslNamespace(String dslNamespace) {
+		this.dslNamespace = dslNamespace;
+		return this;
+	}
 	public HttpOutputConfig setLineSeparator(String lineSeparator) {
 		this.lineSeparator = lineSeparator;
 		return this;
@@ -92,7 +100,6 @@ public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 	 * 输出文件记录处理器:org.frameworkset.tran.kafka.output.fileftp.ReocordGenerator
 	 */
 	private RecordGenerator recordGenerator;
-	private String httpMethod;
 
 	public Map<String, Object> getHttpConfigs() {
 		return httpConfigs;
@@ -115,6 +122,34 @@ public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 		return this;
 	}
 
+	/**
+	 * 添加动态生成的头信息，比如有生命周期的认证token信息等
+	 * @param header
+	 * @param dynamicHeader
+	 * @return
+	 */
+	public HttpOutputConfig addDynamicHeader(String header, DynamicHeader dynamicHeader){
+		_addDynamicHeader(header, dynamicHeader);
+		return this;
+	}
+	/**
+	 * 是否直接发送数据到服务端，默认为true，如果需要处理数据
+	 */
+	private boolean directSendData = true;
+
+	public boolean isDirectSendData() {
+		return directSendData;
+	}
+
+	public HttpOutputConfig setDataKey(String dataKey) {
+		this.dataKey = dataKey;
+		return this;
+	}
+
+	public String getDataKey() {
+		return dataKey;
+	}
+
 	@Override
 	public void build(ImportBuilder importBuilder) {
 
@@ -122,8 +157,28 @@ public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 
 			throw new DataImportException("Input http service url is not setted.");
 		}
+		if(SimpleStringUtil.isEmpty(httpMethod)){
+			httpMethod = "post";
+		}
 		if(!httpMethod.equals("post") && !httpMethod.equals("put") ){
 			throw new DataImportException("Input httpMethod must be post or put.");
+		}
+		postMethod = httpMethod.equals("post");
+		if(SimpleStringUtil.isEmpty(this.getDataDsl())){
+			if(!SimpleStringUtil.isEmpty(getDslFile()) && !SimpleStringUtil.isEmpty(getDataDslName()) ){
+				directSendData = false;
+			}
+		}
+		else{
+			directSendData = false;
+			if(SimpleStringUtil.isEmpty(dataDslName))
+				dataDslName = "datatranSendDslName";
+			if(SimpleStringUtil.isEmpty(dslNamespace))
+				dslNamespace = "datatranSendDslNamespace"+SimpleStringUtil.getUUID();
+
+			if(SimpleStringUtil.isEmpty(dataKey))
+				dataKey = "httpDatas";
+
 		}
 		if(getRecordGenerator() == null){
 			setRecordGenerator(new JsonRecordGenerator());//默认采用json格式输出数据
@@ -140,9 +195,7 @@ public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 
 
 
-	public String getHttpMethod() {
-		return httpMethod;
-	}
+
 
 	public HttpOutputConfig setHttpMethod(String httpMethod) {
 		this.httpMethod = httpMethod;
@@ -177,4 +230,30 @@ public class HttpOutputConfig extends BaseConfig implements OutputConfig {
 		getRecordGenerator().buildRecord(taskContext, record, builder);
 	}
 
+	public HttpOutputConfig addHttpHeaders(Map<String, String> _httpHeaders){
+		_addHttpHeaders(_httpHeaders);
+		return this;
+	}
+	public HttpOutputConfig addHttpHeader(String header,String value){
+		_addHttpHeader(header,value);
+		return this;
+	}
+
+	public String getDataDslName() {
+		return dataDslName;
+	}
+
+	public HttpOutputConfig setDataDslName(String dataDslName) {
+		this.dataDslName = dataDslName;
+		return this;
+	}
+
+	public String getDataDsl() {
+		return dataDsl;
+	}
+
+	public HttpOutputConfig setDataDsl(String dataDsl) {
+		this.dataDsl = dataDsl;
+		return this;
+	}
 }

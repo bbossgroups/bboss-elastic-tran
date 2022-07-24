@@ -16,7 +16,9 @@ package org.frameworkset.tran.plugin.http;
  */
 
 import org.frameworkset.elasticsearch.template.BaseTemplateContainerImpl;
+import org.frameworkset.tran.DataImportException;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -62,6 +64,34 @@ public class HttpProxyHelper {
 	}
 
 
+	public static Map<String,String> getHttpHeaders(BaseHttpConfig basicHttpConfig,DynamicHeaderContext dynamicHeaderContext) throws DataImportException {
+		Map<String,String> httpHeaders = basicHttpConfig.getHttpHeaders();
+		Map<String, DynamicHeader> dynamicHeaders = basicHttpConfig.getDynamicHeaders();
+		if(dynamicHeaders == null && dynamicHeaders.size() == 0){
+			return httpHeaders;
+		}
+		else{
+			Map<String,String> ret = new LinkedHashMap<>();
+			if(httpHeaders != null && httpHeaders.size() > 0){
+				ret.putAll(httpHeaders);
+			}
+			Iterator<Map.Entry<String, DynamicHeader>> iterator = dynamicHeaders.entrySet().iterator();
+			while (iterator.hasNext()){
+				Map.Entry<String, DynamicHeader> entry = iterator.next();
+				String value = null;
+				try {
+					value = entry.getValue().getValue(entry.getKey(),dynamicHeaderContext);
+				} catch (DataImportException e) {
+					throw e;
+				} catch (Exception e) {
+					throw new DataImportException("get value of "+entry.getKey() + " failed:",e);
+				}
+				if(value != null)
+					ret.put(entry.getKey(),value);
+			}
+			return ret;
+		}
 
+	}
 
 }

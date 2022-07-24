@@ -26,6 +26,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.plugin.http.DynamicHeaderContext;
 import org.frameworkset.tran.plugin.http.HttpConfigClientProxy;
 import org.frameworkset.tran.plugin.http.HttpProxyHelper;
 import org.frameworkset.tran.plugin.http.HttpResult;
@@ -51,6 +52,10 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 	public HttpInputDataTranPlugin(ImportContext importContext) {
 		super(importContext);
 		httpInputConfig = (HttpInputConfig) importContext.getInputConfig();
+	}
+
+	public HttpInputConfig getHttpInputConfig() {
+		return httpInputConfig;
 	}
 
 	@Override
@@ -98,26 +103,37 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 		public boolean hasMore();
 
 	}
-
-	private void exportData(final Map params, TaskContext taskContext){
+	private void exportData(final Map params, final TaskContext taskContext){
 		QueryAction queryAction = new QueryAction(){
 			private int from;
 			private boolean hasMore ;
 			@Override
 			public HttpResult<Map> execute() {
 				if(httpInputConfig.isPagine()){
-					params.put(HttpInputConfig.pagineFromKey,from);//从0开始
+					params.put(httpInputConfig.getPagineFromKey(),from);//从0开始
 					int pageSize = httpInputConfig.getPageSize();
-					params.put(HttpInputConfig.pagineSizeKey,pageSize);
+					params.put(httpInputConfig.getPagineSizeKey(),pageSize);
 				}
 				HttpResult<Map> httpResult =  null;
-				if(httpInputConfig.getHttpMethod() == null || httpInputConfig.getHttpMethod().equals("post")) {
-					httpResult = httpConfigClientProxy.sendBodyForList(httpInputConfig, httpInputConfig.getSourceHttpPool(),
-							httpInputConfig.getQueryUrl(), httpInputConfig.getQueryDslName(), params, Map.class);
+				HttpResultParserContext httpResultParserContext = null;
+				if(httpInputConfig.getHttpResultParser() != null){
+					httpResultParserContext = new HttpResultParserContext();
+					httpResultParserContext.setImportContext(importContext);
+					httpResultParserContext.setTaskContext(taskContext);
 				}
-				else if( httpInputConfig.getHttpMethod().equals("put")) {
-					httpResult = httpConfigClientProxy.putBodyForList(httpInputConfig, httpInputConfig.getSourceHttpPool(),
-							httpInputConfig.getQueryUrl(), httpInputConfig.getQueryDslName(), params, Map.class);
+				DynamicHeaderContext dynamicHeaderContext = null;
+				if(httpInputConfig.getDynamicHeaders() != null) {
+					dynamicHeaderContext = new DynamicHeaderContext();
+//					dynamicHeaderContext.setDatas(datas);
+					dynamicHeaderContext.setTaskContext(taskContext);
+					dynamicHeaderContext.setImportContext(importContext);
+				}
+				if(httpInputConfig.isPostMethod()) {
+					httpResult = httpConfigClientProxy.sendBodyForList(HttpInputDataTranPlugin.this,  httpResultParserContext,  dynamicHeaderContext,
+							params, Map.class);
+				}
+				else  {
+					httpResult = httpConfigClientProxy.putBodyForList(HttpInputDataTranPlugin.this,   httpResultParserContext, dynamicHeaderContext, params, Map.class);
 				}
 				if(httpInputConfig.isPagine()) {
 					if(httpResult.size() == httpInputConfig.getPageSize()) {
@@ -147,7 +163,7 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 	}
 	private void commonImportData( TaskContext taskContext) throws Exception {
 
-		Map params = dataTranPlugin.getJobParams();
+		Map params = dataTranPlugin.getJobInputParams(taskContext);
 
 		exportData(  params, taskContext);
 		/**
@@ -165,12 +181,12 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 
 		HttpTranResultset httpTranResultset = new HttpTranResultset(queryAction,importContext);
 		httpTranResultset.init();
-		BaseDataTran mongoDB2ESDataTran = dataTranPlugin.createBaseDataTran(taskContext,httpTranResultset,null,dataTranPlugin.getCurrentStatus());//new BaseElasticsearchDataTran( taskContext,mongoDB2ESResultSet,importContext,targetImportContext,this.currentStatus);
-		mongoDB2ESDataTran.initTran();
-		mongoDB2ESDataTran.tran();
+		BaseDataTran httpDataTran = dataTranPlugin.createBaseDataTran(taskContext,httpTranResultset,null,dataTranPlugin.getCurrentStatus());//new BaseElasticsearchDataTran( taskContext,mongoDB2ESResultSet,importContext,targetImportContext,this.currentStatus);
+		httpDataTran.initTran();
+		httpDataTran.tran();
 	}
 	private void increamentImportData( TaskContext taskContext) throws Exception {
-		Map params = dataTranPlugin.getJobParams();
+		Map params = dataTranPlugin.getJobInputParams(taskContext);
 		params = dataTranPlugin.getParamValue(params);
 
 		exportData(  params, taskContext);

@@ -15,54 +15,43 @@ package org.frameworkset.tran.plugin.http;
  * limitations under the License.
  */
 
-import org.apache.http.HttpResponse;
-
-import java.util.List;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2022/7/1
+ * @Date 2022/7/24
  * @author biaoping.yin
  * @version 1.0
  */
-public class HttpResult<T> {
-	/**
-	 * 从报文中提取的待处理数据集合
-	 */
-	private List<T> datas;
-	private HttpResponse response;
-	/**
-	 * 解析报文得到的对象
-	 */
-	private Object parseredObject;
+public class DynamicHeaderContext {
+	private ImportContext importContext;
+	private TaskContext taskContext;
+	private Object datas;
 
-	public List<T> getDatas() {
+	public ImportContext getImportContext() {
+		return importContext;
+	}
+
+	public void setImportContext(ImportContext importContext) {
+		this.importContext = importContext;
+	}
+
+	public TaskContext getTaskContext() {
+		return taskContext;
+	}
+
+	public void setTaskContext(TaskContext taskContext) {
+		this.taskContext = taskContext;
+	}
+
+	public Object getDatas() {
 		return datas;
 	}
 
-	public int size(){
-		return datas != null? datas.size():0;
-	}
-
-	public void setDatas(List<T> datas) {
+	public void setDatas(Object datas) {
 		this.datas = datas;
-	}
-
-	public HttpResponse getResponse() {
-		return response;
-	}
-
-	public void setResponse(HttpResponse response) {
-		this.response = response;
-	}
-
-	public Object getParseredObject() {
-		return parseredObject;
-	}
-
-	public void setParseredObject(Object parseredObject) {
-		this.parseredObject = parseredObject;
 	}
 }

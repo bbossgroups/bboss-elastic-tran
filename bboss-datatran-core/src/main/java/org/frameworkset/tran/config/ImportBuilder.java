@@ -43,7 +43,11 @@ public class ImportBuilder {
 	protected OutputConfig outputConfig;
 	protected ImportStartAction importStartAction;
 	protected ImportEndAction importEndAction;
-	private Map params;
+	private Map jobInputParams;
+
+	private Map jobOutputParams;
+	private Map<String,DynamicParam> jobDynamicInputParams;
+	private Map<String,DynamicParam> jobDynamicOutputParams;
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	private DBConfig statusDbConfig ;
 	private String statusDbname;
@@ -83,13 +87,70 @@ public class ImportBuilder {
 	public String getSplitFieldName() {
 		return splitFieldName;
 	}
+
+	/**
+	 * 添加作业提取数据输入插件条件
+	 * use addJobInputParam(String key, Object value)
+	 * @param key
+	 * @param value
+	 * @return
+	 *
+	 */
+	@Deprecated
 	public ImportBuilder addParam(String key, Object value){
-		if(params == null)
-			params = new HashMap();
-		this.params.put(key,value);
+		return addJobInputParam(key, value);
+	}
+
+	/**
+	 *  添加作业提取数据输入插件条件
+	 * @param key
+	 * @param value
+	 * @return
+	 */
+	public ImportBuilder addJobInputParam(String key, Object value){
+		if(jobInputParams == null)
+			jobInputParams = new LinkedHashMap();
+		this.jobInputParams.put(key,value);
 		return this;
 	}
 
+	/**
+	 *  添加作业提取数据输入插件动态条件
+	 * @param key
+	 * @param dynamicParam
+	 * @return
+	 */
+	public ImportBuilder addJobDynamicInputParam(String key, DynamicParam dynamicParam){
+		if(jobDynamicInputParams == null)
+			jobDynamicInputParams = new LinkedHashMap();
+		this.jobDynamicInputParams.put(key,dynamicParam);
+		return this;
+	}
+	/**
+	 *  添加作业输出插件变量参数
+	 * @param key
+	 * @param value
+	 * @return
+	 */
+	public ImportBuilder addJobOutputParam(String key, Object value){
+		if(jobOutputParams == null)
+			jobOutputParams = new LinkedHashMap();
+		this.jobOutputParams.put(key,value);
+		return this;
+	}
+
+	/**
+	 *  添加作业输出插件动态变量参数
+	 * @param key
+	 * @param dynamicParam
+	 * @return
+	 */
+	public ImportBuilder addJobDynamicOutputParam(String key, DynamicParam dynamicParam){
+		if(jobDynamicOutputParams == null)
+			jobDynamicOutputParams = new LinkedHashMap();
+		this.jobDynamicOutputParams.put(key,dynamicParam);
+		return this;
+	}
 
 	public ImportBuilder setSplitFieldName(String splitFieldName) {
 		this.splitFieldName = splitFieldName;
@@ -1067,7 +1128,10 @@ public class ImportBuilder {
 		baseImportConfig.setImportStartAction(importStartAction);
 		baseImportConfig.setImportEndAction(importEndAction);
 		baseImportConfig.setUseJavaName(false);
-		baseImportConfig.setParams(this.params);
+		baseImportConfig.setJobInputParams(this.jobInputParams);
+		baseImportConfig.setJobOutputParams(jobOutputParams);
+		baseImportConfig.setJobDynamicInputParams(jobDynamicInputParams);
+		baseImportConfig.setJobDynamicOutputParams(jobDynamicOutputParams);
 		baseImportConfig.setLastValueColumnSetted(this.lastValueColumnSetted);
 //		if(getTargetElasticsearch() != null && !getTargetElasticsearch().equals(""))
 //			baseImportConfig.setTargetElasticsearch(this.getTargetElasticsearch());

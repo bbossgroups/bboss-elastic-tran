@@ -22,6 +22,8 @@ import com.frameworkset.common.poolman.util.SQLManager;
 import com.frameworkset.common.poolman.util.SQLUtil;
 import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.config.DynamicParam;
+import org.frameworkset.tran.config.DynamicParamContext;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
@@ -93,11 +95,118 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	public void setScheduleAssert(ScheduleAssert scheduleAssert){
 		this.scheduleAssert = scheduleAssert;
 	}
-	public Map getJobParams() {
-		Map _params = importContext.getParams();
+	public Map getJobInputParams(TaskContext taskContext) {
+		Map _params = importContext.getJobInputParams();
 		Map params = new HashMap();
 		if (_params != null && _params.size() > 0) {
 			params.putAll(_params);
+		}
+		Map<String, DynamicParam> dynamicParams = importContext.getJobDynamicOutputParams();
+		if(dynamicParams == null || dynamicParams.size() == 0){
+			return params;
+		}
+		Iterator<Map.Entry<String, DynamicParam>> iterator = dynamicParams.entrySet().iterator();
+		DynamicParamContext dynamicParamContext = new DynamicParamContext();
+		dynamicParamContext.setImportContext(importContext);
+		dynamicParamContext.setTaskContext(taskContext);
+		while (iterator.hasNext()){
+			Map.Entry<String, DynamicParam> entry = iterator.next();
+			Object value = null;
+			try {
+				value = entry.getValue().getValue(entry.getKey(),dynamicParamContext);
+			} catch (DataImportException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new DataImportException("get value of "+entry.getKey() + " failed:",e);
+			}
+			if(value != null)
+				params.put(entry.getKey(),value);
+		}
+		return params;
+	}
+
+	public Map getJobInputParams(DynamicParamContext dynamicParamContext) {
+		Map _params = importContext.getJobInputParams();
+		Map params = new HashMap();
+		if (_params != null && _params.size() > 0) {
+			params.putAll(_params);
+		}
+		Map<String, DynamicParam> dynamicParams = importContext.getJobDynamicOutputParams();
+		if(dynamicParams == null || dynamicParams.size() == 0){
+			return params;
+		}
+		Iterator<Map.Entry<String, DynamicParam>> iterator = dynamicParams.entrySet().iterator();
+
+		while (iterator.hasNext()){
+			Map.Entry<String, DynamicParam> entry = iterator.next();
+			Object value = null;
+			try {
+				value = entry.getValue().getValue(entry.getKey(),dynamicParamContext);
+			} catch (DataImportException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new DataImportException("get value of "+entry.getKey() + " failed:",e);
+			}
+			if(value != null)
+				params.put(entry.getKey(),value);
+		}
+		return params;
+	}
+
+	public Map getJobOutputParams(TaskContext taskContext) {
+		Map _params = importContext.getJobOutputParams();
+		Map params = new HashMap();
+		if (_params != null && _params.size() > 0) {
+			params.putAll(_params);
+		}
+		Map<String, DynamicParam> dynamicParams = importContext.getJobDynamicOutputParams();
+		if(dynamicParams == null || dynamicParams.size() == 0){
+			return params;
+		}
+		Iterator<Map.Entry<String, DynamicParam>> iterator = dynamicParams.entrySet().iterator();
+		DynamicParamContext dynamicParamContext = new DynamicParamContext();
+		dynamicParamContext.setImportContext(importContext);
+		dynamicParamContext.setTaskContext(taskContext);
+		while (iterator.hasNext()){
+			Map.Entry<String, DynamicParam> entry = iterator.next();
+			Object value = null;
+			try {
+				value = entry.getValue().getValue(entry.getKey(),dynamicParamContext);
+			} catch (DataImportException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new DataImportException("get value of "+entry.getKey() + " failed:",e);
+			}
+			if(value != null)
+				params.put(entry.getKey(),value);
+		}
+		return params;
+	}
+
+	public Map getJobOutputParams(DynamicParamContext dynamicParamContext) {
+		Map _params = importContext.getJobOutputParams();
+		Map params = new HashMap();
+		if (_params != null && _params.size() > 0) {
+			params.putAll(_params);
+		}
+		Map<String, DynamicParam> dynamicParams = importContext.getJobDynamicOutputParams();
+		if(dynamicParams == null || dynamicParams.size() == 0){
+			return params;
+		}
+		Iterator<Map.Entry<String, DynamicParam>> iterator = dynamicParams.entrySet().iterator();
+
+		while (iterator.hasNext()){
+			Map.Entry<String, DynamicParam> entry = iterator.next();
+			Object value = null;
+			try {
+				value = entry.getValue().getValue(entry.getKey(),dynamicParamContext);
+			} catch (DataImportException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new DataImportException("get value of "+entry.getKey() + " failed:",e);
+			}
+			if(value != null)
+				params.put(entry.getKey(),value);
 		}
 		return params;
 	}

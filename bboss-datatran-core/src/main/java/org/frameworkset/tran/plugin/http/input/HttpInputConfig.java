@@ -20,8 +20,9 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.plugin.http.BaseHttpConfig;
+import org.frameworkset.tran.plugin.http.DynamicHeader;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,26 +35,40 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class HttpInputConfig extends BaseConfig implements InputConfig {
+public class HttpInputConfig extends BaseHttpConfig implements InputConfig {
 	private Map<String,Object> httpConfigs;
 	private String sourceHttpPool;
-	private String queryDsl;
+
 	private String queryDslName;
-	private String dslNamespace;
-	private String dslFile;
+	private String queryDsl;
+
 	private String queryUrl;
-	private boolean showDsl;
-	private String httpMethod;
+
 	private int pageSize;
-	public final static String pagineFromKey = "httpPagineFrom";
-	public final static String pagineSizeKey = "httpPagineSize";
+	public final static String defaultPagineFromKey = "httpPagineFrom";
+	public final static String defaultPagineSizeKey = "httpPagineSize";
+
+	public String pagineFromKey = "httpPagineFrom";
+	public String pagineSizeKey = "httpPagineSize";
+	private HttpResultParser httpResultParser;
 	public boolean isPagine() {
 		return pagine;
 	}
 
-	public String getDslNamespace() {
-		return dslNamespace;
+	public HttpInputConfig addDynamicHeader(String header, DynamicHeader dynamicHeader){
+		_addDynamicHeader(header, dynamicHeader);
+		return this;
 	}
+	public HttpResultParser getHttpResultParser() {
+		return httpResultParser;
+	}
+
+	public HttpInputConfig setHttpResultParser(HttpResultParser httpResultParser) {
+		this.httpResultParser = httpResultParser;
+		return this;
+	}
+
+
 
 	public HttpInputConfig setPagine(boolean pagine) {
 		this.pagine = pagine;
@@ -115,14 +130,24 @@ public class HttpInputConfig extends BaseConfig implements InputConfig {
 		return this;
 	}
 
-	public String getDslFile() {
-		return dslFile;
-	}
-
-	public HttpInputConfig setDslFile(String dslFile) {
-		this.dslFile = dslFile;
+	public HttpInputConfig setPagineFromKey(String pagineFromKey) {
+		this.pagineFromKey = pagineFromKey;
 		return this;
 	}
+
+	public HttpInputConfig setPagineSizeKey(String pagineSizeKey) {
+		this.pagineSizeKey = pagineSizeKey;
+		return this;
+	}
+
+	public String getPagineFromKey() {
+		return pagineFromKey;
+	}
+
+	public String getPagineSizeKey() {
+		return pagineSizeKey;
+	}
+
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
@@ -133,9 +158,13 @@ public class HttpInputConfig extends BaseConfig implements InputConfig {
 		}
 		else{
 			if(SimpleStringUtil.isEmpty(queryDslName))
-				queryDslName = "datatranDslName";
+				queryDslName = "datatranQueryDslName";
 			if(SimpleStringUtil.isEmpty(dslNamespace))
-				dslNamespace = "datatranDslName"+SimpleStringUtil.getUUID();
+				dslNamespace = "datatranQueryDslNamespace"+SimpleStringUtil.getUUID();
+			if(SimpleStringUtil.isEmpty(pagineFromKey))
+				pagineFromKey = defaultPagineFromKey;
+			if(SimpleStringUtil.isEmpty(pagineSizeKey))
+				pagineSizeKey = defaultPagineSizeKey;
 
 		}
 		if(SimpleStringUtil.isEmpty(this.getQueryUrl())){
@@ -170,21 +199,33 @@ public class HttpInputConfig extends BaseConfig implements InputConfig {
 		return this;
 	}
 
-	public boolean isShowDsl() {
-		return showDsl;
-	}
 
 	public HttpInputConfig setShowDsl(boolean showDsl) {
 		this.showDsl = showDsl;
 		return this;
 	}
 
-	public String getHttpMethod() {
-		return httpMethod;
+	public HttpInputConfig setDslFile(String dslFile) {
+		this.dslFile = dslFile;
+		return this;
+	}
+
+	public HttpInputConfig setDslNamespace(String dslNamespace) {
+		this.dslNamespace = dslNamespace;
+		return this;
 	}
 
 	public HttpInputConfig setHttpMethod(String httpMethod) {
 		this.httpMethod = httpMethod;
 		return this;
 	}
+	public HttpInputConfig addHttpHeaders(Map<String, String> _httpHeaders){
+		_addHttpHeaders(_httpHeaders);
+		return this;
+	}
+	public HttpInputConfig addHttpHeader(String header,String value){
+		_addHttpHeader(header,value);
+		return this;
+	}
+
 }
