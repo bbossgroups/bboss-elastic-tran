@@ -84,6 +84,10 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 		// todo
 	}
 
+	private List<HistoryTaskStarter> historyFileReaderTasks ;
+	interface HistoryTaskStarter{
+		void start();
+	}
 	@Override
 	protected void loadCurrentStatus(){
 
@@ -185,72 +189,84 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 				 continue;
 				 }*/
 				//需判断文件是否存在，不存在需清除记录
-				//创建一个文件对应的交换通道
-				FileResultSet kafkaResultSet = new FileResultSet(this.importContext);
-				FileTaskContext taskContext = new FileTaskContext(importContext);
-				final BaseDataTran fileDataTran = createBaseDataTran(taskContext,kafkaResultSet,null,status);
-
-				Thread tranThread = null;
-				try {
-					if(fileDataTran != null) {
-						String tname = "file-log-tran|"+status.getRealPath();
-						if(fileConfig.isEnableInode()){
-							tname = tname + "|" +status.getFileId();
-						}
-						tranThread = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								fileDataTran.tran();
-							}
-						}, tname);
-						tranThread.start();
-						if(logger.isInfoEnabled())
-							logger.info(tname+" started.");
-						Object lastValue = status.getLastValue();
-						long pointer = 0;
-						if (!fromFirst){
-							if (lastValue instanceof Long) {
-								pointer = (Long) lastValue;
-							} else if (lastValue instanceof Integer) {
-								pointer = ((Integer) lastValue).longValue();
-							} else if (lastValue instanceof Short) {
-								pointer = ((Short) lastValue).longValue();
-							}
-						}
-						else{
-							status.setLastValue(0l);
-						}
-						FileReaderTask task = fileInputDataTranPlugin.buildFileReaderTask(taskContext,new File(status.getRealPath())
-								,status.getFileId()
-								,fileConfig
-								,pointer
-								,fileInputDataTranPlugin.getFileListenerService(),fileDataTran,status,fileInputConfig);
-						task.getFileInfo().setOriginFile(new File(status.getFilePath()));
-						task.getFileInfo().setOriginFilePath(status.getFilePath());
-						taskContext.setFileInfo(task.getFileInfo());
-						if(fileConfig.getAddFields() != null && fileConfig.getAddFields().size() > 0){
-							task.addFields(fileConfig.getAddFields());
-						}
-						if(fileConfig.getIgnoreFields() != null && fileConfig.getIgnoreFields().size() > 0){
-							task.ignoreFields(fileConfig.getIgnoreFields());
-						}
-						/**
-						 * 根据文件信息动态添加文件标签
-						 */
-						if(fileConfig.getFieldBuilder() != null){
-							fileConfig.getFieldBuilder().buildFields(task.getFileInfo(),task);
-						}
-						preCall(taskContext);//需要在任务完成时销毁taskContext
-						fileInputDataTranPlugin.getFileListenerService().addFileTask(task.getFileId(),task);
-						task.start();
-					}
 
 
-				} catch (DataImportException e) {
-					throw e;
-				} catch (Exception e) {
-					throw new DataImportException(e);
+				if(historyFileReaderTasks == null){
+					historyFileReaderTasks = new ArrayList<>();
 				}
+				historyFileReaderTasks.add(new HistoryTaskStarter(){
+
+					@Override
+					public void start() {
+						//创建一个文件对应的交换通道
+						FileResultSet kafkaResultSet = new FileResultSet(importContext);
+						final FileTaskContext taskContext = new FileTaskContext(importContext);
+						final BaseDataTran fileDataTran = createBaseDataTran(taskContext,kafkaResultSet,null,status);
+
+						Thread tranThread = null;
+						try {
+							if(fileDataTran != null) {
+								String tname = "file-log-tran|"+status.getRealPath();
+								if(fileConfig.isEnableInode()){
+									tname = tname + "|" +status.getFileId();
+								}
+								tranThread = new Thread(new Runnable() {
+									@Override
+									public void run() {
+										fileDataTran.tran();
+									}
+								}, tname);
+								tranThread.start();
+								if(logger.isInfoEnabled())
+									logger.info(tname+" started.");
+								Object lastValue = status.getLastValue();
+								long pointer = 0;
+								if (!fromFirst){
+									if (lastValue instanceof Long) {
+										pointer = (Long) lastValue;
+									} else if (lastValue instanceof Integer) {
+										pointer = ((Integer) lastValue).longValue();
+									} else if (lastValue instanceof Short) {
+										pointer = ((Short) lastValue).longValue();
+									}
+								}
+								else{
+									status.setLastValue(0l);
+								}
+								FileReaderTask task = fileInputDataTranPlugin.buildFileReaderTask(taskContext,new File(status.getRealPath())
+										,status.getFileId()
+										,fileConfig
+										,pointer
+										,fileInputDataTranPlugin.getFileListenerService(),fileDataTran,status,fileInputConfig);
+								task.getFileInfo().setOriginFile(new File(status.getFilePath()));
+								task.getFileInfo().setOriginFilePath(status.getFilePath());
+								taskContext.setFileInfo(task.getFileInfo());
+								if(fileConfig.getAddFields() != null && fileConfig.getAddFields().size() > 0){
+									task.addFields(fileConfig.getAddFields());
+								}
+								if(fileConfig.getIgnoreFields() != null && fileConfig.getIgnoreFields().size() > 0){
+									task.ignoreFields(fileConfig.getIgnoreFields());
+								}
+								/**
+								 * 根据文件信息动态添加文件标签
+								 */
+								if(fileConfig.getFieldBuilder() != null){
+									fileConfig.getFieldBuilder().buildFields(task.getFileInfo(),task);
+								}
+
+								preCall(taskContext);//需要在任务完成时销毁taskContext
+								fileInputDataTranPlugin.getFileListenerService().addFileTask(task.getFileId(),task);
+								task.start();
+							}
+
+
+						} catch (DataImportException e) {
+							throw e;
+						} catch (Exception e) {
+							throw new DataImportException(e);
+						}
+					}
+				});
 			}
 			if(completed.size() > 0 && fileInputConfig.getRegistLiveTime() != null){
 				handleCompletedTasks(completed ,false,fileInputConfig.getRegistLiveTime());
@@ -265,9 +281,26 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 		}
 
 	}
+	private Object startHistoryTasksLock = new Object();
+	private  void startHistoryTasks(){
+
+		if(historyFileReaderTasks == null || historyFileReaderTasks.size() == 0)
+			return ;
+		synchronized(startHistoryTasksLock) {
+			if(historyFileReaderTasks == null || historyFileReaderTasks.size() == 0)
+				return ;
+			for (HistoryTaskStarter historyTaskStarter : historyFileReaderTasks) {
+//			preCall(taskContext);//需要在任务完成时销毁taskContext
+//			fileInputDataTranPlugin.getFileListenerService().addFileTask(task.getFileId(), task);
+//			task.start();
+				historyTaskStarter.start();
+			}
+			historyFileReaderTasks = null;
+		}
+	}
 	@Override
 	public void importData(ScheduleEndCall scheduleEndCall) throws DataImportException {
-
+		startHistoryTasks();
 		if (!fileInputConfig.isUseETLScheduleForScanNewFile()) {//采用内置新文件扫描调度机制
 			long importStartTime = System.currentTimeMillis();
 			this.doImportData(null);

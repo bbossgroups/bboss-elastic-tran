@@ -107,12 +107,23 @@ public  class BaseImportContext implements ImportContext {
 
 	@Override
 	public InputPlugin getInputPlugin() {
-		return inputConfig.getInputPlugin(this);
+		if(dataTranPlugin != null && dataTranPlugin.getInputPlugin() != null){
+			return dataTranPlugin.getInputPlugin();
+		}
+		else {
+			return inputConfig.getInputPlugin(this);
+		}
 	}
 
 	@Override
 	public OutputPlugin getOutputPlugin() {
-		return outputConfig.getOutputPlugin(this);
+		if(dataTranPlugin != null && dataTranPlugin.getOutputPlugin() != null){
+			return dataTranPlugin.getOutputPlugin();
+		}
+		else {
+			return outputConfig.getOutputPlugin(this);
+		}
+
 	}
 
 	public boolean isLastValueColumnSetted() {
