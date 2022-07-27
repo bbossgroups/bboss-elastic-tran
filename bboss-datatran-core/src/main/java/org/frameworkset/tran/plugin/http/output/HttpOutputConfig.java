@@ -56,6 +56,10 @@ public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 		return lineSeparator;
 	}
 
+	public HttpOutputConfig setShowDsl(boolean showDsl){
+		this.showDsl = showDsl;
+		return this;
+	}
 	public HttpOutputConfig setJson(boolean json) {
 		this.json = json;
 		return this;
