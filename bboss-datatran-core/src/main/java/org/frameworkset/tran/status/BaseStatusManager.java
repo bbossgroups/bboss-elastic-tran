@@ -15,10 +15,10 @@ package org.frameworkset.tran.status;
  * limitations under the License.
  */
 
-import org.frameworkset.spi.BaseApplicationContext;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.util.shutdown.ShutdownUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +60,7 @@ public abstract class BaseStatusManager implements StatusManager {
 		flushThread = new StatusFlushThread(this,
 				dataTranPlugin.getImportContext().getAsynFlushStatusInterval());
 		flushThread.start();
-		BaseApplicationContext.addShutdownHook(new Runnable() {
+		ShutdownUtil.addShutdownHook(new Runnable() {
 			@Override
 			public void run() {
 				if(isStoped())

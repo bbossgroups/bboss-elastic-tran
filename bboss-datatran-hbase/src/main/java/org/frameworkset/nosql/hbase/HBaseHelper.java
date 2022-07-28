@@ -18,9 +18,9 @@ package org.frameworkset.nosql.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ShutdownHookManagerProxy;
 import org.frameworkset.nosql.hbase.metrics.CollectorMetric;
-import org.frameworkset.spi.BaseApplicationContext;
 import org.frameworkset.tran.hbase.HBaseTranException;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
+import org.frameworkset.util.shutdown.ShutdownUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +81,7 @@ public class HBaseHelper {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					BaseApplicationContext.addShutdownHook(new Runnable() {
+					ShutdownUtil.addShutdownHook(new Runnable() {
 						@Override
 						public void run() {
 

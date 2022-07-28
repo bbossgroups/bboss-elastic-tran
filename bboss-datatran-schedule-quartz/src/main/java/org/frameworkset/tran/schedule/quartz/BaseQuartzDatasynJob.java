@@ -1,7 +1,7 @@
 package org.frameworkset.tran.schedule.quartz;
 
-import org.frameworkset.spi.BaseApplicationContext;
 import org.frameworkset.tran.schedule.ExternalScheduler;
+import org.frameworkset.util.shutdown.ShutdownUtil;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -44,7 +44,7 @@ public abstract class BaseQuartzDatasynJob implements Job {
     private Lock lock = new ReentrantLock();
     protected void buildJob(){
         init( );
-        BaseApplicationContext.addShutdownHook(new Runnable() {
+        ShutdownUtil.addShutdownHook(new Runnable() {
             @Override
             public void run() {
                 destroy();

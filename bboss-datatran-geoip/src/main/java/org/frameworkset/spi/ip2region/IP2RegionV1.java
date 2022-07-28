@@ -18,8 +18,8 @@ package org.frameworkset.spi.ip2region;
 
 import com.frameworkset.util.DaemonThread;
 import com.frameworkset.util.ResourceInitial;
-import org.frameworkset.spi.BaseApplicationContext;
 import org.frameworkset.spi.geoip.IpInfo;
+import org.frameworkset.util.shutdown.ShutdownUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +68,7 @@ public class IP2RegionV1  implements IP2Region{
 				}
 			});
 			daemonThread.start();
-			BaseApplicationContext.addShutdownHook(new Runnable() {
+			ShutdownUtil.addShutdownHook(new Runnable() {
 				@Override
 				public void run() {
 					daemonThread.stopped();
