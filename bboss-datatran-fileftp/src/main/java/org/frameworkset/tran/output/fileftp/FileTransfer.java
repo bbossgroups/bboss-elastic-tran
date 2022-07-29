@@ -24,7 +24,6 @@ import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.util.HeaderRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
-import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,18 +49,18 @@ public class FileTransfer {
 	private String transferSuccessFile;
 	private String taskInfo;
 	protected File file;
-	protected FileOutputConfig excelFileOupputConfig;
+	protected FileOutputConfig fileOupputConfig;
 	private HeaderRecordGenerator headerRecordGenerator;
 	private int buffsize = 8192;
-	public FileTransfer(String taskInfo, FileOutputConfig excelFileOupputConfig, String dir, String filePath) throws IOException {
-		this.excelFileOupputConfig = excelFileOupputConfig;
+	public FileTransfer(String taskInfo, FileOutputConfig fileOupputConfig, String dir, String filePath) throws IOException {
+		this.fileOupputConfig = fileOupputConfig;
 		this.taskInfo  = taskInfo;
 		File path = new File(dir);
 		if(!path.exists())
 		{
 			path.mkdirs();
 		}
-		this.buffsize = excelFileOupputConfig.getFileWriterBuffsize();
+		this.buffsize = fileOupputConfig.getFileWriterBuffsize();
 		if(buffsize <= 0){
 			buffsize = 8192;
 		}
@@ -72,21 +71,21 @@ public class FileTransfer {
 
 	}
 	public void initFtp(String remoteFilePath){
-		if(!excelFileOupputConfig.isDisableftp()) {
+		if(!fileOupputConfig.isDisableftp()) {
 			this.remoteFilePath = remoteFilePath;
-			transferFailedFile = SimpleStringUtil.getPath(excelFileOupputConfig.getFileDir(), "transferFailedFileDir/" + file.getName());
+			transferFailedFile = SimpleStringUtil.getPath(fileOupputConfig.getFileDir(), "transferFailedFileDir/" + file.getName());
 			File path = new File(transferFailedFile).getParentFile();
 			if (!path.exists())
 				path.mkdirs();
 
-			transferSuccessFile = SimpleStringUtil.getPath(excelFileOupputConfig.getFileDir(), "transferSuccessFileDir/" + file.getName());
+			transferSuccessFile = SimpleStringUtil.getPath(fileOupputConfig.getFileDir(), "transferSuccessFileDir/" + file.getName());
 			path = new File(transferSuccessFile).getParentFile();
 			if (!path.exists())
 				path.mkdirs();
 		}
 	}
 	public void initTransfer() throws IOException {
-		RecordGenerator recordGenerator = excelFileOupputConfig.getRecordGenerator();
+		RecordGenerator recordGenerator = fileOupputConfig.getRecordGenerator();
 		if(recordGenerator instanceof HeaderRecordGenerator){
 			this.headerRecordGenerator = (HeaderRecordGenerator)recordGenerator;
 		}
@@ -103,7 +102,8 @@ public class FileTransfer {
 			BBossStringWriter writer = new BBossStringWriter();
 			headerRecordGenerator.buildHeaderRecord(writer);
 			bw.write(writer.toString());
-			bw.write(TranUtil.lineSeparator);
+//			bw.write(TranUtil.lineSeparator);
+			bw.write(fileOupputConfig.getLineSeparator());
 		}
 	}
 	public synchronized void writeData(String data) throws IOException {
@@ -134,30 +134,30 @@ public class FileTransfer {
 		}
 		try {
 
-			if(!excelFileOupputConfig.isDisableftp()) {
+			if(!fileOupputConfig.isDisableftp()) {
 				if (file.length() <= 0) {
-					if (excelFileOupputConfig.transferEmptyFiles()) {
-						if (excelFileOupputConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
-							FtpTransfer.sendFile(excelFileOupputConfig, filePath, remoteFilePath);
+					if (fileOupputConfig.transferEmptyFiles()) {
+						if (fileOupputConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
+							FtpTransfer.sendFile(fileOupputConfig, filePath, remoteFilePath);
 						} else {
-							SFTPTransfer.sendFile(excelFileOupputConfig, this.filePath);
+							SFTPTransfer.sendFile(fileOupputConfig, this.filePath);
 						}
 					}
 				} else {
-					if (excelFileOupputConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
-						FtpTransfer.sendFile(excelFileOupputConfig, filePath, remoteFilePath);
+					if (fileOupputConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
+						FtpTransfer.sendFile(fileOupputConfig, filePath, remoteFilePath);
 					} else {
-						SFTPTransfer.sendFile(excelFileOupputConfig, this.filePath);
+						SFTPTransfer.sendFile(fileOupputConfig, this.filePath);
 					}
 				}
 				try {
-					if (excelFileOupputConfig.backupSuccessFiles())
+					if (fileOupputConfig.backupSuccessFiles())
 						FileUtil.bakFile(filePath, transferSuccessFile);//如果文件发送成功，将文件移除到成功目录，保留一天，过期自动清理
 					else
 						FileUtil.deleteFile(filePath);
 				}
 				catch (Exception e){
-					if (excelFileOupputConfig.backupSuccessFiles())
+					if (fileOupputConfig.backupSuccessFiles())
 						logger.error("backup Success File task["+taskInfo+"],file["+file.getAbsolutePath()+"] failed:",e);
 					else{
 						logger.error("delete Success File task["+taskInfo+"],file["+file.getAbsolutePath()+"] failed:",e);

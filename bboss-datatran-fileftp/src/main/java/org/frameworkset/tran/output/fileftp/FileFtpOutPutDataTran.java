@@ -12,7 +12,6 @@ import org.frameworkset.tran.task.BaseParrelTranCommand;
 import org.frameworkset.tran.task.BaseSerialTranCommand;
 import org.frameworkset.tran.task.StringTranJob;
 import org.frameworkset.tran.task.TaskCall;
-import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -261,7 +260,8 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		CommonRecord record = buildRecord(  context );
 
 		fileOutputConfig.generateReocord(context,record, writer);
-		writer.write(TranUtil.lineSeparator);
+//		writer.write(TranUtil.lineSeparator);
+		writer.write(fileOutputConfig.getLineSeparator());
 		return record;
 	}
 

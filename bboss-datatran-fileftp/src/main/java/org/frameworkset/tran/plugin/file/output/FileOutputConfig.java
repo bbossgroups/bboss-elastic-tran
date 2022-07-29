@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.file.output;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DefualtExportResultHandler;
 import org.frameworkset.tran.ExportResultHandler;
@@ -36,6 +37,7 @@ import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
+import org.frameworkset.tran.util.TranUtil;
 
 import java.io.Writer;
 import java.util.List;
@@ -63,6 +65,17 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	private int fileWriterBuffsize ;
 	private int maxFileRecordSize;
 	private boolean disableftp ;
+
+	public String getLineSeparator() {
+		return lineSeparator;
+	}
+
+	public FileOutputConfig setLineSeparator(String lineSeparator) {
+		this.lineSeparator = lineSeparator;
+		return this;
+	}
+
+	private String lineSeparator;
 
 	@Override
 	public boolean deleteRemoteFile() {
@@ -195,6 +208,8 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 		if(getRecordGenerator() == null){
 			setRecordGenerator(new JsonRecordGenerator());
 		}
+		if (SimpleStringUtil.isEmpty(lineSeparator))
+			lineSeparator = TranUtil.lineSeparator;
 	}
 
 	@Override
