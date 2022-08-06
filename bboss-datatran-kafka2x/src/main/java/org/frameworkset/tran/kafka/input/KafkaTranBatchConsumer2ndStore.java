@@ -89,58 +89,8 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 	protected List<Record> parserData(ConsumerRecords<Object, Object> messages) {
 		List<Record> results = new ArrayList<Record>();
 		for(ConsumerRecord consumerRecord:messages) {
-//			ConsumerRecord consumerRecord = messages.get(k);
 			deserializeData(consumerRecord,results);
-			/**
-			if(this.kafkaContext.getValueCodec() == null){
-				handleData(consumerRecord,results);
-			}
-			else if (this.kafkaContext.getValueCodec() == KafkaImportConfig.CODEC_JSON) {
-				Object value = consumerRecord.value();
-				if (value instanceof List) {
-					List<Map> rs = (List<Map>) value;
 
-					for (int i = 0; i < rs.size(); i++) {
-						results.add(new KafkaMapRecord(consumerRecord.key(), rs.get(i)));
-					}
-
-				} else {
-					results.add( new KafkaMapRecord(consumerRecord.key(), (Map<String, Object>) value));
-				}
-			} else if (this.kafkaContext.getValueCodec() == KafkaImportConfig.CODEC_TEXT) {
-				Object value = consumerRecord.value();
-				if (value instanceof List) {
-					List<String> rs = (List<String>) value;
-
-					for (int i = 0; i < rs.size(); i++) {
-						results.add(new KafkaStringRecord(consumerRecord.key(), rs.get(i)));
-					}
-					//return new KafkaMapRecord((ConsumerRecord<Object, List<Map<String, Object>>>) data);
-				} else {
-					results.add( new KafkaStringRecord(consumerRecord.key(), (String) value));
-				}
-			} else {
-				Object value = consumerRecord.value();
-
-				if (value instanceof List) {
-					List rs = (List) value;
-
-					for (int i = 0; i < rs.size(); i++) {
-						Object v = rs.get(i);
-						if (v instanceof Map) {
-							results.add(new KafkaMapRecord(consumerRecord.key(), (Map<String, Object>) v));
-						} else {
-							results.add(new KafkaStringRecord(consumerRecord.key(), (String) v));
-						}
-					}
-					//return new KafkaMapRecord((ConsumerRecord<Object, List<Map<String, Object>>>) data);
-				} else if (value instanceof Map) {
-					results.add( new KafkaMapRecord(consumerRecord.key(), (Map<String, Object>) value));
-				} else if (value instanceof String) {
-					results.add(new KafkaStringRecord(consumerRecord.key(), (String) value));
-				}
-				throw new IllegalArgumentException(new StringBuilder().append("unknown consumerRecord").append(consumerRecord.toString()).toString());
-			}*/
 		}
 		return results;
 	}

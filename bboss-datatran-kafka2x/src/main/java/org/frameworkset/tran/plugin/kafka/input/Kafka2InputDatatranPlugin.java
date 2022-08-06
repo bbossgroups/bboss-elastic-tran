@@ -18,6 +18,8 @@ package org.frameworkset.tran.plugin.kafka.input;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.input.KafkaTranBatchConsumer2ndStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -31,6 +33,9 @@ import java.util.Properties;
  */
 public class Kafka2InputDatatranPlugin extends KafkaInputDatatranPlugin {
 	private Kafka2InputConfig kafkaInputConfig;
+	private static Logger logger = LoggerFactory.getLogger(Kafka2InputDatatranPlugin.class);
+	private KafkaTranBatchConsumer2ndStore kafkaBatchConsumer2ndStore;
+	private Thread consumerThread;
 	public Kafka2InputDatatranPlugin(ImportContext importContext){
 		super(  importContext);
 		kafkaInputConfig = (Kafka2InputConfig) importContext.getInputConfig();
@@ -53,12 +58,31 @@ public class Kafka2InputDatatranPlugin extends KafkaInputDatatranPlugin {
 		kafkaBatchConsumer2ndStore.setWorkQueue(kafkaInputConfig.getKafkaWorkQueue() == null?10:kafkaInputConfig.getKafkaWorkQueue());
 //		kafkaBatchConsumer2ndStore.setPollTimeOut(kafkaInputConfig.getPollTimeOut());
 		kafkaBatchConsumer2ndStore.afterPropertiesSet();
-		Thread consumerThread = new Thread(kafkaBatchConsumer2ndStore,"kafka-elasticsearch-BatchConsumer2ndStore");
-		consumerThread.start();
+//		Thread consumerThread = new Thread(kafkaBatchConsumer2ndStore,"kafka-elasticsearch-BatchConsumer2ndStore");
+//		consumerThread.start();
+//		this.consumerThread = consumerThread;
+		kafkaBatchConsumer2ndStore.run();
+		this.kafkaBatchConsumer2ndStore = kafkaBatchConsumer2ndStore;
 	}
 
 	@Override
 	public void destroy(boolean waitTranStop) {
+		try {
+			if (kafkaBatchConsumer2ndStore != null) {
+				kafkaBatchConsumer2ndStore.shutdown();
+			}
+		}
+		catch (Exception e){
+			logger.warn("",e);
+		}
+		try {
+			if(consumerThread != null){
+				consumerThread.interrupt();
+			}
+		}
+		catch (Exception e){
+			logger.warn("",e);
+		}
 
 	}
 }

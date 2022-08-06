@@ -48,7 +48,9 @@ public class Kafka2OutputDataTranPlugin extends BasePlugin implements OutputPlug
 
 	@Override
 	public void destroy(boolean waitTranStop) {
-
+		if(kafkaProductor != null){
+			kafkaProductor.destroy();
+		}
 	}
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch,Status currentStatus){

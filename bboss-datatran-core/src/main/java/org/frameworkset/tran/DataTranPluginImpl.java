@@ -732,6 +732,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		if(scheduleService != null){
 			scheduleService.stop();
 		}
+		inputPlugin.destroy(waitTranStop);
+		outputPlugin.destroy(waitTranStop);
 		if(statusManager != null)
 			statusManager.stop();
 		try {
@@ -748,8 +750,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
 //		this.stopDS(importContext.getDbConfig());
 //		this.stopOtherDSES(importContext.getConfigs());
 		stopDatasources(dbStartResult);
-		inputPlugin.destroy(waitTranStop);
-		outputPlugin.destroy(waitTranStop);
+//		inputPlugin.destroy(waitTranStop);
+//		outputPlugin.destroy(waitTranStop);
 		status = TranConstant.PLUGIN_STOPPED;
 
 	}

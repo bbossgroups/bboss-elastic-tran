@@ -151,7 +151,7 @@ public class DataStream {
 			}
 			endActioned = true;
 		}
-		if(this.importContext.getImportEndAction() != null){
+		if(importContext != null && this.importContext.getImportEndAction() != null){
 			try {
 				this.importContext.getImportEndAction().endAction(importContext,e);
 			}
@@ -177,7 +177,7 @@ public class DataStream {
 		destroy(waitTranStopped, false);
 
 		endAction(null);
-
+		importContext = null;
 //		this.esjdbc.stop();
 	}
 
@@ -191,7 +191,7 @@ public class DataStream {
 		if(importContext != null) {
 			logger.info("Destroy DataStream begin,waitTranStopped[{}].",waitTranStopped);
 			this.importContext.destroy(waitTranStopped, fromScheduleEnd);
-			importContext = null;
+
 			logger.info("DataStream stopped.");
 		}
 		else{

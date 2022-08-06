@@ -19,8 +19,6 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.input.KafkaTranBatchConsumer2ndStore;
 
-import java.util.Properties;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -31,6 +29,7 @@ import java.util.Properties;
  */
 public class Kafka1InputDatatranPlugin extends KafkaInputDatatranPlugin {
 	private Kafka1InputConfig kafkaInputConfig;
+	private KafkaTranBatchConsumer2ndStore kafkaBatchConsumer2ndStore;
 	public Kafka1InputDatatranPlugin(ImportContext importContext){
 		super(  importContext);
 		kafkaInputConfig = (Kafka1InputConfig) importContext.getInputConfig();
@@ -53,6 +52,8 @@ public class Kafka1InputDatatranPlugin extends KafkaInputDatatranPlugin {
 
 	@Override
 	public void destroy(boolean waitTranStop) {
-
+		if(kafkaBatchConsumer2ndStore != null){
+			kafkaBatchConsumer2ndStore.shutdown();
+		}
 	}
 }
