@@ -17,6 +17,7 @@ package org.frameworkset.tran;
 
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.soa.BBossStringWriter;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 
 import java.util.List;
@@ -57,4 +58,5 @@ public interface DataTran {
 	void waitTasksComplete(final List<Future> tasks,
 						   final ExecutorService service, Exception exception, Object lastValue, final ImportCount totalCount ,
 						   final TranErrorWrapper tranErrorWrapper ,WaitTasksCompleteCallBack waitTasksCompleteCallBack,boolean reachEOFClosed);
+	ImportContext getImportContext();
 }

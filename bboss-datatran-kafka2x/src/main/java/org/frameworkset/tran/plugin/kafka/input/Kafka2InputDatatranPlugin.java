@@ -35,7 +35,6 @@ public class Kafka2InputDatatranPlugin extends KafkaInputDatatranPlugin {
 	private Kafka2InputConfig kafkaInputConfig;
 	private static Logger logger = LoggerFactory.getLogger(Kafka2InputDatatranPlugin.class);
 	private KafkaTranBatchConsumer2ndStore kafkaBatchConsumer2ndStore;
-	private Thread consumerThread;
 	public Kafka2InputDatatranPlugin(ImportContext importContext){
 		super(  importContext);
 		kafkaInputConfig = (Kafka2InputConfig) importContext.getInputConfig();
@@ -64,9 +63,8 @@ public class Kafka2InputDatatranPlugin extends KafkaInputDatatranPlugin {
 		kafkaBatchConsumer2ndStore.run();
 		this.kafkaBatchConsumer2ndStore = kafkaBatchConsumer2ndStore;
 	}
-
 	@Override
-	public void destroy(boolean waitTranStop) {
+	public void stopCollectData(){
 		try {
 			if (kafkaBatchConsumer2ndStore != null) {
 				kafkaBatchConsumer2ndStore.shutdown();
@@ -75,14 +73,12 @@ public class Kafka2InputDatatranPlugin extends KafkaInputDatatranPlugin {
 		catch (Exception e){
 			logger.warn("",e);
 		}
-		try {
-			if(consumerThread != null){
-				consumerThread.interrupt();
-			}
-		}
-		catch (Exception e){
-			logger.warn("",e);
-		}
+		super.stopCollectData();
+	}
+	@Override
+	public void destroy(boolean waitTranStop) {
+
+
 
 	}
 }

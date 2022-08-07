@@ -85,7 +85,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 	@Override
 	public Boolean next() throws DataImportException {
 		try {
-			if(stoped)
+			if(stoped || importContext.getInputPlugin().isStopCollectData())
 				return false;
 			Result record = resultScanner.next();
 			if( record != null){

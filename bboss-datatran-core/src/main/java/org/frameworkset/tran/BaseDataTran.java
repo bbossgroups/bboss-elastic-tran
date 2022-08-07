@@ -44,6 +44,10 @@ public abstract class BaseDataTran implements DataTran{
 	public void beforeOutputData(BBossStringWriter writer){
 
 	}
+	@Override
+	public ImportContext getImportContext(){
+		return importContext;
+	}
 	public void logTaskStart(Logger logger) {
 //		StringBuilder builder = new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
 //				.append("] dbuser[").append(importContext.getDbConfig().getDbUser())

@@ -85,7 +85,7 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 
 	@Override
 	public Boolean next() throws DataImportException {
-		if(stoped || iterator == null)
+		if(stoped || iterator == null|| importContext.getInputPlugin().isStopCollectData())
 			return false;
 		boolean hasNext = iterator.hasNext();
 		if( hasNext){

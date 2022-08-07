@@ -663,6 +663,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			lock.unlock();
 		}
 	}
+	public boolean isStopCollectData(){
+		return inputPlugin.isStopCollectData();
+	}
 	public boolean isPluginStopAppending(){
 		try {
 			lock.lock();
@@ -695,6 +698,12 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
 	@Override
 	public void destroy(boolean waitTranStop,boolean fromScheduleEnd) {
+		try {
+			inputPlugin.stopCollectData();
+		}
+		catch (Exception e){
+			logger.warn("",e);
+		}
 		this.status = TranConstant.PLUGIN_STOPAPPENDING;
 		if(delayThread != null){
 			try {
@@ -732,10 +741,12 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		if(scheduleService != null){
 			scheduleService.stop();
 		}
-		inputPlugin.destroy(waitTranStop);
-		outputPlugin.destroy(waitTranStop);
+
 		if(statusManager != null)
 			statusManager.stop();
+		//释放资源开始
+		inputPlugin.destroy(waitTranStop);
+		outputPlugin.destroy(waitTranStop);
 		try {
 			if(statusDbname != null && !statusDbname.equals("")) {
 				//如果使用的不是外部数据源，那么就需要停止数据源
@@ -749,9 +760,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 //		this.stopDS(importContext.getDbConfig());
 //		this.stopOtherDSES(importContext.getConfigs());
+
 		stopDatasources(dbStartResult);
-//		inputPlugin.destroy(waitTranStop);
-//		outputPlugin.destroy(waitTranStop);
+		//释放资源结束
 		status = TranConstant.PLUGIN_STOPPED;
 
 	}

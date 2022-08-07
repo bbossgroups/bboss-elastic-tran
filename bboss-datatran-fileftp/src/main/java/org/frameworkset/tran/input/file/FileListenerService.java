@@ -643,6 +643,28 @@ public class FileListenerService {
 
     }
 
+    public void stopWorks(){
+        Map temp = new LinkedHashMap();
+        try{
+            lock.lock();
+            temp.putAll(fileConfigMap);
+        }
+        finally {
+            lock.unlock();
+        }
+        if(temp.size() == 0)
+        {
+            return;
+        }
+        Iterator<Map.Entry<String,FileReaderTask>> iterator = temp.entrySet().iterator();
+
+        while (iterator.hasNext()){
+            Map.Entry<String,FileReaderTask> entry = iterator.next();
+            entry.getValue().interruptWork();
+        }
+
+    }
+
     public DataTranPlugin getBaseDataTranPlugin() {
         return dataTranPlugin;
     }

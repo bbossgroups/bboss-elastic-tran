@@ -74,7 +74,7 @@ public class LogDirsScanThread implements Runnable{
      *
      * @throws Exception if an error occurs initializing the observer
      */
-    public synchronized void stop() throws Exception {
+    public void stop() throws Exception {
         stop(interval);
     }
 
@@ -86,16 +86,24 @@ public class LogDirsScanThread implements Runnable{
      * @throws Exception if an error occurs initializing the observer
      * @since 2.1
      */
-    public synchronized void stop(final long stopInterval) throws Exception {
-        if (running == false) {
-            throw new IllegalStateException("Monitor is not running");
+    public  void stop(final long stopInterval) throws Exception {
+        synchronized (this) {
+            if (running == false) {
+                throw new IllegalStateException("Monitor is not running");
+            }
+            running = false;
         }
-        running = false;
-        try {
-            thread.interrupt();
-            thread.join(stopInterval);
-        } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
+        if(thread != null) {
+            try {
+                thread.interrupt();
+
+            } catch (Exception e) {
+            }
+
+            try {
+                thread.join();
+            } catch (final InterruptedException e) {
+            }
         }
 
 

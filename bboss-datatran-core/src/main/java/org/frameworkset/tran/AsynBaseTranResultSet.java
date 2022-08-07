@@ -112,7 +112,9 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	}
 
 	private boolean stopIterator(){
-		return  status == STATUS_STOPTRANONLY || importContext.getDataTranPlugin().isPluginStopAppending() || importContext.getDataTranPlugin().isPluginStopREADY();
+		return  status == STATUS_STOPTRANONLY || importContext.getDataTranPlugin().isPluginStopAppending()
+				|| importContext.getDataTranPlugin().isPluginStopREADY();
+//				|| importContext.getDataTranPlugin().isStopCollectData();
 	}
 	@Override
 	public Boolean next() throws DataImportException {

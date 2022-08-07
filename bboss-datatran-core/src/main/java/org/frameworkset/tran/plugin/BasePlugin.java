@@ -36,6 +36,10 @@ import java.util.Date;
 public abstract class BasePlugin {
 	protected DataTranPlugin dataTranPlugin;
 	protected ImportContext importContext;
+	/**
+	 * 通知输入插件停止采集数据
+	 */
+	private volatile boolean stopCollectData;
 	public BasePlugin(ImportContext importContext){
 		this.importContext = importContext;
 //		init(importContext,targetImportContext);
@@ -48,7 +52,15 @@ public abstract class BasePlugin {
 	public boolean isMultiTran(){
 		return false;
 	}
-
+	/**
+	 * 通知输入插件停止采集数据
+	 */
+	public void stopCollectData(){
+		stopCollectData = true;
+	}
+	public boolean isStopCollectData(){
+		return stopCollectData;
+	}
 	public ImportContext getImportContext() {
 		return importContext;
 	}

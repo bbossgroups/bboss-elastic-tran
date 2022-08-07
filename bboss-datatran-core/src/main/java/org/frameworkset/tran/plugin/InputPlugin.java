@@ -42,8 +42,16 @@ public interface InputPlugin {
 	public void beforeInit();
 	public void init();
 	public boolean isMultiTran();
+	/**
+	 * 销毁插件
+	 */
 	public void destroy(boolean waitTranStop);
 
+	/**
+	 * 停止采集数据
+	 */
+	public void stopCollectData();
+	public boolean isStopCollectData();
 	public boolean isEnablePluginTaskIntercept() ;
 	public boolean isEnableAutoPauseScheduled();
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);

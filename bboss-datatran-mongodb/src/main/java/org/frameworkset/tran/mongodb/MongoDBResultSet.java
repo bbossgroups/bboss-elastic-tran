@@ -68,7 +68,7 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 
 	@Override
 	public Boolean next() throws DataImportException {
-		if(stoped )
+		if(stoped || importContext.getInputPlugin().isStopCollectData())
 			return false;
 		boolean hasNext = dbCursor.hasNext();
 		if( hasNext){

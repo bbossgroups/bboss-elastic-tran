@@ -6,10 +6,12 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.input.file.FileListenerService;
 import org.frameworkset.tran.input.file.FileLogRecord;
 import org.frameworkset.tran.input.file.FileReaderTask;
+import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.frameworkset.tran.record.CommonData;
 import org.frameworkset.tran.schedule.Status;
@@ -83,8 +85,9 @@ public class ExcelFileReaderTask extends FileReaderTask {
 	protected void execute() {
 		boolean reachEOFClosed = false;
 		File file = fileInfo.getFile();
-
-		if (taskEnded)
+		DataTranPlugin dataTranPlugin = fileListenerService.getBaseDataTranPlugin();
+		InputPlugin inputPlugin = dataTranPlugin.getInputPlugin();
+		if (taskEnded || inputPlugin.isStopCollectData())
 			return;
 
 		try {
@@ -126,12 +129,19 @@ public class ExcelFileReaderTask extends FileReaderTask {
 					if(!reachEOFClosed){
 						recordList.add(new FileLogRecord(taskContext,true,pointer,reachEOFClosed));
 					}
+					else if(inputPlugin.isStopCollectData()){
+						recordList.add(new FileLogRecord(taskContext,true,pointer,reachEOFClosed));
+						break;
+					}
 					pointer++;
 
 					continue;
 				}
 				reachEOFClosed = pointer == rows - 1;
 				result(file, pointer, xssfRow, recordList, reachEOFClosed);
+				if(inputPlugin.isStopCollectData()){
+					break;
+				}
 				pointer++;
 				//分批处理数据
 				if (fetchSize > 0 && (recordList.size() >= fetchSize)) {

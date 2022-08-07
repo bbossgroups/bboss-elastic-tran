@@ -5,9 +5,11 @@ import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.ftp.FtpConfig;
+import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.frameworkset.tran.record.CommonData;
 import org.frameworkset.tran.schedule.Status;
@@ -202,6 +204,17 @@ public class FileReaderTask extends FieldManager{
         if(logger.isInfoEnabled())
             logger.info(threadName+" started.");
     }
+    public void interruptWork(){
+        if(worker != null){
+            worker.interrupt();
+            try {
+                worker.join();
+            } catch (InterruptedException e) {
+//                e.printStackTrace();
+            }
+        }
+    }
+
     public String getFilePath() {
         return fileInfo.getFilePath();
     }
@@ -217,8 +230,10 @@ public class FileReaderTask extends FieldManager{
             File file = fileInfo.getFile();
             String fileId = fileInfo.getFileId();
             long pauseScheduleTimeStamp = 0l;
+            DataTranPlugin dataTranPlugin = fileListenerService.getBaseDataTranPlugin();
+            InputPlugin inputPlugin = dataTranPlugin.getInputPlugin();
             do {
-                if(taskEnded || fileListenerService.getBaseDataTranPlugin().checkTranToStop()){
+                if(taskEnded || dataTranPlugin.checkTranToStop() || inputPlugin.isStopCollectData()){
                     break;
                 }
                 if(file.exists()){
@@ -511,8 +526,10 @@ public class FileReaderTask extends FieldManager{
     protected void execute() {
         boolean reachEOFClosed = false;
         File file = fileInfo.getFile();
+        DataTranPlugin dataTranPlugin = fileListenerService.getBaseDataTranPlugin();
+        InputPlugin inputPlugin = dataTranPlugin.getInputPlugin();
         try {
-            if(taskEnded)
+            if(taskEnded || inputPlugin.isStopCollectData())
                 return;
 
                String charsetEncode = fileInfo.getCharsetEncode();
@@ -537,8 +554,12 @@ public class FileReaderTask extends FieldManager{
                 int skipHeaderLines = this.fileConfig.getSkipHeaderLines();
                 int readLines = 0;
                 long startPointer = pointer;
+                long prePointer = 0;
+
                 boolean firstReader = startPointer == 0;
+                boolean firstRow = true;
                 while(true){
+                    prePointer = raf.getFilePointer();
                     line_ = readLine( startPointer);
                     reachEOFClosed = reachEOFClosed(line_);
                     if(line_.getLine() != null) {
@@ -546,8 +567,11 @@ public class FileReaderTask extends FieldManager{
                         if(firstReader && skipHeaderLines > 0 && readLines < skipHeaderLines){
                             pointer = raf.getFilePointer();
                             startPointer =  pointer;
+
                             readLines ++;
                             if(!reachEOFClosed) {
+                                if(inputPlugin.isStopCollectData())
+                                    break;
                                 continue;
                             }
                             else
@@ -555,15 +579,31 @@ public class FileReaderTask extends FieldManager{
                                 break;
                             }
                         }
+//                        else{
+//                            rowStarted = true;
+//                            pointer = raf.getFilePointer();
+//                            prePointer = pointer;
+//                        }
                         if (charsetEncode != null)
                             line = new String(line.getBytes("ISO-8859-1"), charsetEncode);
 
                         if (null != pattern) {//多行记录匹配模式
                             Matcher m = pattern.matcher(line);
-                            if (m.find() && builder.length() > 0) {
+                            if (m.find() && builder.length() > 0) {//下行记录行开始
+
                                 pointer = raf.getFilePointer();
-                                result(file, pointer, builder.toString(), recordList,reachEOFClosed);
-                                startPointer =  pointer;
+//                                result(file, pointer, builder.toString(), recordList,reachEOFClosed);
+                                //应该使用下行记录开始的位置
+                                if(firstRow){
+                                    firstRow = false;
+                                    result(file, prePointer, builder.toString(), recordList,reachEOFClosed);
+
+                                }
+                                else{
+                                    result(file, prePointer, builder.toString(), recordList,reachEOFClosed);
+                                }
+
+                                startPointer =  prePointer;
                                 //分批处理数据
                                 if (fetchSize > 0 && ( recordList.size() >= fetchSize)) {
                                     fileDataTran.appendData(new CommonData(recordList));
@@ -576,6 +616,9 @@ public class FileReaderTask extends FieldManager{
                                 }
 
                                 builder.setLength(0);
+                                if(inputPlugin.isStopCollectData()){
+                                    break;
+                                }
                             }
 
                             if (builder.length() > 0) {
@@ -585,7 +628,7 @@ public class FileReaderTask extends FieldManager{
                             if(reachEOFClosed){
                                 pointer = raf.getFilePointer();
                                 result(file,pointer,builder.toString(), recordList,reachEOFClosed);
-                                startPointer =  pointer;
+//                                startPointer =  pointer;
 
                                 builder.setLength(0);
                                 break;
@@ -604,7 +647,7 @@ public class FileReaderTask extends FieldManager{
                                 }
                                 recordList = new ArrayList<Record>();
                             }
-                            if(reachEOFClosed)
+                            if(reachEOFClosed || inputPlugin.isStopCollectData())
                                 break;
 
                         }

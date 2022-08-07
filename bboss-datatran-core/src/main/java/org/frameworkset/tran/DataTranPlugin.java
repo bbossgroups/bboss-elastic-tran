@@ -89,6 +89,8 @@ public interface DataTranPlugin {
 	public void setHasTran();
 	public void setNoTran();
 	public boolean isPluginStopAppending();
+
+	public boolean isStopCollectData();
 	boolean isPluginStopREADY();
 	void init(ImportContext importContext);
 

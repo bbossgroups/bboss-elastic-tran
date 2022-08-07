@@ -27,8 +27,8 @@ sourceSets {
 
 dependencies {
 	api project(':bboss-datatran-fileftp')
-	api project(':bboss-elasticsearch-rest-hbase')
-	api project(':bboss-elasticsearch-rest-mongodb')
+	api project(':bboss-datatran-hbase')
+	api project(':bboss-datatran-mongodb')
 
 }
 

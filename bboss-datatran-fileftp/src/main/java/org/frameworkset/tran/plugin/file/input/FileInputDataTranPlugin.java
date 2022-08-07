@@ -174,20 +174,8 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
         return false;
     }
 
+
     private void stopScanThread(){
-//        if(logDirScanThreads != null){
-//
-//            logger.info("StopScanThread:LogDirScanThread");
-//            for(LogDirScanThread logDirScanThread: logDirScanThreads){
-//                try {
-//                    logDirScanThread.stop();
-//                }
-//                catch (Exception e){
-//
-//                }
-//            }
-//            logDirScanThreads = null;
-//        }
 
         if(logDirsScanThread != null){
 
@@ -202,11 +190,21 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
     }
     @Override
     public void destroy(boolean waitTranStop){
-        stopScanThread();
+
         fileListenerService.checkTranFinished();//检查所有的作业是否已经结束，并等待作业结束
     }
 
-//    protected abstract BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet,Status currentStatus);
+
+    @Override
+    public void stopCollectData() {
+        stopScanThread();
+        super.stopCollectData();
+        //等待所有采集任务结束
+        fileListenerService.stopWorks();
+    }
+
+
+    //    protected abstract BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet,Status currentStatus);
     @Override
     public void beforeInit() {
 //        initSourceDatasource();

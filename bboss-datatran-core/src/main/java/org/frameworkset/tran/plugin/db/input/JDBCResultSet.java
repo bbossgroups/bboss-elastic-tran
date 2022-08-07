@@ -133,7 +133,7 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 
 	public Boolean next() throws DataImportException {
 		try {
-			if(stoped)
+			if(stoped || importContext.getInputPlugin().isStopCollectData())
 				return false;
 			return resultSet.next();
 		}
