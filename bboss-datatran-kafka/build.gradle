@@ -26,9 +26,10 @@ sourceSets {
 
 
 dependencies {
-	api project(':bboss-datatran-fileftp')
-	api project(':bboss-datatran-hbase')
-	api project(':bboss-datatran-mongodb')
+//	api project(':bboss-datatran-fileftp')
+//	api project(':bboss-datatran-hbase')
+//	api project(':bboss-datatran-mongodb')
+	api project(':bboss-datatran-schedule-quartz')
 
 }
 
