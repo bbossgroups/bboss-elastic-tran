@@ -98,6 +98,8 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		this.taskMetrics = new TaskMetrics();
 		taskMetrics.setTaskNo(taskNo);
 		taskMetrics.setJobNo(jobNo);
+		taskMetrics.setJobId(importContext.getJobId());
+		taskMetrics.setJobName(importContext.getJobName());
 		this.lastValue = lastValue;
 		this.currentStatus = currentStatus;
 		this.reachEOFClosed = reachEOFClosed;

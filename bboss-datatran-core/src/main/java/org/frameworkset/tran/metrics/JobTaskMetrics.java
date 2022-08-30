@@ -38,6 +38,24 @@ public class JobTaskMetrics {
 	protected int tasks;
 	private String jobNo;
 	private Object lastValue;
+	private String jobId;
+	private String jobName;
+
+	public String getJobId() {
+		return jobId;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+
+	public String getJobName() {
+		return jobName;
+	}
+
+	public void setJobName(String jobName) {
+		this.jobName = jobName;
+	}
 
 	public Date getJobStartTime() {
 		return jobStartTime;
@@ -136,10 +154,12 @@ public class JobTaskMetrics {
 	}
 	protected void buildString(StringBuilder builder){
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		builder.append("JobId:").append(jobId);
+		builder.append(",JobName:").append(jobName);
 		if(jobNo != null)
-			builder.append("JobNo:").append(jobNo);
+			builder.append(",JobNo:").append(jobNo);
 		else
-			builder.append("JobNo:-");
+			builder.append(",JobNo:-");
 		if(jobStartTime != null)
 			builder.append(",JobStartTime:").append(dateFormat.format(jobStartTime));
 		else

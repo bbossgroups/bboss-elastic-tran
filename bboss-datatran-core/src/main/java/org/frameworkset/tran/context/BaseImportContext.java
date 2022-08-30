@@ -514,7 +514,9 @@ public  class BaseImportContext implements ImportContext {
 	public ImportEndAction getImportEndAction(){
 		return this.baseImportConfig.getImportEndAction();
 	}
-
+	public String getJobName() {
+		return baseImportConfig.getJobName();
+	}
 	public Date getScheduleDate(){
 		return this.baseImportConfig.getScheduleDate();
 	}
@@ -526,5 +528,7 @@ public  class BaseImportContext implements ImportContext {
 	public Long getDeyLay(){
 		return this.baseImportConfig.getDeyLay();
 	}
-
+	public String getJobId() {
+		return baseImportConfig.getJobId();
+	}
 }

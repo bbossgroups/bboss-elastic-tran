@@ -137,7 +137,7 @@ public class ScheduleService {
 	private void jdkTimeSchedule(ScheduleConfig scheduleConfig ) throws Exception{
 		//		scheduleImportData(dataTranPlugin.getBatchSize());
 
-		timer = new Timer();
+		timer = new Timer(importContext.getJobName() + "-Timer");
 		TimerTask timerTask = new TimerTask() {
 			@Override
 			public void run() {

@@ -43,6 +43,8 @@ public abstract class ImportCount {
 			JobTaskMetrics jobTaskMetrics = baseDataTran.getTaskContext().getJobTaskMetrics();
 			jobTaskMetrics.setJobNo(jobNo);
 			jobTaskMetrics.setJobStartTime(jobStartTime);
+			jobTaskMetrics.setJobId(baseDataTran.getImportContext().getJobId());
+			jobTaskMetrics.setJobName(baseDataTran.getImportContext().getJobName());
 		}
 	}
 	public abstract long getTotalCount() ;

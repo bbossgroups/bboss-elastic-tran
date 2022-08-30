@@ -40,7 +40,25 @@ public class TaskMetrics {
 	private long records;
 	private int taskNo;
 	private String jobNo;
+	private String jobId;
+	private String jobName;
 	private Object lastValue;
+
+	public String getJobId() {
+		return jobId;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+
+	public String getJobName() {
+		return jobName;
+	}
+
+	public void setJobName(String jobName) {
+		this.jobName = jobName;
+	}
 
 	public long getTotalRecords() {
 		return totalRecords;

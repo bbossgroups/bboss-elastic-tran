@@ -61,7 +61,8 @@ public class BaseImportConfig {
 	private Date scheduleEndDate;
 
 	private Long deyLay;
-
+	private String jobName;
+	private String jobId;
 	public void setImportStartAction(ImportStartAction importStartAction) {
 		this.importStartAction = importStartAction;
 	}
@@ -1037,5 +1038,21 @@ public class BaseImportConfig {
 
 	public void setImportEndAction(ImportEndAction importEndAction) {
 		this.importEndAction = importEndAction;
+	}
+
+	public void setJobName(String jobName) {
+		this.jobName = jobName;
+	}
+
+	public String getJobName() {
+		return jobName;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+
+	public String getJobId() {
+		return jobId;
 	}
 }

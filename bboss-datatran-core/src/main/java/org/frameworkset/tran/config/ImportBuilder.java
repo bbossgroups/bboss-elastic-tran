@@ -16,6 +16,7 @@ package org.frameworkset.tran.config;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.spi.DefaultApplicationContext;
 import org.frameworkset.spi.assemble.GetProperties;
 import org.frameworkset.tran.*;
@@ -53,6 +54,8 @@ public class ImportBuilder {
 	private String statusDbname;
 	private String statusTableDML;
 	private Integer fetchSize = 5000;
+	private String jobName;
+	private String jobId;
 
 	public ImportBuilder setImportEndAction(ImportEndAction importEndAction) {
 		this.importEndAction = importEndAction;
@@ -1210,6 +1213,16 @@ public class ImportBuilder {
 		baseImportConfig.setDeyLay(deyLay);
 		baseImportConfig.setScheduleDate(scheduleDate);
 		baseImportConfig.setScheduleEndDate(scheduleEndDate);
+		if(jobId != null)
+			baseImportConfig.setJobId(jobId);
+		else{
+			baseImportConfig.setJobId(SimpleStringUtil.getUUID());
+		}
+		if(jobName != null)
+			baseImportConfig.setJobName(jobName);
+		else{
+			baseImportConfig.setJobName("Datatran-Job-"+baseImportConfig.getJobId());
+		}
 
 	}
 
@@ -1503,6 +1516,24 @@ public class ImportBuilder {
 	 */
 	public ImportBuilder setSerialAllData(boolean serialAllData) {
 		this.serialAllData = serialAllData;
+		return this;
+	}
+
+	public ImportBuilder setJobName(String jobName) {
+		this.jobName = jobName;
+		return this;
+	}
+
+	public String getJobName() {
+		return jobName;
+	}
+
+	public String getJobId() {
+		return jobId;
+	}
+
+	public ImportBuilder setJobId(String jobId) {
+		this.jobId = jobId;
 		return this;
 	}
 }

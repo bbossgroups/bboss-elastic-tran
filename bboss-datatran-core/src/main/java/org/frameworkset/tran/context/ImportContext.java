@@ -235,4 +235,6 @@ public interface ImportContext {
 	public Date getScheduleEndDate();
 
 	public Long getDeyLay();
+	public String getJobName();
+	public String getJobId();
 }

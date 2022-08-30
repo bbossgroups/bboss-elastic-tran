@@ -51,7 +51,7 @@ public class ScheduleTimer implements Runnable{
 
 		running = true;
 
-		thread = new Thread(this,"BBossScheduleTimer");
+		thread = new Thread(this,"BBossScheduleTimer-"+scheduleService.getImportContext().getJobName());
 		thread.setDaemon(false);
 		thread.start();
 	}
