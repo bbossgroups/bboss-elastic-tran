@@ -84,7 +84,21 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
         FileReaderTask task =  fileImportConfig.buildFileReaderTask(fileId,currentStatus,fileImportConfig);
         return task;
     }
-
+    public FileTaskContext createFileTaskContext(Status status,FileConfig fileConfig){
+        final FileTaskContext taskContext = new FileTaskContext(importContext);
+        //构建文件信息
+        File file = new File(status.getRealPath());
+        String charSet = fileConfig.getCharsetEncode() ;
+        if(charSet == null || charSet.equals("")){
+            charSet = getFileListenerService().getFileInputConfig().getCharsetEncode();
+        }
+        FileInfo fileInfo = new FileInfo(charSet,
+                FileInodeHandler.change(file.getAbsolutePath()),
+                file,  status.getFileId(), fileConfig);
+        fileInfo.setCloseEOF(fileConfig.isCloseEOF());
+        taskContext.setFileInfo(fileInfo);
+        return taskContext;
+    }
     public boolean initFileTask(String relativeParentDir,FileConfig fileConfig,Status status,File file,long pointer){
 
         if(fileConfig == null){
@@ -93,8 +107,9 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
         dataTranPlugin.addStatus( status);
         FileResultSet kafkaResultSet = new FileResultSet(this.importContext);
 //		final CountDownLatch countDownLatch = new CountDownLatch(1);
-        FileTaskContext taskContext = new FileTaskContext(importContext);
-
+//        FileTaskContext taskContext = new FileTaskContext(importContext);
+        FileTaskContext taskContext = createFileTaskContext(status,fileConfig);
+        dataTranPlugin.preCall(taskContext);//需要在任务完成时销毁taskContext
         final BaseDataTran fileDataTran = dataTranPlugin.createBaseDataTran(taskContext,kafkaResultSet,null,status);
         Thread tranThread = null;
         try {
@@ -130,7 +145,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                 if(fileConfig.getFieldBuilder() != null){
                     fileConfig.getFieldBuilder().buildFields(task.getFileInfo(),task);
                 }
-                dataTranPlugin.preCall(taskContext);//需要在任务完成时销毁taskContext
+
 //                fileConfigMap.put(fileId,task);
                 fileListenerService.addFileTask(fileId,task);
                 task.start();

@@ -91,12 +91,17 @@ public class FileReaderTask extends FieldManager{
             charSet = this.fileListenerService.getFileInputConfig().getCharsetEncode();
         }
         this.pointer = 0;
-        this.fileInfo = new FileInfo(charSet,
-                                        FileInodeHandler.change(file.getAbsolutePath()),
-                                    file,  fileId, fileConfig);
-		fileInfo.setCloseEOF(fileConfig.isCloseEOF());
         this.fileConfig = fileConfig;
         this.taskContext = taskContext;
+        if(taskContext instanceof FileTaskContext) {
+//            this.fileInfo = new FileInfo(charSet,
+//                    FileInodeHandler.change(file.getAbsolutePath()),
+//                    file, fileId, fileConfig);
+//            fileInfo.setCloseEOF(fileConfig.isCloseEOF());
+//
+            this.fileInfo = ((FileTaskContext)taskContext).getFileInfo();
+        }
+
 
         if(fileConfig.getFileHeadLineRexPattern() != null){
             pattern = fileConfig.getFileHeadLineRexPattern() ;

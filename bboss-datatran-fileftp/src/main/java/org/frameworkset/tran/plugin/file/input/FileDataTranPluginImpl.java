@@ -21,10 +21,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPluginImpl;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
-import org.frameworkset.tran.input.file.FileConfig;
-import org.frameworkset.tran.input.file.FileReaderTask;
-import org.frameworkset.tran.input.file.FileResultSet;
-import org.frameworkset.tran.input.file.FileTaskContext;
+import org.frameworkset.tran.input.file.*;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.status.MultiStatusManager;
@@ -88,6 +85,21 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 	interface HistoryTaskStarter{
 		void start();
 	}
+//	protected FileTaskContext createFileTaskContext(Status status,FileConfig fileConfig){
+//		final FileTaskContext taskContext = new FileTaskContext(importContext);
+//		//构建文件信息
+//		File file = new File(status.getRealPath());
+//		String charSet = fileConfig.getCharsetEncode() ;
+//		if(charSet == null || charSet.equals("")){
+//			charSet = fileInputDataTranPlugin.getFileListenerService().getFileInputConfig().getCharsetEncode();
+//		}
+//		FileInfo fileInfo = new FileInfo(charSet,
+//				FileInodeHandler.change(file.getAbsolutePath()),
+//				file,  status.getFileId(), fileConfig);
+//		fileInfo.setCloseEOF(fileConfig.isCloseEOF());
+//		taskContext.setFileInfo(fileInfo);
+//		return taskContext;
+//	}
 	@Override
 	protected void loadCurrentStatus(){
 
@@ -200,7 +212,20 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 					public void start() {
 						//创建一个文件对应的交换通道
 						FileResultSet kafkaResultSet = new FileResultSet(importContext);
-						final FileTaskContext taskContext = new FileTaskContext(importContext);
+						final FileTaskContext taskContext = fileInputDataTranPlugin.createFileTaskContext(status,fileConfig);
+						preCall(taskContext);//需要在任务完成时销毁taskContext
+//						final FileTaskContext taskContext = new FileTaskContext(importContext);
+//						//构建文件信息
+//						File file = new File(status.getRealPath());
+//						String charSet = fileConfig.getCharsetEncode() ;
+//						if(charSet == null || charSet.equals("")){
+//							charSet = fileInputDataTranPlugin.getFileListenerService().getFileInputConfig().getCharsetEncode();
+//						}
+//						FileInfo fileInfo = new FileInfo(charSet,
+//								FileInodeHandler.change(file.getAbsolutePath()),
+//								file,  status.getFileId(), fileConfig);
+//						fileInfo.setCloseEOF(fileConfig.isCloseEOF());
+//						taskContext.setFileInfo(fileInfo);
 						final BaseDataTran fileDataTran = createBaseDataTran(taskContext,kafkaResultSet,null,status);
 
 						Thread tranThread = null;
@@ -240,7 +265,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 										,fileInputDataTranPlugin.getFileListenerService(),fileDataTran,status,fileInputConfig);
 								task.getFileInfo().setOriginFile(new File(status.getFilePath()));
 								task.getFileInfo().setOriginFilePath(status.getFilePath());
-								taskContext.setFileInfo(task.getFileInfo());
+//								taskContext.setFileInfo(task.getFileInfo());
 								if(fileConfig.getAddFields() != null && fileConfig.getAddFields().size() > 0){
 									task.addFields(fileConfig.getAddFields());
 								}
@@ -254,7 +279,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 									fileConfig.getFieldBuilder().buildFields(task.getFileInfo(),task);
 								}
 
-								preCall(taskContext);//需要在任务完成时销毁taskContext
+
 								fileInputDataTranPlugin.getFileListenerService().addFileTask(task.getFileId(),task);
 								task.start();
 							}
