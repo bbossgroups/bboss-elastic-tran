@@ -48,6 +48,9 @@ public class IPDBTest1 {
 			System.out.println(SimpleStringUtil.object2json(address));
 			address = addressUtils.getIpInfo("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");//ipv6
 			System.out.println(SimpleStringUtil.object2json(address));
+			address = addressUtils.getIpInfo("2409:8922:8e10:322:c558:432b:5a65:6d5c");//ipv6
+			System.out.println(SimpleStringUtil.object2json(address));
+
 
 
 		} catch (Exception e) {
