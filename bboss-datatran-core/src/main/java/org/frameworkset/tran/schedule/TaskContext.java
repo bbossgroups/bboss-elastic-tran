@@ -15,6 +15,7 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import com.frameworkset.util.UUID;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
@@ -61,6 +62,10 @@ public class TaskContext {
 		this.importContext = importContext;
 		taskDatas = new HashMap<String, Object>();
 		jobTaskMetrics = importContext.createJobTaskMetrics();
+		jobTaskMetrics.setJobNo( UUID.randomUUID().toString());
+		jobTaskMetrics.setJobStartTime(new Date());
+		jobTaskMetrics.setJobId(importContext.getJobId());
+		jobTaskMetrics.setJobName(importContext.getJobName());
 	}
 	private ImportContext importContext;
 	public void await(){

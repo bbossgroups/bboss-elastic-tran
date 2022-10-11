@@ -37,14 +37,19 @@ public abstract class ImportCount {
 	protected long successCount;
 	protected long ignoreTotalCount;
 	public ImportCount(BaseDataTran baseDataTran){
-		jobNo = UUID.randomUUID().toString();
-		this.jobStartTime = new Date();
+
 		if(baseDataTran.getTaskContext() != null) {
 			JobTaskMetrics jobTaskMetrics = baseDataTran.getTaskContext().getJobTaskMetrics();
-			jobTaskMetrics.setJobNo(jobNo);
-			jobTaskMetrics.setJobStartTime(jobStartTime);
-			jobTaskMetrics.setJobId(baseDataTran.getImportContext().getJobId());
-			jobTaskMetrics.setJobName(baseDataTran.getImportContext().getJobName());
+			jobNo = jobTaskMetrics.getJobNo();
+			this.jobStartTime = jobTaskMetrics.getJobStartTime();
+//			jobTaskMetrics.setJobNo(jobNo);
+//			jobTaskMetrics.setJobStartTime(jobStartTime);
+//			jobTaskMetrics.setJobId(baseDataTran.getImportContext().getJobId());
+//			jobTaskMetrics.setJobName(baseDataTran.getImportContext().getJobName());
+		}
+		else{
+			jobNo = UUID.randomUUID().toString();
+			this.jobStartTime = new Date();
 		}
 	}
 	public abstract long getTotalCount() ;
