@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
+
 	protected FileOutputConfig fileOutputConfig;
 //	protected String fileName;
 //	protected String remoteFileName;
@@ -64,26 +65,26 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 						.append(fileName).append("]")
 						.append(" remoteFileName[").append(remoteFileName).append("]");
 				taskInfo = builder.toString();
-				if(fileOutputConfig.getFailedFileResendInterval() > 0) {
-					if (failedResend == null) {
-						synchronized (FailedResend.class) {
-							if (failedResend == null) {
-								failedResend = new FailedResend(fileOutputConfig);
-								failedResend.start();
-							}
-						}
-					}
-				}
-				if(fileOutputConfig.getSuccessFilesCleanInterval() > 0){
-					if(successFilesClean == null){
-						synchronized (SuccessFilesClean.class) {
-							if (successFilesClean == null) {
-								successFilesClean = new SuccessFilesClean(fileOutputConfig);
-								successFilesClean.start();
-							}
-						}
-					}
-				}
+//				if(fileOutputConfig.getFailedFileResendInterval() > 0) {
+//					if (failedResend == null) {
+//						synchronized (FailedResend.class) {
+//							if (failedResend == null) {
+//								failedResend = new FailedResend(fileOutputConfig);
+//								failedResend.start();
+//							}
+//						}
+//					}
+//				}
+//				if(fileOutputConfig.getSuccessFilesCleanInterval() > 0){
+//					if(successFilesClean == null){
+//						synchronized (SuccessFilesClean.class) {
+//							if (successFilesClean == null) {
+//								successFilesClean = new SuccessFilesClean(fileOutputConfig);
+//								successFilesClean.start();
+//							}
+//						}
+//					}
+//				}
 			}
 			else{
 				StringBuilder builder = new StringBuilder().append("Import data to file [")
@@ -104,6 +105,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 			asynTranResultSet.stop();
 			asynTranResultSet = null;
 		}
+
 		super.stop();
 	}
 	/**
@@ -117,8 +119,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		}
 		super.stopTranOnly();
 	}
-	private static FailedResend failedResend;
-	private static SuccessFilesClean successFilesClean;
+
 
 	@Override
 	protected void initTranJob(){

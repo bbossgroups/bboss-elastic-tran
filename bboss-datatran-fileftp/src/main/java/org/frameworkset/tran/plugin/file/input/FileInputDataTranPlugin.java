@@ -28,7 +28,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
     protected List<LogDirScan> logDirScans;
     protected FileListenerService fileListenerService;
     protected LogDirsScanThread logDirsScanThread ;
-    private static BackupSuccessFilesClean backupSuccessFilesClean;
+    private BackupSuccessFilesClean backupSuccessFilesClean;
 //    protected FileListener fileListener;
 //    protected List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
     public FileInputDataTranPlugin(ImportContext importContext) {
@@ -207,6 +207,8 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
     public void destroy(boolean waitTranStop){
 
         fileListenerService.checkTranFinished();//检查所有的作业是否已经结束，并等待作业结束
+        if(backupSuccessFilesClean != null)
+            this.backupSuccessFilesClean.stop();
     }
 
 

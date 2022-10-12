@@ -21,6 +21,7 @@ import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpTransfer;
 import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
+import org.frameworkset.tran.util.StoppedThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ import java.io.File;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FailedResend extends Thread{
+public class FailedResend extends StoppedThread{
 	private String transferFailedFileDir;
 	private String transferSuccessFileDir;
 	private static final Logger logger = LoggerFactory.getLogger(FailedResend.class);
@@ -96,12 +97,16 @@ public class FailedResend extends Thread{
 				}
 			}
 
+			if(stopped)
+				break;
 			try {
 				synchronized (this) {
 					wait(fileOutputConfig.getFailedFileResendInterval());
 				}
+				if(stopped)
+					break;
 			} catch (InterruptedException e) {
-				logger.error("Resend file thread Interrupted",e);
+				logger.info("Resend file thread Interrupted");
 				break;
 			}
 		}

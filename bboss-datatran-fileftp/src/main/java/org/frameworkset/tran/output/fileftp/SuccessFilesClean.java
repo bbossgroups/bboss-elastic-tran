@@ -30,9 +30,11 @@ import org.slf4j.LoggerFactory;
  * @version 1.0
  */
 public class SuccessFilesClean{
+
 	private String transferSuccessFileDir;
 	private static final Logger logger = LoggerFactory.getLogger(SuccessFilesClean.class);
 	private FileOutputConfig fileOutputConfig;
+	private FileCleanThread fileCleanThread;
 	public SuccessFilesClean(FileOutputConfig fileOutputConfig){
 		this.fileOutputConfig = fileOutputConfig;
 		transferSuccessFileDir = SimpleStringUtil.getPath(fileOutputConfig.getFileDir(),"transferSuccessFileDir");
@@ -44,9 +46,14 @@ public class SuccessFilesClean{
 				fileOutputConfig.getSuccessFilesCleanInterval(),
 				fileOutputConfig.getFileLiveTime() * 1000L);
 		fileCleanThread.start();
+		this.fileCleanThread = fileCleanThread;
 	}
 
-
+	public void stop(){
+		if(fileCleanThread != null) {
+			fileCleanThread.stopThread();
+		}
+	}
 
 
 }

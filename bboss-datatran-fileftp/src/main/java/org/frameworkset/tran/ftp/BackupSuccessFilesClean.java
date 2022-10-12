@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class BackupSuccessFilesClean {
 	private static final Logger logger = LoggerFactory.getLogger(BackupSuccessFilesClean.class);
 	private FileInputConfig fileImportConfig;
-
+	private FileCleanThread fileCleanThread;
 	public BackupSuccessFilesClean(FileInputConfig fileImportConfig){
 		this.fileImportConfig = fileImportConfig;
 
@@ -42,9 +42,14 @@ public class BackupSuccessFilesClean {
 				                                               fileImportConfig.getBackupSuccessFileInterval(),
 																fileImportConfig.getBackupSuccessFileLiveTime() * 1000l);
 		fileCleanThread.start();
+		this.fileCleanThread = fileCleanThread;
 
 	}
-
+	public void stop(){
+		if(fileCleanThread != null) {
+			fileCleanThread.stopThread();
+		}
+	}
 
 
 }

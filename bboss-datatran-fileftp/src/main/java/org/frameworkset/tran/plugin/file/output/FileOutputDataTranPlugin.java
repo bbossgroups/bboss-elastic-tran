@@ -18,8 +18,10 @@ package org.frameworkset.tran.plugin.file.output;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.output.fileftp.FailedResend;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutUtil;
+import org.frameworkset.tran.output.fileftp.SuccessFilesClean;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
@@ -36,6 +38,8 @@ import java.util.concurrent.CountDownLatch;
  * @version 1.0
  */
 public class FileOutputDataTranPlugin extends BasePlugin implements OutputPlugin {
+	private FailedResend failedResend;
+	private SuccessFilesClean successFilesClean;
 	public FileOutputDataTranPlugin(ImportContext importContext){
 		super(importContext);
 
@@ -43,7 +47,30 @@ public class FileOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 
 	@Override
 	public void afterInit() {
+		FileOutputConfig fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
+		if(!fileOutputConfig.isDisableftp() && fileOutputConfig.getFtpOutConfig() != null) {
 
+			if(fileOutputConfig.getFailedFileResendInterval() > 0) {
+				if (failedResend == null) {
+					synchronized (FailedResend.class) {
+						if (failedResend == null) {
+							failedResend = new FailedResend(fileOutputConfig);
+							failedResend.start();
+						}
+					}
+				}
+			}
+			if(fileOutputConfig.getSuccessFilesCleanInterval() > 0){
+				if(successFilesClean == null){
+					synchronized (SuccessFilesClean.class) {
+						if (successFilesClean == null) {
+							successFilesClean = new SuccessFilesClean(fileOutputConfig);
+							successFilesClean.start();
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -58,7 +85,12 @@ public class FileOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 
 	@Override
 	public void destroy(boolean waitTranStop) {
-
+		if(successFilesClean != null){
+			successFilesClean.stop();
+		}
+		if(failedResend != null){
+			failedResend.stopThread();
+		}
 	}
 
 

@@ -15,6 +15,7 @@ package org.frameworkset.tran.file.monitor;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.util.StoppedThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ import java.io.File;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FileCleanThread extends Thread{
+public class FileCleanThread extends StoppedThread {
 
 	/**
 	 * 备份文件目录
@@ -46,6 +47,7 @@ public class FileCleanThread extends Thread{
 	 */
 	private long fileLiveTime = 7 * 24 * 60 * 60 * 1000l;
 	private static final Logger logger = LoggerFactory.getLogger(FileCleanThread.class);
+
 
 	public FileCleanThread(String threadName,String fileDir,
 						   long checkInterval,
@@ -100,18 +102,22 @@ public class FileCleanThread extends Thread{
 		File transferSuccessFileDir_ = new File(fileDir);
 		logger.info("Start "+ this.getName() +" ,fileDir["+ fileDir +"],fileLiveTime["+ fileLiveTime +"]毫秒");
 		while(true){
-			long lastArchtime = System.currentTimeMillis() - fileLiveTime ;
+//			long lastArchtime = System.currentTimeMillis() - fileLiveTime ;
 
 			cleanFiles( transferSuccessFileDir_);
-
+			if(stopped )
+				break;
 			try {
 				synchronized (this) {
 					wait(checkInterval);
 				}
+				if(stopped )
+					break;
 			} catch (InterruptedException e) {
-				logger.error("Delete file thread Interrupted",e);
+				logger.info("Delete file thread Interrupted");
 				break;
 			}
 		}
 	}
+
 }
