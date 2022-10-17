@@ -22,10 +22,13 @@ import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p>Description: </p>
@@ -36,6 +39,7 @@ import java.util.Map;
  * @version 1.0
  */
 public class TaskContext {
+	private static Logger logger = LoggerFactory.getLogger(TaskContext.class);
 	private Map<String,Object> taskDatas;
 	private JobTaskMetrics jobTaskMetrics;
 	/**
@@ -58,6 +62,7 @@ public class TaskContext {
 	private TranSQLInfo targetSqlInfo;
 	private TranSQLInfo targetUpdateSqlInfo;
 	private TranSQLInfo targetDeleteSqlInfo;
+	private ReentrantLock lock = new ReentrantLock();
 	public TaskContext(ImportContext importContext){
 		this.importContext = importContext;
 		taskDatas = new HashMap<String, Object>();
@@ -78,6 +83,46 @@ public class TaskContext {
 	public TaskContext addTaskData(String name,Object value){
 		taskDatas.put(name,value);
 		return this;
+	}
+
+	public void taskExecuteMetric(JobExecuteMetric jobExecuteMetric){
+		try {
+			lock.lock();
+			jobExecuteMetric.executeMetric(jobTaskMetrics);
+		}
+		catch (Exception e){
+			logger.debug("taskExecuteMetric failed:",e);
+
+		}
+		catch (Throwable throwable){
+			logger.debug("taskExecuteMetric failed:",throwable);
+		}
+
+		finally {
+			lock.unlock();
+		}
+
+	}
+
+	public Object readJobExecutorData(String name){
+		try {
+			lock.lock();
+			return jobTaskMetrics.readJobExecutorData(name);
+		}
+		catch (Exception e){
+			logger.debug("readJobExecutorData failed:",e);
+
+		}
+		catch (Throwable throwable){
+			logger.debug("readJobExecutorData failed:",throwable);
+		}
+
+		finally {
+			lock.unlock();
+		}
+
+		return null;
+
 	}
 	public TaskContext addTaskDatas(Map<String,Object> taskDatas){
 		this.taskDatas.putAll(taskDatas);

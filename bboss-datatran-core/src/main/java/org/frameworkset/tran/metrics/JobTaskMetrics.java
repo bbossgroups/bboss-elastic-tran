@@ -19,6 +19,8 @@ import org.frameworkset.tran.status.BaseStatusManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * <p>Description: 作业定时执行时的监控指标数据</p>
@@ -40,6 +42,27 @@ public class JobTaskMetrics {
 	private Object lastValue;
 	private String jobId;
 	private String jobName;
+	private Map<String,Object> jobExecutorDatas;
+	public JobTaskMetrics putJobExecutorData(String name, Object value){
+		if(jobExecutorDatas == null){
+			jobExecutorDatas = new LinkedHashMap<>();
+		}
+		jobExecutorDatas.put(name,value);
+		return this;
+	}
+
+	public Object readJobExecutorData(String name){
+		if(jobExecutorDatas != null){
+			return jobExecutorDatas.get(name);
+		}
+		return null;
+
+
+	}
+
+	public Map<String, Object> getJobExecutorDatas() {
+		return jobExecutorDatas;
+	}
 
 	public String getJobId() {
 		return jobId;

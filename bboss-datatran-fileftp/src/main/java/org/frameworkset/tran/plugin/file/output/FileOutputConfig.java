@@ -52,6 +52,7 @@ import java.util.List;
  */
 public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpContext {
 	private FtpOutConfig ftpOutConfig;
+	public final static String JobExecutorDatas_genFileInfos = "jobExecutorDatas.fileFtpOutPut.genFileInfos";
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.kafka.output.fileftp.ReocordGenerator
 	 */
@@ -65,6 +66,12 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	private int fileWriterBuffsize ;
 	private int maxFileRecordSize;
 	private boolean disableftp ;
+	/**
+	 * 启用作业监控metric中采集生成的文件信息清单功能
+	 * 文件信息包括：本地文件路径，远程ftp文件路径（可选，启用Ftp/sftp）时有用
+	 */
+	private boolean enableGenFileInfoMetric;
+
 
 	public String getLineSeparator() {
 		return lineSeparator;
@@ -302,5 +309,19 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 		return ftpOutConfig.getSuccessFilesCleanInterval();
 	}
 
-
+	/**
+	 * 启用作业监控metric中采集生成的文件信息清单功能
+	 * 文件信息包括：本地文件路径，远程ftp文件路径（可选，启用Ftp/sftp）时有用
+	 */
+	public boolean isEnableGenFileInfoMetric() {
+		return enableGenFileInfoMetric;
+	}
+	/**
+	 * 启用作业监控metric中采集生成的文件信息清单功能
+	 * 文件信息包括：本地文件路径，远程ftp文件路径（可选，启用Ftp/sftp）时有用
+	 * 默认false关闭，
+	 */
+	public void setEnableGenFileInfoMetric(boolean enableGenFileInfoMetric) {
+		this.enableGenFileInfoMetric = enableGenFileInfoMetric;
+	}
 }

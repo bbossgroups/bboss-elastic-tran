@@ -4,8 +4,11 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.input.file.GenFileInfo;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
+import org.frameworkset.tran.schedule.JobExecuteMetric;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseParrelTranCommand;
@@ -16,6 +19,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -47,13 +51,39 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		return fileTransfer;
 
 	}
+
 	protected FileTransfer initFileTransfer(){
 		path = fileOutputConfig.getFileDir();
+
 		String name = fileOutputConfig.generateFileName(   taskContext, fileSeq);
 		String fileName = SimpleStringUtil.getPath(path,name);
 		fileSeq ++;
 		try {
 			String remoteFileName = !fileOutputConfig.isDisableftp()?SimpleStringUtil.getPath(fileOutputConfig.getRemoteFileDir(),name):null;
+//			FileTaskContext fileTaskContext = (FileTaskContext)taskContext;
+			//添加文件信息到任务监控信息中
+			if(fileOutputConfig.isEnableGenFileInfoMetric()) {
+				taskContext.taskExecuteMetric(new JobExecuteMetric() {
+					@Override
+					public void executeMetric(JobTaskMetrics jobTaskMetrics) {
+						List<GenFileInfo> genFileInfos = (List<GenFileInfo>) jobTaskMetrics.readJobExecutorData(FileOutputConfig.JobExecutorDatas_genFileInfos);
+
+						if (genFileInfos == null) {
+
+							genFileInfos = new ArrayList<>();
+							jobTaskMetrics.putJobExecutorData(FileOutputConfig.JobExecutorDatas_genFileInfos, genFileInfos);
+						}
+
+						GenFileInfo genFileInfo = new GenFileInfo();
+						genFileInfo.setLocalFile(fileName);
+						genFileInfo.setRemoteFile(remoteFileName);
+						genFileInfos.add(genFileInfo);
+					}
+				});
+			}
+
+
+
 			FileTransfer fileTransfer = buildFileTransfer(fileOutputConfig,fileName);
 			fileTransfer.initFtp(remoteFileName);
 			fileTransfer.initTransfer();
