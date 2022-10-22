@@ -237,9 +237,7 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 
 		AsynBaseTranResultSet jdbcResultSet = new ES2TranResultSet(importContext);
 		final CountDownLatch countDownLatch = new CountDownLatch(1);
-		dataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet,null,dataTranPlugin.getCurrentStatus());
 		final BaseDataTran es2DBDataTran = dataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet,countDownLatch,dataTranPlugin.getCurrentStatus());
-//		final BaseDataTran es2DBDataTran = createBaseDataTran(  taskContext,jdbcResultSet,countDownLatch,  currentStatus);//new AsynDBOutPutDataTran(jdbcResultSet,importContext,   targetImportContext,countDownLatch);
 		ESExporterScrollHandler<MetaMap> esExporterScrollHandler = new ESExporterScrollHandler<MetaMap>(importContext,
 				es2DBDataTran);
 		try {
@@ -248,7 +246,7 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 				public void run() {
 					es2DBDataTran.tran();
 				}
-			},"Elasticsearch-DB-Tran");
+			},"Elasticsearch-Input-Tran");
 			tranThread.start();
 			if (!importContext.isIncreamentImport()) {
 
