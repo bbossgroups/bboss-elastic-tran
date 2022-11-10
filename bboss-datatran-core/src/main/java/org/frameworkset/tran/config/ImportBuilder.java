@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static org.frameworkset.tran.DBConfig.*;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -602,6 +604,38 @@ public class ImportBuilder {
 		if(!customDBConfigs.containsKey(prefix+"db.dbInfoEncryptClass")) {
 			String dbInfoEncryptClass  = propertiesContainer.getExternalProperty(prefix+"db.dbInfoEncryptClass");
 			dbConfig.setDbInfoEncryptClass(dbInfoEncryptClass);
+		}
+
+		if(!customDBConfigs.containsKey(prefix+db_removeAbandoned_key)) {
+			String removeAbandoned  = propertiesContainer.getExternalProperty(prefix+db_removeAbandoned_key);
+			dbConfig.setRemoveAbandoned(removeAbandoned != null && removeAbandoned.equals("true"));
+		}
+
+
+		if(!customDBConfigs.containsKey(prefix+db_connectionTimeout_key)) {
+			String connectionTimeout  = propertiesContainer.getExternalProperty(prefix+db_connectionTimeout_key);
+			if(connectionTimeout != null && !connectionTimeout.equals("")) {
+				int _connectionTimeout = Integer.parseInt(connectionTimeout);
+				dbConfig.setConnectionTimeout(_connectionTimeout);
+			}
+		}
+
+
+		if(!customDBConfigs.containsKey(prefix+db_maxWait_key)) {
+			String maxWait  = propertiesContainer.getExternalProperty(prefix+db_maxWait_key);
+			if(maxWait != null && !maxWait.equals("")) {
+				int _maxWait = Integer.parseInt(maxWait);
+				dbConfig.setMaxWait(_maxWait);
+			}
+		}
+
+
+		if(!customDBConfigs.containsKey(prefix+db_maxIdleTime_key)) {
+			String maxIdleTime  = propertiesContainer.getExternalProperty(prefix+db_maxIdleTime_key);
+			if(maxIdleTime != null && !maxIdleTime.equals("")) {
+				int _maxIdleTime = Integer.parseInt(maxIdleTime);
+				dbConfig.setMaxIdleTime(_maxIdleTime);
+			}
 		}
 
 	}

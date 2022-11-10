@@ -39,37 +39,7 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 	private String sqlFilepath;
 	protected String sqlName;
 	private Integer jdbcFetchsize;
-	public DBConfig getDBConfig(String dbname){
-		return dbConfigMap.get(dbname);
-	}
-	public Boolean getEnableDBTransaction() {
-		return enableDBTransaction;
-	}
-	public DBInputConfig setDbName(String dbName) {
-		_setDbName(  dbName);
-		this.sourceDbname = dbName;
 
-		return this;
-	}
-
-	public DBInputConfig setShowSql(boolean showsql) {
-		_setShowSql(  showsql);
-		return this;
-	}
-
-	public DBInputConfig setEnableDBTransaction(Boolean enableDBTransaction) {
-		this.enableDBTransaction = enableDBTransaction;
-		return this;
-	}
-
-	public Integer getJdbcFetchsize() {
-		return jdbcFetchsize;
-	}
-
-	public DBInputConfig setJdbcFetchsize(Integer jdbcFetchsize) {
-		this.jdbcFetchsize = jdbcFetchsize;
-		return this;
-	}
 	private Boolean enableDBTransaction;
 
 	public String getSourceDbname() {
@@ -245,4 +215,60 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 		return  this;
 	}
 
+
+	public DBInputConfig setRemoveAbandoned(boolean removeAbandoned) {
+		_setRemoveAbandoned( removeAbandoned);
+		return  this;
+	}
+
+
+
+	public DBInputConfig setConnectionTimeout(int connectionTimeout) {
+		_setConnectionTimeout( connectionTimeout);
+		return  this;
+	}
+
+
+
+	public DBInputConfig setMaxWait(int maxWait) {
+		_setMaxWait( maxWait);
+		return  this;
+	}
+
+
+	public DBInputConfig setMaxIdleTime(int maxIdleTime) {
+		_setMaxIdleTime( maxIdleTime);
+		return  this;
+	}
+	public DBConfig getDBConfig(String dbname){
+		return dbConfigMap.get(dbname);
+	}
+	public Boolean getEnableDBTransaction() {
+		return enableDBTransaction;
+	}
+	public DBInputConfig setDbName(String dbName) {
+		_setDbName(  dbName);
+		this.sourceDbname = dbName;
+
+		return this;
+	}
+
+	public DBInputConfig setShowSql(boolean showsql) {
+		_setShowSql(  showsql);
+		return this;
+	}
+
+	public DBInputConfig setEnableDBTransaction(Boolean enableDBTransaction) {
+		this.enableDBTransaction = enableDBTransaction;
+		return this;
+	}
+
+	public Integer getJdbcFetchsize() {
+		return jdbcFetchsize;
+	}
+
+	public DBInputConfig setJdbcFetchsize(Integer jdbcFetchsize) {
+		this.jdbcFetchsize = jdbcFetchsize;
+		return this;
+	}
 }

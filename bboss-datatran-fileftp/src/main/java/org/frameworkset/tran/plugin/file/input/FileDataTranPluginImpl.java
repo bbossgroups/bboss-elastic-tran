@@ -21,7 +21,10 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPluginImpl;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
-import org.frameworkset.tran.input.file.*;
+import org.frameworkset.tran.input.file.FileConfig;
+import org.frameworkset.tran.input.file.FileReaderTask;
+import org.frameworkset.tran.input.file.FileResultSet;
+import org.frameworkset.tran.input.file.FileTaskContext;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.status.MultiStatusManager;
@@ -238,7 +241,23 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 								tranThread = new Thread(new Runnable() {
 									@Override
 									public void run() {
-										fileDataTran.tran();
+										try {
+											fileDataTran.tran();
+										}
+										catch (DataImportException dataImportException){
+											logger.error("",dataImportException);
+											throwException(  taskContext,  dataImportException);
+										}
+										catch (RuntimeException dataImportException){
+											logger.error("",dataImportException);
+											throwException(  taskContext,  dataImportException);
+										}
+										catch (Throwable dataImportException){
+											logger.error("",dataImportException);
+											DataImportException dataImportException_ = new DataImportException(dataImportException);
+											throwException(  taskContext, dataImportException_);
+										}
+
 									}
 								}, tname);
 								tranThread.start();

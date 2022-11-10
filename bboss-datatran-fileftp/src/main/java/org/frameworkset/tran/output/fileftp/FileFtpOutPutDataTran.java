@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -34,7 +33,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	protected String path;
 	protected int fileSeq = 1;
 
-	protected CountDownLatch countDownLatch;
+	protected JobCountDownLatch countDownLatch;
 	@Override
 	public void logTaskStart(Logger logger) {
 //		StringBuilder builder = new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
@@ -255,6 +254,21 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 			fileTransfer = null;
 			return ret;
 		}
+		catch (DataImportException dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw dataImportException;
+		}
+		catch (Exception dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw new DataImportException(dataImportException);
+		}
+		catch (Throwable dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw new DataImportException(dataImportException);
+		}
 		finally {
 			if(this.countDownLatch != null)
 				countDownLatch.countDown();
@@ -266,7 +280,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	}
 
 
-	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  CountDownLatch countDownLatch,Status currentStatus) {
+	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  JobCountDownLatch countDownLatch,Status currentStatus) {
 		super(taskContext,jdbcResultSet,importContext,   currentStatus);
 		this.countDownLatch = countDownLatch;
 		fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();

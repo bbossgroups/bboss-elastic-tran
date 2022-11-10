@@ -27,7 +27,6 @@ import org.frameworkset.util.ResourceStart;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>Description: </p>
@@ -111,7 +110,7 @@ public interface DataTranPlugin {
 
 	boolean isMultiTran();
 
-	BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch,Status currentStatus);
+	BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus);
 
 	void doImportData(TaskContext taskContext);
 	public void addStatus(Status currentStatus) throws DataImportException;

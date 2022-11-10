@@ -15,13 +15,12 @@ import org.slf4j.Logger;
 
 import java.io.Writer;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 	protected String taskInfo;
-	private CountDownLatch countDownLatch;
+	private JobCountDownLatch countDownLatch;
 	private KafkaOutputConfig kafkaOutputConfig ;
 	@Override
 	public void logTaskStart(Logger logger) {
@@ -78,7 +77,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 	}
 
-	public KafkaOutputDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, CountDownLatch countDownLatch,Status currentStatus) {
+	public KafkaOutputDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, JobCountDownLatch countDownLatch,Status currentStatus) {
 		super(  taskContext,jdbcResultSet,importContext,     currentStatus);
 		kafkaOutputConfig = (KafkaOutputConfig) importContext.getOutputConfig();
 		this.countDownLatch = countDownLatch;
@@ -163,6 +162,21 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 	public String tran() throws DataImportException {
 		try {
 			return super.tran();
+		}
+		catch (DataImportException dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw dataImportException;
+		}
+		catch (Exception dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw new DataImportException(dataImportException);
+		}
+		catch (Throwable dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw new DataImportException(dataImportException);
 		}
 		finally {
 			if(this.countDownLatch != null)

@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin.kafka.output;
 
 import org.frameworkset.plugin.kafka.KafkaProductor;
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.output.KafkaOutputDataTran;
@@ -27,8 +28,6 @@ import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCommand;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>Description: </p>
@@ -53,7 +52,7 @@ public class Kafka2OutputDataTranPlugin extends BasePlugin implements OutputPlug
 		}
 	}
 
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, CountDownLatch countDownLatch,Status currentStatus){
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, JobCountDownLatch countDownLatch, Status currentStatus){
 		KafkaOutputDataTran kafkaOutputDataTran = new KafkaOutputDataTran(  taskContext,jdbcResultSet, importContext,countDownLatch,  currentStatus);
 		kafkaOutputDataTran.initTran();
 		return kafkaOutputDataTran;

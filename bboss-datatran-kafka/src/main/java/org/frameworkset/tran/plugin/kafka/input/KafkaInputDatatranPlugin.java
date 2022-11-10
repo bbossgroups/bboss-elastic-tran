@@ -21,6 +21,8 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.KafkaResultSet;
 import org.frameworkset.tran.plugin.BaseInputPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Description: </p>
@@ -31,6 +33,7 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public abstract class KafkaInputDatatranPlugin extends BaseInputPlugin  {
+	private static final Logger logger = LoggerFactory.getLogger(KafkaInputDatatranPlugin.class);
 	protected KafkaInputConfig kafkaInputConfig;
 	@Override
 	public void init(){
@@ -73,7 +76,22 @@ public abstract class KafkaInputDatatranPlugin extends BaseInputPlugin  {
 			tranThread = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					kafka2ESDataTran.tran();
+					try {
+						kafka2ESDataTran.tran();
+					}
+					catch (DataImportException dataImportException){
+						logger.error("",dataImportException);
+						dataTranPlugin.throwException(  taskContext,  dataImportException);
+					}
+					catch (RuntimeException dataImportException){
+						logger.error("",dataImportException);
+						dataTranPlugin.throwException(  taskContext,  dataImportException);
+					}
+					catch (Throwable dataImportException){
+						logger.error("",dataImportException);
+						DataImportException dataImportException_ = new DataImportException(dataImportException);
+						dataTranPlugin.throwException(  taskContext, dataImportException_);
+					}
 				}
 			},"kafka-input-dataTran");
 			tranThread.start();

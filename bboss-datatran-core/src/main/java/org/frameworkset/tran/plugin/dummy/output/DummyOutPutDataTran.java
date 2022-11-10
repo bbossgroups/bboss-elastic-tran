@@ -1,6 +1,7 @@
 package org.frameworkset.tran.plugin.dummy.output;
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranErrorWrapper;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
@@ -17,7 +18,6 @@ import org.frameworkset.tran.util.TranUtil;
 
 import java.io.Writer;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -27,7 +27,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 //	protected String remoteFileName;
 
 
-	public DummyOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, CountDownLatch countDownLatch, Status currentStatus) {
+	public DummyOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, JobCountDownLatch countDownLatch, Status currentStatus) {
 		super(taskContext, jdbcResultSet, importContext, countDownLatch, currentStatus);
 		dummyOupputConfig = (DummyOutputConfig) importContext.getOutputConfig();
 	}

@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 
 import java.io.Writer;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -24,7 +23,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 //	protected String fileName;
 //	protected String remoteFileName;
 
-	protected CountDownLatch countDownLatch;
+	protected JobCountDownLatch countDownLatch;
 	@Override
 	public void logTaskStart(Logger logger) {
 //		StringBuilder builder = new StringBuilder().append("import data to db[").append(importContext.getDbConfig().getDbUrl())
@@ -149,6 +148,21 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 
 			return ret;
 		}
+		catch (DataImportException dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw dataImportException;
+		}
+		catch (Exception dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw new DataImportException(dataImportException);
+		}
+		catch (Throwable dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw new DataImportException(dataImportException);
+		}
 		finally {
 			if(this.countDownLatch != null)
 				countDownLatch.countDown();
@@ -160,7 +174,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 	}
 
 
-	public HttpOutPutDataTran(TaskContext taskContext, TranResultSet tranResultSet, ImportContext importContext, CountDownLatch countDownLatch, Status currentStatus) {
+	public HttpOutPutDataTran(TaskContext taskContext, TranResultSet tranResultSet, ImportContext importContext, JobCountDownLatch countDownLatch, Status currentStatus) {
 		super(taskContext,tranResultSet,importContext,   currentStatus);
 		this.countDownLatch = countDownLatch;
 		httpOutputConfig = (HttpOutputConfig) importContext.getOutputConfig();

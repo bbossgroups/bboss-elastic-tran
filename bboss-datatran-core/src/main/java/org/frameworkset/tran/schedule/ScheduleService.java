@@ -87,6 +87,7 @@ public class ScheduleService {
 			}
 			catch (Exception e){
 				logger.error("preCall failed:",e);
+				throwException(taskContext, new PreCallException("preCall failed:",e));
 			}
 		}
 
@@ -108,6 +109,7 @@ public class ScheduleService {
 			}
 			catch (Exception e){
 				logger.error("afterCall failed:",e);
+				throwException(taskContext, new AfterCallException("afterCall failed:",e));
 			}
 		}
 	}

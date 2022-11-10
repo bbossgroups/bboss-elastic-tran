@@ -17,14 +17,13 @@ package org.frameworkset.tran.plugin.dummy.output;
 
 import org.frameworkset.tran.BaseCommonRecordDataTran;
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>Description: </p>
@@ -63,7 +62,7 @@ public class DummyOutputDataTranPlugin extends BasePlugin implements OutputPlugi
 	}
 
 
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch, Status currentStatus){
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus){
 		BaseCommonRecordDataTran dummyOutPutDataTran = new DummyOutPutDataTran(taskContext, tranResultSet, importContext,  countDownLatch,currentStatus);
 		//DummyOutPutDataTran dummyOutPutDataTran = new DummyOutPutDataTran(  taskContext,tranResultSet,importContext,   targetImportContext, currentStatus);
 		dummyOutPutDataTran.initTran();

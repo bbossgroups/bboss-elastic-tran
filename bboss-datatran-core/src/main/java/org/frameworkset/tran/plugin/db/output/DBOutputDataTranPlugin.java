@@ -17,13 +17,11 @@ package org.frameworkset.tran.plugin.db.output;
 
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.plugin.db.BaseDBPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.plugin.db.BaseDBPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>Description: </p>
@@ -103,7 +101,7 @@ public class DBOutputDataTranPlugin extends BaseDBPlugin implements OutputPlugin
 	}
 
 	@Override
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch, Status currentStatus){
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus){
 		if(countDownLatch == null) {
 			DBOutPutDataTran db2DBDataTran = new DBOutPutDataTran(taskContext, tranResultSet, importContext, currentStatus);
 			db2DBDataTran.initTran();

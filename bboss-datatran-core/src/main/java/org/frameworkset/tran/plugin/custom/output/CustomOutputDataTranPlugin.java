@@ -17,14 +17,13 @@ package org.frameworkset.tran.plugin.custom.output;
 
 import org.frameworkset.tran.BaseCommonRecordDataTran;
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>Description: </p>
@@ -43,7 +42,7 @@ public class CustomOutputDataTranPlugin extends BasePlugin implements OutputPlug
 	}
 
 	@Override
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch, Status currentStatus) {
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus) {
 		BaseCommonRecordDataTran baseCommonRecordDataTran = new CustomOutPutDataTran(taskContext, tranResultSet, importContext,countDownLatch, currentStatus);
 		baseCommonRecordDataTran.initTran();
 		return baseCommonRecordDataTran;

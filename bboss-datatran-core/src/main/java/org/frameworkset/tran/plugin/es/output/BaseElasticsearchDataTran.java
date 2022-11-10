@@ -155,11 +155,11 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 	}
 
 
-	public String tran(String indexName,String indexType) throws DataImportException{
-		ESIndexWrapper esIndexWrapper = new ESIndexWrapper(indexName,indexType);
-		elasticsearchOutputConfig.setEsIndexWrapper(esIndexWrapper);
-		return tran();
-	}
+//	public String tran(String indexName,String indexType) throws DataImportException{
+//		ESIndexWrapper esIndexWrapper = new ESIndexWrapper(indexName,indexType);
+//		elasticsearchOutputConfig.setEsIndexWrapper(esIndexWrapper);
+//		return tran();
+//	}
 
 
 

@@ -12,13 +12,12 @@ import org.frameworkset.tran.task.TaskCall;
 import org.slf4j.Logger;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 
-	protected CountDownLatch countDownLatch;
+	protected JobCountDownLatch countDownLatch;
 
 	protected String taskInfo ;
 	@Override
@@ -59,6 +58,21 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 
 			return ret;
 		}
+		catch (DataImportException dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw dataImportException;
+		}
+		catch (Exception dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw new DataImportException(dataImportException);
+		}
+		catch (Throwable dataImportException){
+			if(this.countDownLatch != null)
+				countDownLatch.attachException(dataImportException);
+			throw new DataImportException(dataImportException);
+		}
 		finally {
 			if(this.countDownLatch != null)
 				countDownLatch.countDown();
@@ -77,7 +91,7 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 	public CustomOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  Status currentStatus) {
 		super(taskContext,jdbcResultSet,importContext,   currentStatus);
 	}
-	public CustomOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  CountDownLatch countDownLatch, Status currentStatus) {
+	public CustomOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  JobCountDownLatch countDownLatch, Status currentStatus) {
 		super(taskContext,jdbcResultSet,importContext,  currentStatus);
 		this.countDownLatch = countDownLatch;
 	}

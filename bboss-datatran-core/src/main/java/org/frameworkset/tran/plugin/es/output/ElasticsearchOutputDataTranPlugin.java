@@ -16,14 +16,13 @@ package org.frameworkset.tran.plugin.es.output;
  */
 
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.es.BaseESPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>Description: </p>
@@ -64,7 +63,7 @@ public class ElasticsearchOutputDataTranPlugin extends BaseESPlugin implements O
 
 
 
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch, Status currentStatus){
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus){
 		BaseDataTran db2ESDataTran = null;
 		if(countDownLatch == null) {
 			db2ESDataTran = new BaseElasticsearchDataTran(taskContext, tranResultSet, importContext, currentStatus);

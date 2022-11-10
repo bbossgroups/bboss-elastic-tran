@@ -46,7 +46,6 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -215,7 +214,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			return !this.scheduleAssert.assertSchedule(  autoPause);
 		return false;
 	}
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet,CountDownLatch countDownLatch,Status currentStatus){
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus){
 		return this.outputPlugin.createBaseDataTran(taskContext,tranResultSet,countDownLatch,currentStatus);
 	}
 
@@ -318,6 +317,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			}
 			catch (Exception e){
 				logger.error("preCall failed:",e);
+				throwException(taskContext, new PreCallException("preCall failed:",e));
 			}
 		}
 		TranUtil.initTaskContextSQLInfo(taskContext, importContext);
@@ -335,6 +335,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			}
 			catch (Exception e){
 				logger.error("afterCall failed:",e);
+				throwException(taskContext, new AfterCallException("afterCall failed:",e));
 			}
 		}
 	}

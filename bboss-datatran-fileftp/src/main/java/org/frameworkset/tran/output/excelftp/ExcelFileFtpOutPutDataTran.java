@@ -1,6 +1,7 @@
 package org.frameworkset.tran.output.excelftp;
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranErrorWrapper;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -18,7 +19,6 @@ import org.frameworkset.tran.task.TaskCall;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -36,7 +36,7 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 	public ExcelFileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, Status currentStatus) {
 		super(taskContext,jdbcResultSet,importContext,  currentStatus);
 	}
-	public ExcelFileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  CountDownLatch countDownLatch, Status currentStatus) {
+	public ExcelFileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, JobCountDownLatch countDownLatch, Status currentStatus) {
 		super(taskContext,jdbcResultSet,importContext,countDownLatch,  currentStatus);
 	}
 	@Override

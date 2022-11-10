@@ -366,4 +366,30 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return  this;
 	}
 
+
+	public DBOutputConfig setRemoveAbandoned(boolean removeAbandoned) {
+		_setRemoveAbandoned( removeAbandoned);
+		return  this;
+	}
+
+
+
+	public DBOutputConfig setConnectionTimeout(int connectionTimeout) {
+		_setConnectionTimeout( connectionTimeout);
+		return  this;
+	}
+
+
+
+	public DBOutputConfig setMaxWait(int maxWait) {
+		_setMaxWait( maxWait);
+		return  this;
+	}
+
+
+	public DBOutputConfig setMaxIdleTime(int maxIdleTime) {
+		_setMaxIdleTime( maxIdleTime);
+		return  this;
+	}
+
 }

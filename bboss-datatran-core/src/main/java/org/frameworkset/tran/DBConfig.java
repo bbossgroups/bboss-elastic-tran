@@ -34,6 +34,13 @@ public class DBConfig {
 	private String dbUrl;
 	private String dbUser;
 
+
+
+	private boolean removeAbandoned;
+	private int connectionTimeout = 5000;
+	private int maxWait = 3000;
+	private int maxIdleTime = 600;
+
 	@JsonIgnore
 	private String dbPassword;
 
@@ -383,6 +390,14 @@ public class DBConfig {
 
 	public static final String db_validateSQL_key = "db.validateSQL";
 	public static final String db_dbInfoEncryptClass_key = "db.dbInfoEncryptClass";
+	public static final String db_removeAbandoned_key = "db.removeAbandoned";
+	public static final String db_connectionTimeout_key = "db.connectionTimeout";
+
+
+	public static final String db_maxWait_key = "db.maxWait";
+
+	public static final String db_maxIdleTime_key = "db.maxIdleTime";
+
 
 
 	public static final String db_showsql_key = "db.showsql";
@@ -410,5 +425,36 @@ public class DBConfig {
 
 	public void setDbInfoEncryptClass(String dbInfoEncryptClass) {
 		this.dbInfoEncryptClass = dbInfoEncryptClass;
+	}
+	public boolean isRemoveAbandoned() {
+		return removeAbandoned;
+	}
+
+	public void setRemoveAbandoned(boolean removeAbandoned) {
+		this.removeAbandoned = removeAbandoned;
+	}
+
+	public int getConnectionTimeout() {
+		return connectionTimeout;
+	}
+
+	public void setConnectionTimeout(int connectionTimeout) {
+		this.connectionTimeout = connectionTimeout;
+	}
+
+	public int getMaxWait() {
+		return maxWait;
+	}
+
+	public void setMaxWait(int maxWait) {
+		this.maxWait = maxWait;
+	}
+
+	public int getMaxIdleTime() {
+		return maxIdleTime;
+	}
+
+	public void setMaxIdleTime(int maxIdleTime) {
+		this.maxIdleTime = maxIdleTime;
 	}
 }

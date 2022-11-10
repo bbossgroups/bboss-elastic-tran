@@ -122,7 +122,23 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                 tranThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        fileDataTran.tran();
+
+                        try {
+                            fileDataTran.tran();
+                        }
+                        catch (DataImportException dataImportException){
+                            logger.error("",dataImportException);
+                            dataTranPlugin.throwException(  taskContext,  dataImportException);
+                        }
+                        catch (RuntimeException dataImportException){
+                            logger.error("",dataImportException);
+                            dataTranPlugin.throwException(  taskContext,  dataImportException);
+                        }
+                        catch (Throwable dataImportException){
+                            logger.error("",dataImportException);
+                            DataImportException dataImportException_ = new DataImportException(dataImportException);
+                            dataTranPlugin.throwException(  taskContext, dataImportException_);
+                        }
                     }
                 }, tname);
                 tranThread.start();

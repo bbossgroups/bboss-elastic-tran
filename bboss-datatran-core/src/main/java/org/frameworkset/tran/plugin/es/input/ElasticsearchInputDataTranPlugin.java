@@ -24,6 +24,7 @@ import org.frameworkset.elasticsearch.template.*;
 import org.frameworkset.tran.AsynBaseTranResultSet;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.es.BaseESPlugin;
@@ -33,7 +34,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>Description: </p>
@@ -236,7 +236,7 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 
 
 		AsynBaseTranResultSet jdbcResultSet = new ES2TranResultSet(importContext);
-		final CountDownLatch countDownLatch = new CountDownLatch(1);
+		final JobCountDownLatch countDownLatch = new JobCountDownLatch(1);
 		final BaseDataTran es2DBDataTran = dataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet,countDownLatch,dataTranPlugin.getCurrentStatus());
 		ESExporterScrollHandler<MetaMap> esExporterScrollHandler = new ESExporterScrollHandler<MetaMap>(importContext,
 				es2DBDataTran);
@@ -266,9 +266,17 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 			jdbcResultSet.reachEend();
 			try {
 				countDownLatch.await();
+
 			} catch (InterruptedException e) {
 				if(logger.isErrorEnabled())
 					logger.error("",e);
+			}
+			Throwable exception = countDownLatch.getException();
+			if(exception != null){
+				if(exception instanceof DataImportException)
+					throw (DataImportException)exception;
+				else
+					throw new DataImportException(exception);
 			}
 		}
 

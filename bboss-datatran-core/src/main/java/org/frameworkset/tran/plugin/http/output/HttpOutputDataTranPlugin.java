@@ -22,6 +22,7 @@ import org.frameworkset.elasticsearch.template.DSLParserException;
 import org.frameworkset.elasticsearch.template.TemplateMeta;
 import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
@@ -34,7 +35,6 @@ import org.frameworkset.util.ResourceStartResult;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>Description: </p>
@@ -124,7 +124,7 @@ public class HttpOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 
 
 
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch, Status currentStatus){
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus){
 		BaseDataTran db2ESDataTran = new HttpOutPutDataTran(  taskContext,   tranResultSet,   importContext,   countDownLatch,   currentStatus);
 		db2ESDataTran.initTran();
 		return db2ESDataTran;

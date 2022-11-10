@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.file.output;
  */
 
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.output.fileftp.FailedResend;
@@ -26,8 +27,6 @@ import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>Description: file Log to file and ftp data tran plugin </p>
@@ -94,7 +93,7 @@ public class FileOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 	}
 
 
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, CountDownLatch countDownLatch, Status currentStatus){
+	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus){
 		FileFtpOutPutDataTran fileFtpOutPutDataTran = FileFtpOutPutUtil.buildFileFtpOutPutDataTran(taskContext,tranResultSet,importContext,  countDownLatch,   currentStatus);
 		fileFtpOutPutDataTran.initTran();
 		return fileFtpOutPutDataTran;
