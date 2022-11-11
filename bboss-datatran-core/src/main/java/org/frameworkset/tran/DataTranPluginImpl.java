@@ -315,9 +315,15 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			try{
 				callInterceptor.preCall(taskContext);
 			}
+			catch (DataImportException e){
+//				logger.error("preCall failed:",e);
+//				throwException(taskContext, new PreCallException("preCall failed:",e));
+				throw new PreCallException(e);
+			}
 			catch (Exception e){
-				logger.error("preCall failed:",e);
-				throwException(taskContext, new PreCallException("preCall failed:",e));
+//				logger.error("preCall failed:",e);
+//				throwException(taskContext, new PreCallException("preCall failed:",e));
+				throw new PreCallException(e);
 			}
 		}
 		TranUtil.initTaskContextSQLInfo(taskContext, importContext);

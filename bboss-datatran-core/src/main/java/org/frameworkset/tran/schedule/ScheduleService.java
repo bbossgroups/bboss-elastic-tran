@@ -15,6 +15,7 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.timer.ScheduleTimer;
@@ -85,9 +86,16 @@ public class ScheduleService {
 			try{
 				callInterceptor.preCall(taskContext);
 			}
+
+			catch (DataImportException e){
+//				logger.error("preCall failed:",e);
+//				throwException(taskContext, new PreCallException("preCall failed:",e));
+				throw new PreCallException(e);
+			}
 			catch (Exception e){
-				logger.error("preCall failed:",e);
-				throwException(taskContext, new PreCallException("preCall failed:",e));
+//				logger.error("preCall failed:",e);
+//				throwException(taskContext, new PreCallException("preCall failed:",e));
+				throw new PreCallException(e);
 			}
 		}
 
@@ -227,6 +235,7 @@ public class ScheduleService {
 		TaskContext taskContext = isEnablePluginTaskIntercept()?new TaskContext(importContext):null;
 
 		long importStartTime = System.currentTimeMillis();
+		Exception exception = null;
 		try {
 			if(isEnablePluginTaskIntercept())
 				preCall(taskContext);
@@ -235,14 +244,23 @@ public class ScheduleService {
 				afterCall(taskContext);
 		}
 		catch (Exception e){
+			exception = e;
 			if(isEnablePluginTaskIntercept())
 				throwException(taskContext,e);
 			logger.error("scheduleImportData failed:",e);
 		}
 		finally {
 			long importEndTime = System.currentTimeMillis();
-			if(importContext != null && this.importContext.isPrintTaskLog() && logger.isInfoEnabled())
-				logger.info(new StringBuilder().append("Execute schedule job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
+
+				if (logger.isInfoEnabled()) {
+					if(exception == null) {
+						logger.info(new StringBuilder().append("Execute schedule job finished ,Take ").append((importEndTime - importStartTime)).append(" ms").toString());
+					}
+					else{
+						logger.info(new StringBuilder().append("Execute schedule job finished with exception, Take ").append((importEndTime - importStartTime)).append(" ms").toString());
+					}
+				}
+
 		}
 
 
