@@ -78,14 +78,14 @@ public abstract class TranUtil {
 	}*/
 
 	private static  TranSQLInfo buildTranSQLInfo(String sqlName,boolean issql,String sqlFilepath, String dbname){
+		if(sqlName == null || sqlName.equals(""))
+			return null;
 		TranSQLInfo sqlInfo = new TranSQLInfo();
 		SQLInfo sqlinfo = null;
 		ConfigSQLExecutor configSQLExecutor = null;
 		try {
 			if(issql) {
-
-				if(sqlName != null)
-					sqlinfo = GloableSQLUtil.getGlobalSQLUtil().getSQLInfo(sqlName);
+				sqlinfo = GloableSQLUtil.getGlobalSQLUtil().getSQLInfo(sqlName);
 			}
 			else{
 				configSQLExecutor = new ConfigSQLExecutor(sqlFilepath);
