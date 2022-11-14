@@ -23,8 +23,9 @@ public abstract class BaseQuartzDatasynJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
+        lock.lock();
         try {
-            lock.lock();
+
             if(!inited){
                 try {
                     buildJob();

@@ -30,8 +30,9 @@ public class ExportCount {
 	private int tasks;
 
 	public int increamentCount() {
+		lock.lock();
 		try {
-			lock.lock();
+
 			tasks ++;
 			return tasks;
 		}finally {

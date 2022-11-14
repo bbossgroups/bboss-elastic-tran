@@ -36,8 +36,9 @@ public abstract class AbstractXXLJobHandler extends IJobHandler {
 	private Lock lock = new ReentrantLock();
 	public abstract void init();
 	public ReturnT<String> execute(String param){
+		lock.lock();
 		try {
-			lock.lock();
+
 			externalScheduler.execute(  param);
 			return SUCCESS;
 		}

@@ -38,8 +38,9 @@ public abstract class AbstractXXLJobHandler extends IJobHandler {
 	public abstract void init();
 	@Override
 	public void execute(){
+		lock.lock();
 		try {
-			lock.lock();
+
 			String param = XxlJobHelper.getJobParam();
 			externalScheduler.execute(  param);
 

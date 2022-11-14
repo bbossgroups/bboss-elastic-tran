@@ -66,8 +66,9 @@ public class StoppedThread extends Thread{
 	public void stopThread(){
 		if(this.stopped)
 			return;
+		lock.lock();
 		try{
-			lock.lock();
+
 			if(stopped)
 				return;
 			this.stopped = true;

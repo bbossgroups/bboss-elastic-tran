@@ -86,8 +86,9 @@ public class TaskContext {
 	}
 
 	public void taskExecuteMetric(JobExecuteMetric jobExecuteMetric){
+		lock.lock();
 		try {
-			lock.lock();
+
 			jobExecuteMetric.executeMetric(jobTaskMetrics);
 		}
 		catch (Exception e){
@@ -105,8 +106,9 @@ public class TaskContext {
 	}
 
 	public Object readJobExecutorData(String name){
+		lock.lock();
 		try {
-			lock.lock();
+
 			return jobTaskMetrics.readJobExecutorData(name);
 		}
 		catch (Exception e){

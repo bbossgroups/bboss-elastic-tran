@@ -37,8 +37,9 @@ public class ParallImportCount extends ImportCount{
 		super(  baseDataTran);
 	}
 	public long getTotalCount() {
+		readLock.lock();
 		try {
-			readLock.lock();
+
 			return totalCount;
 		}
 		finally {
@@ -47,9 +48,9 @@ public class ParallImportCount extends ImportCount{
 	}
 
 	public long getFailedCount() {
-
+		readLock.lock();
 		try {
-			readLock.lock();
+
 			return failedCount;
 		}
 		finally {
@@ -59,8 +60,9 @@ public class ParallImportCount extends ImportCount{
 
 
 	public long getIgnoreTotalCount() {
+		readLock.lock();
 		try {
-			readLock.lock();
+
 			return ignoreTotalCount;
 		}
 		finally {
@@ -69,8 +71,9 @@ public class ParallImportCount extends ImportCount{
 
 	}
 	public long[] increamentFailedCount(long failedCount) {
+		writeLock.lock();
 		try {
-			writeLock.lock();
+
 			this.failedCount = failedCount+this.failedCount;
 			this.totalCount = totalCount + failedCount;
 			return new long[]{this.failedCount,this.totalCount};
@@ -79,8 +82,9 @@ public class ParallImportCount extends ImportCount{
 		}
 	}
 	public long increamentIgnoreTotalCount() {
+		writeLock.lock();
 		try {
-			writeLock.lock();
+
 			this.ignoreTotalCount ++;
 			this.totalCount ++;
 			return ignoreTotalCount;
@@ -91,8 +95,9 @@ public class ParallImportCount extends ImportCount{
 
 
 	public long getSuccessCount() {
+		readLock.lock();
 		try {
-			readLock.lock();
+
 			return successCount;
 		}
 		finally {
@@ -101,8 +106,9 @@ public class ParallImportCount extends ImportCount{
 
 	}
 	public long[] increamentSuccessCount(long successCount) {
+		writeLock.lock();
 		try {
-			writeLock.lock();
+
 			this.successCount = this.successCount+successCount;
 			this.totalCount = totalCount + successCount;
 			return new long[]{this.successCount,this.totalCount};

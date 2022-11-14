@@ -36,8 +36,9 @@ public abstract class AbstractQuartzJobHandler {
 	private Lock lock = new ReentrantLock();
 	public abstract void init();
 	public void execute(){
+		lock.lock();
 		try {
-			lock.lock();
+
 			externalScheduler.execute(null);
 
 		}

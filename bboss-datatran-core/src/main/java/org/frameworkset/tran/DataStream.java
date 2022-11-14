@@ -223,9 +223,9 @@ public class DataStream {
 				|| importContext.getInputConfig() == null || importContext.getOutputConfig() == null){
 			throw new DataImportException("import Config is null.");
 		}
-
+		lock.lock();
 		try {
-			lock.lock();
+
 			/** 1122
 			this.importContext = this.buildImportContext(importConfig);
 			 */

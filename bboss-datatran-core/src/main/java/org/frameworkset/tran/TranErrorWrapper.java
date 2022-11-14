@@ -44,8 +44,9 @@ public class TranErrorWrapper {
 	}
 	public void setError(Exception error) {
 		if(this.error == null) {//only set the first exception
+			lock.lock();
 			try {
-				lock.lock();
+
 				if (this.error == null) {//only set the first exception
 					this.error = error;
 //					dataTranPlugin.setErrorWrapper(this);

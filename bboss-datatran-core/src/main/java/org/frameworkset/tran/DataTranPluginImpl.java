@@ -625,8 +625,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	 */
 	private AtomicInteger tranCounts = new AtomicInteger(0);
 	public void setHasTran(){
+		lock.lock();
 		try {
-			lock.lock();
+
 			tranCounts.incrementAndGet();
 			this.hasTran = true;
 			status = TranConstant.PLUGIN_START;
@@ -657,9 +658,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 	}
 	public void setNoTran(){
-
+		lock.lock();
 		try {
-			lock.lock();
+
 			int count = tranCounts.decrementAndGet();
 			if(count <= 0) {
 				this.hasTran = false;
@@ -674,8 +675,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		return inputPlugin.isStopCollectData();
 	}
 	public boolean isPluginStopAppending(){
+		lock.lock();
 		try {
-			lock.lock();
+
 			return status == TranConstant.PLUGIN_STOPAPPENDING;
 		}
 		finally {
@@ -683,8 +685,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 	}
 	public boolean isPluginStopREADY(){
+		lock.lock();
 		try {
-			lock.lock();
+
 			return status == TranConstant.PLUGIN_STOPREADY;
 		}
 		finally {
@@ -692,8 +695,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 	}
 	public boolean checkTranToStop(){
+		lock.lock();
 		try {
-			lock.lock();
+
 			return status == TranConstant.PLUGIN_STOPAPPENDING
 				|| status == TranConstant.PLUGIN_STOPREADY || status == TranConstant.PLUGIN_STOPPED || hasTran == false;
 		}

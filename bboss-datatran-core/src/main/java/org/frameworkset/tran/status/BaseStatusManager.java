@@ -80,8 +80,9 @@ public abstract class BaseStatusManager implements StatusManager {
 	protected abstract void _putStatus(Status currentStatus);
 
 	public void putStatus(Status currentStatus) throws Exception{
+		read.lock();
 		try{
-			read.lock();
+
 			_putStatus( currentStatus);
 //			if(flushThread.reach())
 //				flushThread.notify();
@@ -92,8 +93,9 @@ public abstract class BaseStatusManager implements StatusManager {
 	}
 	protected abstract void _flushStatus() throws Exception;
 	public void flushStatus(){
+		write.lock();
 		try {
-			write.lock();
+
 			_flushStatus();
 		} catch (Exception throwables) {
 			logger.error("flushStatus failed:statusDbname["+statusDbname+"],updateSQL["+updateSQL+"]",throwables);

@@ -41,9 +41,9 @@ public class WrapperXXLJobHandler extends IJobHandler {
 	public void init() {
 		if(inited )
 			return;
-
+		lock.lock();
 		try {
-			lock.lock();
+
 			if(inited )
 				return;
 			try {

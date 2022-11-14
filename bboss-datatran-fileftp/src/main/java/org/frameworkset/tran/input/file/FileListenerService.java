@@ -73,8 +73,9 @@ public class FileListenerService {
 
     }
     public void moveTaskToComplete(FileReaderTask fileReaderTask){
+        lock.lock();
         try {
-            lock.lock();
+
             fileConfigMap.remove(fileReaderTask.getFileId());
             this.completedTasks.put(fileReaderTask.getFileId(), fileReaderTask);
 
@@ -122,8 +123,9 @@ public class FileListenerService {
 //    }
 
     public void addCompletedFileTask(String fileId,FileReaderTask fileReaderTask){
+        lock.lock();
         try {
-            lock.lock();
+
             completedTasks.put(fileId,fileReaderTask);
         }
         finally {
@@ -133,8 +135,9 @@ public class FileListenerService {
     }
 
     public void addOldedFileTask(String fileId,FileReaderTask fileReaderTask){
+        lock.lock();
         try {
-            lock.lock();
+
             oldedTasks.put(fileId,fileReaderTask);
         }
         finally {
@@ -143,8 +146,9 @@ public class FileListenerService {
 
     }
     public void addFileTask(String fileId,FileReaderTask fileReaderTask){
+        lock.lock();
         try {
-            lock.lock();
+
             fileConfigMap.put(fileId,fileReaderTask);
         }
         finally {
@@ -157,8 +161,9 @@ public class FileListenerService {
     //文件删除linux环境 文件删除了确实是文件删除了
     //window 环境无法判断 直接remove调
     public  void doDelete(String fileId) {
+        lock.lock();
         try {
-            lock.lock();
+
             FileReaderTask fileReaderTask = fileConfigMap.remove(fileId);
             /**
             if(fileReaderTask != null){
@@ -216,9 +221,10 @@ public class FileListenerService {
 
     public void checkTranFinished() {
         Map<String,FileReaderTask> copyFileConfigMap = null;
+        lock.lock();
         try {
 
-            lock.lock();
+
             copyFileConfigMap = new HashMap<String, FileReaderTask>();
             copyFileConfigMap.putAll(fileConfigMap);
 
@@ -256,8 +262,9 @@ public class FileListenerService {
     public void checkNewFile(String relativeParentDir,File file,FileConfig fileConfig) {
 
         String fileId = FileInodeHandler.inode(file,fileConfig.isEnableInode());
+        lock.lock();
         try {
-            lock.lock();
+
             if(this.dataTranPlugin.isPluginStopAppending())
                 return;
             FileReaderTask fileReaderTask = fileConfigMap.get(fileId);
@@ -447,8 +454,9 @@ public class FileListenerService {
         final String fileId = FileInodeHandler.change(handleFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
         boolean isNewFile = false;
         boolean isDowning = false;
+        lock.lock();
         try {
-            lock.lock();
+
             if(this.dataTranPlugin.isPluginStopAppending() )
                 return;
             isNewFile = checkFileIdIsNew(fileId);
@@ -494,8 +502,9 @@ public class FileListenerService {
      * @param fileId
      */
     private void removeDownTrace(String fileId){
+        lock.lock();
         try{
-            lock.lock();
+
             downLoadTraces.remove(fileId);
         }
         finally {
@@ -592,9 +601,9 @@ public class FileListenerService {
             }
         }
         //创建新的采集任务
-
+        lock.lock();
         try {
-            lock.lock();
+
             //检查作业是否已经停止
             if (this.dataTranPlugin.isPluginStopAppending() )
                 return;
@@ -645,8 +654,9 @@ public class FileListenerService {
 
     public void stopWorks(){
         Map temp = new LinkedHashMap();
+        lock.lock();
         try{
-            lock.lock();
+
             temp.putAll(fileConfigMap);
         }
         finally {
