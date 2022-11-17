@@ -8,6 +8,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
+import org.frameworkset.tran.file.monitor.FileManager;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.file.input.FileInputConfig;
@@ -64,8 +65,8 @@ public class FileReaderTask extends FieldManager{
      */
     private boolean jsondata ;
     protected Thread worker ;
-    protected long oldLastModifyTime = -1l;
-    protected long checkFileModifyInterval = 1000l;
+    protected long oldLastModifyTime = -1L;
+    protected long checkFileModifyInterval = 1000L;
     protected long closeOlderTime ;
     protected CloseOldedFileAssert closeOldedFileAssert;
 
@@ -226,6 +227,7 @@ public class FileReaderTask extends FieldManager{
     public boolean isEnableInode(){
         return fileInfo.getFileConfig().isEnableInode();
     }
+
     public class Work implements Runnable{
 
         @Override
@@ -234,7 +236,7 @@ public class FileReaderTask extends FieldManager{
             boolean olded = false;
             File file = fileInfo.getFile();
             String fileId = fileInfo.getFileId();
-            long pauseScheduleTimeStamp = 0l;
+            long pauseScheduleTimeStamp = 0L;
             DataTranPlugin dataTranPlugin = fileListenerService.getBaseDataTranPlugin();
             InputPlugin inputPlugin = dataTranPlugin.getInputPlugin();
             do {
@@ -243,19 +245,19 @@ public class FileReaderTask extends FieldManager{
                 }
                 if(file.exists()){
 
-                    long lastModifyTime = file.lastModified();
-                    if(oldLastModifyTime == -1l){
+                    long lastModifyTime = FileManager.getFileLastTimestamp(file);
+                    if(oldLastModifyTime == -1L){
                         oldLastModifyTime = lastModifyTime;
                         execute();
                         continue;
                     }
                     else if(oldLastModifyTime == lastModifyTime){
                         long idleTime = System.currentTimeMillis() - oldLastModifyTime;
-                        if(pauseScheduleTimeStamp > 0l){//计算暂停时间,并将暂停时间从空闲时间中剔除
+                        if(pauseScheduleTimeStamp > 0L){//计算暂停时间,并将暂停时间从空闲时间中剔除
                             long pauseScheduleTime = System.currentTimeMillis() - pauseScheduleTimeStamp;
                             idleTime = idleTime - pauseScheduleTime;
                         }
-                        if(closeOlderTime > 0l && idleTime >= closeOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
+                        if(closeOlderTime > 0L && idleTime >= closeOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
 
                             if(closeOldedFileAssert == null) {
 
@@ -278,7 +280,7 @@ public class FileReaderTask extends FieldManager{
                                 break;
                             }
                         }
-                        if(ignoreOlderTime > 0l && idleTime >= ignoreOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
+                        if(ignoreOlderTime > 0L && idleTime >= ignoreOlderTime){//已经超过指定的最大空闲静默时间，停止文件监控作业
 //                            logger.info("file[{}|{}] idleTime:{},ignoreOlderTime:{}",fileInfo.getFilePath(),fileInfo.getFileId(),idleTime,ignoreOlderTime);
 
 
@@ -299,7 +301,7 @@ public class FileReaderTask extends FieldManager{
                         if(closeOldedFileAssert != null) {
                             olded = closeOldedFileAssert.canClose(fileInfo);
                             if(olded){
-                                logger.info("备份日志文件[新：{}|{},老:{}]内容已经采集完毕，停止本文件采集作业.",
+                                logger.info("日志文件[新：{}|{},老:{}]内容已经采集完毕，停止本文件采集作业.",
                                         fileInfo.getFilePath(),fileInfo.getFileId(),fileInfo.getOriginFilePath());
                                 break;
                             }
@@ -307,7 +309,7 @@ public class FileReaderTask extends FieldManager{
                         if(ignoreFileAssert != null) {
                             olded = ignoreFileAssert.canIgnore(fileInfo);
                             if(olded){
-                                logger.info("备份日志文件[新：{}|{},老:{}]内容已经采集完毕，停止本文件采集作业.",
+                                logger.info("日志文件[新：{}|{},老:{}]内容已经采集完毕，停止本文件采集作业.",
                                         fileInfo.getFilePath(),fileInfo.getFileId(),fileInfo.getOriginFilePath());
                                 break;
                             }
@@ -333,7 +335,7 @@ public class FileReaderTask extends FieldManager{
                             continue;
                         }
                         else{
-                            pauseScheduleTimeStamp = 0l;
+                            pauseScheduleTimeStamp = 0L;
                         }
                         if(fileRenamed(file)) //文件重命名，等待文件被清理重新更新新的File对象
                         {
@@ -355,7 +357,7 @@ public class FileReaderTask extends FieldManager{
                         }
                         oldLastModifyTime = lastModifyTime;
                         execute();
-                        if(sleepAwaitTimeAfterFetch <= 0l && sleepAwaitTimeAfterCollect > 0l){
+                        if(sleepAwaitTimeAfterFetch <= 0L && sleepAwaitTimeAfterCollect > 0L){
 							try {
 								sleep(sleepAwaitTimeAfterCollect);//采集完毕后休息一会儿再继续
 							} catch (InterruptedException e) {
@@ -522,12 +524,12 @@ public class FileReaderTask extends FieldManager{
 	 * 单位：毫秒
 	 * 从文件采集（fetch）一个batch的数据后，休息一会，避免cpu占用过高，在大量文件同时采集时可以设置，大于0有效，默认值0
 	 */
-	protected long sleepAwaitTimeAfterFetch = 0l;
+	protected long sleepAwaitTimeAfterFetch = 0L;
 	/**
 	 * 单位：毫秒
 	 * 从文件采集完成一个任务后，休息一会，避免cpu占用过高，在大量文件同时采集时可以设置，大于0有效，默认值0
 	 */
-	protected long sleepAwaitTimeAfterCollect = 0l;
+	protected long sleepAwaitTimeAfterCollect = 0L;
     protected void execute() {
         boolean reachEOFClosed = false;
         File file = fileInfo.getFile();
@@ -544,7 +546,7 @@ public class FileReaderTask extends FieldManager{
                     //文件重新写了，则需要重新读取
                     if(pointer > raf.length()){
                         pointer = 0;
-                        this.currentStatus.setLastValue(0l);
+                        this.currentStatus.setLastValue(0L);
                     }
                     raf.seek(pointer);
                     this.raf = raf;
@@ -1014,7 +1016,7 @@ public class FileReaderTask extends FieldManager{
         return fileDataTran;
     }
     protected void fetchAwaitSleep() throws InterruptedException{
-        if(sleepAwaitTimeAfterFetch > 0l) {
+        if(sleepAwaitTimeAfterFetch > 0L) {
             try {
                 sleep(sleepAwaitTimeAfterFetch);
             } catch (InterruptedException e) {

@@ -69,4 +69,12 @@ public class FileManager {
 
 
 	}
+
+	public static long getFileLastTimestamp(File file){
+		//{creationTime,lastModifiedTime,lastAccessTime};
+		long[] fileTimestamps = FileManager.getFileTimestamps(file);
+		if(fileTimestamps == null)
+			return -1;
+		return fileTimestamps[1] >= fileTimestamps[0]? fileTimestamps[1]:fileTimestamps[0];
+	}
 }

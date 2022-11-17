@@ -121,10 +121,10 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 			 * 已经完成的任务
 			 */
 			List<Status> completed = new ArrayList<Status>();
-			/**
-			 * 已经过期的任务，修改状态为已完成
-			 */
-			List<Status> olded = new ArrayList<Status>();
+//			/**
+//			 * 已经过期的任务，修改状态为已完成
+//			 */
+//			List<Status> olded = new ArrayList<Status>();
 			for(Status status : statuses){
 				status.setRealPath(status.getFilePath());
 				//判断任务是否已经完成，如果完成，则对任务进行相应处理
@@ -312,12 +312,13 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 					}
 				});
 			}
-			if(completed.size() > 0 && fileInputConfig.getRegistLiveTime() != null){
-				handleCompletedTasks(completed ,false,fileInputConfig.getRegistLiveTime());
+			long registLiveTime = fileInputConfig.getRegistLiveTime() != null?fileInputConfig.getRegistLiveTime():0L;
+			if(completed.size() > 0 && registLiveTime > 0L){
+				handleCompletedTasks(completed ,false,registLiveTime);
 			}
-			if(olded.size() > 0){
-				handleOldedTasks(olded);
-			}
+//			if(olded.size() > 0){
+//				handleOldedTasks(olded);
+//			}
 		} catch (DataImportException e) {
 			throw e;
 		} catch (Exception e) {

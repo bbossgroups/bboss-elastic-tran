@@ -4,6 +4,7 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
+import org.frameworkset.tran.file.monitor.FileManager;
 import org.frameworkset.tran.ftp.BackupSuccessFilesClean;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.input.file.*;
@@ -29,6 +30,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
     protected FileListenerService fileListenerService;
     protected LogDirsScanThread logDirsScanThread ;
     private BackupSuccessFilesClean backupSuccessFilesClean;
+    private CompleteFileCleanTask completeFileCleanTask;
 //    protected FileListener fileListener;
 //    protected List<FileAlterationObserver> observerList = new ArrayList<FileAlterationObserver>();
     public FileInputDataTranPlugin(ImportContext importContext) {
@@ -223,8 +225,12 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
     public void destroy(boolean waitTranStop){
 
         fileListenerService.checkTranFinished();//检查所有的作业是否已经结束，并等待作业结束
-        if(backupSuccessFilesClean != null)
+        if(backupSuccessFilesClean != null) {
             this.backupSuccessFilesClean.stop();
+        }
+        if(completeFileCleanTask != null){
+            completeFileCleanTask.stopThread();
+		}
     }
 
 
@@ -255,21 +261,39 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
 
     @Override
     public void afterInit(){
-
-        synchronized (BackupSuccessFilesClean.class) {
-            if(backupSuccessFilesClean == null){
-                if (fileInputConfig != null) {
-                    if (fileInputConfig.isBackupSuccessFiles()) {
+        if (fileInputConfig != null) {
+            if (fileInputConfig.isBackupSuccessFiles()) {
+                synchronized (BackupSuccessFilesClean.class) {
+                    if(backupSuccessFilesClean == null){
                         String backupSuccessFileDir = fileInputConfig.getBackupSuccessFileDir();
                         if (backupSuccessFileDir == null || backupSuccessFileDir.equals("")) {
-                            logger.warn("开启了备份成功文件机制，但是没有指定备份目录，忽略备份功能，请检查并设置backupSuccessFileDir");
+                            logger.warn("开启了备份文件机制，但是没有指定备份目录，请检查fileInputConfig并设置backupSuccessFileDir");
+                            throw new FilelogPluginException("开启了备份成功文件机制，但是没有指定备份目录，请检查fileInputConfig并设置backupSuccessFileDir");
                         } else {
-                            boolean backupEnable = fileInputConfig.getBackupSuccessFileInterval() > 0 && fileInputConfig.getBackupSuccessFileLiveTime() > 0;
+                            boolean backupEnable = fileInputConfig.getBackupSuccessFileInterval() > 0L && fileInputConfig.getBackupSuccessFileLiveTime() > 0L;
                             if (backupEnable) {
+                                logger.info("启动备份文件清理线程，BackupSuccessFileChekInterval[{}毫秒，失效备份文件扫描时间间隔]和BackupSuccessFileLiveTime[{}毫秒，备份文件存活时间]",fileInputConfig.getBackupSuccessFileInterval(),fileInputConfig.getBackupSuccessFileLiveTime());
                                 backupSuccessFilesClean = new BackupSuccessFilesClean(fileInputConfig);
                                 backupSuccessFilesClean.start();
                             }
+                            else{
+                                logger.warn("参数设置不正确：开启了备份成功文件机制，BackupSuccessFileChekInterval[{}毫秒，失效备份文件扫描时间间隔]和BackupSuccessFileLiveTime[{}毫秒，备份文件存活时间],二者都大于0时才能启用备份文件清理功能！",fileInputConfig.getBackupSuccessFileInterval(),fileInputConfig.getBackupSuccessFileLiveTime());
+                                throw new FilelogPluginException("参数设置不正确：开启了备份成功文件机制，BackupSuccessFileChekInterval["+fileInputConfig.getBackupSuccessFileInterval()+"毫秒，失效备份文件扫描时间间隔]和BackupSuccessFileLiveTime["+fileInputConfig.getBackupSuccessFileLiveTime()+"毫秒，备份文件存活时间],二者都大于0时才能启用备份文件清理功能！");
+                            }
                         }
+                    }
+                }
+            }
+            else if(fileInputConfig.isCleanCompleteFiles()){
+                if(fileInputConfig.getFileLiveTime() <= 0L){
+                    logger.warn("开启了清理采集完毕文件机制，但是没有正确设置FileLiveTime["+fileInputConfig.getFileLiveTime()+"]，必须指定一个大于0的文件存活时间，单位：毫秒，请检查fileInputConfig并设置FileLiveTime");
+                    throw new FilelogPluginException("开启了清理采集完毕文件机制，但是没有正确设置FileLiveTime["+fileInputConfig.getFileLiveTime()+"]，必须指定一个大于0的文件存活时间，单位：毫秒，请检查fileInputConfig并设置FileLiveTime");
+                }
+                synchronized (CompleteFileCleanTask.class){
+                    if(completeFileCleanTask == null){
+                        completeFileCleanTask = new CompleteFileCleanTask(importContext);
+                        completeFileCleanTask.start();
+                        logger.info("开启清理采集完毕文件机制，采集完毕文件保留有效期:{}毫秒",fileInputConfig.getFileLiveTime());
                     }
                 }
             }
@@ -292,6 +316,24 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
         return fileConfig.getFtpConfig();
 
     }
+
+    /**
+     * 判断文件是否已经采集完毕并且已经过期，如果是则加入到过期清理清单
+     * @param checkResult
+     * @param file
+     */
+    public void handleCompleteFiles(int checkResult,File file){
+        if(completeFileCleanTask != null) {
+            if (checkResult == FileCheckResult.FileCheckResult_CompleteFile || checkResult == FileCheckResult.FileCheckResult_OldFile) {
+                long lastModifyTime = FileManager.getFileLastTimestamp(file);
+                long limit = System.currentTimeMillis() - fileInputConfig.getFileLiveTime();
+                if (lastModifyTime <= limit) {
+                    completeFileCleanTask.addFile(file);
+                }
+            }
+        }
+
+    }
     private LogDirScan logDirScanThread(LogDirsScanThread logDirsScanThread, FileConfig fileConfig ){
         LogDirScan logDirScan = null;
         FtpConfig ftpConfig = getFtpConfig(fileConfig);
@@ -300,16 +342,18 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
             if(ftpConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
                 logDirScan = new FtpLogDirScan(logDirsScanThread,
                         fileConfig, getFileListenerService());
+                logDirScan.setRemote(true);
             }
             else{
                 logDirScan = new SFtpLogDirScan(logDirsScanThread,
                         fileConfig, getFileListenerService());
+                logDirScan.setRemote(true);
             }
 
         } else {
             logDirScan = new LogDirScan(logDirsScanThread,
                     fileConfig, getFileListenerService());
-
+            logDirScan.setRemote(false);
         }
         return logDirScan;
     }

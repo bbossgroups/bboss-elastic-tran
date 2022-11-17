@@ -1,11 +1,14 @@
 package org.frameworkset.tran.input.file;
 
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.plugin.file.input.FileInputDataTranPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 扫描新增日志文件
@@ -13,11 +16,13 @@ import java.io.FilenameFilter;
  * @description
  * @create 2021/3/23
  */
-public class LogDirScan {
+public class LogDirScan implements LogDirScanInf{
     private Logger logger = LoggerFactory.getLogger(LogDirScan.class);
     protected FileConfig fileConfig;
     protected LogDirsScanThread logDirsScanThread;
     protected FileListenerService fileListenerService;
+    private boolean remote;
+    private FileInputDataTranPlugin fileInputDataTranPlugin;
 
 
     /**
@@ -30,6 +35,7 @@ public class LogDirScan {
         this.fileConfig = fileConfig;
         this.fileListenerService = fileListenerService;
         this.logDirsScanThread = logDirsScanThread;
+        this.fileInputDataTranPlugin = fileListenerService.getFileInputDataTranPlugin();
     }
 
 
@@ -43,6 +49,7 @@ public class LogDirScan {
     /**
      * 识别新增的文件，如果有新增文件，将启动新的文件采集作业
      */
+    @Override
     public void scanNewFile(){
 
         if(logger.isDebugEnabled()){
@@ -50,6 +57,7 @@ public class LogDirScan {
         }
         File logDir = fileConfig.getLogDir();
         FilenameFilter filter = fileConfig.getFilter();
+        List<File> completeFiles = new ArrayList<>();
         if(logDir.isDirectory() && logDir.exists()){
             File[] files = logDir.listFiles(filter);
             File file = null;
@@ -60,7 +68,8 @@ public class LogDirScan {
                 file = files[i];
 
                 if(file.isFile() && file.exists()) {
-                    fileListenerService.checkNewFile("",file,fileConfig);
+                    int checkResult = fileListenerService.checkNewFile("",file,fileConfig);
+                    fileListenerService.getFileInputDataTranPlugin().handleCompleteFiles(checkResult,file);
                 }
                 else if (fileConfig.isScanChild()){ //如果需要扫描子目录
                     scanSubDirNewFile(file.getName(),file);
@@ -86,7 +95,8 @@ public class LogDirScan {
                 }
                 file = files[i];
                 if(file.isFile() && file.exists()) {
-                    fileListenerService.checkNewFile(relativeParent,file,fileConfig);
+                    int checkResult = fileListenerService.checkNewFile(relativeParent,file,fileConfig);
+                    fileListenerService.getFileInputDataTranPlugin().handleCompleteFiles(checkResult,file);
                 }
                 else if (fileConfig.isScanChild()){ //如果需要扫描子目录
                     scanSubDirNewFile(SimpleStringUtil.getPath(relativeParent,file.getName()),file);
@@ -96,5 +106,13 @@ public class LogDirScan {
         else{
             logger.info("{} must be a directory or must be exists.",logDir.getAbsolutePath());
         }
+    }
+
+    public boolean isRemote() {
+        return remote;
+    }
+
+    public void setRemote(boolean remote) {
+        this.remote = remote;
     }
 }

@@ -77,5 +77,9 @@ public class StoppedThread extends Thread{
 			lock.unlock();
 		}
 		this.interrupt();
+		try {
+			this.join();
+		} catch (InterruptedException e) {
+		}
 	}
 }

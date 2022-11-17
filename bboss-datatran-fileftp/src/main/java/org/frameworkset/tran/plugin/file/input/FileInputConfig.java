@@ -42,20 +42,20 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
     private boolean enableMeta;
     private String charsetEncode = "UTF-8";
     private List<FileConfig> fileConfigList;
-    private long checkFileModifyInterval = 2000l;
+    private long checkFileModifyInterval = 2000L;
     /**
      * 单位：毫秒
      * 从文件采集（fetch）一个batch的数据后，休息一会，避免cpu占用过高，在大量文件同时采集时可以设置，大于0有效，默认值0
      */
-    protected long sleepAwaitTimeAfterFetch = 0l;
+    protected long sleepAwaitTimeAfterFetch = 0L;
     /**
      * 单位：毫秒
      * 从文件采集完成一个任务后，休息一会，避免cpu占用过高，在大量文件同时采集时可以设置，大于0有效，默认值0
      */
-    protected long sleepAwaitTimeAfterCollect = 0l;
-    public TimerScheduleConfig getTimerScheduleConfig() {
-        return timerScheduleConfig;
-    }
+    protected long sleepAwaitTimeAfterCollect = 0L;
+
+
+
 
     private TimerScheduleConfig timerScheduleConfig;
     /**
@@ -73,12 +73,21 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
      * 备份文件清理线程执行时间间隔，单位：毫秒
      * 默认每隔10秒执行一次
      */
-    private long backupSuccessFileInterval = 10000l;
+    private long backupSuccessFileInterval = 10000L;
     /**
      * 备份文件保留时长，单位：秒
      * 默认保留7天
      */
-    private long backupSuccessFileLiveTime = 7 * 24 * 60 * 60l;
+    private long backupSuccessFileLiveTime = 7 * 24 * 60 * 60L;
+
+    /**
+     * 清理采集完毕文件,backupSuccessFiles为false时，配置后起作用
+     */
+    protected boolean cleanCompleteFiles;
+    /**
+     * cleanCompleteFiles为true时且fileLiveTime大于0时，对于采集完毕的文件如果超过有效期后进行清理
+     */
+    protected long fileLiveTime = 0L;
     /**
      * 否采用外部新文件扫描调度机制：jdk timer,quartz,xxl-job
      *     true 采用，false 不采用，默认false
@@ -359,5 +368,26 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
     public DataTranPlugin buildDataTranPlugin(ImportContext importContext){
         DataTranPlugin dataTranPlugin = new FileDataTranPluginImpl(importContext);
         return dataTranPlugin;
+    }
+
+    public long getFileLiveTime() {
+        return fileLiveTime;
+    }
+
+    public FileInputConfig setFileLiveTime(long fileLiveTime) {
+        this.fileLiveTime = fileLiveTime;
+        return this;
+    }
+    public TimerScheduleConfig getTimerScheduleConfig() {
+        return timerScheduleConfig;
+    }
+
+    public boolean isCleanCompleteFiles() {
+        return cleanCompleteFiles;
+    }
+
+    public FileInputConfig setCleanCompleteFiles(boolean cleanCompleteFiles) {
+        this.cleanCompleteFiles = cleanCompleteFiles;
+        return this;
     }
 }

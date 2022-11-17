@@ -52,6 +52,9 @@ public class FileListenerService {
 
     }
 
+    public FileInputDataTranPlugin getFileInputDataTranPlugin() {
+        return fileInputDataTranPlugin;
+    }
 
     public ImportContext getImportContext() {
         return importContext;
@@ -259,24 +262,24 @@ public class FileListenerService {
 
     }
 
-    public void checkNewFile(String relativeParentDir,File file,FileConfig fileConfig) {
+    public int checkNewFile(String relativeParentDir,File file,FileConfig fileConfig) {
 
         String fileId = FileInodeHandler.inode(file,fileConfig.isEnableInode());
         lock.lock();
         try {
 
-            if(this.dataTranPlugin.isPluginStopAppending())
-                return;
+            if(this.dataTranPlugin.isPluginStopAppending())//任务处于停止状态，不再检测新文件
+                return FileCheckResult.FileCheckResult_StopTask;
             FileReaderTask fileReaderTask = fileConfigMap.get(fileId);
 
             if (fileReaderTask == null) {
                 if(this.completedTasks.containsKey(fileId)) {//作业已经完成
                     logger.debug("Ignore complete file {}",file.getAbsolutePath());
-                    return;
+                    return FileCheckResult.FileCheckResult_CompleteFile;
                 }
                 if(this.oldedTasks.containsKey(fileId)){//作业已经被移除到过时作业清单
                     logger.debug("Ignore old file {}",file.getAbsolutePath());
-                    return;
+                    return FileCheckResult.FileCheckResult_OldFile;
                 }
 
                 //创建新的采集任务
@@ -293,7 +296,11 @@ public class FileListenerService {
                 currentStatus.setStatus(ImportIncreamentConfig.STATUS_COLLECTING);
                 long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
                 currentStatus.setLastValue(pointer);
-                boolean successed = fileInputDataTranPlugin.initFileTask( relativeParentDir,fileConfig, currentStatus, file, pointer);
+                fileInputDataTranPlugin.initFileTask( relativeParentDir,fileConfig, currentStatus, file, pointer);
+                return FileCheckResult.FileCheckResult_NewFile;
+            }
+            else{
+                return FileCheckResult.FileCheckResult_CollectingFile;
             }
 
         } finally {
@@ -417,19 +424,20 @@ public class FileListenerService {
 
     }
 
-    private boolean checkFileIdIsNew(String fileId){
+    private int checkFileIdIsNew(String fileId){
         FileReaderTask fileReaderTask = fileConfigMap.get(fileId);
-        boolean isNewFile = false;
+        int isNewFile = 0;
         if (fileReaderTask == null) {
             if(this.completedTasks.containsKey(fileId)) {//作业已经完成
                 logger.debug("Ignore complete file {}",fileId);
-
+                isNewFile = FileCheckResult.FileCheckResult_CompleteFile;
             }
             else if(this.oldedTasks.containsKey(fileId)){//作业已经被移除到过时作业清单
                 logger.debug("Ignore old file {}",fileId);
+                isNewFile = FileCheckResult.FileCheckResult_OldFile;
             }
             else {
-                isNewFile = true;
+                isNewFile = FileCheckResult.FileCheckResult_NewFile;
             }
 
         }
@@ -459,14 +467,18 @@ public class FileListenerService {
 
             if(this.dataTranPlugin.isPluginStopAppending() )
                 return;
-            isNewFile = checkFileIdIsNew(fileId);
-            if(!downLoadTraces.containsKey(fileId)){
-                downLoadTraces.put(fileId,dummy);
+            int checkResult = checkFileIdIsNew(fileId);
+            isNewFile = checkResult == FileCheckResult.FileCheckResult_NewFile;
+            if(isNewFile ) {
+                if (!downLoadTraces.containsKey(fileId)) {
+                    downLoadTraces.put(fileId, dummy);
+                } else {
+                    isDowning = true;
+                }
             }
             else{
-                isDowning = true;
+                this.getFileInputDataTranPlugin().handleCompleteFiles(checkResult,handleFile);
             }
-
 
 
         } finally {
@@ -608,7 +620,9 @@ public class FileListenerService {
             if (this.dataTranPlugin.isPluginStopAppending() )
                 return;
             //再次检查文件是否已经被采集
-            boolean isNewFile = checkFileIdIsNew(fileId);
+            int checkResult = checkFileIdIsNew(fileId);
+            boolean isNewFile = checkResult == FileCheckResult.FileCheckResult_NewFile;
+//            boolean isNewFile = checkFileIdIsNew(fileId);
             if(isNewFile) {
                 if (logger.isInfoEnabled())
                     logger.info("Start collect new remote file {}", fileId);
@@ -623,6 +637,9 @@ public class FileListenerService {
                 long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
                 currentStatus.setLastValue(pointer);
                 fileInputDataTranPlugin.initFileTask(relativeParentDir, fileConfig, currentStatus, handleFile, pointer);
+            }
+            else{
+                fileInputDataTranPlugin.handleCompleteFiles(checkResult,handleFile);
             }
         }
         finally {

@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>Description: 失败文件重传</p>
+ * <p>Description: 清理过期失效的备份文件</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2021/2/4 14:48
@@ -48,6 +48,7 @@ public class BackupSuccessFilesClean {
 	public void stop(){
 		if(fileCleanThread != null) {
 			fileCleanThread.stopThread();
+
 		}
 	}
 
