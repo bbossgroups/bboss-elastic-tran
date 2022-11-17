@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p>Description: 作业定时执行时的监控指标数据</p>
@@ -38,11 +39,24 @@ public class JobTaskMetrics {
 	private long totalIgnoreRecords;
 	private long totalSuccessRecords;
 	protected int tasks;
+
+
+	/**
+	 * 进入错误方法的任务数
+	 */
+	protected volatile int errorTasks;
+	/**
+	 * 进入异常方法的任务数
+	 */
+	protected volatile int exceptionTasks;
 	private String jobNo;
 	private Object lastValue;
 	private String jobId;
 	private String jobName;
 	private Map<String,Object> jobExecutorDatas;
+	private ReentrantLock tasksLock = new ReentrantLock();
+	private ReentrantLock errtasksLock = new ReentrantLock();
+	private ReentrantLock exceptiontasksLock = new ReentrantLock();
 	public JobTaskMetrics putJobExecutorData(String name, Object value){
 		if(jobExecutorDatas == null){
 			jobExecutorDatas = new LinkedHashMap<>();
@@ -157,8 +171,37 @@ public class JobTaskMetrics {
 	}
 
 	public int increamentTasks() {
-		tasks ++;
-		return tasks;
+		tasksLock.lock();
+		try {
+			tasks++;
+			return tasks;
+		}
+		finally {
+			tasksLock.unlock();
+		}
+	}
+
+	public int increamentErrorTasks() {
+		errtasksLock.lock();
+		try {
+			errorTasks++;
+			return errorTasks;
+		}
+		finally {
+			errtasksLock.unlock();
+		}
+
+	}
+
+	public int increamentExceptionTasks() {
+		exceptiontasksLock.lock();
+		try {
+			exceptionTasks++;
+			return exceptionTasks;
+		}
+		finally {
+			exceptiontasksLock.unlock();
+		}
 	}
 
 	public Date getJobEndTime() {
@@ -219,5 +262,20 @@ public class JobTaskMetrics {
 	}
 	public void putLastValue(Integer lastValueType,Object lastValue){
 		this.lastValue = BaseStatusManager.max(lastValueType,this.lastValue,lastValue);
+	}
+	public int getErrorTasks() {
+		return errorTasks;
+	}
+
+	public void setErrorTasks(int errorTasks) {
+		this.errorTasks = errorTasks;
+	}
+
+	public int getExceptionTasks() {
+		return exceptionTasks;
+	}
+
+	public void setExceptionTasks(int exceptionTasks) {
+		this.exceptionTasks = exceptionTasks;
 	}
 }

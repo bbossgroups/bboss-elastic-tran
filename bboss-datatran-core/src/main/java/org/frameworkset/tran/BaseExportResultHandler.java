@@ -37,11 +37,17 @@ public abstract class BaseExportResultHandler<DATA,RESULT> implements WrapedExpo
 		this.exportResultHandler.success(  taskCommand,   result);
 	}
 	public void error(TaskCommand<DATA,RESULT> taskCommand, RESULT result){
+		if(taskCommand.getTaskContext() != null) {
+			taskCommand.getTaskContext().getJobTaskMetrics().increamentErrorTasks();
+		}
 		this.exportResultHandler.error(  taskCommand,   result);
 	}
 
 	@Override
 	public void exception(TaskCommand<DATA,RESULT> taskCommand, Exception exception) {
+		if(taskCommand.getTaskContext() != null) {
+			taskCommand.getTaskContext().getJobTaskMetrics().increamentExceptionTasks();
+		}
 		this.exportResultHandler.exception(  taskCommand,   exception);
 	}
 
