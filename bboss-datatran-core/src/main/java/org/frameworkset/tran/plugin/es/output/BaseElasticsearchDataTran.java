@@ -227,15 +227,23 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 		Object version = context.getVersion();
 
 		if (version != null) {
-
-			writer.write(",\"_version\":");
-
+			if(!upper7) {
+				writer.write(",\"_version\":");
+			}
+			else{
+				writer.write(",\"version\":");
+			}
 			writer.write(String.valueOf(version));
 
 		}
 		Object versionType = clientOptions!= null?clientOptions.getVersionType():null;
 		if(versionType != null) {
-			writer.write(",\"_version_type\":\"");
+			if(!upper7) {
+				writer.write(",\"_version_type\":");
+			}
+			else{
+				writer.write(",\"version_type\":");
+			}
 			writer.write(String.valueOf(versionType));
 			writer.write("\"");
 		}
