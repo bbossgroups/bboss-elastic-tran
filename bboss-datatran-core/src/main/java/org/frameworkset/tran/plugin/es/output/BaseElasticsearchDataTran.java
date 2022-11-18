@@ -237,6 +237,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 
 		}
 		Object versionType = clientOptions!= null?clientOptions.getVersionType():null;
+
 		if(versionType != null) {
 			if(!upper7) {
 				writer.write(",\"_version_type\":");
@@ -244,8 +245,8 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 			else{
 				writer.write(",\"version_type\":");
 			}
-			writer.write(String.valueOf(versionType));
-			writer.write("\"");
+			BuildTool.buildId(versionType,writer,true);
+
 		}
 		/**
 		String refresh = clientOptions!= null?clientOptions.getRefresh():null;
