@@ -1,2 +1,2 @@
 从kafka接收数据并写入elasticsearch
-codec处理
+模块已经迁移至bboss-datatran-kafka1x，后续版本将被废弃

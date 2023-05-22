@@ -1,0 +1,176 @@
+package org.frameworkset.tran.plugin.kafka.input;
+/**
+ * Copyright 2008 biaoping.yin
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.DataTranPluginImpl;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.CallInterceptor;
+import org.frameworkset.tran.schedule.ScheduleEndCall;
+import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.InitLastValueClumnName;
+import org.frameworkset.tran.util.StoppedThread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+import static org.frameworkset.tran.metrics.job.MetricsConfig.DEFAULT_metricsInterval;
+
+
+/**
+ * <p>Description: </p>
+ * <p></p>
+ * <p>Copyright (c) 2018</p>
+ * @Date 2019/10/9 16:55
+ * @author biaoping.yin
+ * @version 1.0
+ */
+public class KafkaDataTranPluginImpl extends DataTranPluginImpl {
+
+	protected static Logger logger = LoggerFactory.getLogger(KafkaDataTranPluginImpl.class);
+
+	private StoppedThread metricsThread;
+
+	/**
+	 * 默认十分钟执行一次拦截器监控数据afterCall方法
+	 */
+	private long metricsInterval ;
+	public KafkaDataTranPluginImpl(ImportContext importContext){
+		super(importContext);
+		metricsInterval = ((KafkaInputConfig)importContext.getInputConfig()).getMetricsInterval();
+		if(metricsInterval <= 0L){
+			metricsInterval = DEFAULT_metricsInterval;
+		}
+	}
+
+	@Override
+	public void beforeInit() {
+		super.beforeInit();
+
+
+	}
+
+
+
+	@Override
+	public void importData(ScheduleEndCall scheduleEndCall) throws DataImportException {
+
+
+		long importStartTime = System.currentTimeMillis();
+		KafkaTaskContext taskContext = inputPlugin.isEnablePluginTaskIntercept()?new KafkaTaskContext(importContext):null;
+		try {
+			preCall(taskContext);
+			this.doImportData(taskContext);
+			List<CallInterceptor> callInterceptors = importContext.getCallInterceptors();
+			if(callInterceptors != null && callInterceptors.size() > 0) {
+				metricsThread = new StoppedThread() {
+					@Override
+					public void run() {
+						do {
+							if (stopped) {
+								break;
+							}
+							try {
+								taskContext.reInitContext(new KafkaTaskContext.ReInitAction(){
+
+									@Override
+									public void afterCall(TaskContext taskContext) {
+										KafkaDataTranPluginImpl.this.afterCall(taskContext);
+									}
+
+									@Override
+									public void preCall(TaskContext taskContext) {
+										KafkaDataTranPluginImpl.this.preCall(taskContext);
+									}
+								});
+
+							} catch (Exception e) {
+								logger.error("KafkaDataTranPlugin-MetricsThread  afterCall Exception", e);
+							}
+							if (stopped) {
+								break;
+							}
+							try {
+								sleep(metricsInterval);
+							} catch (InterruptedException e) {
+								logger.error("KafkaDataTranPlugin-MetricsThread  InterruptedException", e);
+								break;
+							}
+
+						} while (true);
+					}
+				};
+				metricsThread.setName("KafkaDataTranPlugin-MetricsThread");
+				metricsThread.setDaemon(true);
+				metricsThread.start();
+			}
+
+			long importEndTime = System.currentTimeMillis();
+			if (isPrintTaskLog())
+				logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
+		}
+		catch (DataImportException dataImportException){
+			throwException(taskContext,dataImportException);
+            importContext.finishAndWaitTran();
+        }
+		catch (Exception dataImportException){
+			throwException(taskContext,dataImportException);
+            importContext.finishAndWaitTran();
+            throw dataImportException;
+		}
+		catch (Throwable dataImportException){
+			DataImportException e = new DataImportException(dataImportException);
+			throwException(taskContext,new DataImportException(dataImportException));
+            importContext.finishAndWaitTran();
+            throw e;
+		}
+
+
+	}
+
+	public void afterCall(TaskContext taskContext){
+		super.afterCall(taskContext);
+	}
+	@Override
+	public void initSchedule(){
+		logger.info("Ignore initSchedule for plugin {}",this.getClass().getName());
+	}
+
+	@Override
+	protected InitLastValueClumnName getInitLastValueClumnName(){
+		return new InitLastValueClumnName (){
+
+			public void initLastValueClumnName(){
+				statusManager.setIncreamentImport(false);
+			}
+		};
+	}
+
+	@Override
+	public void destroy(boolean waitTranStop, boolean fromScheduleEnd) {
+        if(checkTranToStop()){
+            return;
+        }
+		if(metricsThread != null)
+			metricsThread.stopThread();
+		super.destroy(waitTranStop, fromScheduleEnd);
+	}
+	//	@Override
+//	public void initLastValueClumnName(){
+//		setIncreamentImport(false);
+//	}
+}

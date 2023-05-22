@@ -1,0 +1,35 @@
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+           
+        }
+        resources {
+			srcDir 'src/main/resources'
+			srcDir 'src/main/java'  exclude '**/*.java'
+        }
+        
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+           
+        }
+        resources {
+			srcDir 'src/test/resources'
+			srcDir 'src/test/java'  exclude '**/*.java'
+        }
+        
+    }
+    
+}
+
+
+dependencies {
+	api project(':bboss-datatran-fileftp')
+
+	// https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
+//	implementation 'com.jcraft:jsch:0.1.55'
+//	api 'com.hierynomus:sshj:0.30.0'
+}
+

@@ -1,0 +1,37 @@
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+           
+        }
+        resources {
+			srcDir 'src/main/resources'
+			srcDir 'src/main/java'  exclude '**/*.java'
+        }
+        
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+           
+        }
+        resources {
+			srcDir 'src/test/resources'
+			srcDir 'src/test/java'  exclude '**/*.java'
+        }
+        
+    }
+    
+}
+
+
+dependencies {
+	api (project(':bboss-datatran-geoip'))
+	api (project(':bboss-datatran-metrics'))
+	testImplementation (
+			[group: 'org.xerial', name: 'sqlite-jdbc', version: "3.40.0.0", transitive: false],
+			[group: 'mysql', name: 'mysql-connector-java', version: "${mysqlconnectorversion}", transitive: false]
+	)
+
+}
+

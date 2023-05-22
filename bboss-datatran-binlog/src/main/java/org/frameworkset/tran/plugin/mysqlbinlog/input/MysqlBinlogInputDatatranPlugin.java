@@ -1,0 +1,160 @@
+package org.frameworkset.tran.plugin.mysqlbinlog.input;
+/**
+ * Copyright 2008 biaoping.yin
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.plugin.BaseInputPlugin;
+import org.frameworkset.tran.schedule.TaskContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+/**
+ * <p>Description: </p>
+ * <p></p>
+ * <p>Copyright (c) 2018</p>
+ * @Date 2019/10/9 14:35
+ * @author biaoping.yin
+ * @version 1.0
+ */
+public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
+	private static final Logger logger = LoggerFactory.getLogger(MysqlBinlogInputDatatranPlugin.class);
+    private MySQLBinlogConfig mySQLBinlogConfig;
+    private MySQLBinlogListener mySQLBinlogListener;
+    private Map<String, String[]> allTableColumns;
+    public MysqlBinlogInputDatatranPlugin(ImportContext importContext){
+        super(  importContext);
+        mySQLBinlogConfig = (MySQLBinlogConfig) importContext.getInputConfig();
+        this.jobType = "MysqlBinlogInputDatatranPlugin";
+    }
+
+	@Override
+	public void init(){
+
+
+	}
+
+	@Override
+	public void initStatusTableId() {
+        if(dataTranPlugin.isIncreamentImport()) {
+            StringBuilder id = new StringBuilder();
+            id.append(mySQLBinlogConfig.getHost()).append(":").append(mySQLBinlogConfig.getPort()).append("/")
+                    .append(mySQLBinlogConfig.getDatabase()).append(mySQLBinlogConfig.getTables());
+                importContext.setStatusTableId(id.hashCode());
+        }
+	}
+
+
+
+	@Override
+	public void beforeInit() {
+
+
+	}
+
+
+	@Override
+	public void afterInit(){
+        allTableColumns = DBMetaUtil.getTableColumns(this.mySQLBinlogConfig);
+	}
+
+
+
+    @Override
+	public void doImportData(TaskContext taskContext)  throws DataImportException {
+        MysqlBinlogResultSet mysqlBinlogResultSet = new MysqlBinlogResultSet(this.importContext,this.mySQLBinlogConfig);
+		final BaseDataTran mysqlBinlogDataTran = dataTranPlugin.createBaseDataTran( taskContext,mysqlBinlogResultSet,null,dataTranPlugin.getCurrentStatus());
+//		dataTranPlugin.setHasTran();
+		Thread tranThread = null;
+		try {
+			tranThread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						mysqlBinlogDataTran.tran();
+						dataTranPlugin.afterCall(taskContext);
+
+					}
+					catch (DataImportException dataImportException){
+						logger.error("",dataImportException);
+						dataTranPlugin.throwException(  taskContext,  dataImportException);
+                        mysqlBinlogDataTran.stop();
+                        importContext.finishAndWaitTran();
+					}
+					catch (RuntimeException dataImportException){
+						logger.error("",dataImportException);
+						dataTranPlugin.throwException(  taskContext,  dataImportException);
+                        mysqlBinlogDataTran.stop();
+                        importContext.finishAndWaitTran();
+					}
+					catch (Throwable dataImportException){
+						logger.error("",dataImportException);
+						DataImportException dataImportException_ = new DataImportException(dataImportException);
+						dataTranPlugin.throwException(  taskContext, dataImportException_);
+                        mysqlBinlogDataTran.stop();
+                        importContext.finishAndWaitTran();
+					}
+				}
+			},"mysqlbinlog-input-dataTran");
+			tranThread.start();
+
+			this.initMySQLBinlogListener(mysqlBinlogDataTran);
+		} catch (DataImportException e) {
+            if(mysqlBinlogDataTran != null)
+                mysqlBinlogDataTran.stop();
+			throw e;
+		} catch (Exception e) {
+            if(mysqlBinlogDataTran != null)
+                mysqlBinlogDataTran.stop();
+			throw new DataImportException(e);
+		}
+
+
+	}
+
+
+
+    protected void initMySQLBinlogListener(BaseDataTran mysqlBinlogDataTran) throws Exception {
+        final MySQLBinlogListener mySQLBinlogListener = new MySQLBinlogListener(mysqlBinlogDataTran,mySQLBinlogConfig,this.importContext);
+        mySQLBinlogListener.start();
+        this.mySQLBinlogListener = mySQLBinlogListener;
+    }
+    @Override
+    public void stopCollectData(){
+        try {
+            if (mySQLBinlogListener != null) {
+                mySQLBinlogListener.shutdown();
+            }
+        }
+        catch (Exception e){
+            logger.warn("",e);
+        }
+        super.stopCollectData();
+    }
+    @Override
+    public void destroy(boolean waitTranStop) {
+
+
+
+    }
+
+    public String[] getColumns(String database, String table) {
+        return this.allTableColumns.get(DBMetaUtil.buildTableKey(database,table));
+    }
+}

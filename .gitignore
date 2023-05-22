@@ -9,3 +9,15 @@
 settings.gradle.bak
 /bboss-elasticsearch-rest-mongodb/build/
 /bboss-elasticsearch-rest-kafka2x/build/
+/bboss-datatran-kafka1x/.project
+/bboss-datatran-kafka1x/.classpath
+/bboss-datatran-kafka2x/.project
+/bboss-datatran-kafka2x/.classpath
+/bboss-datatran-hbase/.classpath
+/bboss-datatran-hbase/.project
+/bboss-datatran-kafka/.project
+/bboss-datatran-kafka/.classpath
+/bboss-datatran-mongodb/.classpath
+/bboss-datatran-mongodb/.project
+/bboss-elasticsearch-rest-hbase/.gitignore
+/backup/

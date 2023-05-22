@@ -1,0 +1,5 @@
+[2022-12-21 12:27:31][INFO][com.frameworkset.util.DaemonThread] Add file E:\workspace\hnai\terminal\geolite2\GeoLite2-City.mmdb@E:\workspace\hnai\terminal\geolite2\GeoLite2-City.mmdb to monitor thread that moniting changed files.
+[2022-12-21 12:27:31][INFO][com.frameworkset.util.DaemonThread] Add file E:\workspace\hnai\terminal\geolite2\GeoLite2-ASN.mmdb@E:\workspace\hnai\terminal\geolite2\GeoLite2-ASN.mmdb to monitor thread that moniting changed files.
+[2022-12-21 12:27:31][INFO][com.frameworkset.util.DaemonThread] Start check files is changed or not.if some files is changed,the resources of these files will be refreshed use ResourceInit interface.
+[2022-12-21 12:27:31][INFO][com.frameworkset.util.DaemonThread] Add file E:\workspace\hnai\terminal\geolite2\ip2region.db@E:\workspace\hnai\terminal\geolite2\ip2region.db to monitor thread that moniting changed files.
+[2022-12-21 12:27:31][INFO][com.frameworkset.util.DaemonThread] Start check files is changed or not.if some files is changed,the resources of these files will be refreshed use ResourceInit interface.

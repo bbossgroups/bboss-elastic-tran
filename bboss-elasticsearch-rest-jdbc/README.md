@@ -1,3 +1,4 @@
+模块已经迁移至bboss-datatran-core，后续版本将被废弃
 # bboss-elastic
 
 不错的elasticsearch客户端工具包,bboss es开发套件采用类似于mybatis的方式操作elasticsearch
