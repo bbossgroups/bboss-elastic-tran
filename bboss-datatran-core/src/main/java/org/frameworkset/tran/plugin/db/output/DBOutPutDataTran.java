@@ -68,26 +68,27 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 	public CommonRecord buildRecord(Context context){
 		DBRecord dbRecord = new DBRecord();
 
-		List<VariableHandler.Variable> vars = null;
-		Object temp = null;
-		Param param = null;
 
-
-		TranSQLInfo insertSqlinfo = dbOutputConfig.getTargetSqlInfo(context.getTaskContext());
-		TranSQLInfo updateSqlinfo = dbOutputConfig.getTargetUpdateSqlInfo(context.getTaskContext());
-		TranSQLInfo deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(context.getTaskContext());
-
-		if(context.isInsert()) {
-
-			vars = insertSqlinfo.getVars();
-		}
-		else if(context.isUpdate()) {
-			vars = updateSqlinfo.getVars();
-		}
-		else {
-			vars = deleteSqlinfo.getVars();
-		}
 		super.buildRecord(dbRecord,context);
+        List<VariableHandler.Variable> vars = null;
+        Object temp = null;
+        Param param = null;
+
+
+        TranSQLInfo insertSqlinfo = dbOutputConfig.getTargetSqlInfo(context.getTaskContext(),dbRecord);
+        TranSQLInfo updateSqlinfo = dbOutputConfig.getTargetUpdateSqlInfo(context.getTaskContext(),dbRecord);
+        TranSQLInfo deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(context.getTaskContext(),dbRecord);
+
+        if(context.isInsert()) {
+
+            vars = insertSqlinfo.getVars();
+        }
+        else if(context.isUpdate()) {
+            vars = updateSqlinfo.getVars();
+        }
+        else {
+            vars = deleteSqlinfo.getVars();
+        }
 		String varName = null;
 		List<Param> record = new ArrayList<>();
 		for(int i = 0;i < vars.size(); i ++)
