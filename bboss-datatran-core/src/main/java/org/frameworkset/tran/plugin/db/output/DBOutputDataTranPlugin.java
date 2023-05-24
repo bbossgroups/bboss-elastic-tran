@@ -43,12 +43,7 @@ public class DBOutputDataTranPlugin extends BaseDBPlugin implements OutputPlugin
 	}
 	@Override
 	public void afterInit(){
-//		if(sqlInfo != null
-//				&& sqlInfo.getParamSize() > 0
-//				&& !this.isIncreamentImport() && this.importContext.getParams() == null){
-//			throw new TaskFailedException("1.Parameter variables cannot be set in non-increament import SQL statements："+dbContext.getSql() +"\r\n2.Parameter values must be setted by BaseImportBuilder.addParam(String,Object) method.");
-//		}
-//		this.externalTimer = this.importContext.isExternalTimer();
+        dbOutputConfig.initSQLConf();
 	}
 	@Override
 	public void beforeInit(){

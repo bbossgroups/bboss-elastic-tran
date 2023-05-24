@@ -29,6 +29,7 @@ import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
+import org.frameworkset.tran.plugin.db.output.SQLConf;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.annotations.DateFormateMeta;
 
@@ -207,6 +208,66 @@ public abstract class TranUtil {
 				TranUtil.initTargetSQLInfo(taskContext, dbName);
 		}
 	}
+    public static void initSQLConf(DBOutputConfig dbOutputConfig, SQLConf sqlConf) throws DataImportException {
+
+        TranSQLInfo sqlInfo = null;
+        SQLInfo sqlinfo = null;
+        String sqlName = sqlConf.getInsertSqlName();
+        String sqlFilePath = dbOutputConfig.getSqlFilepath();
+        String db = dbOutputConfig.getTargetDbname();
+        if(sqlName == null) {
+            sqlName = sqlConf.getInsertSql();
+            if(sqlName != null)
+                sqlInfo = buildTranSQLInfo( sqlName,true,  sqlFilePath,   db);
+
+
+        }
+        else{
+            sqlInfo = buildTranSQLInfo( sqlName,false,  sqlFilePath,   db);
+        }
+
+        if(sqlInfo != null){
+            sqlConf.setTargetSqlInfo(sqlInfo);
+            sqlInfo = null;
+        }
+
+        sqlName = sqlConf.getUpdateSqlName();
+
+        if(sqlName == null) {
+            sqlName = sqlConf.getUpdateSql();
+            if(sqlName != null)
+                sqlInfo = buildTranSQLInfo( sqlName,true,  sqlFilePath,   db);
+
+
+        }
+        else{
+            sqlInfo = buildTranSQLInfo( sqlName,false,  sqlFilePath,   db);
+        }
+
+        if(sqlInfo != null){
+            sqlConf.setTargetUpdateSqlInfo(sqlInfo);
+            sqlInfo = null;
+        }
+        sqlName = sqlConf.getDeleteSqlName();
+
+        if(sqlName == null) {
+            sqlName = sqlConf.getDeleteSql();
+            if(sqlName != null)
+                sqlInfo = buildTranSQLInfo( sqlName,true,  sqlFilePath,   db);
+
+
+        }
+        else{
+            sqlInfo = buildTranSQLInfo( sqlName,false,  sqlFilePath,   db);
+        }
+
+        if(sqlInfo != null){
+            sqlConf.setTargetDeleteSqlInfo(sqlInfo);
+            sqlInfo = null;
+        }
+
+
+    }
 	public static void initTargetSQLInfo(TaskContext dbContext, String db) throws DataImportException {
 		if(dbContext == null)
 			return;
@@ -274,69 +335,17 @@ public abstract class TranUtil {
 			dbContext.setTargetDeleteSqlInfo(sqlInfo);
 			sqlInfo = null;
 		}
-//		assertNull(dbContext,  db);
 
 
 	}
-//
-//	public static ConfigSQLExecutor initTargetSQLInfo(DBOutPutContext dbContext, DBConfig db) throws ESDataImportException {
-//		TranSQLInfo sqlInfo = new TranSQLInfo();
-//		SQLInfo sqlinfo = null;
-//		String sqlName = dbContext.getInsertSqlName();
-//		ConfigSQLExecutor configSQLExecutor = null;
-//		try {
-//			if(sqlName == null) {
-//				sqlName = dbContext.getInsertSql();
-//				if(sqlName != null)
-//					sqlinfo = GloableSQLUtil.getGlobalSQLUtil().getSQLInfo(sqlName);
-//			}
-//			else{
-//				configSQLExecutor = new ConfigSQLExecutor(dbContext.getSqlFilepath());
-//				sqlinfo = configSQLExecutor.getSqlInfo(db.getDbName(), sqlName);
-//			}
-//
-//			if(sqlinfo == null){
-//				throw new ESDataImportException("Init TargetSQLInfo failed:InsertSqlName="+dbContext.getInsertSqlName() + " and insertSql = "+dbContext.getInsertSql());
-//			}
-//
-//
-//
-//			sqlInfo.setOriginSQL(sqlinfo.getSql());
-//			String sql = parserSQL(  sqlinfo);
-//
-//			VariableHandler.SQLStruction sqlstruction = sqlinfo.getSqlutil().getSQLStruction(sqlinfo,sql);
-//			sql = sqlstruction.getSql();
-//			sqlInfo.setSql(sql);
-//			List<VariableHandler.Variable> vars = sqlstruction.getVariables();
-//			sqlInfo.setVars(vars);
-//			dbContext.setTargetSqlInfo(sqlInfo);
-//		} catch (SQLException e) {
-//			throw new ESDataImportException("Init TargetSQLInfo failed",e);
-//		}
-//		return configSQLExecutor;
-//
-//
-//	}
+
 	private static VelocityContext buildVelocityContext()
 	{
 
 
 		VelocityContext context_ = new VelocityContext();
 
-//		com.frameworkset.common.poolman.Param temp = null;
-//		if(sqlparams != null && sqlparams.size()>0)
-//		{
-//
-//			Iterator<Map.Entry<String, com.frameworkset.common.poolman.Param>> it = sqlparams.entrySet().iterator();
-//			while(it.hasNext())
-//			{
-//				Map.Entry<String, com.frameworkset.common.poolman.Param> entry = it.next();
-//				temp = entry.getValue();
-//
-//				if(!temp.getType().equals(NULL))
-//					context_.put(entry.getKey(), temp.getData());
-//			}
-//		}
+
 		return context_;
 
 	}

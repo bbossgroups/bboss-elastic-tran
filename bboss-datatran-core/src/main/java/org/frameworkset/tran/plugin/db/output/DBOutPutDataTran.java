@@ -6,15 +6,12 @@ import org.frameworkset.persitent.util.PersistentSQLVariable;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.plugin.db.input.DBRecord;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
+import org.frameworkset.tran.plugin.db.input.DBRecord;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.task.BaseParrelTranCommand;
-import org.frameworkset.tran.task.BaseSerialTranCommand;
-import org.frameworkset.tran.task.CommonRecordTranJob;
-import org.frameworkset.tran.task.TaskCall;
+import org.frameworkset.tran.task.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +43,7 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 		}
 
 
-
+/**
 		if(dbOutputConfig.getTargetSqlInfo(taskContext) != null ) {
 			builder.append(" insert sql[").append( dbOutputConfig.getTargetSqlInfo(taskContext).getOriginSQL()).append("]");
 		}
@@ -57,7 +54,7 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 		if(dbOutputConfig.getTargetDeleteSqlInfo(taskContext) != null ) {
 			builder.append("\r\ndelete sql[")
 					.append(dbOutputConfig.getTargetDeleteSqlInfo(taskContext).getOriginSQL()).append("]");
-		}
+		}*/
 		taskInfo = builder.toString();
 	}
 
@@ -114,60 +111,7 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 		}
 		dbRecord.setParams(record);
 		return dbRecord;
-		/**
-		Object  keys = jdbcResultSet.getKeys();
-		String[] splitColumns = null;
-		if(keys != null) {
-			boolean isSplitKeys = keys instanceof SplitKeys;
-			if(isSplitKeys) {
-				SplitKeys splitKeys = (SplitKeys) keys;
 
-				splitColumns = splitKeys.getSplitKeys();
-			}
-
-		}
-		List<Param> record = new ArrayList<Param>();
-		Map<String,Object> addedFields = new HashMap<String,Object>();
-		//context优先级高于splitColumns,splitColumns高于全局配置，全局配置高于数据源级别字段值
-		List<FieldMeta> fieldValueMetas = context.getFieldValues();
-
-		appendFieldValues( record, vars,    fieldValueMetas,  addedFields);
-		//计算记录切割字段
-		appendSplitFieldValues(record, vars,
-				splitColumns,
-				addedFields,context);
-		fieldValueMetas = context.getESJDBCFieldValues();
-		appendFieldValues(  record, vars,   fieldValueMetas,  addedFields);
-		String varName = null;
-		for(int i = 0;i < vars.size(); i ++)
-		{
-			VariableHandler.Variable var = vars.get(i);
-
-			varName = var.getVariableName();
-			FieldMeta fieldMeta = context.getMappingName(varName);
-			if(fieldMeta != null) {
-				if(fieldMeta.getIgnore() != null && fieldMeta.getIgnore() == true)
-					continue;
-				varName = fieldMeta.getTargetFieldName();
-			}
-			if(addedFields.get(varName) != null)
-				continue;
-			temp = jdbcResultSet.getValue(varName);
-			if(temp == null) {
-				if(logger.isWarnEnabled())
-					logger.warn("未指定绑定变量的值：{}",var.getVariableName());
-			}
-			param = new Param();
-			param.setVariable(var);
-			param.setIndex(var.getPosition()  +1);
-			param.setValue(temp);
-			param.setName(var.getVariableName());
-			record.add(param);
-
-		}
-
-		dbRecord.setParams(record);
-		return dbRecord;*/
 	}
 
 	@Override
@@ -180,8 +124,15 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
 					taskNo++;
-					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl( totalCount, importContext, records,
-							taskNo, taskContext.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
+                    TaskCommand taskCommand = null;
+                    if(!dbOutputConfig.isMultiSQLConf()) {
+                        taskCommand = new Base2DBTaskCommandImpl(totalCount, importContext, records,
+                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus, reachEOFClosed, taskContext);
+                    }
+                    else{
+                        taskCommand = new MultiSQLConf2DBTaskCommandImpl(totalCount, importContext, records,
+                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus, reachEOFClosed, taskContext);
+                    }
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 				}
@@ -195,25 +146,23 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
 					taskNo++;
-					Base2DBTaskCommandImpl taskCommand = new Base2DBTaskCommandImpl(totalCount, importContext, records,
-							taskNo, taskContext.getJobNo(),taskInfo,false,lastValue,  currentStatus,reachEOFClosed,taskContext);
+                    TaskCommand taskCommand = null;
+                    if(!dbOutputConfig.isMultiSQLConf()) {
+                        taskCommand = new Base2DBTaskCommandImpl(totalCount, importContext, records,
+                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus, reachEOFClosed, taskContext);
+                    }
+                    else{
+                        taskCommand = new MultiSQLConf2DBTaskCommandImpl(totalCount, importContext, records,
+                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus, reachEOFClosed, taskContext);
+                    }
 
 					TaskCall.call(taskCommand);
-//						importContext.flushLastValue(lastValue);
 
 				}
 				return taskNo;
 			}
 			@Override
 			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
-//				List<CommonRecord> records = convertDatas( datas);
-//				if(records != null && records.size() > 0)  {
-//					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-//							dataSize, taskNo, totalCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//					taskCommand.setDatas(records);
-//					TaskCall.call(taskCommand);
-//					taskNo++;
-//				}
 				return action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed);
 			}
 

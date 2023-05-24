@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin.db.output;
 
 import com.frameworkset.common.poolman.BatchHandler;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.ImportBuilder;
@@ -27,6 +28,10 @@ import org.frameworkset.tran.plugin.db.BaseDBConfig;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.input.StatementHandler;
 import org.frameworkset.tran.schedule.TaskContext;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * <p>Description: </p>
@@ -48,12 +53,50 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 	protected String deleteSqlName;
 	protected String deleteSql;
 	protected boolean optimize;
+    protected boolean multiSQLConf;
 	protected BatchHandler batchHandler;
 	protected StatementHandler statementHandler;
 	private TranSQLInfo targetSqlInfo;
 	private TranSQLInfo targetUpdateSqlInfo;
 	private TranSQLInfo targetDeleteSqlInfo;
+
 	private String targetDbname;
+    /**
+     * 设置不同类型的记录对应的数据库增删改查sql语句信息
+     */
+    private Map<String,SQLConf> tableSQLConf;
+    private SQLConfResolver sqlConfResolver;
+
+    /**
+     * mysql binlog输入插件对接时，默认使用表名称映射对应的sqlconf配置
+     * 其他场景需要通过SQLConfResolver接口从当前记录中获取对应的字段值作为sqlconf配置对应的映射名称
+     * @param sqlConfResolver
+     */
+    public DBOutputConfig setSqlConfResolver(SQLConfResolver sqlConfResolver) {
+        this.sqlConfResolver = sqlConfResolver;
+        return this;
+    }
+
+    /**
+     * 为不同类型的记录维护特定的增删改sql配置
+     * @param name
+     * @param sqlConf
+     * @return
+     */
+    public DBOutputConfig addSQLConf(String name,SQLConf sqlConf){
+        if(tableSQLConf == null) {
+            tableSQLConf = new LinkedHashMap<>();
+        }
+        tableSQLConf.put(name,sqlConf);
+        return this;
+    }
+
+    public String resolveSQLConfKey(TaskContext taskContext,CommonRecord commonRecord){
+        if(sqlConfResolver != null){
+            return sqlConfResolver.resolver(taskContext,commonRecord);
+        }
+        return null;
+    }
 
 
 	public DBOutputConfig setDbName(String dbName) {
@@ -240,8 +283,27 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		}
 
 
+
+
 	}
-	public String getTargetDBName(TaskContext taskContext){
+
+    public void initSQLConf(){
+        if(this.tableSQLConf != null && this.tableSQLConf.size() > 0 ){
+            Iterator<Map.Entry<String, SQLConf>> iterator = tableSQLConf.entrySet().iterator();
+            while(iterator.hasNext()){
+                Map.Entry<String, SQLConf> entry = iterator.next();
+                org.frameworkset.tran.util.TranUtil.initSQLConf(this,entry.getValue());
+
+            }
+            multiSQLConf = true;
+        }
+    }
+
+    public boolean isMultiSQLConf() {
+        return multiSQLConf;
+    }
+
+    public String getTargetDBName(TaskContext taskContext){
 		DBConfig dbConfig = getTargetDBConfig(taskContext);
 		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName())){
 			return dbConfig.getDbName();
@@ -257,7 +319,28 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return targetSqlInfo;
 	}
 
-	public DBOutputConfig setTargetSqlInfo(TranSQLInfo targetSqlInfo) {
+    public TranSQLInfo getTargetSqlInfo(TaskContext taskContext, CommonRecord dbRecord) {
+        TranSQLInfo tranSQLInfo = null;
+        if(tableSQLConf != null && tableSQLConf.size() > 0) {
+            String tableName = this.sqlConfResolver == null ? (String) dbRecord.getMetaValue("table") : sqlConfResolver.resolver(taskContext, dbRecord);
+            if(SimpleStringUtil.isNotEmpty(tableName) ) {
+                SQLConf sqlConf = tableSQLConf.get(tableName);
+                if(sqlConf != null){
+                    tranSQLInfo = sqlConf.getTargetSqlInfo();
+                }
+            }
+        }
+        if(tranSQLInfo == null) {
+            if (taskContext != null && taskContext.getTargetSqlInfo() != null)
+                tranSQLInfo = taskContext.getTargetSqlInfo();
+            else
+                tranSQLInfo = this.targetSqlInfo;
+        }
+        return tranSQLInfo;
+    }
+
+
+    public DBOutputConfig setTargetSqlInfo(TranSQLInfo targetSqlInfo) {
 		this.targetSqlInfo = targetSqlInfo;
 		return this;
 	}
@@ -268,6 +351,29 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return targetUpdateSqlInfo;
 	}
 
+    public TranSQLInfo getTargetUpdateSqlInfo(TaskContext taskContext, CommonRecord dbRecord) {
+        TranSQLInfo tranSQLInfo = null;
+        if(tableSQLConf != null && tableSQLConf.size() > 0) {
+            String tableName = this.sqlConfResolver == null ? (String) dbRecord.getMetaValue("table") : sqlConfResolver.resolver(taskContext, dbRecord);
+            if(SimpleStringUtil.isNotEmpty(tableName) ) {
+                SQLConf sqlConf = tableSQLConf.get(tableName);
+                if(sqlConf != null){
+                    tranSQLInfo = sqlConf.getTargetUpdateSqlInfo();
+                }
+            }
+        }
+        if(tranSQLInfo == null) {
+            if (taskContext != null && taskContext.getTargetUpdateSqlInfo() != null)
+                tranSQLInfo = taskContext.getTargetUpdateSqlInfo();
+            else
+                tranSQLInfo = this.targetUpdateSqlInfo;
+        }
+        return tranSQLInfo;
+//        if(taskContext != null && taskContext.getTargetUpdateSqlInfo() != null)
+//            return taskContext.getTargetUpdateSqlInfo();
+//        return targetUpdateSqlInfo;
+    }
+
 	public DBOutputConfig setTargetUpdateSqlInfo(TranSQLInfo sqlInfo) {
 		this.targetUpdateSqlInfo = sqlInfo;
 		return this;
@@ -277,6 +383,29 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 			return taskContext.getTargetDeleteSqlInfo();
 		return targetDeleteSqlInfo;
 	}
+
+    public TranSQLInfo getTargetDeleteSqlInfo(TaskContext taskContext, CommonRecord dbRecord) {
+        TranSQLInfo tranSQLInfo = null;
+        if(tableSQLConf != null && tableSQLConf.size() > 0) {
+            String tableName = this.sqlConfResolver == null ? (String) dbRecord.getMetaValue("table") : sqlConfResolver.resolver(taskContext, dbRecord);
+            if(SimpleStringUtil.isNotEmpty(tableName) ) {
+                SQLConf sqlConf = tableSQLConf.get(tableName);
+                if(sqlConf != null){
+                    tranSQLInfo = sqlConf.getTargetDeleteSqlInfo();
+                }
+            }
+        }
+        if(tranSQLInfo == null) {
+            if (taskContext != null && taskContext.getTargetDeleteSqlInfo() != null)
+                tranSQLInfo = taskContext.getTargetDeleteSqlInfo();
+            else
+                tranSQLInfo = this.targetDeleteSqlInfo;
+        }
+        return tranSQLInfo;
+//        if(taskContext != null && taskContext.getTargetDeleteSqlInfo() != null)
+//            return taskContext.getTargetDeleteSqlInfo();
+//        return targetDeleteSqlInfo;
+    }
 
 	public DBOutputConfig setTargetDeleteSqlInfo(TranSQLInfo sqlInfo) {
 		this.targetDeleteSqlInfo = sqlInfo;
