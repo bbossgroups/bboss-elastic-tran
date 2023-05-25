@@ -105,6 +105,15 @@ public class DBConfig {
 							.append( "jobType varchar(500) ,")   //作业输入插件类型 6.7.7版本新增
 							.append( "constraint $statusTableName_PK primary key(ID))").toString();
 
+    public static final String postgresql_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName (ID varchar(100) NOT NULL,lasttime bigint NOT NULL,lastvalue bigint NOT NULL,lastvaluetype INT NOT NULL,")
+            .append( "status INT ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+            .append( "filePath varchar(500) ,")  //日志文件路径
+            .append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径,relativeParentDir,
+            .append( "fileId varchar(500) ,")   //日志文件indoe标识
+            .append( "jobId varchar(500) ,")   //作业id 6.7.7版本新增
+            .append( "jobType varchar(500) ,")   //作业输入插件类型 6.7.7版本新增
+            .append( "primary key(ID))").toString();
+
 	public static final String mysql_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName ( ID varchar(100) NOT NULL, lasttime bigint(20) NOT NULL, lastvalue bigint(20) NOT NULL, lastvaluetype int(1) NOT NULL,")
 			.append( "status int(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 			.append( "filePath varchar(500) ,")  //日志文件路径
@@ -140,6 +149,16 @@ public class DBConfig {
 			.append( "jobId varchar(500) ,")   //作业id 6.7.7版本新增
 			.append( "jobType varchar(500) ,")   //作业输入插件类型 6.7.7版本新增
 			.append( "statusId varchar(100) )").toString(); //状态表中使用的主键标识
+//			.append( "constraint $historyStatusTableName_PK primary key(ID))").toString();
+
+    public static final String postgresql_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName (ID varchar(100),lasttime bigint NOT NULL,lastvalue bigint NOT NULL,lastvaluetype INT NOT NULL,")
+            .append( "status INT ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+            .append( "filePath varchar(500) ,")  //日志文件路径
+            .append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径,relativeParentDir,
+            .append( "fileId varchar(500) ,")   //日志文件indoe标识
+            .append( "jobId varchar(500) ,")   //作业id 6.7.7版本新增
+            .append( "jobType varchar(500) ,")   //作业输入插件类型 6.7.7版本新增
+            .append( "statusId varchar(100) )").toString(); //状态表中使用的主键标识
 //			.append( "constraint $historyStatusTableName_PK primary key(ID))").toString();
 
 	/**是否启用sql日志，true启用，false 不启用，*/
@@ -187,6 +206,10 @@ public class DBConfig {
         else if(dbtype.equals(DBFactory.SQLITEX)){
             return sqlitex_createStatusTableSQL;
         }
+        else if(dbtype.equals(DBFactory.DBPostgres)){
+            return postgresql_createStatusTableSQL;
+        }
+
 		throw new DataImportException("getCreateStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 	public static String getCreateHistoryStatusTableSQL(String dbtype){
@@ -204,6 +227,9 @@ public class DBConfig {
 		}
         else if(dbtype.equals(DBFactory.SQLITEX)){
             return sqlitex_createHistoryStatusTableSQL;
+        }
+        else if(dbtype.equals(DBFactory.DBPostgres)){
+            return postgresql_createHistoryStatusTableSQL;
         }
 		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
@@ -224,6 +250,9 @@ public class DBConfig {
 		else if(dbtype.equals(DBFactory.SQLITEX)){
 			return "0";
 		}
+        else if(dbtype.equals(DBFactory.DBPostgres)){
+            return "null";
+        }
 		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
@@ -243,6 +272,9 @@ public class DBConfig {
 		else if(dbtype.equals(DBFactory.SQLITEX)){
 			return "VARCHAR";
 		}
+        else if(dbtype.equals(DBFactory.DBPostgres)){
+            return "VARCHAR";
+        }
 		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
@@ -262,6 +294,9 @@ public class DBConfig {
 		else if(dbtype.equals(DBFactory.SQLITEX)){
 			return "number";
 		}
+        else if(dbtype.equals(DBFactory.DBPostgres)){
+            return "int";
+        }
 		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
@@ -281,6 +316,9 @@ public class DBConfig {
 		else if(dbtype.equals(DBFactory.SQLITEX)){
 			return "number";
 		}
+        else if(dbtype.equals(DBFactory.DBPostgres)){
+            return "bigint";
+        }
 		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
