@@ -64,6 +64,7 @@ public class ImportBuilder {
 	private DBConfig statusDbConfig ;
 	private String statusDbname;
 	private String statusTableDML;
+    private String statusHistoryTableDML;
 	private Integer fetchSize = 5000;
 	private String jobName;
 	private String jobId;
@@ -495,6 +496,10 @@ public class ImportBuilder {
 				if(statusTableDML != null && !statusTableDML.equals("")){
 					statusDbConfig.setStatusTableDML(statusTableDML);
 				}
+
+                if(statusHistoryTableDML != null && !statusHistoryTableDML.equals("")){
+                    statusDbConfig.setStatusHistoryTableDML(statusHistoryTableDML);
+                }
 			}
 
 	}
@@ -623,6 +628,11 @@ public class ImportBuilder {
 			String statusTableDML  = propertiesContainer.getExternalProperty(prefix+"db.statusTableDML");
 			dbConfig.setStatusTableDML(statusTableDML);
 		}
+        if(!customDBConfigs.containsKey(prefix+"db.statusHistoryTableDML")) {
+            String statusHistoryTableDML  = propertiesContainer.getExternalProperty(prefix+"db.statusHistoryTableDML");
+            dbConfig.setStatusHistoryTableDML(statusHistoryTableDML);
+        }
+
 		if(!customDBConfigs.containsKey(prefix+"db.dbAdaptor")) {
 			String dbAdaptor  = propertiesContainer.getExternalProperty(prefix+"db.dbAdaptor");
 			dbConfig.setDbAdaptor(dbAdaptor);
@@ -1771,6 +1781,14 @@ public class ImportBuilder {
 
     public ImportBuilder setLastValueStorePassword(String lastValueStorePassword) {
         this.lastValueStorePassword = lastValueStorePassword;
+        return this;
+    }
+    public String getStatusHistoryTableDML() {
+        return statusHistoryTableDML;
+    }
+
+    public ImportBuilder setStatusHistoryTableDML(String statusHistoryTableDML) {
+        this.statusHistoryTableDML = statusHistoryTableDML;
         return this;
     }
 }

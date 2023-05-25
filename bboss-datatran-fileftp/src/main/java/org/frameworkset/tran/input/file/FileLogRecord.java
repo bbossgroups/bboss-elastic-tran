@@ -37,20 +37,20 @@ public class FileLogRecord extends CommonMapRecord {
 	 *         common.put("pointer",pointer);
 	 *         common.put("fileId"
 	 */
-	private Map meta;
 
 
 	public FileLogRecord( TaskContext taskContext,Map meta,Object key, Map<String,Object> record, long offset,boolean reachEOFClosed){
 		super(  taskContext,key,   record,   offset);
-		this.meta = meta;
+
 		this.reachEOFClosed = reachEOFClosed;
 		this.taskContext = taskContext;
+        setMetaDatas(meta);
 
 	}
 
 	public FileLogRecord(TaskContext taskContext,Map meta,Map<String,Object> record, long offset,boolean reachEOFClosed){
 		super(  taskContext,  record,   offset);
-		this.meta = meta;
+        setMetaDatas(meta);
 		this.reachEOFClosed = reachEOFClosed;
 		this.taskContext = taskContext;
 	}
@@ -62,10 +62,7 @@ public class FileLogRecord extends CommonMapRecord {
 
 
 
-	@Override
-	public Object getMetaValue(String metaName) {
-		return meta.get(metaName);
-	}
+
 
 
 }

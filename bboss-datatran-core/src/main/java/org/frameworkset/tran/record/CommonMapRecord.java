@@ -95,10 +95,7 @@ public class CommonMapRecord extends BaseRecord {
 		return this.record;
 	}
 
-	@Override
-	public Object getMetaValue(String metaName) {
-		return this.getValue(metaName);
-	}
+
 
 	@Override
 	public long getOffset() {

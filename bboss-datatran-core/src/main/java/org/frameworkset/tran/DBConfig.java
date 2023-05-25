@@ -29,6 +29,10 @@ import com.frameworkset.orm.adapter.DBFactory;
  */
 public class DBConfig {
 	private String statusTableDML;
+
+
+
+    private String statusHistoryTableDML;
 	private Integer jdbcFetchSize;
 	private String dbDriver;
 	private String dbUrl;
@@ -210,7 +214,7 @@ public class DBConfig {
             return postgresql_createStatusTableSQL;
         }
 
-		throw new DataImportException("getCreateStatusTableSQL failed: unsupport dbtype "+ dbtype);
+		throw new DataImportException("getCreateStatusTableSQL failed: unsupport dbtype "+ dbtype+". Use ImportBuilder to set StatusTableSQL like:"+mysql_createStatusTableSQL);
 	}
 	public static String getCreateHistoryStatusTableSQL(String dbtype){
 		if(dbtype.equals("mysql")){
@@ -231,7 +235,8 @@ public class DBConfig {
         else if(dbtype.equals(DBFactory.DBPostgres)){
             return postgresql_createHistoryStatusTableSQL;
         }
-		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+
+		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype+". Use ImportBuilder to set HistoryStatusTableSQL like:"+mysql_createHistoryStatusTableSQL);
 	}
 
 	public static String getStatusTableDefaultValue(String dbtype){
@@ -253,7 +258,10 @@ public class DBConfig {
         else if(dbtype.equals(DBFactory.DBPostgres)){
             return "null";
         }
-		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+        else {
+            return "null";
+        }
+//		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
 	public static String getStatusTableType(String dbtype){
@@ -275,7 +283,11 @@ public class DBConfig {
         else if(dbtype.equals(DBFactory.DBPostgres)){
             return "VARCHAR";
         }
-		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+
+        else {
+            return "VARCHAR";
+        }
+//		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
 	public static String getStatusTableTypeNumber(String dbtype){
@@ -297,7 +309,10 @@ public class DBConfig {
         else if(dbtype.equals(DBFactory.DBPostgres)){
             return "int";
         }
-		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+        else{
+            return "int";
+        }
+//		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
 	public static String getStatusTableTypeBigNumber(String dbtype){
@@ -319,7 +334,11 @@ public class DBConfig {
         else if(dbtype.equals(DBFactory.DBPostgres)){
             return "bigint";
         }
-		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
+
+        else{
+            return "bigint";
+        }
+//		throw new DataImportException("getCreateHistoryStatusTableSQL failed: unsupport dbtype "+ dbtype);
 	}
 
 	public void setDbDriver(String dbDriver) {
@@ -541,4 +560,11 @@ public class DBConfig {
 	public void setMaxIdleTime(int maxIdleTime) {
 		this.maxIdleTime = maxIdleTime;
 	}
+    public String getStatusHistoryTableDML() {
+        return statusHistoryTableDML;
+    }
+
+    public void setStatusHistoryTableDML(String statusHistoryTableDML) {
+        this.statusHistoryTableDML = statusHistoryTableDML;
+    }
 }

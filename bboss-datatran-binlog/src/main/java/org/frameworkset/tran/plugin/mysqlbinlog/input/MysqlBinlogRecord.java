@@ -16,7 +16,6 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  */
 
 
-import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.record.CommonMapRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -62,27 +61,27 @@ public class MysqlBinlogRecord extends CommonMapRecord {
         this.setMetaDatas(tmp);
     }
 
-	@Override
-	public Object getMetaValue(String colName) {
-		if(colName.equals("position"))
-			return mysqlBinLogData.getPosition();
-		else if(colName.equals("table"))
-			return mysqlBinLogData.getTable();
-        else if(colName.equals("database"))
-			return mySQLBinlogConfig.getDatabase();
-        else if(colName.equals("host"))
-			return mySQLBinlogConfig.getHost();
-        else if(colName.equals("fileName"))
-			return mysqlBinLogData.getFileName();
-        else if(colName.equals("fileNames"))
-            return mySQLBinlogConfig.getFileNames();
-        else if(colName.equals("port"))
-			return mySQLBinlogConfig.getPort();
-        else if(colName.equals("action"))
-            return mysqlBinLogData.getAction();
-
-		throw new DataImportException("Get Meta Value failed: " + colName + " is not a mysql binlog meta field.mysql binlog meta fields must be {position,table,database,host,fileName,fileNames,port,action}");
-	}
+//	@Override
+//	public Object getMetaValue(String colName) {
+//		if(colName.equals("position"))
+//			return mysqlBinLogData.getPosition();
+//		else if(colName.equals("table"))
+//			return mysqlBinLogData.getTable();
+//        else if(colName.equals("database"))
+//			return mySQLBinlogConfig.getDatabase();
+//        else if(colName.equals("host"))
+//			return mySQLBinlogConfig.getHost();
+//        else if(colName.equals("fileName"))
+//			return mysqlBinLogData.getFileName();
+//        else if(colName.equals("fileNames"))
+//            return mySQLBinlogConfig.getFileNames();
+//        else if(colName.equals("port"))
+//			return mySQLBinlogConfig.getPort();
+//        else if(colName.equals("action"))
+//            return mysqlBinLogData.getAction();
+//
+//		throw new DataImportException("Get Meta Value failed: " + colName + " is not a mysql binlog meta field.mysql binlog meta fields must be {position,table,database,host,fileName,fileNames,port,action}");
+//	}
 
     @Override
     public long getOffset() {

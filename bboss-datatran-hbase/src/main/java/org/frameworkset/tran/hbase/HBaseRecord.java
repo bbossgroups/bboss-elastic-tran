@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -44,7 +45,14 @@ public class HBaseRecord extends BaseRecord{
 		super(taskContext);
 		this.familys = familys;
 		this.data = data;
-	}
+        initMetaDatas();
+    }
+    private void initMetaDatas() {
+        Map<String, Object> tmp = new LinkedHashMap<>();
+        tmp.put("rowkey", data.getRow());
+        tmp.put("timestamp", new Date(data.rawCells()[0].getTimestamp()));
+        this.setMetaDatas(tmp);
+    }
 
 
 
@@ -103,19 +111,6 @@ public class HBaseRecord extends BaseRecord{
 		Long time = Bytes.toLong((byte[])value);
 		return TranUtil.getDateTimeValue(colName,time,taskContext.getImportContext());
 
-	}
-	public Object getMetaValue(String colName) {
-		/**文档_id*/
-//		private String id;
-
-		if(colName.equals("rowkey"))
-			return  data.getRow();
-		else if(colName.equals("timestamp")){
-
-			return new Date(data.rawCells()[0].getTimestamp());
-		}
-
-		throw new DataImportException("Get Meta Value failed: " + colName + " is not a elasticsearch document meta field.");
 	}
 
 	@Override

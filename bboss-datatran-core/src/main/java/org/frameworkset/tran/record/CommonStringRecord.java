@@ -73,10 +73,14 @@ public class CommonStringRecord  extends BaseRecord {
 		return record;
 	}
 
-	@Override
-	public Object getMetaValue(String metaName) {
-		return null;
-	}
+
+    @Override
+    public Object getMetaValue(String metaName) {
+        if(this.metaDatas != null){
+            return _getMetaValue(metaName);
+        }
+        return null;
+    }
 
 	public Object getKey() {
 		return key;

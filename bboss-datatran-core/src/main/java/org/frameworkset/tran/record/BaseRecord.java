@@ -15,6 +15,7 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -36,7 +37,7 @@ public abstract class BaseRecord implements Record {
     protected boolean readEOFRecord;
     protected boolean removed;
     protected boolean reachEOFClosed;
-    private Map<String,Object> metaDatas;
+    protected Map<String,Object> metaDatas;
 	public BaseRecord(TaskContext taskContext){
 		this.taskContext = taskContext;
 	}
@@ -96,7 +97,20 @@ public abstract class BaseRecord implements Record {
         this.metaDatas = metaDatas;
     }
 
-
+    protected Object _getMetaValue(String metaName){
+        if(metaDatas.containsKey(metaName))
+            return metaDatas.get(metaName);
+        else{
+            throw new DataImportException(new StringBuilder().append("Get Meta Value failed: ").append( metaName ).append( " is not a meta field").append( SimpleStringUtil.object2json(metaDatas.keySet())).append(".").toString());
+        }
+    }
+    @Override
+    public Object getMetaValue(String metaName) {
+        if(this.metaDatas != null){
+            return _getMetaValue(metaName);
+        }
+        return this.getValue(metaName);
+    }
     /**
      * 获取binlog采集的修改前记录信息
      * @return

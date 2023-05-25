@@ -769,7 +769,9 @@ public abstract class BaseStatusManager implements StatusManager {
 		if(createStatusTableSQL == null){
 			createStatusTableSQL = statusDBConfig.getCreateStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
 		}
-		createHistoryStatusTableSQL = statusDBConfig.getCreateHistoryStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
+        createHistoryStatusTableSQL = statusDBConfig.getStatusHistoryTableDML();
+        if(createHistoryStatusTableSQL == null)
+		    createHistoryStatusTableSQL = statusDBConfig.getCreateHistoryStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
 		createStatusTableSQL = createStatusTableSQL.replace("$statusTableName",statusTableName);
 		createHistoryStatusTableSQL = createHistoryStatusTableSQL.replace("$historyStatusTableName",historyStatusTableName);
 	}
