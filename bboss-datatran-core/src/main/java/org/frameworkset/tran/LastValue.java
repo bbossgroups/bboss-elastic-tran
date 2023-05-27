@@ -19,6 +19,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 
@@ -73,6 +74,9 @@ public abstract class LastValue implements TranResultSet{
 					return getDateTimeValue(importContext.getLastValueColumnName(),importContext.getLastValueDateformat());
 				}
 			}
+            else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
+                return getLocalDateTimeValue(importContext.getLastValueColumnName());
+            }
 		}
 		catch (DataImportException e){
 			throw (e);
@@ -98,5 +102,11 @@ public abstract class LastValue implements TranResultSet{
 		return record.getDateTimeValue(colName,format);
 
 	}
+
+    @Override
+    public LocalDateTime getLocalDateTimeValue(String colName) throws DataImportException {
+        return record.getLocalDateTimeValue(colName);
+
+    }
 
 }

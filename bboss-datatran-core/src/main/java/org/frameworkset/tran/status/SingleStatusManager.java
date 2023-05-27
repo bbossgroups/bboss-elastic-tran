@@ -47,12 +47,12 @@ public class SingleStatusManager  extends BaseStatusManager{
 	protected void _flushStatus() throws Exception {
 		if(lastUpdateTime < lastPutTime) {
 			if(currentStatus.getJobId() == null) {
-				SQLExecutor.updateWithDBName(statusDbname, updateSQL, currentStatus.getTime(), convertLastValue(currentStatus.getLastValue()),
+				SQLExecutor.updateWithDBName(statusDbname, updateSQL, currentStatus.getTime(), convertLastValue(currentStatus.getLastValue()),convertStrLastValue(currentStatus.getStrLastValue()),
 						lastValueType, currentStatus.getFilePath(), currentStatus.getRelativeParentDir(), currentStatus.getFileId(),
 						currentStatus.getStatus(), currentStatus.getId(),currentStatus.getJobType());
 			}
 			else{
-				SQLExecutor.updateWithDBName(statusDbname, updateByJobIdSQL, currentStatus.getTime(), convertLastValue(currentStatus.getLastValue()),
+				SQLExecutor.updateWithDBName(statusDbname, updateByJobIdSQL, currentStatus.getTime(), convertLastValue(currentStatus.getLastValue()),convertStrLastValue(currentStatus.getStrLastValue()),
 						lastValueType, currentStatus.getFilePath(), currentStatus.getRelativeParentDir(), currentStatus.getFileId(),
 						currentStatus.getStatus(), currentStatus.getId(),currentStatus.getJobId(),currentStatus.getJobType());
 			}

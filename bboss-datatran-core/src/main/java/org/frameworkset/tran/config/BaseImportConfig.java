@@ -702,6 +702,14 @@ public class BaseImportConfig {
 		return this.getLastValueType() != null && this.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE;
 	}
 
+    public boolean isLastValueNumberType()
+    {
+        return this.getLastValueType() != null && this.getLastValueType() == ImportIncreamentConfig.NUMBER_TYPE;
+    }
+    public boolean isLastValueLocalDateTimeType()
+    {
+        return this.getLastValueType() != null && this.getLastValueType() == ImportIncreamentConfig.LOCALDATETIME_TYPE;
+    }
 	public boolean isSortLastValue() {
 		return sortLastValue;
 	}

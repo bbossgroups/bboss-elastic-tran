@@ -24,6 +24,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.schedule.TaskContext;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -66,9 +67,12 @@ public abstract class BasePlugin {
 		return importContext;
 	}
 
-	protected Object formatLastDateValue(Date date){
+	public Object formatLastDateValue(Date date){
 		return date;
 	}
+    public Object formatLastLocalDateTimeValue(LocalDateTime localDateTime){
+        return localDateTime;
+    }
 
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;

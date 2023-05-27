@@ -31,11 +31,13 @@ import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 import org.frameworkset.tran.plugin.db.output.SQLConf;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.frameworkset.util.annotations.DateFormateMeta;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -411,5 +413,26 @@ public abstract class TranUtil {
 			throw new DataImportException("Illegment colName["+colName+"] date value:"+(String)value);
 		}
 	}
+
+
+    public static LocalDateTime getLocalDateTimeValue(String colName, Object value, ImportContext importContext) throws DataImportException {
+        if(value == null)
+            return null;
+        if(value instanceof LocalDateTime)
+            return (LocalDateTime)value;
+        else if(value instanceof Long ){
+            Date date = new Date((Long)value);
+            return TimeUtil.date2LocalDateTime(date);
+        }
+        else if(value instanceof Date ){
+            return TimeUtil.date2LocalDateTime((Date)value);
+        }
+        else if(value instanceof String){
+           return TimeUtil.localDateTime((String) value);
+        }
+        else{
+            throw new DataImportException("Illegment colName["+colName+"] LocalDateTime value:"+value);
+        }
+    }
 
 }

@@ -25,7 +25,7 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.util.TimeUtil;
+import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.frameworkset.util.shutdown.ShutdownUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +35,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,7 @@ public abstract class BaseStatusManager implements StatusManager {
 	protected String existHisSQL;
 
 	protected Date initLastDate = null;
+    protected LocalDateTime initLastLocalDateTime = null;
 	protected String statusDbname;
 	protected boolean useOuterStatusDb = false;
 	protected String statusTableName;
@@ -179,6 +181,16 @@ public abstract class BaseStatusManager implements StatusManager {
 		return lastValue;
 	}
 
+    protected Object convertStrLastValue(Object lastValue){
+        if(lastValue == null){
+            return null;
+        }
+        if(lastValue instanceof LocalDateTime){
+            lastValue = new Long(((Date) lastValue).getTime());
+        }
+        return lastValue;
+    }
+
 	public static boolean needUpdate(Integer lastValueType, Object oldValue,Object newValue){
 		if(newValue == null)
 			return false;
@@ -189,6 +201,9 @@ public abstract class BaseStatusManager implements StatusManager {
         if(lastValueType == null){
             if(oldValue instanceof Date)    {
                 lastValueType = ImportIncreamentConfig.TIMESTAMP_TYPE;
+            }
+            else if(oldValue instanceof LocalDateTime)    {
+                lastValueType = ImportIncreamentConfig.LOCALDATETIME_TYPE;
             }
             else{
                 lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
@@ -202,6 +217,14 @@ public abstract class BaseStatusManager implements StatusManager {
 			else
 				return false;
 		}
+        else if(lastValueType == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
+            LocalDateTime oldValueDate = (LocalDateTime)oldValue;
+            LocalDateTime newValueDate = (LocalDateTime)newValue;
+            if(newValueDate.isAfter(oldValueDate))
+                return true;
+            else
+                return false;
+        }
 		else{
 //			Method compareTo = oldValue.getClass().getMethod("compareTo");
 			if(oldValue instanceof Integer && newValue instanceof Integer){
@@ -282,6 +305,9 @@ public abstract class BaseStatusManager implements StatusManager {
             if(oldValue instanceof Date)    {
                 lastValueType = ImportIncreamentConfig.TIMESTAMP_TYPE;
             }
+            else if(oldValue instanceof LocalDateTime)    {
+                lastValueType = ImportIncreamentConfig.LOCALDATETIME_TYPE;
+            }
             else{
                 lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
             }
@@ -295,6 +321,14 @@ public abstract class BaseStatusManager implements StatusManager {
 			else
 				return oldValue;
 		}
+        else if(lastValueType == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
+            LocalDateTime oldValueDate = (LocalDateTime)oldValue;
+            LocalDateTime newValueDate = (LocalDateTime)newValue;
+            if(newValueDate.isAfter(oldValueDate))
+                return newValue;
+            else
+                return oldValueDate;
+        }
 		else{
 //			Method compareTo = oldValue.getClass().getMethod("compareTo");
 			if(oldValue instanceof Integer && newValue instanceof Integer){
@@ -413,6 +447,7 @@ public abstract class BaseStatusManager implements StatusManager {
 			addField("filePath",statusTableName,defaultValue,"500",type);
 			addField("relativeParentDir",statusTableName,defaultValue,"500",type);
 			addField("fileId",statusTableName,defaultValue,"500",type);
+            addField("strLastValue",statusTableName,defaultValue,"100",type);
 			addField("status",statusTableName,null,"1",DBConfig.getStatusTableTypeNumber(SQLUtil.getPool(statusDbname).getDBType()));
 			addField("jobId",statusTableName,defaultValue,"500",type);
 			addField("jobType",statusTableName,defaultValue,"500",type);
@@ -552,32 +587,32 @@ public abstract class BaseStatusManager implements StatusManager {
 
 			existSQL = new StringBuilder().append("select 1 from ").append(statusTableName).toString();
 			existHisSQL = new StringBuilder().append("select 1 from ").append(historyStatusTableName).toString();
-			selectSQL = new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
+			selectSQL = new StringBuilder().append("select id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
 					.append(statusTableName).append(" where id=? and jobType=?").toString();
-			selectByJobIdSQL = new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
+			selectByJobIdSQL = new StringBuilder().append("select id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
 					.append(statusTableName).append(" where id=? and ").append(" jobId=? and jobType=?").toString();
-			checkFieldSQL = "select filePath,fileId,relativeParentDir,status,jobId,jobType from " + statusTableName;
-			checkHisFieldSQL = "select filePath,fileId,relativeParentDir,status,statusId,jobId,jobType from " + historyStatusTableName;
-			selectAllSQL =  new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
+			checkFieldSQL = "select filePath,fileId,relativeParentDir,status,jobId,jobType,strLastValue from " + statusTableName;
+			checkHisFieldSQL = "select filePath,fileId,relativeParentDir,status,statusId,jobId,jobType,strLastValue from " + historyStatusTableName;
+			selectAllSQL =  new StringBuilder().append("select id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
 					.append(statusTableName).append(" where jobType=?").toString();
-			selectAllByJobIdSQL =  new StringBuilder().append("select id,lasttime,lastvalue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
+			selectAllByJobIdSQL =  new StringBuilder().append("select id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
 					.append(statusTableName).append(" where jobId = ? and jobType=?").toString();
 			updateSQL = new StringBuilder().append("update ").append(statusTableName)
-					.append(" set lasttime = ?,lastvalue = ? ,lastvaluetype= ? , filePath = ?,relativeParentDir = ?,fileId = ? ,status = ? where id=? and jobType=?").toString();
+					.append(" set lasttime = ?,lastvalue = ? ,strLastValue = ?,lastvaluetype= ? , filePath = ?,relativeParentDir = ?,fileId = ? ,status = ? where id=? and jobType=?").toString();
 			updateByJobIdSQL = new StringBuilder().append("update ").append(statusTableName)
-					.append(" set lasttime = ?,lastvalue = ? ,lastvaluetype= ? , filePath = ?,relativeParentDir = ?,fileId = ? ,status = ? where id=? and ").append(" jobId=? and jobType=?").toString();
+					.append(" set lasttime = ?,lastvalue = ? ,strLastValue = ?,lastvaluetype= ? , filePath = ?,relativeParentDir = ?,fileId = ? ,status = ? where id=? and ").append(" jobId=? and jobType=?").toString();
 			updateStatusSQL = new StringBuilder().append("update ")
 					.append(statusTableName).append(" set status = ?, lasttime= ?").append(" where id=? and jobType=?").toString();
 			updateByJobIdStatusSQL = new StringBuilder().append("update ")
 					.append(statusTableName).append(" set status = ?, lasttime= ?").append(" where id=? and ").append(" jobId=? and jobType=?").toString();
 			insertSQL = new StringBuilder().append("insert into ").append(statusTableName)
-					.append(" (id,lasttime,lastvalue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType) values(?,?,?,?,?,?,?,?,?,?)").toString();
+					.append(" (id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType) values(?,?,?,?,?,?,?,?,?,?,?)").toString();
 			deleteSQL = new StringBuilder().append("delete from ")
 					.append(statusTableName).append(" where id=? and jobType=?").toString();
 			deleteByJobIdSQL = new StringBuilder().append("delete from ")
 					.append(statusTableName).append(" where id=? and ").append(" jobId=? and jobType=?").toString();
 			insertHistorySQL = new StringBuilder().append("insert into ").append(statusTableName)
-					.append(" (id,lasttime,lastvalue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType) values(?,?,?,?,?,?,?,?,?,?)").toString();
+					.append(" (id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType) values(?,?,?,?,?,?,?,?,?,?,?)").toString();
 		}
 	}
 
@@ -605,6 +640,7 @@ public abstract class BaseStatusManager implements StatusManager {
 			try {
 				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				initLastDate = dateFormat.parse("1970-01-01 00:00:00");
+                initLastLocalDateTime = TimeUtil.localDateTime("1970-01-01 00:00:00");
 				SQLExecutor.queryObjectWithDBName(int.class, statusDbname, existSQL);
 				/**
 				 * 检查状态表字段是否存在，不存在则创建
@@ -622,6 +658,7 @@ public abstract class BaseStatusManager implements StatusManager {
 			try {
 				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				initLastDate = dateFormat.parse("1970-01-01 00:00:00");
+                initLastLocalDateTime = TimeUtil.localDateTime("1970-01-01 00:00:00");
 				SQLExecutor.queryObjectWithDBName(int.class, statusDbname, existHisSQL);
 				/**
 				 * 检查历史状态表字段是否存在，不存在则创建
@@ -701,33 +738,9 @@ public abstract class BaseStatusManager implements StatusManager {
 	private void initSQLiteStatusDB(String statusDbname,String dbJNDIName){
 
 		try {
-			createStatusTableSQL = new StringBuilder().append("create table " ).append( statusTableName)
-					.append( " (ID varchar(100),")  //记录标识
-					.append( "lasttime number(20),") //最后更新时间
-					.append( "lastvalue number(20),")  //增量字段值，值可能是日期类型，也可能是数字类型
-					.append( "lastvaluetype number(1),") //值类型 0-数字 1-日期
-					.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
-					.append( "filePath varchar(500) ,")  //日志文件路径
-					.append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径
+            createStatusTableSQL = DBConfig.sqlitex_createStatusTableSQL.replace("$statusTableName",statusTableName);;
+            createHistoryStatusTableSQL = DBConfig.sqlitex_createHistoryStatusTableSQL.replace("$historyStatusTableName",historyStatusTableName);
 
-					.append( "fileId varchar(500) ,")  //日志文件indoe标识
-					.append( "jobId varchar(500) ,")   //作业id 6.7.7版本新增
-					.append( "jobType varchar(500) ,")   //作业输入插件类型 6.7.7版本新增
-					.append( "PRIMARY KEY (ID))").toString();
-			createHistoryStatusTableSQL = new StringBuilder().append("create table " ).append( historyStatusTableName)
-					.append( " (ID varchar(100),")  //记录标识
-					.append( "lasttime number(20),") //最后更新时间
-					.append( "lastvalue number(20),")  //增量字段值，值可能是日期类型，也可能是数字类型
-					.append( "lastvaluetype number(1),") //值类型 0-数字 1-日期
-					.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
-					.append( "filePath varchar(500) ,")  //日志文件路径
-					.append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径
-					.append( "fileId varchar(500) ,")  //日志文件indoe标识
-					.append( "jobId varchar(500) ,")   //作业id 6.7.7版本新增
-					.append( "jobType varchar(500) ,")   //作业输入插件类型 6.7.7版本新增
-					.append( "statusId number(10)) ")  //状态表中使用的主键标识
-//					.append( "PRIMARY KEY (ID))")
-					.toString();
 			File dbpath = new File(statusStorePath);
 			logger.info("initDatasource dbpath:" + dbpath.getCanonicalPath());
 			DBConf tempConf = new DBConf();
@@ -796,6 +809,7 @@ public abstract class BaseStatusManager implements StatusManager {
 			addField("fileId",historyStatusTableName,defaultValue,"500",type);
 			addField("jobId",historyStatusTableName,defaultValue,"500",type);
 			addField("jobType",historyStatusTableName,defaultValue,"500",type);
+            addField("strLastValue",historyStatusTableName,defaultValue,"100",type);
 			addField("status",historyStatusTableName,null,"1",DBConfig.getStatusTableTypeNumber(SQLUtil.getPool(statusDbname).getDBType()));
 			addField("statusId",historyStatusTableName,null,"10",DBConfig.getStatusTableTypeBigNumber(SQLUtil.getPool(statusDbname).getDBType()));
 		}
@@ -851,12 +865,14 @@ public abstract class BaseStatusManager implements StatusManager {
 	public void addStatus(Status currentStatus) throws DataImportException {
 //		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
 		Object lastValue = currentStatus.getLastValue();
-		if(logger.isInfoEnabled()){
-			logger.info("AddStatus: 增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
-					lastValue.getClass().getName(),lastValue);
-		}
+        Object strLastValue = currentStatus.getStrLastValue();
+
 
 		if(importContext.isLastValueDateType()){
+            if(logger.isInfoEnabled()){
+                logger.info("AddStatus: 增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
+                        lastValue.getClass().getName(),lastValue);
+            }
 			if(lastValue instanceof Date) {
 				lastValue = ((Date) lastValue).getTime();
 
@@ -864,14 +880,33 @@ public abstract class BaseStatusManager implements StatusManager {
 			else{
 				throw new DataImportException("AddStatus: 增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
 			}
+            strLastValue = null;
 		}
-		if(logger.isInfoEnabled()){
-			logger.info("AddStatus: 增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}",importContext.isLastValueDateType(),
-					lastValue.getClass().getName(),lastValue);
-		}
+        else if(importContext.isLastValueLocalDateTimeType()){
+            if(logger.isInfoEnabled()){
+                logger.info("AddStatus: 增量字段值 LastValue isLastValueLocalDateTimeType:{},real data type is {},real last value is {}",importContext.isLastValueLocalDateTimeType(),
+                        lastValue.getClass().getName(),lastValue);
+            }
+
+            if(lastValue instanceof LocalDateTime) {
+                strLastValue = TimeUtil.changeLocalDateTime2String((LocalDateTime)lastValue,importContext.getLastValueDateformat());
+                lastValue = null;
+            }
+            else{
+                throw new DataImportException("AddStatus: 增量字段为LocalDateTime类型，But the LastValue is not a LocalDateTime value:"+lastValue+",value type is "+lastValue.getClass().getName());
+            }
+        }
+        else{
+            if(logger.isInfoEnabled()){
+                logger.info("AddStatus: 增量字段值 LastValue is Number Type:{},real data type is {},real last value is {}",importContext.isLastValueNumberType(),
+                        lastValue.getClass().getName(),lastValue);
+            }
+            strLastValue = null;
+        }
+
 
 		try {
-			SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),lastValue,lastValueType,
+			SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),lastValue,strLastValue,lastValueType,
 					currentStatus.getFilePath(),currentStatus.getRelativeParentDir(),
 					currentStatus.getFileId(),currentStatus.getStatus(),currentStatus.getJobId(),currentStatus.getJobType());
 		} catch (SQLException throwables) {
@@ -880,12 +915,12 @@ public abstract class BaseStatusManager implements StatusManager {
 	}
 	public void updateStatus(Status currentStatus) throws Exception {
 		Object lastValue = currentStatus.getLastValue();
-		if(logger.isDebugEnabled()){
-			logger.debug("UpdateStatus：增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
-					lastValue.getClass().getName(),lastValue);
-		}
 
 		if(importContext.isLastValueDateType()){
+            if (logger.isDebugEnabled()) {
+                logger.debug("UpdateStatus：增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}", importContext.isLastValueDateType(),
+                        lastValue.getClass().getName(), lastValue);
+            }
 			if(lastValue instanceof Date) {
 				lastValue = ((Date) lastValue).getTime();
 			}
@@ -893,10 +928,22 @@ public abstract class BaseStatusManager implements StatusManager {
 				throw new DataImportException("UpdateStatus：增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
 			}
 		}
-		if(logger.isDebugEnabled()){
-			logger.debug("UpdateStatus：增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}",importContext.isLastValueDateType(),
-					lastValue.getClass().getName(),lastValue);
-		}
+        else if(importContext.isLastValueLocalDateTimeType()){
+            if(lastValue instanceof LocalDateTime) {
+                String strLastValue = TimeUtil.changeLocalDateTime2String((LocalDateTime)lastValue,importContext.getLastValueDateformat());
+                currentStatus.setLastValue(null);
+                currentStatus.setStrLastValue(strLastValue);
+            }
+            else{
+                throw new DataImportException("AddStatus: 增量字段为LocalDateTime类型，But the LastValue is not a LocalDateTime value:"+lastValue+",value type is "+lastValue.getClass().getName());
+            }
+        }
+        else if(importContext.isLastValueNumberType()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("UpdateStatus：增量字段值 LastValue is Number Type:{},real data type is {},and real last value to sqlite is {}", importContext.isLastValueDateType(),
+                        lastValue.getClass().getName(), lastValue);
+            }
+        }
 //		SQLExecutor.updateWithDBName(statusDbname,updateSQL, currentStatus.getTime(), lastValue,
 //									lastValueType,currentStatus.getFilePath(),currentStatus.getFileId(),
 //									currentStatus.getStatus(),currentStatus.getId());
@@ -910,7 +957,7 @@ public abstract class BaseStatusManager implements StatusManager {
 		Status currentStatus = new Status();
 		currentStatus.setId(importContext.getStatusTableId());
 		currentStatus.setTime(new Date().getTime());
-		if(lastValueType == ImportIncreamentConfig.TIMESTAMP_TYPE) {
+		if(importContext.isLastValueDateType()) {
 			Object configLastValue = importContext.getConfigLastValue();
 			if(configLastValue != null){
 
@@ -938,13 +985,40 @@ public abstract class BaseStatusManager implements StatusManager {
 				currentStatus.setLastValue(initLastDate);
 			}
 		}
-		else if(importContext.getConfigLastValue() != null){
+        else if(importContext.isLastValueNumberType()) {
+		    if (importContext.getConfigLastValue() != null) {
 
-			currentStatus.setLastValue(importContext.getConfigLastValue());
-		}
-		else{
-			currentStatus.setLastValue(0l);
-		}
+                currentStatus.setLastValue(importContext.getConfigLastValue());
+            } else {
+                currentStatus.setLastValue(0l);
+            }
+        }
+        else if(importContext.isLastValueLocalDateTimeType()) {
+            Object configLastValue = importContext.getConfigLastValue();
+            if(configLastValue != null){
+
+                if(configLastValue instanceof String) {
+                    LocalDateTime localDateTime = TimeUtil.localDateTime((String) configLastValue);
+                    currentStatus.setLastValue(localDateTime);
+                    currentStatus.setStrLastValue((String) configLastValue);
+                }
+                else  if(configLastValue instanceof LocalDateTime){
+                    currentStatus.setLastValue(configLastValue);
+                    currentStatus.setStrLastValue(TimeUtil.changeLocalDateTime2String( (LocalDateTime)configLastValue,importContext.getLastValueDateformat()));
+                }
+
+                else{
+                    if(logger.isInfoEnabled()) {
+                        logger.info("TIMESTAMP TYPE Last Value Illegal:{}", configLastValue);
+                    }
+                    throw new DataImportException("TIMESTAMP TYPE Last Value Illegal:"+configLastValue );
+                }
+            }
+            else {
+                currentStatus.setLastValue(initLastLocalDateTime);
+                currentStatus.setStrLastValue(TimeUtil.changeLocalDateTime2String( initLastLocalDateTime,importContext.getLastValueDateformat()));
+            }
+        }
 
 		if(importContext.getJobId() != null) {
 			currentStatus.setJobId(importContext.getJobId());
@@ -984,7 +1058,7 @@ public abstract class BaseStatusManager implements StatusManager {
 					if (lastTime <= deletedTime) {
 
 						SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
-								status.getLastValue(), status.getLastValueType(), status.getFilePath(), status.getRelativeParentDir(),status.getFileId(), status.getStatus(),status.getJobId(),status.getJobType());
+								status.getLastValue(),status.getStrLastValue(), status.getLastValueType(), status.getFilePath(), status.getRelativeParentDir(),status.getFileId(), status.getStatus(),status.getJobId(),status.getJobType());
 						if(status.getJobId() == null) {
 							SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId(),status.getJobType());
 						}
@@ -1084,6 +1158,10 @@ public abstract class BaseStatusManager implements StatusManager {
 							throw new DataImportException("InitTableAndStatus：增量字段类型为日期类型, But the LastValue from status table is not a long value:"+lastValue+",value type is "+lastValue.getClass().getName());
 						}
 					}
+                    else if(currentStatus.getLastValueType() == ImportIncreamentConfig.LOCALDATETIME_TYPE){
+                        String lastValue = currentStatus.getStrLastValue();
+                        currentStatus.setLastValue(TimeUtil.localDateTime(lastValue));
+                    }
 					this.firstStatus = (Status) currentStatus.clone();
 				}
 			}
@@ -1118,7 +1196,7 @@ public abstract class BaseStatusManager implements StatusManager {
 
 
 		}
-		else{
+        else if(this.lastValueType == ImportIncreamentConfig.TIMESTAMP_TYPE)  {
 			Date ldate = null;
 			if(lastValue instanceof Date) {
 				ldate = (Date)lastValue;
@@ -1145,11 +1223,20 @@ public abstract class BaseStatusManager implements StatusManager {
 			params.put(dataTranPlugin.getLastValueVarName(), formatLastDateValue(ldate));
 
 			if(importContext.increamentEndOffset() != null){
-				Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
+				Date lastOffsetValue = org.frameworkset.util.TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
 				ret[1] = lastOffsetValue;
 				params.put(dataTranPlugin.getLastValueVarName()+"__endTime", formatLastDateValue(lastOffsetValue));
 			}
 		}
+        else if(this.lastValueType == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
+            params.put(dataTranPlugin.getLastValueVarName(), formatLastLocalDateTimeValue((LocalDateTime)lastValue));
+            if(importContext.increamentEndOffset() != null){
+                Date lastOffsetValue = org.frameworkset.util.TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
+                LocalDateTime localDateTime = TimeUtil.date2LocalDateTime(lastOffsetValue);
+                ret[1] = localDateTime;
+                params.put(dataTranPlugin.getLastValueVarName()+"__endTime", formatLastLocalDateTimeValue(localDateTime));
+            }
+        }
 		if(isPrintTaskLog()){
 			logger.info(new StringBuilder().append("Current values: ").append(params).toString());
 		}
@@ -1161,10 +1248,16 @@ public abstract class BaseStatusManager implements StatusManager {
 	}
 	protected Object formatLastDateValue(Date date){
 
-		return date;
+		return importContext.getInputPlugin().formatLastDateValue(date);
 
 
 	}
+    protected Object formatLastLocalDateTimeValue(LocalDateTime date){
+
+        return importContext.getInputPlugin().formatLastLocalDateTimeValue(date);
+
+
+    }
 	public void stopStatusDatasource(){
 		try {
 			if(statusDbname != null && !statusDbname.equals("")) {
@@ -1186,7 +1279,7 @@ public abstract class BaseStatusManager implements StatusManager {
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 			params.put(dataTranPlugin.getLastValueVarName(), lastValue);
 		}
-		else{
+		else if(this.lastValueType == ImportIncreamentConfig.TIMESTAMP_TYPE){
 			if(lastValue instanceof Date)
 				params.put(dataTranPlugin.getLastValueVarName(), lastValue);
 			else {
@@ -1207,10 +1300,17 @@ public abstract class BaseStatusManager implements StatusManager {
 				}
 			}
 			if(importContext.increamentEndOffset() != null){
-				Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
+				Date lastOffsetValue = org.frameworkset.util.TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
 				params.put(dataTranPlugin.getLastValueVarName()+"__endTime", lastOffsetValue);
 			}
 		}
+        else if(this.lastValueType == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
+            params.put(dataTranPlugin.getLastValueVarName(), lastValue);
+            if(importContext.increamentEndOffset() != null){
+                Date lastOffsetValue = org.frameworkset.util.TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
+                params.put(dataTranPlugin.getLastValueVarName()+"__endTime", TimeUtil.date2LocalDateTime(lastOffsetValue));
+            }
+        }
 		if(isPrintTaskLog()){
 			logger.info(new StringBuilder().append("Current values: ").append(params).toString());
 		}

@@ -17,6 +17,7 @@ package org.frameworkset.tran;
 
 import org.frameworkset.tran.schedule.TaskContext;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public interface Record {
 	public Object getValue(  int i, String colName,int sqlType) throws DataImportException;
 	public Object getValue( String colName,int sqlType) throws DataImportException;
 	public Date getDateTimeValue(String colName) throws DataImportException;
-
+    public LocalDateTime getLocalDateTimeValue(String colName) throws DataImportException;
 	public Date getDateTimeValue(String colName,String dateformat) throws DataImportException;
 	Object getValue(String colName);
 	public Object getKeys();

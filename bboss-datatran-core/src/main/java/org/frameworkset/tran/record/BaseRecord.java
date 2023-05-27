@@ -21,6 +21,7 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 
@@ -75,6 +76,15 @@ public abstract class BaseRecord implements Record {
 		return TranUtil.getDateTimeValue(colName,value,taskContext.getImportContext(),dateformat);
 
 	}
+
+    @Override
+    public LocalDateTime getLocalDateTimeValue(String colName) throws DataImportException {
+        Object value = getValue(  colName);
+        if(value == null)
+            return null;
+        return TranUtil.getLocalDateTimeValue(colName,value,taskContext.getImportContext());
+
+    }
     @Override
     public boolean reachEOFRecord(){
         return readEOFRecord;

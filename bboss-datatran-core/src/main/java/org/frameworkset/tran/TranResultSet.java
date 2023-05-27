@@ -17,14 +17,15 @@ package org.frameworkset.tran;/*
 
 import org.frameworkset.tran.schedule.TaskContext;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 
 public interface TranResultSet {
 
 	public Object getValue(  int i, String colName,int sqlType) throws DataImportException;
-
-	public Object getValue( String colName) throws DataImportException;
+    public LocalDateTime getLocalDateTimeValue(String colName) throws DataImportException;
+    public Object getValue( String colName) throws DataImportException;
 	public Object getLastValue(String colName) throws DataImportException;
 	public Object getLastOffsetValue() throws DataImportException;
 

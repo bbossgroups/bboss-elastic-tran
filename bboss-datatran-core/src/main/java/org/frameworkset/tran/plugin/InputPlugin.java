@@ -23,6 +23,9 @@ import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -37,6 +40,8 @@ public interface InputPlugin {
 	public void initStatusTableId();
 	public String getLastValueVarName();
 	public Long getTimeRangeLastValue();
+    public Object formatLastDateValue(Date date);
+    public Object formatLastLocalDateTimeValue(LocalDateTime localDateTime);
 	public void doImportData( TaskContext taskContext)  throws DataImportException;
 	public void afterInit();
 	public void beforeInit();

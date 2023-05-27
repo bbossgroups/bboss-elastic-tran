@@ -20,6 +20,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -66,7 +67,9 @@ public class SplitTranResultSet  implements TranResultSet {
 
 	}
 
-	@Override
+
+
+    @Override
 	public Object getValue(String colName) throws DataImportException {
 		if(record != null)
 			return record.getValue(colName);
@@ -129,7 +132,15 @@ public class SplitTranResultSet  implements TranResultSet {
 			return tranResultSet.getDateTimeValue(colName,dateFormat);
 		}
 	}
-
+    @Override
+    public LocalDateTime getLocalDateTimeValue(String colName) throws DataImportException {
+        if(record != null){
+            return record.getLocalDateTimeValue(colName);
+        }
+        else {
+            return tranResultSet.getLocalDateTimeValue(colName);
+        }
+    }
 	@Override
 	public TaskContext getRecordTaskContext() {
 		return tranResultSet.getRecordTaskContext();

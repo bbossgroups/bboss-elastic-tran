@@ -22,6 +22,7 @@ import org.frameworkset.tran.metrics.entity.TimeMetric;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -338,6 +339,12 @@ public class TimeTaskMetric extends TimeMetric {
 						this.lastValue = nts;
 				}
 			}
+            else if(importContext.getLastValueType() == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
+                    LocalDateTime ts = (LocalDateTime)lastValue;
+                    LocalDateTime nts = (LocalDateTime)taskMetrics.getLastValue();
+                    if(nts.isAfter(ts))
+                        this.lastValue = nts;
+            }
 		}
 
 

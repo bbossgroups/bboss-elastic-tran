@@ -89,13 +89,14 @@ public class MultiStatusManager extends BaseStatusManager{
 					public void handler(PreparedStatement stmt, Status record, int i) throws SQLException {
 						stmt.setLong(1, record.getTime());
 						stmt.setObject(2, convertLastValue(record.getLastValue()));
-						stmt.setInt(3, lastValueType);
-						stmt.setString(4, record.getFilePath());
-						stmt.setString(5, record.getRelativeParentDir());
-						stmt.setString(6, record.getFileId());
-						stmt.setInt(7, record.getStatus());
-						stmt.setString(8, record.getId());
-						stmt.setString(9, record.getJobType());
+                        stmt.setObject(3, convertStrLastValue(record.getStrLastValue()));
+						stmt.setInt(4, lastValueType);
+						stmt.setString(5, record.getFilePath());
+						stmt.setString(6, record.getRelativeParentDir());
+						stmt.setString(7, record.getFileId());
+						stmt.setInt(8, record.getStatus());
+						stmt.setString(9, record.getId());
+						stmt.setString(10, record.getJobType());
 
 					}
 				});
@@ -106,14 +107,15 @@ public class MultiStatusManager extends BaseStatusManager{
 					public void handler(PreparedStatement stmt, Status record, int i) throws SQLException {
 						stmt.setLong(1, record.getTime());
 						stmt.setObject(2, convertLastValue(record.getLastValue()));
-						stmt.setInt(3, lastValueType);
-						stmt.setString(4, record.getFilePath());
-						stmt.setString(5, record.getRelativeParentDir());
-						stmt.setString(6, record.getFileId());
-						stmt.setInt(7, record.getStatus());
-						stmt.setString(8, record.getId());
-						stmt.setString(9,importContext.getJobId());
-						stmt.setString(10,importContext.getJobType());
+                        stmt.setObject(3, convertStrLastValue(record.getStrLastValue()));
+                        stmt.setInt(4, lastValueType);
+						stmt.setString(5, record.getFilePath());
+						stmt.setString(6, record.getRelativeParentDir());
+						stmt.setString(7, record.getFileId());
+						stmt.setInt(8, record.getStatus());
+						stmt.setString(9, record.getId());
+						stmt.setString(10,importContext.getJobId());
+						stmt.setString(11,importContext.getJobType());
 					}
 				});
 			}

@@ -34,6 +34,10 @@ public class Status implements java.lang.Cloneable{
 	 */
 	private int lastValueType;
 	private Object lastValue;
+
+
+
+    private String strLastValue;
 	private String filePath = "";
 	private String realPath = "";
 
@@ -100,6 +104,7 @@ public class Status implements java.lang.Cloneable{
 		copy.time = this.time;
 		copy.jobId = this.jobId;
 		copy.jobType = this.jobType;
+        copy.strLastValue = strLastValue;
 		return copy;
 	}
 
@@ -168,4 +173,11 @@ public class Status implements java.lang.Cloneable{
 	public void setJobType(String jobType) {
 		this.jobType = jobType;
 	}
+    public String getStrLastValue() {
+        return strLastValue;
+    }
+
+    public void setStrLastValue(String strLastValue) {
+        this.strLastValue = strLastValue;
+    }
 }

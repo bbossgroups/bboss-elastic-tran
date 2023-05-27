@@ -403,6 +403,15 @@ public  class BaseImportContext implements ImportContext {
 	{
 		return baseImportConfig.isLastValueDateType();
 	}
+    public boolean isLastValueNumberType()
+    {
+        return baseImportConfig.isLastValueNumberType();
+    }
+    public boolean isLastValueLocalDateTimeType()
+    {
+        return baseImportConfig.isLastValueLocalDateTimeType();
+    }
+
 	public Integer getLastValueType() {
 		return baseImportConfig.getLastValueType();
 	}

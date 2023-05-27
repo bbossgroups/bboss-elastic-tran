@@ -29,8 +29,10 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.es.BaseESPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.schedule.timer.TimeUtil;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -203,7 +205,7 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 	 * @return
 	 */
 	@Override
-	protected Object formatLastDateValue(Date date){
+	public Object formatLastDateValue(Date date){
 		String lastValueDateformat = importContext.getLastValueDateformat();
 		if(lastValueDateformat != null && !lastValueDateformat.equals("")){
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(lastValueDateformat);
@@ -213,6 +215,10 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 
 
 	}
+
+    public Object formatLastLocalDateTimeValue(LocalDateTime localDateTime){
+        return TimeUtil.changeLocalDateTime2String(localDateTime,importContext.getLastValueDateformat());
+    }
 	protected void increamentImportData(TaskContext taskContext,BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler) throws Exception {
 		Map params = dataTranPlugin.getJobInputParams(taskContext);
 		params.put("size", importContext.getFetchSize());//每页fetchSize条记录
@@ -231,6 +237,17 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 				lastEndValue = new Date();
 			exportESData(  taskContext,esExporterScrollHandler, params, (Date)lastValue,lastEndValue);
 		}
+        else if(lastValue instanceof LocalDateTime) {
+            Date lastEndValue = null;
+            if(importContext.increamentEndOffset() != null){
+//				lastEndValue = (Date)params.get(getLastValueVarName()+"__endTime");
+                lastEndValue = TimeUtil.convertLocalDatetime((LocalDateTime)lastValues[1]);
+            }
+            else
+                lastEndValue = new Date();
+            exportESData(  taskContext,esExporterScrollHandler, params,
+                    TimeUtil.convertLocalDatetime((LocalDateTime)lastValue),lastEndValue);
+        }
 		else{
 			Date date = new Date();
 			exportESData(  taskContext,esExporterScrollHandler, params, date,date);
