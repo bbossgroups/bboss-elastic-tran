@@ -185,9 +185,9 @@ public abstract class BaseStatusManager implements StatusManager {
         if(lastValue == null){
             return null;
         }
-        if(lastValue instanceof LocalDateTime){
-            lastValue = new Long(((Date) lastValue).getTime());
-        }
+//        if(lastValue instanceof LocalDateTime){
+//            lastValue = new Long(((Date) lastValue).getTime());
+//        }
         return lastValue;
     }
 
