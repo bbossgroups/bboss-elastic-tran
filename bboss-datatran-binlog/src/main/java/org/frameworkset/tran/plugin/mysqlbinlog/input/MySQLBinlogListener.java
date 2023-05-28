@@ -95,6 +95,33 @@ public class MySQLBinlogListener {
         if(position != null)
             client.setBinlogPosition(position);
         client.setEventDeserializer(eventDeserializer);
+        if(mySQLBinlogConfig.getServerId() != null){
+            client.setServerId(mySQLBinlogConfig.getServerId());
+        }
+
+        if(mySQLBinlogConfig.getKeepAlive() != null){
+            client.setKeepAlive(mySQLBinlogConfig.getKeepAlive());
+        }
+        if(mySQLBinlogConfig.getKeepAliveInterval() != null){
+            client.setKeepAliveInterval(mySQLBinlogConfig.getKeepAliveInterval());
+        }
+
+        if(mySQLBinlogConfig.getHeartbeatInterval() != null){
+            client.setHeartbeatInterval(mySQLBinlogConfig.getHeartbeatInterval());
+        }
+        if(mySQLBinlogConfig.getBlocking() != null){
+            client.setBlocking(mySQLBinlogConfig.getBlocking());
+        }
+
+        if(mySQLBinlogConfig.getConnectTimeout() != null){
+            client.setConnectTimeout(mySQLBinlogConfig.getConnectTimeout());
+        }
+        if(mySQLBinlogConfig.getGtidSetFallbackToPurged() != null){
+            client.setGtidSetFallbackToPurged(mySQLBinlogConfig.getGtidSetFallbackToPurged());
+        }
+        if(mySQLBinlogConfig.getUseBinlogFilenamePositionInGtidMode() != null){
+            client.setUseBinlogFilenamePositionInGtidMode(mySQLBinlogConfig.getUseBinlogFilenamePositionInGtidMode());
+        }
         client.registerEventListener(new BinaryLogClient.EventListener() {
             private String table = null;
             private String database = null;

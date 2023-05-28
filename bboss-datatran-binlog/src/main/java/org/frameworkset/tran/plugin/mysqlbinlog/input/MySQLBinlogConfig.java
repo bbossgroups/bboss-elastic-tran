@@ -70,6 +70,17 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
     private Long position;
 
+    private Boolean keepAlive ;
+    private Long keepAliveInterval ;
+
+    private Long heartbeatInterval;
+    private Boolean blocking;
+
+    private Long connectTimeout ;
+
+    private Boolean gtidSetFallbackToPurged;
+    private Boolean useBinlogFilenamePositionInGtidMode;
+
     public String getHost() {
         return host;
     }
@@ -203,6 +214,70 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
     public MySQLBinlogConfig setSchemaUrl(String schemaUrl) {
         this.schemaUrl = schemaUrl;
+        return this;
+    }
+
+
+    public Boolean getKeepAlive() {
+        return keepAlive;
+    }
+
+    public MySQLBinlogConfig setKeepAlive(Boolean keepAlive) {
+        this.keepAlive = keepAlive;
+        return this;
+    }
+
+    public Long getKeepAliveInterval() {
+        return keepAliveInterval;
+    }
+
+    public MySQLBinlogConfig setKeepAliveInterval(Long keepAliveInterval) {
+        this.keepAliveInterval = keepAliveInterval;
+        return this;
+    }
+
+    public Long getHeartbeatInterval() {
+        return heartbeatInterval;
+    }
+
+    public MySQLBinlogConfig setHeartbeatInterval(Long heartbeatInterval) {
+        this.heartbeatInterval = heartbeatInterval;
+        return this;
+    }
+
+    public Boolean getBlocking() {
+        return blocking;
+    }
+
+    public MySQLBinlogConfig setBlocking(Boolean blocking) {
+        this.blocking = blocking;
+        return this;
+    }
+
+    public Long getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public MySQLBinlogConfig setConnectTimeout(Long connectTimeout) {
+        this.connectTimeout = connectTimeout;
+        return this;
+    }
+
+    public Boolean getGtidSetFallbackToPurged() {
+        return gtidSetFallbackToPurged;
+    }
+
+    public MySQLBinlogConfig setGtidSetFallbackToPurged(Boolean gtidSetFallbackToPurged) {
+        this.gtidSetFallbackToPurged = gtidSetFallbackToPurged;
+        return this;
+    }
+
+    public Boolean getUseBinlogFilenamePositionInGtidMode() {
+        return useBinlogFilenamePositionInGtidMode;
+    }
+
+    public MySQLBinlogConfig setUseBinlogFilenamePositionInGtidMode(Boolean useBinlogFilenamePositionInGtidMode) {
+        this.useBinlogFilenamePositionInGtidMode = useBinlogFilenamePositionInGtidMode;
         return this;
     }
 }
