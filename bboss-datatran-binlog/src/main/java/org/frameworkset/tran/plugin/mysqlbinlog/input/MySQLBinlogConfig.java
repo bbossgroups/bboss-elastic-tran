@@ -16,6 +16,8 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
+import com.github.shyiko.mysql.binlog.network.SSLMode;
+import com.github.shyiko.mysql.binlog.network.SSLSocketFactory;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.ImportBuilder;
@@ -80,6 +82,10 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
     private Boolean gtidSetFallbackToPurged;
     private Boolean useBinlogFilenamePositionInGtidMode;
+
+    private SSLMode sslMode;
+
+    private SSLSocketFactory sslSocketFactory;
 
     public String getHost() {
         return host;
@@ -278,6 +284,24 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
     public MySQLBinlogConfig setUseBinlogFilenamePositionInGtidMode(Boolean useBinlogFilenamePositionInGtidMode) {
         this.useBinlogFilenamePositionInGtidMode = useBinlogFilenamePositionInGtidMode;
+        return this;
+    }
+
+    public SSLSocketFactory getSslSocketFactory() {
+        return sslSocketFactory;
+    }
+
+    public MySQLBinlogConfig setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
+        this.sslSocketFactory = sslSocketFactory;
+        return this;
+    }
+
+    public SSLMode getSslMode() {
+        return sslMode;
+    }
+
+    public MySQLBinlogConfig setSslMode(SSLMode sslMode) {
+        this.sslMode = sslMode;
         return this;
     }
 }

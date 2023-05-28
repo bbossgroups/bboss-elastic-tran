@@ -122,6 +122,13 @@ public class MySQLBinlogListener {
         if(mySQLBinlogConfig.getUseBinlogFilenamePositionInGtidMode() != null){
             client.setUseBinlogFilenamePositionInGtidMode(mySQLBinlogConfig.getUseBinlogFilenamePositionInGtidMode());
         }
+        if(mySQLBinlogConfig.getSslMode() != null){
+            client.setSSLMode(mySQLBinlogConfig.getSslMode());
+        }
+        if(mySQLBinlogConfig.getSslSocketFactory() != null){
+            client.setSslSocketFactory(mySQLBinlogConfig.getSslSocketFactory());
+        }
+
         client.registerEventListener(new BinaryLogClient.EventListener() {
             private String table = null;
             private String database = null;
