@@ -246,7 +246,7 @@ public class ScheduleService {
 			exception = e;
 			if(isEnablePluginTaskIntercept())
 				throwException(taskContext,e);
-			logger.error("scheduleImportData failed:",e);
+			logger.error("Schedule job task failed:",e);
             if(!importContext.getDataTranPlugin().isMultiTran() && !importContext.isContinueOnError() )
                 importContext.finishAndWaitTran();
         }
@@ -255,10 +255,10 @@ public class ScheduleService {
 
 				if (logger.isInfoEnabled()) {
 					if(exception == null) {
-						logger.info(new StringBuilder().append("Execute schedule job finished ,Take ").append((importEndTime - importStartTime)).append(" ms").toString());
+						logger.info(new StringBuilder().append("Schedule job task finished ,Take ").append((importEndTime - importStartTime)).append(" ms").toString());
 					}
 					else{
-						logger.info(new StringBuilder().append("Execute schedule job finished with exception, Take ").append((importEndTime - importStartTime)).append(" ms").toString());
+						logger.info(new StringBuilder().append("Schedule job finished with exception, Take ").append((importEndTime - importStartTime)).append(" ms").toString());
 					}
 				}
 
