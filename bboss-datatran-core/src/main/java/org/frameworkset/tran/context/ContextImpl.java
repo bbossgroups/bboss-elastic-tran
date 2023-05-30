@@ -327,6 +327,10 @@ public class ContextImpl implements Context {
 		Object value = this.getValue(fieldName);
 		if(value == null)
 			return null;
+        else if(value instanceof String){
+            LocalDateTime localDateTime = TimeUtil.localDateTime((String)value);
+            return TimeUtil.convertLocalDatetime(localDateTime);
+        }
 		else if(value instanceof Date){
 			return (Date)value;
 
@@ -347,6 +351,37 @@ public class ContextImpl implements Context {
 		}
 		throw new IllegalArgumentException("Convert date value failed:"+value );
 	}
+
+    @Override
+    public LocalDateTime getLocalDateTime(String fieldName) throws Exception{
+        Object value = this.getValue(fieldName);
+        if(value == null)
+            return null;
+        else if(value instanceof String){
+            return TimeUtil.localDateTime((String)value);
+
+        }
+        else if(value instanceof Date){
+            return TimeUtil.date2LocalDateTime((Date)value);
+
+        }
+        else if(value instanceof LocalDateTime){
+            return (LocalDateTime)value;
+
+        }
+        else if(value instanceof LocalDate){
+            return TimeUtil.date2LocalDateTime(TimeUtil.convertLocalDate((LocalDate)value));
+
+        }
+        else if(value instanceof BigDecimal){
+            return TimeUtil.date2LocalDateTime(new Date(((BigDecimal)value).longValue()));
+        }
+        else if(value instanceof Long){
+            return TimeUtil.date2LocalDateTime( new Date(((Long)value).longValue()));
+        }
+
+        throw new IllegalArgumentException("Convert date value failed:"+value );
+    }
     @Override
     public Date getDateValue(String fieldName, String dateFormat) throws Exception{
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
@@ -624,4 +659,6 @@ public class ContextImpl implements Context {
 	public CommonRecord getCommonRecord() {
 		return commonRecord;
 	}
+
+
 }

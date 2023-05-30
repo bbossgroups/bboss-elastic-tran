@@ -38,7 +38,6 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 	protected String sql;
 	private String sqlFilepath;
 	protected String sqlName;
-	private Integer jdbcFetchsize;
 
 	private Boolean enableDBTransaction;
 
@@ -113,13 +112,7 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 			}
 		}
 		if(dbConfig == null ){
-//			GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml",false);
-//			String dbName  = propertiesContainer.getExternalProperty("db.name");
-//			if(SimpleStringUtil.isNotEmpty(dbName)){
-//				dbConfig = new DBConfig();
-//				_buildDBConfig(propertiesContainer, dbName, dbConfig, "");
-//				this.dbConfigMap.put(dbConfig.getDbName(),dbConfig);
-//			}
+
 			dbConfig = importBuilder.getDefaultDBConfig();
 			this.dbConfigMap.put(dbConfig.getDbName(),dbConfig);
 		}
@@ -128,6 +121,12 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 		}
 		if(SimpleStringUtil.isEmpty(sourceDbname))
 			sourceDbname = dbConfig.getDbName();
+
+        if(importBuilder.isSetFetchSized()) {
+            if (dbConfig.getJdbcFetchSize() == null) {
+                setJdbcFetchSize(importBuilder.getFetchSize());
+            }
+        }
 
 	}
 
@@ -263,12 +262,16 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 		return this;
 	}
 
-	public Integer getJdbcFetchsize() {
-		return jdbcFetchsize;
-	}
-
-	public DBInputConfig setJdbcFetchsize(Integer jdbcFetchsize) {
-		this.jdbcFetchsize = jdbcFetchsize;
-		return this;
-	}
+    /**
+     *
+     * @param fetchsize
+     * @return
+     * @Deprecated use setJdbcFetchSize
+     *
+     */
+    @Deprecated
+    public DBInputConfig setJdbcFetchsize(Integer fetchsize){
+        this.setJdbcFetchSize(fetchsize);
+        return this;
+    }
 }

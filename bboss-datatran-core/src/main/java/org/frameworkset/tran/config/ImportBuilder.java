@@ -1404,13 +1404,18 @@ public class ImportBuilder {
 		return fetchSize;
 	}
 
+    private boolean setFetchSized;
 	public ImportBuilder setFetchSize(Integer fetchSize) {
 		this.fetchSize = fetchSize;
+        setFetchSized = true;
 		return this;
 	}
 
+    public boolean isSetFetchSized() {
+        return setFetchSized;
+    }
 
-	private JobContext initJobcontext(){
+    private JobContext initJobcontext(){
 		JobContext jobContext = new JobContext();
 		if(this.initJobContextCall != null){
 			try {

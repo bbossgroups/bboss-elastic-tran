@@ -26,6 +26,7 @@ import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.text.DateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -274,4 +275,5 @@ public interface Context {
 	boolean removed();
 
 	boolean reachEOFClosed();
+    public LocalDateTime getLocalDateTime(String fieldName) throws Exception;
 }
