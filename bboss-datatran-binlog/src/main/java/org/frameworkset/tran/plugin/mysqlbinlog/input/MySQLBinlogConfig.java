@@ -72,6 +72,10 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
     private Long position;
 
+
+
+    private boolean enableIncrement;
+
     private Boolean keepAlive ;
     private Long keepAliveInterval ;
 
@@ -167,6 +171,9 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         }
         if(SimpleStringUtil.isNotEmpty(fileNames) )
             collectorFileNames = fileNames.split(",");
+        if(isEnableIncrement() && position == null){
+            position = 0L;
+        }
     }
 
     @Override
@@ -302,6 +309,14 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
     public MySQLBinlogConfig setSslMode(SSLMode sslMode) {
         this.sslMode = sslMode;
+        return this;
+    }
+    public boolean isEnableIncrement() {
+        return enableIncrement;
+    }
+
+    public MySQLBinlogConfig setEnableIncrement(boolean enableIncrement) {
+        this.enableIncrement = enableIncrement;
         return this;
     }
 }

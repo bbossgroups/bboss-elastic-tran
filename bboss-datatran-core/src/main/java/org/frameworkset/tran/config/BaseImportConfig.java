@@ -496,8 +496,10 @@ public class BaseImportConfig {
 		return importIncreamentConfig;
 	}
 	public void setStatusTableId(String statusTableId) {
-		if(importIncreamentConfig != null)
-			importIncreamentConfig.setStatusTableId(statusTableId);
+        if(importIncreamentConfig == null){
+            importIncreamentConfig = new ImportIncreamentConfig();
+        }
+		importIncreamentConfig.setStatusTableId(statusTableId);
 	}
 
 
@@ -535,7 +537,7 @@ public class BaseImportConfig {
 
 
 	public Integer getLastValueType() {
-		return importIncreamentConfig != null?importIncreamentConfig.getLastValueType():null;
+		return importIncreamentConfig != null?importIncreamentConfig.getLastValueType():ImportIncreamentConfig.NUMBER_TYPE;
 	}
 
 
@@ -681,8 +683,10 @@ public class BaseImportConfig {
 	 * @param lastValueType
 	 */
 	public void setLastValueType(int lastValueType) {
-        if(importIncreamentConfig != null)
-		    importIncreamentConfig.setLastValueType(lastValueType);
+        if(importIncreamentConfig == null){
+            importIncreamentConfig = new ImportIncreamentConfig();
+        }
+        importIncreamentConfig.setLastValueType(lastValueType);
 	}
 
 	/**
@@ -690,8 +694,10 @@ public class BaseImportConfig {
 	 * @param lastValueDateformat
 	 */
 	public void setLastValueDateformat(String lastValueDateformat) {
-        if(importIncreamentConfig != null)
-            importIncreamentConfig.setLastValueDateformat(lastValueDateformat);
+        if(importIncreamentConfig == null){
+            importIncreamentConfig = new ImportIncreamentConfig();
+        }
+        importIncreamentConfig.setLastValueDateformat(lastValueDateformat);
 	}
 
 	public String getLastValueDateformat(){

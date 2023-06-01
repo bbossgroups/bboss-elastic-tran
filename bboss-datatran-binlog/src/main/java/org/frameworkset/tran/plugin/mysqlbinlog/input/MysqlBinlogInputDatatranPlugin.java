@@ -56,7 +56,7 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
             StringBuilder id = new StringBuilder();
             id.append(mySQLBinlogConfig.getHost()).append(":").append(mySQLBinlogConfig.getPort()).append("/")
                     .append(mySQLBinlogConfig.getDatabase()).append(mySQLBinlogConfig.getTables());
-                importContext.setStatusTableId(id.hashCode());
+                importContext.setStatusTableId(id.toString().hashCode());
         }
 	}
 

@@ -253,7 +253,7 @@ public class ImportBuilder {
 //	}
 
 	private ScheduleConfig scheduleConfig;
-	protected ImportIncreamentConfig importIncreamentConfig;
+	protected ImportIncreamentConfig importIncreamentConfig = new ImportIncreamentConfig();;
     private String lastValueStorePassword;
 	public boolean isExternalTimer() {
 		return externalTimer;

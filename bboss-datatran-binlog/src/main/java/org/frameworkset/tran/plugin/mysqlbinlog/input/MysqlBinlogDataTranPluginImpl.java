@@ -90,6 +90,14 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
                 if(!SimpleStringUtil.isEmpty(mySQLBinlogConfig.getFileNames())){
                     statusManager.setIncreamentImport(false);
                 }
+                if(!mySQLBinlogConfig.isEnableIncrement()){
+                    statusManager.setIncreamentImport(false);
+                }
+                else {
+                    if (mySQLBinlogConfig.getPosition() == null) {
+                        mySQLBinlogConfig.setPosition(0L);
+                    }
+                }
             }
         };
     }

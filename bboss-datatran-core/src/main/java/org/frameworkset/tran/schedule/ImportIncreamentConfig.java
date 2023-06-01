@@ -43,7 +43,7 @@ public class ImportIncreamentConfig {
 	/**
 	 * 设置其实值类型：0 数字  1 日期
 	 */
-	private Integer lastValueType;
+	private Integer lastValueType = NUMBER_TYPE;
 	private String lastValueStorePath;
 	private String lastValueStoreTableName;
 	private boolean lastValueDateType;

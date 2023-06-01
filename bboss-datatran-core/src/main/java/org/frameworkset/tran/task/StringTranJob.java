@@ -54,6 +54,7 @@ public class StringTranJob extends BaseTranJob{
 									  ImportContext importContext,
 									  TranResultSet tranResultSet, BaseDataTran baseDataTran){
 		int count = 0;
+        int droped = 0;
 		StringBuilder builder = new StringBuilder();
 		BBossStringWriter writer = new BBossStringWriter(builder);
 		String ret = null;
@@ -96,6 +97,10 @@ public class StringTranJob extends BaseTranJob{
 
 
 					}
+                    if(droped > 0){
+                        importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
+                        droped = 0;
+                    }
 					continue;
 				}
 				else if(!hasNext.booleanValue()){
@@ -125,6 +130,7 @@ public class StringTranJob extends BaseTranJob{
 				context.afterRefactor();
 				if (context.isDrop()) {
 					importCount.increamentIgnoreTotalCount();
+                    droped ++;
 					continue;
 				}
 				CommonRecord commonRecord = buildCommonRecord( context, baseDataTran);
@@ -142,7 +148,7 @@ public class StringTranJob extends BaseTranJob{
 
 					int _count = count;
 					count = 0;
-
+                    droped = 0;
 					taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,datas,reachEOFClosed,(CommonRecord)null);
 					if(baseDataTran.isPrintTaskLog())  {
 						end = System.currentTimeMillis();
@@ -153,19 +159,7 @@ public class StringTranJob extends BaseTranJob{
 
 
 				}
-//				else if(serialTranCommand.splitCheck(totalCount)){
-//					String _dd = null;
-//					int _count = count;
-//
-//					baseDataTran.beforeOutputData(writer);
-//					_dd = builder.toString();
-//					builder.setLength(0);
-//					count = 0;
-//
-//
-//					taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,_dd,reachEOFClosed,null);
-//
-//				}
+
 
 			}
 			String datas = null;
@@ -245,6 +239,7 @@ public class StringTranJob extends BaseTranJob{
 										TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
 		int count = 0;
+        int droped = 0;
 		long totalSize  = 0;
 		StringBuilder builder = new StringBuilder();
 		BBossStringWriter writer = new BBossStringWriter(builder);
@@ -289,6 +284,11 @@ public class StringTranJob extends BaseTranJob{
 								service,tasks,tranErrorWrapper);
 
 					}
+
+                    if(droped > 0){
+                        importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
+                        droped = 0;
+                    }
 					continue;
 				}
 				else if(!hasNext.booleanValue())
@@ -313,6 +313,7 @@ public class StringTranJob extends BaseTranJob{
 				context.afterRefactor();
 				if (context.isDrop()) {
 					totalCount.increamentIgnoreTotalCount();
+                    droped ++;
 					continue;
 				}
 				CommonRecord commonRecord = buildCommonRecord( context, baseDataTran);
@@ -327,6 +328,7 @@ public class StringTranJob extends BaseTranJob{
 
 					int _count = count;
 					count = 0;
+                    droped = 0;
 					taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,reachEOFClosed,(CommonRecord)null,
 							service,tasks,tranErrorWrapper);
 
