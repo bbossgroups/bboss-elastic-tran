@@ -171,8 +171,10 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         }
         if(SimpleStringUtil.isNotEmpty(fileNames) )
             collectorFileNames = fileNames.split(",");
-        if(isEnableIncrement() && position == null){
-            position = 0L;
+        if(isEnableIncrement() ){
+            this.enableIncrement = false;//禁用不支持的增量模式
+            if(position == null)
+                position = 0L;
         }
     }
 
@@ -315,6 +317,11 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         return enableIncrement;
     }
 
+    /**
+     * 本参数不起作用
+     * @param enableIncrement
+     * @return
+     */
     public MySQLBinlogConfig setEnableIncrement(boolean enableIncrement) {
         this.enableIncrement = enableIncrement;
         return this;
