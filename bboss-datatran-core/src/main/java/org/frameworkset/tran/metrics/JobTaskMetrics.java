@@ -262,7 +262,11 @@ public class JobTaskMetrics {
 		this.lastValue = lastValue;
 	}
 	public void putLastValue(ImportContext importContext, LastValueWrapper lastValue){
-		this.lastValue = importContext.getDataTranPlugin().maxNumberLastValue(this.lastValue,lastValue);
+        if(this.lastValue == null)
+            this.lastValue = lastValue;
+        else {
+            this.lastValue = importContext.getDataTranPlugin().maxNumberLastValue(this.lastValue, lastValue);
+        }
 	}
 	public int getErrorTasks() {
 		return errorTasks;
