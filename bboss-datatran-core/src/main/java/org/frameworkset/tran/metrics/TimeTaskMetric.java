@@ -20,6 +20,7 @@ import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.metrics.entity.MapData;
 import org.frameworkset.tran.metrics.entity.TimeMetric;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
+import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -52,7 +53,7 @@ public class TimeTaskMetric extends TimeMetric {
 	private String jobNo;
 	private String jobId;
 	private String jobName;
-	private Object lastValue;
+	private LastValueWrapper lastValue;
 	private Object result;
 	private JobContext jobContext;
 	private ImportContext importContext;
@@ -237,11 +238,11 @@ public class TimeTaskMetric extends TimeMetric {
 
 
 
-	public Object getLastValue() {
+	public LastValueWrapper getLastValue() {
 		return lastValue;
 	}
 
-	public void setLastValue(Object lastValue) {
+	public void setLastValue(LastValueWrapper lastValue) {
 		this.lastValue = lastValue;
 	}
 
@@ -319,31 +320,33 @@ public class TimeTaskMetric extends TimeMetric {
 
 			if(importContext.getLastValueType() == ImportIncreamentConfig.NUMBER_TYPE) {
 
-				Number ts = (Number)lastValue;
-				Number nts = (Number)taskMetrics.getLastValue();
-				if(nts.longValue() > ts.longValue())
-					this.lastValue = nts;
+//				Number ts = (Number)lastValue.getLastValue();
+//				Number nts = (Number)taskMetrics.getLastValue().getLastValue();
+//				if(nts.longValue() > ts.longValue())
+//					this.lastValue = taskMetrics.getLastValue();
+                this.lastValue = importContext.getDataTranPlugin().maxNumberLastValue(lastValue,taskMetrics.getLastValue());
 
 			}
 			else if(importContext.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
-				if(lastValue instanceof Number){
-					Number ts = (Number)lastValue;
-					Number nts = (Number)taskMetrics.getLastValue();
+                Object _lastValue = lastValue.getLastValue();
+				if(_lastValue instanceof Number){
+					Number ts = (Number)_lastValue;
+					Number nts = (Number)taskMetrics.getLastValue().getLastValue();
 					if(nts.longValue() > ts.longValue())
-						this.lastValue = nts;
+						this.lastValue = taskMetrics.getLastValue();
 				}
 				else {
-					Date ts = (Date)lastValue;
-					Date nts = (Date)taskMetrics.getLastValue();
+					Date ts = (Date)_lastValue;
+					Date nts = (Date)taskMetrics.getLastValue().getLastValue();
 					if(nts.after(ts))
-						this.lastValue = nts;
+						this.lastValue = taskMetrics.getLastValue();
 				}
 			}
             else if(importContext.getLastValueType() == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
-                    LocalDateTime ts = (LocalDateTime)lastValue;
-                    LocalDateTime nts = (LocalDateTime)taskMetrics.getLastValue();
+                    LocalDateTime ts = (LocalDateTime)lastValue.getLastValue();
+                    LocalDateTime nts = (LocalDateTime)taskMetrics.getLastValue().getLastValue();
                     if(nts.isAfter(ts))
-                        this.lastValue = nts;
+                        this.lastValue = taskMetrics.getLastValue();
             }
 		}
 

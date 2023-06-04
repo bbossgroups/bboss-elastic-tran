@@ -18,6 +18,7 @@ package org.frameworkset.tran.metrics;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.TaskCommand;
 
 /**
@@ -40,7 +41,7 @@ public class MetricsTaskcommand implements TaskCommand {
 	}
 
 	@Override
-	public Object getLastValue() {
+	public LastValueWrapper getLastValue() {
 		return taskMetrics.getLastValue();
 	}
 

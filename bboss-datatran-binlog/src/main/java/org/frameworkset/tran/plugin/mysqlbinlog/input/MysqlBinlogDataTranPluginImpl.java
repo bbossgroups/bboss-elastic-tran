@@ -17,17 +17,17 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
 
 import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPluginImpl;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.schedule.CallInterceptor;
-import org.frameworkset.tran.schedule.ImportIncreamentConfig;
-import org.frameworkset.tran.schedule.ScheduleEndCall;
-import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.schedule.*;
+import org.frameworkset.tran.status.BaseStatusManager;
 import org.frameworkset.tran.status.InitLastValueClumnName;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.status.SetLastValueType;
 import org.frameworkset.tran.util.StoppedThread;
 import org.slf4j.Logger;
@@ -65,7 +65,10 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
 			metricsInterval = DEFAULT_metricsInterval;
 		}
 	}
-
+    @Override
+    public boolean isSingleLastValueType(){
+        return false;
+    }
     @Override
     public SetLastValueType getSetLastValueType(){
         return new SetLastValueType (){
@@ -78,6 +81,11 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
             }
         };
     }
+
+//    @Override
+//    public boolean onlyUseBatchExecute(){
+//        return true;
+//    }
     @Override
     public boolean useFilePointer(){
         return true;
@@ -109,7 +117,7 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
         return context;
     }
 
-    protected boolean neadFinishJob(){
+    public boolean neadFinishJob(){
         return SimpleStringUtil.isNotEmpty(this.mySQLBinlogConfig.getFileNames());
     }
 	@Override
@@ -168,23 +176,23 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
 			long importEndTime = System.currentTimeMillis();
 			if (isPrintTaskLog())
 				logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
-            if(neadFinishJob()){//不扫码新文件
-                importContext.finishAndWaitTran();
+            if(neadFinishJob()){//如果是采集binlog文件的情况下，需要结束作业
+                importContext.finishAndWaitTran(null);
             }
 		}
 		catch (DataImportException dataImportException){
 			throwException(taskContext,dataImportException);
-            importContext.finishAndWaitTran();
+            importContext.finishAndWaitTran(dataImportException);
         }
 		catch (Exception dataImportException){
 			throwException(taskContext,dataImportException);
-            importContext.finishAndWaitTran();
+            importContext.finishAndWaitTran(dataImportException);
             throw dataImportException;
 		}
 		catch (Throwable dataImportException){
 			DataImportException e = new DataImportException(dataImportException);
 			throwException(taskContext,new DataImportException(dataImportException));
-            importContext.finishAndWaitTran();
+            importContext.finishAndWaitTran(dataImportException);
             throw e;
 		}
 
@@ -213,4 +221,113 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
 //	public void initLastValueClumnName(){
 //		setIncreamentImport(false);
 //	}
+    @Override
+    public boolean needUpdateLastValueWrapper(Integer lastValueType, LastValueWrapper oldValue,LastValueWrapper newValue){
+//        if(newValue == null)
+//            return false;
+//        if(!oldValue.getStrLastValue().equals(newValue.getStrLastValue())){
+//            if(oldValue.getTimeStamp() < newValue.getTimeStamp()){
+//                return true;
+//            }
+//            else{
+//                return false;
+//            }
+//        }
+//        else {
+//            return BaseStatusManager.needUpdate(lastValueType, oldValue.getLastValue(), newValue.getLastValue());
+//        }
+        if(newValue == null)
+            return false;
+        if(oldValue == null)
+            return true;
+        if(oldValue.getStrLastValue() == null && newValue.getStrLastValue() == null){
+
+            return max( oldValue.getLastValue(), newValue.getLastValue());
+        }
+        else if( oldValue.getStrLastValue() == null || newValue.getStrLastValue() == null ){
+            return true;
+        }
+
+        else {
+            if (!oldValue.getStrLastValue().equals(newValue.getStrLastValue())) {
+                if (oldValue.getTimeStamp() < newValue.getTimeStamp()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return max( oldValue.getLastValue(), newValue.getLastValue());
+            }
+        }
+    }
+    /**
+     * Number ts = (Number)lastValue.getLastValue();
+     * 				Number nts = (Number)taskMetrics.getLastValue().getLastValue();
+     * 				if(nts.longValue() > ts.longValue())
+     * 					this.lastValue = taskMetrics.getLastValue();
+     * @param oldValue
+     * @param newValue
+     * @return
+     */
+    @Override
+    public LastValueWrapper maxNumberLastValue(LastValueWrapper oldValue, LastValueWrapper newValue){
+        if(oldValue.getStrLastValue() == null && newValue.getStrLastValue() == null){
+
+            return compareValue( oldValue,  newValue);
+        }
+        else if( oldValue.getStrLastValue() == null || newValue.getStrLastValue() == null ){
+            return newValue;
+        }
+
+        else {
+            if (!oldValue.getStrLastValue().equals(newValue.getStrLastValue())) {
+                if (oldValue.getTimeStamp() < newValue.getTimeStamp()) {
+                    return newValue;
+                } else {
+                    return oldValue;
+                }
+            } else {
+                return compareValue( oldValue,  newValue);
+            }
+        }
+    }
+    @Override
+    public LastValueWrapper maxLastValue(LastValueWrapper oldValue, BaseDataTran baseDataTran){
+        LastValueWrapper newValue = baseDataTran.getLastValueWrapper();
+
+        return maxNumberLastValue( oldValue,  newValue);
+
+
+    }
+
+
+    @Override
+    public void initLastValueStatus(Status currentStatus, BaseStatusManager baseStatusManager) throws Exception {
+
+        LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
+
+
+        if (mySQLBinlogConfig.getPosition() != null) {
+
+            lastValueWrapper.setLastValue(mySQLBinlogConfig.getPosition());
+        }
+        else if (importContext.getConfigLastValue() != null) {
+
+            lastValueWrapper.setLastValue(importContext.getConfigLastValue());
+        }
+        else {
+            lastValueWrapper.setLastValue(0l);
+        }
+
+        if (SimpleStringUtil.isNotEmpty(mySQLBinlogConfig.getMastterBinLogFile())) {
+
+            lastValueWrapper.setStrLastValue(mySQLBinlogConfig.getMastterBinLogFile());
+        }
+
+
+
+//            lastValueWrapper.setLastValue(currentStatus.getLastValue());
+
+
+    }
 }

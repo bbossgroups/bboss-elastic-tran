@@ -38,6 +38,7 @@ import org.frameworkset.tran.plugin.BaseInputPlugin;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.util.ResourceStartResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,10 +227,12 @@ public  class HBaseInputDatatranPlugin extends BaseInputPlugin {
 	}
 	public void putLastParamValue(Scan scan) throws IOException {
 		Status currentStatus = dataTranPlugin.getCurrentStatus();
-		if(dataTranPlugin.getLastValueType() == ImportIncreamentConfig.NUMBER_TYPE) {
+        LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
+        Object _lastValue = lastValueWrapper.getLastValue();
+        if(dataTranPlugin.getLastValueType() == ImportIncreamentConfig.NUMBER_TYPE) {
 
 			SingleColumnValueFilter scvf = new SingleColumnValueFilter(incrementFamily, incrementColumn,
-					CompareFilter.CompareOp.GREATER, Bytes.toBytes((Long) currentStatus.getLastValue()));
+					CompareFilter.CompareOp.GREATER, Bytes.toBytes((Long) _lastValue));
 
 			if (hBaseInputConfig.getFilterIfMissing() != null)
 				scvf.setFilterIfMissing(hBaseInputConfig.getFilterIfMissing()); //默认为false， 没有此列的数据也会返回 ，为true则只返回name=lisi的数据
@@ -253,7 +256,7 @@ public  class HBaseInputDatatranPlugin extends BaseInputPlugin {
 			if(hBaseInputConfig.isIncrementByTimeRange()){
 				if(lastValue == null){
 
-					lastValue = ((Date)currentStatus.getLastValue()).getTime();
+					lastValue = ((Date)_lastValue).getTime();
 				}
 				long temp = System.currentTimeMillis();
 				scan.setTimeRange(lastValue,temp);
@@ -267,23 +270,22 @@ public  class HBaseInputDatatranPlugin extends BaseInputPlugin {
 			}
 			else {
 				Object lv = null;
-				if (currentStatus.getLastValue() instanceof Date) {
-					lv = currentStatus.getLastValue();
-//				params.put(getLastValueVarName(), this.currentStatus.getLastValue());
+				if (_lastValue instanceof Date) {
+					lv = _lastValue;
 				} else {
-					if (currentStatus.getLastValue() instanceof Long) {
-						lv = new Date((Long) currentStatus.getLastValue());
-					} else if (currentStatus.getLastValue() instanceof Integer) {
-						lv = new Date(((Integer) currentStatus.getLastValue()).longValue());
-					} else if (currentStatus.getLastValue() instanceof Short) {
-						lv = new Date(((Short) currentStatus.getLastValue()).longValue());
+					if (_lastValue instanceof Long) {
+						lv = new Date((Long) _lastValue);
+					} else if (_lastValue instanceof Integer) {
+						lv = new Date(((Integer) _lastValue).longValue());
+					} else if (_lastValue instanceof Short) {
+						lv = new Date(((Short) _lastValue).longValue());
 					} else {
-						lv = new Date(((Number) currentStatus.getLastValue()).longValue());
+						lv = new Date(((Number) _lastValue).longValue());
 					}
 				}
 				SingleColumnValueFilter scvf = new SingleColumnValueFilter(incrementFamily, incrementColumn,
 
-						CompareFilter.CompareOp.GREATER, Bytes.toBytes(((Date) currentStatus.getLastValue()).getTime()));
+						CompareFilter.CompareOp.GREATER, Bytes.toBytes(((Date) _lastValue).getTime()));
 
 				if (hBaseInputConfig.getFilterIfMissing() != null)
 					scvf.setFilterIfMissing(hBaseInputConfig.getFilterIfMissing()); //默认为false， 没有此列的数据也会返回 ，为true则只返回name=lisi的数据
@@ -306,7 +308,7 @@ public  class HBaseInputDatatranPlugin extends BaseInputPlugin {
 
 		}
 		if(importContext.isPrintTaskLog()){
-			logger.info(new StringBuilder().append("Current values: ").append(currentStatus.getLastValue()).toString());
+			logger.info(new StringBuilder().append("Current values: ").append(_lastValue).toString());
 		}
 	}
 	@Override

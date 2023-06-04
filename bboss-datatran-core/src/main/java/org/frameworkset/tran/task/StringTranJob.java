@@ -26,6 +26,7 @@ import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
 import org.frameworkset.tran.record.CommonStringRecord;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +63,10 @@ public class StringTranJob extends BaseTranJob{
 		Exception exception = null;
 //		Status currentStatus = importContext.getCurrentStatus();
 //		Status currentStatus = this.currentStatus;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		Object lastValue = null;
+//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+//		Object lastValue = null;
+        LastValueWrapper currentValue = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
+        LastValueWrapper lastValue = null;
 		long start = System.currentTimeMillis();
 		long istart = 0;
 		long end = 0;
@@ -86,6 +89,7 @@ public class StringTranJob extends BaseTranJob{
 						builder.setLength(0);
 						int _count = count;
 						count = 0;
+                        droped = 0;
 						taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,_dd,reachEOFClosed,null);
 
 						if (baseDataTran.isPrintTaskLog()) {
@@ -97,7 +101,7 @@ public class StringTranJob extends BaseTranJob{
 
 
 					}
-                    if(droped > 0){
+                    else if(droped > 0){
                         importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
                         droped = 0;
                     }
@@ -107,9 +111,9 @@ public class StringTranJob extends BaseTranJob{
 					break;
 				}
 				if(lastValue == null)
-					lastValue = importContext.max(currentValue,baseDataTran.getLastValue());
+					lastValue = importContext.max(currentValue,baseDataTran);
 				else{
-					lastValue = importContext.max(lastValue,baseDataTran.getLastValue());
+					lastValue = importContext.max(lastValue,baseDataTran);
 				}
 				Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 
@@ -251,8 +255,10 @@ public class StringTranJob extends BaseTranJob{
 		Exception exception = null;
 //		Status currentStatus = importContext.getCurrentStatus();
 //		Status currentStatus = this.currentStatus;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		Object lastValue = null;
+//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+//		Object lastValue = null;
+        LastValueWrapper currentValue = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
+        LastValueWrapper lastValue = null;
 		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
 		int batchsize = importContext.getStoreBatchSize();
 		boolean reachEOFClosed = false;
@@ -280,12 +286,13 @@ public class StringTranJob extends BaseTranJob{
 						builder.setLength(0);
 						int _count = count;
 						count = 0;
+                        droped = 0;
 						taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,reachEOFClosed,null,
 								service,tasks,tranErrorWrapper);
 
 					}
 
-                    if(droped > 0){
+                    else if(droped > 0){
                         importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
                         droped = 0;
                     }
@@ -295,9 +302,9 @@ public class StringTranJob extends BaseTranJob{
 					break;
 
 				if(lastValue == null)
-					lastValue = importContext.max(currentValue,baseDataTran.getLastValue());
+					lastValue = importContext.max(currentValue,baseDataTran);
 				else{
-					lastValue = importContext.max(lastValue,baseDataTran.getLastValue());
+					lastValue = importContext.max(lastValue,baseDataTran);
 				}
 				Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 				if(!reachEOFClosed)
@@ -427,12 +434,14 @@ public class StringTranJob extends BaseTranJob{
 										  ImportContext importContext,
 										  TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
-		Object lastValue = null;
+//		Object lastValue = null;
 		Exception exception = null;
 		long start = System.currentTimeMillis();
 		long lastSend = 0;
 //		Status currentStatus = this.currentStatus;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+        LastValueWrapper currentValue = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
+        LastValueWrapper lastValue = null;
 		ImportCount importCount = new SerialImportCount(baseDataTran);
 		long totalCount = 0;
 
@@ -479,9 +488,9 @@ public class StringTranJob extends BaseTranJob{
 				printed = false;
 				try {
 					if (lastValue == null)
-						lastValue = importContext.max(currentValue, baseDataTran.getLastValue());
+						lastValue = importContext.max(currentValue, baseDataTran);
 					else {
-						lastValue = importContext.max(lastValue,baseDataTran. getLastValue());
+						lastValue = importContext.max(lastValue,baseDataTran);
 					}
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
 					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
@@ -597,12 +606,14 @@ public class StringTranJob extends BaseTranJob{
 
 		StringBuilder builder = new StringBuilder();
 		BBossStringWriter writer = new BBossStringWriter(builder);
-		Object lastValue = null;
+//		Object lastValue = null;
 		Exception exception = null;
 		long start = System.currentTimeMillis();
 //		Status currentStatus = importContext.getCurrentStatus();
 //		Status currentStatus = this.currentStatus;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+        LastValueWrapper currentValue = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
+        LastValueWrapper lastValue = null;
 		ImportCount importCount = new SerialImportCount(baseDataTran);
 		int taskNo = 0;
 		long totalCount = 0;
@@ -642,9 +653,9 @@ public class StringTranJob extends BaseTranJob{
 				}
 				try {
 					if (lastValue == null)
-						lastValue = importContext.max(currentValue, baseDataTran.getLastValue());
+						lastValue = importContext.max(currentValue, baseDataTran);
 					else {
-						lastValue = importContext.max(lastValue, baseDataTran.getLastValue());
+						lastValue = importContext.max(lastValue, baseDataTran);
 					}
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
 					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);

@@ -12,6 +12,7 @@ import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.frameworkset.tran.plugin.file.input.FileInputDataTranPlugin;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -325,7 +326,12 @@ public class FileListenerService {
                     currentStatus.setJobId(importContext.getJobId());
                     currentStatus.setJobType(importContext.getJobType());
                     pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0l ? fileConfig.getStartPointer() : 0l;
-                    currentStatus.setLastValue(pointer);
+//                    currentStatus.setLastValue(pointer);
+
+                    LastValueWrapper lastValueWrapper = new LastValueWrapper();
+                    currentStatus.setCurrentLastValueWrapper(lastValueWrapper);
+                    lastValueWrapper.setTimeStamp(currentStatus.getTime());
+                    lastValueWrapper.setLastValue(pointer);
                 }
 
 
@@ -695,7 +701,11 @@ public class FileListenerService {
                 currentStatus.setJobId(importContext.getJobId());
                 currentStatus.setJobType(importContext.getJobType());
                 long pointer = fileConfig.getStartPointer() != null && fileConfig.getStartPointer() > 0L ? fileConfig.getStartPointer() : 0L;
-                currentStatus.setLastValue(pointer);
+//                currentStatus.setLastValue(pointer);
+                LastValueWrapper lastValueWrapper = new LastValueWrapper();
+                currentStatus.setCurrentLastValueWrapper(lastValueWrapper);
+                lastValueWrapper.setTimeStamp(currentStatus.getTime());
+                lastValueWrapper.setLastValue(pointer);
                 fileInputDataTranPlugin.initFileTask( fileConfig, currentStatus, handleFile, pointer);
 
 //        }

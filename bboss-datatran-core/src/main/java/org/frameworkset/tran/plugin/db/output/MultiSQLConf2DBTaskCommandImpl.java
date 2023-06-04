@@ -25,6 +25,7 @@ import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.input.DBRecord;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
 	private static final Logger logger = LoggerFactory.getLogger(MultiSQLConf2DBTaskCommandImpl.class);
 	public MultiSQLConf2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                           List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
-                                          boolean needBatch, Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
+                                          boolean needBatch, LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
 		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed,   taskContext);
 		this.needBatch = needBatch;
 		this.importContext = importContext;

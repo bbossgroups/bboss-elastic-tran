@@ -125,17 +125,17 @@ public class KafkaDataTranPluginImpl extends DataTranPluginImpl {
 		}
 		catch (DataImportException dataImportException){
 			throwException(taskContext,dataImportException);
-            importContext.finishAndWaitTran();
+            importContext.finishAndWaitTran(dataImportException);
         }
 		catch (Exception dataImportException){
 			throwException(taskContext,dataImportException);
-            importContext.finishAndWaitTran();
+            importContext.finishAndWaitTran(dataImportException);
             throw dataImportException;
 		}
 		catch (Throwable dataImportException){
 			DataImportException e = new DataImportException(dataImportException);
 			throwException(taskContext,new DataImportException(dataImportException));
-            importContext.finishAndWaitTran();
+            importContext.finishAndWaitTran(dataImportException);
             throw e;
 		}
 

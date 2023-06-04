@@ -29,6 +29,8 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
+import org.frameworkset.tran.schedule.timer.TimeUtil;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.status.*;
 import org.frameworkset.tran.util.TranConstant;
@@ -39,6 +41,8 @@ import org.frameworkset.util.ResourceStartResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -68,6 +72,10 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	public ExportCount getExportCount() {
 		return exportCount;
 	}
+//    @Override
+//    public boolean onlyUseBatchExecute(){
+//        return false;
+//    }
 	@Override
 	public boolean useFilePointer(){
 		return false;
@@ -88,6 +96,41 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	public void setScheduleAssert(ScheduleAssert scheduleAssert){
 		this.scheduleAssert = scheduleAssert;
 	}
+    protected LastValueWrapper compareValue(LastValueWrapper oldValue, LastValueWrapper newValue){
+        if(max(oldValue.getLastValue(), newValue.getLastValue())){
+            return newValue;
+        }
+        else{
+            return oldValue;
+        }
+    }
+    @Override
+    public LastValueWrapper maxLastValue(LastValueWrapper oldValue, BaseDataTran baseDataTran){
+        LastValueWrapper newValue = baseDataTran.getLastValueWrapper();
+        return compareValue(oldValue, newValue);
+    }
+
+
+    /**
+     * Number ts = (Number)lastValue.getLastValue();
+     * 				Number nts = (Number)taskMetrics.getLastValue().getLastValue();
+     * 				if(nts.longValue() > ts.longValue())
+     * 					this.lastValue = taskMetrics.getLastValue();
+     * @param oldValue
+     * @param newValue
+     * @return
+     */
+    @Override
+    public LastValueWrapper maxNumberLastValue(LastValueWrapper oldValue, LastValueWrapper newValue){
+        return compareValue(oldValue, newValue);
+    }
+
+    protected boolean max(Object oldValue,Object newValue){
+
+        return BaseStatusManager.max(importContext.getLastValueType(),oldValue,newValue);
+
+    }
+
     @Override
 	public Map getJobInputParams(TaskContext taskContext) {
 		Map _params = importContext.getJobInputParams();
@@ -448,6 +491,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			long importStartTime = System.currentTimeMillis();
 
 			TaskContext taskContext = inputPlugin.isEnablePluginTaskIntercept()?new TaskContext(importContext):null;
+            Exception exception = null;
 			try {
 				if(inputPlugin.isEnablePluginTaskIntercept())
 					preCall(taskContext);
@@ -463,10 +507,12 @@ public class DataTranPluginImpl implements DataTranPlugin {
 				if(inputPlugin.isEnablePluginTaskIntercept())
 					throwException(taskContext,e);
 				logger.error("scheduleImportData failed:",e);
+                exception = e;
+
 			}
             finally {
                 if(!importContext.getDataTranPlugin().isMultiTran())
-                    importContext.finishAndWaitTran();
+                    importContext.finishAndWaitTran(exception);
             }
 
 		}
@@ -907,7 +953,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
         }
     }
     @Override
-    public void finishAndWaitTran(){
+    public void finishAndWaitTran(Throwable throwable){
         if(checkTranToStop()){
             return;
         }
@@ -915,19 +961,19 @@ public class DataTranPluginImpl implements DataTranPlugin {
         if(scheduleService != null){
             scheduleService.stop();
         }
-//        try {
-//            inputPlugin.stopCollectData();
-//        }
-//        catch (Exception e){
-//            logger.warn("",e);
-//        }
-//
-//        try {
-//            outputPlugin.stopCollectData();
-//        }
-//        catch (Exception e){
-//            logger.warn("",e);
-//        }
+        if(throwable != null) {
+            try {
+                inputPlugin.stopCollectData();
+            } catch (Exception e) {
+                logger.warn("", e);
+            }
+
+            try {
+                outputPlugin.stopCollectData();
+            } catch (Exception e) {
+                logger.warn("", e);
+            }
+        }
 
         if(delayThread != null){
             try {
@@ -1068,14 +1114,30 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		return statusManager.getLastValueType();
 	}
 
+    public boolean isSingleLastValueType(){
+        return true;
+    }
 
-	@Override
-	public void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed) {
-		statusManager.flushLastValue(lastValue,  currentStatus,  reachEOFClosed);
-	}
 
+
+
+    @Override
+    public void flushLastValue(LastValueWrapper lastValueWrapper,Status currentStatus,boolean reachEOFClosed){
+//        Long timeLastValue = this.getTimeRangeLastValue();
+//        if(timeLastValue != null){
+//
+//            Object lastValue = max(lastValueWrapper.getLastValue(),new Date(timeLastValue));
+//            lastValueWrapper.setLastValue(lastValue);
+//        }
+//        this.flushLastValue(lastValueWrapper,currentStatus,  reachEOFClosed);
+        statusManager.flushLastValue(lastValueWrapper,  currentStatus,  reachEOFClosed);
+    }
+    @Override
+    public boolean needUpdateLastValueWrapper(Integer lastValueType, LastValueWrapper oldValue,LastValueWrapper newValue){
+        return BaseStatusManager.needUpdate(lastValueType, oldValue.getLastValue(),newValue.getLastValue());
+    }
 	@Override
-	public void flushLastValue(Object lastValue,Status currentStatus) {
+	public void flushLastValue(LastValueWrapper lastValue,Status currentStatus) {
 		statusManager.flushLastValue(lastValue,  currentStatus);
 	}
 
@@ -1187,6 +1249,80 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 	}
 
+    @Override
+    public void initLastValueStatus(Status currentStatus,BaseStatusManager baseStatusManager) throws Exception {
 
+        LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
+
+        if(importContext.isLastValueDateType()) {
+            Object configLastValue = importContext.getConfigLastValue();
+            if(configLastValue != null){
+
+                if(configLastValue instanceof Date) {
+                    lastValueWrapper.setLastValue(configLastValue);
+
+                }
+                else if(configLastValue instanceof Long){
+                    lastValueWrapper.setLastValue(new Date((Long)configLastValue));
+                }
+                else if(configLastValue instanceof BigDecimal){
+                    lastValueWrapper.setLastValue(new Date(((BigDecimal)configLastValue).longValue()));
+                }
+
+                else if(configLastValue instanceof Integer){
+                    lastValueWrapper.setLastValue(new Date((Integer)configLastValue));
+                }
+                else{
+                    if(logger.isInfoEnabled()) {
+                        logger.info("TIMESTAMP TYPE Last Value Illegal:{}", configLastValue);
+                    }
+                    throw new DataImportException("TIMESTAMP TYPE Last Value Illegal:"+configLastValue );
+                }
+//                lastValueWrapper.setLastValue(currentStatus.getLastValue());
+            }
+            else {
+//				currentStatus.setLastValue(initLastDate);
+                lastValueWrapper.setLastValue(baseStatusManager.getInitLastDate());
+            }
+        }
+        else if(importContext.isLastValueNumberType()) {
+            if (importContext.getConfigLastValue() != null) {
+
+                lastValueWrapper.setLastValue(importContext.getConfigLastValue());
+            } else {
+                lastValueWrapper.setLastValue(0l);
+            }
+//            lastValueWrapper.setLastValue(currentStatus.getLastValue());
+        }
+        else if(importContext.isLastValueLocalDateTimeType()) {
+            Object configLastValue = importContext.getConfigLastValue();
+            if(configLastValue != null){
+
+                if(configLastValue instanceof String) {
+                    LocalDateTime localDateTime = TimeUtil.localDateTime((String) configLastValue);
+                    lastValueWrapper.setLastValue(localDateTime);
+                    lastValueWrapper.setStrLastValue((String) configLastValue);
+                }
+                else  if(configLastValue instanceof LocalDateTime){
+                    lastValueWrapper.setLastValue(configLastValue);
+                    lastValueWrapper.setStrLastValue(TimeUtil.changeLocalDateTime2String( (LocalDateTime)configLastValue,importContext.getLastValueDateformat()));
+                }
+
+                else{
+                    if(logger.isInfoEnabled()) {
+                        logger.info("TIMESTAMP TYPE Last Value Illegal:{}", configLastValue);
+                    }
+                    throw new DataImportException("TIMESTAMP TYPE Last Value Illegal:"+configLastValue );
+                }
+
+            }
+            else {
+                lastValueWrapper.setLastValue(baseStatusManager.getInitLastLocalDateTime());
+//                currentStatus.setStrLastValue(TimeUtil.changeLocalDateTime2String( initLastLocalDateTime,importContext.getLastValueDateformat()));
+            }
+//            lastValueWrapper.setLastValue(currentStatus.getLastValue());
+//            lastValueWrapper.setLastValue(currentStatus.getStrLastValue());
+        }
+    }
 
 }

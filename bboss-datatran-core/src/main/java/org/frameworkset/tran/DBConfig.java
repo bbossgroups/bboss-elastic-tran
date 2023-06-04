@@ -54,7 +54,7 @@ public class DBConfig {
     public static String sqlitex_createStatusTableSQL = new StringBuilder().append("create table $statusTableName (ID varchar(100),")  //记录标识
 					.append( "lasttime number(20),") //最后更新时间
 					.append( "lastvalue number(20),")  //增量字段值，值可能是日期类型，也可能是数字类型
-                    .append( "strLastValue varchar(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+                    .append( "strLastValue varchar(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
                     .append( "lastvaluetype number(1),") //值类型 0-数字 1-日期 2-LocalDateTime
 					.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 					.append( "filePath varchar(500) ,")  //日志文件路径
@@ -67,7 +67,7 @@ public class DBConfig {
     public static String sqlitex_createHistoryStatusTableSQL = new StringBuilder().append("create table $historyStatusTableName (ID varchar(100),")  //记录标识
 					.append( "lasttime number(20),") //最后更新时间
 					.append( "lastvalue number(20),")  //增量字段值，值可能是日期类型，也可能是数字类型
-                    .append( "strLastValue varchar(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+                    .append( "strLastValue varchar(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
 					.append( "lastvaluetype number(1),") //值类型 0-数字 1-日期 2-LocalDateTime
 					.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 					.append( "filePath varchar(500) ,")  //日志文件路径
@@ -80,7 +80,7 @@ public class DBConfig {
 					.toString();
 	public static final String mysql_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName ( ID varchar(100) NOT NULL, lasttime bigint(20) NOT NULL, " )
                             .append("lastvalue bigint(20) NOT NULL,")
-                            .append( "strLastValue varchar(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+                            .append( "strLastValue varchar(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
                             .append( "lastvaluetype int(1) NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
 							.append( "status int(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 							.append( "filePath varchar(500) ,")  //日志文件路径
@@ -91,7 +91,7 @@ public class DBConfig {
 							.append( "PRIMARY KEY(ID)) ENGINE=InnoDB").toString();
 	public static final String oracle_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName ( ID varchar2(100) NOT NULL, lasttime NUMBER(20) NOT NULL,")
             .append(" lastvalue NUMBER(20) NOT NULL, " )
-            .append( "strLastValue varchar2(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+            .append( "strLastValue varchar2(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
             .append("lastvaluetype NUMBER(1) NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
 							.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 
@@ -102,7 +102,7 @@ public class DBConfig {
 							.append( "jobType varchar2(500) ,")   //作业输入插件类型 6.7.7版本新增
 							.append( "constraint $statusTableName_PK primary key(ID))").toString();
 	public static final String dm_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName ( ID varchar2(100) NOT NULL, lasttime NUMBER(20) NOT NULL, lastvalue NUMBER(20) NOT NULL, " )
-                            .append( "strLastValue varchar2(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+                            .append( "strLastValue varchar2(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
                             .append("lastvaluetype NUMBER(1) NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
 							.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 							.append( "filePath varchar2(500) ,")  //日志文件路径
@@ -112,7 +112,7 @@ public class DBConfig {
 							.append( "jobType varchar2(500) ,")   //作业输入插件类型 6.7.7版本新增
 							.append( "constraint $statusTableName_PK primary key(ID))").toString();
 	public static final String sqlserver_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName (ID varchar(100) NOT NULL,lasttime bigint NOT NULL,lastvalue bigint NOT NULL," )
-                            .append( "strLastValue varchar(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+                            .append( "strLastValue varchar(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
                             .append("lastvaluetype INT NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
 							.append( "status INT ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 							.append( "filePath varchar(500) ,")  //日志文件路径
@@ -123,7 +123,7 @@ public class DBConfig {
 							.append( "constraint $statusTableName_PK primary key(ID))").toString();
 
     public static final String postgresql_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName (ID varchar(100) NOT NULL,lasttime bigint NOT NULL,lastvalue bigint NOT NULL," )
-            .append( "strLastValue varchar(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+            .append( "strLastValue varchar(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
             .append("lastvaluetype INT NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
             .append( "status INT ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
             .append( "filePath varchar(500) ,")  //日志文件路径
@@ -134,7 +134,7 @@ public class DBConfig {
             .append( "primary key(ID))").toString();
 
 	public static final String mysql_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName ( ID varchar(100) NOT NULL, lasttime bigint(20) NOT NULL, lastvalue bigint(20) NOT NULL, " )
-            .append( "strLastValue varchar(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+            .append( "strLastValue varchar(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
             .append("lastvaluetype int(1) NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
 			.append( "status int(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 			.append( "filePath varchar(500) ,")  //日志文件路径
@@ -145,7 +145,7 @@ public class DBConfig {
 			.append( "statusId varchar(100) ) ENGINE=InnoDB").toString(); //状态表中使用的主键标识
 //			.append( "PRIMARY KEY(ID)) ENGINE=InnoDB").toString();
 	public static final String oracle_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName ( ID varchar2(100) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL, " )
-            .append( "strLastValue varchar2(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+            .append( "strLastValue varchar2(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
             .append("lastvaluetype NUMBER(1) NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
 			.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 			.append( "filePath varchar2(500) ,")  //日志文件路径
@@ -156,7 +156,7 @@ public class DBConfig {
 			.append( "statusId varchar2(100) )").toString(); //状态表中使用的主键标识
 //			.append( "constraint $historyStatusTableName_PK primary key(ID))").toString();
 	public static final String dm_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName ( ID varchar2(100) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL," )
-            .append( "strLastValue varchar2(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+            .append( "strLastValue varchar2(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
             .append(" lastvaluetype NUMBER(1) NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
 			.append( "status number(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 			.append( "filePath varchar2(500) ,")  //日志文件路径
@@ -167,7 +167,7 @@ public class DBConfig {
 			.append( "statusId varchar2(100) )").toString() ; //状态表中使用的主键标识
 //			.append( "constraint $historyStatusTableName_PK primary key(ID))").toString();
 	public static final String sqlserver_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName (ID varchar(100),lasttime bigint NOT NULL,lastvalue bigint NOT NULL," )
-            .append( "strLastValue varchar(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+            .append( "strLastValue varchar(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
             .append("lastvaluetype INT NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
 			.append( "status INT ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
 			.append( "filePath varchar(500) ,")  //日志文件路径
@@ -179,7 +179,7 @@ public class DBConfig {
 //			.append( "constraint $historyStatusTableName_PK primary key(ID))").toString();
 
     public static final String postgresql_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName (ID varchar(100),lasttime bigint NOT NULL,lastvalue bigint NOT NULL," )
-            .append( "strLastValue varchar(100),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+            .append( "strLastValue varchar(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
             .append("lastvaluetype INT NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
             .append( "status INT ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
             .append( "filePath varchar(500) ,")  //日志文件路径

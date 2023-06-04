@@ -38,6 +38,7 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
     private MySQLBinlogConfig mySQLBinlogConfig;
     private MySQLBinlogListener mySQLBinlogListener;
     private Map<String, String[]> allTableColumns;
+    private MysqlBinlogDataTranPluginImpl mysqlBinlogDataTranPlugin;
     public MysqlBinlogInputDatatranPlugin(ImportContext importContext){
         super(  importContext);
         mySQLBinlogConfig = (MySQLBinlogConfig) importContext.getInputConfig();
@@ -72,6 +73,7 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
 	@Override
 	public void afterInit(){
         allTableColumns = DBMetaUtil.getTableColumns(this.mySQLBinlogConfig);
+        mysqlBinlogDataTranPlugin = (MysqlBinlogDataTranPluginImpl) dataTranPlugin;
 	}
 
 
@@ -89,26 +91,28 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
 					try {
 						mysqlBinlogDataTran.tran();
 						dataTranPlugin.afterCall(taskContext);
-
+//                        if(!mysqlBinlogDataTranPlugin.neadFinishJob()){
+//                            importContext.finishAndWaitTran(null);
+//                        }
 					}
 					catch (DataImportException dataImportException){
 						logger.error("",dataImportException);
 						dataTranPlugin.throwException(  taskContext,  dataImportException);
                         mysqlBinlogDataTran.stop();
-                        importContext.finishAndWaitTran();
+                        importContext.finishAndWaitTran(dataImportException);
 					}
 					catch (RuntimeException dataImportException){
 						logger.error("",dataImportException);
 						dataTranPlugin.throwException(  taskContext,  dataImportException);
                         mysqlBinlogDataTran.stop();
-                        importContext.finishAndWaitTran();
+                        importContext.finishAndWaitTran(dataImportException);
 					}
 					catch (Throwable dataImportException){
 						logger.error("",dataImportException);
 						DataImportException dataImportException_ = new DataImportException(dataImportException);
 						dataTranPlugin.throwException(  taskContext, dataImportException_);
                         mysqlBinlogDataTran.stop();
-                        importContext.finishAndWaitTran();
+                        importContext.finishAndWaitTran(dataImportException);
 					}
 				}
 			},"mysqlbinlog-input-dataTran");
@@ -124,6 +128,11 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
                 mysqlBinlogDataTran.stop();
 			throw new DataImportException(e);
 		}
+        catch (Throwable e) {
+            if(mysqlBinlogDataTran != null)
+                mysqlBinlogDataTran.stop();
+            throw new DataImportException(e);
+        }
 
 
 	}
@@ -132,8 +141,9 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
 
     protected void initMySQLBinlogListener(BaseDataTran mysqlBinlogDataTran) throws Exception {
         final MySQLBinlogListener mySQLBinlogListener = new MySQLBinlogListener(mysqlBinlogDataTran,mySQLBinlogConfig,this.importContext);
-        mySQLBinlogListener.start();
         this.mySQLBinlogListener = mySQLBinlogListener;
+        mySQLBinlogListener.start();
+
     }
     @Override
     public void stopCollectData(){

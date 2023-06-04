@@ -19,6 +19,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.TranErrorWrapper;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.io.Writer;
 import java.util.List;
@@ -48,7 +49,7 @@ public interface ParrelTranCommand {
 	 * @param tranErrorWrapper
 	 * @return
 	 */
-	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue,
+	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue,
 								  Object datas, boolean reachEOFClosed, CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper);
 
 	/**

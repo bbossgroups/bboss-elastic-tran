@@ -26,6 +26,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
@@ -51,8 +52,8 @@ public class HBaseTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, St
 	private String taskInfo;
 	private static final Logger logger = LoggerFactory.getLogger(HBaseTaskCommandImpl.class);
 	public HBaseTaskCommandImpl(ImportCount importCount, ImportContext importContext,
-								List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
-								Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
+                                List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
+                                LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
 		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed,   taskContext);
 		this.importContext = importContext;
 		this.datas = datas;

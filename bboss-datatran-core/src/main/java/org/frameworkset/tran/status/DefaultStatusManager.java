@@ -38,12 +38,12 @@ public class DefaultStatusManager extends BaseStatusManager{
 	public void putStatus(Status currentStatus) throws Exception{
 
 		if(currentStatus.getJobId() == null) {
-			SQLExecutor.updateWithDBName(statusDbname, updateSQL, currentStatus.getTime(), convertLastValue(currentStatus.getLastValue()),convertStrLastValue(currentStatus.getStrLastValue()),
+			SQLExecutor.updateWithDBName(statusDbname, updateSQL, currentStatus.getTime(), convertLastValue(currentStatus.getCurrentLastValueWrapper().getLastValue()),convertStrLastValue(currentStatus.getStrLastValue()),
 					lastValueType, currentStatus.getFilePath(), currentStatus.getRelativeParentDir(), currentStatus.getFileId(),
 					currentStatus.getStatus(), currentStatus.getId(),currentStatus.getJobType());
 		}
 		else{
-			SQLExecutor.updateWithDBName(statusDbname, updateByJobIdSQL, currentStatus.getTime(), convertLastValue(currentStatus.getLastValue()),convertStrLastValue(currentStatus.getStrLastValue()),
+			SQLExecutor.updateWithDBName(statusDbname, updateByJobIdSQL, currentStatus.getTime(), convertLastValue(currentStatus.getCurrentLastValueWrapper().getLastValue()),convertStrLastValue(currentStatus.getStrLastValue()),
 					lastValueType, currentStatus.getFilePath(), currentStatus.getRelativeParentDir(), currentStatus.getFileId(),
 					currentStatus.getStatus(), currentStatus.getId(),currentStatus.getJobId(),currentStatus.getJobType());
 		}

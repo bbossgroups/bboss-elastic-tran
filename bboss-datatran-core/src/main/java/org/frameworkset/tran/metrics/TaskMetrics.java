@@ -15,6 +15,8 @@ package org.frameworkset.tran.metrics;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.status.LastValueWrapper;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -42,7 +44,7 @@ public class TaskMetrics {
 	private String jobNo;
 	private String jobId;
 	private String jobName;
-	private Object lastValue;
+	private LastValueWrapper lastValue;
 
 	public String getJobId() {
 		return jobId;
@@ -214,11 +216,11 @@ public class TaskMetrics {
 
 
 
-	public Object getLastValue() {
+	public LastValueWrapper getLastValue() {
 		return lastValue;
 	}
 
-	public void setLastValue(Object lastValue) {
+	public void setLastValue(LastValueWrapper lastValue) {
 		this.lastValue = lastValue;
 	}
 }

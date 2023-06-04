@@ -19,6 +19,7 @@ import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -56,7 +57,7 @@ public interface DataTran {
 	String serialExecute(   ) throws DataImportException;
 	public BreakableScrollHandler getBreakableScrollHandler();
 	void waitTasksComplete(final List<Future> tasks,
-						   final ExecutorService service, Exception exception, Object lastValue, final ImportCount totalCount ,
-						   final TranErrorWrapper tranErrorWrapper ,WaitTasksCompleteCallBack waitTasksCompleteCallBack,boolean reachEOFClosed);
+                           final ExecutorService service, Exception exception, LastValueWrapper lastValue, final ImportCount totalCount ,
+                           final TranErrorWrapper tranErrorWrapper , WaitTasksCompleteCallBack waitTasksCompleteCallBack, boolean reachEOFClosed);
 	ImportContext getImportContext();
 }

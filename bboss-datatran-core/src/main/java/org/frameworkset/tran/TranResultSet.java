@@ -16,14 +16,15 @@ package org.frameworkset.tran;/*
 
 
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 
 public interface TranResultSet {
-
-	public Object getValue(  int i, String colName,int sqlType) throws DataImportException;
+    public String getStrLastValue() throws DataImportException;
+    public Object getValue(  int i, String colName,int sqlType) throws DataImportException;
     public LocalDateTime getLocalDateTimeValue(String colName) throws DataImportException;
     public Object getValue( String colName) throws DataImportException;
 	public Object getLastValue(String colName) throws DataImportException;
@@ -73,4 +74,8 @@ public interface TranResultSet {
     public Map<String, Object> getUpdateFromDatas();
 
     int getAction();
+
+    LastValueWrapper getLastValueWrapper();
+
+    public Object getLastValue();
 }

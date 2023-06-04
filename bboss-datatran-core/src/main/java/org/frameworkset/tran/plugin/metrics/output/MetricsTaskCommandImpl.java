@@ -21,6 +21,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.BaseTranJob;
 import org.slf4j.Logger;
@@ -41,9 +42,9 @@ public class MetricsTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 	private List<CommonRecord> datas;
 	private TaskContext taskContext;
 	private MetricsOutputConfig metricsOutputConfig;
-	public MetricsTaskCommandImpl(ImportCount importCount, ImportContext importContext,List<CommonRecord> datas,
-								  int taskNo, String jobNo,
-								  Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
+	public MetricsTaskCommandImpl(ImportCount importCount, ImportContext importContext, List<CommonRecord> datas,
+                                  int taskNo, String jobNo,
+                                  LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
 		super(importCount,importContext,   datas.size(),  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,taskContext);
 		metricsOutputConfig = (MetricsOutputConfig) importContext.getOutputConfig();
 		this.datas = datas;

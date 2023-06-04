@@ -55,6 +55,7 @@ public abstract class BaseStatusManager implements StatusManager {
 	private DataTranPlugin dataTranPlugin;
 	private boolean increamentImport = true;
 	protected ImportContext importContext;
+    protected LastValueWraperSerial lastValueWraperSerial;
 
 
 	protected volatile Status currentStatus;
@@ -96,13 +97,18 @@ public abstract class BaseStatusManager implements StatusManager {
 
 		this.dataTranPlugin = dataTranPlugin;
 		this.importContext = dataTranPlugin.getImportContext();
+        setLastValueWraperSerial();
 	}
+    protected void setLastValueWraperSerial(){
+        this.lastValueWraperSerial = new DefaultLastValueWraperSerial();
+    }
 
 	public DataTranPlugin getDataTranPlugin() {
 		return dataTranPlugin;
 	}
 
 	public void init(){
+
 		flushThread = new StatusFlushThread(this,
 				dataTranPlugin.getImportContext().getAsynFlushStatusInterval());
 		flushThread.start();
@@ -126,6 +132,9 @@ public abstract class BaseStatusManager implements StatusManager {
 	protected abstract void _putStatus(Status currentStatus);
 
 	public void putStatus(Status currentStatus) throws Exception{
+        if(this.lastValueWraperSerial != null){
+            lastValueWraperSerial.serial(currentStatus);
+        }
 		read.lock();
 		try{
 
@@ -191,7 +200,18 @@ public abstract class BaseStatusManager implements StatusManager {
         return lastValue;
     }
 
+
+
+
 	public static boolean needUpdate(Integer lastValueType, Object oldValue,Object newValue){
+        return compare(lastValueType, oldValue,newValue);
+	}
+    public static boolean max(Integer lastValueType, Object oldValue,Object newValue){
+        return compare(lastValueType, oldValue,newValue);
+    }
+
+
+    private static boolean compare(Integer lastValueType, Object oldValue,Object newValue){
 		if(newValue == null)
 			return false;
 
@@ -227,177 +247,83 @@ public abstract class BaseStatusManager implements StatusManager {
         }
 		else{
 //			Method compareTo = oldValue.getClass().getMethod("compareTo");
-			if(oldValue instanceof Integer && newValue instanceof Integer){
-				int e = ((Integer)oldValue).compareTo ((Integer)newValue);
-				if(e < 0)
-					return true;
-				else
-					return false;
-			}
-			else if(oldValue instanceof Long || newValue instanceof Long){
-				boolean e = ((Number)oldValue).longValue() <= ((Number)newValue).longValue();
-				if(e)
-					return true;
-				else
-					return false;
-			}
-			else if(oldValue instanceof BigDecimal && newValue instanceof BigDecimal){
-				int e = ((BigDecimal)oldValue).compareTo ((BigDecimal)newValue);
-				if(e < 0)
-					return true;
-				else
-					return false;
-			}
-			else if(oldValue instanceof BigDecimal && newValue instanceof Integer){
-				boolean e = ((BigDecimal)oldValue).longValue() > ((Integer)newValue).intValue();
-				if(!e )
-					return true;
-				else
-					return false;
-			}
-			else if(oldValue instanceof Integer && newValue instanceof BigDecimal){
-				boolean e = ((BigDecimal)newValue).longValue() > ((Integer)oldValue).intValue();
-				if(!e )
-					return false;
-				else
-					return true;
-			}
-			else if(oldValue instanceof Double || newValue instanceof Double){
-				int e = Double.compare(((Number)oldValue).doubleValue(), ((Number)newValue).doubleValue());
-				if(e < 0)
-					return true;
-				else
-					return false;
-			}
-			else if(oldValue instanceof Float || newValue instanceof Float){
-				int e = Float.compare(((Number)oldValue).floatValue(), ((Number)newValue).floatValue());
-				if(e < 0)
-					return true;
-				else
-					return false;
-			}
-
-			else if(oldValue instanceof BigDecimal || newValue instanceof BigDecimal){
-				int e = Double.compare(((Number)oldValue).doubleValue(), ((Number)newValue).doubleValue());
-				if(e < 0)
-					return true;
-				else
-					return false;
-			}
-			else {
-				boolean e = ((Number)oldValue).intValue() <= ((Number)newValue).intValue();
-				if(e)
-					return true;
-				else
-					return false;
-			}
-
-		}
-	}
-	public static Object max(Integer lastValueType, Object oldValue,Object newValue){
-		if(newValue == null)
-			return oldValue;
-
-		if(oldValue == null)
-			return newValue;
-//		this.getLastValueType()
-        if(lastValueType == null){
-            if(oldValue instanceof Date)    {
-                lastValueType = ImportIncreamentConfig.TIMESTAMP_TYPE;
-            }
-            else if(oldValue instanceof LocalDateTime)    {
-                lastValueType = ImportIncreamentConfig.LOCALDATETIME_TYPE;
-            }
-            else{
-                lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
-            }
-        }
-
-		if(lastValueType == ImportIncreamentConfig.TIMESTAMP_TYPE) {
-			Date oldValueDate = (Date)oldValue;
-			Date newValueDate = (Date)newValue;
-			if(newValueDate.after(oldValueDate))
-				return newValue;
-			else
-				return oldValue;
-		}
-        else if(lastValueType == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
-            LocalDateTime oldValueDate = (LocalDateTime)oldValue;
-            LocalDateTime newValueDate = (LocalDateTime)newValue;
-            if(newValueDate.isAfter(oldValueDate))
-                return newValue;
+            Number ts = (Number)oldValue;
+            Number nts = (Number)newValue;
+            if(nts.longValue() > ts.longValue())
+                return true;
             else
-                return oldValueDate;
-        }
-		else{
-//			Method compareTo = oldValue.getClass().getMethod("compareTo");
+                return false;
+            /**
 			if(oldValue instanceof Integer && newValue instanceof Integer){
 				int e = ((Integer)oldValue).compareTo ((Integer)newValue);
 				if(e < 0)
-					return newValue;
+					return true;
 				else
-					return oldValue;
+					return false;
 			}
 			else if(oldValue instanceof Long || newValue instanceof Long){
 				boolean e = ((Number)oldValue).longValue() <= ((Number)newValue).longValue();
 				if(e)
-					return newValue;
+					return true;
 				else
-					return oldValue;
+					return false;
 			}
 			else if(oldValue instanceof BigDecimal && newValue instanceof BigDecimal){
 				int e = ((BigDecimal)oldValue).compareTo ((BigDecimal)newValue);
 				if(e < 0)
-					return newValue;
+					return true;
 				else
-					return oldValue;
+					return false;
 			}
 			else if(oldValue instanceof BigDecimal && newValue instanceof Integer){
 				boolean e = ((BigDecimal)oldValue).longValue() > ((Integer)newValue).intValue();
 				if(!e )
-					return newValue;
+					return true;
 				else
-					return oldValue;
+					return false;
 			}
 			else if(oldValue instanceof Integer && newValue instanceof BigDecimal){
 				boolean e = ((BigDecimal)newValue).longValue() > ((Integer)oldValue).intValue();
 				if(!e )
-					return oldValue;
+					return false;
 				else
-					return newValue;
+					return true;
 			}
 			else if(oldValue instanceof Double || newValue instanceof Double){
 				int e = Double.compare(((Number)oldValue).doubleValue(), ((Number)newValue).doubleValue());
 				if(e < 0)
-					return newValue;
+					return true;
 				else
-					return oldValue;
+					return false;
 			}
 			else if(oldValue instanceof Float || newValue instanceof Float){
 				int e = Float.compare(((Number)oldValue).floatValue(), ((Number)newValue).floatValue());
 				if(e < 0)
-					return newValue;
+					return true;
 				else
-					return oldValue;
+					return false;
 			}
 
 			else if(oldValue instanceof BigDecimal || newValue instanceof BigDecimal){
 				int e = Double.compare(((Number)oldValue).doubleValue(), ((Number)newValue).doubleValue());
 				if(e < 0)
-					return newValue;
+					return true;
 				else
-					return oldValue;
+					return false;
 			}
 			else {
 				boolean e = ((Number)oldValue).intValue() <= ((Number)newValue).intValue();
 				if(e)
-					return newValue;
+					return true;
 				else
-					return oldValue;
+					return false;
 			}
+             */
 
 		}
 	}
+
+
 
 	private void initStatusSQL(String statusDbname ){
 		createStatusTableSQL = DBConfig.getCreateStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
@@ -692,7 +618,11 @@ public abstract class BaseStatusManager implements StatusManager {
 				currentStatus.setId(importContext.getStatusTableId());
 				currentStatus.setTime(new Date().getTime());
 				currentStatus.setJobId(importContext.getJobId());
-				this.firstStatus = (Status) currentStatus.clone();
+                LastValueWrapper lastValueWrapper = new LastValueWrapper();
+                currentStatus.setCurrentLastValueWrapper(lastValueWrapper);
+                lastValueWrapper.setTimeStamp(currentStatus.getTime());
+//                lastValueWrapper.setLastValue(currentStatus.getLastValue());
+				this.firstStatus = (Status) currentStatus.copy();
 				this.currentStatus = currentStatus;
 			}
 			catch (Exception e){
@@ -862,26 +792,26 @@ public abstract class BaseStatusManager implements StatusManager {
 
 	}
 
-	public void addStatus(Status currentStatus) throws DataImportException {
-//		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
-		Object lastValue = currentStatus.getLastValue();
-        Object strLastValue = currentStatus.getStrLastValue();
+    private void handleStatus(Status currentStatus){
+        LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
+        Object lastValue = lastValueWrapper.getLastValue();
+        String strLastValue = lastValueWrapper.getStrLastValue();
 
-
-		if(importContext.isLastValueDateType()){
+        if(importContext.isLastValueDateType()){
             if(logger.isInfoEnabled()){
                 logger.info("AddStatus: 增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
                         lastValue.getClass().getName(),lastValue);
             }
-			if(lastValue instanceof Date) {
-				lastValue = ((Date) lastValue).getTime();
-
-			}
-			else{
-				throw new DataImportException("AddStatus: 增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
-			}
-            strLastValue = null;
-		}
+            if(lastValue instanceof Date) {
+                lastValue = ((Date) lastValue).getTime();
+                lastValueWrapper.setLastValue(lastValue);
+            }
+            else{
+                throw new DataImportException("AddStatus: 增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
+            }
+//            lastValueWrapper.setStrLastValue(null);
+//            strLastValue = null;
+        }
         else if(importContext.isLastValueLocalDateTimeType()){
             if(logger.isInfoEnabled()){
                 logger.info("AddStatus: 增量字段值 LastValue isLastValueLocalDateTimeType:{},real data type is {},real last value is {}",importContext.isLastValueLocalDateTimeType(),
@@ -890,6 +820,8 @@ public abstract class BaseStatusManager implements StatusManager {
 
             if(lastValue instanceof LocalDateTime) {
                 strLastValue = TimeUtil.changeLocalDateTime2String((LocalDateTime)lastValue,importContext.getLastValueDateformat());
+                lastValueWrapper.setStrLastValue(strLastValue);
+                lastValueWrapper.setLastValue(null);
                 lastValue = null;
             }
             else{
@@ -901,12 +833,69 @@ public abstract class BaseStatusManager implements StatusManager {
                 logger.info("AddStatus: 增量字段值 LastValue is Number Type:{},real data type is {},real last value is {}",importContext.isLastValueNumberType(),
                         lastValue.getClass().getName(),lastValue);
             }
-            strLastValue = null;
+//            lastValueWrapper.setStrLastValue(null);
+//            strLastValue = null;
         }
 
 
+        if (this.lastValueWraperSerial != null) {
+            lastValueWraperSerial.serial(currentStatus);
+        }
+    }
+	public void addStatus(Status currentStatus) throws DataImportException {
+//		Object lastValue = !importContext.isLastValueDateType()?currentStatus.getLastValue():((Date)currentStatus.getLastValue()).getTime();
+
+//        LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
+//        Object lastValue = lastValueWrapper.getLastValue();
+//        String strLastValue = lastValueWrapper.getStrLastValue();
+//
+//		if(importContext.isLastValueDateType()){
+//            if(logger.isInfoEnabled()){
+//                logger.info("AddStatus: 增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
+//                        lastValue.getClass().getName(),lastValue);
+//            }
+//			if(lastValue instanceof Date) {
+//				lastValue = ((Date) lastValue).getTime();
+//                lastValueWrapper.setLastValue(lastValue);
+//			}
+//			else{
+//				throw new DataImportException("AddStatus: 增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
+//			}
+//            lastValueWrapper.setStrLastValue(null);
+//            strLastValue = null;
+//		}
+//        else if(importContext.isLastValueLocalDateTimeType()){
+//            if(logger.isInfoEnabled()){
+//                logger.info("AddStatus: 增量字段值 LastValue isLastValueLocalDateTimeType:{},real data type is {},real last value is {}",importContext.isLastValueLocalDateTimeType(),
+//                        lastValue.getClass().getName(),lastValue);
+//            }
+//
+//            if(lastValue instanceof LocalDateTime) {
+//                strLastValue = TimeUtil.changeLocalDateTime2String((LocalDateTime)lastValue,importContext.getLastValueDateformat());
+//                lastValueWrapper.setStrLastValue(strLastValue);
+//                lastValueWrapper.setLastValue(null);
+//                lastValue = null;
+//            }
+//            else{
+//                throw new DataImportException("AddStatus: 增量字段为LocalDateTime类型，But the LastValue is not a LocalDateTime value:"+lastValue+",value type is "+lastValue.getClass().getName());
+//            }
+//        }
+//        else{
+//            if(logger.isInfoEnabled()){
+//                logger.info("AddStatus: 增量字段值 LastValue is Number Type:{},real data type is {},real last value is {}",importContext.isLastValueNumberType(),
+//                        lastValue.getClass().getName(),lastValue);
+//            }
+//            lastValueWrapper.setStrLastValue(null);
+//            strLastValue = null;
+//        }
+
+
 		try {
-			SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),lastValue,strLastValue,lastValueType,
+//            if(this.lastValueWraperSerial != null){
+//                lastValueWraperSerial.serial(currentStatus);
+//            }
+            handleStatus(currentStatus);
+			SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),currentStatus.getCurrentLastValueWrapper().getLastValue(),currentStatus.getStrLastValue(),lastValueType,
 					currentStatus.getFilePath(),currentStatus.getRelativeParentDir(),
 					currentStatus.getFileId(),currentStatus.getStatus(),currentStatus.getJobId(),currentStatus.getJobType());
 		} catch (SQLException throwables) {
@@ -914,40 +903,43 @@ public abstract class BaseStatusManager implements StatusManager {
 		}
 	}
 	public void updateStatus(Status currentStatus) throws Exception {
-		Object lastValue = currentStatus.getLastValue();
-
-		if(importContext.isLastValueDateType()){
-            if (logger.isDebugEnabled()) {
-                logger.debug("UpdateStatus：增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}", importContext.isLastValueDateType(),
-                        lastValue.getClass().getName(), lastValue);
-            }
-			if(lastValue instanceof Date) {
-				lastValue = ((Date) lastValue).getTime();
-			}
-			else{
-				throw new DataImportException("UpdateStatus：增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
-			}
-		}
-        else if(importContext.isLastValueLocalDateTimeType()){
-            if(lastValue instanceof LocalDateTime) {
-                String strLastValue = TimeUtil.changeLocalDateTime2String((LocalDateTime)lastValue,importContext.getLastValueDateformat());
-                currentStatus.setLastValue(null);
-                currentStatus.setStrLastValue(strLastValue);
-            }
-            else{
-                throw new DataImportException("AddStatus: 增量字段为LocalDateTime类型，But the LastValue is not a LocalDateTime value:"+lastValue+",value type is "+lastValue.getClass().getName());
-            }
-        }
-        else if(importContext.isLastValueNumberType()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("UpdateStatus：增量字段值 LastValue is Number Type:{},real data type is {},and real last value to sqlite is {}", importContext.isLastValueDateType(),
-                        lastValue.getClass().getName(), lastValue);
-            }
-        }
-//		SQLExecutor.updateWithDBName(statusDbname,updateSQL, currentStatus.getTime(), lastValue,
-//									lastValueType,currentStatus.getFilePath(),currentStatus.getFileId(),
-//									currentStatus.getStatus(),currentStatus.getId());
+//        LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
+//        Object lastValue = lastValueWrapper.getLastValue();
+//        String strLastValue = lastValueWrapper.getStrLastValue();
+//
+//		if(importContext.isLastValueDateType()){
+//            if (logger.isDebugEnabled()) {
+//                logger.debug("UpdateStatus：增量字段值 LastValue is Date Type:{},real data type is {},and real last value to sqlite is {}", importContext.isLastValueDateType(),
+//                        lastValue.getClass().getName(), lastValue);
+//            }
+//			if(lastValue instanceof Date) {
+//				lastValue = ((Date) lastValue).getTime();
+//			}
+//			else{
+//				throw new DataImportException("UpdateStatus：增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
+//			}
+//		}
+//        else if(importContext.isLastValueLocalDateTimeType()){
+//            if(lastValue instanceof LocalDateTime) {
+//                String strLastValue = TimeUtil.changeLocalDateTime2String((LocalDateTime)lastValue,importContext.getLastValueDateformat());
+//                currentStatus.setLastValue(null);
+//                currentStatus.setStrLastValue(strLastValue);
+//            }
+//            else{
+//                throw new DataImportException("AddStatus: 增量字段为LocalDateTime类型，But the LastValue is not a LocalDateTime value:"+lastValue+",value type is "+lastValue.getClass().getName());
+//            }
+//        }
+//        else if(importContext.isLastValueNumberType()) {
+//            if (logger.isDebugEnabled()) {
+//                logger.debug("UpdateStatus：增量字段值 LastValue is Number Type:{},real data type is {},and real last value to sqlite is {}", importContext.isLastValueDateType(),
+//                        lastValue.getClass().getName(), lastValue);
+//            }
+//        }
+////		SQLExecutor.updateWithDBName(statusDbname,updateSQL, currentStatus.getTime(), lastValue,
+////									lastValueType,currentStatus.getFilePath(),currentStatus.getFileId(),
+////									currentStatus.getStatus(),currentStatus.getId());
 		if(!isStoped()) {
+            handleStatus(currentStatus);
 			putStatus(currentStatus);
 		}
 	}
@@ -957,80 +949,23 @@ public abstract class BaseStatusManager implements StatusManager {
 		Status currentStatus = new Status();
 		currentStatus.setId(importContext.getStatusTableId());
 		currentStatus.setTime(new Date().getTime());
-		if(importContext.isLastValueDateType()) {
-			Object configLastValue = importContext.getConfigLastValue();
-			if(configLastValue != null){
-
-				if(configLastValue instanceof Date) {
-					currentStatus.setLastValue(configLastValue);
-				}
-				else if(configLastValue instanceof Long){
-					currentStatus.setLastValue(new Date((Long)configLastValue));
-				}
-				else if(configLastValue instanceof BigDecimal){
-					currentStatus.setLastValue(new Date(((BigDecimal)configLastValue).longValue()));
-				}
-
-				else if(configLastValue instanceof Integer){
-					currentStatus.setLastValue(new Date((Integer)configLastValue));
-				}
-				else{
-					if(logger.isInfoEnabled()) {
-						logger.info("TIMESTAMP TYPE Last Value Illegal:{}", configLastValue);
-					}
-					throw new DataImportException("TIMESTAMP TYPE Last Value Illegal:"+configLastValue );
-				}
-			}
-			else {
-				currentStatus.setLastValue(initLastDate);
-			}
-		}
-        else if(importContext.isLastValueNumberType()) {
-		    if (importContext.getConfigLastValue() != null) {
-
-                currentStatus.setLastValue(importContext.getConfigLastValue());
-            } else {
-                currentStatus.setLastValue(0l);
-            }
-        }
-        else if(importContext.isLastValueLocalDateTimeType()) {
-            Object configLastValue = importContext.getConfigLastValue();
-            if(configLastValue != null){
-
-                if(configLastValue instanceof String) {
-                    LocalDateTime localDateTime = TimeUtil.localDateTime((String) configLastValue);
-                    currentStatus.setLastValue(localDateTime);
-                    currentStatus.setStrLastValue((String) configLastValue);
-                }
-                else  if(configLastValue instanceof LocalDateTime){
-                    currentStatus.setLastValue(configLastValue);
-                    currentStatus.setStrLastValue(TimeUtil.changeLocalDateTime2String( (LocalDateTime)configLastValue,importContext.getLastValueDateformat()));
-                }
-
-                else{
-                    if(logger.isInfoEnabled()) {
-                        logger.info("TIMESTAMP TYPE Last Value Illegal:{}", configLastValue);
-                    }
-                    throw new DataImportException("TIMESTAMP TYPE Last Value Illegal:"+configLastValue );
-                }
-            }
-            else {
-                currentStatus.setLastValue(initLastLocalDateTime);
-                currentStatus.setStrLastValue(TimeUtil.changeLocalDateTime2String( initLastLocalDateTime,importContext.getLastValueDateformat()));
-            }
-        }
+        LastValueWrapper lastValueWrapper = new LastValueWrapper();
+        currentStatus.setCurrentLastValueWrapper(lastValueWrapper);
+        lastValueWrapper.setTimeStamp(currentStatus.getTime());
+        dataTranPlugin.initLastValueStatus(currentStatus,this);
 
 		if(importContext.getJobId() != null) {
 			currentStatus.setJobId(importContext.getJobId());
 		}
 		currentStatus.setJobType(importContext.getJobType());
+
 		currentStatus.setLastValueType(lastValueType);
 		if(!update)
 			addStatus(currentStatus);
 		else
 			updateStatus(currentStatus);
 		this.currentStatus = currentStatus;
-		this.firstStatus = (Status) currentStatus.clone();
+		this.firstStatus = (Status) currentStatus.copy();
 		if(logger.isInfoEnabled())
 			logger.info("Init LastValue Status: {}",currentStatus.toString());
 	}
@@ -1058,7 +993,7 @@ public abstract class BaseStatusManager implements StatusManager {
 					if (lastTime <= deletedTime) {
 
 						SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
-								status.getLastValue(),status.getStrLastValue(), status.getLastValueType(), status.getFilePath(), status.getRelativeParentDir(),status.getFileId(), status.getStatus(),status.getJobId(),status.getJobType());
+                                status.getCurrentLastValueWrapper().getLastValue(),status.getStrLastValue(), status.getLastValueType(), status.getFilePath(), status.getRelativeParentDir(),status.getFileId(), status.getStatus(),status.getJobId(),status.getJobType());
 						if(status.getJobId() == null) {
 							SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId(),status.getJobType());
 						}
@@ -1082,10 +1017,20 @@ public abstract class BaseStatusManager implements StatusManager {
 		try {
 			if(importContext.getJobId() == null) {
 				List<Status> statuses = SQLExecutor.queryListWithDBName(Status.class, statusDbname, selectAllSQL, importContext.getJobType());
+                if(statuses != null && statuses.size() >  0){
+                    for(Status status:statuses){
+                        lastValueWraperSerial.deserial(status);
+                    }
+                }
 				return statuses;
 			}
 			else{
 				List<Status> statuses = SQLExecutor.queryListWithDBName(Status.class, statusDbname, selectAllByJobIdSQL,importContext.getJobId(), importContext.getJobType());
+                if(statuses != null && statuses.size() >  0){
+                    for(Status status:statuses){
+                        lastValueWraperSerial.deserial(status);
+                    }
+                }
 				return statuses;
 			}
 		} catch (SQLException throwables) {
@@ -1102,13 +1047,15 @@ public abstract class BaseStatusManager implements StatusManager {
 		};
 	}
 	public Status getStatus(String jobId, String jobType, String statusId) {
-		Status status;
+
 		try {
+            Status status = null;
 			if (jobId == null) {
 				status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectSQL, statusId, jobType);
 			} else {
 				status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectByJobIdSQL, statusId, jobId, jobType);
 			}
+            this.lastValueWraperSerial.deserial(status);
 			return status;
 		}
 		catch (Exception e){
@@ -1122,12 +1069,7 @@ public abstract class BaseStatusManager implements StatusManager {
 			 * 初始化数据检索起始状态信息
 			 */
 			currentStatus = getStatus(importContext.getJobId(),importContext.getJobType(),importContext.getStatusTableId());
-//			if(importContext.getJobId() == null) {
-//				currentStatus = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectSQL, importContext.getStatusTableId(),importContext.getJobType());
-//			}
-//			else{
-//				currentStatus = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectByJobIdSQL, importContext.getStatusTableId(),importContext.getJobId(),importContext.getJobType());
-//			}
+
 			if (currentStatus == null) {
 				initLastValueStatus(false);
 			} else {
@@ -1141,16 +1083,17 @@ public abstract class BaseStatusManager implements StatusManager {
 					initLastValueStatus(true);
 				}
 				else {
+                    LastValueWrapper lastValueWrapper =currentStatus.getCurrentLastValueWrapper();
 					if(currentStatus.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE){
-						Object lastValue = currentStatus.getLastValue();
+						Object lastValue = lastValueWrapper.getLastValue();
 						if(lastValue instanceof Long){
-							currentStatus.setLastValue(new Date((Long)lastValue));
+                            lastValueWrapper.setLastValue(new Date((Long)lastValue));
 						}
 						else if(lastValue instanceof BigDecimal){
-							currentStatus.setLastValue(new Date(((BigDecimal) lastValue).longValue()));
+                            lastValueWrapper.setLastValue(new Date(((BigDecimal) lastValue).longValue()));
 						}
 						else if(lastValue instanceof Integer){
-							currentStatus.setLastValue(new Date(((Integer) lastValue).longValue()));
+                            lastValueWrapper.setLastValue(new Date(((Integer) lastValue).longValue()));
 						}
 						else{
 							if(logger.isWarnEnabled())
@@ -1159,10 +1102,10 @@ public abstract class BaseStatusManager implements StatusManager {
 						}
 					}
                     else if(currentStatus.getLastValueType() == ImportIncreamentConfig.LOCALDATETIME_TYPE){
-                        String lastValue = currentStatus.getStrLastValue();
-                        currentStatus.setLastValue(TimeUtil.localDateTime(lastValue));
+                        String lastValue = lastValueWrapper.getStrLastValue();
+                        lastValueWrapper.setLastValue(TimeUtil.localDateTime(lastValue));
                     }
-					this.firstStatus = (Status) currentStatus.clone();
+					this.firstStatus = (Status) currentStatus.copy();
 				}
 			}
 		}
@@ -1173,9 +1116,7 @@ public abstract class BaseStatusManager implements StatusManager {
 			throw new DataImportException(e);
 		}
 	}
-    public Object getLastValue(){
-        return currentStatus.getLastValue();
-    }
+
 	public Status getCurrentStatus(){
 		return this.currentStatus;
 	}
@@ -1190,7 +1131,8 @@ public abstract class BaseStatusManager implements StatusManager {
 	}
 	public Object[] putLastParamValue(Map params){
 		Object[] ret = new Object[2];
-		Object lastValue = this.currentStatus.getLastValue();
+        LastValueWrapper lastValueWrapper = this.currentStatus.getCurrentLastValueWrapper();
+        Object lastValue = lastValueWrapper.getLastValue();
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 			params.put(dataTranPlugin.getLastValueVarName(), lastValue);
 
@@ -1275,7 +1217,8 @@ public abstract class BaseStatusManager implements StatusManager {
 
 
 	public Map getParamValue(Map params){
-		Object lastValue = this.currentStatus.getLastValue();
+        LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
+		Object lastValue = lastValueWrapper.getLastValue();
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 			params.put(dataTranPlugin.getLastValueVarName(), lastValue);
 		}
@@ -1316,18 +1259,48 @@ public abstract class BaseStatusManager implements StatusManager {
 		}
 		return params;
 	}
+//    @Override
+//    public void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed) {
+//        if(lastValue != null) {
+//            synchronized (currentStatus) {
+//                Object oldLastValue = currentStatus.getLastValue();
+//                if (!reachEOFClosed && !importContext.needUpdate(oldLastValue, lastValue))
+//                    return;
+//                long time = System.currentTimeMillis();
+//                currentStatus.setTime(time);
+//
+//                currentStatus.setLastValue(lastValue);
+//                if(reachEOFClosed){
+//                    currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
+//                }
+//
+//
+//                if (this.isIncreamentImport()) {
+//                    Status status = currentStatus.copy();
+////					Status temp = new Status();
+////					temp.setTime(time);
+////					temp.setId(this.currentStatus.getId());
+////					temp.setLastValueType(this.currentStatus.getLastValueType());
+////					temp.setLastValue(lastValue);
+//                    this.storeStatus(status);
+//                }
+//            }
+//        }
+//    }
 
 	@Override
-	public void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed) {
-		if(lastValue != null) {
+	public void flushLastValue(LastValueWrapper lastValueWrapper, Status currentStatus, boolean reachEOFClosed) {
+		if(lastValueWrapper != null) {
 			synchronized (currentStatus) {
-				Object oldLastValue = currentStatus.getLastValue();
-				if (!reachEOFClosed && !importContext.needUpdate(oldLastValue, lastValue))
+                LastValueWrapper oldLastValueWrapper = currentStatus.getCurrentLastValueWrapper();
+
+				if (!reachEOFClosed && !importContext.needUpdateLastValueWrapper(oldLastValueWrapper, lastValueWrapper))
 					return;
 				long time = System.currentTimeMillis();
 				currentStatus.setTime(time);
-
-				currentStatus.setLastValue(lastValue);
+                currentStatus.setCurrentLastValueWrapper(lastValueWrapper);
+//				currentStatus.setLastValue(lastValueWrapper.getLastValue());
+//                currentStatus.setStrLastValue(lastValueWrapper.getStrLastValue());
 				if(reachEOFClosed){
 					currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
 				}
@@ -1347,9 +1320,13 @@ public abstract class BaseStatusManager implements StatusManager {
 	}
 
 	@Override
-	public void flushLastValue(Object lastValue,Status currentStatus) {
+	public void flushLastValue(LastValueWrapper lastValue,Status currentStatus) {
 		flushLastValue(lastValue, currentStatus,false);
 	}
+//    @Override
+//    public void flushLastValueWrapper(LastValueWrapper lastValueWrapper, Status currentStatus){
+//        flushLastValueWrapper( lastValueWrapper,  currentStatus,false);
+//    }
 
 	@Override
 	public void forceflushLastValue(Status currentStatus) {
@@ -1378,4 +1355,12 @@ public abstract class BaseStatusManager implements StatusManager {
 	public int getLastValueType() {
 		return lastValueType;
 	}
+
+    public Date getInitLastDate() {
+        return initLastDate;
+    }
+
+    public LocalDateTime getInitLastLocalDateTime() {
+        return initLastLocalDateTime;
+    }
 }

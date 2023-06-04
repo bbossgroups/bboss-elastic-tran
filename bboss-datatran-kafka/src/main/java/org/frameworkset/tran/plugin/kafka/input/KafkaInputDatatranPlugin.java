@@ -87,20 +87,20 @@ public abstract class KafkaInputDatatranPlugin extends BaseInputPlugin  {
 						logger.error("",dataImportException);
 						dataTranPlugin.throwException(  taskContext,  dataImportException);
                         kafka2ESDataTran.stop();
-                        importContext.finishAndWaitTran();
+                        importContext.finishAndWaitTran(dataImportException);
 					}
 					catch (RuntimeException dataImportException){
 						logger.error("",dataImportException);
 						dataTranPlugin.throwException(  taskContext,  dataImportException);
                         kafka2ESDataTran.stop();
-                        importContext.finishAndWaitTran();
+                        importContext.finishAndWaitTran(dataImportException);
 					}
 					catch (Throwable dataImportException){
 						logger.error("",dataImportException);
 						DataImportException dataImportException_ = new DataImportException(dataImportException);
 						dataTranPlugin.throwException(  taskContext, dataImportException_);
                         kafka2ESDataTran.stop();
-                        importContext.finishAndWaitTran();
+                        importContext.finishAndWaitTran(dataImportException);
 					}
 				}
 			},"kafka-input-dataTran");

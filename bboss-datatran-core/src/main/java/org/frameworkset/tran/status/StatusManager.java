@@ -45,7 +45,7 @@ public interface StatusManager {
 	public  void handleLostedTasks(List<Status> losteds , boolean needSyn);
 	public  void handleCompletedTasks(List<Status> completed , boolean needSyn, long registLiveTime);
 	public Map getParamValue(Map params);
-    public Object getLastValue();
+//    public Object getLastValue();
 	public Object[] putLastParamValue(Map params);
 	public void updateStatus(Status currentStatus) throws Exception;
 	public boolean isIncreamentImport();
@@ -54,8 +54,10 @@ public interface StatusManager {
 	public Status getCurrentStatus();
 	public void addStatus(Status currentStatus) throws DataImportException;
 	public void forceflushLastValue(Status currentStatus);
-	public void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed);
-	public void flushLastValue(Object lastValue,Status currentStatus);
+
+    public void flushLastValue(LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed);
+	public void flushLastValue(LastValueWrapper lastValue,Status currentStatus);
+
 	public int getLastValueType();
 
 	List<Status> getPluginStatuses();

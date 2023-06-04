@@ -72,6 +72,8 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
     private Long position;
 
+    private String mastterBinLogFile;
+
 
 
     private boolean enableIncrement;
@@ -172,7 +174,7 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         if(SimpleStringUtil.isNotEmpty(fileNames) )
             collectorFileNames = fileNames.split(",");
         if(isEnableIncrement() ){
-            this.enableIncrement = false;//禁用不支持的增量模式
+//            this.enableIncrement = false;//禁用不支持的增量模式
             if(position == null)
                 position = 0L;
         }
@@ -326,4 +328,18 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         this.enableIncrement = enableIncrement;
         return this;
     }
+    @Override
+    public boolean isSortedDefault(){
+        return true;
+    }
+
+    public String getMastterBinLogFile() {
+        return mastterBinLogFile;
+    }
+
+    public MySQLBinlogConfig setMastterBinLogFile(String mastterBinLogFile) {
+        this.mastterBinLogFile = mastterBinLogFile;
+        return this;
+    }
+
 }

@@ -25,10 +25,7 @@ import org.frameworkset.tran.input.file.*;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.status.InitLastValueClumnName;
-import org.frameworkset.tran.status.LoadCurrentStatus;
-import org.frameworkset.tran.status.MultiStatusManager;
-import org.frameworkset.tran.status.SetLastValueType;
+import org.frameworkset.tran.status.*;
 import org.frameworkset.tran.util.TranConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,10 +136,12 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 			logger.info("Start collect failed file {}", fileReaderTask.getFileInfo().getFilePath());
 		Status status = fileReaderTask.getCurrentStatus();
 		Status _status = statusManager.getStatus(status.getJobId(),status.getJobType(),status.getId());
+
 		if(_status != null) {
-			 status.setLastValue(_status.getLastValue());
+			 status.setCurrentLastValueWrapper(_status.getCurrentLastValueWrapper());
 		}
-        Object lastValue = status.getLastValue();
+        LastValueWrapper lastValueWrapper = status.getCurrentLastValueWrapper();
+        Object lastValue = lastValueWrapper.getLastValue();
         long pointer = 0;
         if (lastValue instanceof Long) {
             pointer = (Long) lastValue;
@@ -399,9 +398,9 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                             return;
 
                         long pointer = 0;
-
+                        LastValueWrapper currentLastValueWrapper = status.getCurrentLastValueWrapper();
                         if (!fromFirst){
-                            Object lastValue = status.getLastValue();
+                            Object lastValue = currentLastValueWrapper.getLastValue();
                             if (lastValue instanceof Long) {
                                 pointer = (Long) lastValue;
                             } else if (lastValue instanceof Integer) {
@@ -412,7 +411,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 
                         }
                         else{
-                            status.setLastValue(0l);
+                            currentLastValueWrapper.setLastValue(0l);
                             pointer = 0L;
                         }
 						runFileReadTask(  fileConfig,  status,  pointer,true);
@@ -481,6 +480,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 
             startHistoryTasks();
             if (!fileInputConfig.isUseETLScheduleForScanNewFile()) {//采用内置新文件扫描调度机制
+                Exception e = null;
                 try {
                     long importStartTime = System.currentTimeMillis();
                     this.doImportData(null);
@@ -488,9 +488,17 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                     if (importContext.isPrintTaskLog())
                         logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
                 }
+                catch (DataImportException _e){
+                    e = _e;
+                    throw _e;
+                }
+                catch (Exception _e){
+                    e = new DataImportException("",_e);
+                    throw (DataImportException)e;
+                }
                 finally {
                     if(neadFinishJob()){//不扫码新文件
-                        importContext.finishAndWaitTran();
+                        importContext.finishAndWaitTran(e);
                     }
                 }
 

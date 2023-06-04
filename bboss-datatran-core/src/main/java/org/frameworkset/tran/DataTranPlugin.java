@@ -21,6 +21,8 @@ import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.status.BaseStatusManager;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.status.LoadCurrentStatus;
 import org.frameworkset.tran.status.SetLastValueType;
@@ -39,7 +41,23 @@ import java.util.Map;
  * @version 1.0
  */
 public interface DataTranPlugin {
+//    public boolean onlyUseBatchExecute();
+    public boolean isSingleLastValueType();
     public boolean hasJobInputParamGroups();
+    public void initLastValueStatus(Status currentStatus, BaseStatusManager baseStatusManager) throws Exception;
+
+    /**
+     * Number ts = (Number)lastValue.getLastValue();
+     * 				Number nts = (Number)taskMetrics.getLastValue().getLastValue();
+     * 				if(nts.longValue() > ts.longValue())
+     * 					this.lastValue = taskMetrics.getLastValue();
+     * @param oldValue
+     * @param newValue
+     * @return
+     */
+    public LastValueWrapper maxNumberLastValue(LastValueWrapper oldValue, LastValueWrapper newValue);
+    public boolean needUpdateLastValueWrapper(Integer lastValueType, LastValueWrapper oldValue,LastValueWrapper newValue);
+    public LastValueWrapper maxLastValue(LastValueWrapper oldValue, BaseDataTran baseDataTran);
     public List<Map> getJobInputParamGroups(TaskContext taskContext);
 	public String getJobType();
 	public LoadCurrentStatus getLoadCurrentStatus();
@@ -85,9 +103,9 @@ public interface DataTranPlugin {
 
 	public Long getTimeRangeLastValue();
 
-	void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed);
-
-	void flushLastValue(Object lastValue,Status currentStatus);
+//	void flushLastValue(LastValueWrapper lastValue,Status currentStatus,boolean reachEOFClosed);
+    void flushLastValue(LastValueWrapper lastValue,Status currentStatus,boolean reachEOFClosed);
+	void flushLastValue(LastValueWrapper lastValue,Status currentStatus);
 
 
 
@@ -127,7 +145,7 @@ public interface DataTranPlugin {
 	boolean useFilePointer();
 	SetLastValueType getSetLastValueType();
 
-    void finishAndWaitTran();
+    void finishAndWaitTran(Throwable throwable);
 
     void callTran(BaseDataTran baseDataTran);
 }

@@ -27,6 +27,7 @@ import org.frameworkset.tran.plugin.http.HttpConfigClientProxy;
 import org.frameworkset.tran.plugin.http.HttpProxyHelper;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommand;
 import org.frameworkset.tran.task.TaskFailedException;
@@ -47,8 +48,8 @@ public class HttpTaskCommandImpl extends BaseTaskCommand<String,String> {
 //	private String refreshOption;
 	private HttpOutputConfig httpOutputConfig ;
 	public HttpTaskCommandImpl(ImportCount importCount, ImportContext importContext,
-							   long dataSize, int taskNo, String jobNo,
-							   Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
+                               long dataSize, int taskNo, String jobNo,
+                               LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
 		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,  taskContext);
 		httpOutputConfig = (HttpOutputConfig) importContext.getOutputConfig();
 	}

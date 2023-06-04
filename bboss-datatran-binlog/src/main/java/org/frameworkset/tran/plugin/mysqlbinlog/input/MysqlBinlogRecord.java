@@ -110,4 +110,7 @@ public class MysqlBinlogRecord extends CommonMapRecord {
         }
     }
 
+    public MysqlBinLogData getMysqlBinLogData() {
+        return mysqlBinLogData;
+    }
 }

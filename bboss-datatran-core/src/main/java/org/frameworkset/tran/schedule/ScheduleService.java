@@ -248,7 +248,7 @@ public class ScheduleService {
 				throwException(taskContext,e);
 			logger.error("Schedule job task failed:",e);
             if(!importContext.getDataTranPlugin().isMultiTran() && !importContext.isContinueOnError() )
-                importContext.finishAndWaitTran();
+                importContext.finishAndWaitTran(e);
         }
 		finally {
 			long importEndTime = System.currentTimeMillis();

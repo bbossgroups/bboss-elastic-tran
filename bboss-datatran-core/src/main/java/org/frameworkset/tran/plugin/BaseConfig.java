@@ -33,6 +33,9 @@ public abstract class BaseConfig  extends FieldMappingManager {
 		DataTranPlugin dataTranPlugin = new DataTranPluginImpl(importContext);
 		return dataTranPlugin;
 	}
+    public boolean isSortedDefault(){
+        return false;
+    }
 	public void afterBuild(ImportBuilder importBuilder, ImportContext importContext){
 
 	}

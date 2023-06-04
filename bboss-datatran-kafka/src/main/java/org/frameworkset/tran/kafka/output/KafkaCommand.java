@@ -20,6 +20,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.kafka.output.KafkaOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
 
 /**
@@ -34,7 +35,7 @@ public class KafkaCommand  extends BaseTaskCommand {
 	private KafkaOutputConfig kafkaOutputConfig;
 
 	public KafkaCommand(ImportCount importCount, ImportContext importContext,
-						long dataSize, int taskNo, String jobNo, Object lastValue, TaskContext context, Status currentStatus,boolean reachEOFClosed) {
+                        long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, TaskContext context, Status currentStatus, boolean reachEOFClosed) {
 		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed,context);
 		kafkaOutputConfig = (KafkaOutputConfig) importContext.getOutputConfig();
 	}

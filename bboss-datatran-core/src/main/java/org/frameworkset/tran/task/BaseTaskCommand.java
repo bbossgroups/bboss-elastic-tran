@@ -19,6 +19,7 @@ import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	protected ImportContext importContext;
 	protected TaskMetrics taskMetrics;
 	protected TaskContext taskContext;
-	protected Object lastValue;
+	protected LastValueWrapper lastValue;
 	protected long dataSize;
 	protected long totalSize;
 	protected boolean reachEOFClosed;
@@ -63,7 +64,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		}
 	}
 	@Override
-	public Object getLastValue() {
+	public LastValueWrapper getLastValue() {
 		return lastValue;
 	}
 
@@ -84,7 +85,9 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		return importContext;
 	}
 	public void finishTask(){
-		importContext.flushLastValue(lastValue,   currentStatus);
+
+        importContext.flushLastValue(lastValue, currentStatus);
+
 
 	}
 
@@ -105,7 +108,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 
 	public BaseTaskCommand(ImportCount importCount,
 						   ImportContext importContext,
-						   long dataSize, int taskNo, String jobNo, Object lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext){
+						   long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext){
 		this.importCount = importCount;
 		this.importContext =  importContext;
 		this.dataSize = dataSize;

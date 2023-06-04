@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import com.github.shyiko.mysql.binlog.BinaryLogFileReader;
 import com.github.shyiko.mysql.binlog.event.*;
@@ -26,6 +27,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CommonData;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,27 +52,39 @@ public class MySQLBinlogListener {
     private ImportContext importContext;
     private MysqlBinlogInputDatatranPlugin mysqlBinlogInputDatatranPlugin;
     private BinaryLogClient client;
-    private Long position = null;
+    private BinaryLogClient.EventListener binaryLogClientEventListener;
+    /**
+     * 当前采集位置
+     */
+    private Long position ;
+    /**
+     * 当前采集binlog日志文件
+     */
+    private String binlogFile;
     public MySQLBinlogListener(BaseDataTran mysqlBinlogDataTran, MySQLBinlogConfig mySQLBinlogConfig, ImportContext importContext) {
         this.mysqlBinlogDataTran = mysqlBinlogDataTran;
         this.mySQLBinlogConfig = mySQLBinlogConfig;
         this.importContext = importContext;
         this.mysqlBinlogInputDatatranPlugin = (MysqlBinlogInputDatatranPlugin) importContext.getInputPlugin();
         if(mysqlBinlogDataTran.getDataTranPlugin().isIncreamentImport()){
+
             if(mysqlBinlogDataTran.getDataTranPlugin().getCurrentStatus() != null) {
-                Object lastValue = mysqlBinlogDataTran.getDataTranPlugin().getCurrentStatus().getLastValue();
+                LastValueWrapper lastValueWrapper = mysqlBinlogDataTran.getDataTranPlugin().getCurrentStatus().getCurrentLastValueWrapper();
+                Object lastValue = lastValueWrapper.getLastValue();
                 if (lastValue != null) {
                     String t = String.valueOf(lastValue);
                     position = Long.parseLong(t);
+
                 }
+                String binlogFile_ = lastValueWrapper.getStrLastValue();
+                binlogFile = binlogFile_;
             }
             else if(mySQLBinlogConfig.getPosition() != null){
                 position = mySQLBinlogConfig.getPosition();
+                binlogFile = mySQLBinlogConfig.getMastterBinLogFile();
             }
         }
-        else if(mySQLBinlogConfig.getPosition() != null){
-            position = mySQLBinlogConfig.getPosition();
-        }
+
     }
 
     public void start() throws IOException {
@@ -92,7 +106,11 @@ public class MySQLBinlogListener {
 //                EventDeserializer.CompatibilityMode.DATE_AND_TIME_AS_LONG,
                 EventDeserializer.CompatibilityMode.CHAR_AND_BINARY_AS_BYTE_ARRAY
         );
-        if(position != null)
+        if(SimpleStringUtil.isNotEmpty(binlogFile)) {
+
+            client.setBinlogFilename(binlogFile);
+        }
+        if (position != null)
             client.setBinlogPosition(position);
         client.setEventDeserializer(eventDeserializer);
         if(mySQLBinlogConfig.getServerId() != null){
@@ -129,19 +147,42 @@ public class MySQLBinlogListener {
             client.setSslSocketFactory(mySQLBinlogConfig.getSslSocketFactory());
         }
 
-        client.registerEventListener(new BinaryLogClient.EventListener() {
+        client.registerEventListener(binaryLogClientEventListener = new BinaryLogClient.EventListener() {
             private String table = null;
             private String database = null;
             private byte[] columnTypes = null;
             private int[] columnMetadata = null;
             private String[] columns = null;
             private boolean containTable = false;
+            private String binLogFileName;
+            private long binlogPosition;
+            private void sendDropedEvent() throws InterruptedException {
+                if(!importContext.isIncreamentImport())
+                    return;
+                List<MysqlBinlogRecord> datas = new ArrayList<>(1);
+
+                MysqlBinLogData mysqlBinLogData = new MysqlBinLogData();
+                mysqlBinLogData.setFileName(binLogFileName);
+                mysqlBinLogData.setPosition(binlogPosition);
+                mysqlBinLogData.setAction(Record.RECORD_DIRECT_IGNORE);
+
+                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
+                datas.add(mysqlBinlogRecord);
+
+                mysqlBinlogDataTran.appendData(new CommonData(datas));
+            }
             @Override
             public void onEvent(Event event) {
                 try {
-                    long currentPosition = client.getBinlogPosition();
+                    binlogPosition = client.getBinlogPosition();
+                    binLogFileName = client.getBinlogFilename();
                     EventData eventData = event.getData();
-                    if (eventData instanceof TableMapEventData) {
+                    if(eventData instanceof RotateEventData){
+                        RotateEventData rotateEventData = (RotateEventData)eventData;
+                        binLogFileName = rotateEventData.getBinlogFilename();
+                        sendDropedEvent();
+                    }
+                    else if (eventData instanceof TableMapEventData) {
                         TableMapEventData tableMapEventData = (TableMapEventData) event.getData();
                         table = tableMapEventData.getTable();
                         database = tableMapEventData.getDatabase();
@@ -160,6 +201,7 @@ public class MySQLBinlogListener {
 
                     } else if (eventData instanceof WriteRowsEventData) {
                         if (!containTable) {
+                            sendDropedEvent();
                             return;
                         }
                         WriteRowsEventData writeRowsEventData = (WriteRowsEventData) event.getData();
@@ -171,8 +213,10 @@ public class MySQLBinlogListener {
                             MysqlBinLogData mysqlBinLogData = new MysqlBinLogData();
                             mysqlBinLogData.setData(row);
                             mysqlBinLogData.setTable(table);
-                            mysqlBinLogData.setPosition(currentPosition);
+                            mysqlBinLogData.setFileName(binLogFileName);
+                            mysqlBinLogData.setPosition(binlogPosition);
                             mysqlBinLogData.setAction(Record.RECORD_INSERT);
+
                             MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
                             datas.add(mysqlBinlogRecord);
 
@@ -181,6 +225,7 @@ public class MySQLBinlogListener {
 
                     } else if (eventData instanceof UpdateRowsEventData) {
                         if (!containTable) {
+                            sendDropedEvent();
                             return;
                         }
                         UpdateRowsEventData writeRowsEventData = (UpdateRowsEventData) event.getData();
@@ -197,7 +242,8 @@ public class MySQLBinlogListener {
                             mysqlBinLogData.setOldValues(oldrow);
                             mysqlBinLogData.setTable(table);
                             mysqlBinLogData.setAction(Record.RECORD_UPDATE);
-                            mysqlBinLogData.setPosition(currentPosition);
+                            mysqlBinLogData.setFileName(binLogFileName);
+                            mysqlBinLogData.setPosition(binlogPosition);
                             MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
                             datas.add(mysqlBinlogRecord);
 
@@ -206,6 +252,7 @@ public class MySQLBinlogListener {
 //                    System.out.println(event);
                     } else if (eventData instanceof DeleteRowsEventData) {
                         if (!containTable) {
+                            sendDropedEvent();
                             return;
                         }
                         DeleteRowsEventData writeRowsEventData = (DeleteRowsEventData) event.getData();
@@ -218,12 +265,16 @@ public class MySQLBinlogListener {
                             mysqlBinLogData.setData(row);
                             mysqlBinLogData.setTable(table);
                             mysqlBinLogData.setAction(Record.RECORD_DELETE);
-                            mysqlBinLogData.setPosition(currentPosition);
+                            mysqlBinLogData.setFileName(binLogFileName);
+                            mysqlBinLogData.setPosition(binlogPosition);
                             MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
                             datas.add(mysqlBinlogRecord);
 
                         }
                         mysqlBinlogDataTran.appendData(new CommonData(datas));
+                    }
+                    else{
+                        sendDropedEvent();
                     }
                 } catch (IOException e) {
                     logger.error("处理数据异常：",e);
@@ -236,9 +287,15 @@ public class MySQLBinlogListener {
 
         });
         try {
-            client.connect();
             this.client = client;
+            client.connect();
         } catch (IOException e) {
+            throw new DataImportException(e);
+        }
+        catch (Exception e) {
+            throw new DataImportException(e);
+        }
+        catch (Throwable e) {
             throw new DataImportException(e);
         }
     }
@@ -419,7 +476,14 @@ public class MySQLBinlogListener {
 
     public void shutdown() {
         if(client != null){
+            try{
+                if(binaryLogClientEventListener != null)
+                    client.unregisterEventListener(binaryLogClientEventListener);
+            } catch (Exception e) {
+                logger.error("",e);
+            }
             try {
+
                 client.disconnect();
             } catch (IOException e) {
                 logger.error("",e);

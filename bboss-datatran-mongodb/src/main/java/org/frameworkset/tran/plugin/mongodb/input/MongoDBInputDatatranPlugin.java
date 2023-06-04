@@ -29,6 +29,7 @@ import org.frameworkset.tran.plugin.BaseInputPlugin;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,29 +190,29 @@ public class MongoDBInputDatatranPlugin extends BaseInputPlugin {
 	public void putLastParamValue(BasicDBObject query){
 		int lastValueType = dataTranPlugin.getLastValueType();
 		Status currentStatus = dataTranPlugin.getCurrentStatus();
+        LastValueWrapper currentLastValueWrapper = currentStatus.getCurrentLastValueWrapper();
+        Object lastValue = currentLastValueWrapper.getLastValue();
 		if(lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 			query.append(getLastValueVarName(),
-					new BasicDBObject("$gt", currentStatus.getLastValue()));
-//			params.put(getLastValueVarName(), currentStatus.getLastValue());
+					new BasicDBObject("$gt", lastValue));
 		}
 		else{
 			Object lv = null;
-			if(currentStatus.getLastValue() instanceof Date) {
-				lv = currentStatus.getLastValue();
-//				params.put(getLastValueVarName(), currentStatus.getLastValue());
+			if(lastValue instanceof Date) {
+				lv = lastValue;
 			}
 			else {
-				if(currentStatus.getLastValue() instanceof Long) {
-					lv =   new Date((Long)currentStatus.getLastValue());
+				if(lastValue instanceof Long) {
+					lv =   new Date((Long)lastValue);
 				}
-				else if(currentStatus.getLastValue() instanceof Integer){
-					lv =  new Date(((Integer) currentStatus.getLastValue()).longValue());
+				else if(lastValue instanceof Integer){
+					lv =  new Date(((Integer) lastValue).longValue());
 				}
-				else if(currentStatus.getLastValue() instanceof Short){
-					lv =  new Date(((Short) currentStatus.getLastValue()).longValue());
+				else if(lastValue instanceof Short){
+					lv =  new Date(((Short) lastValue).longValue());
 				}
 				else{
-					lv =  new Date(((Number) currentStatus.getLastValue()).longValue());
+					lv =  new Date(((Number) lastValue).longValue());
 				}
 			}
 

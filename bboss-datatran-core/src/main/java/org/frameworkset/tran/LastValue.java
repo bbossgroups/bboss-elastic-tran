@@ -18,6 +18,7 @@ package org.frameworkset.tran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -90,6 +91,29 @@ public abstract class LastValue implements TranResultSet{
 		Record record = this.getCurrentRecord();
 		return record.getOffset();
 	}
+
+    public Object getLastValue(){
+        if(!importContext.useFilePointer()) {
+            if (importContext.getLastValueColumnName() == null) {
+                return null;
+            }
+            return getLastValue(importContext.getLastValueColumnName());
+        }
+        else{
+            return getLastOffsetValue();
+        }
+    }
+    public String getStrLastValue() throws DataImportException {
+        return null;
+    }
+
+    public LastValueWrapper getLastValueWrapper(){
+        LastValueWrapper lastValueWrapper = new LastValueWrapper();
+        lastValueWrapper.setTimeStamp(System.currentTimeMillis());
+        lastValueWrapper.setLastValue(getLastValue());
+        lastValueWrapper.setStrLastValue(getStrLastValue());
+        return lastValueWrapper;
+    }
 
 	@Override
 	public Date getDateTimeValue(String colName) throws DataImportException {

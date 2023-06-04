@@ -8,6 +8,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.TaskCommand;
 
 import java.util.List;
@@ -36,8 +37,8 @@ public class HBaseOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
 		super(   taskContext,jdbcResultSet,importContext,   currentStatus);
 	}
 	protected TaskCommand buildTaskCommand(ImportCount totalCount,
-													List<CommonRecord> records, int taskNo,
-													Object lastValue,  boolean reachEOFClosed){
+                                           List<CommonRecord> records, int taskNo,
+                                           LastValueWrapper lastValue, boolean reachEOFClosed){
 		return new HBaseTaskCommandImpl( totalCount, importContext, records,
 				taskNo, taskContext.getJobNo(),taskInfo,lastValue,  currentStatus,reachEOFClosed,taskContext);
 	}

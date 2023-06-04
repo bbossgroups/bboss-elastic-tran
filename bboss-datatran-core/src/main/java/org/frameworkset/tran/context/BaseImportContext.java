@@ -26,7 +26,7 @@ import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.plugin.metrics.output.MetricsOutputConfig;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
-import org.frameworkset.tran.status.BaseStatusManager;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.util.ResourceEnd;
 import org.frameworkset.util.ResourceStart;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
@@ -315,9 +315,9 @@ public  class BaseImportContext implements ImportContext {
      * 等待转换结束，后再结束作业
      */
     @Override
-    public void finishAndWaitTran(){
+    public void finishAndWaitTran(Throwable throwable){
         if(dataTranPlugin != null) {
-            this.dataTranPlugin.finishAndWaitTran();
+            this.dataTranPlugin.finishAndWaitTran(  throwable);
         }
     }
     public void registEndAction(EndAction endAction){
@@ -385,20 +385,26 @@ public  class BaseImportContext implements ImportContext {
 	public WrapedExportResultHandler getExportResultHandler(){
 		return baseImportConfig.getExportResultHandler();
 	}
-	@Override
-	public void flushLastValue(Object lastValue,Status currentStatus){
-		flushLastValue( lastValue, currentStatus,false);
-	}
+//	@Override
+//	public void flushLastValue(Object lastValue,Status currentStatus){
+//		flushLastValue( lastValue, currentStatus,false);
+//	}
+    @Override
+    public void flushLastValue(LastValueWrapper lastValue,Status currentStatus){
+        flushLastValue( lastValue, currentStatus,false);
+    }
 
-	@Override
-	public void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed){
-		Long timeLastValue = this.getTimeRangeLastValue();
-		if(timeLastValue != null){
+//	@Override
+//	public void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed){
+//
+//		this.dataTranPlugin.flushLastValue(lastValue,currentStatus,  reachEOFClosed);
+//	}
 
-			lastValue = max(lastValue,new Date(timeLastValue));
-		}
-		this.dataTranPlugin.flushLastValue(lastValue,currentStatus,  reachEOFClosed);
-	}
+    @Override
+    public void flushLastValue(LastValueWrapper lastValue,Status currentStatus,boolean reachEOFClosed){
+
+        this.dataTranPlugin.flushLastValue(lastValue,currentStatus,  reachEOFClosed);
+    }
 	public boolean isLastValueDateType()
 	{
 		return baseImportConfig.isLastValueDateType();
@@ -480,14 +486,26 @@ public  class BaseImportContext implements ImportContext {
 		return dataTranPlugin;
 	}
 
-	public boolean needUpdate(Object oldValue,Object newValue){
-		return BaseStatusManager.needUpdate(this.getLastValueType(),oldValue,  newValue);
+	public boolean needUpdateLastValueWrapper(LastValueWrapper oldValue,LastValueWrapper newValue){
+		return dataTranPlugin.needUpdateLastValueWrapper(this.getLastValueType(),oldValue,  newValue);
 
 	}
-	public Object max(Object oldValue,Object newValue){
-		return BaseStatusManager.max(this.getLastValueType(),oldValue,newValue);
 
-	}
+//    public boolean needUpdate(Object oldValue,Object newValue){
+//        return BaseStatusManager.needUpdate(this.getLastValueType(),oldValue,  newValue);
+//
+//    }
+    @Override
+    public LastValueWrapper max(LastValueWrapper oldValue, BaseDataTran baseDataTran){
+        return dataTranPlugin.maxLastValue(oldValue,baseDataTran);
+    }
+
+//    @Override
+//	public Object max(Object oldValue,Object newValue){
+//
+//		return BaseStatusManager.max(this.getLastValueType(),oldValue,newValue);
+//
+//	}
 	public void setLastValueDateformat(String lastValueDateformat){
 		this.baseImportConfig.setLastValueDateformat(lastValueDateformat);
 	}

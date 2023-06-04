@@ -22,6 +22,7 @@ import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.util.ResourceEnd;
@@ -129,10 +130,11 @@ public interface ImportContext {
     /**
      * 等待转换结束，后再结束作业
      */
-    void finishAndWaitTran();
+    void finishAndWaitTran(Throwable throwable);
 
     public ExportCount getExportCount();
-	public Object max(Object oldValue,Object newValue);
+	public LastValueWrapper max(LastValueWrapper oldValue, BaseDataTran baseDataTran);
+//    public Object max(Object oldValue, Object baseDataTran);
 	boolean isContinueOnError();
 	boolean isCurrentStoped();
 	boolean assertCondition();
@@ -199,10 +201,12 @@ public interface ImportContext {
 //	String getRefreshOption();
 
 	BaseImportConfig getImportConfig();
-	void flushLastValue(Object lastValue,Status currentStatus);
-	void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed);
-	public boolean needUpdate(Object oldValue,Object newValue);
-
+//	void flushLastValueWrapper(LastValueWrapper lastValue,Status currentStatus);
+    void flushLastValue(LastValueWrapper lastValue,Status currentStatus);
+	void flushLastValue(LastValueWrapper lastValue,Status currentStatus,boolean reachEOFClosed);
+//    public void flushLastValueWrapper(LastValueWrapper lastValue,Status currentStatus,boolean reachEOFClosed);
+	public boolean needUpdateLastValueWrapper(LastValueWrapper oldValue,LastValueWrapper newValue);
+//    public boolean needUpdate(Object oldValue,Object newValue);
 //	void setEsIndexWrapper(ESIndexWrapper esIndexWrapper);
 //
 //	ESIndexWrapper getEsIndexWrapper();

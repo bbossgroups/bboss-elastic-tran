@@ -10,6 +10,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.custom.output.CustomOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseParrelTranCommand;
 import org.frameworkset.tran.task.BaseSerialTranCommand;
 import org.frameworkset.tran.task.StringTranJob;
@@ -62,8 +63,8 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 		parrelTranCommand = new BaseParrelTranCommand(){
 
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed,
-										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,
+                                          CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
 
 				if(datas != null )  {
 					taskNo++;
@@ -84,7 +85,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
-			private int action(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed){
+			private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed){
 				if(datas != null )  {
 					taskNo++;
 					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
@@ -96,7 +97,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 				return taskNo;
 			}
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
 //				List<CommonRecord> records = convertDatas( datas);
 //				if(records != null && records.size() > 0)  {
 //					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
@@ -109,7 +110,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 			}
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
 				taskNo = action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed);
 				return taskNo;
 

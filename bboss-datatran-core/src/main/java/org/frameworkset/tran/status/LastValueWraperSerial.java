@@ -1,6 +1,6 @@
-package org.frameworkset.tran.config;
+package org.frameworkset.tran.status;
 /**
- * Copyright 2022 bboss
+ * Copyright 2023 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,21 @@ package org.frameworkset.tran.config;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DataTranPlugin;
-import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.schedule.Status;
 
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2020</p>
- * @Date 2022/6/18
+ * <p>Copyright (c) 2023</p>
+ * @Date 2023/6/2
  * @author biaoping.yin
  * @version 1.0
  */
-public interface InputConfig {
-	public void build(ImportBuilder importBuilder);
-	public DataTranPlugin buildDataTranPlugin(ImportContext importContext);
-	InputPlugin getInputPlugin(ImportContext importContext);
-	void afterBuild(ImportBuilder importBuilder,ImportContext importContext);
-
-    boolean isSortedDefault();
+public interface LastValueWraperSerial {
+    /**
+     *
+     * @param status
+     */
+    public void serial(Status status);
+    public void deserial(Status status);
 }

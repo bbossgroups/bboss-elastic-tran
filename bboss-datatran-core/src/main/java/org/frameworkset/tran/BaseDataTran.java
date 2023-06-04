@@ -10,6 +10,7 @@ import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.record.SplitTranResultSet;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.*;
 import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
@@ -320,7 +321,7 @@ public abstract class BaseDataTran implements DataTran{
 
 	}
 
-	protected void jobComplete(ExecutorService service,Exception exception,Object lastValue ,TranErrorWrapper tranErrorWrapper,Status currentStatus,boolean reachEOFClosed){
+	protected void jobComplete(ExecutorService service,Exception exception,LastValueWrapper lastValue ,TranErrorWrapper tranErrorWrapper,Status currentStatus,boolean reachEOFClosed){
 		if (importContext.getScheduleService() == null) {//一次性非定时调度作业调度执行的话，转换完成需要关闭线程池
 			if(reachEOFClosed){
 				if(tranErrorWrapper.assertCondition(exception)){
@@ -371,7 +372,7 @@ public abstract class BaseDataTran implements DataTran{
 		return importContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
 	public void waitTasksComplete(final List<Future> tasks,
-								   final ExecutorService service,final Exception exception,Object lastValue,
+								   final ExecutorService service,final Exception exception,LastValueWrapper lastValue,
 								  final ImportCount totalCount ,final TranErrorWrapper tranErrorWrapper ,final WaitTasksCompleteCallBack waitTasksCompleteCallBack,
 								  final boolean reachEOFClosed){
 		Consumer function = new Consumer<Object>(){
@@ -463,6 +464,7 @@ public abstract class BaseDataTran implements DataTran{
 	}
 	public Object getLastValue() throws DataImportException {
 
+        /**
 		if(!importContext.useFilePointer()) {
 			if (importContext.getLastValueColumnName() == null) {
 				return null;
@@ -471,13 +473,26 @@ public abstract class BaseDataTran implements DataTran{
 		}
 		else{
 			return tranResultSet.getLastOffsetValue();
-		}
+		}*/
+        return tranResultSet.getLastValue();
 
 
 	}
+
+    public String getStrLastValue() throws DataImportException {
+        return tranResultSet.getStrLastValue();
+    }
+
+    public LastValueWrapper getLastValueWrapper(){
+        return tranResultSet.getLastValueWrapper();
+    }
 
 	public boolean isTranFinished() {
 		return tranFinished;
 	}
+
+    public boolean isRecordDirectIgnore(){
+        return tranResultSet.getAction() == Record.RECORD_DIRECT_IGNORE;
+    }
 
 }

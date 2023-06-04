@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  */
 
 import org.frameworkset.tran.AsynBaseTranResultSet;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 
@@ -38,6 +39,14 @@ public class MysqlBinlogResultSet extends AsynBaseTranResultSet {
 	protected Record buildRecord(Object data) {
         return (Record)data;
 	}
-
+    @Override
+    public String getStrLastValue() throws DataImportException {
+        if(record != null) {
+            MysqlBinLogData mysqlBinLogData = ((MysqlBinlogRecord) record).getMysqlBinLogData();
+            if(mysqlBinLogData != null)
+                return mysqlBinLogData.getFileName();
+        }
+        return null;
+    }
 
 }

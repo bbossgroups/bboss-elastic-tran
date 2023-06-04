@@ -728,7 +728,7 @@ public class FileReaderTask extends FieldManager{
                     //文件重新写了，则需要重新读取
                     if(pointer > raf.length()){
                         pointer = 0;
-                        this.currentStatus.setLastValue(0L);
+                        this.currentStatus.getCurrentLastValueWrapper().setLastValue(0L);
                     }
                     raf.seek(pointer);
                     this.raf = raf;

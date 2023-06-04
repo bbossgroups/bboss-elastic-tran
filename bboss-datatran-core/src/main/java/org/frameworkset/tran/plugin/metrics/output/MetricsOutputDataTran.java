@@ -8,6 +8,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.TaskCommand;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class MetricsOutputDataTran extends AbstraCommonRecordOutPutDataTran {
 	}
 
 	@Override
-	protected TaskCommand buildTaskCommand(ImportCount totalCount, List<CommonRecord> records, int taskNo, Object lastValue, boolean reachEOFClosed) {
+	protected TaskCommand buildTaskCommand(ImportCount totalCount, List<CommonRecord> records, int taskNo, LastValueWrapper lastValue, boolean reachEOFClosed) {
 		return new MetricsTaskCommandImpl( totalCount, importContext, records,
 				taskNo, taskContext.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
 

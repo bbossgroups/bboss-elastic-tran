@@ -49,9 +49,17 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 	 */
 	@Override
 	public String parallelBatchExecute( ) {
-		if(logger.isDebugEnabled())
-			logger.debug("parallel batch import data Execute started.");
-		return tranJob.parallelBatchExecute(parrelTranCommand,currentStatus,importContext, tranResultSet,this);
+//        if(!importContext.getDataTranPlugin().onlyUseBatchExecute()) {
+            if (logger.isDebugEnabled())
+                logger.debug("parallel batch import data Execute started.");
+
+            return tranJob.parallelBatchExecute(parrelTranCommand, currentStatus, importContext, tranResultSet, this);
+//        }
+//        else{
+//            if(logger.isDebugEnabled())
+//                logger.debug("batch import data Execute started.");
+//            return tranJob.batchExecute(serialTranCommand,currentStatus,importContext, tranResultSet,this);
+//        }
 	}
 
 	/**
@@ -73,9 +81,16 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 	 */
 	@Override
 	public String serialExecute(){
-		if(logger.isDebugEnabled())
-			logger.debug("serial import data Execute started.");
-		return tranJob.serialExecute(serialTranCommand,currentStatus,importContext, tranResultSet,this);
+//        if(!importContext.getDataTranPlugin().onlyUseBatchExecute()) {
+            if (logger.isDebugEnabled())
+                logger.debug("serial import data Execute started.");
+            return tranJob.serialExecute(serialTranCommand, currentStatus, importContext, tranResultSet, this);
+//        }
+//        else{
+//            if(logger.isDebugEnabled())
+//                logger.debug("batch import data Execute started.");
+//            return tranJob.batchExecute(serialTranCommand,currentStatus,importContext, tranResultSet,this);
+//        }
 	}
 
 	protected CommonRecord buildRecord(CommonRecord dbRecord ,Context context){

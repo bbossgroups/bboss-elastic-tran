@@ -20,6 +20,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 
 /**
  * <p>Description: </p>
@@ -31,7 +32,7 @@ import org.frameworkset.tran.schedule.TaskContext;
  */
 public interface TaskCommand<DATA,RESULT> {
 	public JobContext getJobContext();
-	public Object getLastValue();
+	public LastValueWrapper getLastValue();
 	public DATA getDatas() ;
 	public void init();
 	public TaskContext getTaskContext();

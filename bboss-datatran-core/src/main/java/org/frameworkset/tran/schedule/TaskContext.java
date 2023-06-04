@@ -251,7 +251,7 @@ public class TaskContext {
 		jobTaskMetrics.increamentIgnoreRecords(taskMetrics.getIgnoreRecords());
 		jobTaskMetrics.increamentRecords(taskMetrics.getRecords());
 		jobTaskMetrics.increamentSuccessRecords(taskMetrics.getSuccessRecords());
-		jobTaskMetrics.putLastValue(importContext.getLastValueType(),taskMetrics.getLastValue());
+		jobTaskMetrics.putLastValue(importContext,taskMetrics.getLastValue());
 
 
 	}

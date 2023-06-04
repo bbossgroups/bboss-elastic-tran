@@ -88,8 +88,8 @@ public class MultiStatusManager extends BaseStatusManager{
 					@Override
 					public void handler(PreparedStatement stmt, Status record, int i) throws SQLException {
 						stmt.setLong(1, record.getTime());
-						stmt.setObject(2, convertLastValue(record.getLastValue()));
-                        stmt.setObject(3, convertStrLastValue(record.getStrLastValue()));
+						stmt.setObject(2, convertLastValue(record.getCurrentLastValueWrapper().getLastValue()));
+                        stmt.setObject(3, convertStrLastValue(record.getCurrentLastValueWrapper().getStrLastValue()));
 						stmt.setInt(4, lastValueType);
 						stmt.setString(5, record.getFilePath());
 						stmt.setString(6, record.getRelativeParentDir());
@@ -106,8 +106,8 @@ public class MultiStatusManager extends BaseStatusManager{
 					@Override
 					public void handler(PreparedStatement stmt, Status record, int i) throws SQLException {
 						stmt.setLong(1, record.getTime());
-						stmt.setObject(2, convertLastValue(record.getLastValue()));
-                        stmt.setObject(3, convertStrLastValue(record.getStrLastValue()));
+						stmt.setObject(2, convertLastValue(record.getCurrentLastValueWrapper().getLastValue()));
+                        stmt.setObject(3, convertStrLastValue(record.getCurrentLastValueWrapper().getStrLastValue()));
                         stmt.setInt(4, lastValueType);
 						stmt.setString(5, record.getFilePath());
 						stmt.setString(6, record.getRelativeParentDir());

@@ -27,6 +27,8 @@ sourceSets {
 
 dependencies {
 	api project(':bboss-datatran-schedule-quartz')
-	api 'com.github.shyiko:mysql-binlog-connector-java:0.21.0'
+//	api 'com.github.shyiko:mysql-binlog-connector-java:0.21.0'
+
+	api 'com.zendesk:mysql-binlog-connector-java:0.28.0'
 }
 

@@ -33,6 +33,10 @@ public interface Record {
     public final int RECORD_INSERT = 0;
     public final int RECORD_UPDATE = 1;
     public final int RECORD_DELETE = 2;
+    /**
+     * 被标记为跳进指令，只是为了传递数据位置状态信息：lastValue、binglogfile等信息
+     */
+    public final int RECORD_DIRECT_IGNORE = 3;
 	public Object getValue(  int i, String colName,int sqlType) throws DataImportException;
 	public Object getValue( String colName,int sqlType) throws DataImportException;
 	public Date getDateTimeValue(String colName) throws DataImportException;

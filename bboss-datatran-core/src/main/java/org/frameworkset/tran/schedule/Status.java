@@ -15,6 +15,9 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import com.frameworkset.orm.annotation.Column;
+import org.frameworkset.tran.status.LastValueWrapper;
+
 import java.util.Date;
 
 /**
@@ -25,19 +28,24 @@ import java.util.Date;
  * @author biaoping.yin
  * @version 1.0
  */
-public class Status implements java.lang.Cloneable{
+public class Status {
 	private String id;
+    @Column(name = "lasttime")
 	private long time;
 	/**
 	 * 0 数字类型
 	 * 1 日期类型
 	 */
 	private int lastValueType;
-	private Object lastValue;
+//	private Object lastValue;
+
 
 
 
     private String strLastValue;
+
+
+    private LastValueWrapper currentLastValueWrapper;
 	private String filePath = "";
 	private String realPath = "";
 
@@ -52,6 +60,9 @@ public class Status implements java.lang.Cloneable{
 	private String jobType;
 
 	private String jobId;
+    public Status(){
+
+    }
 	public long getTime() {
 		return time;
 	}
@@ -71,9 +82,11 @@ public class Status implements java.lang.Cloneable{
 		StringBuilder ret = new StringBuilder();
 		ret.append("id:").append(id)
 				.append(",time:").append(new Date(time))
-				.append(",lastValue:").append(this.lastValue)
+//				.append(",lastValue:").append(this.lastValue)
+                .append(",strLastValue:").append(this.strLastValue)
 				.append(",filePath:").append(filePath)
 				.append(",relativeParentDir:").append(relativeParentDir)
+                .append(",currentLastValueWrapper:").append(currentLastValueWrapper.toString())
 
 				.append(",realPath:").append(realPath)
 				.append(",fileId:").append(fileId)
@@ -83,13 +96,13 @@ public class Status implements java.lang.Cloneable{
 	}
 
 
-	public synchronized Object getLastValue() {
-		return lastValue;
-	}
+//	public synchronized Object getLastValue() {
+//		return lastValue;
+//	}
 
-	public synchronized void setLastValue(Object lastValue) {
-		this.lastValue = lastValue;
-	}
+//	public synchronized void setLastValue(Object lastValue) {
+//		this.lastValue = lastValue;
+//	}
 
 	public Status copy(){
 		Status copy = new Status();
@@ -98,13 +111,14 @@ public class Status implements java.lang.Cloneable{
 		copy.relativeParentDir = this.relativeParentDir;
 		copy.realPath = this.realPath;
 		copy.id = this.id;
-		copy.lastValue = this.lastValue;
+//		copy.lastValue = this.lastValue;
 		copy.lastValueType = this.lastValueType;
 		copy.status = this.status;
 		copy.time = this.time;
 		copy.jobId = this.jobId;
 		copy.jobType = this.jobType;
         copy.strLastValue = strLastValue;
+        copy.currentLastValueWrapper = currentLastValueWrapper.copy();
 		return copy;
 	}
 
@@ -115,9 +129,7 @@ public class Status implements java.lang.Cloneable{
 	public void setLastValueType(int lastValueType) {
 		this.lastValueType = lastValueType;
 	}
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
-	}
+
 
 	public String getFilePath() {
 		return filePath;
@@ -180,4 +192,12 @@ public class Status implements java.lang.Cloneable{
     public void setStrLastValue(String strLastValue) {
         this.strLastValue = strLastValue;
     }
+    public synchronized LastValueWrapper getCurrentLastValueWrapper() {
+        return currentLastValueWrapper;
+    }
+
+    public synchronized void setCurrentLastValueWrapper(LastValueWrapper currentLastValueWrapper) {
+        this.currentLastValueWrapper = currentLastValueWrapper;
+    }
+
 }

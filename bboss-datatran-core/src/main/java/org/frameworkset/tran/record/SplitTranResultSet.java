@@ -19,6 +19,7 @@ import org.frameworkset.elasticsearch.entity.KeyMap;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -57,7 +58,12 @@ public class SplitTranResultSet  implements TranResultSet {
 		}
 	}
 
-	@Override
+    @Override
+    public String getStrLastValue() throws DataImportException {
+        return tranResultSet.getStrLastValue();
+    }
+
+    @Override
 	public Object getValue(int i, String colName, int sqlType) throws DataImportException {
 		if(record != null)
 			return record.getValue(i,colName,sqlType);
@@ -291,6 +297,16 @@ public class SplitTranResultSet  implements TranResultSet {
     @Override
     public int getAction() {
         return tranResultSet.getAction();
+    }
+
+    @Override
+    public LastValueWrapper getLastValueWrapper() {
+        return tranResultSet.getLastValueWrapper();
+    }
+
+    @Override
+    public Object getLastValue() {
+        return tranResultSet.getLastValue();
     }
 
 

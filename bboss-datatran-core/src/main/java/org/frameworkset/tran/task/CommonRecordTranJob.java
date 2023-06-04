@@ -23,6 +23,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.schedule.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +58,21 @@ public class CommonRecordTranJob extends BaseTranJob{
 		int taskNo = 0;
 		Exception exception = null;
 		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		Object lastValue = null;
+        LastValueWrapper currentLastValueWrapper = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
+        LastValueWrapper lastValue = null;
+//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+
+        /**
+        LastValueWrapper currentLastValueWrapper = new LastValueWrapper();
+        currentLastValueWrapper.setLastValue(currentValue);
+        currentLastValueWrapper.setTimeStamp(System.currentTimeMillis());
+        if(!importContext.getDataTranPlugin().isSingleLastValueType()) {
+            String currentStrLastValue = currentStatus != null ? currentStatus.getStrLastValue() : null;
+            currentLastValueWrapper.setStrLastValue(currentStrLastValue);
+        }
+         **/
+
+
 		long start = System.currentTimeMillis();
 		long istart = 0;
 		long end = 0;
@@ -79,6 +93,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 						int _count = count;
 						count = 0;
+                        droped = 0;
 //						ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
 //								_count, taskNo, importCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 //						taskCommand.setDatas(records);
@@ -96,7 +111,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 
 					}
-                    if(droped > 0){
+                    else if(droped > 0){
                         importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
                         droped = 0;
                     }
@@ -105,11 +120,23 @@ public class CommonRecordTranJob extends BaseTranJob{
 				else if(!hasNext.booleanValue()){
 					break;
 				}
-				if(lastValue == null)
-					lastValue = importContext.max(currentValue,baseDataTran.getLastValue());
+                /**
+				if(lastValue == null) {
+                    lastValue = importContext.max(lastValue, baseDataTran.getLastValue());
+                }
 				else{
 					lastValue = importContext.max(lastValue,baseDataTran.getLastValue());
-				}
+				}*/
+
+                if(lastValue == null) {
+                    lastValue = importContext.max(currentLastValueWrapper, baseDataTran);
+                }
+                else{
+                    lastValue = importContext.max(lastValue,baseDataTran);
+                }
+                if(baseDataTran.isRecordDirectIgnore()){
+                    continue;
+                }
 				Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 
 				if(!reachEOFClosed)
@@ -227,8 +254,10 @@ public class CommonRecordTranJob extends BaseTranJob{
 		Exception exception = null;
 //		Status currentStatus = importContext.getCurrentStatus();
 		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-		Object lastValue = null;
+//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+//		Object lastValue = null;
+        LastValueWrapper currentLastValueWrapper = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
+        LastValueWrapper lastValue = null;
 		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
 		int batchsize = importContext.getStoreBatchSize();
 		boolean reachEOFClosed = false;
@@ -255,6 +284,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 						int _count = count;
 						count = 0;
+                        droped = 0;
 //						ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
 //								_count, taskNo, totalCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 //						taskCommand.setDatas(records);
@@ -266,7 +296,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 						records = new ArrayList<>();
 
 					}
-                    if(droped > 0){
+                    else if(droped > 0){
                         importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
                         droped = 0;
                     }
@@ -276,10 +306,13 @@ public class CommonRecordTranJob extends BaseTranJob{
 					break;
 
 				if(lastValue == null)
-					lastValue = importContext.max(currentValue,baseDataTran.getLastValue());
+					lastValue = importContext.max(currentLastValueWrapper,baseDataTran);
 				else{
-					lastValue = importContext.max(lastValue,baseDataTran.getLastValue());
+					lastValue = importContext.max(lastValue,baseDataTran);
 				}
+                if(baseDataTran.isRecordDirectIgnore()){
+                    continue;
+                }
 				Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 				if(!reachEOFClosed)
 					reachEOFClosed = context.reachEOFClosed();
@@ -387,12 +420,14 @@ public class CommonRecordTranJob extends BaseTranJob{
 										  ImportContext importContext,
 										  TranResultSet tranResultSet, BaseDataTran baseDataTran){
 
-		Object lastValue = null;
+//		Object lastValue = null;
 		Exception exception = null;
 		long start = System.currentTimeMillis();
 		long lastSend = 0;
 //		Status currentStatus = this.currentStatus;
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+        LastValueWrapper currentLastValueWrapper = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
+        LastValueWrapper lastValue = null;
 		ImportCount importCount = new SerialImportCount(baseDataTran);
 		long totalCount = 0;
 		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
@@ -439,10 +474,13 @@ public class CommonRecordTranJob extends BaseTranJob{
 				printed = false;
 				try {
 					if (lastValue == null)
-						lastValue = importContext.max(currentValue, baseDataTran.getLastValue());
+						lastValue = importContext.max(currentLastValueWrapper, baseDataTran);
 					else {
-						lastValue = importContext.max(lastValue,baseDataTran. getLastValue());
+						lastValue = importContext.max(lastValue,baseDataTran);
 					}
+                    if(baseDataTran.isRecordDirectIgnore()){
+                        continue;
+                    }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
 					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 
@@ -558,11 +596,13 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 //		logger.info("serial import data Execute started.");
 		List<CommonRecord> records = new ArrayList<>();
-		Object lastValue = null;
+//		Object lastValue = null;
 		Exception exception = null;
 		long start = System.currentTimeMillis();
 //		Status currentStatus = importContext.getCurrentStatus();
-		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
+        LastValueWrapper currentValue = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
+        LastValueWrapper lastValue = null;
 		ImportCount importCount = new SerialImportCount(baseDataTran);
 		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
 		int taskNo = 0;
@@ -608,10 +648,13 @@ public class CommonRecordTranJob extends BaseTranJob{
 				}
 				try {
 					if (lastValue == null)
-						lastValue = importContext.max(currentValue, baseDataTran.getLastValue());
+						lastValue = importContext.max(currentValue, baseDataTran);
 					else {
-						lastValue = importContext.max(lastValue, baseDataTran.getLastValue());
+						lastValue = importContext.max(lastValue, baseDataTran);
 					}
+                    if(baseDataTran.isRecordDirectIgnore()){
+                        continue;
+                    }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
 					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 					if(!reachEOFClosed)

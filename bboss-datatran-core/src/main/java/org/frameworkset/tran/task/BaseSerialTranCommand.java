@@ -18,6 +18,7 @@ package org.frameworkset.tran.task;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.io.Writer;
 
@@ -32,12 +33,12 @@ import java.io.Writer;
 public class BaseSerialTranCommand implements SerialTranCommand {
 
 	@Override
-	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
 		return 0;
 	}
 
 	@Override
-	public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+	public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
 		return 0;
 	}
 

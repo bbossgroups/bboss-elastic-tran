@@ -15,7 +15,8 @@ package org.frameworkset.tran.metrics;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.status.BaseStatusManager;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -50,7 +51,7 @@ public class JobTaskMetrics {
 	 */
 	protected volatile int exceptionTasks;
 	private String jobNo;
-	private Object lastValue;
+	private LastValueWrapper lastValue;
 	private String jobId;
 	private String jobName;
 	private Map<String,Object> jobExecutorDatas;
@@ -253,15 +254,15 @@ public class JobTaskMetrics {
 		return -1;
 	}
 
-	public Object getLastValue() {
+	public LastValueWrapper getLastValue() {
 		return lastValue;
 	}
 
-	public void setLastValue(Object lastValue) {
+	public void setLastValue(LastValueWrapper lastValue) {
 		this.lastValue = lastValue;
 	}
-	public void putLastValue(Integer lastValueType,Object lastValue){
-		this.lastValue = BaseStatusManager.max(lastValueType,this.lastValue,lastValue);
+	public void putLastValue(ImportContext importContext, LastValueWrapper lastValue){
+		this.lastValue = importContext.getDataTranPlugin().maxNumberLastValue(this.lastValue,lastValue);
 	}
 	public int getErrorTasks() {
 		return errorTasks;
