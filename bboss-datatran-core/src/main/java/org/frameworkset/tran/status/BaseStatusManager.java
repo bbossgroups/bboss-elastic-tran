@@ -352,7 +352,7 @@ public abstract class BaseStatusManager implements StatusManager {
 
 		} catch (Exception e1) {
 			if(logger.isWarnEnabled())
-				logger.warn("add field to table failed：" + addFiledSQL + ".", e1);
+				logger.warn("add field to table failed：" + addFiledSQL + ", field "+ field +" alread exist.");
 //			throw new ESDataImportException("add field to table failed：" + addFiledSQL + ".",e1);
 
 		}
