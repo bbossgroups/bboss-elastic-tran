@@ -61,12 +61,14 @@ public class MySQLBinlogListener {
      * 当前采集binlog日志文件
      */
     private String binlogFile;
+    private boolean isIncreament;
     public MySQLBinlogListener(BaseDataTran mysqlBinlogDataTran, MySQLBinlogConfig mySQLBinlogConfig, ImportContext importContext) {
         this.mysqlBinlogDataTran = mysqlBinlogDataTran;
         this.mySQLBinlogConfig = mySQLBinlogConfig;
         this.importContext = importContext;
         this.mysqlBinlogInputDatatranPlugin = (MysqlBinlogInputDatatranPlugin) importContext.getInputPlugin();
-        if(mysqlBinlogDataTran.getDataTranPlugin().isIncreamentImport()){
+        isIncreament = mysqlBinlogDataTran.getDataTranPlugin().isIncreamentImport();
+        if(isIncreament){
 
             if(mysqlBinlogDataTran.getDataTranPlugin().getCurrentStatus() != null) {
                 LastValueWrapper lastValueWrapper = mysqlBinlogDataTran.getDataTranPlugin().getCurrentStatus().getCurrentLastValueWrapper();
@@ -157,7 +159,7 @@ public class MySQLBinlogListener {
             private String binLogFileName;
             private long binlogPosition;
             private void sendDropedEvent() throws InterruptedException {
-                if(!importContext.isIncreamentImport())
+                if(!isIncreament)
                     return;
                 List<MysqlBinlogRecord> datas = new ArrayList<>(1);
 
@@ -180,6 +182,7 @@ public class MySQLBinlogListener {
                     if(eventData instanceof RotateEventData){
                         RotateEventData rotateEventData = (RotateEventData)eventData;
                         binLogFileName = rotateEventData.getBinlogFilename();
+
                         sendDropedEvent();
                     }
                     else if (eventData instanceof TableMapEventData) {
