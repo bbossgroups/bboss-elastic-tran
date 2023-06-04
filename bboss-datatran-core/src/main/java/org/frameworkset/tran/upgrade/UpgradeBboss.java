@@ -85,7 +85,7 @@ public class UpgradeBboss {
             if(statusList != null && statusList.size() > 0) {
                 for (Status status : statusList) {
                     LastValueWrapper lastValueWrapper = new LastValueWrapper();
-//                    lastValueWrapper.setLastValue(status.getLastValue());
+                    lastValueWrapper.setLastValue(status.getLastValue());
                     lastValueWrapper.setStrLastValue(status.getStrLastValue());
                     lastValueWrapper.setTimeStamp(status.getTime());
                     status.setStrLastValue(SimpleStringUtil.object2json(lastValueWrapper));

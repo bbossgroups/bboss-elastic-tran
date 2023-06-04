@@ -37,7 +37,7 @@ public class Status {
 	 * 1 日期类型
 	 */
 	private int lastValueType;
-//	private Object lastValue;
+	private Object lastValue;
 
 
 
@@ -82,7 +82,7 @@ public class Status {
 		StringBuilder ret = new StringBuilder();
 		ret.append("id:").append(id)
 				.append(",time:").append(new Date(time))
-//				.append(",lastValue:").append(this.lastValue)
+				.append(",lastValue:").append(this.lastValue)
                 .append(",strLastValue:").append(this.strLastValue)
 				.append(",filePath:").append(filePath)
 				.append(",relativeParentDir:").append(relativeParentDir)
@@ -96,13 +96,13 @@ public class Status {
 	}
 
 
-//	public synchronized Object getLastValue() {
-//		return lastValue;
-//	}
+	public synchronized Object getLastValue() {
+		return lastValue;
+	}
 
-//	public synchronized void setLastValue(Object lastValue) {
-//		this.lastValue = lastValue;
-//	}
+	public synchronized void setLastValue(Object lastValue) {
+		this.lastValue = lastValue;
+	}
 
 	public Status copy(){
 		Status copy = new Status();
