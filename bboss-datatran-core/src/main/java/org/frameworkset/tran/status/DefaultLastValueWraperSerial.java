@@ -45,5 +45,12 @@ public class DefaultLastValueWraperSerial implements LastValueWraperSerial{
             LastValueWrapper data = SimpleStringUtil.json2Object(status.getStrLastValue(),LastValueWrapper.class);
             status.setCurrentLastValueWrapper(data);
         }
+        else{ // 兼容老版本
+            LastValueWrapper data = new LastValueWrapper();
+            data.setStrLastValue(status.getStrLastValue());
+            data.setLastValue(status.getLastValue());
+            data.setTimeStamp(status.getTime());
+            status.setCurrentLastValueWrapper(data);
+        }
     }
 }
