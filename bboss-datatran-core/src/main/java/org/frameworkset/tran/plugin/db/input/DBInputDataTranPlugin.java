@@ -236,26 +236,13 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 
 	}
 	private DBOptions getDBOptions(){
-//		DBOptions dbOptions = null;
-//		if(dbInputConfig.getJdbcFetchsize() != null ) {
-//			if(dbInputConfig.getJdbcFetchsize() != 0) {
-//				dbOptions = new DBOptions();
-//				dbOptions.setFetchSize(dbInputConfig.getJdbcFetchsize());
-//			}
-//		}
-//		else{
-//			if(importContext.getFetchSize()  != null && importContext.getFetchSize() > 0) {
-//				dbOptions = new DBOptions();
-//				dbOptions.setFetchSize(importContext.getFetchSize());
-//			}
-//		}
-//        DBOptions dbOptions = null;
-//        if(importContext.getFetchSize()  != null && importContext.getFetchSize() > 0) {
-//            dbOptions = new DBOptions();
-//            dbOptions.setFetchSize(importContext.getFetchSize());
-//        }
-//		return dbOptions;
-        return null;
+		DBOptions dbOptions = null;
+        Integer fetchSize = dbInputConfig.getFetchSize();
+		if(fetchSize != null && fetchSize != 0) {
+            dbOptions = new DBOptions();
+            dbOptions.setFetchSize(fetchSize);
+		}
+		return dbOptions;
 	}
 	private void increamentImportData(TaskContext taskContext,ResultSetHandler resultSetHandler) throws Exception {
 		String sourceDBName = getSourceDBName();

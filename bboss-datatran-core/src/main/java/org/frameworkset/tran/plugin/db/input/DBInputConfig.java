@@ -40,6 +40,7 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 	protected String sqlName;
 
 	private Boolean enableDBTransaction;
+    private Integer fetchSize;
 
 	public String getSourceDbname() {
 		return sourceDbname;
@@ -122,15 +123,23 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 		if(SimpleStringUtil.isEmpty(sourceDbname))
 			sourceDbname = dbConfig.getDbName();
 
-        if(importBuilder.isSetFetchSized()) {
-            if (dbConfig.getJdbcFetchSize() == null) {
-                setJdbcFetchSize(importBuilder.getFetchSize());
-            }
+        if(importBuilder.isSetFetchSized() && fetchSize == null) {
+//            if (dbConfig.getJdbcFetchSize() == null) {
+//                setJdbcFetchSize(importBuilder.getFetchSize());
+//            }
+            fetchSize = importBuilder.getFetchSize();
+        }
+        if(fetchSize != null){
+            _setJdbcFetchSize(fetchSize);
         }
 
 	}
 
-	@Override
+    public Integer getFetchSize() {
+        return fetchSize;
+    }
+
+    @Override
 	public InputPlugin getInputPlugin(ImportContext importContext) {
 		return new DBInputDataTranPlugin(   importContext );
 	}
@@ -209,8 +218,14 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 		return this;
 	}
 
+    /**
+     * 插件查询jdbcFetchSize设置，每次执行查询请求时进行设置
+     * @param jdbcFetchSize
+     * @return
+     */
 	public DBInputConfig setJdbcFetchSize(Integer jdbcFetchSize) {
-		_setJdbcFetchSize(  jdbcFetchSize);
+//		_setJdbcFetchSize(  jdbcFetchSize);
+        this.fetchSize = jdbcFetchSize;
 		return  this;
 	}
 
@@ -262,16 +277,6 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 		return this;
 	}
 
-    /**
-     *
-     * @param fetchsize
-     * @return
-     * @Deprecated use setJdbcFetchSize
-     *
-     */
-    @Deprecated
-    public DBInputConfig setJdbcFetchsize(Integer fetchsize){
-        this.setJdbcFetchSize(fetchsize);
-        return this;
-    }
+
+
 }

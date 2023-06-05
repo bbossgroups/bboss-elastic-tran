@@ -490,10 +490,10 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		return this;
 	}
 
-	public DBOutputConfig setJdbcFetchSize(Integer jdbcFetchSize) {
-		_setJdbcFetchSize(  jdbcFetchSize);
-		return  this;
-	}
+//	public DBOutputConfig setJdbcFetchSize(Integer jdbcFetchSize) {
+//		_setJdbcFetchSize(  jdbcFetchSize);
+//		return  this;
+//	}
 
 
 	public DBOutputConfig setRemoveAbandoned(boolean removeAbandoned) {
