@@ -80,7 +80,7 @@ public class DBMetaUtil {
 
             return buf;
         } catch (SQLException e) {
-            throw new DataImportException(e);
+            throw new DataImportException(host.getSchemaUrl(),e);
         }finally {
             if(resultSet!=null){
                 try {
