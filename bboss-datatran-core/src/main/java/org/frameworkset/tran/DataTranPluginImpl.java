@@ -902,7 +902,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			}
 		} while (true);
 	}
-	protected void _afterDestory(boolean onceTaskFinished,boolean waitTranStop,boolean fromScheduleEnd){
+	protected void _afterDestory(boolean onceTaskFinished,boolean waitTranStop,boolean fromScheduleEnd,Throwable throwable){
 		checkTranFinished(onceTaskFinished);
 
 		WrapedExportResultHandler wrapedExportResultHandler = importContext.getExportResultHandler();
@@ -926,6 +926,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		//释放资源结束
 		status = TranConstant.PLUGIN_STOPPED;
 		importContext.cleanResource();
+        if(importContext.getJobClosedListener() != null){
+            importContext.getJobClosedListener().jobClosed(importContext,throwable);
+        }
 	}
     private void endAction(){
         if(importContext.getEndAction() != null) {
@@ -995,7 +998,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
             scheduledEndThread = null;
         }
 
-        _afterDestory(true, true, false);
+        _afterDestory(true, true, false,throwable);
         logger.info("Finish datatran job completed.");
 
     }
@@ -1066,7 +1069,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 
 		if(waitTranStop) {
-			_afterDestory( false,waitTranStop, fromScheduleEnd);
+			_afterDestory( false,waitTranStop, fromScheduleEnd,(Throwable)null);
             if(logger.isInfoEnabled())
                 logger.info("Destroy datatran job complete with waitTranStop {} fromScheduleEnd {}",waitTranStop,fromScheduleEnd);
 
@@ -1075,7 +1078,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			Thread stopThread = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					_afterDestory(false, waitTranStop, fromScheduleEnd);
+					_afterDestory(false, waitTranStop, fromScheduleEnd,(Throwable)null);
                     if(logger.isInfoEnabled())
                         logger.info("Destroy datatran job complete with waitTranStop {} fromScheduleEnd {}",waitTranStop,fromScheduleEnd);
 				}

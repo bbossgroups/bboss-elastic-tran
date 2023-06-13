@@ -49,6 +49,7 @@ public interface ImportContext {
     public Map<String, DynamicParam> getJobDynamicInputParams() ;
 	public Map<String, DynamicParam> getJobDynamicOutputParams();
 	public Map getJobOutputParams();
+    public JobClosedListener getJobClosedListener();
     /**
      * 输入参数组，将输入参数和输入动态参数组装为一个参数组添加到参数组集合中，添加完成后重置输入参数和输入动态参数，为增加新的参数组做准备
      * 通过添加多个参数组，作业调度时，特定的输入插件可以利用参数组中的每组参数发起并发数据请求，比如httpinput插件

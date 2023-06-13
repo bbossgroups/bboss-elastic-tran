@@ -47,6 +47,9 @@ public interface InputPlugin {
 	public void beforeInit();
 	public void init();
 	public boolean isMultiTran();
+    default public boolean isEventMsgTypePlugin(){
+        return false;
+    }
 	/**
 	 * 销毁插件
 	 */

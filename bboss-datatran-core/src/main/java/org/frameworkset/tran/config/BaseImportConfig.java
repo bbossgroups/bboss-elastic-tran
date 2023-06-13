@@ -52,6 +52,9 @@ public class BaseImportConfig {
 	private boolean useDefaultMapData = true;
 
 
+
+    private JobClosedListener jobClosedListener;
+
     private boolean flushMetricsOnScheduleTaskCompleted;
 
 
@@ -971,5 +974,12 @@ public class BaseImportConfig {
         this.jobInputParamGroups = jobInputParamGroups;
     }
 
+    public JobClosedListener getJobClosedListener() {
+        return jobClosedListener;
+    }
+
+    public void setJobClosedListener(JobClosedListener jobClosedListener) {
+        this.jobClosedListener = jobClosedListener;
+    }
 
 }

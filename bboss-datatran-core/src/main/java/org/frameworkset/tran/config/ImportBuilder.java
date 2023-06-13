@@ -53,6 +53,9 @@ public class ImportBuilder {
 	private Map jobInputParams;
 
 	private Map jobOutputParams;
+
+
+    private JobClosedListener jobClosedListener;
     /**
      * 输入参数组，将输入参数和输入动态参数组装为一个参数组添加到参数组集合中，添加完成后重置输入参数和输入动态参数，为增加新的参数组做准备
      * 通过添加多个参数组，作业调度时，特定的输入插件可以利用参数组中的每组参数发起并发数据请求，比如httpinput插件
@@ -1261,6 +1264,7 @@ public class ImportBuilder {
 		baseImportConfig.setImportStartAction(importStartAction);
 		baseImportConfig.setImportEndAction(importEndAction);
 		baseImportConfig.setUseJavaName(false);
+        baseImportConfig.setJobClosedListener(this.jobClosedListener);
 
 		initMetrics(  baseImportConfig);
 
@@ -1794,6 +1798,15 @@ public class ImportBuilder {
 
     public ImportBuilder setStatusHistoryTableDML(String statusHistoryTableDML) {
         this.statusHistoryTableDML = statusHistoryTableDML;
+        return this;
+    }
+
+    public JobClosedListener getJobClosedListener() {
+        return jobClosedListener;
+    }
+
+    public ImportBuilder setJobClosedListener(JobClosedListener jobClosedListener) {
+        this.jobClosedListener = jobClosedListener;
         return this;
     }
 }

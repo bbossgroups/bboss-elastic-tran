@@ -60,17 +60,6 @@ public class CommonRecordTranJob extends BaseTranJob{
 		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
         LastValueWrapper currentLastValueWrapper = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
         LastValueWrapper lastValue = null;
-//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-
-        /**
-        LastValueWrapper currentLastValueWrapper = new LastValueWrapper();
-        currentLastValueWrapper.setLastValue(currentValue);
-        currentLastValueWrapper.setTimeStamp(System.currentTimeMillis());
-        if(!importContext.getDataTranPlugin().isSingleLastValueType()) {
-            String currentStrLastValue = currentStatus != null ? currentStatus.getStrLastValue() : null;
-            currentLastValueWrapper.setStrLastValue(currentStrLastValue);
-        }
-         **/
 
 
 		long start = System.currentTimeMillis();
@@ -87,105 +76,107 @@ public class CommonRecordTranJob extends BaseTranJob{
 			BatchContext batchContext = new BatchContext();
 			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
+
 				Boolean hasNext = tranResultSet.next();
-				if(hasNext == null){
-					if(count > 0) {
+                try{
+                    if(hasNext == null){
+                        if(count > 0) {
 
-						int _count = count;
-						count = 0;
-                        droped = 0;
-//						ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-//								_count, taskNo, importCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//						taskCommand.setDatas(records);
-//
-//						ret = TaskCall.call(taskCommand);
-//						taskNo ++;
-						taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null);
-						records = new ArrayList<>();
-						if (baseDataTran.isPrintTaskLog()) {
-							end = System.currentTimeMillis();
-							logger.info(new StringBuilder().append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
-									.append(",import ").append(_count).append(" records.").toString());
-							istart = end;
-						}
+                            int _count = count;
+                            count = 0;
+                            droped = 0;
+
+                            taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null);
+                            records = new ArrayList<>();
+                            if (baseDataTran.isPrintTaskLog()) {
+                                end = System.currentTimeMillis();
+                                logger.info(new StringBuilder().append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+                                        .append(",import ").append(_count).append(" records.").toString());
+                                istart = end;
+                            }
 
 
-					}
-                    else if(droped > 0){
-                        importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-                        droped = 0;
+                        }
+                        else if(droped > 0){
+                            importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
+                            droped = 0;
+                        }
+                        continue;
                     }
-					continue;
-				}
-				else if(!hasNext.booleanValue()){
-					break;
-				}
-                /**
-				if(lastValue == null) {
-                    lastValue = importContext.max(lastValue, baseDataTran.getLastValue());
-                }
-				else{
-					lastValue = importContext.max(lastValue,baseDataTran.getLastValue());
-				}*/
+                    else if(!hasNext.booleanValue()){
+                        break;
+                    }
+                    /**
+                     if(lastValue == null) {
+                     lastValue = importContext.max(lastValue, baseDataTran.getLastValue());
+                     }
+                     else{
+                     lastValue = importContext.max(lastValue,baseDataTran.getLastValue());
+                     }*/
 
-                if(lastValue == null) {
-                    lastValue = importContext.max(currentLastValueWrapper, baseDataTran);
-                }
-                else{
-                    lastValue = importContext.max(lastValue,baseDataTran);
-                }
-                if(baseDataTran.isRecordDirectIgnore()){
-                    continue;
-                }
-				Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
+                    if(lastValue == null) {
+                        lastValue = importContext.max(currentLastValueWrapper, baseDataTran);
+                    }
+                    else{
+                        lastValue = importContext.max(lastValue,baseDataTran);
+                    }
+                    if(baseDataTran.isRecordDirectIgnore()){
+                        continue;
+                    }
+                    Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 
-				if(!reachEOFClosed)
-					reachEOFClosed = context.reachEOFClosed();
+                    if(!reachEOFClosed)
+                        reachEOFClosed = context.reachEOFClosed();
 //				Context context = new ContextImpl(importContext, tranResultSet, batchContext);
-				if(context.removed()){
-					if(!reachEOFClosed) {//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
-						importCount.increamentIgnoreTotalCount();
-					}
-					else{
-						importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-					}
+                    if(context.removed()){
+                        if(!reachEOFClosed) {//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
+                            importCount.increamentIgnoreTotalCount();
+                        }
+                        else{
+                            importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
+                        }
 
-					continue;
-				}
-				context.refactorData();
-				context.afterRefactor();
-				if (context.isDrop()) {
-					importCount.increamentIgnoreTotalCount();
-                    droped ++;
-					continue;
-				}
-				CommonRecord record = baseCommonRecordDataTran.buildRecord(  context );
-				super.metricsMap(record,buildMapDataContext,importContext);
-				records.add(record);
-				count++;
-				totalCount ++;
-				if (count >= batchsize || serialTranCommand.splitCheck(totalCount)) {
-
-
-					int _count = count;
-					count = 0;
-                    droped = 0;
-					taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null);
-					records = new ArrayList<>();
+                        continue;
+                    }
+                    context.refactorData();
+                    context.afterRefactor();
+                    if (context.isDrop()) {
+                        importCount.increamentIgnoreTotalCount();
+                        droped ++;
+                        continue;
+                    }
+                    CommonRecord record = baseCommonRecordDataTran.buildRecord(  context );
+                    super.metricsMap(record,buildMapDataContext,importContext);
+                    records.add(record);
+                    count++;
+                    totalCount ++;
+                    if (count >= batchsize || serialTranCommand.splitCheck(totalCount)) {
 
 
-					if(baseDataTran.isPrintTaskLog())  {
-						end = System.currentTimeMillis();
-						logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
-								.append(",import ").append(batchsize).append(" records.").toString());
-						istart = end;
-					}
+                        int _count = count;
+                        count = 0;
+                        droped = 0;
+                        taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null);
+                        records = new ArrayList<>();
 
 
-				}
+                        if(baseDataTran.isPrintTaskLog())  {
+                            end = System.currentTimeMillis();
+                            logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+                                    .append(",import ").append(batchsize).append(" records.").toString());
+                            istart = end;
+                        }
 
 
-
+                    }
+                }
+                catch (Exception e){
+                    if(importContext.isContinueOnError() && importContext.getInputPlugin().isEventMsgTypePlugin()){
+                        logger.warn("ContinueOnError:true",e);
+                        continue;
+                    }
+                    throw e;
+                }
 			}
 			taskNo = serialTranCommand.endSerialActionTask(importCount,count,taskNo,lastValue,records,reachEOFClosed,null);
 

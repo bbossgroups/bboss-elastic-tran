@@ -44,7 +44,9 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
         mySQLBinlogConfig = (MySQLBinlogConfig) importContext.getInputConfig();
         this.jobType = "MysqlBinlogInputDatatranPlugin";
     }
-
+    public boolean isEventMsgTypePlugin(){
+        return true;
+    }
 	@Override
 	public void init(){
 

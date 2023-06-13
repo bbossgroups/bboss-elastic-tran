@@ -153,6 +153,10 @@ public  class BaseImportContext implements ImportContext {
 	public Map getJobOutputParams(){
 		return baseImportConfig.getJobOutputParams();
 	}
+
+    public JobClosedListener getJobClosedListener(){
+        return baseImportConfig.getJobClosedListener();
+    }
 	public Map getJobInputParams(){
 		return baseImportConfig.getJobInputParams();
 	}

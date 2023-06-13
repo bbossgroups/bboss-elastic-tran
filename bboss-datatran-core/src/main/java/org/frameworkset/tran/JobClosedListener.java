@@ -1,6 +1,6 @@
-package org.frameworkset.tran.plugin;
+package org.frameworkset.tran;
 /**
- * Copyright 2022 bboss
+ * Copyright 2023 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,18 @@ package org.frameworkset.tran.plugin;
 import org.frameworkset.tran.context.ImportContext;
 
 /**
- * <p>Description: </p>
+ * <p>Description: 作业关闭监听器</p>
  * <p></p>
- * <p>Copyright (c) 2020</p>
- * @Date 2022/6/19
+ * <p>Copyright (c) 2023</p>
+ * @Date 2023/6/13
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class BaseInputPlugin extends BasePlugin implements InputPlugin {
-	protected String jobType ;
-
-	public BaseInputPlugin(ImportContext importContext) {
-		super(importContext);
-	}
-	public String getJobType(){
-		return jobType;
-	}
-
-	public void setJobType(String jobType) {
-		this.jobType = jobType;
-	}
-
+public interface JobClosedListener {
+    /**
+     * 作业关闭监听回调接口方法
+     * @param importContext 作业上下文对象，包含作业信息
+     * @param throwable 如果作业是因为异常关闭，对应异常对象
+     */
+    public void jobClosed(ImportContext importContext,Throwable throwable);
 }

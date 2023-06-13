@@ -50,7 +50,9 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
 
     }
 
-
+    public boolean isEventMsgTypePlugin(){
+        return true;
+    }
     @Override
     public boolean isEnablePluginTaskIntercept(){
         return false;

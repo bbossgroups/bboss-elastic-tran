@@ -41,7 +41,9 @@ public abstract class KafkaInputDatatranPlugin extends BaseInputPlugin  {
 
 
 	}
-
+    public boolean isEventMsgTypePlugin(){
+        return true;
+    }
 	@Override
 	public void initStatusTableId() {
 
