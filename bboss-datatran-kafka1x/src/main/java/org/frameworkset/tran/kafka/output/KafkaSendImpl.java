@@ -24,6 +24,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.kafka.output.Kafka1OutputConfig;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.TaskCall;
 import org.frameworkset.tran.task.TaskCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,6 @@ public class KafkaSendImpl {
 		Callback callback = new Callback() {
 			@Override
 			public void onCompletion(RecordMetadata metadata, Exception exception) {
-				Date endTime = new Date();
 				ImportContext importContext = taskCommand.getImportContext();
 				ImportCount importCount = taskCommand.getImportCount();
 				TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
@@ -67,7 +67,7 @@ public class KafkaSendImpl {
 					long ignoreTotalCount = importCount.getIgnoreTotalCount();
 					taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
 					taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
-					taskMetrics.setTaskEndTime(endTime);
+					taskMetrics.setTaskEndTime(new Date());
 					if (importContext.getExportResultHandler() != null) {//处理返回值
 						try {
 							importContext.getExportResultHandler().handleResult(taskCommand, metadata);
@@ -79,7 +79,7 @@ public class KafkaSendImpl {
 //					exportResultHandler.success(taskCommand, metadata);
 				}
 				else{
-//					exportResultHandler.exception(taskCommand,new KafkaSendException(metadata,exception));
+                    /**
 					long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
 					taskMetrics.setFailedRecords(taskCommand.getDataSize());
 					taskMetrics.setTotalRecords(metrics[1]);
@@ -96,6 +96,8 @@ public class KafkaSendImpl {
 							logger.warn("",ee);
 						}
 					}
+                     */
+                    TaskCall.handleException(new KafkaSendException(metadata,exception),importCount,taskMetrics,taskCommand,importContext);
 //					throw new ElasticSearchException(e);
 				}
 			}

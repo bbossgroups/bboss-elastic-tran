@@ -24,6 +24,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.kafka.output.KafkaOutputConfig;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.TaskCall;
 import org.frameworkset.tran.task.TaskCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +85,7 @@ public class KafkaSendImpl {
 //					exportResultHandler.success(taskCommand, metadata);
 					}
 					else{
-//					exportResultHandler.exception(taskCommand,new KafkaSendException(metadata,exception));
+                        /**
 						long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
 						taskMetrics.setFailedRecords(taskCommand.getDataSize());
 						taskMetrics.setRecords(taskMetrics.getFailedRecords());
@@ -102,8 +103,9 @@ public class KafkaSendImpl {
 							catch (Exception ee){
 								logger.warn("",ee);
 							}
-						}
+						}*/
 //					throw new ElasticSearchException(e);
+                        TaskCall.handleException(new KafkaSendException(metadata,exception),importCount,taskMetrics,taskCommand,importContext);
 					}
 
 				}

@@ -39,22 +39,7 @@ public class TaskCall implements Runnable {
 
 	private ImportContext db2ESImportContext;
 	private TaskCommand taskCommand;
-//	public TaskCall(ImportContext db2ESImportContext  , String datas,
-//					TranErrorWrapper errorWrapper,
-//					ClientInterface clientInterface ,
-//					int taskNo, ImportCount totalCount,
-//					int currentSize ){
-//
-//		this.refreshOption = db2ESImportContext.getRefreshOption();
-//		this.clientInterface = clientInterface;
-//		this.datas = datas;
-//		this.errorWrapper = errorWrapper;
-//		this.taskNo = taskNo;
-//		taskCommand.getDataSize() = currentSize;
-//		this.totalCount = totalCount;
-//		this.printTaskLog = db2ESImportContext.isPrintTaskLog();
-//		this.db2ESImportContext = db2ESImportContext;
-//	}
+
 
 	public TaskCall(TaskCommand taskCommand,
 					TranErrorWrapper errorWrapper){
@@ -63,14 +48,7 @@ public class TaskCall implements Runnable {
 		this.db2ESImportContext = taskCommand.getImportContext();
 	}
 
-//	public static String call(String refreshOption, ClientInterface clientInterface, String datas, ImportContext db2ESImportContext){
-//		TaskCommandImpl taskCommand = new TaskCommandImpl();
-//		taskCommand.setClientInterface(clientInterface);
-//		taskCommand.setRefreshOption(refreshOption);
-//		taskCommand.setDatas(datas);
-//		taskCommand.setImportContext(db2ESImportContext);
-//		return call(taskCommand);
-//	}
+
 	protected boolean isPrintTaskLog(){
 		return db2ESImportContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
@@ -90,10 +68,34 @@ public class TaskCall implements Runnable {
 
 			throw new DataImportException(e);
 		}
+        catch (Throwable e){
+
+            throw new DataImportException(e);
+        }
 		finally {
 //			taskCommand.finished();
 		}
 	}
+    public static void handleException(Throwable e,ImportCount importCount,TaskMetrics taskMetrics,TaskCommand taskCommand,ImportContext importContext){
+        long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
+        taskMetrics.setFailedRecords(taskCommand.getDataSize());
+        taskMetrics.setRecords(taskMetrics.getFailedRecords());
+        taskMetrics.setLastValue(taskCommand.getLastValue());
+        taskMetrics.setTotalRecords(metrics[1]);
+        taskMetrics.setTotalFailedRecords(metrics[0]);
+        long ignoreTotalCount = importCount.getIgnoreTotalCount();
+        taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
+        taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
+        taskMetrics.setTaskEndTime(new Date());
+        if (importContext.getExportResultHandler() != null) {
+            try {
+                importContext.getExportResultHandler().handleException(taskCommand, e);
+            }
+            catch (Exception ee){
+                logger.warn("",e);
+            }
+        }
+    }
 	public static <DATA,RESULT> RESULT call(TaskCommand<DATA,RESULT> taskCommand){
 		ImportContext importContext = taskCommand.getImportContext();
 		ImportCount importCount = taskCommand.getImportCount();
@@ -124,48 +126,77 @@ public class TaskCall implements Runnable {
 			return data;
 		}
 		catch (DataImportException e){
-			long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
-			taskMetrics.setFailedRecords(taskCommand.getDataSize());
-			taskMetrics.setRecords(taskMetrics.getFailedRecords());
-			taskMetrics.setLastValue(taskCommand.getLastValue());
-			taskMetrics.setTotalRecords(metrics[1]);
-			taskMetrics.setTotalFailedRecords(metrics[0]);
-			long ignoreTotalCount = importCount.getIgnoreTotalCount();
-			taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
-			taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
-			taskMetrics.setTaskEndTime(new Date());
-			if (importContext.getExportResultHandler() != null) {
-				try {
-					importContext.getExportResultHandler().handleException(taskCommand, e);
-				}
-				catch (Exception ee){
-					logger.warn("",e);
-				}
-			}
-			throw e;
+//			long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
+//			taskMetrics.setFailedRecords(taskCommand.getDataSize());
+//			taskMetrics.setRecords(taskMetrics.getFailedRecords());
+//			taskMetrics.setLastValue(taskCommand.getLastValue());
+//			taskMetrics.setTotalRecords(metrics[1]);
+//			taskMetrics.setTotalFailedRecords(metrics[0]);
+//			long ignoreTotalCount = importCount.getIgnoreTotalCount();
+//			taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
+//			taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
+//			taskMetrics.setTaskEndTime(new Date());
+//			if (importContext.getExportResultHandler() != null) {
+//				try {
+//					importContext.getExportResultHandler().handleException(taskCommand, e);
+//				}
+//				catch (Exception ee){
+//					logger.warn("",e);
+//				}
+//			}
+//			throw e;
+            handleException(  e,  importCount,  taskMetrics,  taskCommand,  importContext);
+            throw e;
 		}
 		catch (Exception e){
-			long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
-			taskMetrics.setFailedRecords(taskCommand.getDataSize());
-			taskMetrics.setRecords(taskMetrics.getFailedRecords());
-			taskMetrics.setLastValue(taskCommand.getLastValue());
-			taskMetrics.setTotalRecords(metrics[1]);
-			taskMetrics.setTotalFailedRecords(metrics[0]);
-			long ignoreTotalCount = importCount.getIgnoreTotalCount();
-			taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
-			taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
-
-			taskMetrics.setTaskEndTime(new Date());
-			if (importContext.getExportResultHandler() != null) {
-				try {
-					importContext.getExportResultHandler().handleException(taskCommand, e);
-				}
-				catch (Exception ee){
-					logger.warn("",e);
-				}
-			}
-			throw new DataImportException(e);
+//			long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
+//			taskMetrics.setFailedRecords(taskCommand.getDataSize());
+//			taskMetrics.setRecords(taskMetrics.getFailedRecords());
+//			taskMetrics.setLastValue(taskCommand.getLastValue());
+//			taskMetrics.setTotalRecords(metrics[1]);
+//			taskMetrics.setTotalFailedRecords(metrics[0]);
+//			long ignoreTotalCount = importCount.getIgnoreTotalCount();
+//			taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
+//			taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
+//
+//			taskMetrics.setTaskEndTime(new Date());
+//			if (importContext.getExportResultHandler() != null) {
+//				try {
+//					importContext.getExportResultHandler().handleException(taskCommand, e);
+//				}
+//				catch (Exception ee){
+//					logger.warn("",e);
+//				}
+//			}
+//
+            handleException(  e,  importCount,  taskMetrics,  taskCommand,  importContext);
+            throw new DataImportException(e);
 		}
+
+        catch (Throwable e){
+//            long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
+//            taskMetrics.setFailedRecords(taskCommand.getDataSize());
+//            taskMetrics.setRecords(taskMetrics.getFailedRecords());
+//            taskMetrics.setLastValue(taskCommand.getLastValue());
+//            taskMetrics.setTotalRecords(metrics[1]);
+//            taskMetrics.setTotalFailedRecords(metrics[0]);
+//            long ignoreTotalCount = importCount.getIgnoreTotalCount();
+//            taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
+//            taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
+//
+//            taskMetrics.setTaskEndTime(new Date());
+//            if (importContext.getExportResultHandler() != null) {
+//                try {
+//                    importContext.getExportResultHandler().handleException(taskCommand, e);
+//                }
+//                catch (Exception ee){
+//                    logger.warn("",e);
+//                }
+//            }
+//            throw new DataImportException(e);
+            handleException(  e,  importCount,  taskMetrics,  taskCommand,  importContext);
+            throw new DataImportException(e);
+        }
 		finally {
 			taskCommand.finished();
 		}
@@ -192,22 +223,7 @@ public class TaskCall implements Runnable {
 					logger.info(info.toString());
 
 			}
-//			if(logger.isDebugEnabled()) {
-//				if (refreshOption == null) {
-//					String data = clientInterface.executeHttp("_bulk", datas, ClientUtil.HTTP_POST);
-//					logger.debug(data);
-//				} else {
-//					String data = clientInterface.executeHttp("_bulk?" + refreshOption, datas, ClientUtil.HTTP_POST);
-//					logger.debug(data);
-//				}
-//			}
-//			else{
-//				if (refreshOption == null) {
-//					clientInterface.executeHttp("_bulk", datas, ClientUtil.HTTP_POST);
-//				} else {
-//					clientInterface.executeHttp("_bulk?" + refreshOption, datas, ClientUtil.HTTP_POST);
-//				}
-//			}
+
 			call(taskCommand);
 			if(isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
