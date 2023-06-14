@@ -19,6 +19,7 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.spi.geoip.GeoIPUtil;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.CallInterceptor;

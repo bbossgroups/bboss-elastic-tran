@@ -1,4 +1,4 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.listener;
 /**
  * Copyright 2023 bboss
  * <p>
@@ -18,18 +18,26 @@ package org.frameworkset.tran;
 import org.frameworkset.tran.context.ImportContext;
 
 /**
- * <p>Description: 作业关闭监听器</p>
+ * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2023</p>
- * @Date 2023/6/13
+ * @Date 2023/6/14
  * @author biaoping.yin
  * @version 1.0
  */
-public interface JobClosedListener {
-    /**
-     * 作业关闭监听回调接口方法
-     * @param importContext 作业上下文对象，包含作业信息
-     * @param throwable 如果作业是因为异常关闭，对应异常对象
-     */
-    public void jobClosed(ImportContext importContext,Throwable throwable);
+public class AsynJobClosedListenerImpl implements JobClosedListener{
+    private JobClosedListener jobClosedListener;
+    public AsynJobClosedListenerImpl(JobClosedListener jobClosedListener){
+        this.jobClosedListener = jobClosedListener;
+    }
+    @Override
+    public void jobClosed(final ImportContext importContext, final Throwable throwable) {
+        JobClosedListenerThread jobClosedListenerThread = new JobClosedListenerThread(new Runnable() {
+            @Override
+            public void run() {
+                jobClosedListener.jobClosed(importContext,throwable);
+            }
+        });
+        jobClosedListenerThread.start();
+    }
 }

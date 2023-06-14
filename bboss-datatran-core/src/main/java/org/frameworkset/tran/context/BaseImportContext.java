@@ -18,6 +18,7 @@ package org.frameworkset.tran.context;
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.*;
+import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.ETLMetricsCallInterceptor;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.plugin.InputPlugin;

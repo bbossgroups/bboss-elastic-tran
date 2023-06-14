@@ -74,10 +74,7 @@ public class MongoDBRecord extends BaseRecord {
 		return this.getValue(metaName);
 	}
 
-	@Override
-	public long getOffset() {
-		return 0;
-	}
+
 
 
 }

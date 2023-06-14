@@ -137,11 +137,5 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 	public Object getMetaValue(String fieldName) {
 		return getValue(fieldName);
 	}
-	@Override
-	public boolean removed() {
-		return false;
-	}
-	public boolean reachEOFClosed(){
-		return false ;
-	}
+
 }

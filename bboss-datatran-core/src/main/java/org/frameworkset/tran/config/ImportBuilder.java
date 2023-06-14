@@ -23,6 +23,9 @@ import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.InitJobContextCall;
 import org.frameworkset.tran.context.JobContext;
+import org.frameworkset.tran.listener.AsynJobClosedListener;
+import org.frameworkset.tran.listener.AsynJobClosedListenerImpl;
+import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.job.Metrics;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.plugin.metrics.output.MetricsOutputConfig;
@@ -1260,11 +1263,19 @@ public class ImportBuilder {
         }
 
 	}
+    private JobClosedListener handleJobClosedListener(){
+        if(jobClosedListener != null && jobClosedListener instanceof AsynJobClosedListener){
+            return new AsynJobClosedListenerImpl(jobClosedListener);
+        }
+        else {
+            return jobClosedListener;
+        }
+    }
 	protected void buildImportConfig(BaseImportConfig baseImportConfig){
 		baseImportConfig.setImportStartAction(importStartAction);
 		baseImportConfig.setImportEndAction(importEndAction);
 		baseImportConfig.setUseJavaName(false);
-        baseImportConfig.setJobClosedListener(this.jobClosedListener);
+        baseImportConfig.setJobClosedListener(handleJobClosedListener());
 
 		initMetrics(  baseImportConfig);
 

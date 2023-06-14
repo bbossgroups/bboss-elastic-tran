@@ -62,8 +62,6 @@ public interface TranResultSet {
 	public Object getKeys();
 	Object getMetaValue(String fieldName);
 
-	boolean removed();
-	boolean reachEOFClosed();
 
     Map<String, Object> getMetaDatas();
 
@@ -78,4 +76,11 @@ public interface TranResultSet {
     LastValueWrapper getLastValueWrapper();
 
     public Object getLastValue();
+
+    default public boolean removed() {
+        return false;
+    }
+    default public boolean reachEOFClosed(){
+        return false ;
+    }
 }
