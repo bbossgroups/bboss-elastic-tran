@@ -960,10 +960,14 @@ public abstract class BaseStatusManager implements StatusManager {
 		currentStatus.setJobType(importContext.getJobType());
 
 		currentStatus.setLastValueType(lastValueType);
-		if(!update)
-			addStatus(currentStatus);
-		else
-			updateStatus(currentStatus);
+        Status tmp = currentStatus.copy();
+		if(!update) {
+            addStatus(tmp);
+        }
+		else {
+            updateStatus(tmp);
+        }
+
 		this.currentStatus = currentStatus;
 		this.firstStatus = (Status) currentStatus.copy();
 		if(logger.isInfoEnabled())
@@ -973,7 +977,9 @@ public abstract class BaseStatusManager implements StatusManager {
 	public  void handleLostedTasks(List<Status> losteds , boolean needSyn){
 		try {
 			for (Status losted : losteds) {
-				putStatus(losted);
+                Status status = losted.copy();
+                handleStatus(status);
+				putStatus(status);
 			}
 		}
 		catch (Exception e){
@@ -986,12 +992,13 @@ public abstract class BaseStatusManager implements StatusManager {
 		try {
 			long now = System.currentTimeMillis();
 			long deletedTime = now - registLiveTime;
-			for (Status status : completed) {
-				File file = new File(status.getFilePath());
+			for (Status status_ : completed) {
+				File file = new File(status_.getFilePath());
 				if(!file.exists()) {
-					long lastTime = status.getTime();
+					long lastTime = status_.getTime();
 					if (lastTime <= deletedTime) {
-
+                        Status status = status_.copy();
+                        handleStatus(status);
 						SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
                                 status.getCurrentLastValueWrapper().getLastValue(),status.getStrLastValue(), status.getLastValueType(), status.getFilePath(), status.getRelativeParentDir(),status.getFileId(), status.getStatus(),status.getJobId(),status.getJobType());
 						if(status.getJobId() == null) {
