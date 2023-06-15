@@ -732,7 +732,7 @@ public abstract class BaseStatusManager implements StatusManager {
 
 		}
 		catch (SQLException e){
-			logger.warn("filePath,status,statusId and fileId not exit in table {"+historyStatusTableName+"}",e);
+			logger.warn("filePath,status,statusId and fileId not exit in table {"+historyStatusTableName+"},and will be added.");
 
 			addField("filePath",historyStatusTableName,defaultValue,"500",type);
 			addField("relativeParentDir",historyStatusTableName,defaultValue,"500",type);
