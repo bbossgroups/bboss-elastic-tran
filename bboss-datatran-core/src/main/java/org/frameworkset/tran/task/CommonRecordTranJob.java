@@ -258,7 +258,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {
-					tranResultSet.stop();
+					tranResultSet.stop(true);
 					Exception ex = tranErrorWrapper.throwError();
 					if(ex != null)
 						throw ex;

@@ -57,7 +57,7 @@ public interface TranResultSet {
 	 */
 	Record getCurrentRecord();
 
-	void stop();
+	void stop(boolean exception);
 //	public void stopTranOnly();
 	public Object getKeys();
 	Object getMetaValue(String fieldName);

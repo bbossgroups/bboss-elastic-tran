@@ -45,7 +45,7 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
     private HttpResult<Map> currentResult;
 	private Map current;
 	private Iterator<Map> iterator;
-	private boolean stoped;
+//	private boolean stoped;
 	private HttpInputConfig httpInputConfig;
     private ExecutorService blockedExecutor;
 	private List<QueryAction> queryActions;
@@ -140,7 +140,7 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
 	public Boolean next() throws DataImportException {
         boolean hasNext = false;
         do {
-            if(stoped || importContext.getInputPlugin().isStopCollectData()) {
+            if(isStop() || importContext.getInputPlugin().isStopCollectData()) {
                 hasNext = false;
                 break;
             }
@@ -178,7 +178,7 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
                 }
                 else{
                     if(currentResult.hasMore()){
-                        if(stoped )
+                        if(isStop() )
                             return false;
 
                         doQueryAction( currentResult.getQueryAction());
@@ -216,10 +216,10 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
 		return record;
 	}
 
-	@Override
-	public void stop() {
-		stoped = true;
-	}
+//	@Override
+//	public void stop() {
+//		stoped = true;
+//	}
 
 
 	@Override

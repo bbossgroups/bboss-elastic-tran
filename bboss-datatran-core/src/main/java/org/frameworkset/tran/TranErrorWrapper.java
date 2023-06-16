@@ -63,14 +63,7 @@ public class TranErrorWrapper {
 	 */
 	public boolean assertCondition(){
 
-//		if(this.error != null && !importContext.isContinueOnError()) {
-//			return false;
-//		}
-//		if(importContext.isCurrentStoped()){
-//			return false;
-//		}
-//		return true;
-		return assertCondition(error, importContext);
+		return assertCondition(error);
 	}
 
 	/**
@@ -81,19 +74,27 @@ public class TranErrorWrapper {
 		if(error == null && e != null){
 			this.setError(e);
 		}
+        stopFromError = e != null && !importContext.isContinueOnError();
+        if(stopFromError)
+            return false;
 		return assertCondition(error,importContext);
 	}
 
+    public boolean isStopFromError() {
+        return stopFromError;
+    }
+
+    private boolean stopFromError ;
 	/**
 	 * 判断执行条件是否成立，成立返回true，否则返回false
 	 * @return
 	 */
-	public static boolean assertCondition(Throwable e,ImportContext importContext){
+	private static boolean assertCondition(Throwable e,ImportContext importContext){
 
-		if(e != null && !importContext.isContinueOnError() ) {
-
-			return false;
-		}
+//		if(e != null && !importContext.isContinueOnError() ) {
+//
+//			return false;
+//		}
 		if(importContext.isCurrentStoped()){
 			return false;
 		}

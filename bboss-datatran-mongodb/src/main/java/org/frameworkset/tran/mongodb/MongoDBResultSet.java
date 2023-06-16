@@ -34,7 +34,7 @@ import java.util.Date;
 public class MongoDBResultSet extends LastValue implements TranResultSet {
 	private DBCursor dbCursor;
 	private DBObject dbObject;
-	private boolean stoped;
+//	private boolean stoped;
 	public MongoDBResultSet(ImportContext importContext, DBCursor dbCursor) {
 		this.importContext = importContext;
 		this.dbCursor = dbCursor;
@@ -68,7 +68,7 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 
 	@Override
 	public Boolean next() throws DataImportException {
-		if(stoped || importContext.getInputPlugin().isStopCollectData())
+		if(isStop() || importContext.getInputPlugin().isStopCollectData())
 			return false;
 		boolean hasNext = dbCursor.hasNext();
 		if( hasNext){
@@ -96,10 +96,10 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 		return record;
 	}
 
-	@Override
-	public void stop() {
-		stoped = true;
-	}
+//	@Override
+//	public void stop() {
+//		stoped = true;
+//	}
 
 
 	@Override

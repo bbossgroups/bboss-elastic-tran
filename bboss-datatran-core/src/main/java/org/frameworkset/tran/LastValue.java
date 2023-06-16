@@ -24,6 +24,9 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 
+import static org.frameworkset.tran.util.TranConstant.STATUS_STOP_EXCEPTION;
+import static org.frameworkset.tran.util.TranConstant.STATUS_STOP_NORMAL;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -36,10 +39,33 @@ public abstract class LastValue implements TranResultSet{
 	protected ImportContext importContext;
 	protected BaseDataTran baseDataTran;
 	protected Record record;
+    private volatile int status;
 	public BaseDataTran getBaseDataTran(){
 		return baseDataTran;
 	}
+    private Object stopLock = new Object();
+    public boolean isStop(){
+        synchronized (stopLock) {
+            return status == STATUS_STOP_NORMAL || status == STATUS_STOP_EXCEPTION;
+        }
+    }
 
+    public boolean isStopFromException(){
+        synchronized (stopLock) {
+            return status == STATUS_STOP_EXCEPTION;
+        }
+    }
+    @Override
+    public void stop(boolean exception){
+        synchronized (stopLock) {
+            if(!exception) {
+                status = STATUS_STOP_NORMAL;
+            }
+            else{
+                status = STATUS_STOP_EXCEPTION;
+            }
+        }
+    }
     public Map<String, Object> getMetaDatas(){
         return record.getMetaDatas();
     }

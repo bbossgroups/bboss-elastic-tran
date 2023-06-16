@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public class HBaseResultSet extends LastValue implements TranResultSet {
 	private ResultScanner resultScanner;
-	protected boolean stoped;
+//	protected boolean stoped;
 	private boolean incrementByTimeRange;
 
 	private Map<String,byte[][]> familys;
@@ -85,7 +85,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 	@Override
 	public Boolean next() throws DataImportException {
 		try {
-			if(stoped || importContext.getInputPlugin().isStopCollectData())
+			if(isStop() || importContext.getInputPlugin().isStopCollectData())
 				return false;
 			Result record = resultScanner.next();
 			if( record != null){
@@ -111,10 +111,10 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 		return record.getData();
 	}
 
-	@Override
-	public void stop() {
-		stoped = true;
-	}
+//	@Override
+//	public void stop() {
+//		stoped = true;
+//	}
 
 	@Override
 	public Object getMetaValue(String fieldName) {

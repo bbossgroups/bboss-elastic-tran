@@ -23,8 +23,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static org.frameworkset.tran.util.TranConstant.STATUS_STOP;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -38,7 +36,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	private int pos = 0;
 	private int size;
 
-	private volatile int status;
+
 	private BlockingQueue<Data> queue ;
     private boolean preReachEOFRecord;
 
@@ -55,15 +53,15 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 		return record;
 	}
 
-    private Object stopLock = new Object();
-    public boolean isStop(){
-        synchronized (stopLock) {
-            return status == STATUS_STOP;
-        }
-    }
+
 	public void appendData(Data datas) throws InterruptedException{
         if(isStop() ){
-            throw new InterruptedException("AsynBaseTranResultSet already stopped.");
+            if(!isStopFromException()) {
+                throw new InterruptedException("AsynBaseTranResultSet already stopped.");
+            }
+            else {
+                throw new InterruptedException("AsynBaseTranResultSet already stopped by exception.");
+            }
         }
 		try {
 
@@ -103,12 +101,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 
 
 
-	@Override
-	public void stop(){
-        synchronized (stopLock) {
-            status = STATUS_STOP;
-        }
-	}
+
 //	@Override
 //	public void stopTranOnly(){
 //		status = STATUS_STOPTRANONLY;
@@ -139,7 +132,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 //			return false;
 //		}
         if(preReachEOFRecord){
-            stop();
+            stop(false);
             return false;
         }
 		if(baseDataTran.getDataTranPlugin().checkTranToStop())
@@ -178,9 +171,12 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 					long pollStartTime = System.currentTimeMillis();
 					do{
 						datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
-						if(isStop() ){
-							return false;
-						}
+                        if(isStopFromException()){//因异常终止则停止后续数据处理，不管有没有数据，如果是正常停止，则需要处理后续数据
+                            return false;
+                        }
+//						if(isStop() ){
+//							return false;
+//						}
 						if(datas == null){
 							if(reachEnd)
 								break;
@@ -194,6 +190,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 							}
 							continue;
 						}
+
 						this.records = datas.getDatas();
 						size = records != null ? records.size():0;
 						if(size > 0)

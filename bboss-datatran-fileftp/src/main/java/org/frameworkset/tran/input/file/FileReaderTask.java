@@ -874,6 +874,9 @@ public class FileReaderTask extends FieldManager{
                     taskEnded();
 
                 }
+                else{
+                    logger.info("why not reachEOFClosed");
+                }
 //            }
         }catch (InterruptedException e){
 //            logger.error("",e);

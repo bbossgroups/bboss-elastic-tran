@@ -277,7 +277,7 @@ public class StringTranJob extends BaseTranJob{
 
 			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {
-					tranResultSet.stop();
+					tranResultSet.stop(true);
 					Exception e = tranErrorWrapper.throwError();
 					if(e != null){
 						throw e;

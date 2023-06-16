@@ -18,4 +18,5 @@ public interface AsynTranResultSet extends TranResultSet{
 
 
 	public void appendData(Data datas) throws InterruptedException;
+
 }

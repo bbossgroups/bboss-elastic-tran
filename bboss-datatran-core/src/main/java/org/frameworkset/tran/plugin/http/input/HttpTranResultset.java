@@ -37,7 +37,7 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 	private HttpResult<Map> httpResult;
 	private Map current;
 	private Iterator<Map> iterator;
-	private boolean stoped;
+//	private boolean stoped;
 	private HttpInputConfig httpInputConfig;
 
 	private QueryAction queryAction;
@@ -85,7 +85,7 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 
 	@Override
 	public Boolean next() throws DataImportException {
-		if(stoped || iterator == null|| importContext.getInputPlugin().isStopCollectData())
+		if(isStop() || iterator == null|| importContext.getInputPlugin().isStopCollectData())
 			return false;
 		boolean hasNext = iterator.hasNext();
 		if( hasNext){
@@ -94,7 +94,7 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 		}
 		else{
 			if(queryAction.hasMore()){
-				if(stoped )
+				if(isStop() )
 					return false;
 				this.httpResult = queryAction.execute();
 				List<Map> datas = httpResult.getDatas();
@@ -127,10 +127,10 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 		return record;
 	}
 
-	@Override
-	public void stop() {
-		stoped = true;
-	}
+//	@Override
+//	public void stop() {
+//		stoped = true;
+//	}
 
 
 	@Override

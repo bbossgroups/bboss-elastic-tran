@@ -241,7 +241,7 @@ public abstract class BaseDataTran implements DataTran{
             dataTranStopped = true;
         }
 		if(asynTranResultSet != null) {
-			asynTranResultSet.stop();
+			asynTranResultSet.stop(false);
 			asynTranResultSet = null;
 		}
 		if(breakableScrollHandler != null) {

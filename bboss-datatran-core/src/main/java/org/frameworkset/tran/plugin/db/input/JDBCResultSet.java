@@ -26,7 +26,7 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	protected JDBCTranMetaData metaData;
 	protected DB dbadapter;
 
-	protected boolean stoped;
+//	protected boolean stoped;
 	public JDBCResultSet(){
 
 	}
@@ -71,10 +71,10 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 		return record;
 	}
 
-	@Override
-	public void stop() {
-		stoped = true;
-	}
+//	@Override
+//	public void stop(boolean exception) {
+//		stoped = true;
+//	}
 //	@Override
 //	public void stopTranOnly(){stoped = true;}
 
@@ -127,7 +127,7 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 
 	public Boolean next() throws DataImportException {
 		try {
-			if(stoped || importContext.getInputPlugin().isStopCollectData())
+			if(isStop() || importContext.getInputPlugin().isStopCollectData())
 				return false;
 			return resultSet.next();
 		}

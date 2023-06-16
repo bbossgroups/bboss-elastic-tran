@@ -247,8 +247,8 @@ public class SplitTranResultSet  implements TranResultSet {
 	}
 
 	@Override
-	public void stop() {
-		tranResultSet.stop();
+	public void stop(boolean exception) {
+		tranResultSet.stop(exception);
 	}
 
 //	@Override
