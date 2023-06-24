@@ -54,7 +54,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 		return new InitLastValueClumnName (){
 
 			public void initLastValueClumnName(){
-                if(fileInputConfig.isDisableScanNewFiles()){
+                if(fileInputConfig.isDisableScanNewFiles() && fileInputConfig.isDisableScanNewFilesCheckpoint()){
                     statusManager.setIncreamentImport(false);
                 }
 			}

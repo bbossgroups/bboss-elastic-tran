@@ -104,7 +104,12 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
      * 控制文件采集的一次性全量处理，这样就不会进行增量监听了，和其他插件的设置保持一致
      */
     private boolean disableScanNewFiles;
-
+    /**
+     * 一次性文件全量采集的处理，是否禁止记录文件采集状态，false 不禁止，true 禁止，不禁止
+     * 情况下作业重启，已经采集过的文件不会再采集，未采集完的文件，从上次采集截止的位置开始采集
+     * 默认 true 禁止
+     */
+    private boolean disableScanNewFilesCheckpoint = true;
     /**
      * 内存占用百分比阈值，达到该阈值时暂停添加新的文件采集功能
      * > 0 起作用
@@ -458,5 +463,21 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
         return this;
     }
 
-
+    /**
+     * 一次性文件全量采集的处理，是否禁止记录文件采集状态，false 不禁止，true 禁止，不禁止
+     * 情况下作业重启，已经采集过的文件不会再采集，未采集完的文件，从上次采集截止的位置开始采集
+     * 默认 true 禁止
+     */
+    public boolean isDisableScanNewFilesCheckpoint() {
+        return disableScanNewFilesCheckpoint;
+    }
+    /**
+     * 一次性文件全量采集的处理，是否禁止记录文件采集状态，false 不禁止，true 禁止，不禁止
+     * 情况下作业重启，已经采集过的文件不会再采集，未采集完的文件，从上次采集截止的位置开始采集
+     * 默认 true 禁止
+     */
+    public FileInputConfig setDisableScanNewFilesCheckpoint(boolean disableScanNewFilesCheckpoint) {
+        this.disableScanNewFilesCheckpoint = disableScanNewFilesCheckpoint;
+        return this;
+    }
 }
