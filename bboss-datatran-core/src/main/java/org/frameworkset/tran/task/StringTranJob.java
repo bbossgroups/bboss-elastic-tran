@@ -116,6 +116,10 @@ public class StringTranJob extends BaseTranJob{
                     else{
                         lastValue = importContext.max(lastValue,baseDataTran);
                     }
+                    if(baseDataTran.isRecordDirectIgnore()){
+                        droped ++;
+                        continue;
+                    }
                     Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 
                     if(!reachEOFClosed)
@@ -314,6 +318,10 @@ public class StringTranJob extends BaseTranJob{
 				else{
 					lastValue = importContext.max(lastValue,baseDataTran);
 				}
+                if(baseDataTran.isRecordDirectIgnore()){
+                    droped ++;
+                    continue;
+                }
 				Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 				if(!reachEOFClosed)
 					reachEOFClosed = context.reachEOFClosed();
@@ -500,6 +508,9 @@ public class StringTranJob extends BaseTranJob{
 					else {
 						lastValue = importContext.max(lastValue,baseDataTran);
 					}
+                    if(baseDataTran.isRecordDirectIgnore()){
+                        continue;
+                    }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
 					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 
@@ -665,6 +676,9 @@ public class StringTranJob extends BaseTranJob{
 					else {
 						lastValue = importContext.max(lastValue, baseDataTran);
 					}
+                    if(baseDataTran.isRecordDirectIgnore()){
+                        continue;
+                    }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
 					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
 					if(!reachEOFClosed)
