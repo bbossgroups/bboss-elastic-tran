@@ -383,7 +383,7 @@ public class ImportBuilder {
 		return this;
 	}
 
-	private long asynResultPollTimeOut = 1000;
+	private long asynResultPollTimeOut = 1000L;
 	public Boolean getUseLowcase() {
 		return useLowcase;
 	}
