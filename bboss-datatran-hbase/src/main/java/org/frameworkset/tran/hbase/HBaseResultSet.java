@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.hbase.input.HBaseInputConfig;
+import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -83,20 +84,22 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 
 
 	@Override
-	public Boolean next() throws DataImportException {
+	public NextAssert next() throws DataImportException {
+        NextAssert nextAssert = new NextAssert();
 		try {
 			if(isStop() || importContext.getInputPlugin().isStopCollectData())
-				return false;
+				return nextAssert;
 			Result record = resultScanner.next();
 			if( record != null){
 				this.record = new HBaseRecord(getTaskContext(),familys,record);
-				return true;
+                nextAssert.setHasNext(true);
+				return nextAssert;
 			}
 		} catch (IOException e) {
 			throw new DataImportException("Get next hbase result failed:",e);
 		}
 
-		return false;
+		return nextAssert;
 	}
 
 	@Override

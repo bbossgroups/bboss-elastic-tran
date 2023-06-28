@@ -19,6 +19,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Date;
@@ -67,15 +68,17 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 	}
 
 	@Override
-	public Boolean next() throws DataImportException {
+	public NextAssert next() throws DataImportException {
+        NextAssert nextAssert = new NextAssert();
 		if(isStop() || importContext.getInputPlugin().isStopCollectData())
-			return false;
+			return nextAssert;
 		boolean hasNext = dbCursor.hasNext();
 		if( hasNext){
 			dbObject = dbCursor.next();
 			record = new MongoDBRecord(dbObject,getTaskContext());
 		}
-		return hasNext;
+        nextAssert.setHasNext(hasNext);
+		return nextAssert;
 	}
 
 	@Override

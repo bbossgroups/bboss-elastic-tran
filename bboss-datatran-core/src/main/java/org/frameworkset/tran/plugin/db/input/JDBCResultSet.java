@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin.db.input;/*
 import com.frameworkset.common.poolman.sql.PoolManResultSetMetaData;
 import com.frameworkset.orm.adapter.DB;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.sql.ResultSet;
@@ -125,11 +126,13 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 
 	@Override
 
-	public Boolean next() throws DataImportException {
+	public NextAssert next() throws DataImportException {
+        NextAssert nextAssert = new NextAssert();
 		try {
 			if(isStop() || importContext.getInputPlugin().isStopCollectData())
-				return false;
-			return resultSet.next();
+				return nextAssert;
+            nextAssert.setHasNext(resultSet.next());
+			return nextAssert;
 		}
 		catch (Exception e){
 			throw new DataImportException(e);

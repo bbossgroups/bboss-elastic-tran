@@ -15,6 +15,7 @@ package org.frameworkset.tran;/*
  */
 
 
+import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
 
@@ -42,7 +43,7 @@ public interface TranResultSet {
 	 * @return
 	 * @throws DataImportException
 	 */
-	public Boolean next() throws DataImportException;
+	public NextAssert next() throws DataImportException;
 	public TranMeta getMetaData();
 
 	/**
@@ -72,7 +73,7 @@ public interface TranResultSet {
     public Map<String, Object> getUpdateFromDatas();
 
     int getAction();
-
+    public boolean isRecordDirectIgnore();
     LastValueWrapper getLastValueWrapper();
 
     public Object getLastValue();

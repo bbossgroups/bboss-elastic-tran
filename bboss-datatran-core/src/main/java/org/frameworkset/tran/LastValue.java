@@ -158,5 +158,7 @@ public abstract class LastValue implements TranResultSet{
         return record.getLocalDateTimeValue(colName);
 
     }
-
+    public boolean isRecordDirectIgnore(){
+        return getAction() == Record.RECORD_DIRECT_IGNORE;
+    }
 }

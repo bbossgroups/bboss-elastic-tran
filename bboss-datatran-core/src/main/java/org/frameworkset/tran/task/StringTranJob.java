@@ -25,6 +25,7 @@ import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
 import org.frameworkset.tran.record.CommonStringRecord;
+import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.slf4j.Logger;
@@ -81,9 +82,9 @@ public class StringTranJob extends BaseTranJob{
 			BatchContext batchContext = new BatchContext();
 			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
-				Boolean hasNext = tranResultSet.next();
+                NextAssert hasNext = tranResultSet.next();
                 try{
-                    if(hasNext == null){
+                    if(hasNext.isNeedFlush()){
                         if(count > 0) {
                             baseDataTran.beforeOutputData(writer);
                             String _dd =  builder.toString();
@@ -106,9 +107,10 @@ public class StringTranJob extends BaseTranJob{
                             importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
                             droped = 0;
                         }
-                        continue;
+                        if(!hasNext.isHasNext())
+                            continue;
                     }
-                    else if(!hasNext.booleanValue()){
+                    if(!hasNext.isHasNext()){
                         break;
                     }
                     if(lastValue == null)
@@ -116,7 +118,7 @@ public class StringTranJob extends BaseTranJob{
                     else{
                         lastValue = importContext.max(lastValue,baseDataTran);
                     }
-                    if(baseDataTran.isRecordDirectIgnore()){
+                    if(tranResultSet.isRecordDirectIgnore()){
                         droped ++;
                         continue;
                     }
@@ -290,8 +292,8 @@ public class StringTranJob extends BaseTranJob{
 						break;
 					}
 				}
-				Boolean hasNext = tranResultSet.next();
-				if(hasNext == null){//强制flush操作
+				NextAssert hasNext = tranResultSet.next();
+				if(hasNext.isNeedFlush()){//强制flush操作
 					if (count > 0) {
 						baseDataTran.beforeOutputData(writer);
 						String datas = builder.toString();
@@ -308,9 +310,10 @@ public class StringTranJob extends BaseTranJob{
                         importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
                         droped = 0;
                     }
-					continue;
+                    if(!hasNext.isHasNext())
+                        continue;
 				}
-				else if(!hasNext.booleanValue())
+				if(!hasNext.isHasNext())
 					break;
 
 				if(lastValue == null)
@@ -318,7 +321,7 @@ public class StringTranJob extends BaseTranJob{
 				else{
 					lastValue = importContext.max(lastValue,baseDataTran);
 				}
-                if(baseDataTran.isRecordDirectIgnore()){
+                if(tranResultSet.isRecordDirectIgnore()){
                     droped ++;
                     continue;
                 }
@@ -474,8 +477,8 @@ public class StringTranJob extends BaseTranJob{
 			BatchContext batchContext =  new BatchContext();
 			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
-				Boolean hasNext = tranResultSet.next();
-				if(hasNext == null){
+                NextAssert hasNext = tranResultSet.next();
+				if(hasNext.isNeedFlush()){
 					if(baseDataTran.isPrintTaskLog() && !printed) {
 						if (lastSend > 0l) {//等待状态下，需一次打印日志
 							long end = System.currentTimeMillis();
@@ -495,9 +498,10 @@ public class StringTranJob extends BaseTranJob{
 							lastSend = System.currentTimeMillis();
 						}
 					}
-					continue;
+                    if(!hasNext.isHasNext())
+                        continue;
 				}
-				else if(!hasNext.booleanValue()){
+				if(!hasNext.isHasNext()){
 					break;
 				}
 				lastSend = 0l;
@@ -508,7 +512,7 @@ public class StringTranJob extends BaseTranJob{
 					else {
 						lastValue = importContext.max(lastValue,baseDataTran);
 					}
-                    if(baseDataTran.isRecordDirectIgnore()){
+                    if(tranResultSet.isRecordDirectIgnore()){
                         continue;
                     }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
@@ -644,9 +648,9 @@ public class StringTranJob extends BaseTranJob{
 			BatchContext batchContext =  new BatchContext();
 			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
-				Boolean hasNext = tranResultSet.next();
-				if(hasNext == null){
-					String ret = null;
+				NextAssert hasNext = tranResultSet.next();
+				if(hasNext.isNeedFlush()){
+//					String ret = null;
 					if(builder.length() > 0) {
 						baseDataTran.beforeOutputData(writer);
 						String _dd =  builder.toString();
@@ -654,7 +658,7 @@ public class StringTranJob extends BaseTranJob{
 						taskNo = serialTranCommand.hanBatchActionTask(importCount,totalCount,taskNo,lastValue,_dd,reachEOFClosed,null);
 					}
 					else{
-						ret = "{\"took\":0,\"errors\":false}";
+//						ret = "{\"took\":0,\"errors\":false}";
 					}
 //					importContext.flushLastValue(lastValue);
 					if(baseDataTran.isPrintTaskLog()) {
@@ -665,9 +669,10 @@ public class StringTranJob extends BaseTranJob{
 								.append(ignoreTotalCount).append(" records.").toString());
 
 					}
-					continue;
+                    if(!hasNext.isHasNext())
+                        continue;
 				}
-				else if(!hasNext.booleanValue()){
+				if(!hasNext.isHasNext()){
 					break;
 				}
 				try {
@@ -676,7 +681,7 @@ public class StringTranJob extends BaseTranJob{
 					else {
 						lastValue = importContext.max(lastValue, baseDataTran);
 					}
-                    if(baseDataTran.isRecordDirectIgnore()){
+                    if(tranResultSet.isRecordDirectIgnore()){
                         continue;
                     }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);

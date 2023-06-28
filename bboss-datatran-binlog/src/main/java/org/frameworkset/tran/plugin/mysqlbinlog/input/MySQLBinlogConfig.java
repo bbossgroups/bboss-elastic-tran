@@ -72,6 +72,9 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
     private Long position;
 
+
+    private long joinToConnectTimeOut = 0L;
+
     private String mastterBinLogFile;
 
 
@@ -342,4 +345,12 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         return this;
     }
 
+    public long getJoinToConnectTimeOut() {
+        return joinToConnectTimeOut;
+    }
+
+    public MySQLBinlogConfig setJoinToConnectTimeOut(long joinToConnectTimeOut) {
+        this.joinToConnectTimeOut = joinToConnectTimeOut;
+        return this;
+    }
 }

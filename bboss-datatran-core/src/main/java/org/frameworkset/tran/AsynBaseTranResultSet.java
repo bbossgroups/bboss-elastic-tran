@@ -16,6 +16,7 @@ package org.frameworkset.tran;
  */
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.List;
@@ -123,27 +124,57 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
     private boolean reachEOFRecord(){
         return record.reachEOFRecord();
     }
-	@Override
-	public Boolean next() throws DataImportException {
+    private Long pollStartTime ;
+
+    private boolean recordsCheckForceFlush(){
+        boolean needCheckForceFlush = false;
+        if(this.records == null || this.records.size() == 0)
+            needCheckForceFlush = true;
+        else{
+            if(records.size() == 1 ){
+                Object record = records.get(0);
+                if(record instanceof Record){
+                    needCheckForceFlush = ((Record)record).getAction() == Record.RECORD_DIRECT_IGNORE;
+                }
+            }
+        }
+        return needCheckForceFlush;
+    }
+
+    private boolean checkForceFlush(NextAssert nextAssert){
+        if(importContext.getFlushInterval() > 0) {
+            long interval = System.currentTimeMillis() - pollStartTime;
+            if (interval > importContext.getFlushInterval()){
+                nextAssert.setNeedFlush(true);
+                pollStartTime = null;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+	public NextAssert next() throws DataImportException {
 		/**
 		 * 要把数据处理完毕，才停迭代器
 		 */
 //		if(status == STATUS_STOP){
 //			return false;
 //		}
+        NextAssert nextAssert = new NextAssert();
         if(preReachEOFRecord){
             stop(false);
-            return false;
+            return nextAssert;
         }
 		if(baseDataTran.getDataTranPlugin().checkTranToStop())
-			return false;
+			return nextAssert;
 		if( pos < size){
 
 			record = buildRecord(records.get(pos));
             preReachEOFRecord = reachEOFRecord();
 			pos ++;
-
-			return true;
+            nextAssert.setHasNext(true);
+			return nextAssert;
 		}
 		else{
 
@@ -157,22 +188,36 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 //					return false;
 //				}
 
-
-				if(datas != null){
+                boolean needCheckForceFlush = false;
+                if(datas != null){
 					this.records = datas.getDatas();
 					size = records != null ? records.size():0;
+                    needCheckForceFlush = recordsCheckForceFlush();
 				}
+                else{
+                    this.records = null;
+                    this.size = 0;
+                    needCheckForceFlush = true;
+                }
+
+                if(needCheckForceFlush){
+                    if(pollStartTime == null)
+                        pollStartTime = System.currentTimeMillis();
+                }
+                else{
+                    pollStartTime = null;
+                }
 
 				if(datas == null || size == 0)
 				{
 					if(stopIterator()){
-						return false;
+						return nextAssert;
 					}
-					long pollStartTime = System.currentTimeMillis();
+
 					do{
 						datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
                         if(isStopFromException()){//因异常终止则停止后续数据处理，不管有没有数据，如果是正常停止，则需要处理后续数据
-                            return false;
+                            return nextAssert;
                         }
 //						if(isStop() ){
 //							return false;
@@ -181,29 +226,49 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 							if(reachEnd)
 								break;
 							if(stopIterator())
-								return false;
-							if(importContext.getFlushInterval() > 0) {
-								long interval = System.currentTimeMillis() - pollStartTime;
-								if (interval > importContext.getFlushInterval()){
-									return null;
-								}
-							}
+								return nextAssert;
+//							if(importContext.getFlushInterval() > 0) {
+//								long interval = System.currentTimeMillis() - pollStartTime;
+//								if (interval > importContext.getFlushInterval()){
+//                                    nextAssert.setNeedFlush(true);
+//                                    pollStartTime = null;
+//									return nextAssert;
+//								}
+//							}
+                            if(checkForceFlush( nextAssert))
+                                return nextAssert;
 							continue;
 						}
 
 						this.records = datas.getDatas();
 						size = records != null ? records.size():0;
-						if(size > 0)
-							break;
+                        needCheckForceFlush = recordsCheckForceFlush();
+                        if(needCheckForceFlush){
+                            if(pollStartTime == null)
+                                pollStartTime = System.currentTimeMillis();
+                        }
+                        else{
+                            pollStartTime = null;
+                        }
+						if(size > 0) {
+                            if(needCheckForceFlush )
+                                checkForceFlush(nextAssert);
+                            break;
+                        }
 						else{
 							if(stopIterator())
-								return false;
+								return nextAssert;
 						}
 					}while (true);
-					if(datas == null && reachEnd){
-						return false;
+					if((datas == null )&& reachEnd){
+						return nextAssert;
 					}
 				}
+                else{
+                    if(needCheckForceFlush){
+                        checkForceFlush( nextAssert);
+                    }
+                }
 
 				pos = 0;
 				record = buildRecord(records.get(pos));
@@ -215,9 +280,10 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 //				if(status == STATUS_STOP){
 //					return false;
 //				}
-				return true;
+                nextAssert.setHasNext(true);
+				return nextAssert;
 			} catch (InterruptedException e) {
-				return false;
+				return nextAssert;
 			}
 		}
 	}

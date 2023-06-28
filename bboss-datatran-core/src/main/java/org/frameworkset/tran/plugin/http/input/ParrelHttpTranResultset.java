@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.http.input;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.http.HttpResult;
+import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +138,8 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
 	}
 
 	@Override
-	public Boolean next() throws DataImportException {
+	public NextAssert next() throws DataImportException {
+        NextAssert nextAssert = new NextAssert();
         boolean hasNext = false;
         do {
             if(isStop() || importContext.getInputPlugin().isStopCollectData()) {
@@ -179,7 +181,7 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
                 else{
                     if(currentResult.hasMore()){
                         if(isStop() )
-                            return false;
+                            return nextAssert;
 
                         doQueryAction( currentResult.getQueryAction());
                         currentResult = null;
@@ -195,7 +197,8 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
                 }
             }
         }while (true);
-		return hasNext;
+        nextAssert.setHasNext(hasNext);
+		return nextAssert;
 	}
 
 	@Override

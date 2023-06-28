@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.http.input;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.http.HttpResult;
+import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Date;
@@ -84,9 +85,10 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 	}
 
 	@Override
-	public Boolean next() throws DataImportException {
+	public NextAssert next() throws DataImportException {
+        NextAssert nextAssert = new NextAssert();
 		if(isStop() || iterator == null|| importContext.getInputPlugin().isStopCollectData())
-			return false;
+			return nextAssert;
 		boolean hasNext = iterator.hasNext();
 		if( hasNext){
 			current = iterator.next();
@@ -95,7 +97,7 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 		else{
 			if(queryAction.hasMore()){
 				if(isStop() )
-					return false;
+					return nextAssert;
 				this.httpResult = queryAction.execute();
 				List<Map> datas = httpResult.getDatas();
 				if(datas != null && datas.size() > 0) {
@@ -106,7 +108,8 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 				}
 			}
 		}
-		return hasNext;
+        nextAssert.setHasNext(hasNext);
+		return nextAssert;
 	}
 
 	@Override

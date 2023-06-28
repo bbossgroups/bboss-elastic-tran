@@ -166,7 +166,8 @@ public class SplitTranResultSet  implements TranResultSet {
 	}
 
 	@Override
-	public Boolean next() throws DataImportException {
+	public NextAssert next() throws DataImportException {
+        NextAssert nextAssert = null;
 		if(!readEnd() ){
 			KeyMap<String,Object> keyMap = splitRecords.get(splitPos);
 			if(keyMap.getKey() != null)
@@ -174,7 +175,9 @@ public class SplitTranResultSet  implements TranResultSet {
 			else
 				record = new SplitRecord(baseRecord,keyMap);
 			splitPos ++;
-			return true;
+            nextAssert = new NextAssert();
+            nextAssert.setHasNext(true);
+			return nextAssert;
 		}
 		else {
 			record = null;
@@ -182,14 +185,16 @@ public class SplitTranResultSet  implements TranResultSet {
 			splitSize = 0;
 			baseRecord = null;
 			splitRecords = null;
-			Boolean hasNext = tranResultSet.next();
-			if(hasNext == null){
-				return hasNext;
+            nextAssert = tranResultSet.next();
+			if(nextAssert.isNeedFlush() || !nextAssert.isHasNext()){
+				return nextAssert;
 			}
-			if(hasNext) {
+			if(nextAssert.isHasNext()) {
 				Record baseRecord = tranResultSet.getCurrentRecord();
+                if(tranResultSet.isRecordDirectIgnore())
+                    return nextAssert;
 				if(baseRecord.removed()){//标记为removed状态的记录不需要切割
-					return hasNext;
+					return nextAssert;
 				}
 				List<KeyMap> splitRecords_ = splitHandler.splitField(getTaskContext(), baseRecord,
 						baseRecord.getValue(getTaskContext().getImportContext().getSplitFieldName()));
@@ -197,7 +202,7 @@ public class SplitTranResultSet  implements TranResultSet {
 					record = null;
 					splitPos = 0;
 					splitRecords = null;
-					return hasNext;
+					return nextAssert;
 				}
 				else {
 					this.baseRecord = baseRecord;
@@ -212,7 +217,7 @@ public class SplitTranResultSet  implements TranResultSet {
 				}
 
 			}
-			return hasNext;
+			return nextAssert;
 
 		}
 	}
@@ -298,7 +303,10 @@ public class SplitTranResultSet  implements TranResultSet {
     public int getAction() {
         return tranResultSet.getAction();
     }
-
+    @Override
+    public boolean isRecordDirectIgnore(){
+        return tranResultSet.isRecordDirectIgnore();
+    }
     @Override
     public LastValueWrapper getLastValueWrapper() {
         return tranResultSet.getLastValueWrapper();

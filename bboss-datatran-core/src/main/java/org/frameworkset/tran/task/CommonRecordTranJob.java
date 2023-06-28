@@ -23,6 +23,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
+import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.schedule.Status;
 import org.slf4j.Logger;
@@ -77,9 +78,9 @@ public class CommonRecordTranJob extends BaseTranJob{
 			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
 
-				Boolean hasNext = tranResultSet.next();
+                NextAssert hasNext = tranResultSet.next();
                 try{
-                    if(hasNext == null){
+                    if(hasNext.isNeedFlush()){
                         if(count > 0) {
 
                             int _count = count;
@@ -101,9 +102,10 @@ public class CommonRecordTranJob extends BaseTranJob{
                             importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
                             droped = 0;
                         }
-                        continue;
+                        if(!hasNext.isHasNext())
+                            continue;
                     }
-                    else if(!hasNext.booleanValue()){
+                    if(!hasNext.isHasNext()){
                         break;
                     }
                     /**
@@ -120,7 +122,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                     else{
                         lastValue = importContext.max(lastValue,baseDataTran);
                     }
-                    if(baseDataTran.isRecordDirectIgnore()){
+                    if(tranResultSet.isRecordDirectIgnore()){
                         droped ++;
                         continue;
                     }
@@ -268,12 +270,9 @@ public class CommonRecordTranJob extends BaseTranJob{
 						break;
 					}
 				}
-				Boolean hasNext = tranResultSet.next();
-				if(hasNext == null){//强制flush操作
+                NextAssert hasNext = tranResultSet.next();
+				if(hasNext.isNeedFlush()){//强制flush操作
 					if (count > 0) {
-
-
-
 						int _count = count;
 						count = 0;
                         droped = 0;
@@ -292,9 +291,10 @@ public class CommonRecordTranJob extends BaseTranJob{
                         importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
                         droped = 0;
                     }
-					continue;
+                    if(!hasNext.isHasNext())
+                        continue;
 				}
-				else if(!hasNext.booleanValue())
+				if(!hasNext.isHasNext())
 					break;
 
 				if(lastValue == null)
@@ -302,7 +302,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 				else{
 					lastValue = importContext.max(lastValue,baseDataTran);
 				}
-                if(baseDataTran.isRecordDirectIgnore()){
+                if(tranResultSet.isRecordDirectIgnore()){
                     droped ++;
                     continue;
                 }
@@ -437,8 +437,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 			BatchContext batchContext = new BatchContext();
 			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
-				Boolean hasNext = tranResultSet.next();
-				if(hasNext == null){
+                NextAssert hasNext = tranResultSet.next();
+				if(hasNext.isNeedFlush()){
 					if(baseDataTran.isPrintTaskLog() && !printed) {
 						if (lastSend > 0l) {//等待状态下，需一次打印日志
 							long end = System.currentTimeMillis();
@@ -458,9 +458,10 @@ public class CommonRecordTranJob extends BaseTranJob{
 							lastSend = System.currentTimeMillis();
 						}
 					}
-					continue;
+                    if(!hasNext.isHasNext())
+					    continue;
 				}
-				else if(!hasNext.booleanValue()){
+				if(!hasNext.isHasNext()){
 					break;
 				}
 				lastSend = 0l;
@@ -471,7 +472,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					else {
 						lastValue = importContext.max(lastValue,baseDataTran);
 					}
-                    if(baseDataTran.isRecordDirectIgnore()){
+                    if(tranResultSet.isRecordDirectIgnore()){
                         continue;
                     }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
@@ -613,17 +614,15 @@ public class CommonRecordTranJob extends BaseTranJob{
 			BatchContext batchContext = new BatchContext();
 			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
-				Boolean hasNext = tranResultSet.next();
-				if(hasNext == null){
-					String ret = null;
+                NextAssert hasNext = tranResultSet.next();
+				if(hasNext.isNeedFlush()){
+//					String ret = null;
 					if(records.size() > 0) {
-
-
 						taskNo = serialTranCommand.hanBatchActionTask(importCount,totalCount,taskNo,lastValue,records,reachEOFClosed,null);
 						records = new ArrayList<>();
 					}
 					else{
-						ret = "{\"took\":0,\"errors\":false}";
+//						ret = "{\"took\":0,\"errors\":false}";
 					}
 //					importContext.flushLastValue(lastValue);
 					if(baseDataTran.isPrintTaskLog()) {
@@ -634,9 +633,10 @@ public class CommonRecordTranJob extends BaseTranJob{
 								.append(ignoreTotalCount).append(" records.").toString());
 
 					}
-					continue;
+                    if(!hasNext.isHasNext())
+                        continue;
 				}
-				else if(!hasNext.booleanValue()){
+				if(!hasNext.isHasNext()){
 					break;
 				}
 				try {
@@ -645,7 +645,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					else {
 						lastValue = importContext.max(lastValue, baseDataTran);
 					}
-                    if(baseDataTran.isRecordDirectIgnore()){
+                    if(tranResultSet.isRecordDirectIgnore()){
                         continue;
                     }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);

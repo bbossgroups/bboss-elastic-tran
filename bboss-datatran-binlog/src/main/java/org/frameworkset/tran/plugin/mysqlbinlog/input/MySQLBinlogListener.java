@@ -23,7 +23,6 @@ import com.github.shyiko.mysql.binlog.event.deserialization.ColumnType;
 import com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer;
 import com.github.shyiko.mysql.binlog.event.deserialization.json.JsonBinary;
 import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CommonData;
@@ -289,18 +288,29 @@ public class MySQLBinlogListener {
             }
 
         });
-        try {
-            this.client = client;
-            client.connect();
-        } catch (IOException e) {
-            throw new DataImportException(e);
+
+        this.client = client;
+        ListenerThread thread = new ListenerThread(client);
+        if(mySQLBinlogConfig.getJoinToConnectTimeOut() > 0L) {
+
+            thread.start();
+            try {
+
+                thread.join(mySQLBinlogConfig.getJoinToConnectTimeOut());
+
+
+            } catch (InterruptedException e) {
+
+            }
+            if (thread.getDataImportException() != null) {
+                throw thread.getDataImportException();
+            }
         }
-        catch (Exception e) {
-            throw new DataImportException(e);
+        else{
+            thread.run();
         }
-        catch (Throwable e) {
-            throw new DataImportException(e);
-        }
+
+
     }
 
 
