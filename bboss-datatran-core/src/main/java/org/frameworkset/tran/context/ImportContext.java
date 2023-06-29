@@ -127,7 +127,7 @@ public interface ImportContext {
 	public Integer getFetchSize() ;
 //	public void setEsIdField(ESField esIdField);
 //	public void setEsIdField(String esIdField);
-	void destroy(boolean waitTranStop,boolean fromScheduleEnd);
+	void destroy(DestroyPolicy destroyPolicy);
 
     /**
      * 等待转换结束，后再结束作业

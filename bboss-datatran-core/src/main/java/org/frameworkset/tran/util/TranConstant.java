@@ -79,5 +79,10 @@ public class TranConstant {
      * 异常停止
      */
     public static final int STATUS_STOP_EXCEPTION = 3;
+
+    /**
+     * 强制停止
+     */
+    public static final int STATUS_STOP_FORCE = 5;
 	public static final int STATUS_STOPTRANONLY = 2;
 }

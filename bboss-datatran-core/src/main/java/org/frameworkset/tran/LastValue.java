@@ -50,6 +50,15 @@ public abstract class LastValue implements TranResultSet{
         }
     }
 
+    public boolean isStop(boolean forceStop){
+        if(forceStop) {
+            return isStop();
+        }
+        else{
+            return isStopFromException();
+        }
+    }
+
     public boolean isStopFromException(){
         synchronized (stopLock) {
             return status == STATUS_STOP_EXCEPTION;

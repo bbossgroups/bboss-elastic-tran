@@ -169,12 +169,8 @@ public class DataStream {
 //		this.esjdbc.stop();
 	}
     private boolean destoried ;
-	/**
-	 *
-	 * @param waitTranStopped true 等待同步作业处理完成后停止作业 false 不等待
-	 * @param fromScheduleEnd 销毁操作是否来自于自动停止作业操作
-	 */
-	public void destroy(boolean waitTranStopped,boolean fromScheduleEnd) {
+
+    public void destroy(DestroyPolicy destroyPolicy) {
 
         if(destoried){
             return ;
@@ -185,20 +181,49 @@ public class DataStream {
             }
             destoried = true;
         }
-		if(importContext != null) {
-			logger.info("Destroy DataStream begin,waitTranStopped[{}].",waitTranStopped);
-			this.importContext.destroy(waitTranStopped, fromScheduleEnd);
+        if(importContext != null) {
+            logger.info("Destroy DataStream begin,waitTranStopped[{}].",destroyPolicy.isWaitTranStopped());
+            this.importContext.destroy(  destroyPolicy);
 
-			logger.info("DataStream stopped.");
-		}
-		else{
-			logger.info("DataStream stopped.");
-		}
+            logger.info("DataStream stopped.");
+        }
+        else{
+            logger.info("DataStream stopped.");
+        }
 
 
 
-//		this.esjdbc.stop();
+    }
+	/**
+	 *
+	 * @param waitTranStopped true 等待同步作业处理完成后停止作业 false 不等待
+	 * @param fromScheduleEnd 销毁操作是否来自于自动停止作业操作
+	 */
+	public void destroy(boolean waitTranStopped,boolean fromScheduleEnd) {
+
+        DestroyPolicy destroyPolicy = new DestroyPolicy();
+        destroyPolicy.setWaitTranStopped(waitTranStopped);
+        destroyPolicy.setFromScheduleEnd(fromScheduleEnd);
+        destroy(destroyPolicy);
+
+
+
 	}
+
+    /**
+     * 暂时和destory()方法行为一致，未对forceStrop做处理
+     */
+    public void destroyForce() {
+
+        DestroyPolicy destroyPolicy = new DestroyPolicy();
+        destroyPolicy.setWaitTranStopped(false);
+        destroyPolicy.setFromScheduleEnd(false);
+        destroyPolicy.setForceStop(true);
+        destroy(destroyPolicy);
+
+
+
+    }
 
 	public String getConfigString() {
 		return configString;

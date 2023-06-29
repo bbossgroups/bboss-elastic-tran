@@ -28,11 +28,11 @@ import java.io.IOException;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ListenerThread extends Thread{
+public class ClientConnectThread extends Thread{
     private BinaryLogClient client;
     private DataImportException dataImportException ;
 
-    public ListenerThread(BinaryLogClient client){
+    public ClientConnectThread(BinaryLogClient client){
         this.client = client;
         setName("BinaryLogClient-connect-Thread");
 //        this.setDaemon(true);

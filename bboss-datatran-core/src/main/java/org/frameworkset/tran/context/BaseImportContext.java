@@ -309,9 +309,9 @@ public  class BaseImportContext implements ImportContext {
 	}
 
 	@Override
-	public void destroy(boolean waitTranStop,boolean fromScheduleEnd) {
+	public void destroy(DestroyPolicy destroyPolicy) {
         if(dataTranPlugin != null) {
-            this.dataTranPlugin.destroy(waitTranStop, fromScheduleEnd);
+            this.dataTranPlugin.destroy(  destroyPolicy);
         }
 
 	}

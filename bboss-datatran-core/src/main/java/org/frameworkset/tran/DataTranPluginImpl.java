@@ -1022,11 +1022,20 @@ public class DataTranPluginImpl implements DataTranPlugin {
         }
     }
 
-	@Override
-	public void destroy(boolean waitTranStop,boolean fromScheduleEnd) {
+    private DestroyPolicy destroyPolicy;
+
+    public DestroyPolicy getDestroyPolicy() {
+        return destroyPolicy;
+    }
+
+    @Override
+	public void destroy(DestroyPolicy destroyPolicy) {
         if(checkTranToStop()){
             return;
         }
+        this.destroyPolicy = destroyPolicy;
+        boolean waitTranStop = destroyPolicy.isWaitTranStopped();
+        boolean fromScheduleEnd = destroyPolicy.isFromScheduleEnd();
         if(logger.isInfoEnabled())
             logger.info("Destroy datatran job begin with waitTranStop {} fromScheduleEnd {}",waitTranStop,fromScheduleEnd);
         PLUGIN_STOPAPPENDING();

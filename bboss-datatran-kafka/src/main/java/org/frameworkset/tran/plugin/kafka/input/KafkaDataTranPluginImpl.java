@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin.kafka.input;
 
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPluginImpl;
+import org.frameworkset.tran.DestroyPolicy;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
@@ -161,13 +162,14 @@ public class KafkaDataTranPluginImpl extends DataTranPluginImpl {
 	}
 
 	@Override
-	public void destroy(boolean waitTranStop, boolean fromScheduleEnd) {
+	public void destroy(DestroyPolicy destroyPolicy) {
         if(checkTranToStop()){
             return;
         }
+
 		if(metricsThread != null)
 			metricsThread.stopThread();
-		super.destroy(waitTranStop, fromScheduleEnd);
+		super.destroy(destroyPolicy);
 	}
 	//	@Override
 //	public void initLastValueClumnName(){

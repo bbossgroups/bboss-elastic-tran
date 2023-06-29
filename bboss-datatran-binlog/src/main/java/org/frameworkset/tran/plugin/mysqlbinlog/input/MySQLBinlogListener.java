@@ -51,6 +51,7 @@ public class MySQLBinlogListener {
     private ImportContext importContext;
     private MysqlBinlogInputDatatranPlugin mysqlBinlogInputDatatranPlugin;
     private BinaryLogClient client;
+    private ClientConnectThread clientConnectThread;
     private BinaryLogClient.EventListener binaryLogClientEventListener;
     /**
      * 当前采集位置
@@ -290,24 +291,25 @@ public class MySQLBinlogListener {
         });
 
         this.client = client;
-        ListenerThread thread = new ListenerThread(client);
+        ClientConnectThread clientConnectThread = new ClientConnectThread(client);
         if(mySQLBinlogConfig.getJoinToConnectTimeOut() > 0L) {
 
-            thread.start();
+            clientConnectThread.start();
+            this.clientConnectThread = clientConnectThread;
             try {
 
-                thread.join(mySQLBinlogConfig.getJoinToConnectTimeOut());
+                clientConnectThread.join(mySQLBinlogConfig.getJoinToConnectTimeOut());
 
 
             } catch (InterruptedException e) {
 
             }
-            if (thread.getDataImportException() != null) {
-                throw thread.getDataImportException();
+            if (clientConnectThread.getDataImportException() != null) {
+                throw clientConnectThread.getDataImportException();
             }
         }
         else{
-            thread.run();
+            clientConnectThread.run();
         }
 
 
@@ -498,10 +500,20 @@ public class MySQLBinlogListener {
             try {
 
                 client.disconnect();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.error("",e);
             }
+            if(clientConnectThread != null){
+                try {
+                    clientConnectThread.join(5000L);
+                }
+                catch (Exception interruptedException){
+
+                }
+            }
         }
+
+
 
     }
 

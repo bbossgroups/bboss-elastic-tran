@@ -17,10 +17,7 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
 
 import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.DataTranPluginImpl;
-import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
@@ -209,13 +206,13 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
 
 
 	@Override
-	public void destroy(boolean waitTranStop, boolean fromScheduleEnd) {
+	public void destroy(DestroyPolicy destroyPolicy) {
         if(checkTranToStop()){
             return;
         }
 		if(metricsThread != null)
 			metricsThread.stopThread();
-		super.destroy(waitTranStop, fromScheduleEnd);
+		super.destroy(destroyPolicy);
 	}
 	//	@Override
 //	public void initLastValueClumnName(){

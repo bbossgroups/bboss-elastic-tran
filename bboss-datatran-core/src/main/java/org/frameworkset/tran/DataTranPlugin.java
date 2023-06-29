@@ -43,6 +43,7 @@ import java.util.Map;
 public interface DataTranPlugin {
 //    public boolean onlyUseBatchExecute();
     public boolean isSingleLastValueType();
+    public DestroyPolicy getDestroyPolicy();
     public boolean hasJobInputParamGroups();
     public void initLastValueStatus(Status currentStatus, BaseStatusManager baseStatusManager) throws Exception;
 
@@ -110,7 +111,7 @@ public interface DataTranPlugin {
 
 
 
-	void destroy(boolean waitTranStop,boolean fromScheduleEnd);
+	void destroy(DestroyPolicy destroyPolicy);
 
 	public void setHasTran();
 	public void setNoTran();
