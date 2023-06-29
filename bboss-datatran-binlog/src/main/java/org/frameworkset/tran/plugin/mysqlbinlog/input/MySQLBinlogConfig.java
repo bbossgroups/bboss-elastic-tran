@@ -349,6 +349,11 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         return joinToConnectTimeOut;
     }
 
+    /**
+     * 设置异步启动client等待时间
+     * @param joinToConnectTimeOut
+     * @return
+     */
     public MySQLBinlogConfig setJoinToConnectTimeOut(long joinToConnectTimeOut) {
         this.joinToConnectTimeOut = joinToConnectTimeOut;
         return this;

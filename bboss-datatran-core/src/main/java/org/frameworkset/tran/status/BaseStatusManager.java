@@ -798,8 +798,8 @@ public abstract class BaseStatusManager implements StatusManager {
         String strLastValue = lastValueWrapper.getStrLastValue();
 
         if(importContext.isLastValueDateType()){
-            if(logger.isInfoEnabled()){
-                logger.info("AddStatus: 增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
+            if(logger.isDebugEnabled()){
+                logger.debug("AddStatus: 增量字段值 LastValue is Date Type:{},real data type is {},real last value is {}",importContext.isLastValueDateType(),
                         lastValue.getClass().getName(),lastValue);
             }
             if(lastValue instanceof Date) {
@@ -813,8 +813,8 @@ public abstract class BaseStatusManager implements StatusManager {
 //            strLastValue = null;
         }
         else if(importContext.isLastValueLocalDateTimeType()){
-            if(logger.isInfoEnabled()){
-                logger.info("AddStatus: 增量字段值 LastValue isLastValueLocalDateTimeType:{},real data type is {},real last value is {}",importContext.isLastValueLocalDateTimeType(),
+            if(logger.isDebugEnabled()){
+                logger.debug("AddStatus: 增量字段值 LastValue isLastValueLocalDateTimeType:{},real data type is {},real last value is {}",importContext.isLastValueLocalDateTimeType(),
                         lastValue.getClass().getName(),lastValue);
             }
 
@@ -829,8 +829,8 @@ public abstract class BaseStatusManager implements StatusManager {
             }
         }
         else{
-            if(logger.isInfoEnabled()){
-                logger.info("AddStatus: 增量字段值 LastValue is Number Type:{},real data type is {},real last value is {}",importContext.isLastValueNumberType(),
+            if(logger.isDebugEnabled()){
+                logger.debug("AddStatus: 增量字段值 LastValue is Number Type:{},real data type is {},real last value is {}",importContext.isLastValueNumberType(),
                         lastValue.getClass().getName(),lastValue);
             }
 //            lastValueWrapper.setStrLastValue(null);
