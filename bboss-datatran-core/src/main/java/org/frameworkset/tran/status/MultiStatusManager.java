@@ -37,8 +37,7 @@ import java.util.*;
 public class MultiStatusManager extends BaseStatusManager{
 	private static Logger logger = LoggerFactory.getLogger(MultiStatusManager.class);
 	private Map<String,WrapStatus> statuses = new LinkedHashMap<>();
-	private long liveTime = 24 * 60 * 60 * 1000;
-	private long lastUpdateTime;
+	private long liveTime = 2 * 24 * 60 * 60 * 1000;
 
 	public MultiStatusManager(DataTranPlugin dataTranPlugin){
 		super(dataTranPlugin);
@@ -46,6 +45,7 @@ public class MultiStatusManager extends BaseStatusManager{
 	static class WrapStatus{
 		Status currentStatus;
 		long lastPutTime;
+        boolean needUpdate;
 
 	}
 	protected void _putStatus(Status currentStatus){
@@ -54,42 +54,56 @@ public class MultiStatusManager extends BaseStatusManager{
 			wrapStatus = new WrapStatus();
 			wrapStatus.currentStatus = currentStatus;
 			wrapStatus.lastPutTime = System.currentTimeMillis();
+            wrapStatus.needUpdate = true;
 			statuses.put(currentStatus.getFileId(), wrapStatus);
 		}
-		else{
-			wrapStatus.currentStatus = currentStatus;
-			wrapStatus.lastPutTime = System.currentTimeMillis();
-		}
+        else {
+            boolean needUpdate = importContext.needUpdateLastValueWrapper(wrapStatus.currentStatus.getCurrentLastValueWrapper(), currentStatus.getCurrentLastValueWrapper());
+            if (needUpdate) {
+
+                wrapStatus.currentStatus = currentStatus;
+                wrapStatus.lastPutTime = System.currentTimeMillis();
+                wrapStatus.needUpdate = true;
+            }
+            else if(importContext.getDataTranPlugin().isComplete(currentStatus) ){
+                wrapStatus.currentStatus = currentStatus;
+                wrapStatus.lastPutTime = System.currentTimeMillis();
+                wrapStatus.needUpdate = true;
+            }
+        }
 	}
 	protected void _flushStatus()  throws Exception{
 		if(logger.isDebugEnabled()){
 			logger.debug("flushStatus start.");
 		}
-		List<Status> datas = new ArrayList<>();
+		List<WrapStatus> datas = new ArrayList<>();
 		List<Status> removeDatas = new ArrayList<>();
 		Set<Map.Entry<String,WrapStatus>> statusSet = statuses.entrySet();
 		WrapStatus wrapStatus = null;
-		long interval = 0l;
-		long ntime  = System.currentTimeMillis();
+        long interval = 0l;
+        long ntime  = System.currentTimeMillis();
 		for(Map.Entry<String,WrapStatus> entry : statusSet){
 			wrapStatus = entry.getValue();
-			if(lastUpdateTime < wrapStatus.lastPutTime )
-				datas.add(wrapStatus.currentStatus);
-			else{
-				interval = ntime - wrapStatus.lastPutTime;
-				if(interval >= liveTime){ //静默超过1天的记录将被从statuses中清除
-					removeDatas.add(wrapStatus.currentStatus);
-				}
-			}
+			if(wrapStatus.needUpdate ) {
+                datas.add(wrapStatus);
+            }
+            else{
+                interval = ntime - wrapStatus.lastPutTime;
+                if(interval >= liveTime){ //静默超过2天的记录将被从statuses中清除
+                    removeDatas.add(wrapStatus.currentStatus);
+                }
+            }
+
 		}
 		if(datas.size() > 0) {
 			if(importContext.getJobId() == null) {
-				SQLExecutor.executeBatch(statusDbname, updateSQL, datas, 100, new BatchHandler<Status>() {
+				SQLExecutor.executeBatch(statusDbname, updateSQL, datas, 100, new BatchHandler<WrapStatus>() {
 					@Override
-					public void handler(PreparedStatement stmt, Status record, int i) throws SQLException {
+					public void handler(PreparedStatement stmt, WrapStatus wrapStatus1, int i) throws SQLException {
+                        Status record = wrapStatus1.currentStatus;
 						stmt.setLong(1, record.getTime());
 						stmt.setObject(2, convertLastValue(record.getCurrentLastValueWrapper().getLastValue()));
-                        stmt.setObject(3, convertStrLastValue(record.getCurrentLastValueWrapper().getStrLastValue()));
+                        stmt.setObject(3, convertStrLastValue(record.getStrLastValue()));
 						stmt.setInt(4, lastValueType);
 						stmt.setString(5, record.getFilePath());
 						stmt.setString(6, record.getRelativeParentDir());
@@ -97,17 +111,19 @@ public class MultiStatusManager extends BaseStatusManager{
 						stmt.setInt(8, record.getStatus());
 						stmt.setString(9, record.getId());
 						stmt.setString(10, record.getJobType());
+                        wrapStatus1.needUpdate = false;
 
 					}
 				});
 			}
 			else{
-				SQLExecutor.executeBatch(statusDbname, updateByJobIdSQL, datas, 100, new BatchHandler<Status>() {
+				SQLExecutor.executeBatch(statusDbname, updateByJobIdSQL, datas, 100, new BatchHandler<WrapStatus>() {
 					@Override
-					public void handler(PreparedStatement stmt, Status record, int i) throws SQLException {
+					public void handler(PreparedStatement stmt, WrapStatus wrapStatus1, int i) throws SQLException {
+                        Status record = wrapStatus1.currentStatus;
 						stmt.setLong(1, record.getTime());
 						stmt.setObject(2, convertLastValue(record.getCurrentLastValueWrapper().getLastValue()));
-                        stmt.setObject(3, convertStrLastValue(record.getCurrentLastValueWrapper().getStrLastValue()));
+                        stmt.setObject(3, convertStrLastValue(record.getStrLastValue()));
                         stmt.setInt(4, lastValueType);
 						stmt.setString(5, record.getFilePath());
 						stmt.setString(6, record.getRelativeParentDir());
@@ -116,10 +132,10 @@ public class MultiStatusManager extends BaseStatusManager{
 						stmt.setString(9, record.getId());
 						stmt.setString(10,importContext.getJobId());
 						stmt.setString(11,importContext.getJobType());
+                        wrapStatus1.needUpdate = false;
 					}
 				});
 			}
-			lastUpdateTime = System.currentTimeMillis();
 			for(Status status: removeDatas){
 				statuses.remove(status.getFileId());
 			}

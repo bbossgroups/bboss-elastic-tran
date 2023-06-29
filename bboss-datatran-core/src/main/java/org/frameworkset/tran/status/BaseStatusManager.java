@@ -39,9 +39,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p>Description: </p>
@@ -126,29 +124,27 @@ public abstract class BaseStatusManager implements StatusManager {
 		});
 	}
 
-	private ReadWriteLock putStatusLock = new ReentrantReadWriteLock();
-	private Lock read = putStatusLock.readLock();
-	private Lock write = putStatusLock.writeLock();
+//	private ReadWriteLock putStatusLock = new ReentrantReadWriteLock();
+//	private Lock read = putStatusLock.readLock();
+//	private Lock write = putStatusLock.writeLock();
+    private ReentrantLock putStatusLock = new ReentrantLock();
 	protected abstract void _putStatus(Status currentStatus);
 
 	public void putStatus(Status currentStatus) throws Exception{
         if(this.lastValueWraperSerial != null){
             lastValueWraperSerial.serial(currentStatus);
         }
-		read.lock();
+        putStatusLock.lock();
 		try{
-
 			_putStatus( currentStatus);
-//			if(flushThread.reach())
-//				flushThread.notify();
 		}
 		finally {
-			read.unlock();
+            putStatusLock.unlock();
 		}
 	}
 	protected abstract void _flushStatus() throws Exception;
 	public void flushStatus(){
-		write.lock();
+        putStatusLock.lock();
 		try {
 
 			_flushStatus();
@@ -156,7 +152,7 @@ public abstract class BaseStatusManager implements StatusManager {
 			logger.error("flushStatus failed:statusDbname["+statusDbname+"],updateSQL["+updateSQL+"]",throwables);
 		}
 		finally {
-			write.unlock();
+            putStatusLock.unlock();
 		}
 	}
 
@@ -792,7 +788,7 @@ public abstract class BaseStatusManager implements StatusManager {
 
 	}
 
-    private void handleStatus(Status currentStatus){
+    private void handleStatus(Status currentStatus , boolean fromUpdate){
         LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
         Object lastValue = lastValueWrapper.getLastValue();
         String strLastValue = lastValueWrapper.getStrLastValue();
@@ -830,8 +826,8 @@ public abstract class BaseStatusManager implements StatusManager {
         }
         else{
             if(logger.isDebugEnabled()){
-                logger.debug("AddStatus: 增量字段值 LastValue is Number Type:{},real data type is {},real last value is {}",importContext.isLastValueNumberType(),
-                        lastValue.getClass().getName(),lastValue);
+                logger.debug("handleStatus: 增量字段值 LastValue is Number Type:{},real data type is {},real last value is {}",importContext.isLastValueNumberType(),
+                            lastValue.getClass().getName(),lastValue);
             }
 //            lastValueWrapper.setStrLastValue(null);
 //            strLastValue = null;
@@ -894,7 +890,7 @@ public abstract class BaseStatusManager implements StatusManager {
 //            if(this.lastValueWraperSerial != null){
 //                lastValueWraperSerial.serial(currentStatus);
 //            }
-            handleStatus(currentStatus);
+            handleStatus(currentStatus,false);
 			SQLExecutor.insertWithDBName(statusDbname,insertSQL,currentStatus.getId(),currentStatus.getTime(),currentStatus.getCurrentLastValueWrapper().getLastValue(),currentStatus.getStrLastValue(),lastValueType,
 					currentStatus.getFilePath(),currentStatus.getRelativeParentDir(),
 					currentStatus.getFileId(),currentStatus.getStatus(),currentStatus.getJobId(),currentStatus.getJobType());
@@ -939,7 +935,7 @@ public abstract class BaseStatusManager implements StatusManager {
 ////									lastValueType,currentStatus.getFilePath(),currentStatus.getFileId(),
 ////									currentStatus.getStatus(),currentStatus.getId());
 		if(!isStoped()) {
-            handleStatus(currentStatus);
+            handleStatus(currentStatus,true);
 			putStatus(currentStatus);
 		}
 	}
@@ -978,7 +974,7 @@ public abstract class BaseStatusManager implements StatusManager {
 		try {
 			for (Status losted : losteds) {
                 Status status = losted.copy();
-                handleStatus(status);
+                handleStatus(status,true);
 				putStatus(status);
 			}
 		}
@@ -998,7 +994,7 @@ public abstract class BaseStatusManager implements StatusManager {
 					long lastTime = status_.getTime();
 					if (lastTime <= deletedTime) {
                         Status status = status_.copy();
-                        handleStatus(status);
+                        handleStatus(status,true);
 						SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
                                 status.getCurrentLastValueWrapper().getLastValue(),status.getStrLastValue(), status.getLastValueType(), status.getFilePath(), status.getRelativeParentDir(),status.getFileId(), status.getStatus(),status.getJobId(),status.getJobType());
 						if(status.getJobId() == null) {
@@ -1301,6 +1297,9 @@ public abstract class BaseStatusManager implements StatusManager {
 			synchronized (currentStatus) {
                 LastValueWrapper oldLastValueWrapper = currentStatus.getCurrentLastValueWrapper();
 
+                /**
+                 * 在非结尾（及任务处理过程中处理的数据），才需要校验新旧数据需要更新，结尾一律更新状态值
+                 */
 				if (!reachEOFClosed && !importContext.needUpdateLastValueWrapper(oldLastValueWrapper, lastValueWrapper))
 					return;
 				long time = System.currentTimeMillis();
@@ -1326,24 +1325,26 @@ public abstract class BaseStatusManager implements StatusManager {
 		}
 	}
 
-	@Override
-	public void flushLastValue(LastValueWrapper lastValue,Status currentStatus) {
-		flushLastValue(lastValue, currentStatus,false);
-	}
+//	@Override
+//	public void flushLastValue(LastValueWrapper lastValue,Status currentStatus) {
+//		flushLastValue(lastValue, currentStatus,false);
+//	}
 //    @Override
 //    public void flushLastValueWrapper(LastValueWrapper lastValueWrapper, Status currentStatus){
 //        flushLastValueWrapper( lastValueWrapper,  currentStatus,false);
 //    }
 
-	@Override
-	public void forceflushLastValue(Status currentStatus) {
-		synchronized (currentStatus) {
-			currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
-			currentStatus.setTime(System.currentTimeMillis());
-			this.storeStatus(currentStatus);
-		}
-
-	}
+//	@Override
+//	public void forceflushLastValue(Status currentStatus) {
+//		synchronized (currentStatus) {
+//
+//			currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
+//			currentStatus.setTime(System.currentTimeMillis());
+//            Status tmp = currentStatus.copy();
+//			this.storeStatus(tmp);
+//		}
+//
+//	}
 
 	public void storeStatus(Status currentStatus)  {
 

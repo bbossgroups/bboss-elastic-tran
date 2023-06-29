@@ -33,19 +33,31 @@ public class SingleStatusManager  extends BaseStatusManager{
 	private static Logger logger = LoggerFactory.getLogger(SingleStatusManager.class);
 	private Status currentStatus ;
 
-	private long lastUpdateTime;
-	private long lastPutTime;
+//	private long lastUpdateTime;
+//	private long lastPutTime;
+    private boolean neadUpate;
 	public SingleStatusManager(DataTranPlugin dataTranPlugin) {
 		super( dataTranPlugin);
 	}
 
 	protected void _putStatus(Status currentStatus){
+        if(this.currentStatus  == null){
+            this.currentStatus = currentStatus;
+            neadUpate = true;
+        }
+        else if(importContext.needUpdateLastValueWrapper(this.currentStatus.getCurrentLastValueWrapper(),currentStatus.getCurrentLastValueWrapper())) {
+            this.currentStatus = currentStatus;
+            neadUpate = true;
+        }
+        else if(importContext.getDataTranPlugin().isComplete(currentStatus) ){
+            this.currentStatus = currentStatus;
+            neadUpate = true;
+        }
 
-		this.currentStatus = currentStatus;
-		lastPutTime = System.currentTimeMillis();
+//		lastPutTime = System.currentTimeMillis();
 	}
 	protected void _flushStatus() throws Exception {
-		if(lastUpdateTime < lastPutTime) {
+		if(neadUpate) {
 			if(currentStatus.getJobId() == null) {
 				SQLExecutor.updateWithDBName(statusDbname, updateSQL, currentStatus.getTime(), convertLastValue(currentStatus.getCurrentLastValueWrapper().getLastValue()),convertStrLastValue(currentStatus.getStrLastValue()),
 						lastValueType, currentStatus.getFilePath(), currentStatus.getRelativeParentDir(), currentStatus.getFileId(),
@@ -56,7 +68,7 @@ public class SingleStatusManager  extends BaseStatusManager{
 						lastValueType, currentStatus.getFilePath(), currentStatus.getRelativeParentDir(), currentStatus.getFileId(),
 						currentStatus.getStatus(), currentStatus.getId(),currentStatus.getJobId(),currentStatus.getJobType());
 			}
-			lastUpdateTime = System.currentTimeMillis();
+            neadUpate = false;
 		}
 	}
 }

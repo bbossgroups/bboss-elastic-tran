@@ -335,6 +335,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	 * @param status
 	 * @return
 	 */
+    @Override
 	public boolean isComplete(Status status){
 		return status.getStatus() == ImportIncreamentConfig.STATUS_COMPLETE;
 	}
@@ -1148,16 +1149,16 @@ public class DataTranPluginImpl implements DataTranPlugin {
     public boolean needUpdateLastValueWrapper(Integer lastValueType, LastValueWrapper oldValue,LastValueWrapper newValue){
         return BaseStatusManager.needUpdate(lastValueType, oldValue.getLastValue(),newValue.getLastValue());
     }
-	@Override
-	public void flushLastValue(LastValueWrapper lastValue,Status currentStatus) {
-		statusManager.flushLastValue(lastValue,  currentStatus);
-	}
+//	@Override
+//	public void flushLastValue(LastValueWrapper lastValue,Status currentStatus) {
+//		statusManager.flushLastValue(lastValue,  currentStatus);
+//	}
 
-	@Override
-	public void forceflushLastValue(Status currentStatus) {
-		statusManager.forceflushLastValue(   currentStatus);
-
-	}
+//	@Override
+//	public void forceflushLastValue(Status currentStatus) {
+//		statusManager.forceflushLastValue(   currentStatus);
+//
+//	}
 
 
 

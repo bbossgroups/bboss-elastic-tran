@@ -42,6 +42,12 @@ import java.util.Map;
  */
 public interface DataTranPlugin {
 //    public boolean onlyUseBatchExecute();
+    /**
+     * 识别任务是否已经完成
+     * @param status
+     * @return
+     */
+    public boolean isComplete(Status status);
     public boolean isSingleLastValueType();
     public DestroyPolicy getDestroyPolicy();
     public boolean hasJobInputParamGroups();
@@ -88,7 +94,7 @@ public interface DataTranPlugin {
 
 		public void throwException(TaskContext taskContext,Throwable e);
 	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext);
-	public void forceflushLastValue(Status currentStatus);
+//	public void forceflushLastValue(Status currentStatus);
 	public  void handleOldedTasks(List<Status> olded );
 	public  void handleOldedTask(Status olded );
 		boolean assertCondition();
@@ -106,7 +112,7 @@ public interface DataTranPlugin {
 
 //	void flushLastValue(LastValueWrapper lastValue,Status currentStatus,boolean reachEOFClosed);
     void flushLastValue(LastValueWrapper lastValue,Status currentStatus,boolean reachEOFClosed);
-	void flushLastValue(LastValueWrapper lastValue,Status currentStatus);
+//	void flushLastValue(LastValueWrapper lastValue,Status currentStatus);
 
 
 

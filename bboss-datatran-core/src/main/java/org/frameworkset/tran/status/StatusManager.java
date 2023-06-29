@@ -53,10 +53,10 @@ public interface StatusManager {
 	public void handleOldedTask(Status olded);
 	public Status getCurrentStatus();
 	public void addStatus(Status currentStatus) throws DataImportException;
-	public void forceflushLastValue(Status currentStatus);
+//	public void forceflushLastValue(Status currentStatus);
 
     public void flushLastValue(LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed);
-	public void flushLastValue(LastValueWrapper lastValue,Status currentStatus);
+//	public void flushLastValue(LastValueWrapper lastValue,Status currentStatus);
 
 	public int getLastValueType();
 

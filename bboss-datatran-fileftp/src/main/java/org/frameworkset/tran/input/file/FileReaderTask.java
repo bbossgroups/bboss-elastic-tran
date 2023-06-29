@@ -919,7 +919,7 @@ public class FileReaderTask extends FieldManager{
             try {
                 raf.close();
             } catch (IOException e) {
-                e.printStackTrace();
+               logger.warn("raf.close failed:",e);
             }
             raf = null;
         }

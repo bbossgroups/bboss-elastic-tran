@@ -111,7 +111,7 @@ public class Status {
 		copy.relativeParentDir = this.relativeParentDir;
 		copy.realPath = this.realPath;
 		copy.id = this.id;
-//		copy.lastValue = this.lastValue;
+		copy.lastValue = this.lastValue;
 		copy.lastValueType = this.lastValueType;
 		copy.status = this.status;
 		copy.time = this.time;
