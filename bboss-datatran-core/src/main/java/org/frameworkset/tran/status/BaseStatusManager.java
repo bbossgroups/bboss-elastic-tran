@@ -1294,7 +1294,8 @@ public abstract class BaseStatusManager implements StatusManager {
 	@Override
 	public void flushLastValue(LastValueWrapper lastValueWrapper, Status currentStatus, boolean reachEOFClosed) {
 		if(lastValueWrapper != null) {
-			synchronized (currentStatus) {
+            Status status = null;
+            synchronized (currentStatus) {
                 LastValueWrapper oldLastValueWrapper = currentStatus.getCurrentLastValueWrapper();
 
                 /**
@@ -1305,23 +1306,16 @@ public abstract class BaseStatusManager implements StatusManager {
 				long time = System.currentTimeMillis();
 				currentStatus.setTime(time);
                 currentStatus.setCurrentLastValueWrapper(lastValueWrapper);
-//				currentStatus.setLastValue(lastValueWrapper.getLastValue());
-//                currentStatus.setStrLastValue(lastValueWrapper.getStrLastValue());
 				if(reachEOFClosed){
 					currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
 				}
 
-
 				if (this.isIncreamentImport()) {
-					Status status = currentStatus.copy();
-//					Status temp = new Status();
-//					temp.setTime(time);
-//					temp.setId(this.currentStatus.getId());
-//					temp.setLastValueType(this.currentStatus.getLastValueType());
-//					temp.setLastValue(lastValue);
-					this.storeStatus(status);
+					status = currentStatus.copy();
 				}
 			}
+            if(status != null)
+                this.storeStatus(status);
 		}
 	}
 
