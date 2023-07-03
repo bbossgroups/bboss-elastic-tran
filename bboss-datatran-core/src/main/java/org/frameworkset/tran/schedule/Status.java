@@ -46,6 +46,10 @@ public class Status {
 
 
     private LastValueWrapper currentLastValueWrapper;
+
+
+
+    private LastValueWrapper originCurrentLastValueWrapper;
 	private String filePath = "";
 	private String realPath = "";
 
@@ -198,6 +202,14 @@ public class Status {
 
     public synchronized void setCurrentLastValueWrapper(LastValueWrapper currentLastValueWrapper) {
         this.currentLastValueWrapper = currentLastValueWrapper;
+    }
+
+    public LastValueWrapper getOriginCurrentLastValueWrapper() {
+        return originCurrentLastValueWrapper;
+    }
+
+    public void setOriginCurrentLastValueWrapper(LastValueWrapper originCurrentLastValueWrapper) {
+        this.originCurrentLastValueWrapper = originCurrentLastValueWrapper;
     }
 
 }

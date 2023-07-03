@@ -45,7 +45,7 @@ public class SingleStatusManager  extends BaseStatusManager{
             this.currentStatus = currentStatus;
             neadUpate = true;
         }
-        else if(importContext.needUpdateLastValueWrapper(this.currentStatus.getCurrentLastValueWrapper(),currentStatus.getCurrentLastValueWrapper())) {
+        else if(importContext.needUpdateLastValueWrapper(this.currentStatus.getOriginCurrentLastValueWrapper(),currentStatus.getOriginCurrentLastValueWrapper())) {
             this.currentStatus = currentStatus;
             neadUpate = true;
         }

@@ -58,7 +58,7 @@ public class MultiStatusManager extends BaseStatusManager{
 			statuses.put(currentStatus.getFileId(), wrapStatus);
 		}
         else {
-            boolean needUpdate = importContext.needUpdateLastValueWrapper(wrapStatus.currentStatus.getCurrentLastValueWrapper(), currentStatus.getCurrentLastValueWrapper());
+            boolean needUpdate = importContext.needUpdateLastValueWrapper(wrapStatus.currentStatus.getOriginCurrentLastValueWrapper(), currentStatus.getOriginCurrentLastValueWrapper());
             if (needUpdate) {
 
                 wrapStatus.currentStatus = currentStatus;

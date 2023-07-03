@@ -790,8 +790,9 @@ public abstract class BaseStatusManager implements StatusManager {
 
     private void handleStatus(Status currentStatus , boolean fromUpdate){
         LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
+        currentStatus.setOriginCurrentLastValueWrapper(lastValueWrapper.copy());
         Object lastValue = lastValueWrapper.getLastValue();
-        String strLastValue = lastValueWrapper.getStrLastValue();
+        String strLastValue = null;
 
         if(importContext.isLastValueDateType()){
             if(logger.isDebugEnabled()){
