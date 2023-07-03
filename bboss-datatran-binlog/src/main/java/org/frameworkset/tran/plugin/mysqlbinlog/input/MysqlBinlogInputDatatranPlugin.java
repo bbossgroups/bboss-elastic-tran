@@ -57,9 +57,16 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
 	public void initStatusTableId() {
         if(dataTranPlugin.isIncreamentImport()) {
             StringBuilder id = new StringBuilder();
-            id.append(mySQLBinlogConfig.getHost()).append(":").append(mySQLBinlogConfig.getPort()).append("/")
-                    .append(mySQLBinlogConfig.getDatabase()).append(mySQLBinlogConfig.getTables());
-                importContext.setStatusTableId(id.toString().hashCode());
+            if(mySQLBinlogConfig.getServerId() != null) {
+                id.append(mySQLBinlogConfig.getServerId()).append(":").append(mySQLBinlogConfig.getHost()).append(":").append(mySQLBinlogConfig.getPort()).append("/")
+                        .append(mySQLBinlogConfig.getDatabase()).append(mySQLBinlogConfig.getTables());
+
+            }
+            else{
+                id.append(mySQLBinlogConfig.getHost()).append(":").append(mySQLBinlogConfig.getPort()).append("/")
+                        .append(mySQLBinlogConfig.getDatabase()).append(mySQLBinlogConfig.getTables());
+            }
+            importContext.setStatusTableId(id.toString().hashCode());
         }
 	}
 

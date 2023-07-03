@@ -63,7 +63,7 @@ First add the maven dependency of BBoss to your pom.xml:
        <dependency>
             <groupId>com.bbossgroups.plugins</groupId>
             <artifactId>datatran</artifactId>
-            <version>7.0.1</version>
+            <version>7.0.2</version>
         </dependency>
 ```
 
