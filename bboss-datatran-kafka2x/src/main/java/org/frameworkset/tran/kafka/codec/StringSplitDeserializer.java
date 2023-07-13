@@ -21,6 +21,7 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.frameworkset.tran.record.CellMapping;
 import org.frameworkset.tran.record.FieldMappingUtil;
 
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ import java.util.Map;
  *  value.deserializer.encoding or deserializer.encoding. The first two take precedence over the last.
  */
 public class StringSplitDeserializer implements Deserializer<Object> {
-    private String encoding = "UTF8";
+    private String encoding = StandardCharsets.UTF_8.name();
     private String splitChar = ",";
     private List<CellMapping> cellMappingList = null;
     @Override

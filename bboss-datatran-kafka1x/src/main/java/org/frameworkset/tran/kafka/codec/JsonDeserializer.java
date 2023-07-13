@@ -21,6 +21,7 @@ import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -28,7 +29,7 @@ import java.util.Map;
  *  value.deserializer.encoding or deserializer.encoding. The first two take precedence over the last.
  */
 public class JsonDeserializer implements Deserializer<Object> {
-    private String encoding = "UTF8";
+    private String encoding = StandardCharsets.UTF_8.name();
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
