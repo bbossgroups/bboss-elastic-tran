@@ -247,7 +247,12 @@ public class FileTransfer {
 			flush();
 		}
 		catch (Exception e){
-			logger.error("flush task["+taskInfo+"],file["+file.getAbsolutePath()+"] failed:",e);
+            if(file != null) {
+                logger.error("flush task[" + taskInfo + "],file[" + file.getAbsolutePath() + "] failed:", e);
+            }
+            else{
+                logger.error("flush task[" + taskInfo + "] failed:", e);
+            }
 			return;
 		}
 

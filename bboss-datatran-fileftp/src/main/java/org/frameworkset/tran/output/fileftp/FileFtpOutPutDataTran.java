@@ -50,7 +50,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
             }
             if(oldName != null ){
                 if(name.equals(oldName))
-                    throw new DataImportException("fileOutputConfig.generateFileName with fileSeq="+fileSeq+" failed: 每次返回的文件名重复，name="+name);
+                    throw new DataImportException("fileOutputConfig.generateFileName with fileSeq="+fileSeq+" failed: 每次返回的文件名重复，name="+name+",如果需要替换已存在文件，可以设置：fileOupputConfig.setExistFileReplace(true)替换重名文件");
 
             }
             oldName = name;
