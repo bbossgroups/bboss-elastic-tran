@@ -115,11 +115,7 @@ public class FileTransfer {
 	public void init(){
 		if(init)
 			return;
-		init = true;
-		sended = false;
-		if(maxFileRecordSize > 0L){
-			records = new LongCount();
-		}
+
 		String[] fileInfos = fileFtpOutPutDataTran.generateFileName();
 		this.filePath = fileInfos[1];
 		file = new File(filePath);
@@ -142,6 +138,7 @@ public class FileTransfer {
 		catch (Exception e) {
 			throw new DataImportException("init file writer failed:"+filePath,e);
 		}
+
 		if(!fileOutputConfig.isDisableftp() && fileOutputConfig.getFtpOutConfig() != null) {
 			StringBuilder builder = new StringBuilder().append("Import data to ftp ip[").append(fileOutputConfig.getFtpIP())
 					.append("] ftp user[").append(fileOutputConfig.getFtpUser())
@@ -178,7 +175,11 @@ public class FileTransfer {
 		}
 		//添加文件信息到任务监控信息中
 		fileFtpOutPutDataTran.traceFile(filePath,remoteFilePath);
-
+        init = true;
+        sended = false;
+        if(maxFileRecordSize > 0L){
+            records = new LongCount();
+        }
 	}
 	public String getTaskInfo(){
 		return taskInfo;
