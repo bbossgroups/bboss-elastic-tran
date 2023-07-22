@@ -72,6 +72,11 @@ public class TranConstant {
 	public static final int PLUGIN_STOPPED = 5;
 
     /**
+     * 正常状态
+     */
+    public static final int STATUS_DEFAULT = 0;
+
+    /**
      * 正常停止
      */
 	public static final int STATUS_STOP_NORMAL = 1;

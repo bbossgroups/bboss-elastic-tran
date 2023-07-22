@@ -291,7 +291,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 
 	protected void sendFile(){
-			fileTransfer.sendFile();
+			fileTransfer.sendFile(null);
 	}
 
 

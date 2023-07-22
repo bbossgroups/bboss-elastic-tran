@@ -57,7 +57,7 @@ public interface DataTran {
 	String serialExecute(   ) throws DataImportException;
 	public BreakableScrollHandler getBreakableScrollHandler();
 	void waitTasksComplete(final List<Future> tasks,
-                           final ExecutorService service, Exception exception, LastValueWrapper lastValue, final ImportCount totalCount ,
+                           final ExecutorService service, Throwable exception, LastValueWrapper lastValue, final ImportCount totalCount ,
                            final TranErrorWrapper tranErrorWrapper , WaitTasksCompleteCallBack waitTasksCompleteCallBack, boolean reachEOFClosed);
 	ImportContext getImportContext();
 }

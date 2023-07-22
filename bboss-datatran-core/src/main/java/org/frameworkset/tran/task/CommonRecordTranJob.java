@@ -245,7 +245,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		List<Future> tasks = new ArrayList<Future>();
 		int taskNo = 0;
 		ImportCount totalCount = new ParallImportCount(baseDataTran);
-		Exception exception = null;
+        Throwable exception = null;
 //		Status currentStatus = importContext.getCurrentStatus();
 		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
 //		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
@@ -262,7 +262,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {
 					tranResultSet.stop(true);
-					Exception ex = tranErrorWrapper.throwError();
+                    Throwable ex = tranErrorWrapper.throwError();
 					if(ex != null)
 						throw ex;
 					else
@@ -344,7 +344,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 			}
 			if (count > 0) {
 				if(!tranErrorWrapper.assertCondition()) {
-					Exception e = tranErrorWrapper.throwError();
+                    Throwable e = tranErrorWrapper.throwError();
 					if(e != null){
 						throw e;
 					}
@@ -368,7 +368,10 @@ public class CommonRecordTranJob extends BaseTranJob{
 		} catch (Exception e) {
 			exception = e;
 			throw new DataImportException(e);
-		}
+		}catch (Throwable e) {
+            exception = e;
+            throw new DataImportException(e);
+        }
 		finally {
 			final boolean _reachEOFClosed = reachEOFClosed;
 			baseDataTran.waitTasksComplete(tasks, service, exception, lastValue, totalCount, tranErrorWrapper, new WaitTasksCompleteCallBack() {

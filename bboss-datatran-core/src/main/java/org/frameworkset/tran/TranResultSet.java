@@ -84,4 +84,7 @@ public interface TranResultSet {
     default public boolean reachEOFClosed(){
         return false ;
     }
+    default public void clearQueue(){
+
+    }
 }

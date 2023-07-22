@@ -23,6 +23,7 @@ import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpTransfer;
 import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
+import org.frameworkset.tran.task.TaskCommand;
 import org.frameworkset.tran.util.HeaderRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
 import org.frameworkset.util.concurrent.LongCount;
@@ -105,7 +106,8 @@ public class FileTransfer {
 	}*/
 
 	protected void initTransfer() throws IOException {
-
+        if(!file.exists())
+            file.createNewFile();
 		fw = new FileWriter(file);
 		bw = new BufferedWriter(fw,buffsize);
 	}
@@ -202,7 +204,7 @@ public class FileTransfer {
 			bw.write(fileOutputConfig.getLineSeparator());
 		}
 	}
-	public synchronized void writeData(String data,long totalSize,long dataSize) throws IOException {
+	public synchronized void writeData(TaskCommand taskCommand,String data,long totalSize,long dataSize) throws IOException {
 		init();
 		if(maxFileRecordSize > 0) {
 //			Integer batchSize = fileFtpOutPutDataTran.getImportContext().getStoreBatchSize();
@@ -212,7 +214,7 @@ public class FileTransfer {
 			bw.write(data);
 			boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
 			if (reachMaxedSize) {
-				sendFile();
+				sendFile(taskCommand);
 				reset();
 			}
 		}
@@ -237,7 +239,12 @@ public class FileTransfer {
 			bw.flush();
 		this.close();
 	}
-	public void sendFile(){
+
+    /**
+     *
+     * @param taskCommand 从任务过来，非空，否则为空
+     */
+	public void sendFile(TaskCommand taskCommand){
 		if(sended || !init)
 			return;
 		sended = true;
@@ -248,12 +255,16 @@ public class FileTransfer {
 		}
 		catch (Exception e){
             if(file != null) {
-                logger.error("flush task[" + taskInfo + "],file[" + file.getAbsolutePath() + "] failed:", e);
+                String msg = "Flush task[" + taskInfo + "],file[" + file.getAbsolutePath() + "] failed:";
+                logger.error(msg, e);
+                throw new DataImportException(msg, e);
             }
             else{
-                logger.error("flush task[" + taskInfo + "] failed:", e);
+                String msg = "Flush task[" + taskInfo + "] failed:";
+                logger.error(msg, e);
+                throw new DataImportException(msg, e);
             }
-			return;
+//			return;
 		}
 
 
@@ -289,32 +300,49 @@ public class FileTransfer {
 								FileUtil.deleteFile(_filePath);
 						}
 						catch (Exception e){
-							if (fileOutputConfig.backupSuccessFiles())
-								logger.error("backup Success File task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",e);
+							if (fileOutputConfig.backupSuccessFiles()) {
+//                                TaskCall.handleException(e,taskCommand.getImportCount(),taskCommand.getTaskMetrics(),taskCommand,taskCommand.getImportContext());
+//                                logger.error("Backup Success File task[" + taskInfo + "],file[" + _file.getAbsolutePath() + "] failed:", e);
+
+                                String msg = "Backup Success File task[" + taskInfo + "],file[" + _file.getAbsolutePath() + "] failed:";
+                                logger.error(msg, e);
+
+                            }
 							else{
-								logger.error("delete Success File task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",e);
+								logger.error("Delete Success File task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",e);
 							}
 						}
 					}
 					catch (Exception e){
-						logger.error("sendFile task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",e);
+                        String msg = "SendFile task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:";
+                        logger.error(msg, e);
+//						logger.error("SendFile task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",e);
 						if(_file.exists() && _file.length() > 0) {
 							try {
 								FileUtil.bakFile(_filePath,_transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
 							} catch (IOException ioException) {
-								logger.error("backup failed send File task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",ioException);
+								logger.error("Backup failed send File task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",ioException);
 							}
 						}
+
+//                        if(!fileOutputConfig.isSendFileAsyn() ) {
+//                            throw new DataImportException(msg, e);
+//                        }
 
 					}
 
 					catch (Throwable e){
-						logger.error("sendFile task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",e);
+                        String msg = "SendFile task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:";
+                        logger.error(msg, e);
+//						logger.error("SendFile task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",e);
 						try {
 							FileUtil.bakFile(_filePath,_transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
 						} catch (IOException ioException) {
 							logger.error("backup failed send File task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",ioException);
 						}
+//                        if(!fileOutputConfig.isSendFileAsyn() ) {
+//                            throw new DataImportException(msg, e);
+//                        }
 					}
 				}
 			};

@@ -79,7 +79,7 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String,String> {
 		this.tryCount ++;
 
 		try {
-			fileTransfer.writeData(datas,getTotalSize(),dataSize);
+			fileTransfer.writeData(this,datas,getTotalSize(),dataSize);
 			finishTask();
 		} catch (IOException e) {
 			throw new DataImportException(datas,e);

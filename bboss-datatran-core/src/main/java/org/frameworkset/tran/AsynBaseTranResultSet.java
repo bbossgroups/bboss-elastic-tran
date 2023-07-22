@@ -55,30 +55,6 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	}
 
 
-	public void appendData(Data datas) throws InterruptedException{
-        if(isStop() ){
-            if(!isStopFromException()) {
-                throw new InterruptedException("AsynBaseTranResultSet already stopped.");
-            }
-            else {
-                throw new InterruptedException("AsynBaseTranResultSet already stopped by exception.");
-            }
-        }
-		try {
-
-			queue.put(datas);
-		} catch (InterruptedException e) {
-			throw e;
-		}
-//		this.esDatas = datas;
-//		this.records = esDatas.getDatas();
-//		size = records !=null ?records.size():0;
-//		pos = 0;
-//		totalSize = esDatas.getTotalSize();
-//		this.handlerInfo = handlerInfo;
-
-
-	}
 
 	@Override
 	public Object getValue(int i, String colName, int sqlType) throws DataImportException {
@@ -153,6 +129,57 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
         return false;
     }
 
+    public void appendData(Data datas) throws InterruptedException{
+
+        try {
+            if(isStop() || queue == null){
+                if(!isStopFromException()) {
+                    throw new InterruptedException("AsynBaseTranResultSet already stopped.");
+                }
+                else {
+                    throw new InterruptedException("AsynBaseTranResultSet already stopped by exception.");
+                }
+            }
+            queue.put(datas);
+        } catch (InterruptedException e) {
+            throw e;
+        }
+        catch (Throwable e) {
+//            throw e;
+        }
+
+//		this.esDatas = datas;
+//		this.records = esDatas.getDatas();
+//		size = records !=null ?records.size():0;
+//		pos = 0;
+//		totalSize = esDatas.getTotalSize();
+//		this.handlerInfo = handlerInfo;
+
+
+    }
+    @Override
+    public void clearQueue(){
+        if(queue == null){
+            return;
+        }
+        try {
+
+           queue.clear();
+           do{
+               Data datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
+               if(datas == null) {
+                   queue = null;
+                   break;
+               }
+               else {
+                   queue.clear();
+               }
+           }while (true);
+
+
+        } catch (Exception e) {
+        }
+    }
     @Override
 	public NextAssert next() throws DataImportException {
 		/**
@@ -166,8 +193,11 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
             stop(false);
             return nextAssert;
         }
-		if(baseDataTran.getDataTranPlugin().checkTranToStop())
-			return nextAssert;
+		if(baseDataTran.getDataTranPlugin().checkTranToStop()) {//作业已停止或者准备停止，修改迭代器状态，同时清空队列数据
+            stop(false);
+            clearQueue();
+            return nextAssert;
+        }
 		if( pos < size){
 
 			record = buildRecord(records.get(pos));
@@ -179,7 +209,6 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 		else{
 
 			try {
-
 				Data datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
 				/**
 				 * 要把数据处理完毕，才停迭代器
@@ -211,12 +240,15 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 				if(datas == null || size == 0)
 				{
 					if(stopIterator()){
-						return nextAssert;
+                        stop(false);
+                        clearQueue();
+                        return nextAssert;
 					}
 
 					do{
 						datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
                         if(isStopFromException()){//因异常终止则停止后续数据处理，不管有没有数据，如果是正常停止，则需要处理后续数据
+                            clearQueue();
                             return nextAssert;
                         }
 //						if(isStop() ){
@@ -225,8 +257,11 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 						if(datas == null){
 							if(reachEnd)
 								break;
-							if(stopIterator())
-								return nextAssert;
+							if(stopIterator()) {
+                                stop(false);
+                                clearQueue();
+                                return nextAssert;
+                            }
 //							if(importContext.getFlushInterval() > 0) {
 //								long interval = System.currentTimeMillis() - pollStartTime;
 //								if (interval > importContext.getFlushInterval()){
@@ -256,8 +291,11 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
                             break;
                         }
 						else{
-							if(stopIterator())
-								return nextAssert;
+							if(stopIterator()) {
+                                stop(false);
+                                clearQueue();
+                                return nextAssert;
+                            }
 						}
 					}while (true);
 					if((datas == null )&& reachEnd){
@@ -283,6 +321,8 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
                 nextAssert.setHasNext(true);
 				return nextAssert;
 			} catch (InterruptedException e) {
+                stop(false);
+                clearQueue();
 				return nextAssert;
 			}
 		}

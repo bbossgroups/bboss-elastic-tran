@@ -80,7 +80,7 @@ public class ExcelFileFtpTaskCommandImpl extends BaseTaskCommand< List<CommonRec
 		}
 		this.tryCount ++;
 		try {
-			fileTransfer.writeData(datas);
+			fileTransfer.writeData(this,datas);
 			finishTask();
 		} catch (IOException e) {
 			throw new DataImportException("writeData failed:",e);

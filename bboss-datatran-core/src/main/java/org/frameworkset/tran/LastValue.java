@@ -24,8 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 
-import static org.frameworkset.tran.util.TranConstant.STATUS_STOP_EXCEPTION;
-import static org.frameworkset.tran.util.TranConstant.STATUS_STOP_NORMAL;
+import static org.frameworkset.tran.util.TranConstant.*;
 
 /**
  * <p>Description: </p>
@@ -39,7 +38,7 @@ public abstract class LastValue implements TranResultSet{
 	protected ImportContext importContext;
 	protected BaseDataTran baseDataTran;
 	protected Record record;
-    private volatile int status;
+    private volatile int status = STATUS_DEFAULT;
 	public BaseDataTran getBaseDataTran(){
 		return baseDataTran;
 	}
@@ -66,7 +65,13 @@ public abstract class LastValue implements TranResultSet{
     }
     @Override
     public void stop(boolean exception){
+        if(status != STATUS_DEFAULT){
+            return;
+        }
         synchronized (stopLock) {
+            if(status != STATUS_DEFAULT){
+                return;
+            }
             if(!exception) {
                 status = STATUS_STOP_NORMAL;
             }

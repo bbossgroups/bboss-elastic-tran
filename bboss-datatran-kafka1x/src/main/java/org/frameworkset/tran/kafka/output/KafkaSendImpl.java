@@ -108,7 +108,8 @@ public class KafkaSendImpl {
 			try {
 				future.get();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+//				e.printStackTrace();
+                logger.warn("",e);
 			} catch (ExecutionException e) {
 				throw new DataImportException(e.getCause() != null?e.getCause():e);
 			}

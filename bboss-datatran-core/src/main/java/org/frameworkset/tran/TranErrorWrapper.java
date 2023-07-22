@@ -34,15 +34,15 @@ public class TranErrorWrapper {
 	/**
 	 * see https://www.cnblogs.com/dolphin0520/p/3920373.html
 	 */
-	protected volatile Exception error;
+	protected volatile Throwable error;
 	private Lock lock = new ReentrantLock();
 	public TranErrorWrapper(ImportContext importContext){
 		this.importContext = importContext;
 	}
-	public Exception throwError() throws Exception{
+	public Throwable throwError() throws Exception{
 		return error;
 	}
-	public void setError(Exception error) {
+	public void setError(Throwable error) {
 		if(this.error == null) {//only set the first exception
 			lock.lock();
 			try {
@@ -70,7 +70,7 @@ public class TranErrorWrapper {
 	 * 判断执行条件是否成立，成立返回true，否则返回false
 	 * @return
 	 */
-	public boolean assertCondition(Exception e){
+	public boolean assertCondition(Throwable e){
 		if(error == null && e != null){
 			this.setError(e);
 		}

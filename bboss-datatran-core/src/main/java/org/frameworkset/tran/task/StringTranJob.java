@@ -266,7 +266,7 @@ public class StringTranJob extends BaseTranJob{
 		List<Future> tasks = new ArrayList<Future>();
 		int taskNo = 0;
 		ImportCount totalCount = new ParallImportCount(baseDataTran);
-		Exception exception = null;
+		Throwable exception = null;
 //		Status currentStatus = importContext.getCurrentStatus();
 //		Status currentStatus = this.currentStatus;
 //		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
@@ -284,7 +284,7 @@ public class StringTranJob extends BaseTranJob{
 			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {
 					tranResultSet.stop(true);
-					Exception e = tranErrorWrapper.throwError();
+                    Throwable e = tranErrorWrapper.throwError();
 					if(e != null){
 						throw e;
 					}
@@ -363,7 +363,7 @@ public class StringTranJob extends BaseTranJob{
 			}
 			if (count > 0) {
 				if(!tranErrorWrapper.assertCondition()) {
-					Exception e = tranErrorWrapper.throwError();
+                    Throwable e = tranErrorWrapper.throwError();
 					if(e != null){
 						throw e;
 					}
@@ -390,6 +390,10 @@ public class StringTranJob extends BaseTranJob{
 			exception = e;
 			throw new DataImportException(e);
 		}
+        catch (Throwable e) {
+            exception = e;
+            throw new DataImportException(e);
+        }
 		finally {
 			baseDataTran.waitTasksComplete(tasks, service, exception, lastValue, totalCount, tranErrorWrapper, new WaitTasksCompleteCallBack() {
 				@Override

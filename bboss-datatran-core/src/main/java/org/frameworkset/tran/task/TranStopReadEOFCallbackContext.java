@@ -24,18 +24,18 @@ package org.frameworkset.tran.task;
  * @version 1.0
  */
 public class TranStopReadEOFCallbackContext {
-	private Exception exception;
+	private Throwable exception;
 	private boolean reachEOFClose;
-	public TranStopReadEOFCallbackContext(Exception exception,boolean reachEOFClose){
+	public TranStopReadEOFCallbackContext(Throwable exception,boolean reachEOFClose){
 		this.exception = exception;
 		this.reachEOFClose = reachEOFClose;
 	}
 
-	public Exception getException() {
+	public Throwable getException() {
 		return exception;
 	}
 
-	public void setException(Exception exception) {
+	public void setException(Throwable exception) {
 		this.exception = exception;
 	}
 

@@ -242,6 +242,7 @@ public abstract class BaseDataTran implements DataTran{
         }
 		if(asynTranResultSet != null) {
 			asynTranResultSet.stop(false);
+            asynTranResultSet.clearQueue();
 			asynTranResultSet = null;
 		}
 		if(breakableScrollHandler != null) {
@@ -321,7 +322,7 @@ public abstract class BaseDataTran implements DataTran{
 
 	}
 
-	protected void jobComplete(ExecutorService service,Exception exception,LastValueWrapper lastValue ,TranErrorWrapper tranErrorWrapper,Status currentStatus,boolean reachEOFClosed){
+	protected void jobComplete(ExecutorService service,Throwable exception,LastValueWrapper lastValue ,TranErrorWrapper tranErrorWrapper,Status currentStatus,boolean reachEOFClosed){
 		if (importContext.getScheduleService() == null) {//一次性非定时调度作业调度执行的话，转换完成需要关闭线程池
 			if(reachEOFClosed){
 				if(tranErrorWrapper.assertCondition(exception)){
@@ -354,7 +355,7 @@ public abstract class BaseDataTran implements DataTran{
 			}
 		}
 	}
-	public void endJob( boolean reachEOFClosed, ImportCount importCount,Exception errorStop){
+	public void endJob( boolean reachEOFClosed, ImportCount importCount,Throwable errorStop){
 		Date endTime = new Date();
 		if(getTaskContext() != null)
 			getTaskContext().setJobEndTime(endTime);
@@ -372,7 +373,7 @@ public abstract class BaseDataTran implements DataTran{
 		return importContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
 	public void waitTasksComplete(final List<Future> tasks,
-								   final ExecutorService service,final Exception exception,LastValueWrapper lastValue,
+								   final ExecutorService service,final Throwable exception,LastValueWrapper lastValue,
 								  final ImportCount totalCount ,final TranErrorWrapper tranErrorWrapper ,final WaitTasksCompleteCallBack waitTasksCompleteCallBack,
 								  final boolean reachEOFClosed){
 		Consumer function = new Consumer<Object>(){
@@ -380,7 +381,7 @@ public abstract class BaseDataTran implements DataTran{
 			@Override
 			public void accept(Object o) {
 				int count = 0;
-				Exception _exception = exception;
+                Throwable _exception = exception;
 				for (Future future : tasks) {
 					try {
 						future.get();
@@ -400,8 +401,16 @@ public abstract class BaseDataTran implements DataTran{
 						if( logger.isErrorEnabled()) logger.error("",e);
 					}
 				}
-				if(waitTasksCompleteCallBack != null)
-					waitTasksCompleteCallBack.call();
+				if(waitTasksCompleteCallBack != null) {
+                    try {
+                        waitTasksCompleteCallBack.call();
+                    }
+                    catch (Throwable throwable){
+                        if(_exception == null)
+                            _exception = throwable;
+                        if( logger.isErrorEnabled()) logger.error("",throwable);
+                    }
+                }
 				if(isPrintTaskLog()) {
 
 					logger.info(new StringBuilder().append("Parallel batch import Complete tasks:")

@@ -19,6 +19,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
 import org.frameworkset.tran.output.fileftp.FileTransfer;
 import org.frameworkset.tran.plugin.file.output.ExcelFileOutputConfig;
+import org.frameworkset.tran.task.TaskCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +45,8 @@ public class ExcelFileTransfer extends FileTransfer {
 
 	@Override
 	public void initTransfer() throws IOException {
+        if(!file.exists())
+            file.createNewFile();
 		exportExcelUtil = new ExportExcelUtil();
 		exportExcelUtil.initialize(excelFileOutputConfig.getFlushRows());
 		exportExcelUtil.buildSheet(excelFileOutputConfig);
@@ -53,7 +56,7 @@ public class ExcelFileTransfer extends FileTransfer {
 	public void writeHeader() throws Exception {
 
 	}
-	public synchronized void writeData(List<CommonRecord> datas) throws IOException {
+	public synchronized void writeData(TaskCommand taskCommand, List<CommonRecord> datas) throws IOException {
 		init();
 		if(records != null) {
 //			Integer batchSize = fileFtpOutPutDataTran.getImportContext().getStoreBatchSize();
@@ -64,7 +67,7 @@ public class ExcelFileTransfer extends FileTransfer {
 			exportExcelUtil.writeData(datas);
 			boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
 			if (reachMaxedSize) {
-				sendFile();
+				sendFile( taskCommand);
 				reset();
 			}
 		}
