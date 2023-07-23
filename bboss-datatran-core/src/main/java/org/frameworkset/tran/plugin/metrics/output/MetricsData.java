@@ -19,7 +19,10 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.metrics.entity.MapData;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
 import org.frameworkset.tran.metrics.job.MetricsException;
+import org.frameworkset.util.TimeUtil;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -44,6 +47,14 @@ public class MetricsData {
             }
             else if(value instanceof Long){
                 dateTime = new Date((Long)value);
+            }
+            else if(value instanceof LocalDateTime){
+                dateTime = (Date) TimeUtil.convertLocalDate(value);
+//                dateTime = new Date((Long)value);
+            }
+            else if(value instanceof LocalDate){
+                dateTime = (Date) TimeUtil.convertLocalDate(value);
+//                dateTime = new Date((Long)value);
             }
             else{
                 throw new MetricsException("dataTimeField["+dataTimeField+"]="+dateTime +"不是Date类型，请处理为Date类型!");
