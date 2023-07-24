@@ -229,8 +229,7 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 		}
 		if(sourceDBName == null){
 
-			throw new DataImportException("DbConfig is null,please set dbname use importBuilder.setDbName(dbname) or importBuilder.setSourceDBName(dbname) and  other database configs use importBuilder," +
-					"dbname and other database configs can also been configed in appliction.properties file or other config file bboss supported.");
+			throw new DataImportException("Please set dbname use dbInputConfig.setDbName(dbname).");
 		}
 		return sourceDBName;
 
