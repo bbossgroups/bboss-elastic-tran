@@ -50,9 +50,9 @@ public class IPDBTest {
 			// 测试ip 221.232.245.73 湖北武汉
 			try {
 				GeoIPUtil addressUtils = new GeoIPUtil();
-				addressUtils.setAsnDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
-				addressUtils.setDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
-				addressUtils.setIp2regionDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\ip2region.db");
+				addressUtils.setAsnDatabase("d:\\geolite2\\GeoLite2-ASN.mmdb");
+				addressUtils.setDatabase("d:\\geolite2\\GeoLite2-City.mmdb");
+				addressUtils.setIp2regionDatabase("d:\\geolite2\\ip2region.db");
 				addressUtils.setCachesize(2000);
 				addressUtils.init();
 //				addressUtils.setIpUrl("http://ip.taobao.com/service/getIpInfo.php");
@@ -60,7 +60,7 @@ public class IPDBTest {
 				System.out.println(address);
 				address = addressUtils.getIpInfo("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");
 				System.out.println(address);
-				DatabaseReader databaseReader = new DatabaseReader.Builder(new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb"))
+				DatabaseReader databaseReader = new DatabaseReader.Builder(new File("d:\\geolite2\\GeoLite2-City.mmdb"))
 																  .withCache(new CHMCache(2000)).build();
 				final InetAddress ipAddress = InetAddress.getByName("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");
 				CityResponse response = databaseReader.city(ipAddress);
@@ -90,7 +90,7 @@ public class IPDBTest {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			File database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
+			File database = new File("d:\\geolite2\\GeoLite2-City.mmdb");
 			Reader reader = new Reader(database,new CHMCache(4096));
 			InetAddress address = InetAddress.getByName("36.148.49.213");
 
@@ -103,7 +103,7 @@ public class IPDBTest {
 
 
 
-			database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
+			database = new File("d:\\geolite2\\GeoLite2-ASN.mmdb");
 			reader = new Reader(database,new CHMCache(4096));
 			address = InetAddress.getByName("183.15.204.103");
 
@@ -117,7 +117,7 @@ public class IPDBTest {
 
 			// 输出结果为：中国 湖北省 武汉市
 
-			database = new File("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-Country.mmdb");
+			database = new File("d:\\geolite2\\GeoLite2-Country.mmdb");
 			reader = new Reader(database,new CHMCache(4096));
 			address = InetAddress.getByName("183.15.204.103");
 

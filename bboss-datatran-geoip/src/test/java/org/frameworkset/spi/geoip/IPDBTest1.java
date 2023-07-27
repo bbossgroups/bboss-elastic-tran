@@ -39,9 +39,9 @@ public class IPDBTest1 {
 		// 测试ip 221.232.245.73 湖北武汉
 		try {
 			GeoIPUtil addressUtils = new GeoIPUtil();
-			addressUtils.setAsnDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-ASN.mmdb");
-			addressUtils.setDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\GeoLite2-City.mmdb");
-			addressUtils.setIp2regionDatabase("E:\\workspace\\hnai\\terminal\\geolite2\\ip2region.db");
+			addressUtils.setAsnDatabase("d:\\geolite2\\GeoLite2-ASN.mmdb");
+			addressUtils.setDatabase("d:\\geolite2\\GeoLite2-City.mmdb");
+			addressUtils.setIp2regionDatabase("d:\\geolite2\\ip2region.db");
 			addressUtils.setCachesize(2000);
 			addressUtils.init();
 			IpInfo address = addressUtils.getIpInfo("223.104.130.11");
@@ -50,7 +50,12 @@ public class IPDBTest1 {
 			System.out.println(SimpleStringUtil.object2json(address));
 			address = addressUtils.getIpInfo("2409:8922:8e10:322:c558:432b:5a65:6d5c");//ipv6
 			System.out.println(SimpleStringUtil.object2json(address));
-
+            address = addressUtils.getIpInfo("101.90.2.179");
+            System.out.println(SimpleStringUtil.object2json(address));
+            address = addressUtils.getIpInfo("39.144.38.4");//ipv6
+            System.out.println(SimpleStringUtil.object2json(address));
+            address = addressUtils.getIpInfo("113.90.117.151");//ipv6
+            System.out.println(SimpleStringUtil.object2json(address));
 
 
 		} catch (Exception e) {
