@@ -33,18 +33,11 @@ public class MaxForceFileThresholdCheck extends Thread{
     public MaxForceFileThresholdCheck(FileTransfer fileTransfer){
         super("MaxForceFileThresholdCheck");
         this.fileTransfer = fileTransfer;
-        this.setDaemon(true);
+//        this.setDaemon(true);
     }
-    public void stopMaxForceFileThresholdCheck(boolean useInterrupt){
+    public void stopMaxForceFileThresholdCheck(){
         this.stop = true;
-        if(!useInterrupt) {
-            synchronized (this) {
-                this.notifyAll();
-            }
-        }
-        else{
-            this.interrupt();
-        }
+        this.interrupt();
         try {
             this.join();
         } catch (InterruptedException e) {
@@ -57,7 +50,7 @@ public class MaxForceFileThresholdCheck extends Thread{
             try {
                 if(stop)
                     break;
-                wait(fileTransfer.getMaxForceFileThresholdInterval());
+                sleep(fileTransfer.getMaxForceFileThresholdInterval());
                 fileTransfer.maxForceFileThresholdCheck();
 
             }

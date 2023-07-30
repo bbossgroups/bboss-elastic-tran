@@ -222,7 +222,7 @@ public class FileTransfer {
 	protected void reset(){
 		this.init = false;
 		this.sended = false;
-		if(maxFileRecordSize > 0L){
+		if(maxFileRecordSize > 0L || this.maxForceFileThreshold > 0L){
 			records = new LongCount();
 		}
 	}
@@ -233,14 +233,19 @@ public class FileTransfer {
             long currentTime = System.currentTimeMillis();
             if (records != null && records.getCountUnSynchronized() > 0){
                 if(currentTime - lastWriteDataTime >= this.maxForceFileThreshold ){//如果空闲时间大于最大空闲阈值，则处理文件数据
+                    lastWriteDataTime = currentTime;
+
                     if(splitFile) {
+                        logger.info("Reach Max Force File Threshold: do force send file.");
                         this.sendFile();
                         reset();
                     }
                     else{
                         if(sended || !init)
                             return;
+                        logger.info("Reach Max Force File Threshold: do force flush data to file.");
                         flush(false);//excel flush是否需要特殊处理？？？？
+                        records = new LongCount();
                     }
                 }
             }
@@ -315,7 +320,7 @@ public class FileTransfer {
         try {
             sendFile();
             if (this.maxForceFileThresholdCheck != null) {
-                this.maxForceFileThresholdCheck.stopMaxForceFileThresholdCheck(true);
+                this.maxForceFileThresholdCheck.stopMaxForceFileThresholdCheck();
                 maxForceFileThresholdCheck = null;
             }
         }
