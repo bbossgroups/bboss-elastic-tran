@@ -92,7 +92,7 @@ public class StringTranJob extends BaseTranJob{
                             int _count = count;
                             count = 0;
                             droped = 0;
-                            taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,_dd,reachEOFClosed,null);
+                            taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,_dd,reachEOFClosed,null,true);
 
                             if (baseDataTran.isPrintTaskLog()) {
                                 end = System.currentTimeMillis();
@@ -160,7 +160,7 @@ public class StringTranJob extends BaseTranJob{
                         int _count = count;
                         count = 0;
                         droped = 0;
-                        taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,datas,reachEOFClosed,(CommonRecord)null);
+                        taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,datas,reachEOFClosed,(CommonRecord)null,false);
                         if(baseDataTran.isPrintTaskLog())  {
                             end = System.currentTimeMillis();
                             logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
@@ -302,7 +302,7 @@ public class StringTranJob extends BaseTranJob{
 						count = 0;
                         droped = 0;
 						taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,reachEOFClosed,null,
-								service,tasks,tranErrorWrapper);
+								service,tasks,tranErrorWrapper,true);
 
 					}
 
@@ -356,7 +356,7 @@ public class StringTranJob extends BaseTranJob{
 					count = 0;
                     droped = 0;
 					taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,reachEOFClosed,(CommonRecord)null,
-							service,tasks,tranErrorWrapper);
+							service,tasks,tranErrorWrapper,false);
 
 				}
 
@@ -373,7 +373,7 @@ public class StringTranJob extends BaseTranJob{
 				String datas = builder.toString();
 				builder.setLength(0);
 				taskNo = parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,datas,reachEOFClosed,null,
-						service,tasks,tranErrorWrapper);
+						service,tasks,tranErrorWrapper,false);
 
 
 
@@ -399,8 +399,6 @@ public class StringTranJob extends BaseTranJob{
 				@Override
 				public void call() {
 					parrelTranCommand.parrelCompleteAction();
-
-
 				}
 			},reachEOFClosed);
 			try {
@@ -547,7 +545,7 @@ public class StringTranJob extends BaseTranJob{
 					totalCount++;
 
 					baseDataTran.beforeOutputData(writer);
-					serialTranCommand.hanBatchActionTask(importCount,1, -1,lastValue,builder.toString(),reachEOFClosed,commonRecord);
+					serialTranCommand.hanBatchActionTask(importCount,1, -1,lastValue,builder.toString(),reachEOFClosed,commonRecord,false);
 					builder.setLength(0);
 					if(totalCount == Long.MAX_VALUE) {
 						if(baseDataTran.isPrintTaskLog()) {
@@ -659,7 +657,7 @@ public class StringTranJob extends BaseTranJob{
 						baseDataTran.beforeOutputData(writer);
 						String _dd =  builder.toString();
 						builder.setLength(0);
-						taskNo = serialTranCommand.hanBatchActionTask(importCount,totalCount,taskNo,lastValue,_dd,reachEOFClosed,null);
+						taskNo = serialTranCommand.hanBatchActionTask(importCount,totalCount,taskNo,lastValue,_dd,reachEOFClosed,null,true);
 					}
 					else{
 //						ret = "{\"took\":0,\"errors\":false}";
@@ -720,7 +718,7 @@ public class StringTranJob extends BaseTranJob{
 						writer = new BBossStringWriter(builder);
 						int _count = count;
 						count = 0;
-						taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,_dd,reachEOFClosed,(CommonRecord)null);
+						taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,_dd,reachEOFClosed,(CommonRecord)null,false);
 
 					}
 				} catch (Exception e) {

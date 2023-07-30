@@ -141,12 +141,13 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 			@Override
 			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,
-										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
+										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
 				if(datas != null) {
 					taskNo++;
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus, reachEOFClosed, taskContext);
 					taskCommand.setDatas((String) datas);
+                    taskCommand.setForceFlush(forceFlush);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 				}
@@ -164,17 +165,19 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 			@Override
 			public void parrelCompleteAction() {
 //				fileTransfer.sendFile();//传输文件
-				sendFile();
+//				sendFile();
 			}
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,
+                                          boolean reachEOFClosed, CommonRecord record,boolean forceFlush) {
 				if(datas != null) {
 					taskNo++;
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus, reachEOFClosed, taskContext);
 					taskCommand.setDatas((String) datas);
+                    taskCommand.setForceFlush(forceFlush);
 					TaskCall.call(taskCommand);
 
 				}
@@ -291,8 +294,14 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 
 	protected void sendFile(){
-			fileTransfer.sendFile(null);
+			fileTransfer.sendFile2ndStopCheckers();
 	}
+    public void stop(){
+        if(dataTranStopped)
+            return;
+        sendFile();//串行执行时，sendFile将不起作用
+        super.stop();
+    }
 
 
 

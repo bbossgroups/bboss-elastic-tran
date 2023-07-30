@@ -34,6 +34,7 @@ public class MetricsTaskcommand implements TaskCommand {
 	protected JobContext jobContext;
 	protected ImportContext importContext;
 	protected TaskContext taskContext;
+    protected boolean forceFlush;
 
 	@Override
 	public JobContext getJobContext() {
@@ -135,4 +136,14 @@ public class MetricsTaskcommand implements TaskCommand {
 	public void setTaskContext(TaskContext taskContext) {
 		this.taskContext = taskContext;
 	}
+
+    @Override
+    public void setForceFlush(boolean forceFlush) {
+        this.forceFlush = forceFlush;
+    }
+
+    @Override
+    public boolean isForceFlush() {
+        return forceFlush;
+    }
 }

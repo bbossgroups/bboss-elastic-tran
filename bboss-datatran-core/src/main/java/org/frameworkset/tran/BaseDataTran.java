@@ -336,7 +336,7 @@ public abstract class BaseDataTran implements DataTran{
 			}
 
 
-            this.stop();
+
 		}
 		else{
 
@@ -344,16 +344,15 @@ public abstract class BaseDataTran implements DataTran{
 				if(reachEOFClosed ){
 					importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
 				}
-                this.stop();// a{0}
 			}
 			else{//不继续执行作业关闭作业依赖的相关资源池
 				if(reachEOFClosed && exception == null){
 					importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
 				}
 
-                this.stop();
 			}
 		}
+        this.stop();
 	}
 	public void endJob( boolean reachEOFClosed, ImportCount importCount,Throwable errorStop){
 		Date endTime = new Date();

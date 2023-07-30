@@ -33,7 +33,8 @@ import java.io.Writer;
 public class BaseSerialTranCommand implements SerialTranCommand {
 
 	@Override
-	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue,
+                                  Object datas, boolean reachEOFClosed, CommonRecord record,boolean forceFlush) {
 		return 0;
 	}
 

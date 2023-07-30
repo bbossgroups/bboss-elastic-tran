@@ -289,6 +289,15 @@ public class TimeUtil {
         return localDateTime.format(dateTimeFormatterDefault);
     }
 
+    public static String changeLocalDate2String(LocalDate localDateTime){
+
+
+//        DateTimeFormatter dateTimeFormatter = getDateTimeFormatter();
+
+
+        return localDateTime.format(dateTimeFormatterDefault);
+    }
+
     public static DateTimeFormatter getDateTimeFormatter(String dateFormat){
         DateTimeFormatter dateTimeFormatter = dateTimeFormatterMap.get(dateFormat);
         if(dateTimeFormatter != null){

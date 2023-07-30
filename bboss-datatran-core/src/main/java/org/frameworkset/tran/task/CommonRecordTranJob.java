@@ -87,7 +87,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                             count = 0;
                             droped = 0;
 
-                            taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null);
+                            taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null,true);
                             records = new ArrayList<>();
                             if (baseDataTran.isPrintTaskLog()) {
                                 end = System.currentTimeMillis();
@@ -159,7 +159,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                         int _count = count;
                         count = 0;
                         droped = 0;
-                        taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null);
+                        taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null,false);
                         records = new ArrayList<>();
 
 
@@ -276,14 +276,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 						int _count = count;
 						count = 0;
                         droped = 0;
-//						ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-//								_count, taskNo, totalCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//						taskCommand.setDatas(records);
-//
-//						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-//
-//						taskNo++;
-						taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper);
+
+						taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper,true);
 						records = new ArrayList<>();
 
 					}
@@ -335,7 +329,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					count = 0;
                     droped = 0;
 
-					taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper);
+					taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper,false);
 					records = new ArrayList<>();
 
 				}
@@ -355,7 +349,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 //						count, taskNo, totalCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
 //				taskCommand.setDatas(records);
 //				tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-				taskNo = parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper);
+				taskNo = parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper,false);
 
 			}
 			if(baseDataTran.isPrintTaskLog())
@@ -511,7 +505,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 						serialTranCommand.hanBatchActionTask(importCount,1, -1,lastValue,record,reachEOFClosed,record);
 
 					}*/
-					serialTranCommand.hanBatchActionTask(importCount,1, -1,lastValue,record,reachEOFClosed,record);
+					serialTranCommand.hanBatchActionTask(importCount,1, -1,lastValue,record,reachEOFClosed,record,false);
 
 					if(totalCount == Long.MAX_VALUE) {
 						if(baseDataTran.isPrintTaskLog()) {
@@ -619,15 +613,11 @@ public class CommonRecordTranJob extends BaseTranJob{
 			while (true) {
                 NextAssert hasNext = tranResultSet.next();
 				if(hasNext.isNeedFlush()){
-//					String ret = null;
 					if(records.size() > 0) {
-						taskNo = serialTranCommand.hanBatchActionTask(importCount,totalCount,taskNo,lastValue,records,reachEOFClosed,null);
+						taskNo = serialTranCommand.hanBatchActionTask(importCount,totalCount,taskNo,lastValue,records,reachEOFClosed,null,true);
 						records = new ArrayList<>();
 					}
-					else{
-//						ret = "{\"took\":0,\"errors\":false}";
-					}
-//					importContext.flushLastValue(lastValue);
+
 					if(baseDataTran.isPrintTaskLog()) {
 
 						long end = System.currentTimeMillis();
@@ -681,7 +671,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 						int _count = count;
 						count = 0;
-						taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null);
+						taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null,false);
 						records = new ArrayList<>();
 					}
 

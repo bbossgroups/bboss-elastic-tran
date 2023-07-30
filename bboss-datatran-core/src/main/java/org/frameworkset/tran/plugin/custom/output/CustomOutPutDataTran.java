@@ -75,13 +75,14 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 
 			@Override
 			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,
-										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
+										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
 					taskNo++;
 					CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas(records);
+                    taskCommand.setForceFlush(forceFlush);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 				}
@@ -91,13 +92,14 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
-			private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed){
+			private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,boolean forceFlush){
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
 					taskNo++;
 					CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,reachEOFClosed,taskContext);
 					taskCommand.setDatas(records);
+                    taskCommand.setForceFlush(forceFlush);
 					TaskCall.call(taskCommand);
 //						importContext.flushLastValue(lastValue);
 
@@ -105,7 +107,7 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 				return taskNo;
 			}
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record,boolean forceFlush) {
 //				List<CommonRecord> records = convertDatas( datas);
 //				if(records != null && records.size() > 0)  {
 //					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
@@ -114,12 +116,12 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 //					TaskCall.call(taskCommand);
 //					taskNo++;
 //				}
-				return action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed);
+				return action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed,  forceFlush);
 			}
 
 			@Override
 			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
-				taskNo = action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed);
+				taskNo = action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed,false);
 				return taskNo;
 
 			}

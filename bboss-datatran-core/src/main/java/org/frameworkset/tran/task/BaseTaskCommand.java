@@ -46,7 +46,18 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	protected long totalSize;
 	protected boolean reachEOFClosed;
 	protected Status currentStatus;
-	public void init(){
+    protected boolean forceFlush;
+
+    public void setForceFlush(boolean forceFlush) {
+        this.forceFlush = forceFlush;
+    }
+
+    @Override
+    public boolean isForceFlush() {
+        return false;
+    }
+
+    public void init(){
 		TaskMetrics taskMetrics = getTaskMetrics();
 		taskMetrics.setJobStartTime(taskContext.getJobStartTime());
 		taskMetrics.setTaskStartTime(new Date());

@@ -39,6 +39,8 @@ import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
 import org.frameworkset.tran.util.TranUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Writer;
 import java.util.List;
@@ -52,6 +54,7 @@ import java.util.List;
  * @version 1.0
  */
 public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpContext {
+    private static Logger logger = LoggerFactory.getLogger(FileOutputConfig.class);
 	private FtpOutConfig ftpOutConfig;
 	private FileSend2Ftp fileSend2Ftp;
 	public final static String JobExecutorDatas_genFileInfos = "jobExecutorDatas.fileFtpOutPut.genFileInfos";
@@ -66,7 +69,19 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	private FilenameGenerator filenameGenerator;
 	private String fileDir;
 	private int fileWriterBuffsize ;
+    private boolean splitFile;
+    /**
+     * 设置切割文件记录数大小
+     */
 	private int maxFileRecordSize;
+    /**
+     * 设置切割文件空闲时间大小，如果空闲时间内没有数据到来，
+     */
+    private Integer maxForceFileThreshold;
+
+
+
+    private long maxForceFileThresholdInterval = 5000L;
 	private boolean disableftp ;
 
 
@@ -225,6 +240,17 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 		}
 		if (SimpleStringUtil.isEmpty(lineSeparator))
 			lineSeparator = TranUtil.lineSeparator;
+        if(maxFileRecordSize > 0 ){
+            splitFile = true;
+        }
+        if(maxForceFileThreshold != null && maxForceFileThreshold > 0)
+        {
+            if(maxForceFileThresholdInterval <= 0L) {
+                logger.info("Change maxForceFileThresholdInterval {} to default value 5000L.",maxForceFileThresholdInterval);
+                this.maxForceFileThresholdInterval = 5000L;
+            }
+        }
+
 	}
 
 	@Override
@@ -372,6 +398,32 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 
     public FileOutputConfig setExistFileReplace(boolean existFileReplace) {
         this.existFileReplace = existFileReplace;
+        return this;
+    }
+
+    public Integer getMaxForceFileThreshold() {
+        return maxForceFileThreshold;
+    }
+
+    public FileOutputConfig setMaxForceFileThreshold(Integer maxForceFileThreshold) {
+        this.maxForceFileThreshold = maxForceFileThreshold;
+        return this;
+    }
+
+    public FileOutputConfig setSplitFile(boolean splitFile) {
+        this.splitFile = splitFile;
+        return this;
+    }
+
+    public boolean isSplitFile() {
+        return splitFile;
+    }
+    public long getMaxForceFileThresholdInterval() {
+        return maxForceFileThresholdInterval;
+    }
+
+    public FileOutputConfig setMaxForceFileThresholdInterval(long maxForceFileThresholdInterval) {
+        this.maxForceFileThresholdInterval = maxForceFileThresholdInterval;
         return this;
     }
 }

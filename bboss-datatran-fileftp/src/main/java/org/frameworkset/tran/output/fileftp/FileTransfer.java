@@ -34,9 +34,15 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * <p>Description: </p>
+ * <p>Description:
+ * 文件切割记录规则：达到最大记录数或者空闲时间达到最大空闲时间阈值，进行文件切割
+ * 如果不切割文件，达到最大最大空闲时间阈值，当切割文件标识为false时，只执行flush数据操作，不关闭文件也不生成新的文件，否则生成新的文件
+ *
+ * </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2021/1/29 10:25
@@ -61,10 +67,21 @@ public class FileTransfer {
 	private int buffsize = 8192;
 	protected long maxFileRecordSize;
 	private FileFtpOutPutDataTran fileFtpOutPutDataTran;
+    protected long lastWriteDataTime;
+    protected boolean splitFile;
+    protected long maxForceFileThreshold ;
+    protected long maxForceFileThresholdInterval;
+    protected MaxForceFileThresholdCheck maxForceFileThresholdCheck;
+    protected Lock transferLock = new ReentrantLock();
 	public FileTransfer( FileOutputConfig fileOutputConfig, String dir, FileFtpOutPutDataTran fileFtpOutPutDataTran){
 		this.fileOutputConfig = fileOutputConfig;
 		this.fileFtpOutPutDataTran = fileFtpOutPutDataTran;
-		if(fileOutputConfig.getMaxFileRecordSize() > 0){
+        if(fileOutputConfig.getMaxForceFileThreshold() != null) {
+            this.maxForceFileThreshold = fileOutputConfig.getMaxForceFileThreshold() * 1000L;
+            this.splitFile = fileOutputConfig.isSplitFile();
+            this.maxForceFileThresholdInterval = fileOutputConfig.getMaxForceFileThresholdInterval();
+        }
+        if(fileOutputConfig.getMaxFileRecordSize() > 0){
 			maxFileRecordSize = fileOutputConfig.getMaxFileRecordSize();
 		}
 		RecordGenerator recordGenerator = fileOutputConfig.getRecordGenerator();
@@ -84,7 +101,12 @@ public class FileTransfer {
 
 
 	}
-	/**
+
+    public long getMaxForceFileThresholdInterval() {
+        return maxForceFileThresholdInterval;
+    }
+
+    /**
 	public void initFtp(String remoteFilePath){
 		if(!fileOupputConfig.isDisableftp()) {
 			this.remoteFilePath = remoteFilePath;
@@ -112,7 +134,8 @@ public class FileTransfer {
 		bw = new BufferedWriter(fw,buffsize);
 	}
 	private boolean init;
-	public void init(){
+
+	public final void init(){
 		if(init)
 			return;
 
@@ -177,9 +200,21 @@ public class FileTransfer {
 		fileFtpOutPutDataTran.traceFile(filePath,remoteFilePath);
         init = true;
         sended = false;
-        if(maxFileRecordSize > 0L){
+        boolean recordsInit = false;
+        if(maxFileRecordSize > 0L ){
             records = new LongCount();
+            recordsInit = true;
         }
+        if(this.maxForceFileThreshold > 0L){
+            if(!recordsInit)
+                records = new LongCount();
+            if(maxForceFileThresholdCheck == null) {
+                this.maxForceFileThresholdCheck = new MaxForceFileThresholdCheck(this);
+                this.maxForceFileThresholdCheck.start();
+            }
+        }
+
+
 	}
 	public String getTaskInfo(){
 		return taskInfo;
@@ -191,6 +226,30 @@ public class FileTransfer {
 			records = new LongCount();
 		}
 	}
+
+    public void maxForceFileThresholdCheck(){
+        transferLock.lock();
+        try {
+            long currentTime = System.currentTimeMillis();
+            if (records != null && records.getCountUnSynchronized() > 0){
+                if(currentTime - lastWriteDataTime >= this.maxForceFileThreshold ){//如果空闲时间大于最大空闲阈值，则处理文件数据
+                    if(splitFile) {
+                        this.sendFile();
+                        reset();
+                    }
+                    else{
+                        if(sended || !init)
+                            return;
+                        flush(false);//excel flush是否需要特殊处理？？？？
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new DataImportException(e);
+        } finally {
+            transferLock.unlock();
+        }
+    }
 
 	/**
 	 * 添加标题行
@@ -205,29 +264,38 @@ public class FileTransfer {
 			bw.write(fileOutputConfig.getLineSeparator());
 		}
 	}
-	public synchronized void writeData(TaskCommand taskCommand,String data,long totalSize,long dataSize) throws IOException {
-		init();
-		if(maxFileRecordSize > 0) {
-//			Integer batchSize = fileFtpOutPutDataTran.getImportContext().getStoreBatchSize();
-			if(dataSize <= 0L)
-				dataSize = 1L;
-			records.increamentUnSynchronized(dataSize);
-			bw.write(data);
-			boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
-			if (reachMaxedSize) {
-				sendFile(taskCommand);
-				reset();
-			}
-		}
-		else{
-			bw.write(data);
-		}
+	public void writeData(TaskCommand taskCommand,String data,long totalSize,long dataSize) throws IOException {
+        transferLock.lock();
+        try {
+            init();
+            if(records != null) {
+                if (dataSize <= 0L)
+                    dataSize = 1L;
+                records.increamentUnSynchronized(dataSize);
+            }
+
+            bw.write(data);
+            this.lastWriteDataTime = System.currentTimeMillis();
+            if (maxFileRecordSize > 0) {
+                boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
+                if (reachMaxedSize) {
+                    sendFile();
+                    reset();
+                }
+            }
+//            else {
+//                bw.write(data);
+//            }
+        }
+        finally {
+            transferLock.unlock();
+        }
 
 	}
 
-	public boolean splitCheck(long totalCount) {
-		return totalCount > 0 && (totalCount % maxFileRecordSize == 0);
-	}
+//	public boolean splitCheck(long totalCount) {
+//		return totalCount > 0 && (totalCount % maxFileRecordSize == 0);
+//	}
 	private static Logger logger = LoggerFactory.getLogger(FileTransfer.class);
 
 	public boolean isSended() {
@@ -235,26 +303,39 @@ public class FileTransfer {
 	}
 
 	private boolean sended;
-	protected void flush() throws IOException {
+	protected void flush(boolean close) throws IOException {
 		if(bw != null)
 			bw.flush();
-		this.close();
+        if(close)
+		    this.close();
 	}
 
+    public void sendFile2ndStopCheckers(){
+        transferLock.lock();
+        try {
+            sendFile();
+            if (this.maxForceFileThresholdCheck != null) {
+                this.maxForceFileThresholdCheck.stopMaxForceFileThresholdCheck(true);
+                maxForceFileThresholdCheck = null;
+            }
+        }
+        finally {
+            transferLock.unlock();
+        }
+    }
     /**
      *
-     * @param taskCommand 从任务过来，非空，否则为空
      */
-	public void sendFile(TaskCommand taskCommand){
+	public void sendFile(){
 		if(sended || !init)
 			return;
 		sended = true;
 		//添加文件信息到任务监控信息中
 //		fileFtpOutPutDataTran.traceFile(filePath,remoteFilePath);
 		try {
-			flush();
+			flush(true);
 		}
-		catch (Exception e){
+		catch (Throwable e){
             if(file != null) {
                 String msg = "Flush task[" + taskInfo + "],file[" + file.getAbsolutePath() + "] failed:";
                 logger.error(msg, e);

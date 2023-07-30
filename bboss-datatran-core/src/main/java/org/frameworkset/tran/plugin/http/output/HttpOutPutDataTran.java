@@ -66,12 +66,13 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 
 			@Override
 			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,
-										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
+										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
 				if(datas != null) {
 					taskNo++;
 					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus, reachEOFClosed, taskContext);
 					taskCommand.setDatas((String) datas);
+                    taskCommand.setForceFlush(forceFlush);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 				}
@@ -87,12 +88,14 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue,
+                                          Object datas, boolean reachEOFClosed, CommonRecord record,boolean forceFlush) {
 				if(datas != null) {
 					taskNo++;
 					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus, reachEOFClosed, taskContext);
 					taskCommand.setDatas((String) datas);
+                    taskCommand.setForceFlush(forceFlush);
 					TaskCall.call(taskCommand);
 
 				}
@@ -112,19 +115,6 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 				return taskNo;
 			}
 
-			/**
-			@Override
-			public int splitSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
-				if(datas != null) {
-					taskNo++;
-					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, totalCount.getJobNo(),  lastValue, currentStatus, reachEOFClosed, taskContext);
-					taskCommand.setDatas((String)datas);
-					TaskCall.call(taskCommand);
-
-				}
-				return taskNo;
-			}*/
 
 
 

@@ -56,30 +56,35 @@ public class ExcelFileTransfer extends FileTransfer {
 	public void writeHeader() throws Exception {
 
 	}
-	public synchronized void writeData(TaskCommand taskCommand, List<CommonRecord> datas) throws IOException {
-		init();
-		if(records != null) {
-//			Integer batchSize = fileFtpOutPutDataTran.getImportContext().getStoreBatchSize();
-			long dataSize = datas != null ? datas.size():0L ;
-			if(dataSize < 0L)
-				dataSize = 0L;
-			records.increamentUnSynchronized(dataSize);
-			exportExcelUtil.writeData(datas);
-			boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
-			if (reachMaxedSize) {
-				sendFile( taskCommand);
-				reset();
-			}
-		}
-		else{
-			exportExcelUtil.writeData(datas);
-		}
+	public  void writeData(TaskCommand taskCommand, List<CommonRecord> datas) throws IOException {
+        transferLock.lock();
+        try {
+            init();
+            if(records != null) {
+                long dataSize = datas != null ? datas.size():0L ;
+                if(dataSize < 0L)
+                    dataSize = 1L;
+                records.increamentUnSynchronized(dataSize);
+            }
+            exportExcelUtil.writeData(datas);
+            this.lastWriteDataTime = System.currentTimeMillis();
+            boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
+            if (reachMaxedSize) {
+                sendFile( );
+                reset();
+            }
+        }
+        finally {
+            transferLock.unlock();
+        }
 
 	}
 	private static Logger logger = LoggerFactory.getLogger(ExcelFileTransfer.class);
-	protected void flush() throws IOException {
+    @Override
+	protected void flush(boolean close) throws IOException {
 		exportExcelUtil.write(file);
-		this.close();
+        if(close)
+		    this.close();
 	}
 
 	@Override

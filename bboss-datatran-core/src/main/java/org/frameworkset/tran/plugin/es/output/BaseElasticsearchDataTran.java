@@ -75,7 +75,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 	protected void initTranTaskCommand(){
 		parrelTranCommand = new BaseParrelTranCommand() {
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
 				if(datas != null) {
 //					for (ClientInterface clientInterface : clientInterfaces) {
 						taskNo++;
@@ -84,6 +84,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 //						count = 0;
 						taskCommand.setClientInterfaces(clientInterfaces);
 						taskCommand.setDatas((String) datas);
+                        taskCommand.setForceFlush(forceFlush);
 						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 //					}
 				}
@@ -99,13 +100,13 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
-				return processDataSerial(  totalCount,  dataSize,  taskNo,   lastValue,  datas,  reachEOFClosed,  record);
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record,boolean forceFlush) {
+				return processDataSerial(  totalCount,  dataSize,  taskNo,   lastValue,  datas,  reachEOFClosed,  record,  forceFlush);
 			}
 
 			@Override
 			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
-				return processDataSerial(  totalCount,  dataSize,  taskNo,   lastValue,  datas,  reachEOFClosed,  record);
+				return processDataSerial(  totalCount,  dataSize,  taskNo,   lastValue,  datas,  reachEOFClosed,  record,false);
 			}
 
 
@@ -140,13 +141,14 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 
 
 
-	protected int processDataSerial(ImportCount totalCount,long dataSize,int taskNo, LastValueWrapper lastValue,Object datas,boolean reachEOFClosed,CommonRecord record){
+	protected int processDataSerial(ImportCount totalCount,long dataSize,int taskNo, LastValueWrapper lastValue,Object datas,boolean reachEOFClosed,CommonRecord record,boolean forceFlush){
 		if(datas != null) {
 //			for (ClientInterface clientInterface : clientInterfaces) {
 				taskNo++;
 				TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, elasticsearchOutputConfig,
 						dataSize, taskNo, taskContext.getJobNo(), lastValue, currentStatus, reachEOFClosed, taskContext);
 //						count = 0;
+                taskCommand.setForceFlush(forceFlush);
 				taskCommand.setClientInterfaces(clientInterfaces);
 				taskCommand.setDatas((String) datas);
 				TaskCall.call(taskCommand);
