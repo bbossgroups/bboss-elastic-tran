@@ -97,7 +97,7 @@ public class StringTranJob extends BaseTranJob{
                             if (baseDataTran.isPrintTaskLog()) {
                                 end = System.currentTimeMillis();
                                 logger.info(new StringBuilder().append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
-                                        .append(",import ").append(_count).append(" records.").toString());
+                                        .append(",import ").append(_count).append(" records.").append("Force FlushInterval[").append(importContext.getFlushInterval()).append("ms]").toString());
                                 istart = end;
                             }
 
@@ -489,7 +489,7 @@ public class StringTranJob extends BaseTranJob{
 								logger.info(new StringBuilder().append("Auto Log Send datas Take time:").append((end - start)).append("ms")
 										.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
 										.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
-										.append(importCount.getFailedCount()).append(" records.").toString());
+										.append(importCount.getFailedCount()).append(" records.").append("Force FlushInterval[").append(importContext.getFlushInterval()).append("ms]").toString());
 								lastSend = 0l;
 								printed = true;
 							}

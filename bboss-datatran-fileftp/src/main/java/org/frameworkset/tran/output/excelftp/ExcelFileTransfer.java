@@ -68,10 +68,12 @@ public class ExcelFileTransfer extends FileTransfer {
             }
             exportExcelUtil.writeData(datas);
             this.lastWriteDataTime = System.currentTimeMillis();
-            boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
-            if (reachMaxedSize) {
-                sendFile( );
-                reset();
+            if (maxFileRecordSize > 0L) {
+                boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
+                if (reachMaxedSize) {
+                    sendFile();
+                    reset();
+                }
             }
         }
         finally {

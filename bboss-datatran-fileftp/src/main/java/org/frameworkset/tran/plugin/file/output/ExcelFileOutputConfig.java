@@ -16,6 +16,8 @@ package org.frameworkset.tran.plugin.file.output;
  */
 
 
+import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.record.CellMapping;
 
 import java.util.ArrayList;
@@ -136,4 +138,16 @@ public class ExcelFileOutputConfig extends FileOutputConfig {
 	public int getFlushRows() {
 		return flushRows;
 	}
+
+    @Override
+    public void build(ImportBuilder importBuilder) {
+
+        super.build(importBuilder);
+        if(maxForceFileThreshold != null && maxForceFileThreshold > 0)
+        {
+            if(maxFileRecordSize <= 0L){
+                throw new DataImportException("Invalidate config: if maxForceFileThreshold["+maxForceFileThreshold+"] setted and maxFileRecordSize["+maxFileRecordSize+"] must > 0.");
+            }
+        }
+    }
 }

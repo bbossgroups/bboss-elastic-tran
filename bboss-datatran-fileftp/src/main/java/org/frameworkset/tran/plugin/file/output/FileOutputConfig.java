@@ -73,11 +73,11 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
     /**
      * 设置切割文件记录数大小
      */
-	private int maxFileRecordSize;
+    protected int maxFileRecordSize;
     /**
      * 设置切割文件空闲时间大小，如果空闲时间内没有数据到来，
      */
-    private Integer maxForceFileThreshold;
+    protected Integer maxForceFileThreshold;
 
 
 

@@ -236,14 +236,14 @@ public class FileTransfer {
                     lastWriteDataTime = currentTime;
 
                     if(splitFile) {
-                        logger.info("Reach Max Force File Threshold: do force send file.");
+                        logger.info("Reach Max Force File Threshold[{}ms]: do force send file.",maxForceFileThreshold);
                         this.sendFile();
                         reset();
                     }
                     else{
                         if(sended || !init)
                             return;
-                        logger.info("Reach Max Force File Threshold: do force flush data to file.");
+                        logger.info("Reach Max Force File Threshold[{}ms]: do force flush data to file.",maxForceFileThreshold);
                         flush(false);//excel flush是否需要特殊处理？？？？
                         records = new LongCount();
                     }
@@ -281,7 +281,7 @@ public class FileTransfer {
 
             bw.write(data);
             this.lastWriteDataTime = System.currentTimeMillis();
-            if (maxFileRecordSize > 0) {
+            if (maxFileRecordSize > 0L) {
                 boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
                 if (reachMaxedSize) {
                     sendFile();
