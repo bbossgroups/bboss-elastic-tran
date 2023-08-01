@@ -296,11 +296,12 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	protected void sendFile(){
 			fileTransfer.sendFile2ndStopCheckers();
 	}
-    public void stop(){
+    @Override
+    public void stop(boolean fromException){
         if(dataTranStopped)
             return;
         sendFile();//串行执行时，sendFile将不起作用
-        super.stop();
+        super.stop(fromException);
     }
 
 

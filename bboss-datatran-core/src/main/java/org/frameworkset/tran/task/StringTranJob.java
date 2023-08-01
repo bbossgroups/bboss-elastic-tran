@@ -220,7 +220,7 @@ public class StringTranJob extends BaseTranJob{
                 baseDataTran.stop();
 			}*/
 
-            baseDataTran.stop();// a{5}
+            baseDataTran.stop(false);// a{5}
 			try {
 				writer.close();
 			} catch (Exception e) {
@@ -608,7 +608,7 @@ public class StringTranJob extends BaseTranJob{
 			}
              */
 
-            baseDataTran.stop();// a{6}
+            baseDataTran.stop(false);// a{6}
 			baseDataTran.endJob( reachEOFClosed, importCount, exception);
 		}
 		return null;
@@ -765,7 +765,7 @@ public class StringTranJob extends BaseTranJob{
 
 			}
              */
-            baseDataTran.stop();// a{7}
+            baseDataTran.stop(false);// a{7}
 			baseDataTran.endJob(  reachEOFClosed, importCount, exception);
 		}
 		return null;

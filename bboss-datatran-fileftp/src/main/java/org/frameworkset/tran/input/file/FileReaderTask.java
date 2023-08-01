@@ -1199,7 +1199,7 @@ public class FileReaderTask extends FieldManager{
                 return;
             this.taskEnded = true;
 //            this.currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
-            this.fileDataTran.stop();
+            this.fileDataTran.stop(false);
 
         }
     }

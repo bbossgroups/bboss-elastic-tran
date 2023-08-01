@@ -191,6 +191,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
         NextAssert nextAssert = new NextAssert();
         if(preReachEOFRecord){
             stop(false);
+            clearQueue();
             return nextAssert;
         }
 		if(baseDataTran.getDataTranPlugin().checkTranToStop()) {//作业已停止或者准备停止，修改迭代器状态，同时清空队列数据

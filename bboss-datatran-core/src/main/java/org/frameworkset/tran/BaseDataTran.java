@@ -232,7 +232,7 @@ public abstract class BaseDataTran implements DataTran{
 	/**
 	 * 停止转换作业及释放作业相关资源，关闭插件资源
 	 */
-	public void stop(){
+	public void stop(boolean fromException){
         if(dataTranStopped)
             return;
         synchronized (stopLock){
@@ -241,8 +241,8 @@ public abstract class BaseDataTran implements DataTran{
             dataTranStopped = true;
         }
 		if(asynTranResultSet != null) {
-			asynTranResultSet.stop(false);
-            asynTranResultSet.clearQueue();
+			asynTranResultSet.stop(fromException);
+//            asynTranResultSet.clearQueue();
 			asynTranResultSet = null;
 		}
 		if(breakableScrollHandler != null) {
@@ -352,7 +352,7 @@ public abstract class BaseDataTran implements DataTran{
 
 			}
 		}
-        this.stop();
+        this.stop(false);
 	}
 	public void endJob( boolean reachEOFClosed, ImportCount importCount,Throwable errorStop){
 		Date endTime = new Date();

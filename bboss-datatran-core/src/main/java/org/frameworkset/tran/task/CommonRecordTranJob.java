@@ -213,7 +213,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 
                 baseDataTran.stop();
 			}*/
-            baseDataTran.stop();// a{1}
+            baseDataTran.stop(false);// a{1}
 
 
 			baseDataTran.endJob( reachEOFClosed, importCount, exception);
@@ -576,7 +576,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                 baseDataTran.stop();
 			}
              */
-            baseDataTran.stop();// a{2}
+            baseDataTran.stop(false);// a{2}
 
 //			Date endTime = new Date();
 //			if(baseDataTran.getTaskContext() != null)
@@ -737,7 +737,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 			}*/
 
-            baseDataTran.stop();// a{3}
+            baseDataTran.stop(false);// a{3}
 //			Date endTime = new Date();
 //			if(baseDataTran.getTaskContext() != null)
 //				baseDataTran.getTaskContext().setJobEndTime(endTime);
