@@ -1122,7 +1122,7 @@ public class FileReaderTask extends FieldManager{
                     result.putAll(addFields);
                 }
             }
-            Map common = common(file, pointer, result);
+            Map common = common(file, pointer);
             if (enableMeta) {
                 result.put("@filemeta", common);
                 result.put("@timestamp",new Date());
@@ -1133,7 +1133,7 @@ public class FileReaderTask extends FieldManager{
     }
 
     //公共数据
-    protected Map common(File file, long pointer, Map result) {
+    protected Map common(File file, long pointer) {
         Map common = new HashMap();
         common.put("hostIp", BaseSimpleStringUtil.getIp());
         common.put("hostName",BaseSimpleStringUtil.getHostName());

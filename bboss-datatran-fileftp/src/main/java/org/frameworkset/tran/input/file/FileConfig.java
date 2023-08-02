@@ -363,6 +363,7 @@ public class FileConfig extends FieldManager{
     public FileConfig init(){
         if(inited )
             return this;
+        build();
         inited = true;
         if(getCloseOlderTime() != null && getCloseOlderTime() > 0L) {
             logger.info("CloseOlderTime = {}, setCloseEOF(false)",getCloseOlderTime() );
@@ -628,5 +629,9 @@ public class FileConfig extends FieldManager{
         else{
             return null;
         }
+    }
+
+    public void build(){
+
     }
 }

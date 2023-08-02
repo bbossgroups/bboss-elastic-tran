@@ -381,7 +381,7 @@ public class ExcelFileReaderTask extends FileReaderTask {
 			if (addFields != null && addFields.size() > 0) {
 				json.putAll(addFields);
 			}
-			Map common = common(file, pointer, json);
+			Map common = common(file, pointer);
 			if (enableMeta) {
 				json.put("@filemeta", common);
 				json.put("@timestamp", new Date());

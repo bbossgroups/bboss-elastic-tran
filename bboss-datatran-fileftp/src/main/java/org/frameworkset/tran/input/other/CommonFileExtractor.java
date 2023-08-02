@@ -1,4 +1,4 @@
-package org.frameworkset.tran.input.word;
+package org.frameworkset.tran.input.other;
 /**
  * Copyright 2023 bboss
  * <p>
@@ -15,8 +15,9 @@ package org.frameworkset.tran.input.word;
  * limitations under the License.
  */
 
-import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.frameworkset.tran.input.file.RecordExtractor;
+
+import java.io.File;
 
 /**
  * <p>Description: </p>
@@ -26,6 +27,12 @@ import org.frameworkset.tran.input.file.RecordExtractor;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface WordExtractor {
-    public void extractor(RecordExtractor<XWPFWordExtractor> recordExtractor)  throws Exception;
+public interface CommonFileExtractor {
+    /**
+     *
+     * @param recordExtractor
+     * @return
+     * @throws Exception
+     */
+    public void extractor(RecordExtractor<File> recordExtractor) throws Exception;
 }

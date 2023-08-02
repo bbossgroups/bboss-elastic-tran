@@ -16,9 +16,7 @@ package org.frameworkset.tran.input.pdf;
  */
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-
-import java.io.File;
-import java.util.Map;
+import org.frameworkset.tran.input.file.RecordExtractor;
 
 /**
  * <p>Description: </p>
@@ -29,5 +27,5 @@ import java.util.Map;
  * @version 1.0
  */
 public interface PDFExtractor {
-    public void extractor(Map record,File file, PDDocument document) throws Exception;
+    public void extractor(RecordExtractor<PDDocument> recordExtractor) throws Exception;
 }

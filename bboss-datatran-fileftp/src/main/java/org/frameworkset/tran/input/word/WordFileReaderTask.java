@@ -9,6 +9,7 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.input.file.FileListenerService;
 import org.frameworkset.tran.input.file.FileLogRecord;
 import org.frameworkset.tran.input.file.FileReaderTask;
+import org.frameworkset.tran.input.file.RecordExtractor;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.frameworkset.tran.record.CommonData;
@@ -153,31 +154,49 @@ public class WordFileReaderTask extends FileReaderTask {
 
 	private void result(File file, long pointer, XWPFWordExtractor extractor, List<Record> recordList, boolean reachEOFClosed) throws Exception {
 
-		Map json = new LinkedHashMap();
+
 
         if(wordFileConfig.getWordExtractor() != null){
-            wordFileConfig.getWordExtractor().extractor(json,file,extractor);
+            RecordExtractor<XWPFWordExtractor> recordExtractor = new RecordExtractor<>(extractor, fileConfig.getImportContext(),file);
+            wordFileConfig.getWordExtractor().extractor(recordExtractor);
+            List<Map> records = recordExtractor.getRecords();
+            if(records != null && records.size() > 0) {
+                Map addFields = this.getAddFields();
+                Map common = common(file, pointer);
+                for (int i = 0; i < records.size(); i++) {
+                    Map json = records.get(i);
+                    if (addFields != null && addFields.size() > 0) {
+                        json.putAll(addFields);
+                    }
+                    if (enableMeta) {
+                        json.put("@filemeta", common);
+                        json.put("@timestamp", new Date());
+                    }
+                    recordList.add(new FileLogRecord(taskContext, common, json, pointer, reachEOFClosed));
+                }
+            }
         }
         else{
+            Map json = new LinkedHashMap();
             if(extractor != null) {
                 json.put("wordContent", extractor.getText());
             }
             else{
                 json.put("wordContent", "");
             }
-        }
 
+            Map addFields = this.getAddFields();
 
-        Map addFields = this.getAddFields();
-        if (addFields != null && addFields.size() > 0) {
-            json.putAll(addFields);
+            if (addFields != null && addFields.size() > 0) {
+                json.putAll(addFields);
+            }
+            Map common = common(file, pointer);
+            if (enableMeta) {
+                json.put("@filemeta", common);
+                json.put("@timestamp", new Date());
+            }
+            recordList.add(new FileLogRecord(taskContext, common, json, pointer, reachEOFClosed));
         }
-        Map common = common(file, pointer, json);
-        if (enableMeta) {
-            json.put("@filemeta", common);
-            json.put("@timestamp", new Date());
-        }
-        recordList.add(new FileLogRecord(taskContext, common, json, pointer, reachEOFClosed));
 
 
 

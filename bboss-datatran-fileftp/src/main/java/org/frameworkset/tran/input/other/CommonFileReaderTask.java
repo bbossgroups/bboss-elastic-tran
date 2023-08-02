@@ -1,7 +1,5 @@
-package org.frameworkset.tran.input.pdf;
+package org.frameworkset.tran.input.other;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
@@ -19,34 +17,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author  yin-bp@163.com
  * @description
  * @create 2021/3/15
  */
-public class PDFFileReaderTask extends FileReaderTask {
-	private static Logger logger = LoggerFactory.getLogger(PDFFileReaderTask.class);
-	private PDFFileConfig pdfFileConfig;
+public class CommonFileReaderTask extends FileReaderTask {
+	private static Logger logger = LoggerFactory.getLogger(CommonFileReaderTask.class);
+	private CommonFileConfig commonFileConfig;
 
 
-	public PDFFileReaderTask(TaskContext taskContext, File file, String fileId, PDFFileConfig pdfFileConfig,
-                             FileListenerService fileListenerService,
-                             BaseDataTran fileDataTran,
-                             Status currentStatus, FileInputConfig fileImportConfig) {
+	public CommonFileReaderTask(TaskContext taskContext, File file, String fileId, CommonFileConfig commonFileConfig,
+                                FileListenerService fileListenerService,
+                                BaseDataTran fileDataTran,
+                                Status currentStatus, FileInputConfig fileImportConfig) {
 
-		super(taskContext, file, fileId, pdfFileConfig,
+		super(taskContext, file, fileId, commonFileConfig,
 				fileListenerService,
 				fileDataTran,
 				currentStatus, fileImportConfig);
-        this.pdfFileConfig = pdfFileConfig;
+        this.commonFileConfig = commonFileConfig;
 
 	}
 
-	public PDFFileReaderTask(String fileId, Status currentStatus, FileInputConfig fileImportConfig) {
+	public CommonFileReaderTask(String fileId, Status currentStatus, FileInputConfig fileImportConfig) {
 		super(fileId, currentStatus, fileImportConfig);
 	}
 
@@ -56,9 +55,9 @@ public class PDFFileReaderTask extends FileReaderTask {
 	public void start() {
 		String threadName = null;
 		if (fileConfig.isEnableInode()) {
-			threadName = "PDFFileReaderTask-Thread|" + fileInfo.getFilePath() + "|" + fileInfo.getFileId();
+			threadName = "CommonFileReaderTask-Thread|" + fileInfo.getFilePath() + "|" + fileInfo.getFileId();
 		} else {
-			threadName = "PDFFileReaderTask-Thread|" + fileInfo.getFilePath();
+			threadName = "CommonFileReaderTask-Thread|" + fileInfo.getFilePath();
 
 		}
 		registEndJob();
@@ -82,24 +81,19 @@ public class PDFFileReaderTask extends FileReaderTask {
 		InputPlugin inputPlugin = dataTranPlugin.getInputPlugin();
 		if (taskEnded || inputPlugin.isStopCollectData())
 			return;
-        FileInputStream fis = null;
-        PDDocument document = null;
 
         try {
             pointer = file.length();
             List<Record> recordList = new ArrayList<Record>();
             reachEOFClosed = true;
-            if(pointer > 0) {
-                fis = new FileInputStream(file);
-                document = PDDocument.load(file);
 
 
-                result(file, pointer,   document , recordList, reachEOFClosed);
-            }
-            else{
-                result(file, pointer, null, recordList, reachEOFClosed);
-            }
-            fileDataTran.appendData(new CommonData(recordList));
+
+
+            result(file, pointer,   recordList, reachEOFClosed);
+
+            if(recordList.size() > 0 )
+                fileDataTran.appendData(new CommonData(recordList));
 			//如果设置了文件结束，及结束作业，则进行相应处理，需迁移到通道结束处进行归档和删除处理
             /**
              * 发送空记录
@@ -116,20 +110,7 @@ public class PDFFileReaderTask extends FileReaderTask {
 //            logger.error("",e);
 			throw new DataImportException("", e);
 		} finally {
-            if(document != null){
-                try {
-                    document.close();
-                } catch (IOException e) {
 
-                }
-            }
-            if(fis != null){
-                try {
-                    fis.close();
-                } catch (IOException e) {
-
-                }
-            }
 //			try {
 //				//需要删除采集完数据的eof文件，有必要进行优化并在回调函数中处理
 //				if (reachEOFClosed) {
@@ -150,11 +131,11 @@ public class PDFFileReaderTask extends FileReaderTask {
 
 	}
 
-	private void result(File file, long pointer, PDDocument document , List<Record> recordList, boolean reachEOFClosed) throws Exception {
+	private void result(File file, long pointer,List<Record> recordList, boolean reachEOFClosed) throws Exception {
 
-        if(pdfFileConfig.getPdfExtractor() != null){
-            RecordExtractor<PDDocument> recordExtractor = new RecordExtractor<>(document, fileConfig.getImportContext(),file);
-            pdfFileConfig.getPdfExtractor().extractor(recordExtractor);
+        if(commonFileConfig.getCommonFileExtractor() != null){
+            RecordExtractor<File> recordExtractor = new RecordExtractor<>(file, fileConfig.getImportContext(),file);
+            commonFileConfig.getCommonFileExtractor().extractor(recordExtractor);
             List<Map> records = recordExtractor.getRecords();
             if(records != null && records.size() > 0) {
                 Map addFields = this.getAddFields();
@@ -173,33 +154,7 @@ public class PDFFileReaderTask extends FileReaderTask {
             }
 
         }
-        else{
-            Map json = new LinkedHashMap();
-            if(document != null) {
-                PDFTextStripper pdfStripper = new PDFTextStripper();
 
-                //Retrieving text from PDF document
-
-                String text = pdfStripper.getText(document);
-                json.put("pdfContent", text);
-            }
-            else{
-                json.put("pdfContent", "");
-            }
-
-
-            Map addFields = this.getAddFields();
-            if (addFields != null && addFields.size() > 0) {
-                json.putAll(addFields);
-            }
-            Map common = common(file, pointer);
-            if (enableMeta) {
-                json.put("@filemeta", common);
-                json.put("@timestamp", new Date());
-            }
-            recordList.add(new FileLogRecord(taskContext, common, json, pointer, reachEOFClosed));
-
-        }
 
 	}
 
