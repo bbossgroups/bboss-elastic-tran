@@ -247,6 +247,9 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 					}
 
 					do{
+                        if(queue == null){
+                            return nextAssert;
+                        }
 						datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
                         if(isStopFromException()){//因异常终止则停止后续数据处理，不管有没有数据，如果是正常停止，则需要处理后续数据
                             clearQueue();

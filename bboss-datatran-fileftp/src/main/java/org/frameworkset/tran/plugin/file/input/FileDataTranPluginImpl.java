@@ -255,7 +255,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                     assertMaxFilesThreshold.decreament();
                 }
                 throwException(taskContext, e);
-                fileDataTran.stop(true);
+                fileDataTran.stop2ndClearResultsetQueue(true);
 
                 throw e;
             } catch (Exception e) {
@@ -264,7 +264,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                 }
                 throwException(taskContext, e);
 
-                fileDataTran.stop(true);
+                fileDataTran.stop2ndClearResultsetQueue(true);
                 DataImportException dataImportException = new DataImportException(e);
                 throw dataImportException;
             } catch (Throwable e) {
@@ -272,7 +272,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                     assertMaxFilesThreshold.decreament();
                 }
                 throwException(taskContext, e);
-                fileDataTran.stop(true);
+                fileDataTran.stop2ndClearResultsetQueue(true);
                 DataImportException dataImportException = new DataImportException(e);
                 throw dataImportException;
             }

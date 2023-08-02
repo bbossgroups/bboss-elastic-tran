@@ -304,6 +304,14 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
         super.stop(fromException);
     }
 
+    @Override
+    public void stop2ndClearResultsetQueue(boolean fromException){
+        if(dataTranStopped)
+            return;
+        sendFile();//串行执行时，sendFile将不起作用
+        super.stop2ndClearResultsetQueue(fromException);
+    }
+
 
 
 

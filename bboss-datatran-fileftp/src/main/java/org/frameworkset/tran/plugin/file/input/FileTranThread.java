@@ -64,18 +64,18 @@ public class FileTranThread extends Thread{
         catch (DataImportException dataImportException){
             logger.error("",dataImportException);
             fileDataTranPlugin.throwException(  taskContext,  dataImportException);
-            fileDataTran.stop(true);
+            fileDataTran.stop2ndClearResultsetQueue(true);
         }
         catch (RuntimeException dataImportException){
             logger.error("",dataImportException);
             fileDataTranPlugin.throwException(  taskContext,  dataImportException);
-            fileDataTran.stop(true);
+            fileDataTran.stop2ndClearResultsetQueue(true);
         }
         catch (Throwable dataImportException){
             logger.error("",dataImportException);
             DataImportException dataImportException_ = new DataImportException(dataImportException);
             fileDataTranPlugin.throwException(  taskContext, dataImportException_);
-            fileDataTran.stop(true);
+            fileDataTran.stop2ndClearResultsetQueue(true);
         }
         finally {
             if(assertMaxFilesThreshold != null )

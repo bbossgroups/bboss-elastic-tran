@@ -88,20 +88,20 @@ public abstract class KafkaInputDatatranPlugin extends BaseInputPlugin  {
 					catch (DataImportException dataImportException){
 						logger.error("",dataImportException);
 						dataTranPlugin.throwException(  taskContext,  dataImportException);
-                        kafka2ESDataTran.stop(true);
+                        kafka2ESDataTran.stop2ndClearResultsetQueue(true);
                         importContext.finishAndWaitTran(dataImportException);
 					}
 					catch (RuntimeException dataImportException){
 						logger.error("",dataImportException);
 						dataTranPlugin.throwException(  taskContext,  dataImportException);
-                        kafka2ESDataTran.stop(true);
+                        kafka2ESDataTran.stop2ndClearResultsetQueue(true);
                         importContext.finishAndWaitTran(dataImportException);
 					}
 					catch (Throwable dataImportException){
 						logger.error("",dataImportException);
 						DataImportException dataImportException_ = new DataImportException(dataImportException);
 						dataTranPlugin.throwException(  taskContext, dataImportException_);
-                        kafka2ESDataTran.stop(true);
+                        kafka2ESDataTran.stop2ndClearResultsetQueue(true);
                         importContext.finishAndWaitTran(dataImportException);
 					}
 				}
@@ -110,10 +110,10 @@ public abstract class KafkaInputDatatranPlugin extends BaseInputPlugin  {
 
 			this.initKafkaTranBatchConsumer2ndStore(kafka2ESDataTran);
 		} catch (DataImportException e) {
-            kafka2ESDataTran.stop(true);
+            kafka2ESDataTran.stop2ndClearResultsetQueue(true);
 			throw e;
 		} catch (Exception e) {
-            kafka2ESDataTran.stop(true);
+            kafka2ESDataTran.stop2ndClearResultsetQueue(true);
 			throw new DataImportException(e);
 		}
 		finally {

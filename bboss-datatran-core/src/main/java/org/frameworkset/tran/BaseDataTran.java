@@ -233,6 +233,30 @@ public abstract class BaseDataTran implements DataTran{
 	 * 停止转换作业及释放作业相关资源，关闭插件资源
 	 */
 	public void stop(boolean fromException){
+        innerStop( fromException, false);
+//        if(dataTranStopped)
+//            return;
+//        synchronized (stopLock){
+//            if(dataTranStopped)
+//                return;
+//            dataTranStopped = true;
+//        }
+//		if(asynTranResultSet != null) {
+//			asynTranResultSet.stop(fromException);
+////            asynTranResultSet.clearQueue();
+//			asynTranResultSet = null;
+//		}
+//		if(breakableScrollHandler != null) {
+//			breakableScrollHandler.setBreaked(true);
+//		}
+////		importContext.finishAndWaitTran();
+//
+//        if(logger.isInfoEnabled())
+//            logger.info("DataTran load data completed.");
+
+	}
+
+    private void innerStop(boolean fromException,boolean cleanQueue){
         if(dataTranStopped)
             return;
         synchronized (stopLock){
@@ -240,20 +264,45 @@ public abstract class BaseDataTran implements DataTran{
                 return;
             dataTranStopped = true;
         }
-		if(asynTranResultSet != null) {
-			asynTranResultSet.stop(fromException);
-//            asynTranResultSet.clearQueue();
-			asynTranResultSet = null;
-		}
-		if(breakableScrollHandler != null) {
-			breakableScrollHandler.setBreaked(true);
-		}
+        if(asynTranResultSet != null) {
+            asynTranResultSet.stop(fromException);
+            if(cleanQueue)
+                asynTranResultSet.clearQueue();
+            asynTranResultSet = null;
+        }
+        if(breakableScrollHandler != null) {
+            breakableScrollHandler.setBreaked(true);
+        }
 //		importContext.finishAndWaitTran();
 
         if(logger.isInfoEnabled())
-            logger.info("DataTran load data completed.");
+            logger.info("DataTran load data completed fromException[{}] and ClearResultsetQueue[{}].",fromException,cleanQueue);
+    }
 
-	}
+    public void stop2ndClearResultsetQueue(boolean fromException){
+//        if(dataTranStopped)
+//            return;
+//        synchronized (stopLock){
+//            if(dataTranStopped)
+//                return;
+//            dataTranStopped = true;
+//        }
+//        if(asynTranResultSet != null) {
+//            asynTranResultSet.stop(fromException);
+//            asynTranResultSet.clearQueue();
+//            asynTranResultSet = null;
+//        }
+//        if(breakableScrollHandler != null) {
+//            breakableScrollHandler.setBreaked(true);
+//        }
+////		importContext.finishAndWaitTran();
+//
+//        if(logger.isInfoEnabled())
+//            logger.info("DataTran load data completed.");
+
+        innerStop( fromException, true);
+
+    }
 
 //	/**
 //	 * 只停止转换作业
@@ -352,7 +401,7 @@ public abstract class BaseDataTran implements DataTran{
 
 			}
 		}
-        this.stop(false);
+        this.stop2ndClearResultsetQueue(exception != null);
 	}
 	public void endJob( boolean reachEOFClosed, ImportCount importCount,Throwable errorStop){
 		Date endTime = new Date();

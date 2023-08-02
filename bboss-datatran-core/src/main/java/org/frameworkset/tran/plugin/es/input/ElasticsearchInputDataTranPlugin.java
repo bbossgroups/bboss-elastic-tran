@@ -275,18 +275,18 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
                     catch (DataImportException dataImportException){
                         logger.error("",dataImportException);
                         dataTranPlugin.throwException(  taskContext,  dataImportException);
-                        es2DBDataTran.stop(true);
+                        es2DBDataTran.stop2ndClearResultsetQueue(true);
                     }
                     catch (RuntimeException dataImportException){
                         logger.error("",dataImportException);
                         dataTranPlugin.throwException(  taskContext,  dataImportException);
-                        es2DBDataTran.stop(true);
+                        es2DBDataTran.stop2ndClearResultsetQueue(true);
                     }
                     catch (Throwable dataImportException){
                         logger.error("",dataImportException);
                         DataImportException dataImportException_ = new DataImportException(dataImportException);
                         dataTranPlugin.throwException(  taskContext, dataImportException_);
-                        es2DBDataTran.stop(true);
+                        es2DBDataTran.stop2ndClearResultsetQueue(true);
                     }
 
 				}
@@ -302,10 +302,10 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 
 			}
 		} catch (DataImportException e) {
-            es2DBDataTran.stop(true);
+            es2DBDataTran.stop2ndClearResultsetQueue(true);
 			throw e;
 		} catch (Exception e) {
-            es2DBDataTran.stop(true);
+            es2DBDataTran.stop2ndClearResultsetQueue(true);
 			throw new DataImportException(e);
 		}
 		finally {

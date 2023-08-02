@@ -107,20 +107,20 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
 					catch (DataImportException dataImportException){
 						logger.error("",dataImportException);
 						dataTranPlugin.throwException(  taskContext,  dataImportException);
-                        mysqlBinlogDataTran.stop(true);
+                        mysqlBinlogDataTran.stop2ndClearResultsetQueue(true);
                         importContext.finishAndWaitTran(dataImportException);
 					}
 					catch (RuntimeException dataImportException){
 						logger.error("",dataImportException);
 						dataTranPlugin.throwException(  taskContext,  dataImportException);
-                        mysqlBinlogDataTran.stop(true);
+                        mysqlBinlogDataTran.stop2ndClearResultsetQueue(true);
                         importContext.finishAndWaitTran(dataImportException);
 					}
 					catch (Throwable dataImportException){
 						logger.error("",dataImportException);
 						DataImportException dataImportException_ = new DataImportException(dataImportException);
 						dataTranPlugin.throwException(  taskContext, dataImportException_);
-                        mysqlBinlogDataTran.stop(true);
+                        mysqlBinlogDataTran.stop2ndClearResultsetQueue(true);
                         importContext.finishAndWaitTran(dataImportException);
 					}
 				}
@@ -130,16 +130,16 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
 			this.initMySQLBinlogListener(mysqlBinlogDataTran);
 		} catch (DataImportException e) {
             if(mysqlBinlogDataTran != null)
-                mysqlBinlogDataTran.stop(true);
+                mysqlBinlogDataTran.stop2ndClearResultsetQueue(true);
 			throw e;
 		} catch (Exception e) {
             if(mysqlBinlogDataTran != null)
-                mysqlBinlogDataTran.stop(true);
+                mysqlBinlogDataTran.stop2ndClearResultsetQueue(true);
 			throw new DataImportException(e);
 		}
         catch (Throwable e) {
             if(mysqlBinlogDataTran != null)
-                mysqlBinlogDataTran.stop(true);
+                mysqlBinlogDataTran.stop2ndClearResultsetQueue(true);
             throw new DataImportException(e);
         }
 

@@ -305,15 +305,15 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
         }
         catch (DataImportException dataImportException){
-            baseDataTran.stop(true);
+            baseDataTran.stop2ndClearResultsetQueue(true);
             throw dataImportException;
         }
         catch (RuntimeException dataImportException){
-            baseDataTran.stop(true);
+            baseDataTran.stop2ndClearResultsetQueue(true);
             throw  dataImportException;
         }
         catch (Throwable dataImportException){
-            baseDataTran.stop(true);
+            baseDataTran.stop2ndClearResultsetQueue(true);
             throw  dataImportException;
         }
     }
