@@ -264,9 +264,9 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
         if(backupSuccessFilesClean != null) {
             this.backupSuccessFilesClean.stop();
         }
-        if(completeFileCleanTask != null){
-            completeFileCleanTask.stopThread();
-		}
+//        if(completeFileCleanTask != null){
+//            completeFileCleanTask.stopThread();
+//		}
 
     }
 
@@ -317,15 +317,18 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                 }
             }
             else if(fileInputConfig.isCleanCompleteFiles()){
-                if(fileInputConfig.getFileLiveTime() <= 0L){
-                    logger.warn("开启了清理采集完毕文件机制，但是没有正确设置FileLiveTime["+fileInputConfig.getFileLiveTime()+"]，必须指定一个大于0的文件存活时间，单位：毫秒，请检查fileInputConfig并设置FileLiveTime");
-                    throw new FilelogPluginException("开启了清理采集完毕文件机制，但是没有正确设置FileLiveTime["+fileInputConfig.getFileLiveTime()+"]，必须指定一个大于0的文件存活时间，单位：毫秒，请检查fileInputConfig并设置FileLiveTime");
-                }
+//                if(fileInputConfig.getFileLiveTime() <= 0L){
+//                    logger.warn("开启了清理采集完毕文件机制，但是没有正确设置FileLiveTime["+fileInputConfig.getFileLiveTime()+"]，必须指定一个大于0的文件存活时间，单位：毫秒，请检查fileInputConfig并设置FileLiveTime");
+//                    throw new FilelogPluginException("开启了清理采集完毕文件机制，但是没有正确设置FileLiveTime["+fileInputConfig.getFileLiveTime()+"]，必须指定一个大于0的文件存活时间，单位：毫秒，请检查fileInputConfig并设置FileLiveTime");
+//                }
                 synchronized (CompleteFileCleanTask.class){
                     if(completeFileCleanTask == null){
                         completeFileCleanTask = new CompleteFileCleanTask(importContext);
-                        completeFileCleanTask.start();
-                        logger.info("开启清理采集完毕文件机制，采集完毕文件保留有效期:{}毫秒",fileInputConfig.getFileLiveTime());
+//                        completeFileCleanTask.start();
+                        if(fileInputConfig.getFileLiveTime() > 0L)
+                            logger.info("初始化清理采集完毕文件机制，采集完毕文件保留时长:{}毫秒",fileInputConfig.getFileLiveTime());
+                        else
+                            logger.info("初始化清理采集完毕文件机制，采集完毕文件会及时被清理掉。");
                     }
                 }
             }
@@ -358,9 +361,14 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
         if(completeFileCleanTask != null) {
             if (checkResult == FileCheckResult.FileCheckResult_CompleteFile || checkResult == FileCheckResult.FileCheckResult_OldFile) {
                 long lastModifyTime = FileManager.getFileLastTimestamp(file);
-                long limit = System.currentTimeMillis() - fileInputConfig.getFileLiveTime();
-                if (lastModifyTime <= limit) {
-                    completeFileCleanTask.addFile(file);
+                if(fileInputConfig.getFileLiveTime() > 0L) {//判断文件是否已经失效
+                    long limit = System.currentTimeMillis() - fileInputConfig.getFileLiveTime();
+                    if (lastModifyTime <= limit) {
+                        completeFileCleanTask.cleanCompleteFile(file);
+                    }
+                }
+                else {//直接清理
+                    completeFileCleanTask.cleanCompleteFile(file);
                 }
             }
         }

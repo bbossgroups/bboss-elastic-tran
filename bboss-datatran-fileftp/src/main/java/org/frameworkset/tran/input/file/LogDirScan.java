@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 扫描新增日志文件
@@ -57,7 +55,6 @@ public class LogDirScan implements LogDirScanInf{
         }
         File logDir = fileConfig.getLogDir();
         FilenameFilter filter = fileConfig.getFilter();
-        List<File> completeFiles = new ArrayList<>();
         if(logDir.isDirectory() && logDir.exists()){
             File[] files = logDir.listFiles(filter);
             File file = null;

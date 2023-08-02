@@ -16,13 +16,10 @@ package org.frameworkset.tran.input.file;
  */
 
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.util.StoppedThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * <p>Description: </p>
@@ -32,46 +29,53 @@ import java.util.concurrent.BlockingQueue;
  * @author biaoping.yin
  * @version 1.0
  */
-public class CompleteFileCleanTask extends StoppedThread {
+public class CompleteFileCleanTask {
+//        extends StoppedThread {
 	private static final Logger logger = LoggerFactory.getLogger(CompleteFileCleanTask.class);
-	private BlockingQueue<File> completeCleanFiles = new ArrayBlockingQueue<File>(1000) ;
+//	private BlockingQueue<File> completeCleanFiles = new ArrayBlockingQueue<File>(1000) ;
 	public CompleteFileCleanTask(ImportContext importContext){
-		super("CompleteFileCleanTask-jobName["+importContext.getJobName()+"]");
+//		super("CompleteFileCleanTask-jobName["+importContext.getJobName()+"]");
 
 	}
-	@Override
-	public void start(){
-		this.setDaemon(true);
-		super.start();
+//	@Override
+//	public void start(){
+//		this.setDaemon(true);
+//		super.start();
+//	}
+	public void cleanCompleteFile(File file)  {
+        try {
+            logger.info("Delete complete file {}",file.getAbsolutePath());
+            file.delete();
+        }
+        catch (Exception e){
+            logger.error(file.getAbsolutePath(),e);
+        }
+//		try {
+//			completeCleanFiles.put(file);
+//		} catch (InterruptedException e) {
+//			logger.warn("",e);
+//		}
 	}
-	public void addFile(File file)  {
 
-		try {
-			completeCleanFiles.put(file);
-		} catch (InterruptedException e) {
-			logger.warn("",e);
-		}
-	}
-
-	@Override
-	public void run(){
-		while(true){
-			try {
-				File file = completeCleanFiles.take();
-				try {
-					logger.info("Delete complete file {}",file.getAbsolutePath());
-					file.delete();
-				}
-				catch (Exception e){
-					logger.error(file.getAbsolutePath(),e);
-				}
-			} catch (InterruptedException e) {
-				if(logger.isDebugEnabled())
-					logger.debug("",e);
-				break;
-			} catch (Exception e) {
-				logger.warn("completeCleanFiles failed:",e);
-			}
-		}
-	}
+//	@Override
+//	public void run(){
+//		while(true){
+//			try {
+//				File file = completeCleanFiles.take();
+//				try {
+//					logger.info("Delete complete file {}",file.getAbsolutePath());
+//					file.delete();
+//				}
+//				catch (Exception e){
+//					logger.error(file.getAbsolutePath(),e);
+//				}
+//			} catch (InterruptedException e) {
+//				if(logger.isDebugEnabled())
+//					logger.debug("",e);
+//				break;
+//			} catch (Exception e) {
+//				logger.warn("completeCleanFiles failed:",e);
+//			}
+//		}
+//	}
 }
