@@ -534,7 +534,7 @@ public abstract class BaseStatusManager implements StatusManager {
 			deleteByJobIdSQL = new StringBuilder().append("delete from ")
 					.append(statusTableName).append(" where id=? and ").append(" jobId=? and jobType=?").toString();
 			insertHistorySQL = new StringBuilder().append("insert into ").append(statusTableName)
-					.append(" (id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType) values(?,?,?,?,?,?,?,?,?,?,?)").toString();
+					.append("_his (id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType,statusId) values(?,?,?,?,?,?,?,?,?,?,?,?)").toString();
 		}
 	}
 
@@ -983,38 +983,55 @@ public abstract class BaseStatusManager implements StatusManager {
 			logger.error("handleCompletedTasks failed:"+SimpleStringUtil.object2json(losteds),e);
 		}
 	}
-	public  void handleCompletedTasks(List<Status> completed ,boolean needSyn,long registLiveTime){
+
+    /**
+     * 迁移过期的已完成状态记录
+     * @param completed
+     */
+	public  void handleOldedRegistedRecordTasks(List<Status> completed){
 
 
 		try {
-			long now = System.currentTimeMillis();
-			long deletedTime = now - registLiveTime;
 			for (Status status_ : completed) {
 				File file = new File(status_.getFilePath());
 				if(!file.exists()) {
-					long lastTime = status_.getTime();
-					if (lastTime <= deletedTime) {
-                        Status status = status_.copy();
-                        handleStatus(status,true);
-						SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
-                                status.getCurrentLastValueWrapper().getLastValue(),status.getStrLastValue(), status.getLastValueType(), status.getFilePath(), status.getRelativeParentDir(),status.getFileId(), status.getStatus(),status.getJobId(),status.getJobType());
-						if(status.getJobId() == null) {
-							SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId(),status.getJobType());
-						}
-						else{
-							SQLExecutor.deleteWithDBName(statusDbname, deleteByJobIdSQL, status.getId(),status.getJobId(),status.getJobType());
-						}
-					}
+                    Status status = status_.copy();
+                    handleStatus(status,true);
+                    SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
+                            status.getCurrentLastValueWrapper().getLastValue(),status.getStrLastValue(), status.getLastValueType(), status.getFilePath(), status.getRelativeParentDir(),status.getFileId(), status.getStatus(),status.getJobId(),status.getJobType(),status.getId());
+                    if(status.getJobId() == null) {
+                        SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId(),status.getJobType());
+                    }
+                    else{
+                        SQLExecutor.deleteWithDBName(statusDbname, deleteByJobIdSQL, status.getId(),status.getJobId(),status.getJobType());
+                    }
+                    if(logger.isInfoEnabled())
+                        logger.info("Move Olded Task Registed Record to history complete {}:",status.toString());
+
 				}
 
 			}
 		}
 		catch (Exception e){
-			logger.error("handleCompletedTasks failed:"+SimpleStringUtil.object2json(completed),e);
+			logger.error("handleOldedRegistedRecordTasks failed:",e);
 		}
 
 
 	}
+
+    public  boolean isOldRegistRecord(Status completed ,long registLiveTime){
+
+        long now = System.currentTimeMillis();
+        long deletedTime = now - registLiveTime;
+        File file = new File(completed.getFilePath());
+        if(!file.exists()) {
+            long lastTime = completed.getTime();
+            if (lastTime <= deletedTime) {
+               return true;
+            }
+        }
+        return false;
+    }
 
 	@Override
 	public List<Status> getPluginStatuses(){

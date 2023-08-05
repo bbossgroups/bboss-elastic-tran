@@ -21,11 +21,8 @@ import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
-import org.frameworkset.tran.status.BaseStatusManager;
-import org.frameworkset.tran.status.LastValueWrapper;
+import org.frameworkset.tran.status.*;
 import org.frameworkset.tran.schedule.*;
-import org.frameworkset.tran.status.LoadCurrentStatus;
-import org.frameworkset.tran.status.SetLastValueType;
 import org.frameworkset.util.ResourceEnd;
 import org.frameworkset.util.ResourceStart;
 
@@ -41,6 +38,7 @@ import java.util.Map;
  * @version 1.0
  */
 public interface DataTranPlugin {
+    public StatusManager getStatusManager();
 //    public boolean onlyUseBatchExecute();
     /**
      * 识别任务是否已经完成

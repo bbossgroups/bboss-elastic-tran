@@ -2,6 +2,7 @@ package org.frameworkset.tran.plugin.file.input;
 
 import org.frameworkset.tran.AssertMaxThreshold;
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
@@ -30,11 +31,19 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
 
     private AssertMaxThreshold assertMaxFilesThreshold;
     /**
-     * 每次扫描新文件时间间隔
+     * 每次扫描新文件时间间隔，单位毫秒
      */
 
     private Long scanNewFileInterval = 10000L;
+    /**
+     * 已完成任务记录存活时间，超过对应的时间值，并且源文件已经被清理，则将对应的任务记录迁移到历史表
+     */
     private Long registLiveTime;
+    /**
+     * 一天执行一次:单位毫秒
+     */
+    private long scanOldRegistRecordInterval = 1*24*60*60*1000L;
+
     //jsondata = true时，自定义的数据是否和采集的数据平级，true则直接在原先的json串中存放数据
     //false则定义一个json存放数据，若不是json则是message
     private boolean rootLevel = true;
@@ -478,6 +487,17 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
      */
     public FileInputConfig setDisableScanNewFilesCheckpoint(boolean disableScanNewFilesCheckpoint) {
         this.disableScanNewFilesCheckpoint = disableScanNewFilesCheckpoint;
+        return this;
+    }
+
+    public long getScanOldRegistRecordInterval() {
+        return scanOldRegistRecordInterval;
+    }
+
+    public FileInputConfig setScanOldRegistRecordInterval(long scanOldRegistRecordInterval) {
+        if(scanOldRegistRecordInterval <= 0L)
+            throw new DataImportException("scanOldRegistRecordInterval must > 0");
+        this.scanOldRegistRecordInterval = scanOldRegistRecordInterval;
         return this;
     }
 }

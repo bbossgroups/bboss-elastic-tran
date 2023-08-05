@@ -305,15 +305,20 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 //			 * 已经过期的任务，修改状态为已完成
 //			 */
 //			List<Status> olded = new ArrayList<Status>();
+            long registLiveTime = fileInputConfig.getRegistLiveTime() != null?fileInputConfig.getRegistLiveTime():0L;
 			for(Status status : statuses){
 				status.setRealPath(status.getFilePath());
 				//判断任务是否已经完成，如果完成，则对任务进行相应处理
 
 				if(isComplete(status)){
-					completed.add(status);
-					fileListenerService.addCompletedFileTask(status.getFileId(),fileInputDataTranPlugin.buildFileReaderTask(status.getFileId()
-							,status,fileInputConfig));
-					logger.info("Ignore complete file {}",status.getFilePath());
+                    if(registLiveTime > 0L && statusManager.isOldRegistRecord(status ,registLiveTime)) {
+                        completed.add(status);
+                    }
+                    else {
+                        fileListenerService.addCompletedFileTask(status.getFileId(), fileInputDataTranPlugin.buildFileReaderTask(status.getFileId()
+                                , status, fileInputConfig));
+                        logger.info("Ignore complete file {}",status.getFilePath());
+                    }
 					continue;
 				}
 
@@ -418,9 +423,9 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 					}
 				});
 			}
-			long registLiveTime = fileInputConfig.getRegistLiveTime() != null?fileInputConfig.getRegistLiveTime():0L;
-			if(completed.size() > 0 && registLiveTime > 0L){
-				statusManager.handleCompletedTasks(completed ,false,registLiveTime);
+//			long registLiveTime = fileInputConfig.getRegistLiveTime() != null?fileInputConfig.getRegistLiveTime():0L;
+			if(completed.size() > 0 ){
+				statusManager.handleOldedRegistedRecordTasks(completed );
 			}
 			if(lostedFileTasks.size() > 0){
 				statusManager.handleLostedTasks(lostedFileTasks ,false);

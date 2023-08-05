@@ -33,6 +33,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
     protected LogDirsScanThread logDirsScanThread ;
     private BackupSuccessFilesClean backupSuccessFilesClean;
     private CompleteFileCleanTask completeFileCleanTask;
+    private OldRegistFileRecordCleanTask oldRegistFileRecordCleanTask;
     private AssertMaxThreshold assertMaxFilesThreshold;
     private FileDataTranPluginImpl fileDataTranPlugin;
     private Object markscanFinishedLock = new Object();
@@ -264,6 +265,9 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
         if(backupSuccessFilesClean != null) {
             this.backupSuccessFilesClean.stop();
         }
+        if(oldRegistFileRecordCleanTask != null){
+            oldRegistFileRecordCleanTask.stop();
+        }
 //        if(completeFileCleanTask != null){
 //            completeFileCleanTask.stopThread();
 //		}
@@ -321,6 +325,12 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
 //                    logger.warn("开启了清理采集完毕文件机制，但是没有正确设置FileLiveTime["+fileInputConfig.getFileLiveTime()+"]，必须指定一个大于0的文件存活时间，单位：毫秒，请检查fileInputConfig并设置FileLiveTime");
 //                    throw new FilelogPluginException("开启了清理采集完毕文件机制，但是没有正确设置FileLiveTime["+fileInputConfig.getFileLiveTime()+"]，必须指定一个大于0的文件存活时间，单位：毫秒，请检查fileInputConfig并设置FileLiveTime");
 //                }
+//                if(fileInputConfig.getRegistLiveTime() != null && fileInputConfig.getRegistLiveTime() > 0L){
+//                    if(fileInputConfig.getRegistLiveTime() < fileInputConfig.getFileLiveTime()){
+//                        throw new FilelogPluginException("开启了清理采集完毕文件机制以及文件采集状态管理表记录有效期清理机制，但是FileLiveTime["+fileInputConfig.getFileLiveTime()+"]不能大于FileLiveTime["+fileInputConfig.getRegistLiveTime()+"]，必须指定一个大于0的文件存活时间，单位：毫秒，请检查fileInputConfig并调整FileLiveTime和RegistLiveTime");
+//                    }
+//
+//                }
                 synchronized (CompleteFileCleanTask.class){
                     if(completeFileCleanTask == null){
                         completeFileCleanTask = new CompleteFileCleanTask(importContext);
@@ -332,6 +342,18 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                     }
                 }
             }
+
+            if(fileInputConfig.getRegistLiveTime() != null && fileInputConfig.getRegistLiveTime() > 0L){
+                synchronized (OldRegistFileRecordCleanTask.class){
+                    if(oldRegistFileRecordCleanTask == null){
+                        oldRegistFileRecordCleanTask = new OldRegistFileRecordCleanTask(fileInputConfig,importContext,fileListenerService);
+                        oldRegistFileRecordCleanTask.start();
+                        logger.info("初始化迁移过期的已完成状态记录机制[fileInputConfig.registLiveTime:{}]，过期的已完成状态记录会定时迁移到历史记录表。",fileInputConfig.getRegistLiveTime());
+                    }
+                }
+            }
+
+
         }
 
     }

@@ -13,6 +13,7 @@ import org.frameworkset.tran.plugin.file.input.FileInputDataTranPlugin;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.status.LastValueWrapper;
+import org.frameworkset.tran.status.StatusManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -761,5 +762,33 @@ public class FileListenerService {
 
     public FileDataTranPluginImpl getBaseDataTranPlugin() {
         return dataTranPlugin;
+    }
+
+    public void handleOldRegistRecords(long registLiveTime) {
+        List<FileReaderTask> oldedRegistRecords = new ArrayList<>();
+        StatusManager statusManager = this.dataTranPlugin.getStatusManager();
+        List<Status> oldedRegistStatuses = new ArrayList<>();
+        lock.lock();
+        try {
+            Iterator<Map.Entry<String,FileReaderTask>> iterator = this.completedTasks.entrySet().iterator();
+            while (iterator.hasNext()){
+                Map.Entry<String,FileReaderTask> entry = iterator.next();
+                FileReaderTask fileReaderTask = entry.getValue();
+                if(statusManager.isOldRegistRecord(fileReaderTask.getCurrentStatus(),registLiveTime)){
+                    oldedRegistRecords.add(fileReaderTask);
+                    oldedRegistStatuses.add(fileReaderTask.getCurrentStatus());
+                }
+            }
+            for(FileReaderTask fileReaderTask:oldedRegistRecords){
+                this.completedTasks.remove(fileReaderTask.getFileId());
+            }
+
+        }
+        finally {
+            lock.unlock();
+        }
+        if(oldedRegistStatuses.size() > 0 )
+            statusManager.handleOldedRegistedRecordTasks(oldedRegistStatuses);
+
     }
 }

@@ -88,7 +88,11 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		return outputPlugin;
 	}
 
-	@Override
+    public StatusManager getStatusManager() {
+        return statusManager;
+    }
+
+    @Override
 	public ScheduleAssert getScheduleAssert() {
 		return scheduleAssert;
 	}

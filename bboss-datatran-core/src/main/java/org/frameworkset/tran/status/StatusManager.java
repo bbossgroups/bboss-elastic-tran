@@ -30,6 +30,7 @@ import java.util.Map;
  * @version 1.0
  */
 public interface StatusManager {
+    public  boolean isOldRegistRecord(Status completed ,long registLiveTime);
 	public LoadCurrentStatus getLoadCurrentStatus();
 	public void putStatus(Status currentStatus) throws Exception;
 	public void flushStatus();
@@ -43,7 +44,8 @@ public interface StatusManager {
 	public void stopStatusDatasource();
 
 	public  void handleLostedTasks(List<Status> losteds , boolean needSyn);
-	public  void handleCompletedTasks(List<Status> completed , boolean needSyn, long registLiveTime);
+	public  void handleOldedRegistedRecordTasks(List<Status> completed);
+
 	public Map getParamValue(Map params);
 //    public Object getLastValue();
 	public Object[] putLastParamValue(Map params);
