@@ -216,7 +216,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 			RecordColumnInfo recordColumnInfo = null;
 			if(temp == null) {
 				if(logger.isDebugEnabled())
-					logger.debug("未指定[绑定变量：{},数据源列名：{}]的值！",varName,colName);
+					logger.debug("字段值[目标列{},源列{}]的值为null！",varName,colName);
 			}
 			else if (temp instanceof Date){
 				DateFormat dateFormat = null;

@@ -44,7 +44,10 @@ public class DefaultResultSetHandler extends ResultSetHandler {
 	}
 	@Override
 	public void handleResult(ResultSet resultSet, StatementInfo statementInfo) throws Exception {
-		JDBCResultSet jdbcResultSet = new JDBCResultSet(taskContext,resultSet,new JDBCTranMetaData(statementInfo.getMeta()),statementInfo.getDbadapter());
+
+		JDBCResultSet jdbcResultSet = new JDBCResultSet(taskContext,resultSet,
+                                    new JDBCTranMetaData(statementInfo.getMeta()),statementInfo.getDbadapter(),
+                                    dataTranPlugin.getImportContext().getInputConfig().enableLocalDate());
 		jdbcResultSet.setImportContext(importContext);
 		BaseDataTran baseDataTran = dataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet,null,dataTranPlugin.getCurrentStatus());
         dataTranPlugin.callTran( baseDataTran);

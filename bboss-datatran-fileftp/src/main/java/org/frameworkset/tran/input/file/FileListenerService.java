@@ -781,6 +781,7 @@ public class FileListenerService {
             }
             for(FileReaderTask fileReaderTask:oldedRegistRecords){
                 this.completedTasks.remove(fileReaderTask.getFileId());
+                this.oldedTasks.remove(fileReaderTask.getFileId());
             }
 
         }

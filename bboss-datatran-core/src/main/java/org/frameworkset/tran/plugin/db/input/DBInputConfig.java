@@ -41,8 +41,18 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 
 	private Boolean enableDBTransaction;
     private Integer fetchSize;
+    private boolean enableLocalDate;
+    public DBInputConfig setEnableLocalDate(boolean enableLocalDate){
+        this.enableLocalDate = enableLocalDate;
+        return this;
+    }
 
-	public String getSourceDbname() {
+    @Override
+    public boolean enableLocalDate() {
+        return enableLocalDate;
+    }
+
+    public String getSourceDbname() {
 		return sourceDbname;
 	}
 //

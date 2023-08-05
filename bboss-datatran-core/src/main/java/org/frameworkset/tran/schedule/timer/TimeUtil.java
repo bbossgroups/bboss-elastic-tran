@@ -354,6 +354,23 @@ public class TimeUtil {
          */
 	}
 
+    public static Object convertLocalDate2Date(Object localDate){
+
+         if (null == localDate) {
+             return null;
+         }
+
+         if(localDate instanceof LocalDateTime){
+             return convertLocalDatetime((LocalDateTime)localDate);
+
+         }
+         else if(localDate instanceof LocalDate){
+             return convertLocalDate((LocalDate)localDate);
+
+         }
+         return localDate;
+    }
+
 	public static Date parserDate(String pattern,String date) throws TimeException {
 		SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
 		try {

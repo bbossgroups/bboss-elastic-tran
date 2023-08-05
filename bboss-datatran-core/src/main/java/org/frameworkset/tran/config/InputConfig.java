@@ -34,4 +34,8 @@ public interface InputConfig {
 	void afterBuild(ImportBuilder importBuilder,ImportContext importContext);
 
     boolean isSortedDefault();
+    default boolean enableLocalDate(){
+        return false;
+    }
+
 }

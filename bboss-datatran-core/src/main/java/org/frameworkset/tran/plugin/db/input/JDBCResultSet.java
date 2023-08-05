@@ -26,16 +26,23 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	protected ResultSet resultSet;
 	protected JDBCTranMetaData metaData;
 	protected DB dbadapter;
+    protected boolean enableLocalDate;
 
 //	protected boolean stoped;
 	public JDBCResultSet(){
 
 	}
-	public JDBCResultSet(TaskContext taskContext,ResultSet resultSet,JDBCTranMetaData metaData,DB dbadapter){
+	public JDBCResultSet(TaskContext taskContext,ResultSet resultSet,JDBCTranMetaData metaData,DB dbadapter,boolean enableLocalDate){
 		this.resultSet = resultSet;
 		this.metaData = metaData;
 		this.dbadapter = dbadapter;
-		record = new JDBCResultRecord(taskContext,resultSet,metaData,dbadapter);
+        this.enableLocalDate = enableLocalDate;
+        if(!enableLocalDate) {
+            record = new JDBCResultRecord(taskContext, resultSet, metaData, dbadapter);
+        }
+        else{
+            record = new LocalDateJDBCResultRecord(taskContext, resultSet, metaData, dbadapter);
+        }
 
 	}
 
