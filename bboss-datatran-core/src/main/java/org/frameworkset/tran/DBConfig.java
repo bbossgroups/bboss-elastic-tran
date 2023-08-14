@@ -19,6 +19,8 @@ package org.frameworkset.tran;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.orm.adapter.DBFactory;
 
+import java.util.Properties;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -208,6 +210,8 @@ public class DBConfig {
 	 * 事务管理机制只有在一次性全量单线程导入的情况下才有用
 	 */
 	private boolean enableDBTransaction = false;
+
+    private Properties connectionProperties;
 
 
 	/**
@@ -591,5 +595,18 @@ public class DBConfig {
 
     public void setStatusHistoryTableDML(String statusHistoryTableDML) {
         this.statusHistoryTableDML = statusHistoryTableDML;
+    }
+
+    public Properties getConnectionProperties() {
+        return connectionProperties;
+    }
+
+    public void setConnectionProperties(Properties connectionProperties) {
+        this.connectionProperties = connectionProperties;
+    }
+    public void addConnectionProperty(String name,Object value){
+        if(connectionProperties == null)
+            connectionProperties = new Properties();
+        connectionProperties.put(name,value);
     }
 }

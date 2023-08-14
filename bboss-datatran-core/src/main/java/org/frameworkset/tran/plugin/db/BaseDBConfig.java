@@ -21,6 +21,7 @@ import org.frameworkset.tran.plugin.BaseConfig;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * <p>Description: </p>
@@ -70,6 +71,7 @@ public abstract class BaseDBConfig extends BaseConfig {
 		dbConfig.setDbName(dbName);
 
 	}
+
 	public void _setColumnLableUpperCase(boolean columnLableUpperCase) {
 		this.customDBConfigs.put(DBConfig.db_columnLableUpperCase_key,1);
 		checkDBConfig();
@@ -179,4 +181,17 @@ public abstract class BaseDBConfig extends BaseConfig {
 		checkDBConfig();
 		dbConfig.setMaxIdleTime(maxIdleTime);
 	}
+
+    public Properties getConnectionProperties() {
+        return dbConfig.getConnectionProperties();
+    }
+
+    public void _setConnectionProperties(Properties connectionProperties) {
+        checkDBConfig();
+        dbConfig.setConnectionProperties( connectionProperties);
+    }
+    public void _addConnectionProperty(String name,Object value){
+        checkDBConfig();
+        dbConfig.addConnectionProperty( name, value);
+    }
 }

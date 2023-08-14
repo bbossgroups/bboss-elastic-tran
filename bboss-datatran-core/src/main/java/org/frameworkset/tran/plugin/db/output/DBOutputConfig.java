@@ -32,6 +32,7 @@ import org.frameworkset.tran.schedule.TaskContext;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * <p>Description: </p>
@@ -520,5 +521,13 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 		_setMaxIdleTime( maxIdleTime);
 		return  this;
 	}
+    public DBOutputConfig setConnectionProperties(Properties connectionProperties) {
+        _setConnectionProperties( connectionProperties);
+        return this;
+    }
+    public DBOutputConfig addConnectionProperty(String name,Object value){
+        _addConnectionProperty( name, value);
+        return this;
+    }
 
 }

@@ -24,6 +24,8 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.db.BaseDBConfig;
 
+import java.util.Properties;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -281,6 +283,15 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 		_setShowSql(  showsql);
 		return this;
 	}
+
+    public DBInputConfig setConnectionProperties(Properties connectionProperties) {
+        _setConnectionProperties( connectionProperties);
+        return this;
+    }
+    public DBInputConfig addConnectionProperty(String name,Object value){
+        _addConnectionProperty( name, value);
+        return this;
+    }
 
 	public DBInputConfig setEnableDBTransaction(Boolean enableDBTransaction) {
 		this.enableDBTransaction = enableDBTransaction;

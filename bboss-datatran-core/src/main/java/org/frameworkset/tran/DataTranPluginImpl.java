@@ -700,6 +700,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
             temConf.setConnectionTimeout(dbConfig.getConnectionTimeout());
             temConf.setMaxIdleTime(dbConfig.getMaxIdleTime());
             temConf.setMaxWait(dbConfig.getMaxWait());
+            temConf.setConnectionProperties(dbConfig.getConnectionProperties());
 
             boolean ret = SQLManager.startPool(temConf);
 			if(ret){
