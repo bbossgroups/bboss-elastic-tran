@@ -248,20 +248,32 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 	}
 
 
-
+    /**
+     * The minimum amount of time an object may sit idle in the pool before it is eligible for eviction by the idle
+     * object evictor (if any).
+     * 单位：毫秒
+     */
 	public DBInputConfig setConnectionTimeout(int connectionTimeout) {
 		_setConnectionTimeout( connectionTimeout);
 		return  this;
 	}
 
 
-
+    /**
+     * 申请链接超时时间，单位：毫秒
+     */
 	public DBInputConfig setMaxWait(int maxWait) {
 		_setMaxWait( maxWait);
 		return  this;
 	}
 
+    /**
+     * Set max idle Times in seconds ,if exhaust this times the used connection object will be Abandoned removed if removeAbandoned is true.
+     default value is 300 seconds.
 
+     see removeAbandonedTimeout parameter in commons dbcp.
+     单位：秒
+     */
 	public DBInputConfig setMaxIdleTime(int maxIdleTime) {
 		_setMaxIdleTime( maxIdleTime);
 		return  this;
