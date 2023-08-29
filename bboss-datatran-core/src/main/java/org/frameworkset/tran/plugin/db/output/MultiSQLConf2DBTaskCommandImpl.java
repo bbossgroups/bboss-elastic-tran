@@ -35,8 +35,7 @@ import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>Description: import datas to database task command</p>
@@ -83,6 +82,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
 
 
 	}
+
     protected String getSQL(CommonRecord record){
         if(record.isInsert()) {
             TranSQLInfo insertSqlinfo = dbOutputConfig.getTargetSqlInfo(taskContext,record);
@@ -100,267 +100,317 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
             throw new DataImportException("record action type must be insert or update or delete record.");
         }
     }
+
+
+    protected TranSQLInfo getTranSQLInfo(CommonRecord record){
+        if(record.isInsert()) {
+            TranSQLInfo insertSqlinfo = dbOutputConfig.getTargetSqlInfo(taskContext,record);
+            return insertSqlinfo;
+        }
+        else if(record.isUpdate()){
+            TranSQLInfo updateSqlinfo = dbOutputConfig.getTargetUpdateSqlInfo(taskContext,record);
+            return updateSqlinfo;
+        }
+        else if(record.isDelete()){
+            TranSQLInfo deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(taskContext,record);
+            return deleteSqlinfo;
+        }
+        else{
+            throw new DataImportException("record action type must be insert or update or delete record.");
+        }
+    }
 	public String execute(){
-		String data = null;
-		if(this.importContext.getMaxRetry() > 0){
-			if(this.tryCount >= this.importContext.getMaxRetry())
-				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
-		}
-		this.tryCount ++;
-
-		StatementInfo stmtInfo = null;
-		PreparedStatement statement = null;
-//		TranSQLInfo insertSqlinfo = null;
-//		TranSQLInfo updateSqlinfo = null;
-//		TranSQLInfo deleteSqlinfo = null;
-		Connection con_ = null;
-		int batchsize = importContext.getStoreBatchSize();
-		try {
-			String dbname = dbOutputConfig.getTargetDBName(taskContext);
-			if(dbname == null){
-				dbname = dbOutputConfig.getTargetDbname();
-			}
-			con_ = DBUtil.getConection(dbname);
-			stmtInfo = new StatementInfo(dbname,
-					null,
-					false,
-					con_,
-					false);
-			stmtInfo.init();
-
-			String oldSql = null;
-
-			String sql = null;
-			if(batchsize <= 1 || !needBatch) {//如果batchsize被设置为0或者1直接一次性批处理所有记录
-				List resources = null;
-				for(CommonRecord dbRecord:datas){
-					DBRecord record = (DBRecord)dbRecord;
-                    sql = getSQL( record);
-//					if(record.isInsert()) {
-//                        insertSqlinfo = dbOutputConfig.getTargetSqlInfo(taskContext,dbRecord);
-//						sql = insertSqlinfo.getSql();
-//					}
-//					else if(record.isUpdate()){
-//                        updateSqlinfo = dbOutputConfig.getTargetUpdateSqlInfo(taskContext,dbRecord);
-//						sql = updateSqlinfo.getSql();
-//					}
-//					else{
-//                        deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(taskContext,dbRecord);
-//						sql = deleteSqlinfo.getSql();
-//					}
-
-					if(oldSql == null){
-
-						oldSql = sql;
-						statement = stmtInfo
-								.prepareStatement(sql);
-					}
-					else if(!oldSql.equals(sql)){
-						try {
-							statement.executeBatch();
-						}
-
-						finally {
-							DBOptionsPreparedDBUtil.releaseResources(resources);
-							try {
-								statement.close();
-							}
-
-							catch (Exception e){
-
-							}
-						}
-						finishTask();
-
-						oldSql = sql;
-						statement = stmtInfo
-								.prepareStatement(sql);
-					}
-					if(dbOutputConfig.getStatementHandler() == null) {
-						BaseTypeMethod baseTypeMethod = null;
-
-						for(int i = 0;i < record.size(); i ++)
-						{
-							Param param = record.get(i);
-							baseTypeMethod = param.getMethod();
-							if(baseTypeMethod == null){
-								stmtInfo.getDbadapter().setObject(statement,null,param.getIndex(), param.getData());
-							}
-							else{
-								if(resources == null){
-									resources = new ArrayList();
-								}
-								baseTypeMethod.action(stmtInfo,param,statement,null,resources);
-							}
-
-//							statement.setObject(param.getIndex(),param.getValue());
-						}
-					}
-					else{
-						dbOutputConfig.getStatementHandler().handler(statement,record);
-					}
-
-
-					try {
-						statement.addBatch();
-					}
-					catch (SQLException e){
-						throw new NestedSQLException(record.toString(),e);
-					}
-				}
-				if(statement != null) {
-					try {
-						statement.executeBatch();
-					}
-					finally {
-						DBOptionsPreparedDBUtil.releaseResources(resources);
-					}
-					finishTask();
-				}
-			}
-			else
-			{
-				List resources = null;
-				int point = batchsize - 1;
-				int count = 0;
-				for(CommonRecord dbRecord:datas) {
-					DBRecord record = (DBRecord)dbRecord;
-                    sql = getSQL( record);
-//                    if(record.isInsert()) {
-//                        insertSqlinfo = dbOutputConfig.getTargetSqlInfo(taskContext,dbRecord);
-//                        sql = insertSqlinfo.getSql();
-//                    }
-//                    else if(record.isUpdate()){
-//                        updateSqlinfo = dbOutputConfig.getTargetUpdateSqlInfo(taskContext,dbRecord);
-//                        sql = updateSqlinfo.getSql();
-//                    }
-//                    else{
-//                        deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(taskContext,dbRecord);
-//                        sql = deleteSqlinfo.getSql();
-//                    }
-					if(oldSql == null){
-
-						oldSql = sql;
-						statement = stmtInfo
-								.prepareStatement(sql);
-					}
-					else if(!oldSql.equals(sql)){
-						if(count > 0) {
-							try {
-								statement.executeBatch();
-							}
-
-							finally {
-								DBOptionsPreparedDBUtil.releaseResources(resources);
-								try {
-									statement.close();
-								}
-
-								catch (Exception e){
-
-								}
-							}
-							finishTask();
-
-						}
-						count = 0;
-						oldSql = sql;
-						statement = stmtInfo
-								.prepareStatement(sql);
-					}
-					if(dbOutputConfig.getStatementHandler() == null) {
-						BaseTypeMethod baseTypeMethod = null;
-
-						for (int i = 0; i < record.size(); i++) {
-							Param param = record.get(i);
-							baseTypeMethod = param.getMethod();
-							if(baseTypeMethod == null) {
-								stmtInfo.getDbadapter().setObject(statement, null, param.getIndex(), param.getData());
-							}
-							else{
-								if(resources == null){
-									resources = new ArrayList();
-								}
-								baseTypeMethod.action(stmtInfo,param,statement,null,resources);
-							}
-//							statement.setObject(param.getIndex(), param.getValue());
-						}
-					}
-					else{
-						dbOutputConfig.getStatementHandler().handler(statement,record);
-					}
-					statement.addBatch();
-					if ((count > 0 && count % point == 0)) {
-						try {
-							statement.executeBatch();
-						}
-
-						finally {
-							DBOptionsPreparedDBUtil.releaseResources(resources);
-
-						}
-						finishTask();
-						statement.clearBatch();
-						count = 0;
-						continue;
-					}
-					count++;
-				}
-				if(count > 0) {
-					try {
-						statement.executeBatch();
-					}
-
-					finally {
-						DBOptionsPreparedDBUtil.releaseResources(resources);
-
-					}
-					finishTask();
-				}
-			}
-
-		}
-		catch(BatchUpdateException error)
-		{
-			if(stmtInfo != null) {
-				try {
-					stmtInfo.errorHandle(error);
-				} catch (SQLException ex) {
-					throw new DataImportException(taskInfo,error);
-				}
-			}
-			throw new DataImportException(taskInfo,error);
-		}
-		catch (Exception e) {
-			if(stmtInfo != null) {
-
-				try {
-					stmtInfo.errorHandle(e);
-				} catch (SQLException ex) {
-					throw new DataImportException(taskInfo,e);
-				}
-			}
-			throw new DataImportException(taskInfo,e);
-
-		} finally {
-			if(stmtInfo != null)
-				stmtInfo.dofinally();
-			if(con_ != null){
-				try {
-					con_.close();
-				}
-				catch (Exception e){
-
-				}
-			}
-//			logger.info("stmtInfo.dofinally()");
-//			debugDB(importContext.getDbConfig().getDbName());
-			stmtInfo = null;
-
-
-		}
-		return data;
+		if(!dbOutputConfig.isMultiSQLConfTargetDBName()){
+            return singleTargetDBExecute();
+        }
+        else{
+            return multiTargetDBExecute();
+        }
 	}
+
+    private String singleTargetDBExecute() {
+        if(this.importContext.getMaxRetry() > 0){
+            if(this.tryCount >= this.importContext.getMaxRetry())
+                throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
+        }
+        this.tryCount ++;
+        String dbname = dbOutputConfig.getTargetDBName(taskContext);
+        if(dbname == null){
+            dbname = dbOutputConfig.getTargetDbname();
+        }
+        return _execute( datas, dbname);
+    }
+    private String _execute(List<CommonRecord> datas,String dbname){
+        String data = null;
+
+
+        StatementInfo stmtInfo = null;
+        PreparedStatement statement = null;
+
+        Connection con_ = null;
+        int batchsize = importContext.getStoreBatchSize();
+        try {
+
+            con_ = DBUtil.getConection(dbname);
+            stmtInfo = new StatementInfo(dbname,
+                    null,
+                    false,
+                    con_,
+                    false);
+            stmtInfo.init();
+
+            String oldSql = null;
+
+            String sql = null;
+            if(batchsize <= 1 || !needBatch) {//如果batchsize被设置为0或者1直接一次性批处理所有记录
+                List resources = null;
+                for(CommonRecord dbRecord:datas){
+                    DBRecord record = (DBRecord)dbRecord;
+                    sql = getSQL( record);
+
+                    if(oldSql == null){
+
+                        oldSql = sql;
+                        statement = stmtInfo
+                                .prepareStatement(sql);
+                    }
+                    else if(!oldSql.equals(sql)){
+                        try {
+                            statement.executeBatch();
+                        }
+
+                        finally {
+                            DBOptionsPreparedDBUtil.releaseResources(resources);
+                            try {
+                                statement.close();
+                            }
+
+                            catch (Exception e){
+
+                            }
+                        }
+                        finishTask();
+
+                        oldSql = sql;
+                        statement = stmtInfo
+                                .prepareStatement(sql);
+                    }
+                    if(dbOutputConfig.getStatementHandler() == null) {
+                        BaseTypeMethod baseTypeMethod = null;
+
+                        for(int i = 0;i < record.size(); i ++)
+                        {
+                            Param param = record.get(i);
+                            baseTypeMethod = param.getMethod();
+                            if(baseTypeMethod == null){
+                                stmtInfo.getDbadapter().setObject(statement,null,param.getIndex(), param.getData());
+                            }
+                            else{
+                                if(resources == null){
+                                    resources = new ArrayList();
+                                }
+                                baseTypeMethod.action(stmtInfo,param,statement,null,resources);
+                            }
+
+                        }
+                    }
+                    else{
+                        dbOutputConfig.getStatementHandler().handler(statement,record);
+                    }
+
+
+                    try {
+                        statement.addBatch();
+                    }
+                    catch (SQLException e){
+                        throw new NestedSQLException(record.toString(),e);
+                    }
+                }
+                if(statement != null) {
+                    try {
+                        statement.executeBatch();
+                    }
+                    finally {
+                        DBOptionsPreparedDBUtil.releaseResources(resources);
+                    }
+                    finishTask();
+                }
+            }
+            else
+            {
+                List resources = null;
+                int point = batchsize - 1;
+                int count = 0;
+                for(CommonRecord dbRecord:datas) {
+                    DBRecord record = (DBRecord)dbRecord;
+                    sql = getSQL( record);
+
+                    if(oldSql == null){
+
+                        oldSql = sql;
+                        statement = stmtInfo
+                                .prepareStatement(sql);
+                    }
+                    else if(!oldSql.equals(sql)){
+                        if(count > 0) {
+                            try {
+                                statement.executeBatch();
+                            }
+
+                            finally {
+                                DBOptionsPreparedDBUtil.releaseResources(resources);
+                                try {
+                                    statement.close();
+                                }
+
+                                catch (Exception e){
+
+                                }
+                            }
+                            finishTask();
+
+                        }
+                        count = 0;
+                        oldSql = sql;
+                        statement = stmtInfo
+                                .prepareStatement(sql);
+                    }
+                    if(dbOutputConfig.getStatementHandler() == null) {
+                        BaseTypeMethod baseTypeMethod = null;
+
+                        for (int i = 0; i < record.size(); i++) {
+                            Param param = record.get(i);
+                            baseTypeMethod = param.getMethod();
+                            if(baseTypeMethod == null) {
+                                stmtInfo.getDbadapter().setObject(statement, null, param.getIndex(), param.getData());
+                            }
+                            else{
+                                if(resources == null){
+                                    resources = new ArrayList();
+                                }
+                                baseTypeMethod.action(stmtInfo,param,statement,null,resources);
+                            }
+                        }
+                    }
+                    else{
+                        dbOutputConfig.getStatementHandler().handler(statement,record);
+                    }
+                    statement.addBatch();
+                    if ((count > 0 && count % point == 0)) {
+                        try {
+                            statement.executeBatch();
+                        }
+
+                        finally {
+                            DBOptionsPreparedDBUtil.releaseResources(resources);
+
+                        }
+                        finishTask();
+                        statement.clearBatch();
+                        count = 0;
+                        continue;
+                    }
+                    count++;
+                }
+                if(count > 0) {
+                    try {
+                        statement.executeBatch();
+                    }
+
+                    finally {
+                        DBOptionsPreparedDBUtil.releaseResources(resources);
+
+                    }
+                    finishTask();
+                }
+            }
+
+        }
+        catch(BatchUpdateException error)
+        {
+            if(stmtInfo != null) {
+                try {
+                    stmtInfo.errorHandle(error);
+                } catch (SQLException ex) {
+                    throw new DataImportException(taskInfo,error);
+                }
+            }
+            throw new DataImportException(taskInfo,error);
+        }
+        catch (Exception e) {
+            if(stmtInfo != null) {
+
+                try {
+                    stmtInfo.errorHandle(e);
+                } catch (SQLException ex) {
+                    throw new DataImportException(taskInfo,e);
+                }
+            }
+            throw new DataImportException(taskInfo,e);
+
+        } finally {
+            if(stmtInfo != null)
+                stmtInfo.dofinally();
+            if(con_ != null){
+                try {
+                    con_.close();
+                }
+                catch (Exception e){
+
+                }
+            }
+            stmtInfo = null;
+
+
+        }
+        return data;
+    }
+    private Map<String,List<CommonRecord>> dbRecords;
+    private void splitRecords(){
+        if(dbRecords != null)
+            return ;
+        String dbname = dbOutputConfig.getTargetDBName(taskContext);
+        if(dbname == null){
+            dbname = dbOutputConfig.getTargetDbname();
+        }
+        Map<String,List<CommonRecord>> dbRecords = new LinkedHashMap<>();
+        for(CommonRecord dbRecord:datas){
+            TranSQLInfo tranSQLInfo =getTranSQLInfo(dbRecord);
+            String tmpDBName = null;
+            if(tranSQLInfo.getTargetDBName() != null){
+                tmpDBName = tranSQLInfo.getTargetDBName();
+
+            }
+            else{
+                tmpDBName = dbname;
+
+            }
+            List<CommonRecord> temp = dbRecords.get(tmpDBName);
+            if(temp == null){
+                temp = new ArrayList<>();
+                dbRecords.put(tmpDBName,temp);
+            }
+            temp.add(dbRecord);
+
+        }
+        this.dbRecords = dbRecords;
+
+    }
+    private String multiTargetDBExecute(){
+        splitRecords();
+        String data = null;
+        if(this.importContext.getMaxRetry() > 0){
+            if(this.tryCount >= this.importContext.getMaxRetry())
+                throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
+        }
+        this.tryCount ++;
+        Iterator<Map.Entry<String, List<CommonRecord>>> iterator = dbRecords.entrySet().iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String, List<CommonRecord>> entry = iterator.next();
+            this._execute(entry.getValue(),entry.getKey());
+        }
+        return data;
+    }
 
 	public int getTryCount() {
 		return tryCount;

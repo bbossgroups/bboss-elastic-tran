@@ -31,6 +31,7 @@ public class TranSQLInfo {
 	private String originSQL;
 	private String sql;
 	private List<VariableHandler.Variable> vars;
+    private String targetDBName;
 
 	public String getOriginSQL() {
 		return originSQL;
@@ -55,4 +56,12 @@ public class TranSQLInfo {
 	public void setVars(List<VariableHandler.Variable> vars) {
 		this.vars = vars;
 	}
+
+    public String getTargetDBName() {
+        return targetDBName;
+    }
+
+    public void setTargetDBName(String targetDBName) {
+        this.targetDBName = targetDBName;
+    }
 }

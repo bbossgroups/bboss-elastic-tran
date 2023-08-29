@@ -23,8 +23,6 @@ import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -37,7 +35,6 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
 	private static final Logger logger = LoggerFactory.getLogger(MysqlBinlogInputDatatranPlugin.class);
     private MySQLBinlogConfig mySQLBinlogConfig;
     private MySQLBinlogListener mySQLBinlogListener;
-    private Map<String, String[]> allTableColumns;
     private MysqlBinlogDataTranPluginImpl mysqlBinlogDataTranPlugin;
     public MysqlBinlogInputDatatranPlugin(ImportContext importContext){
         super(  importContext);
@@ -81,7 +78,7 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
 
 	@Override
 	public void afterInit(){
-        allTableColumns = DBMetaUtil.getTableColumns(this.mySQLBinlogConfig);
+        DBMetaUtil.initTableColumns(this.mySQLBinlogConfig);
         mysqlBinlogDataTranPlugin = (MysqlBinlogDataTranPluginImpl) dataTranPlugin;
 	}
 
@@ -174,6 +171,7 @@ public  class MysqlBinlogInputDatatranPlugin extends BaseInputPlugin  {
     }
 
     public String[] getColumns(String database, String table) {
-        return this.allTableColumns.get(DBMetaUtil.buildTableKey(database,table));
+
+        return this.mySQLBinlogConfig.getColumns(database,table);
     }
 }

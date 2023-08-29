@@ -28,6 +28,10 @@ public class MysqlBinLogData {
     private Object oldValues;
     private int action;
     private String table;
+
+
+
+    private String database;
     private Long position;
 
 
@@ -79,5 +83,12 @@ public class MysqlBinLogData {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+    public String getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(String database) {
+        this.database = database;
     }
 }

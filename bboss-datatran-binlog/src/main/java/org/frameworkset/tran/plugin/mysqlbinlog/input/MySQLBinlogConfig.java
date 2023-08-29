@@ -25,6 +25,9 @@ import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.plugin.db.CDCDBTable;
+
+import java.util.*;
 
 import static org.frameworkset.tran.metrics.job.MetricsConfig.DEFAULT_metricsInterval;
 
@@ -45,7 +48,8 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
     private String database;
     private String tables;
-    private String[] listenTables;
+    private Map<String,List<CDCDBTable>> dbTables;
+    private Map<String,Map<String,CDCDBTable>> dbTableIdxs;
     private String[] collectorFileNames;
 
     /**
@@ -163,13 +167,86 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         return this;
     }
 
+    private void addDBTable(String db,String table){
+        Map<String, CDCDBTable> dbCDCDBTableMap = this.dbTableIdxs.get(db);
+        List<CDCDBTable> cdcdbTables = this.dbTables.get(db);
+        if(dbCDCDBTableMap == null){
+            dbCDCDBTableMap = new LinkedHashMap<>();
+            cdcdbTables = new ArrayList<>();
+            this.dbTableIdxs.put(db,dbCDCDBTableMap);
+            dbTables.put(db,cdcdbTables);
+        }
+        CDCDBTable cdcdbTable = new CDCDBTable();
+        cdcdbTable.setTableName(table);
+        cdcdbTable.setDatabase(db);
+        dbCDCDBTableMap.put(table,cdcdbTable);
+        cdcdbTables.add(cdcdbTable);
+    }
+    private void addCommonDBTable(List<String> tables){
+        Iterator<Map.Entry<String, Map<String, CDCDBTable>>> iterator = dbTableIdxs.entrySet().iterator();
+        for(String table:tables) {
+            while (iterator.hasNext()) {
+                Map.Entry<String, Map<String, CDCDBTable>> entry = iterator.next();
+                Map<String, CDCDBTable> tableMap = entry.getValue();
+                if(!tableMap.containsKey(table)){
+                    CDCDBTable cdcdbTable = new CDCDBTable();
+                    cdcdbTable.setDatabase(entry.getKey());
+                    cdcdbTable.setTableName(table);
+                    tableMap.put(table,cdcdbTable);
+                    dbTables.get(entry.getKey()).add(cdcdbTable);
+                }
+            }
+        }
+
+    }
+
+    public Map<String, List<CDCDBTable>> getDbTables() {
+        return dbTables;
+    }
+
+    public Map<String, Map<String, CDCDBTable>> getDbTableIdxs() {
+        return dbTableIdxs;
+    }
+
+    private void parserMeta(){
+        this.dbTableIdxs = new LinkedHashMap<>();
+        this.dbTables = new LinkedHashMap<>();
+        if(SimpleStringUtil.isNotEmpty(database)){
+            String[] _dbs = database.split(",");
+
+            for(String db:_dbs){
+                dbTableIdxs.put(db,new LinkedHashMap<>());
+                dbTables.put(db,new ArrayList<>());
+            }
+        }
+        List<String> commonTables = new ArrayList<>();
+        String[] _listenTables = tables.split(",");
+        for(String table:_listenTables){
+            if(table.indexOf(".") > 0){
+                String t[] = table.split("\\.");
+                addDBTable(t[0],t[1]);
+            }
+            else{
+                commonTables.add(table);
+            }
+        }
+        if(SimpleStringUtil.isNotEmpty(commonTables )) {
+            if(SimpleStringUtil.isEmpty(database)) {
+                throw new DataImportException("Listern database can't be empty for tables"+SimpleStringUtil.object2json(commonTables)+".");
+            }
+            addCommonDBTable(commonTables);
+
+        }
+
+
+    }
     @Override
     public void build(ImportBuilder importBuilder) {
-        if(SimpleStringUtil.isEmpty(database))
-            throw new DataImportException("listern database can't be empty.");
+
         if(SimpleStringUtil.isEmpty(tables))
             throw new DataImportException("listern tables can't be empty.");
-        listenTables = tables.split(",");
+        parserMeta();
+
         if(SimpleStringUtil.isEmpty(schemaUrl)){
             schemaUrl = "jdbc:mysql://" + getHost()+":" +getPort()+
                        "/INFORMATION_SCHEMA?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
@@ -211,14 +288,7 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         return this;
     }
 
-    public String[] getListenTables() {
-        return listenTables;
-    }
 
-    public MySQLBinlogConfig setListenTables(String[] listenTables) {
-        this.listenTables = listenTables;
-        return this;
-    }
 
     public Long getPosition() {
         return position;
@@ -357,5 +427,16 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
     public MySQLBinlogConfig setJoinToConnectTimeOut(long joinToConnectTimeOut) {
         this.joinToConnectTimeOut = joinToConnectTimeOut;
         return this;
+    }
+    public String[] getColumns(String database, String table) {
+        Map<String, CDCDBTable> tableMap = this.dbTableIdxs.get(database);
+        if(tableMap != null){
+            CDCDBTable cdcdbTable = tableMap.get(table);
+            if(cdcdbTable != null){
+                return cdcdbTable.getTableColumns();
+            }
+        }
+        return null;
+//        return this.allTableColumns.get(DBMetaUtil.buildTableKey(database,table));
     }
 }

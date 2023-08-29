@@ -216,11 +216,12 @@ public abstract class TranUtil {
         SQLInfo sqlinfo = null;
         String sqlName = sqlConf.getInsertSqlName();
         String sqlFilePath = dbOutputConfig.getSqlFilepath();
-        String db = dbOutputConfig.getTargetDbname();
+        String db = sqlConf.getTargetDbName() == null?dbOutputConfig.getTargetDbname():sqlConf.getTargetDbName();
         if(sqlName == null) {
             sqlName = sqlConf.getInsertSql();
-            if(sqlName != null)
-                sqlInfo = buildTranSQLInfo( sqlName,true,  sqlFilePath,   db);
+            if(sqlName != null) {
+                sqlInfo = buildTranSQLInfo(sqlName, true, sqlFilePath, db);
+            }
 
 
         }
@@ -228,8 +229,10 @@ public abstract class TranUtil {
             sqlInfo = buildTranSQLInfo( sqlName,false,  sqlFilePath,   db);
         }
 
+
         if(sqlInfo != null){
             sqlConf.setTargetSqlInfo(sqlInfo);
+            sqlInfo.setTargetDBName(db);
             sqlInfo = null;
         }
 
@@ -237,8 +240,10 @@ public abstract class TranUtil {
 
         if(sqlName == null) {
             sqlName = sqlConf.getUpdateSql();
-            if(sqlName != null)
-                sqlInfo = buildTranSQLInfo( sqlName,true,  sqlFilePath,   db);
+            if(sqlName != null) {
+                sqlInfo = buildTranSQLInfo(sqlName, true, sqlFilePath, db);
+
+            }
 
 
         }
@@ -247,6 +252,7 @@ public abstract class TranUtil {
         }
 
         if(sqlInfo != null){
+            sqlInfo.setTargetDBName(db);
             sqlConf.setTargetUpdateSqlInfo(sqlInfo);
             sqlInfo = null;
         }
@@ -264,6 +270,7 @@ public abstract class TranUtil {
         }
 
         if(sqlInfo != null){
+            sqlInfo.setTargetDBName(db);
             sqlConf.setTargetDeleteSqlInfo(sqlInfo);
             sqlInfo = null;
         }

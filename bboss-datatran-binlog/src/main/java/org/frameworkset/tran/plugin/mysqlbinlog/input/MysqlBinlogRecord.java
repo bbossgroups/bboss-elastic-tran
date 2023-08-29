@@ -52,7 +52,7 @@ public class MysqlBinlogRecord extends CommonMapRecord {
         Map<String,Object> tmp = new LinkedHashMap<>();
         tmp.put("position",mysqlBinLogData.getPosition());
         tmp.put("table",mysqlBinLogData.getTable());
-        tmp.put("database",mySQLBinlogConfig.getDatabase());
+        tmp.put("database",mysqlBinLogData.getDatabase());
         tmp.put("host",mySQLBinlogConfig.getHost());
         tmp.put("fileName",mysqlBinLogData.getFileName());
         tmp.put("fileNames",mySQLBinlogConfig.getFileNames());

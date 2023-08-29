@@ -16,14 +16,12 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  */
 
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.plugin.db.CDCDBTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>Description: </p>
@@ -47,29 +45,36 @@ public class DBMetaUtil {
     public static String buildTableKey(String database,String table){
         return new StringBuilder().append(database).append(":").append(table).toString();
     }
-    public static Map<String,String[]> getTableColumns(MySQLBinlogConfig mySQLBinlogConfig){
+    public static void initTableColumns(MySQLBinlogConfig mySQLBinlogConfig){
         Map<String,String[]> allTableColumns = new LinkedHashMap<>();
-        for(String table:mySQLBinlogConfig.getListenTables()) {
-            List<String> tableColums = getColumns(mySQLBinlogConfig,table);
-            if(tableColums == null || tableColums.size() == 0){
-                throw new DataImportException("getTableColumns failed:"+table + "'s columns is null.");
+        Map<String, List<CDCDBTable>> dbTables = mySQLBinlogConfig.getDbTables();
+        if(dbTables != null && dbTables.size() > 0) {
+            Iterator<Map.Entry<String, List<CDCDBTable>>> iterator = dbTables.entrySet().iterator();
+            while (iterator.hasNext()){
+                Map.Entry<String, List<CDCDBTable>> entry = iterator.next();
+                List<CDCDBTable> tables = entry.getValue();
+                for(CDCDBTable cdcdbTable: tables){
+                    List<String> tableColums = getColumns(mySQLBinlogConfig, entry.getKey(),cdcdbTable.getTableName());
+                    cdcdbTable.setTableColumns(tableColums.toArray(new String[tableColums.size()]));
+                }
+
             }
-            allTableColumns.put(buildTableKey( mySQLBinlogConfig.getDatabase(), table),tableColums.toArray(new String[tableColums.size()]));
+
         }
-        return allTableColumns;
     }
-    private static List<String> getColumns(MySQLBinlogConfig host,  String table) {
+    private static List<String> getColumns(MySQLBinlogConfig mySQLBinlogConfig,String database,  String table) {
         ResultSet resultSet =null;
         Statement statement = null;
         Connection connection =null;
         try {
 //            String url =  "jdbc:mysql://" + host.getHost()+":" +host.getPort()+
 //                    "/INFORMATION_SCHEMA?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
-            connection  = DriverManager.getConnection(host.getSchemaUrl(), host.getDbUser(), host.getDbPassword());
+            connection  = DriverManager.getConnection(mySQLBinlogConfig.getSchemaUrl(),
+                    mySQLBinlogConfig.getDbUser(), mySQLBinlogConfig.getDbPassword());
             statement = connection.createStatement();
 
             String sql = "select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA='"
-                    + host.getDatabase() + "' and TABLE_NAME='" + table + "' order by ORDINAL_POSITION asc;";
+                    + database + "' and TABLE_NAME='" + table + "' order by ORDINAL_POSITION asc;";
 
             resultSet = statement.executeQuery(sql);
             List<String> buf = new ArrayList<>();
@@ -80,7 +85,7 @@ public class DBMetaUtil {
 
             return buf;
         } catch (SQLException e) {
-            throw new DataImportException(host.getSchemaUrl(),e);
+            throw new DataImportException(mySQLBinlogConfig.getSchemaUrl(),e);
         }finally {
             if(resultSet!=null){
                 try {

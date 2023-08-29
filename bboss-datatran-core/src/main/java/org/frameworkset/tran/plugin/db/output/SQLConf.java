@@ -37,6 +37,7 @@ public class SQLConf {
     private TranSQLInfo targetSqlInfo;
     private TranSQLInfo targetUpdateSqlInfo;
     private TranSQLInfo targetDeleteSqlInfo;
+    private String targetDbName;
 
     public TranSQLInfo getTargetSqlInfo() {
         return targetSqlInfo;
@@ -108,5 +109,13 @@ public class SQLConf {
 
     public void setInsertSqlName(String insertSqlName) {
         this.insertSqlName = insertSqlName;
+    }
+
+    public String getTargetDbName() {
+        return targetDbName;
+    }
+
+    public void setTargetDbName(String targetDbName) {
+        this.targetDbName = targetDbName;
     }
 }
