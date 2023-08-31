@@ -559,6 +559,15 @@ public class ContextImpl implements Context {
 		this.action = Record.RECORD_DELETE;
 	}
 
+    /**
+     * 标识记录状态为ddl操作（DDL）
+
+     */
+    @Override
+    public void markRecoredDDL(){
+        this.action = Record.RECORD_DDL;
+    }
+
 	@Override
 	public boolean isInsert() {
 		return action == Record.RECORD_INSERT;
@@ -568,6 +577,15 @@ public class ContextImpl implements Context {
 	public boolean isUpdate() {
 		return action == Record.RECORD_UPDATE;
 	}
+
+    /**
+     * 判断记录是否DDL操作
+     * @return
+     */
+    @Override
+    public boolean isDDL(){
+        return action == Record.RECORD_DDL;
+    }
 
 	@Override
 	public boolean isDelete() {

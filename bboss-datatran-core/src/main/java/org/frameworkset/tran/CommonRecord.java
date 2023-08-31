@@ -133,6 +133,10 @@ public class CommonRecord {
         return action ==  Record.RECORD_DELETE;
     }
 
+    public boolean isDDL(){
+        return action ==  Record.RECORD_DDL;
+    }
+
     public boolean isUpdate(){
         return action ==  Record.RECORD_UPDATE;
     }

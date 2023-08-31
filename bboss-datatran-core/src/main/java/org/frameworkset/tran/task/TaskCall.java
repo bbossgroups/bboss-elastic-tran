@@ -263,7 +263,7 @@ public class TaskCall implements Runnable {
 				info.append("Task[").append(taskCommand.getTaskNo()).append("] failed: ")
 					.append(taskCommand.getDataSize())
 					.append(" records,but continue On Error! Take time:").append((end - start)).append("ms");
-				logger.info(info.toString(),e);
+				logger.warn(info.toString(),e);
 
 
 			}

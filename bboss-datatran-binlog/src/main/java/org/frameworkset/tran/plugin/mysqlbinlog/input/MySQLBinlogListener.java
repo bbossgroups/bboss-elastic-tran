@@ -179,105 +179,137 @@ public class MySQLBinlogListener {
                     binlogPosition = client.getBinlogPosition();
                     binLogFileName = client.getBinlogFilename();
                     EventData eventData = event.getData();
-                    if(eventData instanceof RotateEventData){
-                        RotateEventData rotateEventData = (RotateEventData)eventData;
-                        binLogFileName = rotateEventData.getBinlogFilename();
+                    if(eventData != null) {
+                        if (eventData instanceof RotateEventData) {
+                            RotateEventData rotateEventData = (RotateEventData) eventData;
+                            binLogFileName = rotateEventData.getBinlogFilename();
 
-                        sendDropedEvent();
-                    }
-                    else if (eventData instanceof TableMapEventData) {
-                        TableMapEventData tableMapEventData = (TableMapEventData) event.getData();
-                        table = tableMapEventData.getTable();
-                        database = tableMapEventData.getDatabase();
-
-                        columns = mysqlBinlogInputDatatranPlugin.getColumns(database, table);
-                        if (columns != null) {
-                            containTable = true;
-                            columnTypes = tableMapEventData.getColumnTypes();
-                            columnMetadata = tableMapEventData.getColumnMetadata();
-                        } else {
-                            containTable = false;
-                            columnTypes = null;
-                            columnMetadata = null;
-                        }
-
-
-                    } else if (eventData instanceof WriteRowsEventData) {
-                        if (!containTable) {
                             sendDropedEvent();
-                            return;
-                        }
-                        WriteRowsEventData writeRowsEventData = (WriteRowsEventData) event.getData();
-                        List<Serializable[]> rows = writeRowsEventData.getRows();
-                        List<MysqlBinlogRecord> datas = new ArrayList<>();
-                        for (Serializable[] serializables : rows) {
-                            Map<String, Object> row = converRow(columns, serializables, columnTypes,
-                                    columnMetadata);
-                            MysqlBinLogData mysqlBinLogData = new MysqlBinLogData();
-                            mysqlBinLogData.setData(row);
-                            mysqlBinLogData.setTable(table);
-                            mysqlBinLogData.setDatabase(database);
-                            mysqlBinLogData.setFileName(binLogFileName);
-                            mysqlBinLogData.setPosition(binlogPosition);
-                            mysqlBinLogData.setAction(Record.RECORD_INSERT);
+                        } else if (eventData instanceof TableMapEventData) {
+                            TableMapEventData tableMapEventData = (TableMapEventData) event.getData();
+                            table = tableMapEventData.getTable();
+                            database = tableMapEventData.getDatabase();
 
-                            MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
-                            datas.add(mysqlBinlogRecord);
+                            columns = mysqlBinlogInputDatatranPlugin.getColumns(database, table);
+                            if (columns != null) {
+                                containTable = true;
+                                columnTypes = tableMapEventData.getColumnTypes();
+                                columnMetadata = tableMapEventData.getColumnMetadata();
+                            } else {
+                                containTable = false;
+                                columnTypes = null;
+                                columnMetadata = null;
+                            }
 
-                        }
-                        mysqlBinlogDataTran.appendData(new CommonData(datas));
 
-                    } else if (eventData instanceof UpdateRowsEventData) {
-                        if (!containTable) {
-                            sendDropedEvent();
-                            return;
-                        }
-                        UpdateRowsEventData writeRowsEventData = (UpdateRowsEventData) event.getData();
-                        List<Map.Entry<Serializable[], Serializable[]>> rows = writeRowsEventData.getRows();
-                        List<MysqlBinlogRecord> datas = new ArrayList<>();
-                        for (Map.Entry<Serializable[], Serializable[]> serializables : rows) {
-                            Map<String, Object> oldrow = converRow(columns, serializables.getKey(), columnTypes,
-                                    columnMetadata);
+                        } else if (eventData instanceof WriteRowsEventData) {
+                            if (!containTable) {
+                                sendDropedEvent();
+                                return;
+                            }
+                            WriteRowsEventData writeRowsEventData = (WriteRowsEventData) event.getData();
+                            List<Serializable[]> rows = writeRowsEventData.getRows();
+                            List<MysqlBinlogRecord> datas = new ArrayList<>();
+                            for (Serializable[] serializables : rows) {
+                                Map<String, Object> row = converRow(columns, serializables, columnTypes,
+                                        columnMetadata);
+                                MysqlBinLogData mysqlBinLogData = new MysqlBinLogData();
+                                mysqlBinLogData.setData(row);
+                                mysqlBinLogData.setTable(table);
+                                mysqlBinLogData.setDatabase(database);
+                                mysqlBinLogData.setFileName(binLogFileName);
+                                mysqlBinLogData.setPosition(binlogPosition);
+                                mysqlBinLogData.setAction(Record.RECORD_INSERT);
 
-                            Map<String, Object> newrow = converRow(columns, serializables.getValue(), columnTypes,
-                                    columnMetadata);
-                            MysqlBinLogData mysqlBinLogData = new MysqlBinLogData();
-                            mysqlBinLogData.setData(newrow);
-                            mysqlBinLogData.setOldValues(oldrow);
-                            mysqlBinLogData.setTable(table);
-                            mysqlBinLogData.setDatabase(database);
-                            mysqlBinLogData.setAction(Record.RECORD_UPDATE);
-                            mysqlBinLogData.setFileName(binLogFileName);
-                            mysqlBinLogData.setPosition(binlogPosition);
-                            MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
-                            datas.add(mysqlBinlogRecord);
+                                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), mysqlBinLogData, mySQLBinlogConfig);
+                                datas.add(mysqlBinlogRecord);
 
-                        }
-                        mysqlBinlogDataTran.appendData(new CommonData(datas));
+                            }
+                            mysqlBinlogDataTran.appendData(new CommonData(datas));
+
+                        } else if (eventData instanceof UpdateRowsEventData) {
+                            if (!containTable) {
+                                sendDropedEvent();
+                                return;
+                            }
+                            UpdateRowsEventData writeRowsEventData = (UpdateRowsEventData) event.getData();
+                            List<Map.Entry<Serializable[], Serializable[]>> rows = writeRowsEventData.getRows();
+                            List<MysqlBinlogRecord> datas = new ArrayList<>();
+                            for (Map.Entry<Serializable[], Serializable[]> serializables : rows) {
+                                Map<String, Object> oldrow = converRow(columns, serializables.getKey(), columnTypes,
+                                        columnMetadata);
+
+                                Map<String, Object> newrow = converRow(columns, serializables.getValue(), columnTypes,
+                                        columnMetadata);
+                                MysqlBinLogData mysqlBinLogData = new MysqlBinLogData();
+                                mysqlBinLogData.setData(newrow);
+                                mysqlBinLogData.setOldValues(oldrow);
+                                mysqlBinLogData.setTable(table);
+                                mysqlBinLogData.setDatabase(database);
+                                mysqlBinLogData.setAction(Record.RECORD_UPDATE);
+                                mysqlBinLogData.setFileName(binLogFileName);
+                                mysqlBinLogData.setPosition(binlogPosition);
+                                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), mysqlBinLogData, mySQLBinlogConfig);
+                                datas.add(mysqlBinlogRecord);
+
+                            }
+                            mysqlBinlogDataTran.appendData(new CommonData(datas));
 //                    System.out.println(event);
-                    } else if (eventData instanceof DeleteRowsEventData) {
-                        if (!containTable) {
-                            sendDropedEvent();
-                            return;
-                        }
-                        DeleteRowsEventData writeRowsEventData = (DeleteRowsEventData) event.getData();
-                        List<Serializable[]> rows = writeRowsEventData.getRows();
-                        List<MysqlBinlogRecord> datas = new ArrayList<>();
-                        for (Serializable[] serializables : rows) {
-                            Map<String, Object> row = converRow(columns, serializables, columnTypes,
-                                    columnMetadata);
-                            MysqlBinLogData mysqlBinLogData = new MysqlBinLogData();
-                            mysqlBinLogData.setData(row);
-                            mysqlBinLogData.setTable(table);
-                            mysqlBinLogData.setDatabase(database);
-                            mysqlBinLogData.setAction(Record.RECORD_DELETE);
-                            mysqlBinLogData.setFileName(binLogFileName);
-                            mysqlBinLogData.setPosition(binlogPosition);
-                            MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
-                            datas.add(mysqlBinlogRecord);
+                        } else if (eventData instanceof DeleteRowsEventData) {
+                            if (!containTable) {
+                                sendDropedEvent();
+                                return;
+                            }
+                            DeleteRowsEventData writeRowsEventData = (DeleteRowsEventData) event.getData();
+                            List<Serializable[]> rows = writeRowsEventData.getRows();
+                            List<MysqlBinlogRecord> datas = new ArrayList<>();
+                            for (Serializable[] serializables : rows) {
+                                Map<String, Object> row = converRow(columns, serializables, columnTypes,
+                                        columnMetadata);
+                                MysqlBinLogData mysqlBinLogData = new MysqlBinLogData();
+                                mysqlBinLogData.setData(row);
+                                mysqlBinLogData.setTable(table);
+                                mysqlBinLogData.setDatabase(database);
+                                mysqlBinLogData.setAction(Record.RECORD_DELETE);
+                                mysqlBinLogData.setFileName(binLogFileName);
+                                mysqlBinLogData.setPosition(binlogPosition);
+                                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), mysqlBinLogData, mySQLBinlogConfig);
+                                datas.add(mysqlBinlogRecord);
 
+                            }
+                            mysqlBinlogDataTran.appendData(new CommonData(datas));
                         }
-                        mysqlBinlogDataTran.appendData(new CommonData(datas));
+                        else if (eventData instanceof QueryEventData) {
+                            if(mySQLBinlogConfig.isDdlSyn()){
+                                QueryEventData queryEventData = (QueryEventData)eventData;
+                                String db = queryEventData.getDatabase();
+                                if(isDdlSynDatabases(db)) {
+                                    List<MysqlBinlogRecord> datas = new ArrayList<>();
+                                    MysqlBinLogData mysqlBinLogData = new MysqlBinLogData();
+                                    Map<String, Object> data = new LinkedHashMap<>();
+
+                                    data.put("ddl", queryEventData.getSql());
+                                    data.put("errorCode", queryEventData.getErrorCode());
+                                    data.put("executionTime", queryEventData.getExecutionTime());
+
+                                    mysqlBinLogData.setData(data);
+//                                mysqlBinLogData.setTable(table);
+                                    mysqlBinLogData.setDatabase(db);
+                                    mysqlBinLogData.setAction(Record.RECORD_DDL);
+                                    mysqlBinLogData.setFileName(binLogFileName);
+                                    mysqlBinLogData.setPosition(binlogPosition);
+                                    MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), mysqlBinLogData, mySQLBinlogConfig);
+                                    datas.add(mysqlBinlogRecord);
+                                    mysqlBinlogDataTran.appendData(new CommonData(datas));
+                                }
+                            }
+                            else{
+                                sendDropedEvent();
+                            }
+                        }
+                        else {
+                            sendDropedEvent();
+                        }
                     }
                     else{
                         sendDropedEvent();
@@ -317,6 +349,8 @@ public class MySQLBinlogListener {
 
 
     }
+
+
 
 
 
@@ -460,6 +494,29 @@ public class MySQLBinlogListener {
                     }
                     this.mysqlBinlogDataTran.appendData(new CommonData(datas));
                 }
+                else if (eventData instanceof QueryEventData) {
+                    if(mySQLBinlogConfig.isDdlSyn()){
+                        QueryEventData queryEventData = (QueryEventData)eventData;
+                        String db = queryEventData.getDatabase();
+                        if(isDdlSynDatabases(db)) {
+                            List<MysqlBinlogRecord> datas = new ArrayList<>();
+                            MysqlBinLogData mysqlBinLogData = new MysqlBinLogData();
+                            Map<String, Object> data = new LinkedHashMap<>();
+
+                            data.put("ddl", queryEventData.getSql());
+                            data.put("errorCode", queryEventData.getErrorCode());
+                            data.put("executionTime", queryEventData.getExecutionTime());
+                            mysqlBinLogData.setData(data);
+                            mysqlBinLogData.setDatabase(db);
+                            mysqlBinLogData.setAction(Record.RECORD_DDL);
+                            mysqlBinLogData.setFileName(fileName);
+                            MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), mysqlBinLogData, mySQLBinlogConfig);
+                            datas.add(mysqlBinlogRecord);
+                            mysqlBinlogDataTran.appendData(new CommonData(datas));
+                        }
+                    }
+
+                }
             }
 
             long end = System.currentTimeMillis();
@@ -492,6 +549,10 @@ public class MySQLBinlogListener {
 
         }
 
+    }
+
+    private boolean isDdlSynDatabases(String database){
+        return mySQLBinlogConfig.isDdlSynDatabases(database);
     }
 
 

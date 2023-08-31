@@ -71,47 +71,46 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 
 
 		super.buildRecord(dbRecord,context);
-        List<VariableHandler.Variable> vars = null;
-        Object temp = null;
-        Param param = null;
+        if(!context.isDDL()) {
+            List<VariableHandler.Variable> vars = null;
+            Object temp = null;
+            Param param = null;
 
 
-        TranSQLInfo insertSqlinfo = dbOutputConfig.getTargetSqlInfo(context.getTaskContext(),dbRecord);
-        TranSQLInfo updateSqlinfo = dbOutputConfig.getTargetUpdateSqlInfo(context.getTaskContext(),dbRecord);
-        TranSQLInfo deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(context.getTaskContext(),dbRecord);
+            TranSQLInfo insertSqlinfo = dbOutputConfig.getTargetSqlInfo(context.getTaskContext(), dbRecord);
+            TranSQLInfo updateSqlinfo = dbOutputConfig.getTargetUpdateSqlInfo(context.getTaskContext(), dbRecord);
+            TranSQLInfo deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(context.getTaskContext(), dbRecord);
 
-        if(context.isInsert()) {
+            if (context.isInsert()) {
 
-            vars = insertSqlinfo.getVars();
+                vars = insertSqlinfo.getVars();
+            } else if (context.isUpdate()) {
+                vars = updateSqlinfo.getVars();
+            } else {
+                vars = deleteSqlinfo.getVars();
+            }
+            String varName = null;
+            List<Param> record = new ArrayList<>();
+            for (int i = 0; i < vars.size(); i++) {
+                PersistentSQLVariable var = (PersistentSQLVariable) vars.get(i);
+                varName = var.getVariableName();
+                temp = dbRecord.getData(varName);
+                if (temp == null) {
+                    if (logger.isDebugEnabled())
+                        logger.debug("未指定绑定变量的值：{}", varName);
+                }
+                param = new Param();
+                param.setVariable(var);
+                param.setIndex(var.getPosition() + 1);
+                param.setData(temp);
+                param.setName(varName);
+                param.setMethod(var.getMethod());
+
+                record.add(param);
+
+            }
+            dbRecord.setParams(record);
         }
-        else if(context.isUpdate()) {
-            vars = updateSqlinfo.getVars();
-        }
-        else {
-            vars = deleteSqlinfo.getVars();
-        }
-		String varName = null;
-		List<Param> record = new ArrayList<>();
-		for(int i = 0;i < vars.size(); i ++)
-		{
-			PersistentSQLVariable var = (PersistentSQLVariable)vars.get(i);
-			varName = var.getVariableName();
-			temp = dbRecord.getData(varName);
-			if(temp == null) {
-				if(logger.isDebugEnabled())
-					logger.debug("未指定绑定变量的值：{}",varName);
-			}
-			param = new Param();
-			param.setVariable(var);
-			param.setIndex(var.getPosition()  +1);
-			param.setData(temp);
-			param.setName(varName);
-			param.setMethod(var.getMethod());
-
-			record.add(param);
-
-		}
-		dbRecord.setParams(record);
 		return dbRecord;
 
 	}

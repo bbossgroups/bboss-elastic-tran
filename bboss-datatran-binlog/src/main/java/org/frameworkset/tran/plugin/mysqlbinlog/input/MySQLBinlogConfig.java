@@ -99,6 +99,9 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
     private SSLMode sslMode;
 
     private SSLSocketFactory sslSocketFactory;
+    private boolean ddlSyn;
+    private String ddlSynDatabases;
+    private String[] listDdlSynDatabases;
 
     public String getHost() {
         return host;
@@ -240,9 +243,29 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
 
     }
+
+    public String[] getListDdlSynDatabases() {
+        return listDdlSynDatabases;
+    }
+
+    public boolean isDdlSynDatabases(String database){
+        for(String db:listDdlSynDatabases){
+            if(db.equals(database)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     @Override
     public void build(ImportBuilder importBuilder) {
 
+        if(isDdlSyn()){
+            if(SimpleStringUtil.isEmpty(ddlSynDatabases))
+                throw new DataImportException("DdlSynDatabases can't be empty.Use MySQLBinlogConfig.setDdlSynDatabases method to set DdlSynDatabases!");
+            listDdlSynDatabases = ddlSynDatabases.split(",");
+        }
         if(SimpleStringUtil.isEmpty(tables))
             throw new DataImportException("listern tables can't be empty.");
         parserMeta();
@@ -438,5 +461,21 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         }
         return null;
 //        return this.allTableColumns.get(DBMetaUtil.buildTableKey(database,table));
+    }
+
+    public boolean isDdlSyn() {
+        return ddlSyn;
+    }
+
+    public void setDdlSyn(boolean ddlSyn) {
+        this.ddlSyn = ddlSyn;
+    }
+
+    public String getDdlSynDatabases() {
+        return ddlSynDatabases;
+    }
+
+    public void setDdlSynDatabases(String ddlSynDatabases) {
+        this.ddlSynDatabases = ddlSynDatabases;
     }
 }

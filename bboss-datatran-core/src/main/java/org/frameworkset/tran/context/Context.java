@@ -216,6 +216,12 @@ public interface Context {
 	 */
 	void markRecoredDelete();
 
+    /**
+     * 标识记录状态为ddl操作（DDL）
+
+     */
+    void markRecoredDDL();
+
 	/**
 	 * 判断记录是否是新增记录(默认值)
 	 * @return
@@ -233,6 +239,13 @@ public interface Context {
 	 * @return
 	 */
 	boolean isDelete();
+
+    /**
+     * 判断记录是否DDL操作
+     * @return
+     */
+    boolean isDDL();
+
 
     /**
      * 获取记录操作标记：0 -- insert  1 -- update 2 -- delete

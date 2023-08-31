@@ -67,7 +67,12 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
      * 设置不同类型的记录对应的数据库增删改查sql语句信息
      */
     private Map<String,SQLConf> tableSQLConf;
+    /**
+     * 设置数据库对应的ddl，回放的目标数据源配置
+     */
+    private Map<String,DDLConf> ddlConfs;
     private SQLConfResolver sqlConfResolver;
+    private boolean ignoreDDLSynError;
 
     /**
      * mysql binlog输入插件对接时，默认使用表名称映射对应的sqlconf配置
@@ -90,6 +95,22 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
             tableSQLConf = new LinkedHashMap<>();
         }
         tableSQLConf.put(name,sqlConf);
+        return this;
+    }
+    /**
+     * 为不同类型的记录维护特定的增删改sql配置
+     * @param ddlConf
+     * @return
+     */
+    public DBOutputConfig addDDLConf(DDLConf ddlConf){
+        if(SimpleStringUtil.isEmpty(ddlConf.getDatabase())){
+            throw new DataImportException("ddlConf[database="+ddlConf.getDatabase()
+                    +",targetDBName="+ddlConf.getTargetDbName()+"] database can't be null.");
+        }
+        if(ddlConfs == null) {
+            ddlConfs = new LinkedHashMap<>();
+        }
+        ddlConfs.put(ddlConf.getDatabase(),ddlConf);
         return this;
     }
 
@@ -311,6 +332,18 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
                 sqlConfResolver = new TableSqlConfResolver();
             }
         }
+        if(ddlConfs != null && ddlConfs.size() > 0){
+            Iterator<Map.Entry<String, DDLConf>> iterator = ddlConfs.entrySet().iterator();
+            while(iterator.hasNext()){
+                Map.Entry<String, DDLConf> entry = iterator.next();
+                if(entry.getValue().getTargetDbName() != null){
+                    multiSQLConfTargetDBName = true;
+                }
+
+            }
+            multiSQLConf = true;
+
+        }
     }
 
     public boolean isMultiSQLConf() {
@@ -397,6 +430,13 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 			return taskContext.getTargetDeleteSqlInfo();
 		return targetDeleteSqlInfo;
 	}
+    public DDLConf getDDLConf(TaskContext taskContext, CommonRecord dbRecord){
+        String database = (String)dbRecord.getMetaValue("database");
+        if(ddlConfs != null){
+            return ddlConfs.get(database);
+        }
+        return null;
+    }
 
     public TranSQLInfo getTargetDeleteSqlInfo(TaskContext taskContext, CommonRecord dbRecord) {
         TranSQLInfo tranSQLInfo = null;
@@ -555,4 +595,12 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
         return this;
     }
 
+    public boolean isIgnoreDDLSynError() {
+        return ignoreDDLSynError;
+    }
+
+    public DBOutputConfig setIgnoreDDLSynError(boolean ignoreDDLSynError) {
+        this.ignoreDDLSynError = ignoreDDLSynError;
+        return this;
+    }
 }
