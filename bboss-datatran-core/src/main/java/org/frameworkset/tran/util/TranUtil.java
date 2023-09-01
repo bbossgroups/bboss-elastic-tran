@@ -192,20 +192,11 @@ public abstract class TranUtil {
 			OutputConfig outputConfig = importContext.getOutputConfig();
 			if(dbName == null) {
 				if (outputConfig != null && outputConfig instanceof DBOutputConfig) {
-//					DBConfig dbConfig = ((DBOutPutContext) targetImportContext).getTargetDBConfig(taskContext);
-//					if(dbConfig != null)
-//						dbName = dbConfig.getDbName();
+
 					dbName = ((DBOutputConfig) outputConfig).getTargetDBName(taskContext);
 				}
 			}
-			/**
-			if(dbName == null){
-//				DBConfig dbConfig = importContext.getDbConfig();
-//				if(dbConfig != null)
-//					dbName = dbConfig.getDbName();
-				dbName = importContext.getTargetDBName();
 
-			}*/
 			if(dbName != null)
 				TranUtil.initTargetSQLInfo(taskContext, dbName);
 		}
@@ -232,7 +223,7 @@ public abstract class TranUtil {
 
         if(sqlInfo != null){
             sqlConf.setTargetSqlInfo(sqlInfo);
-            sqlInfo.setTargetDBName(db);
+            sqlInfo.setTargetDBNames(sqlConf.getTargetDbNames());
             sqlInfo = null;
         }
 
@@ -252,7 +243,7 @@ public abstract class TranUtil {
         }
 
         if(sqlInfo != null){
-            sqlInfo.setTargetDBName(db);
+            sqlInfo.setTargetDBNames(sqlConf.getTargetDbNames());
             sqlConf.setTargetUpdateSqlInfo(sqlInfo);
             sqlInfo = null;
         }
@@ -270,7 +261,7 @@ public abstract class TranUtil {
         }
 
         if(sqlInfo != null){
-            sqlInfo.setTargetDBName(db);
+            sqlInfo.setTargetDBNames(sqlConf.getTargetDbNames());
             sqlConf.setTargetDeleteSqlInfo(sqlInfo);
             sqlInfo = null;
         }

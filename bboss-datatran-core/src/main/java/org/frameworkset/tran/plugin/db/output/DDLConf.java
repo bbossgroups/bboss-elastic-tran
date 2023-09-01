@@ -15,6 +15,9 @@ package org.frameworkset.tran.plugin.db.output;
  * limitations under the License.
  */
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>Description: 用于配置多表sql配置信息</p>
  * <p></p>
@@ -27,10 +30,21 @@ public class DDLConf {
 
     private String database;
     private String targetDbName;
-
+    private List<String> targetDbNames;
 
     public String getTargetDbName() {
         return targetDbName;
+    }
+    public void build(){
+        if(targetDbName != null){
+            String[] tmp = targetDbName.split(",");
+            targetDbNames = Arrays.asList(tmp);
+            targetDbName = tmp[0];
+        }
+    }
+
+    public List<String> getTargetDbNames() {
+        return targetDbNames;
     }
 
     public void setTargetDbName(String targetDbName) {

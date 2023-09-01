@@ -473,38 +473,47 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
         Map<String,List<CommonRecord>> dbRecords = new LinkedHashMap<>();
         Map<String,List<CommonRecord>> ddlRecords = new LinkedHashMap<>();
         for(CommonRecord dbRecord:datas){
-            String tmpDBName = null;
+
             if(!dbRecord.isDDL()) {
                 TranSQLInfo tranSQLInfo = getTranSQLInfo(dbRecord);
-
-                if (tranSQLInfo.getTargetDBName() != null) {
-                    tmpDBName = tranSQLInfo.getTargetDBName();
+                List<String> tmpDBNames = null;
+                if (tranSQLInfo.getTargetDBNames() != null) {
+                    tmpDBNames = tranSQLInfo.getTargetDBNames();
 
                 } else {
-                    tmpDBName = dbname;
+                    tmpDBNames = new ArrayList<>(1);
+                    tmpDBNames.add(dbname);
 
                 }
-                List<CommonRecord> temp = dbRecords.get(tmpDBName);
-                if(temp == null){
-                    temp = new ArrayList<>();
-                    dbRecords.put(tmpDBName,temp);
+                for(String tmpDBName:tmpDBNames) {
+                    List<CommonRecord> temp = dbRecords.get(tmpDBName);
+                    if(temp == null){
+                        temp = new ArrayList<>();
+                        dbRecords.put(tmpDBName, temp);
+
+                    }
+                    temp.add(dbRecord);
                 }
-                temp.add(dbRecord);
             }
             else{
                 DDLConf ddlConf = dbOutputConfig.getDDLConf(taskContext,dbRecord);
+                List<String> tmpDBNames = null;
                 if(ddlConf != null && SimpleStringUtil.isNotEmpty(ddlConf.getTargetDbName())){
-                    tmpDBName = ddlConf.getTargetDbName();
+                    tmpDBNames = ddlConf.getTargetDbNames();
                 }
                 else{
-                    tmpDBName = dbname;
+                    tmpDBNames = new ArrayList<>(1);
+                    tmpDBNames.add(dbname);
                 }
-                List<CommonRecord> temp = ddlRecords.get(tmpDBName);
-                if(temp == null){
-                    temp = new ArrayList<>();
-                    ddlRecords.put(tmpDBName,temp);
+                for(String tmpDBName:tmpDBNames) {
+                    List<CommonRecord> temp = ddlRecords.get(tmpDBName);
+                    if(temp == null){
+                        temp = new ArrayList<>();
+                        ddlRecords.put(tmpDBName, temp);
+
+                    }
+                    temp.add(dbRecord);
                 }
-                temp.add(dbRecord);
             }
 
 

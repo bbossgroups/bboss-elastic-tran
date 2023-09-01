@@ -321,6 +321,7 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
             Iterator<Map.Entry<String, SQLConf>> iterator = tableSQLConf.entrySet().iterator();
             while(iterator.hasNext()){
                 Map.Entry<String, SQLConf> entry = iterator.next();
+                entry.getValue().build();
                 org.frameworkset.tran.util.TranUtil.initSQLConf(this,entry.getValue());
                 if(entry.getValue().getTargetDbName() != null){
                     multiSQLConfTargetDBName = true;
@@ -336,6 +337,7 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
             Iterator<Map.Entry<String, DDLConf>> iterator = ddlConfs.entrySet().iterator();
             while(iterator.hasNext()){
                 Map.Entry<String, DDLConf> entry = iterator.next();
+                entry.getValue().build();
                 if(entry.getValue().getTargetDbName() != null){
                     multiSQLConfTargetDBName = true;
                 }
