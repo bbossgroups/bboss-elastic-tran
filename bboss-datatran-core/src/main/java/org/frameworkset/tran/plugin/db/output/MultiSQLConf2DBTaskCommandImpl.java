@@ -124,12 +124,15 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
         }
     }
 	public String execute(){
+        String data  = null;
 		if(!dbOutputConfig.isMultiSQLConfTargetDBName()){
-            return singleTargetDBExecute();
+            data = singleTargetDBExecute();
         }
         else{
-            return multiTargetDBExecute();
+            data = multiTargetDBExecute();
         }
+        finishTask();
+        return data;
 	}
 
     private String singleTargetDBExecute() {
@@ -194,7 +197,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
 
                             }
                         }
-                        finishTask();
+//                        finishTask();
 
                         oldSql = sql;
                         statement = stmtInfo
@@ -234,7 +237,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
                     finally {
                         DBOptionsPreparedDBUtil.releaseResources(resources);
                     }
-                    finishTask();
+//                    finishTask();
                 }
             }
             else
@@ -268,7 +271,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
 
                                 }
                             }
-                            finishTask();
+//                            finishTask();
 
                         }
                         count = 0;
@@ -304,7 +307,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
                             DBOptionsPreparedDBUtil.releaseResources(resources);
 
                         }
-                        finishTask();
+//                        finishTask();
                         statement.clearBatch();
                         count = 0;
                         continue;
@@ -320,7 +323,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
                         DBOptionsPreparedDBUtil.releaseResources(resources);
 
                     }
-                    finishTask();
+//                    finishTask();
                 }
             }
 
@@ -415,7 +418,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
                     }
                 }
 
-                finishTask();
+//                finishTask();
             }
 
         }
