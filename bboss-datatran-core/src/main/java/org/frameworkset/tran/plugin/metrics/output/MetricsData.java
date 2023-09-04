@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.metrics.output;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.metrics.entity.MapData;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
+import org.frameworkset.tran.metrics.job.MetricsConfig;
 import org.frameworkset.tran.metrics.job.MetricsException;
 import org.frameworkset.util.TimeUtil;
 
@@ -65,12 +66,28 @@ public class MetricsData {
         }
         mapData.setDataTime(dateTime);
         mapData.setData(getCommonRecord());
-        mapData.setDayFormat(buildMapDataContext.getDayFormat());
-        mapData.setHourFormat(buildMapDataContext.getHourFormat());
-        mapData.setMinuteFormat(buildMapDataContext.getMinuteFormat());
         mapData.setYearFormat(buildMapDataContext.getYearFormat());
+        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_YEAR){
+            return;
+        }
         mapData.setMonthFormat(buildMapDataContext.getMonthFormat());
+        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_MONTH){
+            return;
+        }
         mapData.setWeekFormat(buildMapDataContext.getWeekFormat());
+        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_WEEK){
+            return;
+        }
+        mapData.setDayFormat(buildMapDataContext.getDayFormat());
+        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_DAY){
+            return;
+        }
+        mapData.setHourFormat(buildMapDataContext.getHourFormat());
+        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_HOUR){
+            return;
+        }
+        mapData.setMinuteFormat(buildMapDataContext.getMinuteFormat());
+
     }
 
     public BuildMapDataContext getBuildMapDataContext() {

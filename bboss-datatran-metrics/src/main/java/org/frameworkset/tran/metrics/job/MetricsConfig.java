@@ -37,6 +37,7 @@ public class MetricsConfig {
 	public final static int TIME_WINDOW_TYPE_DAY = 4;//天时间窗口
 	public final static int TIME_WINDOW_TYPE_WEEK = 5;//周时间窗口
 	public final static int TIME_WINDOW_TYPE_MONTH = 6;//月时间窗口
+    public final static int TIME_WINDOW_TYPE_YEAR = 7;//年时间窗口
 	public static String dayDateFormatStr = "yyyyMMdd";
 	public static String monthDateFormatStr = "yyyyMM";
 	public static String yearDateFormatStr = "yyyy";
