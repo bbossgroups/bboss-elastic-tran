@@ -38,8 +38,23 @@ public class MetricsData {
     private BuildMapDataContext buildMapDataContext;
     private CommonRecord commonRecord;
     public void setData(MapData mapData,ETLMetrics etlMetrics){
-        String dataTimeField = etlMetrics == null? buildMapDataContext.getDataTimeField()
-                                    : etlMetrics.getDataTimeField(this);
+        String dataTimeField = null;
+        int timeWindowType = -1;
+        if(etlMetrics == null) {
+            dataTimeField = buildMapDataContext.getDataTimeField();
+            timeWindowType = buildMapDataContext.getTimeWindowType();
+        }
+        else{
+            dataTimeField = etlMetrics.getDataTimeField(this);
+            if(dataTimeField == null)
+                dataTimeField = buildMapDataContext.getDataTimeField();
+            timeWindowType = etlMetrics.getTimeWindowType();
+            if(timeWindowType == 0 || timeWindowType ==  -1){
+                if(buildMapDataContext.getTimeWindowType() != null){
+                    timeWindowType = buildMapDataContext.getTimeWindowType();
+                }
+            }
+        }
         Date dateTime = null;
         if(dataTimeField != null && !dataTimeField.equals("")){
             Object value =  commonRecord.getData(dataTimeField);
@@ -67,28 +82,28 @@ public class MetricsData {
         mapData.setDataTime(dateTime);
         mapData.setData(getCommonRecord());
         mapData.setYearFormat(buildMapDataContext.getYearFormat());
-        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_YEAR){
+        if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_YEAR){
             return;
         }
         mapData.setMonthFormat(buildMapDataContext.getMonthFormat());
-        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_MONTH){
+        if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MONTH){
             return;
         }
         mapData.setWeekFormat(buildMapDataContext.getWeekFormat());
-        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_WEEK){
+        if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_WEEK){
             return;
         }
         mapData.setDayFormat(buildMapDataContext.getDayFormat());
-        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_DAY){
+        if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_DAY){
             return;
         }
         mapData.setHourFormat(buildMapDataContext.getHourFormat());
-        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_HOUR){
+        if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_HOUR){
             return;
         }
         mapData.setMinuteFormat(buildMapDataContext.getMinuteFormat());
 
-        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_MINUTE){
+        if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MINUTE){
             return;
         }
 

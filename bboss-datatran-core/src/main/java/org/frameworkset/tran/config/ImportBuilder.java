@@ -80,7 +80,10 @@ public class ImportBuilder {
 	 */
 	private String dataTimeField;
 
-	private boolean useDefaultMapData = true;
+
+
+    private Integer timeWindowType;
+	private boolean useDefaultMapData = false;
 
 
 
@@ -1253,6 +1256,7 @@ public class ImportBuilder {
 			baseImportConfig.setMetrics(this.metrics);
 			baseImportConfig.setDataTimeField(dataTimeField);
 			baseImportConfig.setUseDefaultMapData(this.useDefaultMapData);
+            baseImportConfig.setTimeWindowType(this.timeWindowType);
 
 		}
         if(this.flushMetricsOnScheduleTaskCompleted) {
@@ -1818,6 +1822,14 @@ public class ImportBuilder {
 
     public ImportBuilder setJobClosedListener(JobClosedListener jobClosedListener) {
         this.jobClosedListener = jobClosedListener;
+        return this;
+    }
+    public Integer getTimeWindowType() {
+        return timeWindowType;
+    }
+
+    public ImportBuilder setTimeWindowType(Integer timeWindowType) {
+        this.timeWindowType = timeWindowType;
         return this;
     }
 }

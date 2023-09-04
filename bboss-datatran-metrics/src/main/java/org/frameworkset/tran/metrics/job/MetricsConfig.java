@@ -72,6 +72,9 @@ public class MetricsConfig {
 	public static DateFormat getSecondFormat(){
 		return secondFormateMeta.toDateFormat();
 	}
+    public static DateFormat getSecondFormateMeta(){
+        return secondFormateMeta.toDateFormat();
+    }
 
 	public static DateFormat getMinuteFormat(){
 		return dateFormateMeta.toDateFormat();

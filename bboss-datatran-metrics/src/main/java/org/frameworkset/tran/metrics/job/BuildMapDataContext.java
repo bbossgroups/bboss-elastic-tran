@@ -39,6 +39,7 @@ public class BuildMapDataContext {
 
 
 	private String dataTimeField;
+    private Integer timeWindowType;
 	public BuildMapDataContext(){
 		yearFormat = MetricsConfig.getYearFormat();
 		monthFormat = MetricsConfig.getMonthFormat();
@@ -125,4 +126,12 @@ public class BuildMapDataContext {
 	public void setDataTimeField(String dataTimeField) {
 		this.dataTimeField = dataTimeField;
 	}
+
+    public Integer getTimeWindowType() {
+        return this.timeWindowType;
+    }
+
+    public void setTimeWindowType(int timeWindowType) {
+        this.timeWindowType = timeWindowType;
+    }
 }

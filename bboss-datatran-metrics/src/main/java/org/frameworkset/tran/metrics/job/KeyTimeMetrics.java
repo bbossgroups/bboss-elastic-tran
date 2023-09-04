@@ -251,7 +251,7 @@ public abstract class KeyTimeMetrics implements BaseMetrics {
 
 				metric.setSlotTime(new Date());
 				metric.setMetricTimeKey(metricsTime);
-				metric.setMetricSlotTimeKey(data.getMinuteFormat().format(metric.getSlotTime()));
+				metric.setMetricSlotTimeKey(MetricsConfig.getMinuteFormat().format(metric.getSlotTime()));
 				metric.init(data);				
 				metrics.put(metricsTime, metric);
 			}

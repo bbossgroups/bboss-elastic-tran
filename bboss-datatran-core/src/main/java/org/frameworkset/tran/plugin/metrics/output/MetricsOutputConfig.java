@@ -43,7 +43,8 @@ public class MetricsOutputConfig extends BaseConfig implements OutputConfig {
 	 * 指标时间维度字段，不是设置默认采用当前时间，否则采用字段对应的时间值
 	 */
 	private String dataTimeField;
-	private boolean useDefaultMapData = true;
+    private Integer timeWindowType;
+	private boolean useDefaultMapData = false;
 
 	public MetricsOutputConfig addMetrics(ETLMetrics metrics){
 		if(this.metrics == null){
@@ -104,4 +105,12 @@ public class MetricsOutputConfig extends BaseConfig implements OutputConfig {
 		this.dataTimeField = dataTimeField;
 		return this;
 	}
+    public Integer getTimeWindowType() {
+        return timeWindowType;
+    }
+
+    public MetricsOutputConfig setTimeWindowType(Integer timeWindowType) {
+        this.timeWindowType = timeWindowType;
+        return this;
+    }
 }

@@ -50,8 +50,10 @@ public class BaseImportConfig {
 	private Map<String,DBConfig> dbConfigMap = new LinkedHashMap<>();
 	private boolean sortLastValue ;
 	private List<ETLMetrics> metrics;
-	private boolean useDefaultMapData = true;
+	private boolean useDefaultMapData = false;
 
+
+    private Integer timeWindowType;
 
 
     private JobClosedListener jobClosedListener;
@@ -983,4 +985,11 @@ public class BaseImportConfig {
         this.jobClosedListener = jobClosedListener;
     }
 
+    public Integer getTimeWindowType() {
+        return timeWindowType;
+    }
+
+    public void setTimeWindowType(Integer timeWindowType) {
+        this.timeWindowType = timeWindowType;
+    }
 }

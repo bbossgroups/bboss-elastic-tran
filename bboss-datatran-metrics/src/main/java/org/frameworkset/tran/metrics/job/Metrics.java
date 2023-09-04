@@ -59,7 +59,7 @@ public abstract class Metrics implements BaseMetrics {
 	private int segmentBoundSize = 10000000;
 
 
-	private int timeWindowType = MetricsConfig.TIME_WINDOW_TYPE_MINUTE;
+	protected int timeWindowType = MetricsConfig.TIME_WINDOW_TYPE_MINUTE;
 	/**
 	 * 持久化数据扫描时间间隔，单位:毫秒
 	 */

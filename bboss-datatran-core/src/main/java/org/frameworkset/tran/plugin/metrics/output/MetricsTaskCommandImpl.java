@@ -67,6 +67,7 @@ public class MetricsTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 		BuildMapDataContext buildMapDataContext = new BuildMapDataContext();
 		String dataTimeField = metricsOutputConfig.getDataTimeField();
 		buildMapDataContext.setDataTimeField(dataTimeField);
+        buildMapDataContext.setTimeWindowType(metricsOutputConfig.getTimeWindowType());
 		for(CommonRecord commonRecord :datas) {
 			BaseTranJob.map(  commonRecord,   buildMapDataContext,   metricsOutputConfig.getMetrics(),  metricsOutputConfig.isUseDefaultMapData());
 		}

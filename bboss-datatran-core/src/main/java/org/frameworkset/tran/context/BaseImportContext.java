@@ -650,7 +650,9 @@ public  class BaseImportContext implements ImportContext {
 		return baseImportConfig.isUseDefaultMapData();
 	}
 
-
+    public Integer getTimeWindowType() {
+        return baseImportConfig.getTimeWindowType();
+    }
     /**
      * 在不需要时间窗口的场景下，控制采集和指标计算混合作业定时调度时，是否在任务结束时强制flush metric进行持久化处理
      * true 强制flush
