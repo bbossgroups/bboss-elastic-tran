@@ -88,6 +88,12 @@ public class MetricsData {
         }
         mapData.setMinuteFormat(buildMapDataContext.getMinuteFormat());
 
+        if(etlMetrics.getTimeWindowType() == MetricsConfig.TIME_WINDOW_TYPE_MINUTE){
+            return;
+        }
+
+        mapData.setSecondFormat(buildMapDataContext.getSecondFormat());
+
     }
 
     public BuildMapDataContext getBuildMapDataContext() {

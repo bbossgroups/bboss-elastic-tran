@@ -122,19 +122,20 @@ public abstract class TimeMetrics implements BaseMetrics{
 
 	private static Logger logger = LoggerFactory.getLogger(TimeMetrics.class);
 	public DateFormat getMetricsTimeKeyFormat(MapData data){
-		if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MINUTE)
-			return data.getMinuteFormat();
-		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_SECOND)
-			return data.getSecondFormat();
-		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_HOUR)
-			return data.getHourFormat();
-		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_DAY)
-			return data.getDayFormat();
-		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_WEEK)
-			return data.getWeekFormat();
-		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MONTH)
-			return data.getMonthFormat();
-		return data.getMinuteFormat();
+//		if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MINUTE)
+//			return data.getMinuteFormat();
+//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_SECOND)
+//			return data.getSecondFormat();
+//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_HOUR)
+//			return data.getHourFormat();
+//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_DAY)
+//			return data.getDayFormat();
+//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_WEEK)
+//			return data.getWeekFormat();
+//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MONTH)
+//			return data.getMonthFormat();
+//		return data.getMinuteFormat();
+        return MetricUtil.getMetricsTimeKeyFormat(this.timeWindowType,data);
 	}
 	public TimeMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder)  {
 		if(!metricBuilder.validateData( data)){
@@ -152,33 +153,9 @@ public abstract class TimeMetrics implements BaseMetrics{
 			metric = metrics.get(metricsTime);
 			if (metric == null) {
 				metric = (TimeMetric)metricBuilder.build();
+                MetricUtil.buildMetricTimeField( metric,  data,  time);
 
-				dateFormat = data.getDayFormat();
-				String day = dateFormat.format(time);
-				dateFormat = data.getHourFormat();
-				String hour = dateFormat.format(time);
-				dateFormat = data.getMinuteFormat();
-				String min = dateFormat.format(time);
 
-				dateFormat = data.getMonthFormat();
-				if(dateFormat != null) {
-					String month = dateFormat.format(time);
-					metric.setMonth(month);
-				}
-				dateFormat = data.getWeekFormat();
-				if(dateFormat != null) {
-					String week = dateFormat.format(time);
-					metric.setWeek(week);
-				}
-				dateFormat = data.getYearFormat();
-				if(dateFormat != null) {
-					String year = dateFormat.format(time);
-					metric.setYear(year);
-				}
-				metric.setDay(day);
-				metric.setDayHour(hour);
-				metric.setMinute(min);
-//				metric.setMiniute(metricsTime);
 				metric.setMetric(metricsKey);
 				metric.setSlotTime(new Date());
 				metric.setMetricTimeKey(metricsTime);

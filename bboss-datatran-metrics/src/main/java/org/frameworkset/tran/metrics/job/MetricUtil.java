@@ -15,6 +15,11 @@ package org.frameworkset.tran.metrics.job;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.metrics.entity.MapData;
+import org.frameworkset.tran.metrics.entity.TimeMetric;
+
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -34,4 +39,63 @@ public abstract class MetricUtil {
 		}
 		return chanId;
 	}
+
+    public static DateFormat getMetricsTimeKeyFormat(int timeWindowType,MapData data){
+        if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MINUTE)
+            return data.getMinuteFormat();
+        else if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_SECOND)
+            return data.getSecondFormat();
+        else if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_HOUR)
+            return data.getHourFormat();
+        else if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_DAY)
+            return data.getDayFormat();
+        else if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_WEEK)
+            return data.getWeekFormat();
+        else if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MONTH)
+            return data.getMonthFormat();
+        else if(timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_YEAR)
+            return data.getYearFormat();
+        return data.getMinuteFormat();
+    }
+
+    public static void buildMetricTimeField(TimeMetric metric, MapData data, Date time){
+        DateFormat dateFormat = data.getDayFormat();
+        if(dateFormat != null) {
+            String day = dateFormat.format(time);
+            metric.setDay(day);
+
+
+        }
+        dateFormat = data.getHourFormat();
+        if(dateFormat != null) {
+            String hour = dateFormat.format(time);
+            metric.setDayHour(hour);
+        }
+        if(dateFormat != null) {
+            dateFormat = data.getMinuteFormat();
+            String min = dateFormat.format(time);
+            metric.setMinute(min);
+        }
+        dateFormat = data.getSecondFormat();
+        if(dateFormat != null) {
+            String second = dateFormat.format(time);
+            metric.setSecond(second);
+        }
+        dateFormat = data.getMonthFormat();
+        if(dateFormat != null) {
+            String month = dateFormat.format(time);
+            metric.setMonth(month);
+        }
+        dateFormat = data.getWeekFormat();
+        if(dateFormat != null) {
+            String week = dateFormat.format(time);
+            metric.setWeek(week);
+        }
+        dateFormat = data.getYearFormat();
+        if(dateFormat != null) {
+            String year = dateFormat.format(time);
+            metric.setYear(year);
+        }
+
+    }
 }

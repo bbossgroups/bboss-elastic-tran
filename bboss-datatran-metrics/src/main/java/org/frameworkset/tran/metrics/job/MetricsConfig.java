@@ -69,13 +69,14 @@ public class MetricsConfig {
 	public static DateFormat getMinuteFormateMeta(){
 		return minuteFormateMeta.toDateFormat();
 	}
-	public static DateFormat getSecondFormateMeta(){
+	public static DateFormat getSecondFormat(){
 		return secondFormateMeta.toDateFormat();
 	}
 
 	public static DateFormat getMinuteFormat(){
 		return dateFormateMeta.toDateFormat();
 	}
+
 	public static DateFormat getYearFormat(){
 		return yearFormateMeta.toDateFormat();
 	}

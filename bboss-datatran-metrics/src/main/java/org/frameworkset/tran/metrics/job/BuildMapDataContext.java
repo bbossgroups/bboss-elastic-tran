@@ -34,6 +34,7 @@ public class BuildMapDataContext {
 	private DateFormat dayFormat;
 	private DateFormat hourFormat;
 	private DateFormat minuteFormat;
+    private DateFormat secondFormat;
 
 
 
@@ -45,10 +46,19 @@ public class BuildMapDataContext {
 		dayFormat = MetricsConfig.getDayFormat();
 		hourFormat = MetricsConfig.getHourFormat();
 		minuteFormat = MetricsConfig.getMinuteFormat();
+        secondFormat = MetricsConfig.getSecondFormat();
 		currentTime = new Date();
 	}
 
-	public Date getCurrentTime() {
+    public void setSecondFormat(DateFormat secondFormat) {
+        this.secondFormat = secondFormat;
+    }
+
+    public DateFormat getSecondFormat() {
+        return secondFormat;
+    }
+
+    public Date getCurrentTime() {
 		return currentTime;
 	}
 

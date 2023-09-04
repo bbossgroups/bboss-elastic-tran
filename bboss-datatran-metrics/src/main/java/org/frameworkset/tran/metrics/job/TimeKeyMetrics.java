@@ -152,20 +152,21 @@ public abstract class TimeKeyMetrics implements BaseMetrics {
 
 
 	public DateFormat getMetricsTimeKeyFormat(MapData data){
-		if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MINUTE) {
-			return data.getMinuteFormat();
-		}
-		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_SECOND)
-			return data.getSecondFormat();
-		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_HOUR)
-			return data.getHourFormat();
-		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_DAY)
-			return data.getDayFormat();
-		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_WEEK)
-			return data.getWeekFormat();
-		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MONTH)
-			return data.getMonthFormat();
-		return data.getMinuteFormat();
+//		if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MINUTE) {
+//			return data.getMinuteFormat();
+//		}
+//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_SECOND)
+//			return data.getSecondFormat();
+//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_HOUR)
+//			return data.getHourFormat();
+//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_DAY)
+//			return data.getDayFormat();
+//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_WEEK)
+//			return data.getWeekFormat();
+//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MONTH)
+//			return data.getMonthFormat();
+//		return data.getMinuteFormat();
+        return MetricUtil.getMetricsTimeKeyFormat(this.timeWindowType,data);
 	}
     private boolean stoped;
     private Object stopLock = new Object();

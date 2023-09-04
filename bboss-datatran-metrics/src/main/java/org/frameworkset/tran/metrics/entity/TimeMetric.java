@@ -27,6 +27,7 @@ public abstract class TimeMetric extends KeyMetric {
 
 	protected String metricTimeKey;
 	protected String metricSlotTimeKey;
+    protected String second;
 	protected String minute;
 	protected String dayHour;
 	protected String day;
@@ -136,4 +137,11 @@ public abstract class TimeMetric extends KeyMetric {
 	public void setMetricSlotTimeKey(String metricSlotTimeKey) {
 		this.metricSlotTimeKey = metricSlotTimeKey;
 	}
+    public String getSecond() {
+        return second;
+    }
+
+    public void setSecond(String second) {
+        this.second = second;
+    }
 }

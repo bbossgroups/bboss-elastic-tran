@@ -63,32 +63,9 @@ public class TimeMetricHolder extends BaseKeyMetrics{
 		Date time = data.metricsDataTime(metricsKey);
 		DateFormat metricsTimeKeyFormat = timeMetrics.getMetricsTimeKeyFormat(data);//data.getMinuteFormat();
 		String timeMetricKey = metricsTimeKeyFormat.format(time);
-		DateFormat dateFormat = data.getDayFormat();
-		String day = dateFormat.format(time);
-		dateFormat = data.getHourFormat();
-		String hour = dateFormat.format(time);
-		dateFormat = data.getMinuteFormat();
-		String min = dateFormat.format(time);
+        TimeMetric timeMetric = (TimeMetric)metric;
+        MetricUtil.buildMetricTimeField( timeMetric,  data,  time);
 
-		dateFormat = data.getMonthFormat();
-		TimeMetric timeMetric = (TimeMetric)metric;
-		if(dateFormat != null) {
-			String month = dateFormat.format(time);
-			timeMetric.setMonth(month);
-		}
-		dateFormat = data.getWeekFormat();
-		if(dateFormat != null) {
-			String week = dateFormat.format(time);
-			timeMetric.setWeek(week);
-		}
-		dateFormat = data.getYearFormat();
-		if(dateFormat != null) {
-			String year = dateFormat.format(time);
-			timeMetric.setYear(year);
-		}
-		timeMetric.setDay(day);
-		timeMetric.setDayHour(hour);
-		timeMetric.setMinute(min);
 		Date slotTime = new Date();
 		lastMetricSlotTime = slotTime;
 		timeMetric.setSlotTime(slotTime);
