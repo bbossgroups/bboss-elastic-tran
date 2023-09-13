@@ -71,8 +71,8 @@ public abstract class MetricUtil {
             String hour = dateFormat.format(time);
             metric.setDayHour(hour);
         }
+        dateFormat = data.getMinuteFormat();
         if(dateFormat != null) {
-            dateFormat = data.getMinuteFormat();
             String min = dateFormat.format(time);
             metric.setMinute(min);
         }
