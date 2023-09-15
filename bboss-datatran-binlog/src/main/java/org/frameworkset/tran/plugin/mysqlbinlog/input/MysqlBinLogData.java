@@ -35,6 +35,9 @@ public class MysqlBinLogData {
     private Long position;
 
 
+    private String gtid;
+
+
 
     private String fileName;
 
@@ -91,4 +94,13 @@ public class MysqlBinLogData {
     public void setDatabase(String database) {
         this.database = database;
     }
+
+    public String getGtid() {
+        return gtid;
+    }
+
+    public void setGtid(String gtid) {
+        this.gtid = gtid;
+    }
+
 }

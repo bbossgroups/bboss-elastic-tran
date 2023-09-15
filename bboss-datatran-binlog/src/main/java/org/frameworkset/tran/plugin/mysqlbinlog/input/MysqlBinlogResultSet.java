@@ -43,8 +43,14 @@ public class MysqlBinlogResultSet extends AsynBaseTranResultSet {
     public String getStrLastValue() throws DataImportException {
         if(record != null) {
             MysqlBinLogData mysqlBinLogData = ((MysqlBinlogRecord) record).getMysqlBinLogData();
-            if(mysqlBinLogData != null)
-                return mysqlBinLogData.getFileName();
+            if(mysqlBinLogData != null) {
+                if(mysqlBinLogData.getGtid() != null){
+                    return mysqlBinLogData.getGtid() + MySQLBinlogConfig.split + mysqlBinLogData.getFileName();
+                }
+                else {
+                    return mysqlBinLogData.getFileName();
+                }
+            }
         }
         return null;
     }

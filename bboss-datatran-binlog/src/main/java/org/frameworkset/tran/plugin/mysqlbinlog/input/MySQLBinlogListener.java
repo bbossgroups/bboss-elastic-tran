@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
 import com.frameworkset.util.SimpleStringUtil;
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import com.github.shyiko.mysql.binlog.BinaryLogFileReader;
+import com.github.shyiko.mysql.binlog.GtidSet;
 import com.github.shyiko.mysql.binlog.event.*;
 import com.github.shyiko.mysql.binlog.event.deserialization.ColumnType;
 import com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer;
@@ -51,8 +52,10 @@ public class MySQLBinlogListener {
     private ImportContext importContext;
     private MysqlBinlogInputDatatranPlugin mysqlBinlogInputDatatranPlugin;
     private BinaryLogClient client;
+    private com.github.shyiko.mysql.binlog.GtidSet gtidSet;
     private ClientConnectThread clientConnectThread;
     private BinaryLogClient.EventListener binaryLogClientEventListener;
+    private String lastGtid;
     /**
      * 当前采集位置
      */
@@ -62,6 +65,7 @@ public class MySQLBinlogListener {
      */
     private String binlogFile;
     private boolean isIncreament;
+
     public MySQLBinlogListener(BaseDataTran mysqlBinlogDataTran, MySQLBinlogConfig mySQLBinlogConfig, ImportContext importContext) {
         this.mysqlBinlogDataTran = mysqlBinlogDataTran;
         this.mySQLBinlogConfig = mySQLBinlogConfig;
@@ -79,14 +83,35 @@ public class MySQLBinlogListener {
 
                 }
                 String binlogFile_ = lastValueWrapper.getStrLastValue();
-                binlogFile = binlogFile_;
+                if(binlogFile_.indexOf(MySQLBinlogConfig.split) > 0){
+                    String data[] =  binlogFile_.split(MySQLBinlogConfig.split);
+                    lastGtid = data[0];
+                    binlogFile = data[1];
+                }
+                else{
+                    binlogFile = binlogFile_;
+                }
+
             }
             else if(mySQLBinlogConfig.getPosition() != null){
                 position = mySQLBinlogConfig.getPosition();
                 binlogFile = mySQLBinlogConfig.getMastterBinLogFile();
+                this.lastGtid = mySQLBinlogConfig.getGtId();
             }
         }
 
+    }
+
+    public String getBinlogFile() {
+        return binlogFile;
+    }
+
+    public GtidSet getGtidSet() {
+        return gtidSet;
+    }
+
+    public String getLastGtid() {
+        return lastGtid;
     }
 
     public void start() throws IOException {

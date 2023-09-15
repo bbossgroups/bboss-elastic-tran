@@ -28,6 +28,7 @@ import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.db.CDCDBTable;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static org.frameworkset.tran.metrics.job.MetricsConfig.DEFAULT_metricsInterval;
 
@@ -45,6 +46,7 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
     private String dbUser;
     private String dbPassword;
 
+    public static final String split = "$$";
 
     private String database;
     private String tables;
@@ -80,6 +82,10 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
     private long joinToConnectTimeOut = 0L;
 
     private String mastterBinLogFile;
+
+
+
+    private String gtId;
 
 
 
@@ -467,15 +473,29 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         return ddlSyn;
     }
 
-    public void setDdlSyn(boolean ddlSyn) {
+    public MySQLBinlogConfig setDdlSyn(boolean ddlSyn) {
         this.ddlSyn = ddlSyn;
+        return this;
     }
 
     public String getDdlSynDatabases() {
         return ddlSynDatabases;
     }
 
-    public void setDdlSynDatabases(String ddlSynDatabases) {
+    public MySQLBinlogConfig setDdlSynDatabases(String ddlSynDatabases) {
         this.ddlSynDatabases = ddlSynDatabases;
+        return this;
+    }
+    public String getGtId() {
+        return gtId;
+    }
+
+    public MySQLBinlogConfig setGtId(String gtId) {
+        this.gtId = gtId;
+        return this;
+    }
+
+    public Predicate<String> gtidSourceFilter() {
+        return null;
     }
 }
