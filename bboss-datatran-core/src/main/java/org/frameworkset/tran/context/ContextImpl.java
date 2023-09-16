@@ -66,6 +66,10 @@ public class ContextImpl implements Context {
 	protected DBInputConfig dbInputConfig;
 	protected DBOutputConfig dbOutputConfig;
 	protected CommonRecord commonRecord;
+	/**
+	 * 在记录处理过程中，使用的临时数据，不会进行持久化处理
+	 */
+	private Map<String,Object> tempDatas;
 	public ContextImpl(TaskContext taskContext, ImportContext importContext, TranResultSet tranResultSet, BatchContext batchContext){
 		this.baseImportConfig = importContext.getImportConfig();
 		this.importContext = importContext;
@@ -679,4 +683,24 @@ public class ContextImpl implements Context {
 	}
 
 
+	/**
+	 * 获取用于指标计算处理等的临时数据
+	 * @return
+	 */
+	public Map<String, Object> getTempDatas() {
+		return tempDatas;
+	}
+
+	/**
+	 * 添加用于指标计算处理等的临时数据到记录，不会对临时数据进行持久化处理，
+	 * @param name
+	 * @param tmpData
+	 */
+	@Override
+	public void addTempData(String name,Object tmpData){
+		if(tempDatas == null){
+			tempDatas = new LinkedHashMap<>();
+		}
+		tempDatas.put(name,tmpData);
+	}
 }

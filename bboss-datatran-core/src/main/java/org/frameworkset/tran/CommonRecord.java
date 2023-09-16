@@ -72,6 +72,10 @@ public class CommonRecord {
 	private Map<String,Object> datas;
 	private Map<String,RecordColumnInfo> dataInfos;
 
+	/**
+	 * 在记录处理过程中，使用的临时数据，不会进行持久化处理
+	 */
+	private Map<String,Object> tempDatas;
 	public void addData(String name, Object value, RecordColumnInfo recordColumnInfo){
 		if(datas == null) {
 			datas = new LinkedHashMap<String, Object>();
@@ -166,4 +170,26 @@ public class CommonRecord {
     public void setUpdateFromDatas(Map<String, Object> updateFromDatas) {
         this.updateFromDatas = updateFromDatas;
     }
+
+	/**
+	 * 获取用于指标计算处理等的临时数据
+	 * @return
+	 */
+	public Map<String, Object> getTempDatas() {
+		return tempDatas;
+	}
+	/**
+	 * 添加用于指标计算处理等的临时数据到记录，不会对临时数据进行持久化处理，
+	 * @param tempDatas
+	 */
+	public void setTempDatas(Map<String, Object> tempDatas) {
+		this.tempDatas = tempDatas;
+	}
+	/**
+	 * 获取用于指标计算处理等的临时数据:name
+	 * @return
+	 */
+	public Object getTempData(String name){
+		return tempDatas != null? tempDatas.get(name):null;
+	}
 }

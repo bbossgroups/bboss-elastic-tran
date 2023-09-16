@@ -40,6 +40,17 @@ import java.util.Map;
  * @version 1.0
  */
 public interface Context {
+	/**
+	 * 获取用于指标计算处理等的临时数据
+	 * @return
+	 */
+	public Map<String, Object> getTempDatas();
+	/**
+	 * 添加用于指标计算处理等的临时数据到记录，不会对临时数据进行持久化处理，
+	 * @param name
+	 * @param tmpData
+	 */
+	public void addTempData(String name,Object tmpData);
     public void setAction(int action);
     /**
      * 获取记录元数据信息，目前暂时先提供mysqlbinlog的元数据信息，其他类型数据源为返回

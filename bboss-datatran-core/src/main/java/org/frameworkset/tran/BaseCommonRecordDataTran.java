@@ -95,6 +95,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 
 	protected CommonRecord buildRecord(CommonRecord dbRecord ,Context context){
         dbRecord.setAction(context.getAction());
+		dbRecord.setTempDatas(context.getTempDatas());
         dbRecord.setMetaDatas(context.getMetaDatas());
 		String[] columns = importContext.getExportColumns();
 		//如果采用结果集中的字段集，就需要考虑全局添加或者记录级别添加的字段，通过配置设置导出的字段集不需要考虑全局添加或者记录级别添加的字段
