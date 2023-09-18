@@ -52,7 +52,7 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
     private String tables;
     private Map<String,List<CDCDBTable>> dbTables;
     private Map<String,Map<String,CDCDBTable>> dbTableIdxs;
-    private String[] collectorFileNames;
+    private List<BinFileInfo> collectorFileNames;
 
     /**
      * String url =  "jdbc:mysql://" + host.getHost()+":" +host.getPort()+
@@ -85,6 +85,12 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
 
 
+    private boolean collectMasterHistoryBinlog;
+
+
+
+    private String binlogDir;
+
     private String gtId;
 
 
@@ -102,12 +108,20 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
     private Boolean gtidSetFallbackToPurged;
     private Boolean useBinlogFilenamePositionInGtidMode;
 
+
+    private boolean gtidEnabled;
     private SSLMode sslMode;
 
     private SSLSocketFactory sslSocketFactory;
     private boolean ddlSyn;
     private String ddlSynDatabases;
     private String[] listDdlSynDatabases;
+
+
+    /**
+     * 增量采集
+     */
+    private boolean increamentFrom001;
 
     public String getHost() {
         return host;
@@ -158,7 +172,7 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         return fileNames;
     }
 
-    public String[] getCollectorFileNames() {
+    public List<BinFileInfo> getCollectorFileNames() {
         return collectorFileNames;
     }
 
@@ -280,12 +294,24 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
             schemaUrl = "jdbc:mysql://" + getHost()+":" +getPort()+
                        "/INFORMATION_SCHEMA?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
         }
-        if(SimpleStringUtil.isNotEmpty(fileNames) )
-            collectorFileNames = fileNames.split(",");
+        if(SimpleStringUtil.isNotEmpty(fileNames) ) {
+            String[] _collectorFileNames = fileNames.split(",");
+            collectorFileNames = new ArrayList<>();
+            for(String name:_collectorFileNames){
+                BinFileInfo binFileInfo = new BinFileInfo();
+                binFileInfo.setFileName(name);
+                collectorFileNames.add(binFileInfo);
+            }
+        }
         if(isEnableIncrement() ){
 //            this.enableIncrement = false;//禁用不支持的增量模式
             if(position == null)
                 position = 0L;
+        }
+        if(isCollectMasterHistoryBinlog()){
+            if(SimpleStringUtil.isEmpty(this.getBinlogDir())){
+                throw new DataImportException("isCollectMasterHistoryBinlog but binlog dir is not setted. Use MySQLBinlogConfig.setBinlogDir() to set binlog dir.");
+            }
         }
     }
 
@@ -497,5 +523,38 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
     public Predicate<String> gtidSourceFilter() {
         return null;
+    }
+    public boolean isGtidEnabled() {
+        return gtidEnabled;
+    }
+
+    public MySQLBinlogConfig setGtidEnabled(boolean gtidEnabled) {
+        this.gtidEnabled = gtidEnabled;
+        return this;
+    }
+    public boolean isIncreamentFrom001() {
+        return increamentFrom001;
+    }
+
+    public MySQLBinlogConfig setIncreamentFrom001(boolean increamentFrom001) {
+        this.increamentFrom001 = increamentFrom001;
+        return this;
+    }
+
+    public boolean isCollectMasterHistoryBinlog() {
+        return collectMasterHistoryBinlog;
+    }
+
+    public MySQLBinlogConfig setCollectMasterHistoryBinlog(boolean collectMasterHistoryBinlog) {
+        this.collectMasterHistoryBinlog = collectMasterHistoryBinlog;
+        return this;
+    }
+    public String getBinlogDir() {
+        return binlogDir;
+    }
+
+    public MySQLBinlogConfig setBinlogDir(String binlogDir) {
+        this.binlogDir = binlogDir;
+        return this;
     }
 }

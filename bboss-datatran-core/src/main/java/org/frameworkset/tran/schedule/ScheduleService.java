@@ -125,8 +125,10 @@ public class ScheduleService {
 	}
 	private void throwException(TaskContext taskContext,Exception e){
 		List<CallInterceptor> callInterceptors = importContext.getCallInterceptors();
-		if(callInterceptors == null || callInterceptors.size() == 0)
+		if(callInterceptors == null || callInterceptors.size() == 0) {
+			logger.error("afterCall failed:",e);
 			return;
+		}
 		CallInterceptor callInterceptor = null;
 		for(int j = callInterceptors.size() - 1; j >= 0; j --){
 			callInterceptor = callInterceptors.get(j);

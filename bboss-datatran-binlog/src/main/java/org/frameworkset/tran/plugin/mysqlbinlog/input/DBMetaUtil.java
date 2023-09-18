@@ -274,30 +274,126 @@ public class DBMetaUtil {
 //            return false;
 //        }
 //
-//        String binlogFilename = mySQLBinlogListener.getBinlogFile();
-//        if (binlogFilename == null) {
-//            return true; // start at current position
-//        }
-//        if (binlogFilename.equals("")) {
-//            return true; // start at beginning
-//        }
-//
-//        // Accumulate the available binlog filenames ...
-//        List<String> logNames = availableBinlogFiles();
-//
-//        // And compare with the one we're supposed to use ...
-//        boolean found = logNames.stream().anyMatch(binlogFilename::equals);
-//        if (!found) {
-//            if (logger.isInfoEnabled()) {
-//                logger.info("Connector requires binlog file '{}', but MySQL only has {}", binlogFilename, String.join(", ", logNames));
-//            }
-//        }
-//        else {
-//            logger.info("MySQL has the binlog file '{}' required by the connector", binlogFilename);
-//        }
-//
-//        return found;
 
-        return true;
+        // Accumulate the available binlog filenames ...
+        List<BinFileInfo> logNames = availableBinlogFiles(mySQLBinlogConfig);
+
+        return isBinlogAvailable(  mySQLBinlogConfig,  mySQLBinlogListener, logNames);
+
+    }
+    /**
+     * Determine whether the binlog position as set on the {@link MySQLBinlogListener} is available in the server.
+     *
+     * @return {@code true} if the server has the binlog coordinates, or {@code false} otherwise
+     */
+    public static boolean isBinlogAvailable(MySQLBinlogConfig mySQLBinlogConfig,MySQLBinlogListener mySQLBinlogListener,List<BinFileInfo> logNames) {
+//        String gtidStr = mySQLBinlogListener.getLastGtid();
+//        if (gtidStr != null) {
+//            if (gtidStr.trim().isEmpty()) {
+//                return true; // start at beginning ...
+//            }
+//            String availableGtidStr = knownGtidSet(mySQLBinlogConfig);
+//            if (availableGtidStr == null || availableGtidStr.trim().isEmpty()) {
+//                // Last offsets had GTIDs but the server does not use them ...
+//                logger.info("Connector used GTIDs previously, but MySQL does not know of any GTIDs or they are not enabled");
+//                return false;
+//            }
+//            // GTIDs are enabled, and we used them previously, but retain only those GTID ranges for the allowed source UUIDs ...
+//            BBossGtidSet gtidSet = new BBossGtidSet(gtidStr).retainAll(mySQLBinlogConfig.gtidSourceFilter());
+//            // Get the GTID set that is available in the server ...
+//            BBossGtidSet availableGtidSet = new BBossGtidSet(availableGtidStr);
+//            if (gtidSet.isContainedWithin(availableGtidSet)) {
+//                logger.info("MySQL current GTID set {} does contain the GTID set required by the connector {}", availableGtidSet, gtidSet);
+//                final BBossGtidSet knownServerSet = availableGtidSet.retainAll(mySQLBinlogConfig.gtidSourceFilter());
+//                final BBossGtidSet gtidSetToReplicate = subtractGtidSet(knownServerSet, gtidSet);
+//                final BBossGtidSet purgedGtidSet = purgedGtidSet();
+//                logger.info("Server has already purged {} GTIDs", purgedGtidSet);
+//                final BBossGtidSet nonPurgedGtidSetToReplicate = subtractGtidSet(gtidSetToReplicate, purgedGtidSet);
+//                logger.info("GTIDs known by the server but not processed yet {}, for replication are available only {}", gtidSetToReplicate, nonPurgedGtidSetToReplicate);
+//                if (!gtidSetToReplicate.equals(nonPurgedGtidSetToReplicate)) {
+//                    logger.info("Some of the GTIDs needed to replicate have been already purged");
+//                    return false;
+//                }
+//                return true;
+//            }
+//            logger.info("Connector last known GTIDs are {}, but MySQL has {}", gtidSet, availableGtidSet);
+//            return false;
+//        }
+//
+        String binlogFilename = mySQLBinlogListener.getBinlogFile();
+        Long position = mySQLBinlogListener.getPosition();
+        if (binlogFilename == null) {
+            return true; // start at current position
+        }
+        if (binlogFilename.equals("")) {
+            return true; // start at beginning
+        }
+
+        if(logNames == null || logNames.size() == 0){
+            return true;
+        }
+//        // Accumulate the available binlog filenames ...
+//        List<String> logNames = availableBinlogFiles(mySQLBinlogConfig);
+
+        // And compare with the one we're supposed to use ...
+        boolean found = false;
+        BinFileInfo binFileInfo = null;
+        StringBuilder names = new StringBuilder();
+        for(BinFileInfo _binFileInfo:logNames){
+            if(names.length() > 0)
+                names.append(",");
+            names.append(_binFileInfo.getFileName());
+
+            if(_binFileInfo.getFileName().equals(binlogFilename)){
+                binFileInfo = _binFileInfo;
+                break;
+            }
+        }
+        if(binFileInfo != null){
+            found = true;
+            if(position != null && binFileInfo.getFileSize() < position){
+                mySQLBinlogListener.setPosition(null);
+                mySQLBinlogListener.setBinlogFile(null);
+                mySQLBinlogListener.setLastGtid(null);
+            }
+        }
+
+
+        if (!found) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Connector requires binlog file '{}', but MySQL only has {}", binlogFilename, names.toString());
+            }
+        }
+        else {
+            logger.info("MySQL has the binlog file '{}' required by the connector", binlogFilename);
+        }
+//
+        return found;
+
+    }
+
+    /**
+     * Query the database server to get the list of the binlog files availble.
+     *
+     * @return list of the binlog files
+     */
+    public static List<BinFileInfo> availableBinlogFiles(MySQLBinlogConfig mySQLBinlogConfig) {
+        List<BinFileInfo> logNames = new ArrayList<>();
+        try {
+            logger.info("Get all known binlogs from MySQL");
+            queryAndMap(mySQLBinlogConfig,"SHOW BINARY LOGS", rs -> {
+                while (rs.next()) {
+                    BinFileInfo binFileInfo = new BinFileInfo();
+                    binFileInfo.setFileName(rs.getString(1));
+                    binFileInfo.setFileSize(rs.getLong(2));
+                    logNames.add(binFileInfo);
+                }
+                return logNames;
+            });
+            return logNames;
+        }
+        catch (Exception e) {
+            throw new DataImportException("Unexpected error while connecting to MySQL and looking for binary logs: ", e);
+        }
     }
 }

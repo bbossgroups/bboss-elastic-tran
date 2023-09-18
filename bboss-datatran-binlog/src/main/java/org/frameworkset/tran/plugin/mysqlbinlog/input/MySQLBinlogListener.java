@@ -56,6 +56,7 @@ public class MySQLBinlogListener {
     private ClientConnectThread clientConnectThread;
     private BinaryLogClient.EventListener binaryLogClientEventListener;
     private String lastGtid;
+    private boolean enableGtidMode;
     /**
      * 当前采集位置
      */
@@ -65,6 +66,7 @@ public class MySQLBinlogListener {
      */
     private String binlogFile;
     private boolean isIncreament;
+    private List<BinFileInfo> binFileInfos;
 
     public MySQLBinlogListener(BaseDataTran mysqlBinlogDataTran, MySQLBinlogConfig mySQLBinlogConfig, ImportContext importContext) {
         this.mysqlBinlogDataTran = mysqlBinlogDataTran;
@@ -72,7 +74,22 @@ public class MySQLBinlogListener {
         this.importContext = importContext;
         this.mysqlBinlogInputDatatranPlugin = (MysqlBinlogInputDatatranPlugin) importContext.getInputPlugin();
         isIncreament = mysqlBinlogDataTran.getDataTranPlugin().isIncreamentImport();
-        if(isIncreament){
+        if(mySQLBinlogConfig.isCollectMasterHistoryBinlog()){
+
+            binFileInfos = DBMetaUtil.availableBinlogFiles(mySQLBinlogConfig);
+            if(binFileInfos != null) {
+                for (BinFileInfo binFileInfo : binFileInfos) {
+                    binFileInfo.setFileName(SimpleStringUtil.getPath(mySQLBinlogConfig.getBinlogDir(), binFileInfo.getFileName()));
+                }
+            }
+            else{
+                binFileInfos = new ArrayList<>();
+            }
+        }
+        else if(mySQLBinlogConfig.getFileNames() != null){
+            binFileInfos = mySQLBinlogConfig.getCollectorFileNames();
+        }
+        else if(isIncreament){
 
             if(mysqlBinlogDataTran.getDataTranPlugin().getCurrentStatus() != null) {
                 LastValueWrapper lastValueWrapper = mysqlBinlogDataTran.getDataTranPlugin().getCurrentStatus().getCurrentLastValueWrapper();
@@ -80,16 +97,33 @@ public class MySQLBinlogListener {
                 if (lastValue != null) {
                     String t = String.valueOf(lastValue);
                     position = Long.parseLong(t);
-
                 }
                 String binlogFile_ = lastValueWrapper.getStrLastValue();
-                if(binlogFile_.indexOf(MySQLBinlogConfig.split) > 0){
-                    String data[] =  binlogFile_.split(MySQLBinlogConfig.split);
-                    lastGtid = data[0];
-                    binlogFile = data[1];
+                if(binlogFile_ != null) {
+                    if (binlogFile_.indexOf(MySQLBinlogConfig.split) > 0) {
+                        String data[] = binlogFile_.split(MySQLBinlogConfig.split);
+                        lastGtid = data[0];
+                        binlogFile = data[1];
+                    } else {
+                        binlogFile = binlogFile_;
+                    }
+                    if (binlogFile != null){
+                        List<BinFileInfo> logFiles = DBMetaUtil.availableBinlogFiles(mySQLBinlogConfig);
+                        if(!DBMetaUtil.isBinlogAvailable(mySQLBinlogConfig,this,logFiles)){
+                            binlogFile = null;
+                            position = null;
+                            lastGtid = null;
+                        }
+                    }
                 }
                 else{
-                    binlogFile = binlogFile_;
+//                    if(mySQLBinlogConfig.isIncreamentFrom001()){
+//                        List<BinFileInfo> logFiles = DBMetaUtil.availableBinlogFiles(mySQLBinlogConfig);
+//                        if(logFiles.size() > 0) {
+//                            binlogFile = logFiles.get(0).getFileName();
+//                            position = 0L;
+//                        }
+//                    }
                 }
 
             }
@@ -97,9 +131,43 @@ public class MySQLBinlogListener {
                 position = mySQLBinlogConfig.getPosition();
                 binlogFile = mySQLBinlogConfig.getMastterBinLogFile();
                 this.lastGtid = mySQLBinlogConfig.getGtId();
+                if (binlogFile != null){
+                    List<BinFileInfo> logFiles = DBMetaUtil.availableBinlogFiles(mySQLBinlogConfig);
+                    if(!DBMetaUtil.isBinlogAvailable(mySQLBinlogConfig,this,logFiles)){
+                        binlogFile = null;
+                        position = null;
+                        lastGtid = null;
+                    }
+                }
             }
+            else{
+//                if(mySQLBinlogConfig.isIncreamentFrom001()){
+//                    List<BinFileInfo> logFiles = DBMetaUtil.availableBinlogFiles(mySQLBinlogConfig);
+//                    if(logFiles.size() > 0) {
+//                        binlogFile = logFiles.get(0).getFileName();
+//                        position = 0L;
+//                    }
+//                }
+            }
+
         }
 
+    }
+
+    public void setBinlogFile(String binlogFile) {
+        this.binlogFile = binlogFile;
+    }
+
+    public void setLastGtid(String lastGtid) {
+        this.lastGtid = lastGtid;
+    }
+
+    public void setPosition(Long position) {
+        this.position = position;
+    }
+
+    public Long getPosition() {
+        return position;
     }
 
     public String getBinlogFile() {
@@ -115,7 +183,7 @@ public class MySQLBinlogListener {
     }
 
     public void start() throws IOException {
-        if(mySQLBinlogConfig.getFileNames() != null){
+        if(binFileInfos != null){
             listBinLogFiles();
         }
         else{
@@ -381,7 +449,8 @@ public class MySQLBinlogListener {
 
     public void listBinLogFiles(){
         long start = System.currentTimeMillis();
-        for(String fileName:mySQLBinlogConfig.getCollectorFileNames()){
+
+        for(BinFileInfo fileName:this.binFileInfos){
             try {
                 listBinLogFile(fileName);
             } catch (InterruptedException e) {
@@ -396,13 +465,17 @@ public class MySQLBinlogListener {
             datas.add(new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mySQLBinlogConfig,true,true,true));
             this.mysqlBinlogDataTran.appendData(new CommonData(datas));
             long end = System.currentTimeMillis();
-            logger.info("Collect binlogs[{}] finished.elapsed time：{}秒.",mySQLBinlogConfig.getFileNames(),(end -start)/1000);
+            if(!mySQLBinlogConfig.isCollectMasterHistoryBinlog())
+                logger.info("Collect binlogs[{}] finished.elapsed time：{}秒.",mySQLBinlogConfig.getFileNames(),(end -start)/1000);
+            else{
+                logger.info("Collect binlogs[{}] finished.elapsed time：{}秒.",binFileInfos,(end -start)/1000);
+            }
         } catch (InterruptedException e) {
             shutdown();
         }
     }
 
-    public void listBinLogFile(String fileName) throws InterruptedException {
+    public void listBinLogFile(BinFileInfo fileName) throws InterruptedException {
 
 
         BinaryLogFileReader reader = null;
@@ -410,7 +483,7 @@ public class MySQLBinlogListener {
         long start = System.currentTimeMillis();
         try {
             logger.info("Collect binlog["+fileName+"] begin.");
-            File binlogFile = new File(fileName);
+            File binlogFile = new File(fileName.getFileName());
             EventDeserializer eventDeserializer = new EventDeserializer();
             eventDeserializer.setCompatibilityMode(
 //                EventDeserializer.CompatibilityMode.DATE_AND_TIME_AS_LONG,
@@ -462,7 +535,7 @@ public class MySQLBinlogListener {
                         mysqlBinLogData.setTable(table);
                         mysqlBinLogData.setDatabase(database);
                         mysqlBinLogData.setAction(Record.RECORD_INSERT);
-                        mysqlBinLogData.setFileName(fileName);
+                        mysqlBinLogData.setFileName(fileName.getFileName());
                         MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
                         datas.add(mysqlBinlogRecord);
 
@@ -489,7 +562,7 @@ public class MySQLBinlogListener {
                         mysqlBinLogData.setTable(table);
                         mysqlBinLogData.setDatabase(database);
                         mysqlBinLogData.setAction(Record.RECORD_UPDATE);
-                        mysqlBinLogData.setFileName(fileName);
+                        mysqlBinLogData.setFileName(fileName.getFileName());
                         MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
                         datas.add(mysqlBinlogRecord);
 
@@ -512,7 +585,7 @@ public class MySQLBinlogListener {
                         mysqlBinLogData.setTable(table);
                         mysqlBinLogData.setDatabase(database);
                         mysqlBinLogData.setAction(Record.RECORD_DELETE);
-                        mysqlBinLogData.setFileName(fileName);
+                        mysqlBinLogData.setFileName(fileName.getFileName());
                         MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
                         datas.add(mysqlBinlogRecord);
 
@@ -534,7 +607,7 @@ public class MySQLBinlogListener {
                             mysqlBinLogData.setData(data);
                             mysqlBinLogData.setDatabase(db);
                             mysqlBinLogData.setAction(Record.RECORD_DDL);
-                            mysqlBinLogData.setFileName(fileName);
+                            mysqlBinLogData.setFileName(fileName.getFileName());
                             MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), mysqlBinLogData, mySQLBinlogConfig);
                             datas.add(mysqlBinlogRecord);
                             mysqlBinlogDataTran.appendData(new CommonData(datas));
@@ -726,5 +799,13 @@ public class MySQLBinlogListener {
             b.put(columns[i], value);
         }
         return b;
+    }
+
+    public boolean isEnableGtidMode() {
+        return enableGtidMode;
+    }
+
+    public void setEnableGtidMode(boolean enableGtidMode) {
+        this.enableGtidMode = enableGtidMode;
     }
 }
