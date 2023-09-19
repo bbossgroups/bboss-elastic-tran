@@ -55,7 +55,8 @@ public class MysqlBinlogRecord extends CommonMapRecord {
         tmp.put("database",mysqlBinLogData.getDatabase());
         tmp.put("host",mySQLBinlogConfig.getHost());
         tmp.put("fileName",mysqlBinLogData.getFileName());
-        tmp.put("fileNames",mySQLBinlogConfig.getFileNames());
+        if(mySQLBinlogConfig.getFileNames() != null)
+            tmp.put("fileNames",mySQLBinlogConfig.getFileNames());
         tmp.put("port",mySQLBinlogConfig.getPort());
         tmp.put("action",mysqlBinLogData.getAction());
         this.setMetaDatas(tmp);

@@ -641,7 +641,7 @@ public class MySQLBinlogListener {
             try {
                 reader.close();
             } catch (IOException e) {
-                logger.warn("Close reader["+mySQLBinlogConfig.getFileNames()+"] failed:",e);
+                logger.warn("Close reader["+binFileInfos+"] failed:",e);
             }
 
 

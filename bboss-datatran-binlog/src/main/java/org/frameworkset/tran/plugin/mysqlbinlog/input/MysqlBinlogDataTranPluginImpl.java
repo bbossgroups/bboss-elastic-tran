@@ -71,7 +71,7 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
         return new SetLastValueType (){
 
             public void set(){
-                if( SimpleStringUtil.isEmpty(mySQLBinlogConfig.getFileNames())) {
+                if( mySQLBinlogConfig.isEnableIncrement()) {
                     importContext.setLastValueType(ImportIncreamentConfig.NUMBER_TYPE);
                     statusManager.initLastValueType();
                 }
@@ -95,7 +95,10 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
                 if(!SimpleStringUtil.isEmpty(mySQLBinlogConfig.getFileNames())){
                     statusManager.setIncreamentImport(false);
                 }
-                if(!mySQLBinlogConfig.isEnableIncrement()){
+                else if(mySQLBinlogConfig.isCollectMasterHistoryBinlog()){
+                    statusManager.setIncreamentImport(false);
+                }
+                else if(!mySQLBinlogConfig.isEnableIncrement()){
                     statusManager.setIncreamentImport(false);
                 }
                 else {
@@ -115,7 +118,8 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
     }
 
     public boolean neadFinishJob(){
-        return SimpleStringUtil.isNotEmpty(this.mySQLBinlogConfig.getFileNames());
+        return SimpleStringUtil.isNotEmpty(this.mySQLBinlogConfig.getFileNames())
+                || mySQLBinlogConfig.isCollectMasterHistoryBinlog();
     }
 	@Override
 	public void importData(ScheduleEndCall scheduleEndCall) throws DataImportException {

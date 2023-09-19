@@ -26,7 +26,10 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.db.CDCDBTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -41,6 +44,7 @@ import static org.frameworkset.tran.metrics.job.MetricsConfig.DEFAULT_metricsInt
  * @version 1.0
  */
 public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
+    private static Logger logger = LoggerFactory.getLogger(MySQLBinlogConfig.class);
     private String host;
     private int port;
     private String dbUser;
@@ -298,9 +302,15 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
             String[] _collectorFileNames = fileNames.split(",");
             collectorFileNames = new ArrayList<>();
             for(String name:_collectorFileNames){
-                BinFileInfo binFileInfo = new BinFileInfo();
-                binFileInfo.setFileName(name);
-                collectorFileNames.add(binFileInfo);
+                File file = new File(name);
+                if(file.exists()) {
+                    BinFileInfo binFileInfo = new BinFileInfo();
+                    binFileInfo.setFileName(name);
+                    collectorFileNames.add(binFileInfo);
+                }
+                else{
+                    logger.warn("{} do not exist.",name);
+                }
             }
         }
         if(isEnableIncrement() ){
