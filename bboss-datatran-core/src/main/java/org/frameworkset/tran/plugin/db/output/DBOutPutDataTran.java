@@ -82,12 +82,27 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
             TranSQLInfo deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(context.getTaskContext(), dbRecord);
 
             if (context.isInsert()) {
-
-                vars = insertSqlinfo.getVars();
+				if(insertSqlinfo != null) {
+					vars = insertSqlinfo.getVars();
+				}
+				else{
+					throw new DataImportException("Record is marked insert,but insert sql not setted. See document to set insert sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
+				}
             } else if (context.isUpdate()) {
-                vars = updateSqlinfo.getVars();
+				if(updateSqlinfo != null) {
+					vars = updateSqlinfo.getVars();
+				}
+				else{
+					throw new DataImportException("Record is marked update,but update sql not setted. See document to set update sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
+				}
+
             } else {
-                vars = deleteSqlinfo.getVars();
+				if(deleteSqlinfo != null) {
+					vars = deleteSqlinfo.getVars();
+				}
+				else{
+					throw new DataImportException("Record is marked delete,but delete sql not setted. See document to set delete sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
+				}
             }
             String varName = null;
             List<Param> record = new ArrayList<>();

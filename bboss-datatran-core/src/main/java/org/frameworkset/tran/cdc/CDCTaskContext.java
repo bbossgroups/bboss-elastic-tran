@@ -1,4 +1,4 @@
-package org.frameworkset.tran.plugin.mysqlbinlog.input;
+package org.frameworkset.tran.cdc;
 /**
  * Copyright 2022 bboss
  * <p>
@@ -15,7 +15,6 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.cdc.CDCTaskContext;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -27,20 +26,30 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MysqlBinlogTaskContext extends CDCTaskContext {
-	public MysqlBinlogTaskContext(ImportContext importContext) {
+public abstract class CDCTaskContext extends TaskContext {
+	public CDCTaskContext(ImportContext importContext) {
 		super(importContext);
 	}
 
-	public MysqlBinlogTaskContext() {
+	public CDCTaskContext() {
 		super();
 	}
-
-
-	@Override
-	protected TaskContext createTaskContext(){
-		return new MysqlBinlogTaskContext();
+	public static interface ReInitAction {
+		public void afterCall(TaskContext taskContext);
+		public void preCall(TaskContext taskContext);
 	}
+
+	public synchronized void reInitContext(ReInitAction reInitAction){
+		// 当有记录到达，才执行
+		if(this.getJobTaskMetrics().getTotalRecords() > 0) {
+			TaskContext taskContextCopy = copy();
+			reInitAction.afterCall(taskContextCopy);
+			super.initContext();
+			reInitAction.preCall(this);
+		}
+	}
+
+
 
 
 }

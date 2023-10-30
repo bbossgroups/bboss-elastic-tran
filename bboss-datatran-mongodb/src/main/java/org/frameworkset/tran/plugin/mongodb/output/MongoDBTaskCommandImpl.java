@@ -16,8 +16,9 @@ package org.frameworkset.tran.plugin.mongodb.output;
  */
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
+
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import org.frameworkset.nosql.mongodb.MongoDB;
 import org.frameworkset.nosql.mongodb.MongoDBHelper;
 import org.frameworkset.tran.CommonRecord;
@@ -98,8 +99,8 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 
 
 			MongoDB mogodb = MongoDBHelper.getMongoDB(dbOutputConfig.getName());
-			DB db = mogodb.getDB(dbOutputConfig.getDB());
-			DBCollection dbCollection = db.getCollection(dbOutputConfig.getDBCollection());
+			MongoDatabase db = mogodb.getDB(dbOutputConfig.getDB());
+			MongoCollection dbCollection = db.getCollection(dbOutputConfig.getDBCollection());
 
 
 			List<BasicDBObject> resources = new ArrayList<>();

@@ -15,8 +15,8 @@ package org.frameworkset.tran.mongodb;
  * limitations under the License.
  */
 
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.MongoCursor;
+import org.bson.Document;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.NextAssert;
@@ -33,10 +33,10 @@ import java.util.Date;
  * @version 1.0
  */
 public class MongoDBResultSet extends LastValue implements TranResultSet {
-	private DBCursor dbCursor;
-	private DBObject dbObject;
+	private MongoCursor<Document> dbCursor;
+	private Document dbObject;
 //	private boolean stoped;
-	public MongoDBResultSet(ImportContext importContext, DBCursor dbCursor) {
+	public MongoDBResultSet(ImportContext importContext, MongoCursor<Document> dbCursor) {
 		this.importContext = importContext;
 		this.dbCursor = dbCursor;
 	}

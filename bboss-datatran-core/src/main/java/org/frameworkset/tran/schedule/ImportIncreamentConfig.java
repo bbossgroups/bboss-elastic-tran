@@ -32,6 +32,10 @@ public class ImportIncreamentConfig {
 	public static final int NUMBER_TYPE = 0;
 	public static final int TIMESTAMP_TYPE = 1;
     public static final int LOCALDATETIME_TYPE = 2;
+	/**
+	 * 复合增量状态类型
+	 */
+	public static final int JSON_TYPE = 3;
 
 	public static final int STATUS_COLLECTING = 0;
 	public static final int STATUS_COMPLETE = 1;
@@ -41,7 +45,7 @@ public class ImportIncreamentConfig {
 	 */
 	private Object lastValue;
 	/**
-	 * 设置其实值类型：0 数字  1 日期
+	 * 设置其实值类型：0 数字  1 日期 2 LOCALDATETIME_TYPE 3 json
 	 */
 	private Integer lastValueType = NUMBER_TYPE;
 	private String lastValueStorePath;

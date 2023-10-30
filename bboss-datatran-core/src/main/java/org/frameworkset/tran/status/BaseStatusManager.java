@@ -221,6 +221,9 @@ public abstract class BaseStatusManager implements StatusManager {
             else if(oldValue instanceof LocalDateTime)    {
                 lastValueType = ImportIncreamentConfig.LOCALDATETIME_TYPE;
             }
+			else if(oldValue instanceof String) {
+				lastValueType = ImportIncreamentConfig.JSON_TYPE;
+			}
             else{
                 lastValueType = ImportIncreamentConfig.NUMBER_TYPE;
             }

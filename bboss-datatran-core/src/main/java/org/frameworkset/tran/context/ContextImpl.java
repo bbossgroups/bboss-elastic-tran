@@ -197,6 +197,10 @@ public class ContextImpl implements Context {
 	public Object getValue(     int i,String  colName,int sqlType) throws Exception {
 		return tranResultSet.getValue(i,colName,sqlType);
 	}
+
+	public Object getValue(String fieldName,int sqlType)  throws Exception{
+		return tranResultSet.getValue(fieldName,sqlType);
+	}
 	public Boolean getUseJavaName() {
 		return baseImportConfig.getUseJavaName();
 	}

@@ -16,6 +16,7 @@ package org.frameworkset.tran.mongodb;
  */
 
 import com.mongodb.DBObject;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.record.BaseRecord;
@@ -30,8 +31,8 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public class MongoDBRecord extends BaseRecord {
-	private DBObject record;
-	public MongoDBRecord(DBObject record,TaskContext taskContext) {
+	private Document record;
+	public MongoDBRecord(Document record,TaskContext taskContext) {
 		super(taskContext);
 		this.record = record;
 	}

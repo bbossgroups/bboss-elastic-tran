@@ -15,8 +15,15 @@ package org.frameworkset.tran.plugin.mongodb.input;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import com.mongodb.*;
-import com.mongodb.client.model.DBCollectionFindOptions;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Projections;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.frameworkset.nosql.mongodb.MongoDB;
 import org.frameworkset.nosql.mongodb.MongoDBConfig;
 import org.frameworkset.nosql.mongodb.MongoDBHelper;
@@ -130,7 +137,7 @@ public class MongoDBInputDatatranPlugin extends BaseInputPlugin {
 
 	private void commonImportData( TaskContext taskContext) throws Exception {
 
-		DBObject dbObject = mongoDBInputConfig.getQuery();
+		BasicDBObject dbObject = mongoDBInputConfig.getQuery();
 		if(dbObject == null)
 			dbObject = new BasicDBObject();
 
@@ -146,10 +153,11 @@ public class MongoDBInputDatatranPlugin extends BaseInputPlugin {
 		 */
 	}
 
-	private void exportESData(DBObject dbObject, TaskContext taskContext){
+	private void exportESData(BasicDBObject dbObject, TaskContext taskContext){
 		MongoDB mogodb = MongoDBHelper.getMongoDB(mongoDBInputConfig.getName());
-		DB db = mogodb.getDB(mongoDBInputConfig.getDB());
-		DBCollection dbCollection = db.getCollection(mongoDBInputConfig.getDBCollection());
+		MongoDatabase db = mogodb.getDB(mongoDBInputConfig.getDB());
+		MongoCollection<Document> dbCollection = db.getCollection(mongoDBInputConfig.getDBCollection());
+		/**
 		DBCollectionFindOptions dbCollectionFindOptions = null;
 		if(mongoDBInputConfig.getDbCollectionFindOptions() != null){
 			dbCollectionFindOptions = mongoDBInputConfig.getDbCollectionFindOptions();
@@ -160,20 +168,41 @@ public class MongoDBInputDatatranPlugin extends BaseInputPlugin {
 			dbCollectionFindOptions = new DBCollectionFindOptions();
 			dbCollectionFindOptions.batchSize(importContext.getFetchSize());
 		}
-
+*/
 
 //		dbCollectionFindOptions.
-		if(mongoDBInputConfig.getFetchFields() != null){
-			dbCollectionFindOptions.projection(mongoDBInputConfig.getFetchFields());
+
+		FindIterable<Document> dbCursor = dbCollection.find(dbObject);
+		if(SimpleStringUtil.isNotEmpty(mongoDBInputConfig.getFetchFields() )){
+			Bson projectionFields = Projections.fields(
+					Projections.include(mongoDBInputConfig.getFetchFields())
+//					,Projections.excludeId()
+			);
+			dbCursor.projection(projectionFields);
+//			dbCollectionFindOptions.projection(mongoDBInputConfig.getFetchFields());
 		}
-		DBCursor dbCursor = dbCollection.find(dbObject,dbCollectionFindOptions);
+
+
+
+		if(importContext.getFetchSize()> 0)
+			dbCursor.batchSize(importContext.getFetchSize());
+
 //		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);
 //		MongoDB2ESDataTran mongoDB2ESDataTran = new MongoDB2ESDataTran(mongoDB2ESResultSet,importContext);
 //		mongoDB2ESDataTran.tran();
-		doTran(  dbCursor, taskContext);
+		MongoCursor mongoCursor = null;
+		try {
+			mongoCursor = dbCursor.cursor();
+			doTran(mongoCursor, taskContext);
+		}
+		finally {
+			if(mongoCursor != null){
+				mongoCursor.close();
+			}
+		}
 
 	}
-	protected  void doTran(DBCursor dbCursor, TaskContext taskContext){
+	protected  void doTran(MongoCursor dbCursor, TaskContext taskContext){
 		MongoDBResultSet mongoDB2ESResultSet = new MongoDBResultSet(importContext,dbCursor);
 		BaseDataTran mongoDB2ESDataTran = dataTranPlugin.createBaseDataTran(taskContext,mongoDB2ESResultSet,null,dataTranPlugin.getCurrentStatus());//new BaseElasticsearchDataTran( taskContext,mongoDB2ESResultSet,importContext,targetImportContext,this.currentStatus);
 		mongoDB2ESDataTran.initTran();
@@ -181,10 +210,10 @@ public class MongoDBInputDatatranPlugin extends BaseInputPlugin {
 	}
 	private void increamentImportData( TaskContext taskContext) throws Exception {
 
-		DBObject dbObject = mongoDBInputConfig.getQuery();
+		BasicDBObject dbObject = mongoDBInputConfig.getQuery();
 		if(dbObject == null)
 			dbObject = new BasicDBObject();
-		putLastParamValue((BasicDBObject)dbObject);
+		putLastParamValue(dbObject);
 		exportESData(  dbObject, taskContext);
 	}
 	public void putLastParamValue(BasicDBObject query){

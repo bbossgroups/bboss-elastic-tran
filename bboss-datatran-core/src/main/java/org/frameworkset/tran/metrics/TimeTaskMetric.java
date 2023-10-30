@@ -325,6 +325,7 @@ public class TimeTaskMetric extends TimeMetric {
 //				if(nts.longValue() > ts.longValue())
 //					this.lastValue = taskMetrics.getLastValue();
                 this.lastValue = importContext.getDataTranPlugin().maxNumberLastValue(lastValue,taskMetrics.getLastValue());
+				//to fixed...
 
 			}
 			else if(importContext.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
@@ -348,6 +349,13 @@ public class TimeTaskMetric extends TimeMetric {
                     if(nts.isAfter(ts))
                         this.lastValue = taskMetrics.getLastValue();
             }
+			else if(importContext.getLastValueType() == ImportIncreamentConfig.JSON_TYPE) {
+//				LocalDateTime ts = (LocalDateTime)lastValue.getLastValue();
+//				LocalDateTime nts = (LocalDateTime)taskMetrics.getLastValue().getLastValue();
+//				if(nts.isAfter(ts))
+//					this.lastValue = taskMetrics.getLastValue();
+				//to fixed...
+			}
 		}
 
 

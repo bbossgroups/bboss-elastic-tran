@@ -15,12 +15,13 @@ package org.frameworkset.tran.plugin.mongodb.input;
  * limitations under the License.
  */
 
-import com.mongodb.DBObject;
-import com.mongodb.client.model.DBCollectionFindOptions;
+import com.mongodb.BasicDBObject;
 import org.frameworkset.tran.BaseMongoDBConfig;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
+
+import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -32,35 +33,35 @@ import org.frameworkset.tran.plugin.InputPlugin;
  */
 public class MongoDBInputConfig extends BaseMongoDBConfig implements InputConfig {
 
-	private DBObject fetchFields;
+	private List<String> fetchFields;
 
 
-	private DBCollectionFindOptions dbCollectionFindOptions;
-	private DBObject query;
+//	private DBCollectionFindOptions dbCollectionFindOptions;
+	private BasicDBObject query;
 
-	public DBCollectionFindOptions getDbCollectionFindOptions() {
-		return dbCollectionFindOptions;
-	}
+//	public DBCollectionFindOptions getDbCollectionFindOptions() {
+//		return dbCollectionFindOptions;
+//	}
+//
+//	public MongoDBInputConfig setDbCollectionFindOptions(DBCollectionFindOptions dbCollectionFindOptions) {
+//		this.dbCollectionFindOptions = dbCollectionFindOptions;
+//		return this;
+//	}
 
-	public MongoDBInputConfig setDbCollectionFindOptions(DBCollectionFindOptions dbCollectionFindOptions) {
-		this.dbCollectionFindOptions = dbCollectionFindOptions;
-		return this;
-	}
-
-	public MongoDBInputConfig setQuery(DBObject query) {
+	public MongoDBInputConfig setQuery(BasicDBObject query) {
 		this.query = query;
 		return this;
 	}
 
-	public DBObject getQuery() {
+	public BasicDBObject getQuery() {
 		return query;
 	}
 
-	public DBObject getFetchFields() {
+	public List<String> getFetchFields() {
 		return fetchFields;
 	}
 
-	public MongoDBInputConfig setFetchFields(DBObject fetchFields) {
+	public MongoDBInputConfig setFetchFields(List<String> fetchFields) {
 		this.fetchFields = fetchFields;
 		return this;
 	}

@@ -1,4 +1,4 @@
-package org.frameworkset.tran.plugin.mysqlbinlog.input;
+package org.frameworkset.tran.plugin.mongocdc;
 /**
  * Copyright 2022 bboss
  * <p>
@@ -27,19 +27,18 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MysqlBinlogTaskContext extends CDCTaskContext {
-	public MysqlBinlogTaskContext(ImportContext importContext) {
+public class MongoCDCTaskContext extends CDCTaskContext {
+	public MongoCDCTaskContext(ImportContext importContext) {
 		super(importContext);
 	}
 
-	public MysqlBinlogTaskContext() {
+	public MongoCDCTaskContext() {
 		super();
 	}
 
-
 	@Override
 	protected TaskContext createTaskContext(){
-		return new MysqlBinlogTaskContext();
+		return new MongoCDCTaskContext();
 	}
 
 

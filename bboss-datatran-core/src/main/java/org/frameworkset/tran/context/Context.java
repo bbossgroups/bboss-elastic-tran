@@ -163,6 +163,7 @@ public interface Context {
 	float getFloatValue(String fieldName) throws Exception;
 	int getIntegerValue(String fieldName) throws Exception;
 	Date getDateValue(String fieldName) throws Exception;
+	Object getValue(String fieldName,int sqlType)  throws Exception;
 	Date getDateValue(String fieldName, DateFormat dateFormat) throws Exception;
     Date getDateValue(String fieldName, String dateFormat) throws Exception;
 	List<FieldMeta> getFieldValues();

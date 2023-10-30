@@ -1,4 +1,4 @@
-package org.frameworkset.tran.plugin.mysqlbinlog.input;
+package org.frameworkset.tran.plugin.mongocdc;
 /**
  * Copyright 2023 bboss
  * <p>
@@ -25,44 +25,39 @@ import org.frameworkset.tran.cdc.CDCData;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MysqlBinLogData extends CDCData {
+public class MongoDBCDCData extends CDCData {
 
-    private String table;
+
+    private String collection;
 
     private String database;
-    private Long position;
-
-
-    private String gtid;
+    private String position;
 
 
 
-    private String fileName;
+
+    private String id;
 
 
-    public String getTable() {
-        return table;
+    public String getCollection() {
+        return collection;
     }
 
-    public void setTable(String table) {
-        this.table = table;
+    public void setCollection(String collection) {
+        this.collection = collection;
     }
 
-    public Long getPosition() {
+
+
+    public String getPosition() {
         return position;
     }
 
-    public void setPosition(Long position) {
+    public void setPosition(String position) {
         this.position = position;
     }
 
-    public String getFileName() {
-        return fileName;
-    }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
     public String getDatabase() {
         return database;
     }
@@ -71,12 +66,12 @@ public class MysqlBinLogData extends CDCData {
         this.database = database;
     }
 
-    public String getGtid() {
-        return gtid;
+    public String getId() {
+        return id;
     }
 
-    public void setGtid(String gtid) {
-        this.gtid = gtid;
+    public void setId(String id) {
+        this.id = id;
     }
 
 }
