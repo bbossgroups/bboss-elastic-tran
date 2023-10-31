@@ -32,8 +32,10 @@ public class MongoDBCDCData extends CDCData {
 
     private String database;
     private String position;
+    private long clusterTime;
 
 
+    private long wallTime;
 
 
     private String id;
@@ -72,6 +74,23 @@ public class MongoDBCDCData extends CDCData {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+
+    public long getClusterTime() {
+        return clusterTime;
+    }
+
+    public void setClusterTime(long clusterTime) {
+        this.clusterTime = clusterTime;
+    }
+
+    public long getWallTime() {
+        return wallTime;
+    }
+
+    public void setWallTime(long wallTime) {
+        this.wallTime = wallTime;
     }
 
 }

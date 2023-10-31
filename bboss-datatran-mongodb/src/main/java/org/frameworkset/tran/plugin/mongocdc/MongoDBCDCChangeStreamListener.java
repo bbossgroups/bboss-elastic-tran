@@ -5,6 +5,7 @@ import com.mongodb.client.ChangeStreamIterable;
 import com.mongodb.client.MongoChangeStreamCursor;
 import com.mongodb.client.model.changestream.ChangeStreamDocument;
 import com.mongodb.client.model.changestream.FullDocument;
+import com.mongodb.client.model.changestream.FullDocumentBeforeChange;
 import com.mongodb.client.model.changestream.OperationType;
 import org.bson.*;
 import org.bson.types.ObjectId;
@@ -63,6 +64,7 @@ public class MongoDBCDCChangeStreamListener {
         ObjectId objectId = bsonDocument.getObjectId("_id");
         mongoDBCDCData.setId(objectId.toString());
         mongoDBCDCData.setData(convertData(  bsonDocument));
+        mongoDBCDCData.setAction(Record.RECORD_INSERT);
         return mongoDBCDCData;
 
     }
@@ -70,17 +72,31 @@ public class MongoDBCDCChangeStreamListener {
     private MongoDBCDCData buildUpdateDocument(ChangeStreamDocument<Document> event){
         MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
         Document bsonDocument = event.getFullDocument();
-        Document updateDocument = event.getFullDocumentBeforeChange();
+
+        mongoDBCDCData.setAction(Record.RECORD_UPDATE);
         ObjectId objectId = bsonDocument.getObjectId("_id");
+
         mongoDBCDCData.setId(objectId.toString());
         mongoDBCDCData.setData(convertData(  bsonDocument));
+        Document updateDocument = event.getFullDocumentBeforeChange();
         mongoDBCDCData.setOldValues(convertData(updateDocument));
         return mongoDBCDCData;
 
     }
-    private void buildMongoCDCRecord(ChangeStreamDocument<Document> event) throws InterruptedException {
+
+    private MongoDBCDCData buildDeleteDocument(ChangeStreamDocument<Document> event){
+        MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
+        Document bsonDocument = event.getFullDocument();
+        ObjectId objectId = bsonDocument.getObjectId("_id");
+        mongoDBCDCData.setId(objectId.toString());
+        mongoDBCDCData.setData(convertData(  bsonDocument));
+        Document updateDocument = event.getFullDocumentBeforeChange();
+        mongoDBCDCData.setOldValues(convertData(updateDocument));
+        mongoDBCDCData.setAction(Record.RECORD_DELETE);
+        return mongoDBCDCData;
+    }
+    private void dipatcheData(ChangeStreamDocument<Document> event) throws InterruptedException {
         BsonDocument resumeToken = event.getResumeToken();
-        event.getFullDocumentBeforeChange();
 //        BsonDocument documentKey = event.getDocumentKey();
         String db = event.getNamespace().getDatabaseName();
         String collection = event.getNamespace().getCollectionName();
@@ -92,18 +108,27 @@ public class MongoDBCDCChangeStreamListener {
         else  if(operationType == OperationType.UPDATE){
             mongoDBCDCData = this.buildUpdateDocument(event);
         }
+        else  if(operationType == OperationType.DELETE){
+            mongoDBCDCData = this.buildDeleteDocument(event);
+        }
+        else{
+            mongoDBCDCData = buildDropedEvent( event);
+        }
 
-        mongoDBCDCData.setCollection(collection);
-        mongoDBCDCData.setDatabase(db);
-        mongoDBCDCData.setPosition(resumeToken.toString());
+        if(mongoDBCDCData != null) {
+            mongoDBCDCData.setCollection(collection);
+            mongoDBCDCData.setDatabase(db);
+            mongoDBCDCData.setPosition(resumeToken.toString());
+            mongoDBCDCData.setClusterTime(event.getClusterTime().getValue());
+            mongoDBCDCData.setWallTime(event.getWallTime().getValue());
 
+            List<MongoCDCRecord> mongoCDCRecords = new ArrayList<>(1);
+            MongoCDCRecord mongoCDCRecord = new MongoCDCRecord(dataTran.getTaskContext(),
+                    mongoDBCDCData, this.mongoCDCInputConfig);
 
-        List<MongoCDCRecord> mongoCDCRecords = new ArrayList<>(1);
-        MongoCDCRecord mongoCDCRecord = new MongoCDCRecord(dataTran.getTaskContext(),
-                mongoDBCDCData, this.mongoCDCInputConfig);
-
-        mongoCDCRecords.add(mongoCDCRecord);
-        dataTran.appendData(new CommonData(mongoCDCRecords));
+            mongoCDCRecords.add(mongoCDCRecord);
+            dataTran.appendData(new CommonData(mongoCDCRecords));
+        }
     }
     public void start( ){
         changeStreamIterable = openChangeStream(   );
@@ -111,7 +136,7 @@ public class MongoDBCDCChangeStreamListener {
             changeStreamIterable.fullDocument(FullDocument.UPDATE_LOOKUP);
         }
         if (mongoCDCInputConfig.isIncludePreImage()) {
-//            changeStreamIterable.fullDocumentBeforeChange(FullDocumentBeforeChange.WHEN_AVAILABLE);
+            changeStreamIterable.fullDocumentBeforeChange(FullDocumentBeforeChange.WHEN_AVAILABLE);
         }
         Status status = dataTran.getCurrentStatus();
         if (status.getStrLastValue() != null) {
@@ -145,17 +170,7 @@ public class MongoDBCDCChangeStreamListener {
                         logger.debug("Arrived Change Stream event: {}", event);
                     }
                     try {
-                        BsonDocument resumeToken = event.getResumeToken();
-                        BsonDocument documentKey = event.getDocumentKey();
-                        String db = event.getNamespace().getDatabaseName();
-                        String collection = event.getNamespace().getCollectionName();
-                        OperationType operationType = event.getOperationType();
-
-                        MongoCDCRecord mongoCDCRecord = new MongoCDCRecord(dataTran.getTaskContext(), null, this.mongoCDCInputConfig);
-                        MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
-                        List<MongoCDCRecord> mongoCDCRecords = new ArrayList<>(1);
-                        mongoCDCRecords.add(mongoCDCRecord);
-                        dataTran.appendData(new CommonData(mongoCDCRecords));
+                        dipatcheData( event);
 //                    rsOffsetContext.changeStreamEvent(event);
 //                    CollectionId collectionId = new CollectionId(
 //                            replicaSet.replicaSetName(),
@@ -192,7 +207,7 @@ public class MongoDBCDCChangeStreamListener {
                         if (cursor.getResumeToken() != null) {
 //                            rsOffsetContext.noEvent(cursor);
 //                            dispatcher.dispatchHeartbeatEvent(rsPartition, rsOffsetContext);
-                            sendDropedEvent();
+                            sendDropedEvent(cursor.getResumeToken().toJson());
                         }
                     }
                     catch (InterruptedException e) {
@@ -208,20 +223,31 @@ public class MongoDBCDCChangeStreamListener {
         }
     }
 
-    private void sendDropedEvent() throws InterruptedException {
+    private void sendDropedEvent(String postion) throws InterruptedException {
         if(!isIncreament)
-            return;
-        List<MongoCDCRecord> datas = new ArrayList<>(1);
+            return ;
 
-        MongoDBCDCData mysqlBinLogData = new MongoDBCDCData();
+        MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
 //        mysqlBinLogData.setFileName(binLogFileName);
-//        mysqlBinLogData.setPosition(binlogPosition);
-        mysqlBinLogData.setAction(Record.RECORD_DIRECT_IGNORE);
+        mongoDBCDCData.setPosition(postion);
+        mongoDBCDCData.setAction(Record.RECORD_DIRECT_IGNORE);
+        List<MongoCDCRecord> mongoCDCRecords = new ArrayList<>(1);
+        MongoCDCRecord mongoCDCRecord = new MongoCDCRecord(dataTran.getTaskContext(),
+                mongoDBCDCData, this.mongoCDCInputConfig);
 
-        MongoCDCRecord mysqlBinlogRecord = new MongoCDCRecord(this.dataTran.getTaskContext(),mysqlBinLogData,this.mongoCDCInputConfig);
-        datas.add(mysqlBinlogRecord);
+        mongoCDCRecords.add(mongoCDCRecord);
+        dataTran.appendData(new CommonData(mongoCDCRecords));
+    }
 
-        dataTran.appendData(new CommonData(datas));
+    private MongoDBCDCData buildDropedEvent(ChangeStreamDocument<Document> event) throws InterruptedException {
+        if(!isIncreament)
+            return null;
+
+        MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
+//        mysqlBinLogData.setFileName(binLogFileName);
+        mongoDBCDCData.setAction(Record.RECORD_DIRECT_IGNORE);
+
+        return mongoDBCDCData;
     }
 
     /**
