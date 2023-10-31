@@ -19,6 +19,7 @@ import com.mongodb.BasicDBObject;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 import org.frameworkset.nosql.mongodb.MongoDB;
 import org.frameworkset.nosql.mongodb.MongoDBHelper;
 import org.frameworkset.tran.CommonRecord;
@@ -77,8 +78,8 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 		this.datas = datas;
 	}
 
-	private BasicDBObject convert(CommonRecord dbRecord){
-		BasicDBObject basicDBObject = new BasicDBObject();
+	private Document convert(CommonRecord dbRecord){
+		Document basicDBObject = new Document();
 		Map<String, Object>  datas = dbRecord.getDatas();
 		Iterator<Map.Entry<String,Object>> iterator = datas.entrySet().iterator();
 		while (iterator.hasNext()){
@@ -103,10 +104,10 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 			MongoCollection dbCollection = db.getCollection(dbOutputConfig.getDBCollection());
 
 
-			List<BasicDBObject> resources = new ArrayList<>();
+			List<Document> resources = new ArrayList<>();
 			for(CommonRecord dbRecord:datas){
 				CommonRecord record = (CommonRecord) dbRecord;
-				BasicDBObject basicDBObject =convert(dbRecord);
+				Document basicDBObject =convert(dbRecord);
 				resources.add(basicDBObject);
 
 			}

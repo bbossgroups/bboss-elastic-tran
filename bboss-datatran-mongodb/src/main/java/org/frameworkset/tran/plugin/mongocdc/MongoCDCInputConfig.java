@@ -20,7 +20,6 @@ import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.mongodb.cdc.ChangeStreamPipeline;
-import org.frameworkset.tran.mongodb.cdc.Operation;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.mongodb.input.MongoDBInputDatatranPlugin;
 
@@ -62,7 +61,7 @@ public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfi
 
 	private boolean enableIncrement;
 
-	private List<Operation> skippedOperations;
+	private List<Integer> includedOperations;
 
 	public String getUserPipeline() {
 		return userPipeline;
@@ -170,16 +169,24 @@ public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfi
 		return this;
 	}
 
-	public MongoCDCInputConfig addSkipedOperation(Operation operation){
-		if(skippedOperations == null){
-			skippedOperations = new ArrayList<>();
+	/**
+	 * Record.    public final int RECORD_INSERT = 0;
+	 *     public final int RECORD_UPDATE = 1;
+	 *     public final int RECORD_DELETE = 2;
+	 *     public final int RECORD_DDL = 5;
+	 * @param operation
+	 * @return
+	 */
+	public MongoCDCInputConfig addSkipedOperation(int operation){
+		if(includedOperations == null){
+			includedOperations = new ArrayList<>();
 		}
-		skippedOperations.add(operation);
+		includedOperations.add(operation);
 		return this;
 	}
 
-	public List<Operation> getSkippedOperations() {
-		return skippedOperations;
+	public List<Integer> getIncludedOperations() {
+		return includedOperations;
 	}
 
 	public ChangeStreamPipeline getChangeStreamPipeline() {

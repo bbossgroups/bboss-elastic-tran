@@ -72,7 +72,7 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
 
             public void set(){
                 if( mongoCDCInputConfig.isEnableIncrement()) {
-                    importContext.setLastValueType(ImportIncreamentConfig.NUMBER_TYPE);
+                    importContext.setLastValueType(ImportIncreamentConfig.STRING_TYPE);
                     statusManager.initLastValueType();
                 }
             }
@@ -92,6 +92,9 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
         return new InitLastValueClumnName (){
 
             public void initLastValueClumnName(){
+                if(!mongoCDCInputConfig.isEnableIncrement()){
+                    statusManager.setIncreamentImport(false);
+                }
 //                if(!SimpleStringUtil.isEmpty(mongoCDCInputConfig.getFileNames())){
 //                    statusManager.setIncreamentImport(false);
 //                }

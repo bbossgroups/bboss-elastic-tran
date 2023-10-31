@@ -105,7 +105,7 @@ public class MongoDBCDCChangeStreamListener {
         if(operationType == OperationType.INSERT){
             mongoDBCDCData = this.buildInsertDocument(event);
         }
-        else  if(operationType == OperationType.UPDATE){
+        else  if(operationType == OperationType.UPDATE || operationType == OperationType.REPLACE){
             mongoDBCDCData = this.buildUpdateDocument(event);
         }
         else  if(operationType == OperationType.DELETE){

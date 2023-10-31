@@ -147,9 +147,12 @@ public abstract class LastValue implements TranResultSet{
         return null;
     }
 
+    public Long getLastValueTime(){
+        return System.currentTimeMillis();
+    }
     public LastValueWrapper getLastValueWrapper(){
         LastValueWrapper lastValueWrapper = new LastValueWrapper();
-        lastValueWrapper.setTimeStamp(System.currentTimeMillis());
+        lastValueWrapper.setTimeStamp(getLastValueTime());
         lastValueWrapper.setLastValue(getLastValue());
         lastValueWrapper.setStrLastValue(getStrLastValue());
         return lastValueWrapper;

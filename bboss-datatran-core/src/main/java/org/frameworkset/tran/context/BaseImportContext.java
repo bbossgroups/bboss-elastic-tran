@@ -418,6 +418,11 @@ public  class BaseImportContext implements ImportContext {
     {
         return baseImportConfig.isLastValueNumberType();
     }
+
+	public boolean isLastValueStringType()
+	{
+		return baseImportConfig.isLastValueStringType();
+	}
     public boolean isLastValueLocalDateTimeType()
     {
         return baseImportConfig.isLastValueLocalDateTimeType();

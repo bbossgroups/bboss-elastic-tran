@@ -714,9 +714,9 @@ public class BaseImportConfig {
 		return this.getLastValueType() != null && this.getLastValueType() == ImportIncreamentConfig.TIMESTAMP_TYPE;
 	}
 
-	public boolean isLastValueJsonType()
+	public boolean isLastValueStringType()
 	{
-		return this.getLastValueType() != null && this.getLastValueType() == ImportIncreamentConfig.JSON_TYPE;
+		return this.getLastValueType() != null && this.getLastValueType() == ImportIncreamentConfig.STRING_TYPE;
 	}
 
     public boolean isLastValueNumberType()

@@ -85,6 +85,8 @@ public class MongoDBOutputDataTranPlugin extends BasePlugin implements OutputPlu
 		mongoDBConfig.setSocketKeepAlive(mongoDBOutputConfig.getSocketKeepAlive());//private Boolean socketKeepAlive = false;
 
 		mongoDBConfig.setMode( mongoDBOutputConfig.getMode());
+
+		mongoDBConfig.setConnectString(mongoDBOutputConfig.getConnectString());
 		if(MongoDBHelper.init(mongoDBConfig)){
 			mongoDBStartResult.addDBStartResult(mongoDBConfig.getName());
 		}

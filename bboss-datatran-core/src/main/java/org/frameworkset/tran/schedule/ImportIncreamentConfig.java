@@ -35,7 +35,7 @@ public class ImportIncreamentConfig {
 	/**
 	 * 复合增量状态类型
 	 */
-	public static final int JSON_TYPE = 3;
+	public static final int STRING_TYPE = 3;
 
 	public static final int STATUS_COLLECTING = 0;
 	public static final int STATUS_COMPLETE = 1;

@@ -47,6 +47,7 @@ public class BaseMongoDBConfig extends BaseConfig  {
 	private int maxWaitTime = 120000;
 	private int socketTimeout = 0;
 	private int connectTimeout = 15000;
+	private String connectString;
 
 
 	/**是否启用sql日志，true启用，false 不启用，*/
@@ -235,6 +236,15 @@ public class BaseMongoDBConfig extends BaseConfig  {
 
 	public BaseMongoDBConfig setMechanism(String mechanism) {
 		this.mechanism = mechanism;
+		return this;
+	}
+
+	public String getConnectString() {
+		return connectString;
+	}
+
+	public BaseMongoDBConfig setConnectString(String connectString) {
+		this.connectString = connectString;
 		return this;
 	}
 }

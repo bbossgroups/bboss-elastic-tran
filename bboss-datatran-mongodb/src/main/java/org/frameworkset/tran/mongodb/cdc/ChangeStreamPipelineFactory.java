@@ -10,6 +10,7 @@ import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.changestream.OperationType;
 import org.bson.conversions.Bson;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.plugin.mongocdc.MongoCDCInputConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,20 +137,23 @@ public class ChangeStreamPipelineFactory {
         // support for 'none' effectively implies 'c', 'u', 'd'
 
         // First, begin by including all the supported Debezium change events
-        List<String> includedOperations = new ArrayList<String>();
+        List<String> includedOperations = new ArrayList<>();
 
 
         // Next, remove any implied by the configuration
-        List<Operation> skippedOperations = this.connectorConfig.getSkippedOperations();
-        if (!skippedOperations.contains(Operation.CREATE)) {
-            includedOperations.add(OperationType.INSERT.getValue());
-        }
-        if (!skippedOperations.contains(Operation.UPDATE)) {
-            includedOperations.add(OperationType.UPDATE.getValue());
-            includedOperations.add(OperationType.REPLACE.getValue());
-        }
-        if (!skippedOperations.contains(Operation.DELETE)) {
-            includedOperations.add(OperationType.DELETE.getValue());
+        List<Integer> includedOperations_ = this.connectorConfig.getIncludedOperations();
+        for(int i = 0; includedOperations_ != null && i < includedOperations_.size(); i ++) {
+            int op = includedOperations_.get(i);
+            if (op == Record.RECORD_INSERT) {
+                includedOperations.add(OperationType.INSERT.getValue());
+            }
+            if (op == Record.RECORD_UPDATE) {
+                includedOperations.add(OperationType.UPDATE.getValue());
+                includedOperations.add(OperationType.REPLACE.getValue());
+            }
+            if (op == Record.RECORD_DELETE) {
+                includedOperations.add(OperationType.DELETE.getValue());
+            }
         }
         if(includedOperations.size() > 0) {
             return Filters.in("event.operationType", includedOperations);

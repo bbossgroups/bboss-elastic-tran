@@ -349,7 +349,7 @@ public class TimeTaskMetric extends TimeMetric {
                     if(nts.isAfter(ts))
                         this.lastValue = taskMetrics.getLastValue();
             }
-			else if(importContext.getLastValueType() == ImportIncreamentConfig.JSON_TYPE) {
+			else if(importContext.getLastValueType() == ImportIncreamentConfig.STRING_TYPE) {
 //				LocalDateTime ts = (LocalDateTime)lastValue.getLastValue();
 //				LocalDateTime nts = (LocalDateTime)taskMetrics.getLastValue().getLastValue();
 //				if(nts.isAfter(ts))

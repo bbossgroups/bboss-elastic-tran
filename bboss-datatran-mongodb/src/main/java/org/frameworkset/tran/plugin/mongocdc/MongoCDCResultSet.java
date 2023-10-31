@@ -40,17 +40,22 @@ public class MongoCDCResultSet extends AsynBaseTranResultSet {
         return (Record)data;
 	}
     @Override
+    public Long getLastValueTime(){
+        if(record != null) {
+            MongoDBCDCData mongoDBCDCData = ((MongoCDCRecord) record).getMongoDBCDCData();
+            if(mongoDBCDCData != null) {
+                return mongoDBCDCData.getClusterTime();
+            }
+        }
+        return null;
+    }
+    @Override
     public String getStrLastValue() throws DataImportException {
         if(record != null) {
-//            MysqlBinLogData mysqlBinLogData = ((MysqlBinlogRecord) record).getMysqlBinLogData();
-//            if(mysqlBinLogData != null) {
-//                if(mysqlBinLogData.getGtid() != null){
-//                    return mysqlBinLogData.getGtid() + MySQLBinlogConfig.split + mysqlBinLogData.getFileName();
-//                }
-//                else {
-//                    return mysqlBinLogData.getFileName();
-//                }
-//            }
+            MongoDBCDCData mongoDBCDCData = ((MongoCDCRecord) record).getMongoDBCDCData();
+            if(mongoDBCDCData != null) {
+               return mongoDBCDCData.getPosition();
+            }
         }
         return null;
     }

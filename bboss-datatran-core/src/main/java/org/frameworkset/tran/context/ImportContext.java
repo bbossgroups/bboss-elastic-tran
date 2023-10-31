@@ -167,6 +167,7 @@ public interface ImportContext {
 	boolean isLastValueDateType();
     boolean isLastValueNumberType();
     boolean isLastValueLocalDateTimeType();
+	public boolean isLastValueStringType();
 	DBConfig getStatusDbConfig();
 
 	boolean isExternalTimer();

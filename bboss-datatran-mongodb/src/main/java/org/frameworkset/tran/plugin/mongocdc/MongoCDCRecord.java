@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.mongocdc;
  */
 
 
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.record.CommonMapRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -49,50 +50,37 @@ public class MongoCDCRecord extends CommonMapRecord {
         initMetaDatas();
     }
     public void initMetaDatas(){
-//        Map<String,Object> tmp = new LinkedHashMap<>();
-//        tmp.put("position", mongoDBCDCData.getPosition());
-//        tmp.put("table", mongoDBCDCData.getTable());
-//        tmp.put("database", mongoDBCDCData.getDatabase());
-//        tmp.put("host", mongoCDCInputConfig.getHost());
-//        tmp.put("fileName", mongoDBCDCData.getFileName());
-//        if(mongoCDCInputConfig.getFileNames() != null)
-//            tmp.put("fileNames", mongoCDCInputConfig.getFileNames());
-//        tmp.put("port", mongoCDCInputConfig.getPort());
-//        tmp.put("action", mongoDBCDCData.getAction());
-//        this.setMetaDatas(tmp);
+        Map<String,Object> tmp = new LinkedHashMap<>();
+        tmp.put("position", mongoDBCDCData.getPosition());
+        tmp.put("table", mongoDBCDCData.getCollection());
+        tmp.put("database", mongoDBCDCData.getDatabase());
+        tmp.put("action", mongoDBCDCData.getAction());
+        tmp.put("clusterTime", mongoDBCDCData.getClusterTime());
+        tmp.put("wallTime", mongoDBCDCData.getWallTime());
+
+        this.setMetaDatas(tmp);
     }
 
-//	@Override
-//	public Object getMetaValue(String colName) {
-//		if(colName.equals("position"))
-//			return mysqlBinLogData.getPosition();
-//		else if(colName.equals("table"))
-//			return mysqlBinLogData.getTable();
-//        else if(colName.equals("database"))
-//			return mySQLBinlogConfig.getDatabase();
-//        else if(colName.equals("host"))
-//			return mySQLBinlogConfig.getHost();
-//        else if(colName.equals("fileName"))
-//			return mysqlBinLogData.getFileName();
-//        else if(colName.equals("fileNames"))
-//            return mySQLBinlogConfig.getFileNames();
-//        else if(colName.equals("port"))
-//			return mySQLBinlogConfig.getPort();
-//        else if(colName.equals("action"))
-//            return mysqlBinLogData.getAction();
-//
-//		throw new DataImportException("Get Meta Value failed: " + colName + " is not a mysql binlog meta field.mysql binlog meta fields must be {position,table,database,host,fileName,fileNames,port,action}");
-//	}
+	@Override
+	public Object getMetaValue(String colName) {
+		if(colName.equals("position"))
+			return mongoDBCDCData.getPosition();
+		else if(colName.equals("table"))
+			return mongoDBCDCData.getCollection();
+        else if(colName.equals("database"))
+			return mongoDBCDCData.getDatabase();
+
+        else if(colName.equals("action"))
+            return mongoDBCDCData.getAction();
+        else if(colName.equals("clusterTime"))
+            return mongoDBCDCData.getClusterTime();
+        else if(colName.equals("wallTime"))
+            return mongoDBCDCData.getWallTime();
+		throw new DataImportException("Get Meta Value failed: " + colName + " is not a MongoDB CDC meta field.MongoDB CDC meta fields only is one of {position,table,database,action,clusterTime,wallTime}");
+	}
 
     @Override
     public long getOffset() {
-        if(mongoDBCDCData == null){
-            return -1;
-        }
-        /**
-        Long p = mongoDBCDCData.getPosition();
-        return p != null?p:-1;
-         */
         return -1;
     }
 

@@ -101,6 +101,7 @@ public  class MongoCDCInputDatatranPlugin extends BaseInputPlugin  {
         mongoDBConfig.setSocketKeepAlive(mongoCDCInputConfig.getSocketKeepAlive());//private Boolean socketKeepAlive = false;
 
         mongoDBConfig.setMode( mongoCDCInputConfig.getMode());
+        mongoDBConfig.setConnectString(mongoCDCInputConfig.getConnectString());
         if(MongoDBHelper.init(mongoDBConfig)){
             mongoDBStartResult.addDBStartResult(mongoDBConfig.getName());
         }
