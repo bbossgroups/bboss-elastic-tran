@@ -1,8 +1,4 @@
-/*
- * Copyright Debezium Authors.
- *
- * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
- */
+
 package org.frameworkset.tran.mongodb.cdc;
 
 import com.mongodb.BasicDBObject;
@@ -184,44 +180,7 @@ public class ChangeStreamPipelineFactory {
         }
     }
 
-    @SafeVarargs
-    private static Bson andFilters(Bson... filters) {
-        List<Bson> resolved = resolveFilters(filters);
-        if (resolved.isEmpty()) {
-            return null;
-        }
-        else if (resolved.size() == 1) {
-            return resolved.get(0);
-        }
-        else {
-            return Filters.and(resolved);
-        }
-    }
 
-    @SafeVarargs
-    private static Bson orFilters(Bson... filters) {
-        List<Bson> resolved = resolveFilters(filters);
-        if (resolved.isEmpty()) {
-            return null;
-        }
-        else if (resolved.size() == 1) {
-            return resolved.get(0);
-        }
-        else {
-            return Filters.or(resolved);
-        }
-    }
-
-    @SafeVarargs
-    private static List<Bson> resolveFilters(Bson... filters) {
-        if(filters == null || filters.length == 0)
-            return new ArrayList<>();
-        return Arrays.asList(filters);
-
-//        return Stream.of(filters)
-//                .flatMap(Optional::stream)
-//                .collect(toList());
-    }
 
     private static Bson concat(Object... expressions) {
         return new BasicDBObject("$concat", Arrays.asList(expressions));

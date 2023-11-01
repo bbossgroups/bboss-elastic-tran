@@ -16,7 +16,6 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.mongodb.cdc.ChangeStreamPipeline;
 import org.frameworkset.tran.mongodb.cdc.ChangeStreamPipelineFactory;
-import org.frameworkset.tran.mongodb.cdc.JsonSerialization;
 import org.frameworkset.tran.mongodb.cdc.ReplicaSet;
 import org.frameworkset.tran.record.CommonData;
 import org.frameworkset.tran.schedule.Status;
@@ -38,7 +37,6 @@ public class MongoDBCDCChangeStreamListener {
 
     private Object lock = new Object();
     private ChangeStreamIterable<Document> changeStreamIterable;
-    private final JsonSerialization serialization = new JsonSerialization();
     public MongoDBCDCChangeStreamListener( MongoCDCInputConfig mongoCDCInputConfig, BaseDataTran dataTran, ImportContext importContext){
         this.mongoCDCInputConfig = mongoCDCInputConfig;
         this.dataTran = dataTran;
