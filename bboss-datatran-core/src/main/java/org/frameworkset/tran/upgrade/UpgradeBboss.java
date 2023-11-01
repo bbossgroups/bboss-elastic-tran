@@ -71,7 +71,8 @@ public class UpgradeBboss {
                     LastValueWrapper lastValueWrapper = new LastValueWrapper();
 //                    lastValueWrapper.setLastValue(status.getLastValue());
                     lastValueWrapper.setStrLastValue(status.getStrLastValue());
-                    lastValueWrapper.setTimeStamp(status.getTime());
+                    if(lastValueWrapper.getTimeStamp() == null)
+                        lastValueWrapper.setTimeStamp(status.getTime());
                     status.setStrLastValue(SimpleStringUtil.object2json(lastValueWrapper));
                     SQLExecutor.updateWithDBName(statusDBConf.getPoolname(),updateSql,status.getStrLastValue(),status.getId());
                 }

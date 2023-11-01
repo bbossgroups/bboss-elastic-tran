@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.mongocdc;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.nosql.mongodb.MongoDBConfig;
 import org.frameworkset.nosql.mongodb.MongoDBHelper;
 import org.frameworkset.nosql.mongodb.MongoDBStartResult;
@@ -198,7 +199,11 @@ public  class MongoCDCInputDatatranPlugin extends BaseInputPlugin  {
 
 
     protected void initMongoDBChangeStreamListener(BaseDataTran mysqlBinlogDataTran) throws Exception {
-        final MongoDBCDCChangeStreamListener mongoDBCDCChangeStreamListener = new MongoDBCDCChangeStreamListener(new ReplicaSet(""),mongoCDCInputConfig,mysqlBinlogDataTran, this.importContext);
+        MongoDBCDCChangeStreamListener mongoDBCDCChangeStreamListener = null;
+        if(SimpleStringUtil.isNotEmpty(mongoCDCInputConfig.getConnectString()))
+            mongoDBCDCChangeStreamListener = new MongoDBCDCChangeStreamListener(new ReplicaSet(mongoCDCInputConfig.getConnectString()),mongoCDCInputConfig,mysqlBinlogDataTran, this.importContext);
+        else
+            mongoDBCDCChangeStreamListener = new MongoDBCDCChangeStreamListener(mongoCDCInputConfig,mysqlBinlogDataTran, this.importContext);
         this.mongoDBCDCChangeStreamListener = mongoDBCDCChangeStreamListener;
         mongoDBCDCChangeStreamListener.start();
 

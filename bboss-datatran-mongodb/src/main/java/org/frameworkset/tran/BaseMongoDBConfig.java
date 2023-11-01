@@ -239,6 +239,10 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		return this;
 	}
 
+	/**
+	 * see https://www.mongodb.com/docs/manual/reference/connection-string/#std-label-mongodb-uri
+	 * @return
+	 */
 	public String getConnectString() {
 		return connectString;
 	}

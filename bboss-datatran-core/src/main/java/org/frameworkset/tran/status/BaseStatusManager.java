@@ -1325,8 +1325,14 @@ public abstract class BaseStatusManager implements StatusManager {
                  */
 				if (!reachEOFClosed && !importContext.needUpdateLastValueWrapper(oldLastValueWrapper, lastValueWrapper))
 					return;
-				long time = System.currentTimeMillis();
-				currentStatus.setTime(time);
+
+				if(lastValueWrapper.getTimeStamp() != null) {
+					currentStatus.setTime(lastValueWrapper.getTimeStamp());
+				}
+				else{
+					long time = System.currentTimeMillis();
+					currentStatus.setTime(time);
+				}
                 currentStatus.setCurrentLastValueWrapper(lastValueWrapper);
 				if(reachEOFClosed){
 					currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);

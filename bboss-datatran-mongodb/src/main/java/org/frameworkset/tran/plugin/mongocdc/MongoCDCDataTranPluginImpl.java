@@ -16,7 +16,6 @@ package org.frameworkset.tran.plugin.mongocdc;
  */
 
 import com.frameworkset.orm.annotation.BatchContext;
-import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
@@ -245,24 +244,29 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
             return false;
         if(oldValue == null)
             return true;
-        if(oldValue.getStrLastValue() == null && newValue.getStrLastValue() == null){
-
-            return max( oldValue.getLastValue(), newValue.getLastValue());
-        }
-        else if( oldValue.getStrLastValue() == null || newValue.getStrLastValue() == null ){
+//        if(oldValue.getStrLastValue() == null && newValue.getStrLastValue() == null){
+//
+//            return max( oldValue.getLastValue(), newValue.getLastValue());
+//        }
+//        else if( oldValue.getStrLastValue() == null || newValue.getStrLastValue() == null ){
+//            return true;
+//        }
+//
+//        else {
+//            if (!oldValue.getStrLastValue().equals(newValue.getStrLastValue())) {
+//                if (oldValue.getTimeStamp() < newValue.getTimeStamp()) {
+//                    return true;
+//                } else {
+//                    return false;
+//                }
+//            } else {
+//                return max( oldValue.getLastValue(), newValue.getLastValue());
+//            }
+//        }
+        if (oldValue.getTimeStamp() < newValue.getTimeStamp()) {
             return true;
-        }
-
-        else {
-            if (!oldValue.getStrLastValue().equals(newValue.getStrLastValue())) {
-                if (oldValue.getTimeStamp() < newValue.getTimeStamp()) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return max( oldValue.getLastValue(), newValue.getLastValue());
-            }
+        } else {
+            return false;
         }
     }
     /**
@@ -276,25 +280,30 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
      */
     @Override
     public LastValueWrapper maxNumberLastValue(LastValueWrapper oldValue, LastValueWrapper newValue){
-        if(oldValue.getStrLastValue() == null && newValue.getStrLastValue() == null){
-
-            return compareValue( oldValue,  newValue);
-        }
-        else if( oldValue.getStrLastValue() == null || newValue.getStrLastValue() == null ){
+        if (oldValue.getTimeStamp() < newValue.getTimeStamp()) {
             return newValue;
+        } else {
+            return oldValue;
         }
-
-        else {
-            if (!oldValue.getStrLastValue().equals(newValue.getStrLastValue())) {
-                if (oldValue.getTimeStamp() < newValue.getTimeStamp()) {
-                    return newValue;
-                } else {
-                    return oldValue;
-                }
-            } else {
-                return compareValue( oldValue,  newValue);
-            }
-        }
+//        if(oldValue.getStrLastValue() == null && newValue.getStrLastValue() == null){
+//
+//            return compareValue( oldValue,  newValue);
+//        }
+//        else if( oldValue.getStrLastValue() == null || newValue.getStrLastValue() == null ){
+//            return newValue;
+//        }
+//
+//        else {
+//            if (!oldValue.getStrLastValue().equals(newValue.getStrLastValue())) {
+//                if (oldValue.getTimeStamp() < newValue.getTimeStamp()) {
+//                    return newValue;
+//                } else {
+//                    return oldValue;
+//                }
+//            } else {
+//                return compareValue( oldValue,  newValue);
+//            }
+//        }
     }
     @Override
     public LastValueWrapper maxLastValue(LastValueWrapper oldValue, BaseDataTran baseDataTran){
@@ -312,14 +321,17 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
         LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
 
 
-//        if (mongoCDCInputConfig.getPosition() != null) {
-//
-//            lastValueWrapper.setLastValue(mongoCDCInputConfig.getPosition());
-//        }
-//        else if (importContext.getConfigLastValue() != null) {
-//
-//            lastValueWrapper.setLastValue(importContext.getConfigLastValue());
-//        }
+        if (mongoCDCInputConfig.getPosition() != null) {
+
+            lastValueWrapper.setLastValue(mongoCDCInputConfig.getPosition());
+        }
+        else if (importContext.getConfigLastValue() != null) {
+
+            lastValueWrapper.setLastValue(importContext.getConfigLastValue());
+        }
+        if(mongoCDCInputConfig.getLastTimeStamp() != null){
+            lastValueWrapper.setTimeStamp(mongoCDCInputConfig.getLastTimeStamp());
+        }
 //        else {
 //            lastValueWrapper.setLastValue(0l);
 //        }

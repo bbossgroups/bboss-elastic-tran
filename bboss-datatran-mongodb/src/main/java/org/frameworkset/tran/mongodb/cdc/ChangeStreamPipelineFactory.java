@@ -60,8 +60,16 @@ public class ChangeStreamPipelineFactory {
 
 
         // Combine
-        Bson andFilter = Filters.and(collectionFilter,operationTypeFilter);
-        Bson matchFilter = Aggregates.match(andFilter);
+
+        Bson andFilter = null;
+        if(collectionFilter != null && operationTypeFilter != null)
+            andFilter = Filters.and(collectionFilter,operationTypeFilter);
+        else if(collectionFilter != null)
+            andFilter = collectionFilter;
+        else {
+            andFilter = operationTypeFilter;
+        }
+        Bson matchFilter = andFilter != null?Aggregates.match(andFilter) :null;
 
         // Pipeline
         // Note that change streams cannot use indexes:
@@ -114,13 +122,26 @@ public class ChangeStreamPipelineFactory {
         if (connectorConfig.getSignalDataCollection() != null) {
             includedSignalCollectionFilters = Filters.eq("namespace", connectorConfig.getSignalDataCollection());
         }
+        Bson colFilter = null;
+        if(includedSignalCollectionFilters != null && collectionsFilters != null){
+            colFilter = Filters.or(collectionsFilters ,includedSignalCollectionFilters);
+        }
+        else if(collectionsFilters != null){
+            colFilter = collectionsFilters;
 
-        // Combined filters
-        return andFilters(
-                dbFilters,
-                orFilters(
-                        includedSignalCollectionFilters,
-                        collectionsFilters));
+        }
+        else{
+            colFilter = includedSignalCollectionFilters;
+        }
+        if(dbFilters != null && colFilter != null){
+            return Filters.and(dbFilters,colFilter);
+        }
+        else if(dbFilters != null){
+            return dbFilters;
+        }
+        else{
+            return colFilter;
+        }
     }
 
     private Bson createOperationTypeFilter() {

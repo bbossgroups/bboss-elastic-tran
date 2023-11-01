@@ -39,6 +39,12 @@ public class MongoDBCDCChangeStreamListener {
     private Object lock = new Object();
     private ChangeStreamIterable<Document> changeStreamIterable;
     private final JsonSerialization serialization = new JsonSerialization();
+    public MongoDBCDCChangeStreamListener( MongoCDCInputConfig mongoCDCInputConfig, BaseDataTran dataTran, ImportContext importContext){
+        this.mongoCDCInputConfig = mongoCDCInputConfig;
+        this.dataTran = dataTran;
+        this.importContext = importContext;
+    }
+
     public MongoDBCDCChangeStreamListener(ReplicaSet replicaSet, MongoCDCInputConfig mongoCDCInputConfig, BaseDataTran dataTran, ImportContext importContext){
         this.mongoCDCInputConfig = mongoCDCInputConfig;
         this.dataTran = dataTran;
@@ -47,13 +53,20 @@ public class MongoDBCDCChangeStreamListener {
     }
 
     private Map<String,Object> convertData(Document bsonDocument){
+        if(bsonDocument == null)
+            return null;
         Map<String,Object> data = new LinkedHashMap<>();
         Set<Map.Entry<String, Object>> entries = bsonDocument.entrySet();
         Iterator<Map.Entry<String, Object>> iterator = entries.iterator();
         while (iterator.hasNext()){
             Map.Entry<String, Object> entry = iterator.next();
             Object bsonValue = entry.getValue();
-            data.put(entry.getKey(),bsonValue);
+            if(bsonValue instanceof ObjectId) {
+                data.put(entry.getKey(), ((ObjectId)bsonValue).toString());
+            }
+            else{
+                data.put(entry.getKey(), bsonValue);
+            }
 
         }
         return data;
@@ -79,7 +92,8 @@ public class MongoDBCDCChangeStreamListener {
         mongoDBCDCData.setId(objectId.toString());
         mongoDBCDCData.setData(convertData(  bsonDocument));
         Document updateDocument = event.getFullDocumentBeforeChange();
-        mongoDBCDCData.setOldValues(convertData(updateDocument));
+        if(updateDocument != null)
+            mongoDBCDCData.setOldValues(convertData(updateDocument));
         return mongoDBCDCData;
 
     }
@@ -87,16 +101,30 @@ public class MongoDBCDCChangeStreamListener {
     private MongoDBCDCData buildDeleteDocument(ChangeStreamDocument<Document> event){
         MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
         Document bsonDocument = event.getFullDocument();
-        ObjectId objectId = bsonDocument.getObjectId("_id");
-        mongoDBCDCData.setId(objectId.toString());
-        mongoDBCDCData.setData(convertData(  bsonDocument));
+        if(bsonDocument != null) {
+            ObjectId objectId = bsonDocument.getObjectId("_id");
+            mongoDBCDCData.setId(objectId.toString());
+            mongoDBCDCData.setData(convertData(bsonDocument));
+        }
+        else{
+            mongoDBCDCData.setId(event.getDocumentKey().get("_id").asObjectId().getValue().toString());
+            Map data = new LinkedHashMap();
+            data.put("_id",mongoDBCDCData.getId());
+            mongoDBCDCData.setData(data);
+        }
         Document updateDocument = event.getFullDocumentBeforeChange();
-        mongoDBCDCData.setOldValues(convertData(updateDocument));
+        if(updateDocument != null)
+            mongoDBCDCData.setOldValues(convertData(updateDocument));
         mongoDBCDCData.setAction(Record.RECORD_DELETE);
         return mongoDBCDCData;
     }
+    private String getPosition(BsonDocument resumeToken){
+        String position =resumeToken.get("_data").asString().getValue();
+        return position;
+    }
     private void dipatcheData(ChangeStreamDocument<Document> event) throws InterruptedException {
         BsonDocument resumeToken = event.getResumeToken();
+        String position = getPosition(resumeToken);
 //        BsonDocument documentKey = event.getDocumentKey();
         String db = event.getNamespace().getDatabaseName();
         String collection = event.getNamespace().getCollectionName();
@@ -118,8 +146,8 @@ public class MongoDBCDCChangeStreamListener {
         if(mongoDBCDCData != null) {
             mongoDBCDCData.setCollection(collection);
             mongoDBCDCData.setDatabase(db);
-            mongoDBCDCData.setPosition(resumeToken.toString());
-            mongoDBCDCData.setClusterTime(event.getClusterTime().getValue());
+            mongoDBCDCData.setPosition(position);
+            mongoDBCDCData.setClusterTime(event.getClusterTime().asTimestamp().getValue());
             mongoDBCDCData.setWallTime(event.getWallTime().getValue());
 
             List<MongoCDCRecord> mongoCDCRecords = new ArrayList<>(1);
@@ -138,17 +166,19 @@ public class MongoDBCDCChangeStreamListener {
         if (mongoCDCInputConfig.isIncludePreImage()) {
             changeStreamIterable.fullDocumentBeforeChange(FullDocumentBeforeChange.WHEN_AVAILABLE);
         }
-        Status status = dataTran.getCurrentStatus();
-        if (status.getStrLastValue() != null) {
-            logger.info("Resuming streaming from token '{}'", status.getStrLastValue());
+        if(mongoCDCInputConfig.isEnableIncrement()) {
+            Status status = dataTran.getCurrentStatus();
+            if (status.getCurrentLastValueWrapper() != null && status.getCurrentLastValueWrapper().getStrLastValue() != null) {
+                String position = status.getCurrentLastValueWrapper().getStrLastValue();
+                logger.info("Resuming streaming from token '{}'", position);
 
-            final BsonDocument doc = new BsonDocument();
-            doc.put("_data", new BsonString(status.getStrLastValue()));
-            changeStreamIterable.resumeAfter(doc);
-        }
-        else if (mongoCDCInputConfig.getLastTimeStamp() != null) {
-            logger.info("Resuming streaming from operation time '{}'", mongoCDCInputConfig.getLastTimeStamp());
-            changeStreamIterable.startAtOperationTime(new BsonTimestamp(mongoCDCInputConfig.getLastTimeStamp()));
+                final BsonDocument doc = new BsonDocument();
+                doc.put("_data", new BsonString(position));
+                changeStreamIterable.resumeAfter(doc);
+            } else if (mongoCDCInputConfig.getLastTimeStamp() != null) {
+                logger.info("Resuming streaming from operation time '{}'", mongoCDCInputConfig.getLastTimeStamp());
+                changeStreamIterable.startAtOperationTime(new BsonTimestamp(mongoCDCInputConfig.getLastTimeStamp()));
+            }
         }
 
         if (mongoCDCInputConfig.getCursorMaxAwaitTime() > 0) {
@@ -207,7 +237,7 @@ public class MongoDBCDCChangeStreamListener {
                         if (cursor.getResumeToken() != null) {
 //                            rsOffsetContext.noEvent(cursor);
 //                            dispatcher.dispatchHeartbeatEvent(rsPartition, rsOffsetContext);
-                            sendDropedEvent(cursor.getResumeToken().toJson());
+                            sendDropedEvent(getPosition(cursor.getResumeToken()));
                         }
                     }
                     catch (InterruptedException e) {
@@ -229,6 +259,7 @@ public class MongoDBCDCChangeStreamListener {
 
         MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
 //        mysqlBinLogData.setFileName(binLogFileName);
+        mongoDBCDCData.setClusterTime(System.nanoTime());
         mongoDBCDCData.setPosition(postion);
         mongoDBCDCData.setAction(Record.RECORD_DIRECT_IGNORE);
         List<MongoCDCRecord> mongoCDCRecords = new ArrayList<>(1);
@@ -259,11 +290,11 @@ public class MongoDBCDCChangeStreamListener {
         MongoDB mogodb = MongoDBHelper.getMongoDB(mongoCDCInputConfig.getName());
         final ChangeStreamPipeline pipeline = new ChangeStreamPipelineFactory(mongoCDCInputConfig).create();
 
-        // capture scope is database
-        if (SimpleStringUtil.isNotEmpty(mongoCDCInputConfig.getDB()) ) {
-            logger.info("Change stream is restricted to '{}' database", mongoCDCInputConfig.getDB());
-            return mogodb.getMongoDatabase(mongoCDCInputConfig.getDB()).watch(pipeline.getStages(), Document.class);
-        }
+//        // capture scope is database
+//        if (SimpleStringUtil.isNotEmpty(mongoCDCInputConfig.getDB()) ) {
+//            logger.info("Change stream is restricted to '{}' database", mongoCDCInputConfig.getDB());
+//            return mogodb.getMongoDatabase(mongoCDCInputConfig.getDB()).watch(pipeline.getStages(), Document.class);
+//        }
 
         // capture scope is deployment
         return mogodb.getMongo().watch(pipeline.getStages(), Document.class);

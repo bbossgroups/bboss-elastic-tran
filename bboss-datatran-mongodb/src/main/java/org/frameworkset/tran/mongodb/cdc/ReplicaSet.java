@@ -27,7 +27,8 @@ public final class ReplicaSet implements Comparable<ReplicaSet> {
 
     private ReplicaSet(String replicaSetName, ConnectionString connectionString) {
         this.connectionString = Objects.requireNonNull(connectionString, "Connection string cannot be null");
-        this.replicaSetName = Objects.requireNonNull(replicaSetName, "Replica set name cannot be null");
+        this.replicaSetName = replicaSetName;
+//        this.replicaSetName = Objects.requireNonNull(replicaSetName, "Replica set name cannot be null");
         this.hc = Objects.hash(connectionString);
     }
 

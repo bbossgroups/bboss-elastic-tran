@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.mongocdc;
  */
 
 import org.frameworkset.tran.BaseMongoDBConfig;
+import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
@@ -41,7 +42,7 @@ public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfi
 
 	private boolean updateLookup = true;
 	private boolean includePreImage;
-	private Long cursorMaxAwaitTime;
+	private long cursorMaxAwaitTime;
 
 	private String dbIncludeList;
 	private String dbExcludeList;
@@ -52,6 +53,7 @@ public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfi
 
 
 	private Long lastTimeStamp;
+	private String position;
 
 
 	/**
@@ -76,7 +78,7 @@ public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfi
 	private ChangeStreamPipeline changeStreamPipeline;
 	@Override
 	public InputPlugin getInputPlugin(ImportContext importContext) {
-		return new MongoDBInputDatatranPlugin(importContext);
+		return new MongoCDCInputDatatranPlugin(importContext);
 	}
 
 
@@ -96,7 +98,11 @@ public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfi
 		this.replicaSet = replicaSet;
 		return this;
 	}
-
+	@Override
+	public DataTranPlugin buildDataTranPlugin(ImportContext importContext){
+		DataTranPlugin dataTranPlugin = new MongoCDCDataTranPluginImpl(importContext);
+		return dataTranPlugin;
+	}
 	public boolean isUpdateLookup() {
 		return updateLookup;
 	}
@@ -115,11 +121,11 @@ public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfi
 		return this;
 	}
 
-	public Long getCursorMaxAwaitTime() {
+	public long getCursorMaxAwaitTime() {
 		return cursorMaxAwaitTime;
 	}
 
-	public MongoCDCInputConfig setCursorMaxAwaitTime(Long cursorMaxAwaitTime) {
+	public MongoCDCInputConfig setCursorMaxAwaitTime(long cursorMaxAwaitTime) {
 		this.cursorMaxAwaitTime = cursorMaxAwaitTime;
 		return this;
 	}
@@ -177,7 +183,7 @@ public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfi
 	 * @param operation
 	 * @return
 	 */
-	public MongoCDCInputConfig addSkipedOperation(int operation){
+	public MongoCDCInputConfig addIncludeOperation(int operation){
 		if(includedOperations == null){
 			includedOperations = new ArrayList<>();
 		}
@@ -217,5 +223,34 @@ public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfi
 	public MongoCDCInputConfig setLastTimeStamp(Long lastTimeStamp) {
 		this.lastTimeStamp = lastTimeStamp;
 		return this;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public MongoCDCInputConfig setPosition(String position) {
+		this.position = position;
+		return this;
+	}
+
+	@Override
+	public String getDBCollection() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String getDB() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public BaseMongoDBConfig setDbCollection(String dbCollection) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public BaseMongoDBConfig setDb(String db) {
+		throw new UnsupportedOperationException();
 	}
 }

@@ -27,7 +27,7 @@ package org.frameworkset.tran.status;
 public class LastValueWrapper {
     private Object lastValue;
     private String strLastValue;
-    private long timeStamp;
+    private Long timeStamp;
 
     public LastValueWrapper copy(){
         LastValueWrapper copy = new LastValueWrapper();
@@ -61,11 +61,11 @@ public class LastValueWrapper {
         return builder.toString();
     }
 
-    public long getTimeStamp() {
+    public Long getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(long timeStamp) {
+    public void setTimeStamp(Long timeStamp) {
         this.timeStamp = timeStamp;
     }
 }

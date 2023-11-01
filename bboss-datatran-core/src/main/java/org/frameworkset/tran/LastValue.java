@@ -118,6 +118,14 @@ public abstract class LastValue implements TranResultSet{
             else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
                 return getLocalDateTimeValue(importContext.getLastValueColumnName());
             }
+            else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.STRING_TYPE){
+                if(importContext.getLastValueColumnName() != null) {
+                    return getValue(importContext.getLastValueColumnName());
+                }
+                else{
+                    return null;
+                }
+            }
 		}
 		catch (DataImportException e){
 			throw (e);
