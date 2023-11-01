@@ -15,7 +15,6 @@ package org.frameworkset.tran.mongodb;
  * limitations under the License.
  */
 
-import com.mongodb.DBObject;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.frameworkset.tran.DataImportException;
