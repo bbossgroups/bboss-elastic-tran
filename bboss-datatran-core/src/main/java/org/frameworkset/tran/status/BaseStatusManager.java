@@ -131,9 +131,9 @@ public abstract class BaseStatusManager implements StatusManager {
 	protected abstract void _putStatus(Status currentStatus);
 
 	public void putStatus(Status currentStatus) throws Exception{
-        if(this.lastValueWraperSerial != null){
-            lastValueWraperSerial.serial(currentStatus);
-        }
+//        if(this.lastValueWraperSerial != null){
+//            lastValueWraperSerial.serial(currentStatus);
+//        }
         putStatusLock.lock();
 		try{
 			_putStatus( currentStatus);

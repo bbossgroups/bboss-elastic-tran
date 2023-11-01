@@ -82,10 +82,10 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
 //    public boolean onlyUseBatchExecute(){
 //        return true;
 //    }
-    @Override
-    public boolean useFilePointer(){
-        return true;
-    }
+//    @Override
+//    public boolean useFilePointer(){
+//        return true;
+//    }
     @Override
     protected InitLastValueClumnName getInitLastValueClumnName(){
         return new InitLastValueClumnName (){

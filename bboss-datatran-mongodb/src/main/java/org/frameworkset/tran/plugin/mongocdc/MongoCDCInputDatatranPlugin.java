@@ -110,19 +110,39 @@ public  class MongoCDCInputDatatranPlugin extends BaseInputPlugin  {
 
 	@Override
 	public void initStatusTableId() {
-//        if(dataTranPlugin.isIncreamentImport()) {
-//            StringBuilder id = new StringBuilder();
-//            if(mongoCDCInputConfig.getServerId() != null) {
-//                id.append(mongoCDCInputConfig.getServerId()).append(":").append(mongoCDCInputConfig.getHost()).append(":").append(mongoCDCInputConfig.getPort()).append("/")
-//                        .append(mongoCDCInputConfig.getDatabase()).append(mongoCDCInputConfig.getTables());
-//
-//            }
-//            else{
-//                id.append(mongoCDCInputConfig.getHost()).append(":").append(mongoCDCInputConfig.getPort()).append("/")
-//                        .append(mongoCDCInputConfig.getDatabase()).append(mongoCDCInputConfig.getTables());
-//            }
-//            importContext.setStatusTableId(id.toString().hashCode());
-//        }
+        if(dataTranPlugin.isIncreamentImport()) {
+            StringBuilder id = new StringBuilder();
+            if(mongoCDCInputConfig.getConnectString() != null) {
+                id.append(mongoCDCInputConfig.getConnectString());
+
+            }
+            else if(mongoCDCInputConfig.getServerAddresses() != null){
+                id.append(mongoCDCInputConfig.getConnectString());
+            }
+            if(mongoCDCInputConfig.getCollectionIncludeList() != null){
+                if(id.length() > 0 )
+                    id.append(":");
+                id.append(mongoCDCInputConfig.getCollectionIncludeList());
+
+            }
+            if(mongoCDCInputConfig.getCollectionExcludeList() != null){
+                if(id.length() > 0 )
+                    id.append(":");
+                id.append(mongoCDCInputConfig.getCollectionExcludeList());
+            }
+            if(mongoCDCInputConfig.getDbExcludeList() != null){
+                if(id.length() > 0 )
+                    id.append(":");
+                id.append(mongoCDCInputConfig.getDbExcludeList());
+            }
+
+            if(mongoCDCInputConfig.getDbIncludeList() != null){
+                if(id.length() > 0 )
+                    id.append(":");
+                id.append(mongoCDCInputConfig.getDbIncludeList());
+            }
+            importContext.setStatusTableId(id.toString().hashCode());
+        }
 	}
 
 
