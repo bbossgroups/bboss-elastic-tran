@@ -701,6 +701,7 @@ public  class BaseImportContext implements ImportContext {
 	}
 	@Override
 	public void shutDownJob(Throwable throwable, boolean waitTranStopped,boolean fromScheduleEnd){
-		this.dataStream.destroy(throwable,waitTranStopped,fromScheduleEnd);
+		if(dataStream != null)
+			this.dataStream.destroy(throwable,waitTranStopped,fromScheduleEnd);
 	}
 }
