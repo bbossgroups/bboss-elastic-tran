@@ -170,9 +170,6 @@ public  class MongoCDCInputDatatranPlugin extends BaseInputPlugin  {
 					try {
 						baseDataTran.tran();
 						dataTranPlugin.afterCall(taskContext);
-//                        if(!mysqlBinlogDataTranPlugin.neadFinishJob()){
-//                            importContext.finishAndWaitTran(null);
-//                        }
 					}
 					catch (DataImportException dataImportException){
 						logger.error("",dataImportException);
@@ -194,7 +191,7 @@ public  class MongoCDCInputDatatranPlugin extends BaseInputPlugin  {
                         importContext.finishAndWaitTran(dataImportException);
 					}
 				}
-			},"mysqlbinlog-input-dataTran");
+			},"MongoDBCDC-input-dataTran");
 			tranThread.start();
 
 			this.initMongoDBChangeStreamListener(baseDataTran);
@@ -218,14 +215,21 @@ public  class MongoCDCInputDatatranPlugin extends BaseInputPlugin  {
 
 
 
-    protected void initMongoDBChangeStreamListener(BaseDataTran mysqlBinlogDataTran) throws Exception {
+    protected void initMongoDBChangeStreamListener(BaseDataTran mongodbCDCDataTran) throws Throwable {
         MongoDBCDCChangeStreamListener mongoDBCDCChangeStreamListener = null;
         if(SimpleStringUtil.isNotEmpty(mongoCDCInputConfig.getConnectString()))
-            mongoDBCDCChangeStreamListener = new MongoDBCDCChangeStreamListener(new ReplicaSet(mongoCDCInputConfig.getConnectString()),mongoCDCInputConfig,mysqlBinlogDataTran, this.importContext);
+            mongoDBCDCChangeStreamListener = new MongoDBCDCChangeStreamListener(new ReplicaSet(mongoCDCInputConfig.getConnectString()),mongoCDCInputConfig,mongodbCDCDataTran, this.importContext);
         else
-            mongoDBCDCChangeStreamListener = new MongoDBCDCChangeStreamListener(mongoCDCInputConfig,mysqlBinlogDataTran, this.importContext);
+            mongoDBCDCChangeStreamListener = new MongoDBCDCChangeStreamListener(mongoCDCInputConfig,mongodbCDCDataTran, this.importContext);
         this.mongoDBCDCChangeStreamListener = mongoDBCDCChangeStreamListener;
-        mongoDBCDCChangeStreamListener.start();
+		MongoDBCDCChangeStreamListenerStart startThread = new MongoDBCDCChangeStreamListenerStart(mongoDBCDCChangeStreamListener);
+		startThread.start();
+		startThread.join(5000L);
+		if(startThread.getThrowable() != null){
+			throw startThread.getThrowable();
+		}
+
+
 
     }
     @Override

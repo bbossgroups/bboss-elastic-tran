@@ -210,6 +210,23 @@ public class DataStream {
 
 	}
 
+	/**
+	 *
+	 * @param waitTranStopped true 等待同步作业处理完成后停止作业 false 不等待
+	 * @param fromScheduleEnd 销毁操作是否来自于自动停止作业操作
+	 */
+	public void destroy(Throwable throwable,boolean waitTranStopped,boolean fromScheduleEnd) {
+
+		DestroyPolicy destroyPolicy = new DestroyPolicy();
+		destroyPolicy.setWaitTranStopped(waitTranStopped);
+		destroyPolicy.setFromScheduleEnd(fromScheduleEnd);
+		destroyPolicy.setThrowable(throwable);
+		destroy(destroyPolicy);
+
+
+
+	}
+
     /**
      * 暂时和destory()方法行为一致，未对forceStrop做处理
      */

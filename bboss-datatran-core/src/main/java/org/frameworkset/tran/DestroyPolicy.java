@@ -37,6 +37,11 @@ public class DestroyPolicy {
      */
     private boolean forceStop;
 
+
+    /**
+     * 异常关闭时设置异常信息
+     */
+    private Throwable throwable;
     public boolean isWaitTranStopped() {
         return waitTranStopped;
     }
@@ -62,5 +67,17 @@ public class DestroyPolicy {
     public DestroyPolicy setForceStop(boolean forceStop) {
         this.forceStop = forceStop;
         return this;
+    }
+
+    public Throwable getThrowable() {
+        return throwable;
+    }
+
+    /**
+     * 异常关闭时设置异常信息
+     * @param throwable
+     */
+    public void setThrowable(Throwable throwable) {
+        this.throwable = throwable;
     }
 }

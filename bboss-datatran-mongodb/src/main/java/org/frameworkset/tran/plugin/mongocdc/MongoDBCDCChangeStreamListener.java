@@ -1,6 +1,5 @@
 package org.frameworkset.tran.plugin.mongocdc;
 
-import com.frameworkset.util.SimpleStringUtil;
 import com.mongodb.client.ChangeStreamIterable;
 import com.mongodb.client.MongoChangeStreamCursor;
 import com.mongodb.client.model.changestream.ChangeStreamDocument;
@@ -34,6 +33,8 @@ public class MongoDBCDCChangeStreamListener {
     private MongoCDCInputConfig mongoCDCInputConfig;
     private boolean statusRunning;
     private ReplicaSet replicaSet;
+    private String lastDroppedPostion;
+
 
     private Object lock = new Object();
     private ChangeStreamIterable<Document> changeStreamIterable;
@@ -41,6 +42,7 @@ public class MongoDBCDCChangeStreamListener {
         this.mongoCDCInputConfig = mongoCDCInputConfig;
         this.dataTran = dataTran;
         this.importContext = importContext;
+        this.isIncreament = mongoCDCInputConfig.isEnableIncrement();
     }
 
     public MongoDBCDCChangeStreamListener(ReplicaSet replicaSet, MongoCDCInputConfig mongoCDCInputConfig, BaseDataTran dataTran, ImportContext importContext){
@@ -48,6 +50,7 @@ public class MongoDBCDCChangeStreamListener {
         this.dataTran = dataTran;
         this.importContext = importContext;
         this.replicaSet =replicaSet;
+        this.isIncreament = mongoCDCInputConfig.isEnableIncrement();
     }
 
     private Map<String,Object> convertData(Document bsonDocument){
@@ -184,79 +187,75 @@ public class MongoDBCDCChangeStreamListener {
         }
         MongoChangeStreamCursor<ChangeStreamDocument<Document>> cursor = changeStreamIterable.cursor();
         statusRunning = true;
-        while(true){
-            synchronized (lock){
-                if(!statusRunning)
+//        int live = 0;
+        while(true) {
+            synchronized (lock) {
+                if (!statusRunning)
                     break;
             }
 
-                // Use tryNext which will return null if no document is yet available from the cursor.
-                // In this situation if not document is available, we'll pause.
+            // Use tryNext which will return null if no document is yet available from the cursor.
+            // In this situation if not document is available, we'll pause.
+            try {
                 final ChangeStreamDocument<Document> event = cursor.tryNext();
                 if (event != null) {
-                    if(logger.isDebugEnabled()) {
+                    if (logger.isDebugEnabled()) {
                         logger.debug("Arrived Change Stream event: {}", event);
                     }
-                    try {
-                        dipatcheData( event);
-//                    rsOffsetContext.changeStreamEvent(event);
-//                    CollectionId collectionId = new CollectionId(
-//                            replicaSet.replicaSetName(),
-//                            event.getNamespace().getDatabaseName(),
-//                            event.getNamespace().getCollectionName());
-//
-//                    try {
-//                        // Note that this will trigger a heartbeat request
-//                        dispatcher.dispatchDataChangeEvent(
-//                                rsPartition,
-//                                collectionId,
-//                                new MongoDbChangeRecordEmitter(
-//                                        rsPartition,
-//                                        rsOffsetContext,
-//                                        clock,
-//                                        event, connectorConfig));
-//                    }
-//                    catch (Exception e) {
-//                        errorHandler.setProducerThrowable(e);
-//                        return;
-//                    }
-                    }
-                    catch (InterruptedException e) {
-                        logger.warn("Shutdown MongoDBChangeStreamListener[] on InterruptedException");
-                        shutdown();
-                        break;
-                    }
-                }
-                else {
+//                    live++;
+//                    if (live >= 10)
+//                        throw new Exception("test exception stop job.");
+
+                    dipatcheData(event);
+
+                } else {
                     // No event was returned, so trigger a heartbeat
-                    try {
-                        // Guard against `null` to be protective of issues like SERVER-63772, and situations called out in the Javadocs:
-                        // > resume token [...] can be null if the cursor has either not been iterated yet, or the cursor is closed.
-                        if (cursor.getResumeToken() != null) {
+
+                    // Guard against `null` to be protective of issues like SERVER-63772, and situations called out in the Javadocs:
+                    // > resume token [...] can be null if the cursor has either not been iterated yet, or the cursor is closed.
+                    if (cursor.getResumeToken() != null) {
 //                            rsOffsetContext.noEvent(cursor);
 //                            dispatcher.dispatchHeartbeatEvent(rsPartition, rsOffsetContext);
-                            sendDropedEvent(getPosition(cursor.getResumeToken()));
-                        }
+                        sendDropedEvent(getPosition(cursor.getResumeToken()));
                     }
-                    catch (InterruptedException e) {
-                        logger.warn("Shutdown MongoDBChangeStreamListener[] on InterruptedException");
-                        shutdown();
-                        break;
-                    }
-
 
 
                 }
+            }
+            catch (InterruptedException e) {
+                logger.warn("Shutdown MongoDBChangeStreamListener[] on InterruptedException");
+                shutdown();
+                break;
+            }
+            catch (Exception e){
+//                        logger.error("处理数据异常：",e);
+                importContext.getDataTranPlugin().throwException(dataTran.getTaskContext(),e);
+                if(!importContext.isContinueOnError()){
+                    shutdown();
+                    importContext.shutDownJob(e,true,false);
+                }
+            }
+            catch (Throwable e){
+//                        logger.error("处理数据异常：",e);
+                importContext.getDataTranPlugin().throwException(dataTran.getTaskContext(),e);
+                if(!importContext.isContinueOnError()){
+                    shutdown();
+                    importContext.shutDownJob(e,true,false);
+                }
+            }
 
         }
+
     }
 
     private void sendDropedEvent(String postion) throws InterruptedException {
         if(!isIncreament)
             return ;
 
+        if(lastDroppedPostion != null && lastDroppedPostion.equals(postion))
+            return;
+        lastDroppedPostion = postion;
         MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
-//        mysqlBinLogData.setFileName(binLogFileName);
         mongoDBCDCData.setClusterTime(System.nanoTime());
         mongoDBCDCData.setPosition(postion);
         mongoDBCDCData.setAction(Record.RECORD_DIRECT_IGNORE);
@@ -273,7 +272,6 @@ public class MongoDBCDCChangeStreamListener {
             return null;
 
         MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
-//        mysqlBinLogData.setFileName(binLogFileName);
         mongoDBCDCData.setAction(Record.RECORD_DIRECT_IGNORE);
 
         return mongoDBCDCData;

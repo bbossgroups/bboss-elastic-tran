@@ -83,7 +83,7 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
     private Long position;
 
 
-    private long joinToConnectTimeOut = 0L;
+    private long joinToConnectTimeOut = 5000L;
 
     private String mastterBinLogFile;
 
@@ -296,7 +296,7 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
         if(SimpleStringUtil.isEmpty(schemaUrl)){
             schemaUrl = "jdbc:mysql://" + getHost()+":" +getPort()+
-                       "/INFORMATION_SCHEMA?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+                       "/INFORMATION_SCHEMA?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true";
         }
         if(SimpleStringUtil.isNotEmpty(fileNames) ) {
             String[] _collectorFileNames = fileNames.split(",");

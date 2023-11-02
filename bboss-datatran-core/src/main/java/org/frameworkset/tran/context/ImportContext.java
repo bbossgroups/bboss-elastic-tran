@@ -43,6 +43,7 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0
  */
 public interface ImportContext {
+	public DataStream getDataStream();
 	public String buildStatusId( int hashCode);
 	public void cleanResource();
     public void registEndAction(EndAction endAction);
@@ -129,6 +130,7 @@ public interface ImportContext {
 //	public void setEsIdField(String esIdField);
 	void destroy(DestroyPolicy destroyPolicy);
 
+	public void shutDownJob(Throwable throwable, boolean waitTranStopped,boolean fromScheduleEnd);
     /**
      * 等待转换结束，后再结束作业
      */

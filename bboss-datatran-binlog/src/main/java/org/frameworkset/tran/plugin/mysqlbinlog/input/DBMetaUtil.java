@@ -104,7 +104,7 @@ public class DBMetaUtil {
             return valueMap.convert(resultSet);
 
         } catch (Exception e) {
-            throw new DataImportException(mySQLBinlogConfig.getSchemaUrl(),e);
+            throw new DataImportException("Get schema failed with MySQLBinlogConfig.getSchemaUrl():" + mySQLBinlogConfig.getSchemaUrl(),e);
         }finally {
             if(resultSet!=null){
                 try {

@@ -157,7 +157,7 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
 								});
 
 							} catch (Exception e) {
-								logger.error("MysqlBinlogDataTranPlugin-MetricsThread  afterCall Exception", e);
+								logger.error("MongoDBCDCDataTranPlugin-MetricsThread  afterCall Exception", e);
 							}
 							if (stopped) {
 								break;
@@ -165,14 +165,14 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
 							try {
 								sleep(metricsInterval);
 							} catch (InterruptedException e) {
-								logger.error("MysqlBinlogDataTranPlugin-MetricsThread  InterruptedException", e);
+								logger.error("MongoDBCDCDataTranPlugin-MetricsThread  InterruptedException", e);
 								break;
 							}
 
 						} while (true);
 					}
 				};
-				metricsThread.setName("MysqlBinlogDataTranPlugin-MetricsThread");
+				metricsThread.setName("MongoDBCDCDataTranPlugin-MetricsThread");
 				metricsThread.setDaemon(true);
 				metricsThread.start();
 			}
@@ -323,11 +323,11 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
 
         if (mongoCDCInputConfig.getPosition() != null) {
 
-            lastValueWrapper.setLastValue(mongoCDCInputConfig.getPosition());
+            lastValueWrapper.setStrLastValue(mongoCDCInputConfig.getPosition());
         }
         else if (importContext.getConfigLastValue() != null) {
 
-            lastValueWrapper.setLastValue(importContext.getConfigLastValue());
+            lastValueWrapper.setStrLastValue(String.valueOf(importContext.getConfigLastValue()));
         }
         if(mongoCDCInputConfig.getLastTimeStamp() != null){
             lastValueWrapper.setTimeStamp(mongoCDCInputConfig.getLastTimeStamp());

@@ -187,6 +187,7 @@ public  class BaseImportContext implements ImportContext {
 	}
 	//	private JDBCResultSet jdbcResultSet;
 	private DataTranPlugin dataTranPlugin;
+	private DataStream dataStream;
 	private boolean currentStoped = false;
 
 	public BaseImportContext(){
@@ -690,4 +691,16 @@ public  class BaseImportContext implements ImportContext {
         return baseImportConfig.isWaitCompleteWhenflushMetricsOnScheduleTaskCompleted();
     }
 
+	@Override
+	public DataStream getDataStream() {
+		return dataStream;
+	}
+
+	public void setDataStream(DataStream dataStream) {
+		this.dataStream = dataStream;
+	}
+	@Override
+	public void shutDownJob(Throwable throwable, boolean waitTranStopped,boolean fromScheduleEnd){
+		this.dataStream.destroy(throwable,waitTranStopped,fromScheduleEnd);
+	}
 }

@@ -1500,6 +1500,7 @@ public class ImportBuilder {
                 dataStream.endAction(null);
             }
         });
+		importContext.setDataStream(dataStream);
 		return dataStream;
 	}
 	public static ImportBuilder newInstance(){

@@ -407,12 +407,25 @@ public class MySQLBinlogListener {
                     else{
                         sendDropedEvent();
                     }
-                } catch (IOException e) {
-                    logger.error("处理数据异常：",e);
-                    importContext.getDataTranPlugin().throwException(mysqlBinlogDataTran.getTaskContext(),e);
                 } catch (InterruptedException e) {
                     logger.warn("Shutdown MySQLBinlogListener[] on InterruptedException");
                     shutdown();
+                }
+                catch (Exception e) {
+//                    logger.error("处理数据异常：",e);
+                    importContext.getDataTranPlugin().throwException(mysqlBinlogDataTran.getTaskContext(),e);
+                    if(!importContext.isContinueOnError()){
+                        shutdown();
+                        importContext.shutDownJob(e,true,false);
+                    }
+                }
+                catch (Throwable e) {
+//                    logger.error("处理数据异常：",e);
+                    importContext.getDataTranPlugin().throwException(mysqlBinlogDataTran.getTaskContext(),e);
+                    if(!importContext.isContinueOnError()){
+                        shutdown();
+                        importContext.shutDownJob(e,true,false);
+                    }
                 }
             }
 
@@ -632,6 +645,7 @@ public class MySQLBinlogListener {
         catch (Exception e) {
             logger.error("处理数据异常：",e);
             importContext.getDataTranPlugin().throwException(mysqlBinlogDataTran.getTaskContext(),e);
+
         }
         catch (Throwable e) {
             logger.error("处理数据异常：",e);
@@ -654,7 +668,16 @@ public class MySQLBinlogListener {
     }
 
 
+    private boolean shutdowned;
+    private Object lock = new Object();
     public void shutdown() {
+        if(shutdowned )
+            return;
+        synchronized (lock){
+            if(shutdowned)
+                return;
+            shutdowned = true;
+        }
         if(client != null){
             try{
                 if(binaryLogClientEventListener != null)
