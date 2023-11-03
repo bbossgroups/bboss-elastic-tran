@@ -40,7 +40,7 @@ public class DataMap {
 	private static Logger logger = LoggerFactory.getLogger(DataMap.class);
 	private String database;
 	private String collection;
-	List<WriteModel<Document>> bulkOperations;
+	private List<WriteModel<Document>> bulkOperations;
 
 
 	public String getDatabase() {
@@ -90,6 +90,13 @@ public class DataMap {
 		return obj;
 	}
 	public DataMap addRecord(CommonRecord dbRecord,String defaultObjectIdField){
+		if(bulkOperations == null)
+			bulkOperations = new ArrayList<>();
+		addRecord( bulkOperations, dbRecord,  defaultObjectIdField);
+		return this;
+	}
+
+	public static void addRecord(List<WriteModel<Document>> bulkOperations,CommonRecord dbRecord,String defaultObjectIdField){
 		String objectIdField = null;
 		if(dbRecord.getRecordKeyField() != null){
 			objectIdField = dbRecord.getRecordKeyField();
@@ -97,8 +104,7 @@ public class DataMap {
 		else{
 			objectIdField = defaultObjectIdField;
 		}
-		if(bulkOperations == null)
-			bulkOperations = new ArrayList<>();
+
 		if(dbRecord.isInsert()) {
 			Document basicDBObject = convert(dbRecord,true);
 
@@ -112,9 +118,8 @@ public class DataMap {
 			bulkOperations.add(new DeleteOneModel<>(Filters.eq("_id", dbRecord.getData(objectIdField))));
 		}
 		else{
-			logger.info("Record action:{} is not supported.data:{}",dbRecord.getAction(), SimpleStringUtil.object2json(dbRecord.getDatas()));
+			logger.info("Record action:{} is not supported,data:{}",dbRecord.getAction(), SimpleStringUtil.object2json(dbRecord.getDatas()));
 		}
-		return this;
 	}
 
 	public List<WriteModel<Document>> getBulkOperations() {

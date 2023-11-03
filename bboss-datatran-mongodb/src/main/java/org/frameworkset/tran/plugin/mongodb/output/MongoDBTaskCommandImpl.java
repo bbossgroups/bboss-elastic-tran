@@ -36,9 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>Description: import datas to database task command</p>
@@ -91,17 +89,8 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 		List<WriteModel<Document>> bulkOperations = new ArrayList<>();
 		for(CommonRecord dbRecord:datas){
 			CommonRecord record = dbRecord;
-			if(record.isInsert()) {
-				Document basicDBObject = DataMap.convert(dbRecord,true);
-				bulkOperations.add(new InsertOneModel<>(basicDBObject));
-			}
-			else if(record.isUpdate()){
-				Document basicDBObject = DataMap.convert(dbRecord,false);
-				bulkOperations.add(new UpdateOneModel<Document>(Filters.eq("_id", dbRecord.getData(objectIdField)), basicDBObject));
-			}
-			else if(record.isDelete()){
-				bulkOperations.add(new DeleteOneModel<>(Filters.eq("_id", dbRecord.getData(objectIdField))));
-			}
+			DataMap.addRecord(bulkOperations,record,objectIdField);
+
 
 		}
 		if(bulkOperations.size() > 0){
