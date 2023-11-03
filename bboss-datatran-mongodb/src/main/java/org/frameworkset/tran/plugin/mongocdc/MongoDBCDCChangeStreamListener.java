@@ -75,8 +75,7 @@ public class MongoDBCDCChangeStreamListener {
     private MongoDBCDCData buildInsertDocument(ChangeStreamDocument<Document> event){
         MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
         Document bsonDocument = event.getFullDocument();
-        ObjectId objectId = bsonDocument.getObjectId("_id");
-        mongoDBCDCData.setId(objectId.toString());
+	    evalId(  bsonDocument,  mongoDBCDCData );
         mongoDBCDCData.setData(convertData(  bsonDocument));
         mongoDBCDCData.setAction(Record.RECORD_INSERT);
         return mongoDBCDCData;
@@ -88,9 +87,7 @@ public class MongoDBCDCChangeStreamListener {
         Document bsonDocument = event.getFullDocument();
 
         mongoDBCDCData.setAction(Record.RECORD_UPDATE);
-        ObjectId objectId = bsonDocument.getObjectId("_id");
-
-        mongoDBCDCData.setId(objectId.toString());
+	    evalId( bsonDocument, mongoDBCDCData );
         mongoDBCDCData.setData(convertData(  bsonDocument));
         Document updateDocument = event.getFullDocumentBeforeChange();
         if(updateDocument != null)
@@ -99,16 +96,39 @@ public class MongoDBCDCChangeStreamListener {
 
     }
 
+	private void evalId(Document bsonDocument,MongoDBCDCData mongoDBCDCData ){
+		Object id = bsonDocument.get("_id");
+		String _id = null;
+		if(id instanceof ObjectId){
+			_id = ((ObjectId)id).toString();
+		}
+		else{
+			_id = String.valueOf(id);
+		}
+		mongoDBCDCData.setId(_id);
+	}
+
     private MongoDBCDCData buildDeleteDocument(ChangeStreamDocument<Document> event){
         MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
         Document bsonDocument = event.getFullDocument();
         if(bsonDocument != null) {
-            ObjectId objectId = bsonDocument.getObjectId("_id");
-            mongoDBCDCData.setId(objectId.toString());
+	        evalId(  bsonDocument,  mongoDBCDCData );
             mongoDBCDCData.setData(convertData(bsonDocument));
         }
         else{
-            mongoDBCDCData.setId(event.getDocumentKey().get("_id").asObjectId().getValue().toString());
+	        BsonValue id = event.getDocumentKey().get("_id");
+			String _id = null;
+			if(id.isObjectId()){
+				_id = id.asObjectId().getValue().toString();
+			}
+			else if(id.isString()){
+				_id = id.asString().getValue();
+			}
+			else{
+				_id = id.toString();
+			}
+
+            mongoDBCDCData.setId(_id);
             Map data = new LinkedHashMap();
             data.put("_id",mongoDBCDCData.getId());
             mongoDBCDCData.setData(data);

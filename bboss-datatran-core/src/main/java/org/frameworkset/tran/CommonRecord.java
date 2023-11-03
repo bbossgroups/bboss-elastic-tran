@@ -15,6 +15,7 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.record.RecordColumnInfo;
 
 import java.util.LinkedHashMap;
@@ -43,6 +44,9 @@ public class CommonRecord {
     private Map<String,Object> metaDatas;
 
 	private Object recordKey;
+
+	private String recordKeyField;
+
     /**
      * binlog采集的修改前记录信息
      */
@@ -76,6 +80,7 @@ public class CommonRecord {
 	 * 在记录处理过程中，使用的临时数据，不会进行持久化处理
 	 */
 	private Map<String,Object> tempDatas;
+	private TableMapping tableMapping;
 	public void addData(String name, Object value, RecordColumnInfo recordColumnInfo){
 		if(datas == null) {
 			datas = new LinkedHashMap<String, Object>();
@@ -192,4 +197,21 @@ public class CommonRecord {
 	public Object getTempData(String name){
 		return tempDatas != null? tempDatas.get(name):null;
 	}
+
+	public TableMapping getTableMapping() {
+		return tableMapping;
+	}
+
+	public void setTableMapping(TableMapping tableMapping) {
+		this.tableMapping = tableMapping;
+	}
+
+	public String getRecordKeyField() {
+		return recordKeyField;
+	}
+
+	public void setRecordKeyField(String recordKeyField) {
+		this.recordKeyField = recordKeyField;
+	}
+
 }

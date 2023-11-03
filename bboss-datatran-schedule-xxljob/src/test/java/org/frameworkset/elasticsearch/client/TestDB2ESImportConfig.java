@@ -13,7 +13,7 @@ public class TestDB2ESImportConfig {
 	private void initDBSource(){
 		SQLUtil.startNoPool("test",//数据源名称
 				"com.mysql.cj.jdbc.Driver",//oracle驱动
-				"jdbc:mysql://localhost:3306/bboss",//mysql链接串
+				"jdbc:mysql://localhost:3306/bboss?allowPublicKeyRetrieval=true",//mysql链接串
 				"root","123456",//数据库账号和口令
 				"select 1 " //数据库连接校验sql
 		);
@@ -33,7 +33,7 @@ public class TestDB2ESImportConfig {
 		DBInputConfig dbInputConfig = new DBInputConfig();
 		dbInputConfig.setDbName("test")
 				.setDbDriver("com.mysql.cj.jdbc.Driver") //数据库驱动程序，必须导入相关数据库的驱动jar包
-				.setDbUrl("jdbc:mysql://localhost:3306/bboss")
+				.setDbUrl("jdbc:mysql://localhost:3306/bboss?allowPublicKeyRetrieval=true")
 				.setDbUser("root")
 				.setDbPassword("123456")
 				.setValidateSQL("select 1")
@@ -98,7 +98,7 @@ public class TestDB2ESImportConfig {
 		DBInputConfig dbInputConfig = new DBInputConfig();
 		dbInputConfig.setDbName("test")
 				.setDbDriver("com.mysql.cj.jdbc.Driver") //数据库驱动程序，必须导入相关数据库的驱动jar包
-				.setDbUrl("jdbc:mysql://localhost:3306/bboss")
+				.setDbUrl("jdbc:mysql://localhost:3306/bboss?allowPublicKeyRetrieval=true")
 				.setDbUser("root")
 				.setDbPassword("123456")
 				.setValidateSQL("select 1")

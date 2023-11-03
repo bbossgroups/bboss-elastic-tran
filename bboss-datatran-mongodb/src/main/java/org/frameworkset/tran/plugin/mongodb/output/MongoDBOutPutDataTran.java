@@ -40,8 +40,14 @@ public class MongoDBOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
 	protected TaskCommand buildTaskCommand(ImportCount totalCount,
                                            List<CommonRecord> records, int taskNo,
                                            LastValueWrapper lastValue, boolean reachEOFClosed){
-		return new MongoDBTaskCommandImpl( totalCount, importContext, records,
-				taskNo, taskContext.getJobNo(),taskInfo,lastValue,  currentStatus,reachEOFClosed,taskContext);
+		if(!mongoDBOutputConfig.isMultiCollections()) {
+			return new MongoDBTaskCommandImpl(totalCount, importContext, records,
+					taskNo, taskContext.getJobNo(), taskInfo, lastValue, currentStatus, reachEOFClosed, taskContext);
+		}
+		else{
+			return new MongoDBMultiTargetTaskCommandImpl(totalCount, importContext, records,
+					taskNo, taskContext.getJobNo(), taskInfo, lastValue, currentStatus, reachEOFClosed, taskContext);
+		}
 	}
 
 

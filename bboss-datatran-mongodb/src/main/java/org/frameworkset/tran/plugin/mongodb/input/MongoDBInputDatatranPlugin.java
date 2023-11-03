@@ -98,7 +98,6 @@ public class MongoDBInputDatatranPlugin extends BaseInputPlugin {
 		mongoDBConfig.setOption(mongoDBInputConfig.getOption());//private String option;
 		mongoDBConfig.setWriteConcern(mongoDBInputConfig.getWriteConcern());//private String writeConcern;
 		mongoDBConfig.setReadPreference(mongoDBInputConfig.getReadPreference());//private String readPreference;
-		mongoDBConfig.setAutoConnectRetry(mongoDBInputConfig.getAutoConnectRetry());//private Boolean autoConnectRetry = true;
 
 		mongoDBConfig.setConnectionsPerHost(mongoDBInputConfig.getConnectionsPerHost());//private int connectionsPerHost = 50;
 
@@ -107,8 +106,6 @@ public class MongoDBInputDatatranPlugin extends BaseInputPlugin {
 		mongoDBConfig.setConnectTimeout(mongoDBInputConfig.getConnectTimeout());//private int connectTimeout = 15000;
 
 
-		/**是否启用sql日志，true启用，false 不启用，*/
-		mongoDBConfig.setThreadsAllowedToBlockForConnectionMultiplier(mongoDBInputConfig.getThreadsAllowedToBlockForConnectionMultiplier());//private int threadsAllowedToBlockForConnectionMultiplier;
 		mongoDBConfig.setSocketKeepAlive(mongoDBInputConfig.getSocketKeepAlive());//private Boolean socketKeepAlive = false;
 
 		mongoDBConfig.setMode( mongoDBInputConfig.getMode());

@@ -319,7 +319,7 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
     public void initLastValueStatus(Status currentStatus, BaseStatusManager baseStatusManager) throws Exception {
 
         LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
-
+		lastValueWrapper.setLastValue(-1);
 
         if (mongoCDCInputConfig.getPosition() != null) {
 

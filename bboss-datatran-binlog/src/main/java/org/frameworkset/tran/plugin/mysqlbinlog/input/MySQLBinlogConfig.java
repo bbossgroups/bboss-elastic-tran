@@ -60,7 +60,7 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
 
     /**
      * String url =  "jdbc:mysql://" + host.getHost()+":" +host.getPort()+
-     *                     "/INFORMATION_SCHEMA?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+     *                     "/INFORMATION_SCHEMA?allowPublicKeyRetrieval=true&seUnicode=true&characterEncoding=UTF-8&useSSL=false";
      */
     private String schemaUrl;
 

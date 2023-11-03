@@ -71,7 +71,6 @@ public class MongoDBOutputDataTranPlugin extends BasePlugin implements OutputPlu
 		mongoDBConfig.setOption(mongoDBOutputConfig.getOption());//private String option;
 		mongoDBConfig.setWriteConcern(mongoDBOutputConfig.getWriteConcern());//private String writeConcern;
 		mongoDBConfig.setReadPreference(mongoDBOutputConfig.getReadPreference());//private String readPreference;
-		mongoDBConfig.setAutoConnectRetry(mongoDBOutputConfig.getAutoConnectRetry());//private Boolean autoConnectRetry = true;
 
 		mongoDBConfig.setConnectionsPerHost(mongoDBOutputConfig.getConnectionsPerHost());//private int connectionsPerHost = 50;
 
@@ -80,8 +79,6 @@ public class MongoDBOutputDataTranPlugin extends BasePlugin implements OutputPlu
 		mongoDBConfig.setConnectTimeout(mongoDBOutputConfig.getConnectTimeout());//private int connectTimeout = 15000;
 
 
-		/**是否启用sql日志，true启用，false 不启用，*/
-		mongoDBConfig.setThreadsAllowedToBlockForConnectionMultiplier(mongoDBOutputConfig.getThreadsAllowedToBlockForConnectionMultiplier());//private int threadsAllowedToBlockForConnectionMultiplier;
 		mongoDBConfig.setSocketKeepAlive(mongoDBOutputConfig.getSocketKeepAlive());//private Boolean socketKeepAlive = false;
 
 		mongoDBConfig.setMode( mongoDBOutputConfig.getMode());

@@ -21,6 +21,7 @@ import org.frameworkset.elasticsearch.client.ResultUtil;
 import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
+import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.*;
 import org.frameworkset.tran.plugin.es.ESField;
 import org.frameworkset.tran.plugin.db.input.DBInputConfig;
@@ -45,6 +46,8 @@ import java.util.*;
  * @version 1.0
  */
 public class ContextImpl implements Context {
+	private TableMapping tableMapping;
+	private String recordKeyField;
 	protected List<FieldMeta> fieldValues ;
 	protected Map<String,FieldMeta> valuesIdxByName;
 	protected Map<String,FieldMeta> fieldMetaMap;
@@ -707,4 +710,21 @@ public class ContextImpl implements Context {
 		}
 		tempDatas.put(name,tmpData);
 	}
+	@Override
+	public TableMapping getTableMapping() {
+		return tableMapping;
+	}
+	@Override
+	public void setTableMapping(TableMapping tableMapping) {
+		this.tableMapping = tableMapping;
+	}
+	@Override
+	public String getRecordKeyField() {
+		return recordKeyField;
+	}
+	@Override
+	public void setRecordKeyField(String recordKeyField) {
+		this.recordKeyField = recordKeyField;
+	}
+
 }

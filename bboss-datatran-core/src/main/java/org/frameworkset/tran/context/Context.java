@@ -22,6 +22,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.FieldMeta;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.TranMeta;
+import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -40,6 +41,16 @@ import java.util.Map;
  * @version 1.0
  */
 public interface Context {
+
+
+	public TableMapping getTableMapping() ;
+
+	public void setTableMapping(TableMapping tableMapping) ;
+
+	public String getRecordKeyField() ;
+
+	public void setRecordKeyField(String recordKeyField);
+
 	/**
 	 * 获取用于指标计算处理等的临时数据
 	 * @return

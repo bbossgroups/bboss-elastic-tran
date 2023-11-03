@@ -822,7 +822,7 @@ public abstract class BaseStatusManager implements StatusManager {
             if(lastValue instanceof LocalDateTime) {
                 strLastValue = TimeUtil.changeLocalDateTime2String((LocalDateTime)lastValue,importContext.getLastValueDateformat());
                 lastValueWrapper.setStrLastValue(strLastValue);
-                lastValueWrapper.setLastValue(null);
+                lastValueWrapper.setLastValue(-1);
                 lastValue = null;
             }
             else{

@@ -88,7 +88,6 @@ public  class MongoCDCInputDatatranPlugin extends BaseInputPlugin  {
         mongoDBConfig.setOption(mongoCDCInputConfig.getOption());//private String option;
         mongoDBConfig.setWriteConcern(mongoCDCInputConfig.getWriteConcern());//private String writeConcern;
         mongoDBConfig.setReadPreference(mongoCDCInputConfig.getReadPreference());//private String readPreference;
-        mongoDBConfig.setAutoConnectRetry(mongoCDCInputConfig.getAutoConnectRetry());//private Boolean autoConnectRetry = true;
 
         mongoDBConfig.setConnectionsPerHost(mongoCDCInputConfig.getConnectionsPerHost());//private int connectionsPerHost = 50;
 
@@ -97,8 +96,6 @@ public  class MongoCDCInputDatatranPlugin extends BaseInputPlugin  {
         mongoDBConfig.setConnectTimeout(mongoCDCInputConfig.getConnectTimeout());//private int connectTimeout = 15000;
 
 
-        /**是否启用sql日志，true启用，false 不启用，*/
-        mongoDBConfig.setThreadsAllowedToBlockForConnectionMultiplier(mongoCDCInputConfig.getThreadsAllowedToBlockForConnectionMultiplier());//private int threadsAllowedToBlockForConnectionMultiplier;
         mongoDBConfig.setSocketKeepAlive(mongoCDCInputConfig.getSocketKeepAlive());//private Boolean socketKeepAlive = false;
 
         mongoDBConfig.setMode( mongoCDCInputConfig.getMode());

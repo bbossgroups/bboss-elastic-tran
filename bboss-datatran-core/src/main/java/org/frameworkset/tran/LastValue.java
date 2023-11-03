@@ -143,7 +143,7 @@ public abstract class LastValue implements TranResultSet{
     public Object getLastValue(){
         if(!importContext.useFilePointer()) {
             if (importContext.getLastValueColumnName() == null) {
-                return null;
+                return -1;
             }
             return getLastValue(importContext.getLastValueColumnName());
         }

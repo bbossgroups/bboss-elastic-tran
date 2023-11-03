@@ -20,6 +20,7 @@ import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.OutputPlugin;
 
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -30,10 +31,37 @@ import org.frameworkset.tran.plugin.OutputPlugin;
  */
 public class MongoDBOutputConfig extends BaseMongoDBConfig implements OutputConfig {
 
+	private String objectIdField;
+	private boolean multiCollections = true;
+
+	public boolean isMultiCollections() {
+		return multiCollections;
+	}
+
+	/**
+	 * 将数据输出到多库多表中
+	 * @param multiCollections
+	 * @return
+	 */
+	public MongoDBOutputConfig setMultiCollections(boolean multiCollections) {
+		this.multiCollections = multiCollections;
+		return this;
+	}
 
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
 		return new MongoDBOutputDataTranPlugin(importContext);
+	}
+
+
+
+	public String getObjectIdField() {
+		return objectIdField;
+	}
+
+	public MongoDBOutputConfig setObjectIdField(String objectIdField) {
+		this.objectIdField = objectIdField;
+		return this;
 	}
 
 

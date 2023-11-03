@@ -19,6 +19,7 @@ import com.mongodb.BasicDBObject;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.*;
 import org.bson.Document;
 import org.frameworkset.nosql.mongodb.MongoDB;
 import org.frameworkset.nosql.mongodb.MongoDBHelper;
@@ -48,8 +49,8 @@ import java.util.Map;
  * @version 1.0
  */
 public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, String> {
-	private MongoDBOutputConfig dbOutputConfig;
-	private String taskInfo;
+	protected MongoDBOutputConfig dbOutputConfig;
+	protected String taskInfo;
 	private static final Logger logger = LoggerFactory.getLogger(MongoDBTaskCommandImpl.class);
 	public MongoDBTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                   List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
@@ -69,7 +70,7 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 	}
 
 
-	private List<CommonRecord> datas;
+	protected List<CommonRecord> datas;
 	private int tryCount;
 
 
@@ -78,16 +79,39 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 		this.datas = datas;
 	}
 
-	private Document convert(CommonRecord dbRecord){
-		Document basicDBObject = new Document();
-		Map<String, Object>  datas = dbRecord.getDatas();
-		Iterator<Map.Entry<String,Object>> iterator = datas.entrySet().iterator();
-		while (iterator.hasNext()){
-			Map.Entry<String,Object> entry = iterator.next();
-			basicDBObject.append(entry.getKey(),entry.getValue());
+	protected boolean _execute(){
+		MongoDB mogodb = MongoDBHelper.getMongoDB(dbOutputConfig.getName());
+		MongoDatabase db = mogodb.getDB(dbOutputConfig.getDB());
+		MongoCollection dbCollection = db.getCollection(dbOutputConfig.getDBCollection());
+
+		String objectIdField = dbOutputConfig.getObjectIdField();
+		if(objectIdField == null){
+			objectIdField = "_id";
 		}
-		return basicDBObject;
+		List<WriteModel<Document>> bulkOperations = new ArrayList<>();
+		for(CommonRecord dbRecord:datas){
+			CommonRecord record = dbRecord;
+			if(record.isInsert()) {
+				Document basicDBObject = DataMap.convert(dbRecord,true);
+				bulkOperations.add(new InsertOneModel<>(basicDBObject));
+			}
+			else if(record.isUpdate()){
+				Document basicDBObject = DataMap.convert(dbRecord,false);
+				bulkOperations.add(new UpdateOneModel<Document>(Filters.eq("_id", dbRecord.getData(objectIdField)), basicDBObject));
+			}
+			else if(record.isDelete()){
+				bulkOperations.add(new DeleteOneModel<>(Filters.eq("_id", dbRecord.getData(objectIdField))));
+			}
+
+		}
+		if(bulkOperations.size() > 0){
+			dbCollection.bulkWrite(bulkOperations);
+			return true;
+
+		}
+		return false;
 	}
+
 	public String execute(){
 		String data = null;
 		if(this.importContext.getMaxRetry() > 0){
@@ -99,23 +123,11 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 		try {
 
 
-			MongoDB mogodb = MongoDBHelper.getMongoDB(dbOutputConfig.getName());
-			MongoDatabase db = mogodb.getDB(dbOutputConfig.getDB());
-			MongoCollection dbCollection = db.getCollection(dbOutputConfig.getDBCollection());
 
-
-			List<Document> resources = new ArrayList<>();
-			for(CommonRecord dbRecord:datas){
-				CommonRecord record = (CommonRecord) dbRecord;
-				Document basicDBObject =convert(dbRecord);
-				resources.add(basicDBObject);
-
-			}
-			if(resources .size() >  0) {
-				MongoDB.insert(dbCollection,resources);
+			boolean u = _execute(  );
+			if(u){
 				finishTask();
 			}
-
 
 		}
 

@@ -38,7 +38,6 @@ public class BaseMongoDBConfig extends BaseConfig  {
 	private String option;
 	private String writeConcern;
 	private String readPreference;
-	private Boolean autoConnectRetry = true;
 
 
 	private List<ClientMongoCredential> credentials;
@@ -50,13 +49,15 @@ public class BaseMongoDBConfig extends BaseConfig  {
 	private String connectString;
 
 
-	/**是否启用sql日志，true启用，false 不启用，*/
-	private int threadsAllowedToBlockForConnectionMultiplier = 5;
+
 	private Boolean socketKeepAlive = false;
 
 	private String mode;
 	private String dbCollection;
 	private String db;
+
+
+
 
 	public String getName() {
 		return name;
@@ -103,14 +104,7 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		return this;
 	}
 
-	public Boolean getAutoConnectRetry() {
-		return autoConnectRetry;
-	}
 
-	public BaseMongoDBConfig setAutoConnectRetry(Boolean autoConnectRetry) {
-		this.autoConnectRetry = autoConnectRetry;
-		return this;
-	}
 
 	public int getConnectionsPerHost() {
 		return connectionsPerHost;
@@ -148,14 +142,6 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		return this;
 	}
 
-	public int getThreadsAllowedToBlockForConnectionMultiplier() {
-		return threadsAllowedToBlockForConnectionMultiplier;
-	}
-
-	public BaseMongoDBConfig setThreadsAllowedToBlockForConnectionMultiplier(int threadsAllowedToBlockForConnectionMultiplier) {
-		this.threadsAllowedToBlockForConnectionMultiplier = threadsAllowedToBlockForConnectionMultiplier;
-		return this;
-	}
 
 	public Boolean getSocketKeepAlive() {
 		return socketKeepAlive;
