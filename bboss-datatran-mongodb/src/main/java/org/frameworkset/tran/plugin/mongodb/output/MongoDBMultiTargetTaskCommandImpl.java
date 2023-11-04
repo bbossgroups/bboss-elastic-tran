@@ -77,9 +77,42 @@ public class MongoDBMultiTargetTaskCommandImpl extends MongoDBTaskCommandImpl {
 			String tdb = tableMapping != null?tableMapping.getTargetDatabase():null;
 			String tds = tableMapping != null?tableMapping.getTargetDatasource():null;
 			String ttb = tableMapping != null?tableMapping.getTargetCollection():null;
-			String table = ttb != null ? ttb:(String)dbRecord.getMetaValue("table");
-			String database = tdb != null?tdb : (String)dbRecord.getMetaValue("database");
+			String table = null;
+			if(ttb != null) {
+				table = ttb ;
+			}
+			else{
+				if(defaultTable != null)
+				{
+					table = defaultTable;
+				}
+				else{
+					table = (String) dbRecord.getMetaValue("table");
+				}
+
+			}
+			String database = null;
+			if(tdb != null) {
+				database = tdb ;
+			}
+			else{
+				if(defaultDb != null)
+				{
+					database = defaultDb;
+				}
+				else{
+					database = (String) dbRecord.getMetaValue("database");
+				}
+
+			}
 			String targetDatasource = tds != null? tds:defualtTargetDatasource;
+			if(targetDatasource == null || database == null || table == null){
+				throw new DataImportException(new StringBuilder().append("Setting check failed:targetDatasource == ").append(targetDatasource)
+						.append(" || database == ").append(database)
+						.append(" || table == ").append(table)
+						.append("").toString()
+						);
+			}
 			Map<String,DataMap> dataMapMap = datasourceDataMapMap.get(targetDatasource);
 			if(dataMapMap == null){
 				dataMapMap = new LinkedHashMap<>();
