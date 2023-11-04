@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.mongodb.output;
  * limitations under the License.
  */
 
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.*;
@@ -140,9 +141,10 @@ public class MongoDBMultiTargetTaskCommandImpl extends MongoDBTaskCommandImpl {
 		}
 		return datasourceDataMapMap;
 	}
-	public boolean _execute( ){
+	@Override
+	public Object _execute( ){
 
-		boolean up = false;
+		List<BulkWriteResult> results = null;
 		try {
 			Map<String,Map<String,DataMap>> dsDataMapMap = splitRecords();
 			if(dsDataMapMap != null && dsDataMapMap.size() > 0){
@@ -159,9 +161,12 @@ public class MongoDBMultiTargetTaskCommandImpl extends MongoDBTaskCommandImpl {
 							DataMap dataMap = iterator.next().getValue();
 							MongoDatabase db = mogodb.getDB(dataMap.getDatabase());
 							MongoCollection dbCollection = db.getCollection(dataMap.getCollection());
-							dbCollection.bulkWrite(dataMap.getBulkOperations());
+							BulkWriteResult bulkWriteResult = dbCollection.bulkWrite(dataMap.getBulkOperations());
+							if(results == null){
+								results = new ArrayList<>();
+							}
+							results.add(bulkWriteResult);
 						}
-						up = true;
 					}
 				}
 			}
@@ -175,7 +180,7 @@ public class MongoDBMultiTargetTaskCommandImpl extends MongoDBTaskCommandImpl {
 		catch (Throwable e) {
 			throw new DataImportException(taskInfo,e);
 		} 
-		return up;
+		return results;
 	}
 
 

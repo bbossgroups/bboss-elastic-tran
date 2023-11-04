@@ -193,14 +193,25 @@ public class BaseMongoDBConfig extends BaseConfig  {
 	private String userName;
 	@JsonIgnore
 	private String password;
+
+
+	private String authDb;
+
+	public String getAuthDb() {
+		return authDb;
+	}
+
+	public BaseMongoDBConfig setAuthDb(String authDb) {
+		this.authDb = authDb;
+		return this;
+	}
 	public void build(ImportBuilder importBuilder) {
 
 		if(SimpleStringUtil.isNotEmpty(userName) && SimpleStringUtil.isNotEmpty(password)) {
 			if (credentials == null) {
 				credentials = new ArrayList<ClientMongoCredential>();
-
 				ClientMongoCredential clientMongoCredential = new ClientMongoCredential();
-				clientMongoCredential.setDatabase(db);
+				clientMongoCredential.setDatabase(authDb == null?db:authDb);
 				clientMongoCredential.setMechanism(mechanism);
 				clientMongoCredential.setUserName(userName);
 				clientMongoCredential.setPassword(password);
@@ -220,6 +231,14 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		return this;
 	}
 
+	/**
+	 * MONGODB-AWS
+	 * GSSAPI
+	 * PLAIN
+	 * MONGODB_X509
+	 * SCRAM-SHA-1
+	 * SCRAM-SHA-256
+	 */
 	public BaseMongoDBConfig setMechanism(String mechanism) {
 		this.mechanism = mechanism;
 		return this;

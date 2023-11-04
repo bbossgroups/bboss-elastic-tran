@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin.mongodb.output;
 
 import com.mongodb.BasicDBObject;
 
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.*;
@@ -46,7 +47,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, String> {
+public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, Object> {
 	protected MongoDBOutputConfig dbOutputConfig;
 	protected String taskInfo;
 	private static final Logger logger = LoggerFactory.getLogger(MongoDBTaskCommandImpl.class);
@@ -77,7 +78,7 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 		this.datas = datas;
 	}
 
-	protected boolean _execute(){
+	protected Object _execute(){
 		MongoDB mogodb = MongoDBHelper.getMongoDB(dbOutputConfig.getName());
 		MongoDatabase db = mogodb.getDB(dbOutputConfig.getDB());
 		MongoCollection dbCollection = db.getCollection(dbOutputConfig.getDBCollection());
@@ -94,15 +95,16 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 
 		}
 		if(bulkOperations.size() > 0){
-			dbCollection.bulkWrite(bulkOperations);
-			return true;
+			BulkWriteResult bulkWriteResult = dbCollection.bulkWrite(bulkOperations);
+			return bulkWriteResult;
 
 		}
-		return false;
+		return null;
 	}
 
-	public String execute(){
-		String data = null;
+	@Override
+	public Object execute(){
+		Object data = null;
 		if(this.importContext.getMaxRetry() > 0){
 			if(this.tryCount >= this.importContext.getMaxRetry())
 				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
@@ -113,9 +115,11 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 
 
 
-			boolean u = _execute(  );
-			if(u){
+			Object bulkWriteResult =  _execute(  );
+			if(bulkWriteResult != null){
+				data = bulkWriteResult;
 				finishTask();
+
 			}
 
 		}

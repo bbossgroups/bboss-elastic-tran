@@ -244,7 +244,7 @@ public interface Context {
 
      */
     void markRecoredDDL();
-
+	public void markRecoredReplace();
 	/**
 	 * 判断记录是否是新增记录(默认值)
 	 * @return
@@ -262,6 +262,12 @@ public interface Context {
 	 * @return
 	 */
 	boolean isDelete();
+
+	/**
+	 * 判断记录是否删除操作
+	 * @return
+	 */
+	boolean isReplace();
 
     /**
      * 判断记录是否DDL操作

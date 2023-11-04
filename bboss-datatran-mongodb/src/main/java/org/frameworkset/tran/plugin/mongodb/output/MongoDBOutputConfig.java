@@ -33,7 +33,6 @@ public class MongoDBOutputConfig extends BaseMongoDBConfig implements OutputConf
 
 	private String objectIdField;
 	private boolean multiCollections = true;
-
 	public boolean isMultiCollections() {
 		return multiCollections;
 	}

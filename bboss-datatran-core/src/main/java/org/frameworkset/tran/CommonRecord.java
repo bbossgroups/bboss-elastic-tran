@@ -149,6 +149,10 @@ public class CommonRecord {
     public boolean isUpdate(){
         return action ==  Record.RECORD_UPDATE;
     }
+
+	public boolean isReplace(){
+		return action ==  Record.RECORD_REPLACE;
+	}
     public Map<String, Object> getMetaDatas() {
         return metaDatas;
     }

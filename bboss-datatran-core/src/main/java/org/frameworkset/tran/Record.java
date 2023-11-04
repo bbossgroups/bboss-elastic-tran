@@ -34,6 +34,7 @@ public interface Record {
     public final int RECORD_UPDATE = 1;
     public final int RECORD_DELETE = 2;
     public final int RECORD_DDL = 5;
+	public final int RECORD_REPLACE = 6;
     /**
      * 被标记为跳进指令，只是为了传递数据位置状态信息：lastValue、binglogfile等信息
      */

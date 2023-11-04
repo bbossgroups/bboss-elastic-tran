@@ -59,17 +59,40 @@ public class DataMap {
 		this.collection = collection;
 	}
 
-	public static Document convert(CommonRecord dbRecord,boolean includeObjectId){
+	public static Document convertInsert(CommonRecord dbRecord,String idField){
 		Document basicDBObject = new Document();
 		Map<String, Object> datas = dbRecord.getDatas();
 		Iterator<Map.Entry<String,Object>> iterator = datas.entrySet().iterator();
+		boolean containId = false;
 		while (iterator.hasNext()){
 			Map.Entry<String,Object> entry = iterator.next();
 			String key = entry.getKey();
-			if(!includeObjectId && key.equals("_id"))
+			if(key.equals("_id"))
+				containId = true;
+			basicDBObject.append(entry.getKey(),entry.getValue());
+		}
+		if(!containId && idField != null){
+			Object id = dbRecord.getData(idField);
+			if(id != null)
+				basicDBObject.append("_id",id);
+		}
+		return basicDBObject;
+	}
+
+
+	public static Document convertReplace(CommonRecord dbRecord){
+		Document basicDBObject = new Document();
+		Map<String, Object> datas = dbRecord.getDatas();
+		Iterator<Map.Entry<String,Object>> iterator = datas.entrySet().iterator();
+
+		while (iterator.hasNext()){
+			Map.Entry<String,Object> entry = iterator.next();
+			String key = entry.getKey();
+			if(key.equals("_id"))
 				continue;
 			basicDBObject.append(entry.getKey(),entry.getValue());
 		}
+
 		return basicDBObject;
 	}
 
@@ -106,13 +129,17 @@ public class DataMap {
 		}
 
 		if(dbRecord.isInsert()) {
-			Document basicDBObject = convert(dbRecord,true);
+			Document basicDBObject = convertInsert(dbRecord,objectIdField);
 
 			bulkOperations.add(new InsertOneModel<>(basicDBObject));
 		}
 		else if(dbRecord.isUpdate()){
 			Bson basicDBObject = convertUpdate( dbRecord,false);
 			bulkOperations.add(new UpdateOneModel<Document>(Filters.eq("_id", dbRecord.getData(objectIdField)), basicDBObject));
+		}
+		else if(dbRecord.isReplace()){
+			Document basicDBObject = convertReplace( dbRecord);
+			bulkOperations.add(new ReplaceOneModel<Document>(Filters.eq("_id", dbRecord.getData(objectIdField)), basicDBObject));
 		}
 		else if(dbRecord.isDelete()){
 			bulkOperations.add(new DeleteOneModel<>(Filters.eq("_id", dbRecord.getData(objectIdField))));

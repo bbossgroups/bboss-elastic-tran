@@ -560,6 +560,10 @@ public class ContextImpl implements Context {
 	public void markRecoredUpdate() {
 		this.action = Record.RECORD_UPDATE;
 	}
+	@Override
+	public void markRecoredReplace() {
+		this.action = Record.RECORD_REPLACE;
+	}
 
     public void setAction(int action){
         this.action = action;
@@ -588,7 +592,9 @@ public class ContextImpl implements Context {
 	public boolean isUpdate() {
 		return action == Record.RECORD_UPDATE;
 	}
-
+	public boolean isReplace(){
+		return action ==  Record.RECORD_REPLACE;
+	}
     /**
      * 判断记录是否DDL操作
      * @return
