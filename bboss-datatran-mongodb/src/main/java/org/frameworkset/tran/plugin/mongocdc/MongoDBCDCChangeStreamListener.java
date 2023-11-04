@@ -96,7 +96,22 @@ public class MongoDBCDCChangeStreamListener {
 
     }
 
-	private void evalId(Document bsonDocument,MongoDBCDCData mongoDBCDCData ){
+    private MongoDBCDCData buildReplaceDocument(ChangeStreamDocument<Document> event){
+        MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
+        Document bsonDocument = event.getFullDocument();
+
+        mongoDBCDCData.setAction(Record.RECORD_REPLACE);
+        evalId( bsonDocument, mongoDBCDCData );
+        mongoDBCDCData.setData(convertData(  bsonDocument));
+        Document updateDocument = event.getFullDocumentBeforeChange();
+        if(updateDocument != null)
+            mongoDBCDCData.setOldValues(convertData(updateDocument));
+        return mongoDBCDCData;
+
+    }
+
+
+    private void evalId(Document bsonDocument,MongoDBCDCData mongoDBCDCData ){
 		Object id = bsonDocument.get("_id");
 		String _id = null;
 		if(id instanceof ObjectId){
@@ -154,8 +169,11 @@ public class MongoDBCDCChangeStreamListener {
         if(operationType == OperationType.INSERT){
             mongoDBCDCData = this.buildInsertDocument(event);
         }
-        else  if(operationType == OperationType.UPDATE || operationType == OperationType.REPLACE){
+        else  if(operationType == OperationType.UPDATE ){
             mongoDBCDCData = this.buildUpdateDocument(event);
+        }
+        else  if( operationType == OperationType.REPLACE){
+            mongoDBCDCData = this.buildReplaceDocument(event);
         }
         else  if(operationType == OperationType.DELETE){
             mongoDBCDCData = this.buildDeleteDocument(event);
