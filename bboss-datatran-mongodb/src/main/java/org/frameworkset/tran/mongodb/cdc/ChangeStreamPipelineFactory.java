@@ -171,6 +171,9 @@ public class ChangeStreamPipelineFactory {
             if (op == Record.RECORD_DELETE) {
                 includedOperations.add(OperationType.DELETE.getValue());
             }
+            if (op == Record.RECORD_REPLACE) {
+                includedOperations.add(OperationType.REPLACE.getValue());
+            }
         }
         if(includedOperations.size() > 0) {
             return Filters.in("event.operationType", includedOperations);
