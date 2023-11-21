@@ -1,2 +1,0 @@
-从kafka接收数据并写入elasticsearch
-模块已经迁移至bboss-datatran-kafka2x，后续版本将被废弃

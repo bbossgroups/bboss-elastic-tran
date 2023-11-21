@@ -15,6 +15,9 @@ package org.frameworkset.tran.util;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.context.DefaultReInitAction;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +33,9 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class StoppedThread extends Thread{
 	private static Logger logger = LoggerFactory.getLogger(StoppedThread.class);
+
 	public StoppedThread() {
+       
 	}
 
 	public StoppedThread(Runnable target) {
@@ -82,4 +87,6 @@ public class StoppedThread extends Thread{
 		} catch (InterruptedException e) {
 		}
 	}
+
+    
 }

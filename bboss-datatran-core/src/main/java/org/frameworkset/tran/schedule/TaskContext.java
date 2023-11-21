@@ -19,6 +19,7 @@ import com.frameworkset.util.UUID;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
+import org.frameworkset.tran.context.ReInitAction;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
@@ -68,7 +69,15 @@ public class TaskContext {
 	public TaskContext(){
 
 	}
-
+    public synchronized void reInitContext(ReInitAction reInitAction){
+        // 当有记录到达，才执行
+        if(this.getJobTaskMetrics().getTotalRecords() > 0) {
+            TaskContext taskContextCopy = copy();
+            reInitAction.afterCall(taskContextCopy);
+            initContext();
+            reInitAction.preCall(this);
+        }
+    }
 	public void initContext(){
 		taskDatas = new LinkedHashMap<>();
 

@@ -1,6 +1,6 @@
-package org.frameworkset.tran.plugin.mysqlbinlog.input;
+package org.frameworkset.tran.context;
 /**
- * Copyright 2022 bboss
+ * Copyright 2023 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,17 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.cdc.CDCTaskContext;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2020</p>
- * @Date 2022/12/19
+ *
  * @author biaoping.yin
- * @version 1.0
+ * @Date 2023/11/21
  */
-public class MysqlBinlogTaskContext extends CDCTaskContext {
-	public MysqlBinlogTaskContext(ImportContext importContext) {
-		super(importContext);
-	}
-
-	public MysqlBinlogTaskContext() {
-		super();
-	}
-
-
-	@Override
-	protected TaskContext createTaskContext(){
-		return new MysqlBinlogTaskContext();
-	}
-
+public interface ReInitAction {
+    public void afterCall(TaskContext taskContext);
+    public void preCall(TaskContext taskContext);
 
 }

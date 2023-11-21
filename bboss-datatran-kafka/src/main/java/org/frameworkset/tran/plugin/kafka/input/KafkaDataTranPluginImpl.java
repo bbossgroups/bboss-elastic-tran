@@ -18,11 +18,14 @@ package org.frameworkset.tran.plugin.kafka.input;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPluginImpl;
 import org.frameworkset.tran.DestroyPolicy;
+import org.frameworkset.tran.context.DefaultReInitAction;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.context.ReInitAction;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.InitLastValueClumnName;
+import org.frameworkset.tran.util.EventListenStoppedThread;
 import org.frameworkset.tran.util.StoppedThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,49 +75,13 @@ public class KafkaDataTranPluginImpl extends DataTranPluginImpl {
 
 
 		long importStartTime = System.currentTimeMillis();
-		KafkaTaskContext taskContext = inputPlugin.isEnablePluginTaskIntercept()?new KafkaTaskContext(importContext):null;
+		TaskContext taskContext = inputPlugin.isEnablePluginTaskIntercept()?new TaskContext(importContext):null;
 		try {
 			preCall(taskContext);
 			this.doImportData(taskContext);
 			List<CallInterceptor> callInterceptors = importContext.getCallInterceptors();
 			if(callInterceptors != null && callInterceptors.size() > 0) {
-				metricsThread = new StoppedThread() {
-					@Override
-					public void run() {
-						do {
-							if (stopped) {
-								break;
-							}
-							try {
-								taskContext.reInitContext(new KafkaTaskContext.ReInitAction(){
-
-									@Override
-									public void afterCall(TaskContext taskContext) {
-										KafkaDataTranPluginImpl.this.afterCall(taskContext);
-									}
-
-									@Override
-									public void preCall(TaskContext taskContext) {
-										KafkaDataTranPluginImpl.this.preCall(taskContext);
-									}
-								});
-
-							} catch (Exception e) {
-								logger.error("KafkaDataTranPlugin-MetricsThread  afterCall Exception", e);
-							}
-							if (stopped) {
-								break;
-							}
-							try {
-								sleep(metricsInterval);
-							} catch (InterruptedException e) {
-								logger.error("KafkaDataTranPlugin-MetricsThread  InterruptedException", e);
-								break;
-							}
-
-						} while (true);
-					}
-				};
+				metricsThread = new EventListenStoppedThread(taskContext,this,metricsInterval);
 				metricsThread.setName("KafkaDataTranPlugin-MetricsThread");
 				metricsThread.setDaemon(true);
 				metricsThread.start();

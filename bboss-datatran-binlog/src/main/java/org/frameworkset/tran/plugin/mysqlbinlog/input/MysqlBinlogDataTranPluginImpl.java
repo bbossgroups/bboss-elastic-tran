@@ -18,14 +18,13 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
 import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.*;
-import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.context.ContextImpl;
-import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.context.*;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.status.BaseStatusManager;
 import org.frameworkset.tran.status.InitLastValueClumnName;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.status.SetLastValueType;
+import org.frameworkset.tran.util.EventListenStoppedThread;
 import org.frameworkset.tran.util.StoppedThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,49 +125,13 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
 
 
 		long importStartTime = System.currentTimeMillis();
-        MysqlBinlogTaskContext taskContext = inputPlugin.isEnablePluginTaskIntercept()?new MysqlBinlogTaskContext(importContext):null;
+        TaskContext taskContext = inputPlugin.isEnablePluginTaskIntercept()?new TaskContext(importContext):null;
 		try {
 			preCall(taskContext);
 			this.doImportData(taskContext);
 			List<CallInterceptor> callInterceptors = importContext.getCallInterceptors();
 			if(callInterceptors != null && callInterceptors.size() > 0) {
-				metricsThread = new StoppedThread() {
-					@Override
-					public void run() {
-						do {
-							if (stopped) {
-								break;
-							}
-							try {
-								taskContext.reInitContext(new MysqlBinlogTaskContext.ReInitAction(){
-
-									@Override
-									public void afterCall(TaskContext taskContext) {
-                                        MysqlBinlogDataTranPluginImpl.this.afterCall(taskContext);
-									}
-
-									@Override
-									public void preCall(TaskContext taskContext) {
-                                        MysqlBinlogDataTranPluginImpl.this.preCall(taskContext);
-									}
-								});
-
-							} catch (Exception e) {
-								logger.error("MysqlBinlogDataTranPlugin-MetricsThread  afterCall Exception", e);
-							}
-							if (stopped) {
-								break;
-							}
-							try {
-								sleep(metricsInterval);
-							} catch (InterruptedException e) {
-								logger.error("MysqlBinlogDataTranPlugin-MetricsThread  InterruptedException", e);
-								break;
-							}
-
-						} while (true);
-					}
-				};
+				metricsThread = new EventListenStoppedThread(taskContext,this,metricsInterval);
 				metricsThread.setName("MysqlBinlogDataTranPlugin-MetricsThread");
 				metricsThread.setDaemon(true);
 				metricsThread.start();

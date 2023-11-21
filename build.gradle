@@ -91,16 +91,12 @@ configure(subprojects) { subproject ->
 
 }
 //,project(":bboss-elasticsearch-rest-file")
-configure([project(":bboss-datatran-jdbc"),project(":bboss-elasticsearch-rest-jdbc"),project(":bboss-datatran-geoip"),project(":bboss-datatran-metrics"),
-		   project(":bboss-elasticsearch-rest-mongodb"),
+configure([project(":bboss-datatran-jdbc"),
+		   project(":bboss-datatran-geoip"),
+		   project(":bboss-datatran-metrics"),
 		   project(":bboss-datatran-kafka"),
 		   project(":bboss-datatran-kafka1x"),
 		   project(":bboss-datatran-kafka2x"),
-		   project(":bboss-elasticsearch-rest-kafka1x"),
-		   project(":bboss-elasticsearch-rest-kafka2x"),
-		   project(":bboss-elasticsearch-rest-hbase"),
-		   project(":bboss-elasticsearch-rest-file2ftp"),
-		   project(":bboss-elasticsearch-rest-file"),
 		   project(":bboss-datatran-core"),
 		   project(":bboss-datatran-fileftp"),
 		   project(":bboss-datatran-hbase"),
@@ -108,7 +104,6 @@ configure([project(":bboss-datatran-jdbc"),project(":bboss-elasticsearch-rest-jd
 		   project(":bboss-datatran-schedule-quartz"),
 		   project(":bboss-datatran-schedule-xxljob"),
 		   project(":bboss-datatran-binlog")
-
 ]) { subproject ->
 
 

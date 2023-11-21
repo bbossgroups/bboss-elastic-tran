@@ -1,6 +1,6 @@
-package org.frameworkset.tran.plugin.mongocdc;
+package org.frameworkset.tran.context;
 /**
- * Copyright 2022 bboss
+ * Copyright 2023 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,29 @@ package org.frameworkset.tran.plugin.mongocdc;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.cdc.CDCTaskContext;
-import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2020</p>
- * @Date 2022/12/19
+ *
  * @author biaoping.yin
- * @version 1.0
+ * @Date 2023/11/21
  */
-public class MongoCDCTaskContext extends CDCTaskContext {
-	public MongoCDCTaskContext(ImportContext importContext) {
-		super(importContext);
-	}
+public class DefaultReInitAction implements ReInitAction{
+    private DataTranPlugin dataTranPlugin;
+    public DefaultReInitAction(DataTranPlugin dataTranPlugin){
+        this.dataTranPlugin = dataTranPlugin;
+    }
 
-	public MongoCDCTaskContext() {
-		super();
-	}
+    @Override
+    public void afterCall(TaskContext taskContext) {
+        dataTranPlugin.afterCall(taskContext);
+    }
 
-	@Override
-	protected TaskContext createTaskContext(){
-		return new MongoCDCTaskContext();
-	}
-
-
+    @Override
+    public void preCall(TaskContext taskContext) {
+        dataTranPlugin.preCall(taskContext);
+    }
 }

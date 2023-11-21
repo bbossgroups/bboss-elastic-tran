@@ -17,14 +17,13 @@ package org.frameworkset.tran.plugin.mongocdc;
 
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.*;
-import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.context.ContextImpl;
-import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.context.*;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.status.BaseStatusManager;
 import org.frameworkset.tran.status.InitLastValueClumnName;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.status.SetLastValueType;
+import org.frameworkset.tran.util.EventListenStoppedThread;
 import org.frameworkset.tran.util.StoppedThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,49 +128,13 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
 
 
 		long importStartTime = System.currentTimeMillis();
-        MongoCDCTaskContext taskContext = inputPlugin.isEnablePluginTaskIntercept()?new MongoCDCTaskContext(importContext):null;
+        TaskContext taskContext = inputPlugin.isEnablePluginTaskIntercept()?new TaskContext(importContext):null;
 		try {
 			preCall(taskContext);
 			this.doImportData(taskContext);
 			List<CallInterceptor> callInterceptors = importContext.getCallInterceptors();
 			if(callInterceptors != null && callInterceptors.size() > 0) {
-				metricsThread = new StoppedThread() {
-					@Override
-					public void run() {
-						do {
-							if (stopped) {
-								break;
-							}
-							try {
-								taskContext.reInitContext(new MongoCDCTaskContext.ReInitAction(){
-
-									@Override
-									public void afterCall(TaskContext taskContext) {
-                                        MongoCDCDataTranPluginImpl.this.afterCall(taskContext);
-									}
-
-									@Override
-									public void preCall(TaskContext taskContext) {
-                                        MongoCDCDataTranPluginImpl.this.preCall(taskContext);
-									}
-								});
-
-							} catch (Exception e) {
-								logger.error("MongoDBCDCDataTranPlugin-MetricsThread  afterCall Exception", e);
-							}
-							if (stopped) {
-								break;
-							}
-							try {
-								sleep(metricsInterval);
-							} catch (InterruptedException e) {
-								logger.error("MongoDBCDCDataTranPlugin-MetricsThread  InterruptedException", e);
-								break;
-							}
-
-						} while (true);
-					}
-				};
+				metricsThread = new EventListenStoppedThread(taskContext,this,metricsInterval);
 				metricsThread.setName("MongoDBCDCDataTranPlugin-MetricsThread");
 				metricsThread.setDaemon(true);
 				metricsThread.start();
