@@ -4,6 +4,7 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.context.TaskContextReinitCallback;
 import org.frameworkset.tran.input.file.GenFileInfo;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
@@ -40,6 +41,12 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	protected String taskInfo ;
 
 
+    private Object resetFileSeqLock = new Object(); 
+    public void resetFileSeq(){
+        synchronized (resetFileSeqLock) {
+            fileSeq = 1;
+        }
+    }
 	protected String[] generateFileName(){
 		String[] fileInfo = null;
         String oldName = null;
@@ -57,7 +64,9 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 			String fileName = SimpleStringUtil.getPath(path, name);
 			String remoteFileName = !fileOutputConfig.isDisableftp() ? SimpleStringUtil.getPath(fileOutputConfig.getRemoteFileDir(), name) : null;
-			fileSeq++;
+            synchronized (resetFileSeqLock) {
+                fileSeq++;
+            }
 			File file = new File(fileName);
 			if(!file.exists()){
 				fileInfo = new String[]{name,fileName,remoteFileName};
@@ -258,6 +267,12 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	}
 	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,Status currentStatus) {
 		super(taskContext,jdbcResultSet,importContext,   currentStatus);
+        taskContext.setTaskContextReinitCallback(new TaskContextReinitCallback() {
+            @Override
+            public void taskContextReinitCallback(TaskContext taskContext) {
+                resetFileSeq();
+            }
+        });
 		fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
 		taskInfo = "Import data to file";
 	}
@@ -265,6 +280,12 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  JobCountDownLatch countDownLatch,Status currentStatus) {
 		super(taskContext,jdbcResultSet,importContext,   currentStatus);
+        taskContext.setTaskContextReinitCallback(new TaskContextReinitCallback() {
+            @Override
+            public void taskContextReinitCallback(TaskContext taskContext) {
+                resetFileSeq();
+            }
+        });
 		this.countDownLatch = countDownLatch;
 		fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
 		taskInfo = "Import data to file";

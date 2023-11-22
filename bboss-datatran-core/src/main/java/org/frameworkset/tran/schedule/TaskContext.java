@@ -20,6 +20,7 @@ import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.context.ReInitAction;
+import org.frameworkset.tran.context.TaskContextReinitCallback;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
@@ -52,7 +53,13 @@ public class TaskContext {
 	private TranSQLInfo targetUpdateSqlInfo;
 	private TranSQLInfo targetDeleteSqlInfo;
 	private ImportContext importContext;
-	/**
+    private TaskContextReinitCallback taskContextReinitCallback;
+
+    public void setTaskContextReinitCallback(TaskContextReinitCallback taskContextReinitCallback) {
+        this.taskContextReinitCallback = taskContextReinitCallback;
+    }
+
+    /**
 	 * 获取任务级别数据库配置
 	 */
 	public DBOutputConfig getDbmportConfig() {
@@ -76,6 +83,18 @@ public class TaskContext {
             reInitAction.afterCall(taskContextCopy);
             initContext();
             reInitAction.preCall(this);
+            if(taskContextReinitCallback != null) {
+                try {
+                    taskContextReinitCallback.taskContextReinitCallback(this);
+                }
+                catch (Exception e){
+                    logger.warn("TaskContextReinitCallback.taskContextReinitCallback failed:",e);
+                }
+                catch (Throwable e){
+                    logger.warn("TaskContextReinitCallback.taskContextReinitCallback failed:",e);
+                }
+            }
+            
         }
     }
 	public void initContext(){
