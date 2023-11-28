@@ -27,8 +27,13 @@ sourceSets {
 
 dependencies {
 	api project(':bboss-datatran-schedule-quartz')
-	api 'com.hierynomus:sshj:0.35.0'
+    api  (
+            [group: 'com.hierynomus', name: 'sshj', version: '0.37.0', transitive: true]
 
+    ){
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+//    api group: 'com.hierynomus', name: 'sshj', version: '0.37.0', transitive: true
 	api group: 'commons-net', name: 'commons-net', version: '3.9.0', transitive: true
 
 	api 'org.apache.poi:poi:5.2.3'
