@@ -703,7 +703,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
             temConf.setMaxIdleTime(dbConfig.getMaxIdleTime());
             temConf.setMaxWait(dbConfig.getMaxWait());
             temConf.setConnectionProperties(dbConfig.getConnectionProperties());
-
+            temConf.setEnableBalance(dbConfig.isEnableBalance());
+            temConf.setBalance(dbConfig.getBalance());
             boolean ret = SQLManager.startPool(temConf);
 			if(ret){
 				dbStartResult.addDBStartResult(temConf.getPoolname());

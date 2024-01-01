@@ -17,6 +17,7 @@ package org.frameworkset.tran.status;
 
 import com.frameworkset.common.poolman.SQLExecutor;
 import com.frameworkset.common.poolman.util.DBConf;
+import com.frameworkset.common.poolman.util.SQLManager;
 import com.frameworkset.common.poolman.util.SQLUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.DBConfig;
@@ -461,7 +462,9 @@ public abstract class BaseStatusManager implements StatusManager {
 						tempConf.setQueryfetchsize(null);
 						tempConf.setDbInfoEncryptClass(statusDBConfig.getDbInfoEncryptClass());
                         tempConf.setConnectionProperties(statusDBConfig.getConnectionProperties());
-						boolean ret = SQLUtil.startPoolWithDBConf(tempConf);
+                        tempConf.setEnableBalance(statusDBConfig.isEnableBalance());
+                        tempConf.setBalance(statusDBConfig.getBalance());
+						boolean ret = SQLManager.startPool(tempConf);
 //						JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
 						if(!ret){
 //							throw new DataImportException("status_datasource["+statusDbname+"] not started.");
@@ -692,7 +695,7 @@ public abstract class BaseStatusManager implements StatusManager {
 			tempConf.setShowsql(false);
 			tempConf.setEncryptdbinfo(false);
 			tempConf.setQueryfetchsize(null);
-			boolean ret = SQLUtil.startPoolWithDBConf(tempConf);
+			boolean ret = SQLManager.startPool(tempConf);
 //			JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
 			if(!ret ){
 //				throw new DataImportException("status_datasource["+statusDbname+"] not started.");

@@ -310,6 +310,93 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 		return this;
 	}
 
+ 
+    /**
+     * 1. 为Clickhouse数据源增加负载均衡机制，解决Clickhouse-native-jdbc驱动只有容灾功能而没有负载均衡功能的缺陷，使用方法如下：
+     * 在jdbc url地址后面增加b.balance和b.enableBalance参数
+     * jdbc:clickhouse://101.13.6.4:29000,101.13.6.7:29000,101.13.6.6:29000/visualops?b.balance=roundbin&b.enableBalance=true
+     * <p>
+     * b.enableBalance为true时启用负载均衡机制，并具备原有容灾功能，否则只具备容灾功能
+     * b.balance 指定负载均衡算法，目前支持random（随机算法，不公平机制）和roundbin(轮询算法，公平机制)两种算法，默认random算法
+     * <p>
+     * 另外也可以在DBConf上进行设置，例如：
+     * BConf tempConf = new DBConf();
+     *         tempConf.setPoolname(ds.getDbname());
+     *         tempConf.setDriver(ds.getDbdriver());
+     *         tempConf.setJdbcurl( ds.getDburl());
+     *         tempConf.setUsername(ds.getDbuser());
+     *         tempConf.setPassword(ds.getDbpassword());
+     *         tempConf.setValidationQuery(ds.getValidationQuery());
+     *         //tempConf.setTxIsolationLevel("READ_COMMITTED");
+     *         tempConf.setJndiName("jndi-"+ds.getDbname());
+     *         PropertiesContainer propertiesContainer = PropertiesUtil.getPropertiesContainer();
+     *         int initialConnections = propertiesContainer.getIntProperty("initialConnections",5);
+     *         tempConf.setInitialConnections(initialConnections);
+     *         int minimumSize = propertiesContainer.getIntProperty("minimumSize",5);
+     *         tempConf.setMinimumSize(minimumSize);
+     *         int maximumSize = propertiesContainer.getIntProperty("maximumSize",10);
+     *         tempConf.setMaximumSize(maximumSize);
+     *         tempConf.setUsepool(true);
+     *         tempConf.setExternal(false);
+     *         tempConf.setEncryptdbinfo(false);
+     *         boolean showsql = propertiesContainer.getBooleanProperty("showsql",true);
+     *         tempConf.setShowsql(showsql);
+     *         tempConf.setQueryfetchsize(null);
+     *         tempConf.setEnableBalance(true);
+     *         tempConf.setBalance(DBConf.BALANCE_RANDOM);
+     *         return SQLManager.startPool(tempConf);
+     *
+     * @param balance
+     * @return
+     */
+    public DBInputConfig setBalance(String balance) {
+        _setBalance(balance);
+        return this;
+    }
 
+
+
+    /**
+     * 1. 为Clickhouse数据源增加负载均衡机制，解决Clickhouse-native-jdbc驱动只有容灾功能而没有负载均衡功能的缺陷，使用方法如下：
+     * 在jdbc url地址后面增加b.balance和b.enableBalance参数
+     * jdbc:clickhouse://101.13.6.4:29000,101.13.6.7:29000,101.13.6.6:29000/visualops?b.balance=roundbin&b.enableBalance=true
+     * <p>
+     * b.enableBalance为true时启用负载均衡机制，并具备原有容灾功能，否则只具备容灾功能
+     * b.balance 指定负载均衡算法，目前支持random（随机算法，不公平机制）和roundbin(轮询算法，公平机制)两种算法，默认random算法
+     * <p>
+     * 另外也可以在DBConf上进行设置，例如：
+     * BConf tempConf = new DBConf();
+     *         tempConf.setPoolname(ds.getDbname());
+     *         tempConf.setDriver(ds.getDbdriver());
+     *         tempConf.setJdbcurl( ds.getDburl());
+     *         tempConf.setUsername(ds.getDbuser());
+     *         tempConf.setPassword(ds.getDbpassword());
+     *         tempConf.setValidationQuery(ds.getValidationQuery());
+     *         //tempConf.setTxIsolationLevel("READ_COMMITTED");
+     *         tempConf.setJndiName("jndi-"+ds.getDbname());
+     *         PropertiesContainer propertiesContainer = PropertiesUtil.getPropertiesContainer();
+     *         int initialConnections = propertiesContainer.getIntProperty("initialConnections",5);
+     *         tempConf.setInitialConnections(initialConnections);
+     *         int minimumSize = propertiesContainer.getIntProperty("minimumSize",5);
+     *         tempConf.setMinimumSize(minimumSize);
+     *         int maximumSize = propertiesContainer.getIntProperty("maximumSize",10);
+     *         tempConf.setMaximumSize(maximumSize);
+     *         tempConf.setUsepool(true);
+     *         tempConf.setExternal(false);
+     *         tempConf.setEncryptdbinfo(false);
+     *         boolean showsql = propertiesContainer.getBooleanProperty("showsql",true);
+     *         tempConf.setShowsql(showsql);
+     *         tempConf.setQueryfetchsize(null);
+     *         tempConf.setEnableBalance(true);
+     *         tempConf.setBalance(DBConf.BALANCE_RANDOM);
+     *         return SQLManager.startPool(tempConf);
+     *
+     * @param enableBalance
+     * @return
+     */
+    public DBInputConfig setEnableBalance(boolean enableBalance) {
+        _setEnableBalance(enableBalance);
+        return this;
+    }
 
 }
