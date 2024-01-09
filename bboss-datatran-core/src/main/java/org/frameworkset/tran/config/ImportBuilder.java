@@ -74,6 +74,13 @@ public class ImportBuilder {
 	private Integer fetchSize = 5000;
 	private String jobName;
 	private String jobId;
+    /**
+     * 设置增量状态ID生成策略，在设置jobId的情况下起作用
+     * STATUSID_POLICY_JOBID 采用jobType+jobId作为增量状态id
+     * STATUSID_POLICY_JOBID_QUERYSTATEMENT 采用jobType+jobId+作业查询语句hashcode或者文件名称，作为增量id作为增量状态id
+     * 默认值STATUSID_POLICY_JOBID_QUERYSTATEMENT 
+     */
+    private Integer statusIdPolicy ;
 	private List<ETLMetrics> metrics;
 	/**
 	 * 指标时间维度字段，不是设置默认采用当前时间，否则采用字段对应的时间值
@@ -1280,7 +1287,7 @@ public class ImportBuilder {
 		baseImportConfig.setImportEndAction(importEndAction);
 		baseImportConfig.setUseJavaName(false);
         baseImportConfig.setJobClosedListener(handleJobClosedListener());
-
+        baseImportConfig.setStatusIdPolicy(this.statusIdPolicy);
 		initMetrics(  baseImportConfig);
 
 		baseImportConfig.setJobInputParams(this.jobInputParams);
@@ -1831,6 +1838,20 @@ public class ImportBuilder {
 
     public ImportBuilder setTimeWindowType(Integer timeWindowType) {
         this.timeWindowType = timeWindowType;
+        return this;
+    }
+
+    public Integer getStatusIdPolicy() {
+        return statusIdPolicy;
+    }
+    /**
+     * 设置增量状态ID生成策略，在设置jobId的情况下起作用
+     * STATUSID_POLICY_JOBID 采用jobType+jobId作为增量状态id
+     * STATUSID_POLICY_JOBID_QUERYSTATEMENT 采用jobType+jobId+作业查询语句hashcode或者文件名称，作为增量id作为增量状态id
+     * 默认值STATUSID_POLICY_JOBID_QUERYSTATEMENT 
+     */
+    public ImportBuilder setStatusIdPolicy(Integer statusIdPolicy) {
+        this.statusIdPolicy = statusIdPolicy;
         return this;
     }
 }

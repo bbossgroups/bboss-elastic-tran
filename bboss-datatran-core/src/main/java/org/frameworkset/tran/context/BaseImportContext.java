@@ -280,13 +280,23 @@ public  class BaseImportContext implements ImportContext {
 		String jobId = this.getJobId();
 		String jobType = this.getJobType();
 		if(jobId != null) {
-			return jobType+"-"+jobId+"-"+hashCode;
+            Integer statusIdPolicy = this.getStatusIdPolicy();
+            if(statusIdPolicy != null && statusIdPolicy == ImportIncreamentConfig.STATUSID_POLICY_JOBID) {
+                return jobType + "-" + jobId;
+            }
+            else{
+                return jobType + "-" + jobId + "-" + hashCode;
+            }
 		}
 		else{
 			return jobType+"-"+hashCode;
 		}
 
 	}
+    @Override
+    public Integer getStatusIdPolicy() {
+        return getInputConfig().getStatusIdPolicy(this);        
+    }
 
 	public DataRefactor getDataRefactor(){
 		return baseImportConfig.getDataRefactor();

@@ -22,6 +22,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.frameworkset.tran.schedule.ImportIncreamentConfig.STATUSID_POLICY_JOBID_QUERYSTATEMENT;
+
 /**
  * @author xutengfei,yin-bp@163.com
  * @description
@@ -499,5 +501,15 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
             throw new DataImportException("scanOldRegistRecordInterval must > 0");
         this.scanOldRegistRecordInterval = scanOldRegistRecordInterval;
         return this;
+    }
+    /**
+     * 设置增量状态ID生成策略，在设置jobId的情况下起作用
+     * STATUSID_POLICY_JOBID 采用jobType+jobId作为增量状态id
+     * STATUSID_POLICY_JOBID_QUERYSTATEMENT 采用jobType+jobId+作业查询语句hashcode或者文件名称，作为增量id作为增量状态id
+     * 默认值STATUSID_POLICY_JOBID_QUERYSTATEMENT 
+     */
+    @Override
+    public Integer getStatusIdPolicy(ImportContext importContext) {
+        return STATUSID_POLICY_JOBID_QUERYSTATEMENT;
     }
 }

@@ -51,6 +51,7 @@ public interface ImportContext {
     public Map<String, DynamicParam> getJobDynamicInputParams() ;
 	public Map<String, DynamicParam> getJobDynamicOutputParams();
 	public Map getJobOutputParams();
+    public Integer getStatusIdPolicy() ;
     public JobClosedListener getJobClosedListener();
     /**
      * 输入参数组，将输入参数和输入动态参数组装为一个参数组添加到参数组集合中，添加完成后重置输入参数和输入动态参数，为增加新的参数组做准备

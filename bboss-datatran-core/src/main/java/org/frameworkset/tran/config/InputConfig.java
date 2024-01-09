@@ -37,5 +37,20 @@ public interface InputConfig {
     default boolean enableLocalDate(){
         return false;
     }
+    /**
+     * 设置增量状态ID生成策略，在设置jobId的情况下起作用
+     * STATUSID_POLICY_JOBID 采用jobType+jobId作为增量状态id
+     * STATUSID_POLICY_JOBID_QUERYSTATEMENT 采用jobType+jobId+作业查询语句hashcode或者文件名称，作为增量id作为增量状态id
+     * 默认值STATUSID_POLICY_JOBID_QUERYSTATEMENT 
+     */
+    default Integer getStatusIdPolicy(ImportContext importContext) {
+//        if(importContext.getStatusIdPolicy() != null)
+//            return baseImportConfig.getStatusIdPolicy();
+//        else {
+//            return getInputConfig().getStatusIdPolicy();
+//        }
+        return importContext.getImportConfig().getStatusIdPolicy();
+    }
+     
 
 }

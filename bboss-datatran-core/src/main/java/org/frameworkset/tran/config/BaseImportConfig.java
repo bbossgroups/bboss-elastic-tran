@@ -51,6 +51,13 @@ public class BaseImportConfig {
 	private boolean sortLastValue ;
 	private List<ETLMetrics> metrics;
 	private boolean useDefaultMapData = false;
+    /**
+     * 设置增量状态ID生成策略，在设置jobId的情况下起作用
+     * STATUSID_POLICY_JOBID 采用jobType+jobId作为增量状态id
+     * STATUSID_POLICY_JOBID_QUERYSTATEMENT 采用jobType+jobId+作业查询语句hashcode或者文件名称，作为增量id作为增量状态id
+     * 默认值STATUSID_POLICY_JOBID_QUERYSTATEMENT 
+     */
+    private Integer statusIdPolicy = null;
 
 
     private Integer timeWindowType;
@@ -996,5 +1003,18 @@ public class BaseImportConfig {
 
     public void setTimeWindowType(Integer timeWindowType) {
         this.timeWindowType = timeWindowType;
+    }
+
+    public Integer getStatusIdPolicy() {
+        return statusIdPolicy;
+    }
+    /**
+     * 设置增量状态ID生成策略，在设置jobId的情况下起作用
+     * STATUSID_POLICY_JOBID 采用jobType+jobId作为增量状态id
+     * STATUSID_POLICY_JOBID_QUERYSTATEMENT 采用jobType+jobId+作业查询语句hashcode或者文件名称，作为增量id作为增量状态id
+     * 默认值STATUSID_POLICY_JOBID_QUERYSTATEMENT 
+     */
+    public void setStatusIdPolicy(Integer statusIdPolicy) {
+        this.statusIdPolicy = statusIdPolicy;
     }
 }
