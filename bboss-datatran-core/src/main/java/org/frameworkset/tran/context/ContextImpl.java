@@ -29,7 +29,11 @@ import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
+import org.frameworkset.util.ClassUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -46,6 +50,7 @@ import java.util.*;
  * @version 1.0
  */
 public class ContextImpl implements Context {
+    private static Logger logger = LoggerFactory.getLogger(ContextImpl.class);
 	private TableMapping tableMapping;
 	private String recordKeyField;
 	protected List<FieldMeta> fieldValues ;
@@ -237,8 +242,78 @@ public class ContextImpl implements Context {
 		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
+    @Override
+    public Context addFieldValues(Object bean){
+        return addFieldValues(bean,true);
+    }
+    @Override
+    public Context addFieldValues(Object bean,boolean ignoreNullField) {
+        if(bean == null){
+            return this;
+        }
+        if(bean instanceof Map){
+            return addMapFieldValues((Map<String,Object>)bean);
+        }
+        ClassUtil.ClassInfo beanInfo = ClassUtil.getClassInfo(bean.getClass());
+        List<ClassUtil.PropertieDescription> attributes = beanInfo.getPropertyDescriptors();
+        Object value = null;
+        String name = null;
+        for(int i = 0; attributes != null && i < attributes.size();i ++ ) {
+            ClassUtil.PropertieDescription property = attributes.get(i);
+            if(property.canread()) {
 
-	@Override
+                try {
+                    value = property.getValue(bean);
+                    name = property.getName();
+                    if(value != null || !ignoreNullField) {
+                        addFieldValue(name, value);
+                    }                    
+                } catch (InvocationTargetException e1) {
+                    logger.error("获取属性[" + beanInfo.getName() + "." + property.getName() + "]值失败：", e1.getTargetException());
+                    
+                } catch (Exception e1) {
+                    logger.error("获取属性[" + beanInfo.getName() + "." + property.getName() + "]值失败：", e1);
+                   
+                }
+               
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public Context addMapFieldValues(Map<String, Object> values) {
+        
+        return addMapFieldValues(  values,true);
+    }
+
+    /**
+     * 将map中的所有键值对作为字段添加到记录中
+     *  根据参数ignoreNullField控制是否忽略空值字段 true 忽略  false 不忽略
+     * @param values
+     * @param ignoreNullField
+     * @return
+     */
+    @Override
+    public Context addMapFieldValues( Map<String,Object> values,boolean ignoreNullField){
+        if(values == null || values.size() == 0){
+            return this;
+        }
+        Iterator<Map.Entry<String, Object>> iterator = values.entrySet().iterator();
+        Object value = null;
+        String name = null;
+        while (iterator.hasNext()){
+            Map.Entry<String, Object> entry = iterator.next();
+            name = entry.getKey();
+            value = entry.getValue();
+            if(value != null || !ignoreNullField) {
+                addFieldValue(name, value);
+            }
+        }
+        return this;
+    }
+
+    @Override
 	public Context addFieldValue(String fieldName, String dateFormat, Object value) {
 		if(this.fieldValues == null) {
 			fieldValues = new ArrayList<FieldMeta>();

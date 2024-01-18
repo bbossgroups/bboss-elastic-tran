@@ -31,6 +31,6 @@ dependencies {
 			[group: 'com.bbossgroups.plugins', name: 'bboss-elasticsearch-rest-booter', version: "${bboss_es_version}", transitive: true],
 			[group: 'com.bbossgroups.plugins', name: 'bboss-elasticsearch-rest', version: "${bboss_es_version}", transitive: true],
 			[group: "com.maxmind.db", name: "maxmind-db", version: "2.1.0",transitive: false],
-			[group: "com.maxmind.geoip2", name: "geoip2", version: "2.16.1",transitive: false]
+			[group: "com.maxmind.geoip2", name: "geoip2", version: "2.17.0",transitive: false]
 	)
 }

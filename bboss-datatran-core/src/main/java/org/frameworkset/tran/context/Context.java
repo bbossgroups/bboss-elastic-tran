@@ -125,14 +125,82 @@ public interface Context {
 	 * @return
 	 */
 	public Object getResultSetValue(String fieldName);
+
+    /**
+     * 往记录中添加字段和对应的值
+     * @param fieldName
+     * @param value
+     * @return
+     */
 	Context addFieldValue(String fieldName, Object value);
+
+    /**
+     * 将对象中的所有字段和值作为字段添加到记录中，忽略空值字段
+     * @param bean
+     * @return
+     */
+    Context addFieldValues( Object bean);
+
+    /**
+     * 将对象中的所有字段和值作为字段添加到记录中
+     * 根据参数ignoreNullField控制是否忽略空值字段 true 忽略  false 不忽略
+     * @param bean
+     * @param ignoreNullField
+     * @return
+     */
+    Context addFieldValues(Object bean,boolean ignoreNullField);
+
+    /**
+     * 将map中的所有键值对作为字段添加到记录中，忽略空值字段
+     * @param values
+     * @return
+     */
+    Context addMapFieldValues( Map<String,Object> values);
+
+    /**
+     * 将map中的所有键值对作为字段添加到记录中
+     *  根据参数ignoreNullField控制是否忽略空值字段 true 忽略  false 不忽略
+     * @param values
+     * @param ignoreNullField
+     * @return
+     */
+    Context addMapFieldValues( Map<String,Object> values,boolean ignoreNullField);
+
+    /**
+     * 往记录中添加日期类型字段和对应的值，并指定对应的日期格式
+     * @param fieldName
+     * @param dateFormat
+     * @param value
+     * @return
+     */
 	Context addFieldValue(String fieldName, String dateFormat, Object value);
+
+    /**
+     * 往记录中添加日期类型字段和对应的值，并指定对应的日期格式、时区、本地化编码
+     * @param fieldName
+     * @param dateFormat
+     * @param value
+     * @param locale
+     * @param timeZone
+     * @return
+     */
 	Context addFieldValue(String fieldName, String dateFormat, Object value, String locale, String timeZone);
+
+    /**
+     * 忽略记录中的字段
+     * @param dbColumnName
+     * @return
+     */
 	Context addIgnoreFieldMapping(String dbColumnName);
 	ESIndexWrapper getESIndexWrapper();
 	Object getVersion() throws Exception;
 //	public Object getEsVersionType();
 	void refactorData() throws Exception;
+
+    /**
+     * 获取记录元数据信息
+     * @return
+     */
 	TranMeta getMetaData();
 	DateFormat getDateFormat();
 	Boolean getUseJavaName();
@@ -196,7 +264,20 @@ public interface Context {
 	 * @param drop
 	 */
 	void setDrop(boolean drop);
+
+    /**
+     * 获取字段值对应的ip地址信息：国家、地区、运营商、经纬度信息
+     * @param fieldName
+     * @return
+     * @throws Exception
+     */
 	IpInfo getIpInfo(String fieldName) throws Exception;
+
+    /**
+     * 将ip地址转换为ip地址信息：国家、地区、运营商、经纬度信息
+     * @param ip
+     * @return
+     */
 	IpInfo getIpInfoByIp(String ip) ;
 
 	/**

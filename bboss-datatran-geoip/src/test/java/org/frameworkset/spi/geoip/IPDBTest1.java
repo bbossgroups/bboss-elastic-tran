@@ -39,9 +39,9 @@ public class IPDBTest1 {
 		// 测试ip 221.232.245.73 湖北武汉
 		try {
 			GeoIPUtil addressUtils = new GeoIPUtil();
-			addressUtils.setAsnDatabase("d:\\geolite2\\GeoLite2-ASN.mmdb");
-			addressUtils.setDatabase("d:\\geolite2\\GeoLite2-City.mmdb");
-			addressUtils.setIp2regionDatabase("d:\\geolite2\\ip2region.db");
+			addressUtils.setAsnDatabase("C:\\data\\geolite2\\GeoLite2-ASN.mmdb");
+			addressUtils.setDatabase("C:\\data\\geolite2\\GeoLite2-City.mmdb");
+			addressUtils.setIp2regionDatabase("C:\\data\\geolite2\\ip2region.xdb");
 			addressUtils.setCachesize(2000);
 			addressUtils.init();
 			IpInfo address = addressUtils.getIpInfo("223.104.130.11");
