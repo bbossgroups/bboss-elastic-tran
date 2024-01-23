@@ -51,7 +51,7 @@ public class KafkaSendImpl {
 		kafkaProductor.init();
 		return kafkaProductor;
 	}
-	public static void send(KafkaProductor kafkaProductor,KafkaOutputConfig kafkaOutputConfig,final TaskCommand taskCommand, TaskContext taskContext, Object key, Object data) {
+	public static void send(KafkaProductor kafkaProductor,KafkaOutputConfig kafkaOutputConfig,final KafkaCommand taskCommand, TaskContext taskContext, Object key, Object data) {
 
 		Callback callback = new Callback() {
 			@Override
@@ -82,29 +82,9 @@ public class KafkaSendImpl {
 								logger.warn("",e);
 							}
 						}
-//					exportResultHandler.success(taskCommand, metadata);
 					}
 					else{
-                        /**
-						long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
-						taskMetrics.setFailedRecords(taskCommand.getDataSize());
-						taskMetrics.setRecords(taskMetrics.getFailedRecords());
-						taskMetrics.setLastValue(taskCommand.getLastValue());
-						taskMetrics.setTotalRecords(metrics[1]);
-						taskMetrics.setTotalFailedRecords(metrics[0]);
-						long ignoreTotalCount = importCount.getIgnoreTotalCount();
-						taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
-						taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
-						taskMetrics.setTaskEndTime(endTime);
-						if (importContext.getExportResultHandler() != null) {
-							try {
-								importContext.getExportResultHandler().handleException(taskCommand,new KafkaSendException(metadata,exception));
-							}
-							catch (Exception ee){
-								logger.warn("",ee);
-							}
-						}*/
-//					throw new ElasticSearchException(e);
+                     
                         TaskCall.handleException(new KafkaSendException(metadata,exception),importCount,taskMetrics,taskCommand,importContext);
 					}
 
@@ -115,12 +95,12 @@ public class KafkaSendImpl {
 			}
 		};
 
-		Future<RecordMetadata> future = kafkaProductor.send(kafkaOutputConfig.getTopic(),key,data,callback);
+		Future<RecordMetadata> future = kafkaProductor.send(taskCommand.getTopic(),key,data,callback);
 		if(!kafkaOutputConfig.isKafkaAsynSend()){
 			try {
 				future.get();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.warn("InterruptedException",e);
 			} catch (ExecutionException e) {
 				throw new DataImportException(e.getCause() != null?e.getCause():e);
 			}

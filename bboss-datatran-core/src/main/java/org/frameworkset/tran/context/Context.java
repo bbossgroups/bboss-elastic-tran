@@ -41,8 +41,13 @@ import java.util.Map;
  * @version 1.0
  */
 public interface Context {
+    public static final String KAFKA_TOPIC_KEY = "_____kafka.topic";
 
-
+    /**
+     * 设置记录级别的kafka主题
+     * @param topic
+     */
+    public void setKafkaTopic(String topic);
 	public TableMapping getTableMapping() ;
 
 	public void setTableMapping(TableMapping tableMapping) ;

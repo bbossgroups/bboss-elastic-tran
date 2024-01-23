@@ -808,4 +808,13 @@ public class ContextImpl implements Context {
 		this.recordKeyField = recordKeyField;
 	}
 
+    /**
+     * 设置记录级别的kafka主题
+     * @param topic
+     */
+    @Override
+    public void setKafkaTopic(String topic){
+        addTempData(KAFKA_TOPIC_KEY,topic);
+    }
+
 }

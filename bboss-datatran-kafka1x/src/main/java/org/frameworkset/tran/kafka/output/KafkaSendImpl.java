@@ -50,7 +50,7 @@ public class KafkaSendImpl {
 		kafkaProductor.init();
 		return kafkaProductor;
 	}
-	public static void send(KafkaProductor kafkaProductor,Kafka1OutputConfig kafka1OutputConfig,final TaskCommand taskCommand, TaskContext taskContext, Object key, Object data) {
+	public static void send(KafkaProductor kafkaProductor,Kafka1OutputConfig kafka1OutputConfig,final KafkaCommand taskCommand, TaskContext taskContext, Object key, Object data) {
 
 		Callback callback = new Callback() {
 			@Override
@@ -103,7 +103,7 @@ public class KafkaSendImpl {
 			}
 		};
 
-		Future<RecordMetadata> future = kafkaProductor.send(kafka1OutputConfig.getTopic(),key,data,callback);
+		Future<RecordMetadata> future = kafkaProductor.send(taskCommand.getTopic(),key,data,callback);
 		if(!kafka1OutputConfig.isKafkaAsynSend()){
 			try {
 				future.get();

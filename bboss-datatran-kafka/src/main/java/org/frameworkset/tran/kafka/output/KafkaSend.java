@@ -27,5 +27,5 @@ import org.frameworkset.tran.task.TaskCommand;
  * @version 1.0
  */
 public interface KafkaSend {
-	void send(  TaskCommand taskCommand,TaskContext taskContext, Object key, Object data);
+	void send(  KafkaCommand taskCommand,TaskContext taskContext, Object key, Object data);
 }

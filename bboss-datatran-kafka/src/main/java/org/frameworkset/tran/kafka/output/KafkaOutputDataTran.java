@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import static org.frameworkset.tran.context.Context.KAFKA_TOPIC_KEY;
+
 public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 	protected String taskInfo;
 
@@ -107,6 +109,20 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 			kafkaCommand.setDatas((String) datas);
 			kafkaCommand.setKey(record.getRecordKey());
             kafkaCommand.setForceFlush(forceFlush);
+            /**
+             * 从临时变量中获取记录对应的kafka主题，如果存在，就用记录级别的kafka主题，否则用全局配置的kafka主题发送数据
+             */
+            Object topic = record.getTempData(KAFKA_TOPIC_KEY);
+            if(topic != null && topic instanceof String) {
+                if(!topic.equals(""))
+                    kafkaCommand.setTopic((String) topic);
+                else{
+                    kafkaCommand.setTopic(kafkaOutputConfig.getTopic());
+                }
+            }
+            else {
+                kafkaCommand.setTopic(kafkaOutputConfig.getTopic());
+            }
 			TaskCall.asynCall(kafkaCommand);
 		}
 		return taskNo;
@@ -114,13 +130,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
 
-//		CommonRecord record = buildRecord(  context );
-//		if(record.getDatas() == null){
-//			Record dataRecord = context.getCurrentRecord();
-//			if(dataRecord instanceof CommonStringRecord) {
-//				record.setOringeData(dataRecord.getData());
-//			}
-//		}
+
 		CommonRecord dataRecord = context.getCommonRecord();
 		kafkaOutputConfig.generateReocord(context,dataRecord, writer);
 		return dataRecord;
@@ -143,32 +153,6 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 	public String batchExecute(  ){
 		return serialExecute();
 	}
-
-
-
-
-
-//	@Override
-//	public void stop(){
-//		if(asynTranResultSet != null) {
-//
-//			asynTranResultSet.stop();
-//			asynTranResultSet = null;
-//		}
-//		super.stop();
-//	}
-//	/**
-//	 * 只停止转换作业
-//	 */
-//	@Override
-//	public void stopTranOnly(){
-//		if(asynTranResultSet != null) {
-//			asynTranResultSet.stopTranOnly();
-//			asynTranResultSet = null;
-//		}
-//		super.stopTranOnly();
-//	}
-
 
 
 }

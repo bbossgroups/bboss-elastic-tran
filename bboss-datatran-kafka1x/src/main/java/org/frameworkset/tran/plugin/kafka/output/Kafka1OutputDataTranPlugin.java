@@ -20,6 +20,7 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.kafka.output.KafkaCommand;
 import org.frameworkset.tran.kafka.output.KafkaOutputDataTran;
 import org.frameworkset.tran.kafka.output.KafkaSend;
 import org.frameworkset.tran.kafka.output.KafkaSendImpl;
@@ -78,7 +79,7 @@ public class Kafka1OutputDataTranPlugin extends BasePlugin implements OutputPlug
 
 
 	@Override
-	public void send(final TaskCommand taskCommand,TaskContext taskContext, Object key, Object data) {
+	public void send(final KafkaCommand taskCommand, TaskContext taskContext, Object key, Object data) {
 		if(kafkaProductor == null){
 			synchronized (this) {
 				if(kafkaProductor == null) {

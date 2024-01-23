@@ -39,7 +39,10 @@ public class KafkaCommand  extends BaseTaskCommand {
 		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed,context);
 		kafkaOutputConfig = (KafkaOutputConfig) importContext.getOutputConfig();
 	}
-	private Object key;
+
+
+    private String topic;
+	private Object key;    
 	private Object datas;
 
 	@Override
@@ -71,4 +74,13 @@ public class KafkaCommand  extends BaseTaskCommand {
 	public void setKey(Object key) {
 		this.key = key;
 	}
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
 }
