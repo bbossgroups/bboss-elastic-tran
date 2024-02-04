@@ -18,7 +18,7 @@ package org.frameworkset.tran;
 import org.frameworkset.tran.context.Context;
 
 /**
- * <p>Description: </p>
+ * <p>Description: 加工处理数据接口</p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
  * @Date 2018/9/4 9:19
@@ -27,16 +27,9 @@ import org.frameworkset.tran.context.Context;
  */
 public interface DataRefactor {
 	/**
-	 * 额外处理数据
-	 * @param context
+	 * 加工处理数据方法
+	 * @param context 包含需要加工数据记录的上下文对象
 	 * @return
 	 */
 	public void refactor(Context context) throws Exception;
-
-//	/**
-//	 * 可以构建多个对象
-//	 * @param esjdbc
-//	 * @return
-//	 */
-//	public List<FieldMeta> refactors(ESJDBC esjdbc);
 }
