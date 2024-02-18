@@ -82,7 +82,7 @@ public class PDFFileReaderTask extends FileReaderTask {
 		InputPlugin inputPlugin = dataTranPlugin.getInputPlugin();
 		if (taskEnded || inputPlugin.isStopCollectData())
 			return;
-        FileInputStream fis = null;
+//        FileInputStream fis = null;
         PDDocument document = null;
 
         try {
@@ -90,8 +90,8 @@ public class PDFFileReaderTask extends FileReaderTask {
             List<Record> recordList = new ArrayList<Record>();
             reachEOFClosed = true;
             if(pointer > 0) {
-                fis = new FileInputStream(file);
-                document = PDDocument.load(file);
+//                fis = new FileInputStream(file);
+                document = org.apache.pdfbox.Loader.loadPDF(file);
 
 
                 result(file, pointer,   document , recordList, reachEOFClosed);
@@ -123,13 +123,13 @@ public class PDFFileReaderTask extends FileReaderTask {
 
                 }
             }
-            if(fis != null){
-                try {
-                    fis.close();
-                } catch (IOException e) {
-
-                }
-            }
+//            if(fis != null){
+//                try {
+//                    fis.close();
+//                } catch (IOException e) {
+//
+//                }
+//            }
 //			try {
 //				//需要删除采集完数据的eof文件，有必要进行优化并在回调函数中处理
 //				if (reachEOFClosed) {

@@ -35,6 +35,7 @@ dependencies {
 	){
 		exclude group: 'log4j', module: 'log4j'
 		exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+        exclude group: 'org.apache.zookeeper', module: 'zookeeper'
 	}
 
 	compileOnly ([group: 'org.apache.kafka', name: 'kafka-tools', version: "${kafka2x}", transitive: true],){
