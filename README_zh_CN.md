@@ -36,7 +36,7 @@ JDK requirement: JDK 1.8+
 
 Elasticsearch version requirements: 1.X,2.X,5.X,6.X,7.x,8.x,+
 
-Spring booter 1.x,2.x,+
+Spring booter 1.x,2.x,3.x,+
 
 # Build from source code
 First Get source code from
@@ -63,13 +63,13 @@ First add the maven dependency of BBoss to your pom.xml:
        <dependency>
             <groupId>com.bbossgroups.plugins</groupId>
             <artifactId>bboss-datatran-jdbc</artifactId>
-            <version>7.1.5</version>
+            <version>7.1.6</version>
         </dependency>
 ```
 
 # 联系我们
 
-**Elasticsearch技术交流群：21220580,166471282**
+**bboss技术交流群：21220580,166471282**
 
 <img src="https://esdoc.bbossgroups.com/images/qrcode.jpg"  height="200" width="200"><img src="https://esdoc.bbossgroups.com/images/douyin.png"  height="200" width="200"><img src="https://esdoc.bbossgroups.com/images/wvidio.png"  height="200" width="200">
 
