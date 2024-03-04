@@ -110,6 +110,8 @@ public class MongoDBInputDatatranPlugin extends BaseInputPlugin {
 
 		mongoDBConfig.setMode( mongoDBInputConfig.getMode());
 		mongoDBConfig.setConnectString(mongoDBInputConfig.getConnectString());
+
+        mongoDBConfig.setCustomSettingBuilder(mongoDBInputConfig.getCustomSettingBuilder());
 		if(MongoDBHelper.init(mongoDBConfig)){
 			mongoDBStartResult.addDBStartResult(mongoDBConfig.getName());
 		}

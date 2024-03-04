@@ -18,6 +18,7 @@ package org.frameworkset.tran;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.nosql.mongodb.ClientMongoCredential;
+import org.frameworkset.nosql.mongodb.CustomSettingBuilder;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.plugin.BaseConfig;
 
@@ -56,7 +57,7 @@ public class BaseMongoDBConfig extends BaseConfig  {
 	private String dbCollection;
 	private String db;
 
-
+    private CustomSettingBuilder customSettingBuilder;
 
 
 	public String getName() {
@@ -256,4 +257,13 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		this.connectString = connectString;
 		return this;
 	}
+
+    public CustomSettingBuilder getCustomSettingBuilder() {
+        return customSettingBuilder;
+    }
+
+    public BaseMongoDBConfig setCustomSettingBuilder(CustomSettingBuilder customSettingBuilder) {
+        this.customSettingBuilder = customSettingBuilder;
+        return this;
+    }
 }

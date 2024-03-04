@@ -84,6 +84,8 @@ public class MongoDBOutputDataTranPlugin extends BasePlugin implements OutputPlu
 		mongoDBConfig.setMode( mongoDBOutputConfig.getMode());
 
 		mongoDBConfig.setConnectString(mongoDBOutputConfig.getConnectString());
+
+        mongoDBConfig.setCustomSettingBuilder(mongoDBOutputConfig.getCustomSettingBuilder());
 		if(MongoDBHelper.init(mongoDBConfig)){
 			mongoDBStartResult.addDBStartResult(mongoDBConfig.getName());
 		}
