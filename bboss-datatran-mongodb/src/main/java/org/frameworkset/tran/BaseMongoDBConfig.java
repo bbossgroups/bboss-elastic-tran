@@ -57,6 +57,7 @@ public class BaseMongoDBConfig extends BaseConfig  {
 	private String dbCollection;
 	private String db;
 
+    @JsonIgnore
     private CustomSettingBuilder customSettingBuilder;
 
 
