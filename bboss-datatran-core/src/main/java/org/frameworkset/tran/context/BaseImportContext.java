@@ -548,24 +548,7 @@ public  class BaseImportContext implements ImportContext {
 	}
 
 
-//	public Object getValue(String columnName) throws ESDataImportException {
-//		try {
-//			return jdbcResultSet.getValue(columnName);
-//		}
-//		catch (Exception e){
-//			throw new ESDataImportException(e);
-//		}
-//	}
-//
-//	public Object getDateTimeValue(String columnName) throws ESDataImportException {
-//		try {
-//			return jdbcResultSet.getDateTimeValue(columnName);
-//		}
-//		catch (Exception e){
-//			throw new ESDataImportException(e);
-//		}
-//
-//	}
+ 
 	public void resume(){
 		this.currentStoped = false;
 	}
@@ -586,26 +569,30 @@ public  class BaseImportContext implements ImportContext {
 			return blockedExecutor;
 		synchronized (blockedExecutorLock) {
 			if(blockedExecutor == null) {
-				blockedExecutor = ThreadPoolFactory.buildThreadPool("DataTranThread","DataTranThread",
+				blockedExecutor = ThreadPoolFactory.buildThreadPool("DataTranTaskThread","DataTranTaskThread",
 						getThreadCount(),getQueue(),
 						-1l
 						,1000);
-//				blockedExecutor = new ThreadPoolExecutor(getThreadCount(), getThreadCount(),
-//						0L, TimeUnit.MILLISECONDS,
-//						new ArrayBlockingQueue<Runnable>(getQueue()),
-//						new ThreadFactory() {
-//							private AtomicInteger threadCount = new AtomicInteger(0);
-//
-//							@Override
-//							public Thread newThread(Runnable r) {
-//								int num = threadCount.incrementAndGet();
-//								return new DBESThread(r, num);
-//							}
-//						}, new BlockedTaskRejectedExecutionHandler(rejectCounts));
 			}
 		}
 		return blockedExecutor;
 	}
+
+    private ExecutorService recordHandlerExecutor;
+    private Object recordHandleExecutorLock = new Object();
+    public ExecutorService buildRecordHandlerExecutor(){
+        if(recordHandlerExecutor != null)
+            return recordHandlerExecutor;
+        synchronized (recordHandleExecutorLock) {
+            if(recordHandlerExecutor == null) {
+                recordHandlerExecutor = ThreadPoolFactory.buildThreadPool("DataTranRecordHandlerThread","DataTranRecordHandlerThread",
+                        getThreadCount(),getQueue(),
+                        -1l
+                        ,1000);
+            }
+        }
+        return blockedExecutor;
+    }
 	public Integer getStoreBatchSize(){
 		if(baseImportConfig.getScheduleBatchSize() == null){
 			return baseImportConfig.getBatchSize();

@@ -35,8 +35,8 @@ public class KafkaCommand  extends BaseTaskCommand {
 	private KafkaOutputConfig kafkaOutputConfig;
 
 	public KafkaCommand(ImportCount importCount, ImportContext importContext,
-                        long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, TaskContext context, Status currentStatus, boolean reachEOFClosed) {
-		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed,context);
+                        long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, TaskContext context, Status currentStatus) {
+		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,context);
 		kafkaOutputConfig = (KafkaOutputConfig) importContext.getOutputConfig();
 	}
 

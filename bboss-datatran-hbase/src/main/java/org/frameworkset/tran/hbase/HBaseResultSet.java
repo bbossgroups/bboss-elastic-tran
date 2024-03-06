@@ -19,6 +19,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.hbase.input.HBaseInputConfig;
 import org.frameworkset.tran.record.NextAssert;

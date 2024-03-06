@@ -17,6 +17,7 @@ package org.frameworkset.tran.record;
 
 import org.frameworkset.elasticsearch.entity.KeyMap;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;

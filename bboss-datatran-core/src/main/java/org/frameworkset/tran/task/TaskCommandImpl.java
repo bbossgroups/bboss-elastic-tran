@@ -41,8 +41,8 @@ import org.slf4j.LoggerFactory;
 public class TaskCommandImpl extends BaseTaskCommand<String,String> {
 	private ElasticsearchOutputConfig elasticsearchOutputConfig;
 	public TaskCommandImpl(ImportCount importCount, ImportContext importContext, ElasticsearchOutputConfig elasticsearchOutputConfig ,
-                           long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext,    dataSize,  taskNo,  jobNo,  lastValue,  currentStatus,reachEOFClosed,  taskContext);
+                           long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
+		super(importCount,importContext,    dataSize,  taskNo,  jobNo,  lastValue,  currentStatus,  taskContext);
 		this.elasticsearchOutputConfig = elasticsearchOutputConfig;
 	}
 

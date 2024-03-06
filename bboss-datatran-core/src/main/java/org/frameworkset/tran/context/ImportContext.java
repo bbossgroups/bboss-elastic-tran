@@ -92,7 +92,7 @@ public interface ImportContext {
 	public Long getTimeRangeLastValue();
 	public DataTranPlugin getDataTranPlugin();
 	Map getJobInputParams();
-
+    public ExecutorService buildRecordHandlerExecutor();
 	/**
 	 * 判断调度任务是否被暂停
 	 * @return

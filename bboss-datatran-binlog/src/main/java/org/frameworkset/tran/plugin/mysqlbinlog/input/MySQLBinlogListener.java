@@ -475,7 +475,7 @@ public class MySQLBinlogListener {
 
         try {
             List<MysqlBinlogRecord> datas = new ArrayList<>();
-            datas.add(new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mySQLBinlogConfig,true,true,true));
+            datas.add(new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mySQLBinlogConfig,true,true));
             this.mysqlBinlogDataTran.appendData(new CommonData(datas));
             long end = System.currentTimeMillis();
             if(!mySQLBinlogConfig.isCollectMasterHistoryBinlog())

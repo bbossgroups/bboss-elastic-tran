@@ -45,8 +45,8 @@ public class ExcelFileFtpTaskCommandImpl extends BaseTaskCommand< List<CommonRec
 
 	public ExcelFileFtpTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                        long dataSize, int taskNo, String jobNo, ExcelFileTransfer fileTransfer,
-                                       LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,  taskContext);
+                                       LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
+		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,  taskContext);
 		this.fileTransfer = fileTransfer;
 	}
 

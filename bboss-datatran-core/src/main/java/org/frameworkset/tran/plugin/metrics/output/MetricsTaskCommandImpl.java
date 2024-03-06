@@ -44,8 +44,8 @@ public class MetricsTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 	private MetricsOutputConfig metricsOutputConfig;
 	public MetricsTaskCommandImpl(ImportCount importCount, ImportContext importContext, List<CommonRecord> datas,
                                   int taskNo, String jobNo,
-                                  LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext,   datas.size(),  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,taskContext);
+                                  LastValueWrapper lastValue, Status currentStatus, TaskContext taskContext) {
+		super(importCount,importContext,   datas.size(),  taskNo,  jobNo,lastValue,  currentStatus, taskContext);
 		metricsOutputConfig = (MetricsOutputConfig) importContext.getOutputConfig();
 		this.datas = datas;
 		if(this.taskContext == null)

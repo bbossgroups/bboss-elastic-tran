@@ -135,7 +135,7 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 		parrelTranCommand = new BaseParrelTranCommand(){
 
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, 
 										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
@@ -143,11 +143,11 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
                     TaskCommand taskCommand = null;
                     if(!dbOutputConfig.isMultiSQLConf()) {
                         taskCommand = new Base2DBTaskCommandImpl(totalCount, importContext, records,
-                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus, reachEOFClosed, taskContext);
+                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus,  taskContext);
                     }
                     else{
                         taskCommand = new MultiSQLConf2DBTaskCommandImpl(totalCount, importContext, records,
-                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus, reachEOFClosed, taskContext);
+                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus,  taskContext);
                     }
                     taskCommand.setForceFlush(forceFlush);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
@@ -159,18 +159,18 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
-			private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,boolean forceFlush){
+			private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,boolean forceFlush){
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
 					taskNo++;
                     TaskCommand taskCommand = null;
                     if(!dbOutputConfig.isMultiSQLConf()) {
                         taskCommand = new Base2DBTaskCommandImpl(totalCount, importContext, records,
-                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus, reachEOFClosed, taskContext);
+                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus, taskContext);
                     }
                     else{
                         taskCommand = new MultiSQLConf2DBTaskCommandImpl(totalCount, importContext, records,
-                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus, reachEOFClosed, taskContext);
+                                taskNo, taskContext.getJobNo(), taskInfo, false, lastValue, currentStatus,  taskContext);
                     }
                     taskCommand.setForceFlush(forceFlush);
 					TaskCall.call(taskCommand);
@@ -179,13 +179,13 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 				return taskNo;
 			}
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record,boolean forceFlush) {
-				return action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed,  forceFlush);
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,  CommonRecord record,boolean forceFlush) {
+				return action(totalCount, dataSize, taskNo, lastValue, datas,   forceFlush);
 			}
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
-				taskNo = action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed,false);
+			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,  CommonRecord record) {
+				taskNo = action(totalCount, dataSize, taskNo, lastValue, datas, false);
 				return taskNo;
 
 			}

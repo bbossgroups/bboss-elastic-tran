@@ -43,8 +43,8 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String,String> {
 
 	public FileFtpTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                   long dataSize, int taskNo, String jobNo, FileTransfer fileTransfer,
-                                  LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,  taskContext);
+                                  LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
+		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
 		this.fileTransfer = fileTransfer;
 	}
 

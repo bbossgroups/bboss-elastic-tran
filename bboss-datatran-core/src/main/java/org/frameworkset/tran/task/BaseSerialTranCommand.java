@@ -34,12 +34,12 @@ public class BaseSerialTranCommand implements SerialTranCommand {
 
 	@Override
 	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue,
-                                  Object datas, boolean reachEOFClosed, CommonRecord record,boolean forceFlush) {
+                                  Object datas,  CommonRecord record,boolean forceFlush) {
 		return 0;
 	}
 
 	@Override
-	public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+	public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,  CommonRecord record) {
 		return 0;
 	}
 

@@ -149,12 +149,13 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		parrelTranCommand = new BaseParrelTranCommand(){
 
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, 
+                                          
 										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
 				if(datas != null) {
 					taskNo++;
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus, reachEOFClosed, taskContext);
+							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus, taskContext);
 					taskCommand.setDatas((String) datas);
                     taskCommand.setForceFlush(forceFlush);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
@@ -180,11 +181,11 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		serialTranCommand = new BaseSerialTranCommand() {
 			@Override
 			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,
-                                          boolean reachEOFClosed, CommonRecord record,boolean forceFlush) {
+                                          CommonRecord record,boolean forceFlush) {
 				if(datas != null) {
 					taskNo++;
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus, reachEOFClosed, taskContext);
+							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus,  taskContext);
 					taskCommand.setDatas((String) datas);
                     taskCommand.setForceFlush(forceFlush);
 					TaskCall.call(taskCommand);
@@ -194,11 +195,11 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 			}
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, CommonRecord record) {
 				if(datas != null) {
 					taskNo ++;
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(), fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+							dataSize, taskNo, taskContext.getJobNo(), fileTransfer,lastValue,  currentStatus,taskContext);
 
 					taskCommand.setDatas((String)datas);
 					TaskCall.call(taskCommand);

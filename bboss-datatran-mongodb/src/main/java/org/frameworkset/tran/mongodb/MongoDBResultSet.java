@@ -18,6 +18,7 @@ package org.frameworkset.tran.mongodb;
 import com.mongodb.client.MongoCursor;
 import org.bson.Document;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.TaskContext;

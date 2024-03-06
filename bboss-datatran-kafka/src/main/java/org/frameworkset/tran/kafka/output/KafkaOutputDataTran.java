@@ -39,8 +39,9 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 		parrelTranCommand = new BaseParrelTranCommand() {
 			@Override
 			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue,
-                                          Object datas, boolean reachEOFClosed, CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
-				return processDataSerial(  totalCount,   dataSize,   taskNo,   lastValue,   datas,   reachEOFClosed,null,  forceFlush);
+                                          Object datas,
+                                           CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
+				return processDataSerial(  totalCount,   dataSize,   taskNo,   lastValue,   datas,   null,  forceFlush);
 			}
 
 			@Override
@@ -52,15 +53,15 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record,boolean forceFlush) {
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, CommonRecord record,boolean forceFlush) {
 				return processDataSerial(  totalCount, dataSize,
-						taskNo, lastValue, datas,  reachEOFClosed,record ,  forceFlush);
+						taskNo, lastValue, datas,  record ,  forceFlush);
 			}
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
+			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,  CommonRecord record) {
 				return processDataSerial(  totalCount, dataSize,
-						taskNo, lastValue, datas,  reachEOFClosed,record,false );
+						taskNo, lastValue, datas,  record,false );
 			}
 
 
@@ -102,10 +103,10 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 
 	protected int processDataSerial(ImportCount importCount, long dataSize,
-									int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,CommonRecord record ,boolean forceFlush) {
+									int taskNo, LastValueWrapper lastValue, Object datas, CommonRecord record ,boolean forceFlush) {
 		if(datas != null) {
 			KafkaCommand kafkaCommand = new KafkaCommand(importCount, importContext,
-					dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus, reachEOFClosed);
+					dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus);
 			kafkaCommand.setDatas((String) datas);
 			kafkaCommand.setKey(record.getRecordKey());
             kafkaCommand.setForceFlush(forceFlush);

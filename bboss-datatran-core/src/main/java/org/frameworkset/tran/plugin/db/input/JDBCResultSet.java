@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin.db.input;/*
 import com.frameworkset.common.poolman.sql.PoolManResultSetMetaData;
 import com.frameworkset.orm.adapter.DB;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.TaskContext;
 

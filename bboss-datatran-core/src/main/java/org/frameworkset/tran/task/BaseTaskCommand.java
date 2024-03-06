@@ -44,7 +44,6 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	protected LastValueWrapper lastValue;
 	protected long dataSize;
 	protected long totalSize;
-	protected boolean reachEOFClosed;
 	protected Status currentStatus;
     protected boolean forceFlush;
 
@@ -119,7 +118,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 
 	public BaseTaskCommand(ImportCount importCount,
 						   ImportContext importContext,
-						   long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext){
+						   long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext){
 		this.importCount = importCount;
 		this.importContext =  importContext;
 		this.dataSize = dataSize;
@@ -131,7 +130,6 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 		taskMetrics.setJobName(importContext.getJobName());
 		this.lastValue = lastValue;
 		this.currentStatus = currentStatus;
-		this.reachEOFClosed = reachEOFClosed;
 		this.taskContext = taskContext;
 	}
 	public ImportCount getImportCount(){

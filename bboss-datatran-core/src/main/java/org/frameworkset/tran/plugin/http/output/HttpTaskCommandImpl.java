@@ -49,8 +49,8 @@ public class HttpTaskCommandImpl extends BaseTaskCommand<String,String> {
 	private HttpOutputConfig httpOutputConfig ;
 	public HttpTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                long dataSize, int taskNo, String jobNo,
-                               LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,  taskContext);
+                               LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
+		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
 		httpOutputConfig = (HttpOutputConfig) importContext.getOutputConfig();
 	}
 

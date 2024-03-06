@@ -42,8 +42,8 @@ public class CustomTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, S
 	private CustomOutputConfig customOutputConfig;
 	public CustomTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                  long dataSize, int taskNo, String jobNo,
-                                 LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,taskContext);
+                                 LastValueWrapper lastValue, Status currentStatus, TaskContext taskContext) {
+		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus, taskContext);
 		customOutputConfig = (CustomOutputConfig) importContext.getOutputConfig();
 		if(this.taskContext == null)
 			this.taskContext = new TaskContext(importContext);

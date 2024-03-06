@@ -43,10 +43,10 @@ public class Base2DBTaskCommandImpl extends MultiSQLConf2DBTaskCommandImpl {
 	private static final Logger blogger = LoggerFactory.getLogger(Base2DBTaskCommandImpl.class);
 	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                   List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
-                                  boolean needBatch, LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
+                                  boolean needBatch, LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
         super( importCount,  importContext,
                  datas,  taskNo,  jobNo,  taskInfo,
-         needBatch,  lastValue,  currentStatus,  reachEOFClosed,  taskContext);
+         needBatch,  lastValue,  currentStatus,   taskContext);
 		if(dbOutputConfig.optimize()){
 			sortData();
 		}

@@ -50,10 +50,10 @@ public class MongoDBMultiTargetTaskCommandImpl extends MongoDBTaskCommandImpl {
 	private static final Logger logger = LoggerFactory.getLogger(MongoDBMultiTargetTaskCommandImpl.class);
 	public MongoDBMultiTargetTaskCommandImpl(ImportCount importCount, ImportContext importContext,
 	                                         List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
-	                                         LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
+	                                         LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
 		super(  importCount,   importContext,
 				 datas,   taskNo,   jobNo,   taskInfo,
-				  lastValue,   currentStatus,   reachEOFClosed,   taskContext);
+				  lastValue,   currentStatus,    taskContext);
 
 	}
 

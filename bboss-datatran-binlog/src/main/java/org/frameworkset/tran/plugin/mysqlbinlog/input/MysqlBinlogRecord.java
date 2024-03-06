@@ -35,8 +35,8 @@ public class MysqlBinlogRecord extends CommonMapRecord {
     private MysqlBinLogData mysqlBinLogData;
 	public MysqlBinlogRecord(TaskContext taskContext,
                              MySQLBinlogConfig mySQLBinlogConfig,
-                             boolean removed,boolean reachEOFClosed,boolean readEOFRecord){
-		super(taskContext,(Map<String,Object>)null,  removed,   reachEOFClosed, readEOFRecord);
+                             boolean removed,boolean readEOFRecord){
+		super(taskContext,(Map<String,Object>)null,  removed,   readEOFRecord);
         this.mySQLBinlogConfig = mySQLBinlogConfig;
 	}
 

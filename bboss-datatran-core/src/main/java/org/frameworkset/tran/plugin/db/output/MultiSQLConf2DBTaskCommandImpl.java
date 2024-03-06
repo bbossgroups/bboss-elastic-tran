@@ -53,8 +53,8 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
 	private static final Logger logger = LoggerFactory.getLogger(MultiSQLConf2DBTaskCommandImpl.class);
 	public MultiSQLConf2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                           List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
-                                          boolean needBatch, LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed,   taskContext);
+                                          boolean needBatch, LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
+		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
 		this.needBatch = needBatch;
 		this.importContext = importContext;
 		this.datas = datas;

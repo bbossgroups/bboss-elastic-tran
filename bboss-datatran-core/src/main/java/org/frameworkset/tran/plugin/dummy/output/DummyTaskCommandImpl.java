@@ -37,8 +37,8 @@ public class DummyTaskCommandImpl extends BaseTaskCommand<String,String> {
 	private DummyOutputConfig dummyOutputConfig ;
 	public DummyTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                 long dataSize, int taskNo, String jobNo,
-                                LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus, reachEOFClosed,  taskContext);
+                                LastValueWrapper lastValue, Status currentStatus, TaskContext taskContext) {
+		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
 //		if(targetImportContext instanceof DummyOupputContext)
 //			dummyOupputContext = (DummyOupputContext)targetImportContext;
 		dummyOutputConfig = (DummyOutputConfig) importContext.getOutputConfig();

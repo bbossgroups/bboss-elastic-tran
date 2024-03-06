@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
 public class BaseParrelTranCommand implements ParrelTranCommand{
 
 	@Override
-	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,
+	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,
                                   CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
 		return 0;
 	}

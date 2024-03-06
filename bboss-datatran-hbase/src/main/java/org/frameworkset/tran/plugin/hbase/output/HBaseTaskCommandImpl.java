@@ -53,8 +53,8 @@ public class HBaseTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, St
 	private static final Logger logger = LoggerFactory.getLogger(HBaseTaskCommandImpl.class);
 	public HBaseTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                 List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
-                                LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed, TaskContext taskContext) {
-		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,reachEOFClosed,   taskContext);
+                                LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
+		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
 		this.importContext = importContext;
 		this.datas = datas;
 		hBaseOutputConfig = (HBaseOutputConfig) importContext.getOutputConfig();

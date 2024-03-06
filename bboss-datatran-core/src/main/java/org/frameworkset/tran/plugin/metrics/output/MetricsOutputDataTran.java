@@ -30,9 +30,9 @@ public class MetricsOutputDataTran extends AbstraCommonRecordOutPutDataTran {
 	}
 
 	@Override
-	protected TaskCommand buildTaskCommand(ImportCount totalCount, List<CommonRecord> records, int taskNo, LastValueWrapper lastValue, boolean reachEOFClosed) {
+	protected TaskCommand buildTaskCommand(ImportCount totalCount, List<CommonRecord> records, int taskNo, LastValueWrapper lastValue) {
 		return new MetricsTaskCommandImpl( totalCount, importContext, records,
-				taskNo, taskContext.getJobNo(),lastValue,  currentStatus,reachEOFClosed,taskContext);
+				taskNo, taskContext.getJobNo(),lastValue,  currentStatus, taskContext);
 
 
 

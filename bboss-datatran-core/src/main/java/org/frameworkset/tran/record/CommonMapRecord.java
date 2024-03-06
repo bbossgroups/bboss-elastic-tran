@@ -52,8 +52,21 @@ public class CommonMapRecord extends BaseRecord {
         this.offset = offset;
     }
 
+    public CommonMapRecord(TaskContext taskContext, Map<String,Object> record,boolean removed,long offset,
+
+                          boolean readEOFRecord){
+        super(taskContext,removed, readEOFRecord);
+        this.record = record;
+        this.offset = offset;
+    }
+
     public CommonMapRecord(TaskContext taskContext, Map<String,Object> record,boolean removed,boolean reachEOFClosed,boolean readEOFRecord){
         super(taskContext,removed,reachEOFClosed,  readEOFRecord);
+        this.record = record;
+    }
+
+    public CommonMapRecord(TaskContext taskContext, Map<String,Object> record,boolean removed,boolean readEOFRecord){
+        super(taskContext,removed, readEOFRecord);
         this.record = record;
     }
 

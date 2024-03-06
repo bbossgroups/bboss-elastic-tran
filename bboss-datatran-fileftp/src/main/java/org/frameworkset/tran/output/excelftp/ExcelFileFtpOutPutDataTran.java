@@ -44,13 +44,13 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 		parrelTranCommand = new BaseParrelTranCommand(){
 
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, 
 										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
 					taskNo++;
 					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+							dataSize, taskNo, taskContext.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,taskContext);
 					taskCommand.setDatas(records);
                     taskCommand.setForceFlush(forceFlush);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
@@ -71,12 +71,12 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 			}
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
-			private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed,boolean forceFlush){
+			private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean forceFlush){
 				List<CommonRecord> records = convertDatas( datas);
 				if(records != null && records.size() > 0)  {
 					taskNo++;
 					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
+							dataSize, taskNo, taskContext.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,taskContext);
 					taskCommand.setDatas(records);
                     taskCommand.setForceFlush(forceFlush);
 					TaskCall.call(taskCommand);
@@ -86,7 +86,7 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 			}
 			@Override
 			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,
-                                          boolean reachEOFClosed, CommonRecord record,boolean forceFlush) {
+                                           CommonRecord record,boolean forceFlush) {
 //				List<CommonRecord> records = convertDatas( datas);
 //				if(records != null && records.size() > 0)  {
 //					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
@@ -95,12 +95,12 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 //					TaskCall.call(taskCommand);
 //					taskNo++;
 //				}
-				return action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed,  forceFlush);
+				return action(totalCount, dataSize, taskNo, lastValue, datas, forceFlush);
 			}
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {
-				taskNo = action(totalCount, dataSize, taskNo, lastValue, datas, reachEOFClosed,false);
+			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, CommonRecord record) {
+				taskNo = action(totalCount, dataSize, taskNo, lastValue, datas, false);
 				sendFile();
 				return taskNo;
 

@@ -51,6 +51,14 @@ public abstract class BaseRecord implements Record {
         this.readEOFRecord = readEOFRecord;
     }
 
+    public BaseRecord(TaskContext taskContext,boolean removed,
+                     boolean readEOFRecord){
+        this.taskContext = taskContext;
+        this.removed = removed;
+        this.reachEOFClosed = true;
+        this.readEOFRecord = readEOFRecord;
+    }
+
 	@Override
 	public TaskContext getTaskContext() {
 		return taskContext;

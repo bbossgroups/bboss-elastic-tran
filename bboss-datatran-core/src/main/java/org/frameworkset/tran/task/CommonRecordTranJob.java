@@ -87,7 +87,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                             count = 0;
                             droped = 0;
 
-                            taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null,true);
+                            taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,null,true);
                             records = new ArrayList<>();
                             if (baseDataTran.isPrintTaskLog()) {
                                 end = System.currentTimeMillis();
@@ -159,7 +159,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                         int _count = count;
                         count = 0;
                         droped = 0;
-                        taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null,false);
+                        taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,null,false);
                         records = new ArrayList<>();
 
 
@@ -181,7 +181,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                     throw e;
                 }
 			}
-			taskNo = serialTranCommand.endSerialActionTask(importCount,count,taskNo,lastValue,records,reachEOFClosed,null);
+			taskNo = serialTranCommand.endSerialActionTask(importCount,count,taskNo,lastValue,records,null);
 
 			if(count > 0 ){
 				if(baseDataTran.isPrintTaskLog())  {
@@ -242,14 +242,12 @@ public class CommonRecordTranJob extends BaseTranJob{
 		List<CommonRecord> records = new ArrayList<>();
 		String ret = null;
 		ExecutorService	service = importContext.buildThreadPool();
+//        ExecutorService buildRecordHandlerExecutor = importContext.buildRecordHandlerExecutor();
 		List<Future> tasks = new ArrayList<Future>();
 		int taskNo = 0;
 		ImportCount totalCount = new ParallImportCount(baseDataTran);
         Throwable exception = null;
-//		Status currentStatus = importContext.getCurrentStatus();
 		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
-//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-//		Object lastValue = null;
         LastValueWrapper currentLastValueWrapper = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
         LastValueWrapper lastValue = null;
 		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
@@ -279,7 +277,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 						count = 0;
                         droped = 0;
 
-						taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper,true);
+						taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,records,null,service,tasks,tranErrorWrapper,true);
                         if (baseDataTran.isPrintTaskLog()) {
                             end = System.currentTimeMillis();
                             logger.info(new StringBuilder().append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
@@ -315,8 +313,6 @@ public class CommonRecordTranJob extends BaseTranJob{
 				if(context.removed()){
 					if(!reachEOFClosed)//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
 						totalCount.increamentIgnoreTotalCount();
-//					else
-//						importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
 					continue;
 				}
 				context.refactorData();
@@ -337,7 +333,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					count = 0;
                     droped = 0;
 
-					taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper,false);
+					taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,records,null,service,tasks,tranErrorWrapper,false);
 					records = new ArrayList<>();
 
 				}
@@ -353,11 +349,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 
 				}
-//				ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
-//						count, taskNo, totalCount.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//				taskCommand.setDatas(records);
-//				tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-				taskNo = parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,records,reachEOFClosed,null,service,tasks,tranErrorWrapper,false);
+
+				taskNo = parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,records,null,service,tasks,tranErrorWrapper,false);
 
 			}
 			if(baseDataTran.isPrintTaskLog())
@@ -375,16 +368,10 @@ public class CommonRecordTranJob extends BaseTranJob{
             throw new DataImportException(e);
         }
 		finally {
-			final boolean _reachEOFClosed = reachEOFClosed;
 			baseDataTran.waitTasksComplete(tasks, service, exception, lastValue, totalCount, tranErrorWrapper, new WaitTasksCompleteCallBack() {
 				@Override
 				public void call() {
-//					fileTransfer.sendFile();//传输文件
 					parrelTranCommand.parrelCompleteAction();
-//					Date endTime = new Date();
-//					if(baseDataTran.getTaskContext() != null)
-//						baseDataTran.getTaskContext().setJobEndTime(endTime);
-//					totalCount.setJobEndTime(endTime);
 
 				}
 			},reachEOFClosed);
@@ -422,8 +409,6 @@ public class CommonRecordTranJob extends BaseTranJob{
 		Exception exception = null;
 		long start = System.currentTimeMillis();
 		long lastSend = 0;
-//		Status currentStatus = this.currentStatus;
-//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
         LastValueWrapper currentLastValueWrapper = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
         LastValueWrapper lastValue = null;
 		ImportCount importCount = new SerialImportCount(baseDataTran);
@@ -432,10 +417,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 		boolean reachEOFClosed = false;
 		try {
 
-			//		GetCUDResult CUDResult = null;
 			Object temp = null;
 
-//			List<DBRecord> records = new ArrayList<DBRecord>();
 			//十分钟后打印一次等待日志数据，打印后，就等下次
 			long logInterval = 1l * 60l * 1000l;
 			boolean printed = false;
@@ -503,17 +486,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					super.metricsMap(record,buildMapDataContext,importContext);
 
 					totalCount++;
-					/**
-					if(serialTranCommand.splitCheck( totalCount)){//reached max file record size
-
-
-						serialTranCommand.splitSerialActionTask(importCount,1,-1,lastValue,record,reachEOFClosed,null);
-					}
-					else{
-						serialTranCommand.hanBatchActionTask(importCount,1, -1,lastValue,record,reachEOFClosed,record);
-
-					}*/
-					serialTranCommand.hanBatchActionTask(importCount,1, -1,lastValue,record,reachEOFClosed,record,false);
+					serialTranCommand.hanBatchActionTask(importCount,1, -1,lastValue,record,record,false);
 
 					if(totalCount == Long.MAX_VALUE) {
 						if(baseDataTran.isPrintTaskLog()) {
@@ -542,7 +515,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 			}
 
 
-			serialTranCommand.endSerialActionTask(importCount,-1,-1,lastValue,(CommonRecord)null,reachEOFClosed,null);
+			serialTranCommand.endSerialActionTask(importCount,-1,-1,lastValue,(CommonRecord)null,null);
 			if(baseDataTran.isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
 				logger.info(new StringBuilder().append("Send datas Take time:").append((end - start)).append("ms")
@@ -565,23 +538,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 		} finally {
 
-            /**
-			if(!TranErrorWrapper.assertCondition(exception ,importContext)){
-
-                baseDataTran.stop();
-			}
-
-			if(importContext.isCurrentStoped()){
-
-                baseDataTran.stop();
-			}
-             */
             baseDataTran.stop2ndClearResultsetQueue(exception != null);// a{2}
 
-//			Date endTime = new Date();
-//			if(baseDataTran.getTaskContext() != null)
-//				baseDataTran.getTaskContext().setJobEndTime(endTime);
-//			importCount.setJobEndTime(endTime);
 			baseDataTran.endJob( reachEOFClosed, importCount, exception);
 		}
 		return null;
@@ -622,7 +580,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                 NextAssert hasNext = tranResultSet.next();
 				if(hasNext.isNeedFlush()){
 					if(records.size() > 0) {
-						taskNo = serialTranCommand.hanBatchActionTask(importCount,totalCount,taskNo,lastValue,records,reachEOFClosed,null,true);
+						taskNo = serialTranCommand.hanBatchActionTask(importCount,totalCount,taskNo,lastValue,records,null,true);
 						records = new ArrayList<>();
 					}
 
@@ -679,7 +637,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 						int _count = count;
 						count = 0;
-						taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,reachEOFClosed,null,false);
+						taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,records,null,false);
 						records = new ArrayList<>();
 					}
 
@@ -687,7 +645,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					throw new DataImportException(e);
 				}
 			}
-			taskNo = serialTranCommand.endSerialActionTask(importCount,totalCount,taskNo,lastValue,records,reachEOFClosed,null);
+			taskNo = serialTranCommand.endSerialActionTask(importCount,totalCount,taskNo,lastValue,records,null);
 //			if(records.size() > 0) {
 //
 //				ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
