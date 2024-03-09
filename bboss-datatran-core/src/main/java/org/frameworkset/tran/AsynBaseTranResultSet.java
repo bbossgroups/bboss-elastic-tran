@@ -17,6 +17,7 @@ package org.frameworkset.tran;
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.NextAssert;
+import org.frameworkset.tran.record.TranMetaDataLazeLoad;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.List;
@@ -49,10 +50,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	public Object getKeys(){
 		return record.getKeys();
 	}
-	@Override
-	public Record getCurrentRecord() {
-		return record;
-	}
+
 
 
 
@@ -61,10 +59,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 		return record.getValue(  i,colName,sqlType);
 	}
 
-	@Override
-	public Object getValue(String colName) throws DataImportException {
-		return record.getValue(colName);
-	}
+ 
 
 
 	@Override
@@ -86,10 +81,6 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	private boolean reachEnd;
 	public void reachEend(){
 		this.reachEnd = true;
-	}
-	@Override
-	public TaskContext getRecordTaskContext(){
-		return record.getTaskContext();
 	}
 
 	private boolean stopIterator(){
@@ -202,6 +193,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 		if( pos < size){
 
 			record = buildRecord(records.get(pos));
+            record.setTranMeta(this.getMetaData());
             preReachEOFRecord = reachEOFRecord();
 			pos ++;
             nextAssert.setHasNext(true);
@@ -314,6 +306,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 
 				pos = 0;
 				record = buildRecord(records.get(pos));
+                record.setTranMeta(this.getMetaData());
                 preReachEOFRecord = reachEOFRecord();
 				pos ++;
 				/**
@@ -334,16 +327,17 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 
 	@Override
 	public TranMeta getMetaData() {
-		return new DefaultTranMetaData(record.getKeys());
+		return new DefaultTranMetaData(new TranMetaDataLazeLoad() {
+            @Override
+            public String[] lazeLoad() {
+                return DefaultTranMetaData.convert(record.getKeys());
+            }
+        });
 	}
 	public Object getRecord(){
 		return record.getData();
 	}
 
-	public boolean removed(){
-		return record.removed();
-	}
-	public boolean reachEOFClosed(){
-		return this.record.reachEOFClosed() ;
-	}
+ 
+ 
 }

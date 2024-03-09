@@ -39,25 +39,6 @@ public class MongoCDCResultSet extends AsynBaseTranResultSet {
 	protected Record buildRecord(Object data) {
         return (Record)data;
 	}
-    @Override
-    public Long getLastValueTime(){
-        if(record != null) {
-            MongoDBCDCData mongoDBCDCData = ((MongoCDCRecord) record).getMongoDBCDCData();
-            if(mongoDBCDCData != null) {
-                return mongoDBCDCData.getClusterTime();
-            }
-        }
-        return null;
-    }
-    @Override
-    public String getStrLastValue() throws DataImportException {
-        if(record != null) {
-            MongoDBCDCData mongoDBCDCData = ((MongoCDCRecord) record).getMongoDBCDCData();
-            if(mongoDBCDCData != null) {
-               return mongoDBCDCData.getPosition();
-            }
-        }
-        return null;
-    }
+   
 
 }

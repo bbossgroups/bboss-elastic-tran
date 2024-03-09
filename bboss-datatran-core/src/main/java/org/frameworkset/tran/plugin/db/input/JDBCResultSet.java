@@ -18,6 +18,7 @@ import com.frameworkset.common.poolman.sql.PoolManResultSetMetaData;
 import com.frameworkset.orm.adapter.DB;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -33,17 +34,19 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	public JDBCResultSet(){
 
 	}
-	public JDBCResultSet(TaskContext taskContext,ResultSet resultSet,JDBCTranMetaData metaData,DB dbadapter,boolean enableLocalDate){
+	public JDBCResultSet(TaskContext taskContext, ImportContext importContext, ResultSet resultSet, JDBCTranMetaData metaData, DB dbadapter, boolean enableLocalDate){
 		this.resultSet = resultSet;
+        this.importContext = importContext;
 		this.metaData = metaData;
 		this.dbadapter = dbadapter;
         this.enableLocalDate = enableLocalDate;
         if(!enableLocalDate) {
-            record = new JDBCResultRecord(taskContext, resultSet, metaData, dbadapter);
+            record = new JDBCResultRecord(taskContext,   importContext, resultSet, metaData, dbadapter);
         }
         else{
-            record = new LocalDateJDBCResultRecord(taskContext, resultSet, metaData, dbadapter);
+            record = new LocalDateJDBCResultRecord(taskContext,   importContext, resultSet, metaData, dbadapter);
         }
+        record.setTranMeta(this.getMetaData());
 
 	}
 
@@ -75,10 +78,6 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 		return getResultSet();
 	}
 
-	@Override
-	public Record getCurrentRecord() {
-		return record;
-	}
 
 //	@Override
 //	public void stop(boolean exception) {
@@ -110,12 +109,7 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 
 	}
 
-	@Override
-	public Object getValue( String colName) throws DataImportException
-	{
-		return record.getValue(colName);
-
-	}
+ 
 
 	@Override
 	public Object getKeys(){
@@ -146,8 +140,5 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 			throw new DataImportException(e);
 		}
 	}
-	@Override
-	public TaskContext getRecordTaskContext() {
-		return record.getTaskContext();
-	}
+ 
 }

@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
 import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.*;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.status.BaseStatusManager;
@@ -110,9 +111,9 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
     }
 
     @Override
-    public Context buildContext(TaskContext taskContext, TranResultSet tranResultSet, BatchContext batchContext){
-        ContextImpl context = new ContextImpl(  taskContext,importContext, tranResultSet, batchContext);
-        context.setAction(tranResultSet.getAction());
+    public Context buildContext(TaskContext taskContext, Record record,BatchContext batchContext){
+        ContextImpl context = new ContextImpl(  taskContext,importContext,     record,batchContext);
+        context.setAction(record.getAction());
         return context;
     }
 
@@ -256,8 +257,8 @@ public class MysqlBinlogDataTranPluginImpl extends DataTranPluginImpl {
         }
     }
     @Override
-    public LastValueWrapper maxLastValue(LastValueWrapper oldValue, BaseDataTran baseDataTran){
-        LastValueWrapper newValue = baseDataTran.getLastValueWrapper();
+    public LastValueWrapper maxLastValue(LastValueWrapper oldValue, Record record){
+        LastValueWrapper newValue = record.getLastValueWrapper();
 
         return maxNumberLastValue( oldValue,  newValue);
 

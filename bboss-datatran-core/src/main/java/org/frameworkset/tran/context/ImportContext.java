@@ -17,6 +17,7 @@ package org.frameworkset.tran.context;
 
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.config.*;
 import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
@@ -85,10 +86,7 @@ public interface ImportContext {
 	public SplitHandler getSplitHandler();
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);
 	public String[] getExportColumns();
-//	DataTranPlugin buildDataTranPlugin();
-//	public String getTargetElasticsearch();
-	Context buildContext(TaskContext taskContext,TranResultSet tranResultSet, BatchContext batchContext);
-//	ESConfig getESConfig();
+	Context buildContext(TaskContext taskContext, Record record, BatchContext batchContext);
 	public Long getTimeRangeLastValue();
 	public DataTranPlugin getDataTranPlugin();
 	Map getJobInputParams();
@@ -138,7 +136,7 @@ public interface ImportContext {
     void finishAndWaitTran(Throwable throwable);
 
     public ExportCount getExportCount();
-	public LastValueWrapper max(LastValueWrapper oldValue, BaseDataTran baseDataTran);
+	public LastValueWrapper max(LastValueWrapper oldValue, Record record);
 //    public Object max(Object oldValue, Object baseDataTran);
 	boolean isContinueOnError();
 	boolean isCurrentStoped();

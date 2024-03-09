@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.Map;
 
 public interface TranResultSet {
-    public String getStrLastValue() throws DataImportException;
     public Object getValue(  int i, String colName,int sqlType) throws DataImportException;
     public LocalDateTime getLocalDateTimeValue(String colName) throws DataImportException;
     public Object getValue( String colName) throws DataImportException;
@@ -66,24 +65,14 @@ public interface TranResultSet {
 
     Map<String, Object> getMetaDatas();
 
-    /**
-     * 获取binlog采集的修改前记录信息
-     * @return
-     */
-    public Map<String, Object> getUpdateFromDatas();
+
 
     int getAction();
     public boolean isRecordDirectIgnore();
-    LastValueWrapper getLastValueWrapper();
 
     public Object getLastValue();
 
-    default public boolean removed() {
-        return false;
-    }
-    default public boolean reachEOFClosed(){
-        return false ;
-    }
+   
     default public void clearQueue(){
 
     }

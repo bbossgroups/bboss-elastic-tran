@@ -7,6 +7,7 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.Record;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.file.monitor.FileManager;
 import org.frameworkset.tran.ftp.FtpConfig;
@@ -890,7 +891,7 @@ public class FileReaderTask extends FieldManager{
     protected void sendReadEOFcloseEvent(long pointer) throws IOException, InterruptedException {
         List<Record> recordList = new ArrayList<Record>(1);
 
-        recordList.add(new FileLogRecord(taskContext,true,pointer,true,true));
+        recordList.add(new FileLogRecord(taskContext,   this.fileDataTran.getImportContext(),true,pointer,true,true));
         fileDataTran.appendData(new CommonData(recordList));
     }
 
@@ -1071,7 +1072,7 @@ public class FileReaderTask extends FieldManager{
 
     private void result(File file, long pointer, String line,List<Record> recordList,boolean reachEOFClosed) {
         if(!check(line)){
-            recordList.add(new FileLogRecord(taskContext,true,pointer,reachEOFClosed,false));
+            recordList.add(new FileLogRecord(taskContext,this.fileDataTran.getImportContext(),true,pointer,reachEOFClosed,false));
         }
         else {
 
@@ -1127,7 +1128,7 @@ public class FileReaderTask extends FieldManager{
                 result.put("@filemeta", common);
                 result.put("@timestamp",new Date());
             }
-            recordList.add(new FileLogRecord(taskContext,common,result,pointer,reachEOFClosed));
+            recordList.add(new FileLogRecord(taskContext,this.fileDataTran.getImportContext(),common,result,pointer,reachEOFClosed));
         }
 
     }

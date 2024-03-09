@@ -28,6 +28,7 @@ import org.frameworkset.nosql.hbase.HBaseHelperFactory;
 import org.frameworkset.nosql.hbase.HBaseResourceStartResult;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
@@ -70,8 +71,8 @@ public  class HBaseInputDatatranPlugin extends BaseInputPlugin {
 
 	}
 	@Override
-	public Context buildContext(TaskContext taskContext, TranResultSet tranResultSet, BatchContext batchContext){
-		return new HBaseRecordContextImpl(  taskContext,importContext, tranResultSet, batchContext);
+	public Context buildContext(TaskContext taskContext, Record record, BatchContext batchContext){
+		return new HBaseRecordContextImpl(  taskContext,importContext,    record, batchContext);
 
 	}
 

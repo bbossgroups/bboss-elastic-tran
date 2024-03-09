@@ -111,21 +111,14 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
         parrelExecute();
 
 	}
-	@Override
-	public TaskContext getRecordTaskContext() {
-		return record.getTaskContext();
-	}
+ 
 
 	@Override
 	public Object getValue(int i, String colName, int sqlType) throws DataImportException {
 		return getValue(  colName);
 	}
 
-	@Override
-	public Object getValue(String colName) throws DataImportException {
-		return record.getValue(colName);
-
-	}
+ 
 
 	@Override
 	public Object getValue(String colName, int sqlType) throws DataImportException {
@@ -155,7 +148,8 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
                             List<Map> datas = currentResult.getDatas();//放入队列的结果都是经过非空判断，所以此处无需进行非空判断
                             iterator = datas.iterator();
                             current = iterator.next();
-                            record = new HttpRecord(currentResult,current,getTaskContext());
+                            record = new HttpRecord(currentResult,current,getTaskContext(),importContext);
+                            record.setTranMeta(this.getMetaData());
                             hasNext = true;
                             break;
                         }
@@ -176,7 +170,8 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
                 hasNext = iterator.hasNext();
                 if( hasNext){
                     current = iterator.next();
-                    record = new HttpRecord(currentResult,current,getTaskContext());
+                    record = new HttpRecord(currentResult,current,getTaskContext(),importContext);
+                    record.setTranMeta(this.getMetaData());
                     break;
                 }
                 else{
@@ -204,10 +199,12 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
 
 	@Override
 	public TranMeta getMetaData() {
-		return new DefaultTranMetaData(current.keySet());
+		return new DefaultTranMetaData(() -> DefaultTranMetaData.convert(current.keySet()));
 	}
 
 	public Object getKeys(){
+        if(record == null)
+            return null;
 		return record.getKeys();
 	}
 	@Override
@@ -215,10 +212,7 @@ public class ParrelHttpTranResultset extends LastValue implements TranResultSet 
 		return current;
 	}
 
-	@Override
-	public Record getCurrentRecord() {
-		return record;
-	}
+
 
 //	@Override
 //	public void stop() {

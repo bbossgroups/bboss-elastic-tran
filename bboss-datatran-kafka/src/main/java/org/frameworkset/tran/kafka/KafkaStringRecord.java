@@ -15,6 +15,7 @@ package org.frameworkset.tran.kafka;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CommonStringRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -28,8 +29,8 @@ import org.frameworkset.tran.schedule.TaskContext;
  */
 public class KafkaStringRecord extends CommonStringRecord {
 
-	public KafkaStringRecord(TaskContext taskContext, Object key, String record, long offset){
-		super(  taskContext,key,record,offset);
+	public KafkaStringRecord(TaskContext taskContext, ImportContext importContext, Object key, String record, long offset){
+		super(  taskContext,  importContext,key,record,offset);
 	}
 
 }

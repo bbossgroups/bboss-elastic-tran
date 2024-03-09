@@ -15,7 +15,9 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -58,6 +60,8 @@ public interface Record {
 	boolean reachEOFClosed();
     boolean reachEOFRecord();
 	TaskContext getTaskContext();
+    
+    ImportContext getImportContext();
     public Map<String, Object> getMetaDatas();
 
     /**
@@ -66,4 +70,9 @@ public interface Record {
      */
     Map<String, Object> getUpdateFromDatas();
     public int getAction();
+
+    public LastValueWrapper getLastValueWrapper();
+
+    public TranMeta getMetaData();
+    public void setTranMeta(TranMeta tranMeta);
 }

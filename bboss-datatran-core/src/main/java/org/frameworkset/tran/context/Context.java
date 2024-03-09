@@ -24,6 +24,7 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.TranMeta;
 import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.ClientOptions;
+import org.frameworkset.tran.record.ValueConvert;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.text.DateFormat;
@@ -235,7 +236,9 @@ public interface Context {
      * @throws Exception
      */
 	Object getMetaValue(String fieldName) throws Exception;
-	String getStringValue(String fieldName) throws Exception;
+	String getStringValue(String fieldName, ValueConvert valueConvert) throws Exception;
+
+    String getStringValue(String fieldName) throws Exception;
 	Object getParentId() throws Exception;
 	Object getRouting() throws Exception;
 //	public Object getEsRetryOnConflict();
@@ -293,8 +296,9 @@ public interface Context {
 	 * @throws Exception
 	 */
 	void newName2ndData(String fieldName, String newFieldName, Object newFieldValue)throws Exception;
-
-	BatchContext getBatchContext();
+    public boolean getBooleanValue(String fieldName,ValueConvert valueConvert) throws Exception;
+    BatchContext getBatchContext();
+    public Object getValue(String fieldName,ValueConvert valueConvert) throws Exception;
 
 	/**
 	 * 获取原始数据对象,可能是一个map，jdbcresultset，DBObject,hbaseresult

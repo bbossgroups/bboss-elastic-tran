@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin;
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
@@ -36,7 +37,7 @@ import java.util.Date;
  */
 public interface InputPlugin {
 	public ImportContext getImportContext();
-	public Context buildContext(TaskContext taskContext, TranResultSet jdbcResultSet, BatchContext batchContext);
+	public Context buildContext(TaskContext taskContext,  Record record, BatchContext batchContext);
 	public void initStatusTableId();
 	public String getLastValueVarName();
 	public Long getTimeRangeLastValue();

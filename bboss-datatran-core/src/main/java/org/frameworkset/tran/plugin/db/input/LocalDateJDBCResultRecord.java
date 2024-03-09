@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin.db.input;
 
 import com.frameworkset.orm.adapter.DB;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.BaseRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
@@ -36,8 +37,8 @@ public class LocalDateJDBCResultRecord extends BaseRecord {
 	protected ResultSet resultSet;
 	protected JDBCTranMetaData metaData;
 	protected DB dbadapter;
-	public LocalDateJDBCResultRecord(TaskContext taskContext, ResultSet resultSet, JDBCTranMetaData metaData, DB dbadapter) {
-		super(taskContext);
+	public LocalDateJDBCResultRecord(TaskContext taskContext, ImportContext importContext, ResultSet resultSet, JDBCTranMetaData metaData, DB dbadapter) {
+		super(taskContext,  importContext);
 		this.resultSet = resultSet;
 		this.metaData = metaData;
 		this.dbadapter = dbadapter;
@@ -143,6 +144,8 @@ public class LocalDateJDBCResultRecord extends BaseRecord {
 
 	@Override
 	public Object getKeys() {
+        if(metaData == null || metaData.getPoolManResultSetMetaData() == null)
+            return null;
 		return  metaData.getPoolManResultSetMetaData().get_columnLabel();
 	}
 

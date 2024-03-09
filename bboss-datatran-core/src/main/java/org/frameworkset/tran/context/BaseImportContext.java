@@ -17,6 +17,7 @@ package org.frameworkset.tran.context;
 
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.config.*;
 import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.ETLMetricsCallInterceptor;
@@ -222,8 +223,8 @@ public  class BaseImportContext implements ImportContext {
 	public String getSplitFieldName() {
 		return baseImportConfig.getSplitFieldName();
 	}
-	public Context buildContext(TaskContext taskContext,TranResultSet tranResultSet, BatchContext batchContext){
-		return dataTranPlugin.buildContext( taskContext,tranResultSet,batchContext);
+	public Context buildContext(TaskContext taskContext,  Record record,BatchContext batchContext){
+		return dataTranPlugin.buildContext( taskContext, record,batchContext);
 	}
 	public Long getTimeRangeLastValue(){
 		return dataTranPlugin.getTimeRangeLastValue();
@@ -517,8 +518,8 @@ public  class BaseImportContext implements ImportContext {
 //
 //    }
     @Override
-    public LastValueWrapper max(LastValueWrapper oldValue, BaseDataTran baseDataTran){
-        return dataTranPlugin.maxLastValue(oldValue,baseDataTran);
+    public LastValueWrapper max(LastValueWrapper oldValue, Record record){
+        return dataTranPlugin.maxLastValue(oldValue,record);
     }
 
 //    @Override

@@ -19,6 +19,7 @@ package org.frameworkset.tran.hbase;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.BaseRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranUtil;
@@ -41,8 +42,8 @@ public class HBaseRecord extends BaseRecord{
 	private static Logger logger = LoggerFactory.getLogger(HBaseRecord.class);
 	private Result data;
 	private Map<String,byte[][]> familys;
-	public HBaseRecord(TaskContext taskContext,Map<String, byte[][]> familys, Result data){
-		super(taskContext);
+	public HBaseRecord(TaskContext taskContext, ImportContext importContext, Map<String, byte[][]> familys, Result data){
+		super(taskContext,  importContext);
 		this.familys = familys;
 		this.data = data;
         initMetaDatas();
@@ -54,9 +55,8 @@ public class HBaseRecord extends BaseRecord{
         this.setMetaDatas(tmp);
     }
 
-
-
-	private byte[][] parser(String colName){
+ 
+    private byte[][] parser(String colName){
 		byte[][] cs = familys.get(colName);
 		if(cs != null){
 			return cs;

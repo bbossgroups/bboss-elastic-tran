@@ -17,6 +17,7 @@ package org.frameworkset.tran.task;
 
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
@@ -108,25 +109,18 @@ public class CommonRecordTranJob extends BaseTranJob{
                     if(!hasNext.isHasNext()){
                         break;
                     }
-                    /**
-                     if(lastValue == null) {
-                     lastValue = importContext.max(lastValue, baseDataTran.getLastValue());
-                     }
-                     else{
-                     lastValue = importContext.max(lastValue,baseDataTran.getLastValue());
-                     }*/
-
+                    Record resultRecord = tranResultSet.getCurrentRecord();
                     if(lastValue == null) {
-                        lastValue = importContext.max(currentLastValueWrapper, baseDataTran);
+                        lastValue = importContext.max(currentLastValueWrapper, resultRecord);
                     }
                     else{
-                        lastValue = importContext.max(lastValue,baseDataTran);
+                        lastValue = importContext.max(lastValue,resultRecord);
                     }
                     if(tranResultSet.isRecordDirectIgnore()){
                         droped ++;
                         continue;
                     }
-                    Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
+                    Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
 
                     if(!reachEOFClosed)
                         reachEOFClosed = context.reachEOFClosed();
@@ -296,17 +290,17 @@ public class CommonRecordTranJob extends BaseTranJob{
 				}
 				if(!hasNext.isHasNext())
 					break;
-
+                Record resultRecord = tranResultSet.getCurrentRecord();
 				if(lastValue == null)
-					lastValue = importContext.max(currentLastValueWrapper,baseDataTran);
+					lastValue = importContext.max(currentLastValueWrapper,resultRecord);
 				else{
-					lastValue = importContext.max(lastValue,baseDataTran);
+					lastValue = importContext.max(lastValue,resultRecord);
 				}
                 if(tranResultSet.isRecordDirectIgnore()){
                     droped ++;
                     continue;
                 }
-				Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
+				Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
 				if(!reachEOFClosed)
 					reachEOFClosed = context.reachEOFClosed();
 //				Context context = new ContextImpl(importContext, tranResultSet, batchContext);
@@ -455,16 +449,17 @@ public class CommonRecordTranJob extends BaseTranJob{
 				lastSend = 0l;
 				printed = false;
 				try {
+                    Record resultRecord = tranResultSet.getCurrentRecord();
 					if (lastValue == null)
-						lastValue = importContext.max(currentLastValueWrapper, baseDataTran);
+						lastValue = importContext.max(currentLastValueWrapper, resultRecord);
 					else {
-						lastValue = importContext.max(lastValue,baseDataTran);
+						lastValue = importContext.max(lastValue,resultRecord);
 					}
                     if(tranResultSet.isRecordDirectIgnore()){
                         continue;
                     }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
-					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
+					Context context = importContext.buildContext(baseDataTran.getTaskContext(), resultRecord, batchContext);
 
 
 					if(!reachEOFClosed)
@@ -599,16 +594,17 @@ public class CommonRecordTranJob extends BaseTranJob{
 					break;
 				}
 				try {
+                    Record resultRecord = tranResultSet.getCurrentRecord();
 					if (lastValue == null)
-						lastValue = importContext.max(currentValue, baseDataTran);
+						lastValue = importContext.max(currentValue, resultRecord);
 					else {
-						lastValue = importContext.max(lastValue, baseDataTran);
+						lastValue = importContext.max(lastValue, resultRecord);
 					}
                     if(tranResultSet.isRecordDirectIgnore()){
                         continue;
                     }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
-					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
+					Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
 					if(!reachEOFClosed)
 						reachEOFClosed = context.reachEOFClosed();
 					if(context.removed()){
@@ -646,22 +642,6 @@ public class CommonRecordTranJob extends BaseTranJob{
 				}
 			}
 			taskNo = serialTranCommand.endSerialActionTask(importCount,totalCount,taskNo,lastValue,records,null);
-//			if(records.size() > 0) {
-//
-//				ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(importCount, importContext,targetImportContext,
-//						totalCount, taskNo, importCount.getJobNo(), (ExcelFileTransfer)fileTransfer,lastValue,  currentStatus,reachEOFClosed,taskContext);
-//				taskNo ++;
-//				taskCommand.setDatas(records);
-//				TaskCall.call(taskCommand);
-//
-////				importContext.flushLastValue(lastValue);
-//				fileTransfer.sendFile();//传输文件
-//			}
-//			else{
-//				if(!fileTransfer.isSended()){
-//					fileTransfer.sendFile();
-//				}
-//			}
 			if(baseDataTran.isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
 				logger.info(new StringBuilder().append("Serial import Take time:").append((end - start)).append("ms")

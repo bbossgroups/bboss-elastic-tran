@@ -15,6 +15,7 @@ package org.frameworkset.tran.kafka;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CommonMapRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -30,8 +31,8 @@ import java.util.Map;
  */
 public class KafkaMapRecord extends CommonMapRecord {
 
-	public KafkaMapRecord(TaskContext taskContext, Object key, Map<String, Object> record, long offset) {
-		super(taskContext,key, record,offset);
+	public KafkaMapRecord(TaskContext taskContext, ImportContext importContext, Object key, Map<String, Object> record, long offset) {
+		super(taskContext,  importContext,key, record,offset);
 	}
 
 }

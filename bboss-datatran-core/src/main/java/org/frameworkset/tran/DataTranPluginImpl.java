@@ -109,8 +109,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
         }
     }
     @Override
-    public LastValueWrapper maxLastValue(LastValueWrapper oldValue, BaseDataTran baseDataTran){
-        LastValueWrapper newValue = baseDataTran.getLastValueWrapper();
+    public LastValueWrapper maxLastValue(LastValueWrapper oldValue, Record record){
+        LastValueWrapper newValue = record.getLastValueWrapper();
         return compareValue(oldValue, newValue);
     }
 
@@ -353,9 +353,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		return status.getStatus() == ImportIncreamentConfig.STATUS_LOSTFILE;
 	}
 	@Override
-	public Context buildContext(TaskContext taskContext,TranResultSet tranResultSet, BatchContext batchContext){
+	public Context buildContext(TaskContext taskContext,  Record record,BatchContext batchContext){
 //		return new ContextImpl(  taskContext,importContext, tranResultSet, batchContext);
-		return inputPlugin.buildContext(taskContext,tranResultSet,batchContext);
+		return inputPlugin.buildContext(taskContext,  record,batchContext);
 	}
 	@Override
 	public String getLastValueVarName() {

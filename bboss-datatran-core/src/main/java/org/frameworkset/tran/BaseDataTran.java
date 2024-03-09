@@ -536,14 +536,8 @@ public abstract class BaseDataTran implements DataTran{
 
 	}
 
-    public String getStrLastValue() throws DataImportException {
-        return tranResultSet.getStrLastValue();
-    }
-
-    public LastValueWrapper getLastValueWrapper(){
-        return tranResultSet.getLastValueWrapper();
-    }
-
+ 
+ 
 	public boolean isTranFinished() {
 		return tranFinished;
 	}

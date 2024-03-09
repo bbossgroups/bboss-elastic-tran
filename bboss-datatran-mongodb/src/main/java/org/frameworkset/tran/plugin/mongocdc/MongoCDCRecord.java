@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin.mongocdc;
 
 
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CommonMapRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -34,17 +35,17 @@ import java.util.Map;
 public class MongoCDCRecord extends CommonMapRecord {
     private MongoCDCInputConfig mongoCDCInputConfig;
     private MongoDBCDCData mongoDBCDCData;
-	public MongoCDCRecord(TaskContext taskContext,
+	public MongoCDCRecord(TaskContext taskContext, ImportContext importContext,
                           MongoCDCInputConfig mongoCDCInputConfig,
                           boolean removed, boolean reachEOFClosed, boolean readEOFRecord){
-		super(taskContext,(Map<String,Object>)null,  removed,   reachEOFClosed, readEOFRecord);
+		super(taskContext,  importContext,(Map<String,Object>)null,  removed,   reachEOFClosed, readEOFRecord);
         this.mongoCDCInputConfig = mongoCDCInputConfig;
 	}
 
-    public MongoCDCRecord(TaskContext taskContext,
+    public MongoCDCRecord(TaskContext taskContext,ImportContext importContext,
                           MongoDBCDCData mongoDBCDCData, MongoCDCInputConfig mongoCDCInputConfig
     ){
-        super(taskContext,(Map<String,Object>)(mongoDBCDCData.getData()));
+        super(taskContext,  importContext,(Map<String,Object>)(mongoDBCDCData.getData()));
         this.mongoCDCInputConfig = mongoCDCInputConfig;
         this.mongoDBCDCData = mongoDBCDCData;
         initMetaDatas();
@@ -57,7 +58,10 @@ public class MongoCDCRecord extends CommonMapRecord {
         tmp.put("action", mongoDBCDCData.getAction());
         tmp.put("clusterTime", mongoDBCDCData.getClusterTime());
         tmp.put("wallTime", mongoDBCDCData.getWallTime());
-
+        if(mongoDBCDCData.getRemovedFields() != null)
+            tmp.put("removedFields", mongoDBCDCData.getRemovedFields());
+        if(mongoDBCDCData.getUpdateDescription() != null)
+            tmp.put("updateDescription", mongoDBCDCData.getUpdateDescription());
         this.setMetaDatas(tmp);
     }
 
@@ -104,5 +108,22 @@ public class MongoCDCRecord extends CommonMapRecord {
 
     public MongoDBCDCData getMongoDBCDCData() {
         return mongoDBCDCData;
+    }
+
+    @Override
+    public Long getLastValueTime(){
+        MongoDBCDCData mongoDBCDCData = getMongoDBCDCData();
+        if(mongoDBCDCData != null) {
+            return mongoDBCDCData.getClusterTime();
+        }
+        return null;
+    }
+    @Override
+    public String getStrLastValue() throws DataImportException {
+        MongoDBCDCData mongoDBCDCData = getMongoDBCDCData();
+        if(mongoDBCDCData != null) {
+            return mongoDBCDCData.getPosition();
+        }
+        return null;
     }
 }

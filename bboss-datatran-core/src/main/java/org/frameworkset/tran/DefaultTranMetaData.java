@@ -16,6 +16,8 @@ package org.frameworkset.tran;
  */
 
 
+import org.frameworkset.tran.record.TranMetaDataLazeLoad;
+
 import java.util.Set;
 
 /**
@@ -27,28 +29,66 @@ import java.util.Set;
  * @version 1.0
  */
 public class DefaultTranMetaData implements TranMeta {
+    private TranMetaDataLazeLoad tranMetaDataLazeLoad ;
 	public DefaultTranMetaData(Object keys) {
-		if(keys != null) {
-			if (keys instanceof Set )
-				this.keys = ((Set<String> )keys).toArray(new String[0]);
-			else
-				this.keys = ((String[])keys);
-		}
-		else {
-			this.keys = new String[0];
-		}
+ 
+        this.keys = convert(keys);
+        loaded = true;
 	}
+    public static String[] convert(Object keys){
+        String[] tmp = null;
+        if(keys != null) {
+            if (keys instanceof Set )
+                tmp = ((Set<String> )keys).toArray(new String[0]);
+            else
+                tmp = ((String[])keys);
+        }
+        else {
+            tmp = new String[0];
+        }
+        return tmp;
+    }
+
+    public DefaultTranMetaData(TranMetaDataLazeLoad tranMetaDataLazeLoad) {
+        if(tranMetaDataLazeLoad != null) {
+            this.tranMetaDataLazeLoad = tranMetaDataLazeLoad;
+//            this.keys = tranMetaDataLazeLoad.lazeLoad();
+        }
+        else {
+            this.keys = new String[0];
+            loaded = true;
+        }
+        
+    }
 
 	private String[] keys;
 	@Override
 	public int getColumnCount()  throws DataImportException {
-
-			return keys.length;
+        lazeLoaded();
+        return keys.length;
 
 	}
 
+    private boolean loaded;
+    private Object lock = new Object();
+    private void lazeLoaded(){
+        if(loaded)
+            return;
+        synchronized (lock){
+            if(loaded)
+                return;
+            String[] keys = tranMetaDataLazeLoad.lazeLoad();
+            if(keys != null){
+                this.keys = keys;
+            }
+            else{
+                this.keys = new String[0];
+            }
+        }
+    }
 	@Override
 	public String getColumnLabelByIndex(int i)  throws DataImportException {
+        lazeLoaded();
 		return keys[i];
 	}
 
@@ -59,12 +99,14 @@ public class DefaultTranMetaData implements TranMeta {
 
 	@Override
 	public String getColumnJavaNameByIndex(int i)  throws DataImportException {
+        lazeLoaded();
 		return keys[i];
 
 	}
 
 	@Override
 	public String getColumnLabelLowerByIndex(int i)  throws DataImportException {
+        lazeLoaded();
 		return keys[i].toLowerCase();
 
 	}

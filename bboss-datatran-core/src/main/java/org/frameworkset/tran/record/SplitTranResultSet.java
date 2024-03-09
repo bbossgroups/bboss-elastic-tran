@@ -59,10 +59,7 @@ public class SplitTranResultSet  implements TranResultSet {
 		}
 	}
 
-    @Override
-    public String getStrLastValue() throws DataImportException {
-        return tranResultSet.getStrLastValue();
-    }
+ 
 
     @Override
 	public Object getValue(int i, String colName, int sqlType) throws DataImportException {
@@ -175,6 +172,8 @@ public class SplitTranResultSet  implements TranResultSet {
 				record = new SplitRecord(baseRecord,keyMap.getKey(),keyMap);
 			else
 				record = new SplitRecord(baseRecord,keyMap);
+            record.setTranMeta(this.getMetaData());
+            
 			splitPos ++;
             nextAssert = new NextAssert();
             nextAssert.setHasNext(true);
@@ -214,6 +213,7 @@ public class SplitTranResultSet  implements TranResultSet {
 						record = new SplitRecord(baseRecord, keyMap.getKey(), keyMap);
 					else
 						record = new SplitRecord(baseRecord, keyMap);
+                    record.setTranMeta(this.getMetaData());
 					splitPos ++;
 				}
 
@@ -280,26 +280,16 @@ public class SplitTranResultSet  implements TranResultSet {
 		return tranResultSet.getMetaValue(fieldName);
 	}
 
-	@Override
-	public boolean removed() {
-		return tranResultSet.removed();
-	}
+ 
 
-	@Override
-	public boolean reachEOFClosed() {
-		return tranResultSet.reachEOFClosed();
-	}
+ 
 
     @Override
     public Map<String, Object> getMetaDatas() {
         return tranResultSet.getMetaDatas();
     }
 
-    @Override
-    public Map<String, Object> getUpdateFromDatas() {
-        return tranResultSet.getUpdateFromDatas();
-    }
-
+ 
     @Override
     public int getAction() {
         return tranResultSet.getAction();
@@ -308,10 +298,7 @@ public class SplitTranResultSet  implements TranResultSet {
     public boolean isRecordDirectIgnore(){
         return tranResultSet.isRecordDirectIgnore();
     }
-    @Override
-    public LastValueWrapper getLastValueWrapper() {
-        return tranResultSet.getLastValueWrapper();
-    }
+ 
 
     @Override
     public Object getLastValue() {

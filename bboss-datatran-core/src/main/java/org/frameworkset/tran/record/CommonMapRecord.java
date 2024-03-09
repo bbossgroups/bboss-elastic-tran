@@ -16,6 +16,7 @@ package org.frameworkset.tran.record;
  */
 
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Map;
@@ -32,46 +33,46 @@ public class CommonMapRecord extends BaseRecord {
 	private Object key;
 	private Map<String,Object> record;
 	private long offset;
-	public CommonMapRecord(TaskContext taskContext,Object key, Map<String,Object> record, long offset){
-		super(taskContext);
+	public CommonMapRecord(TaskContext taskContext, ImportContext importContext, Object key, Map<String,Object> record, long offset){
+		super(taskContext,  importContext);
 		this.record = record;
 		this.key = key;
 		this.offset = offset;
 	}
 
-	public CommonMapRecord(TaskContext taskContext, Map<String,Object> record,long offset){
-		super(taskContext);
+	public CommonMapRecord(TaskContext taskContext,ImportContext importContext, Map<String,Object> record,long offset){
+		super(taskContext,  importContext);
 		this.record = record;
 		this.offset = offset;
 	}
-    public CommonMapRecord(TaskContext taskContext, Map<String,Object> record,boolean removed,long offset,
+    public CommonMapRecord(TaskContext taskContext,ImportContext importContext, Map<String,Object> record,boolean removed,long offset,
 
                            boolean reachEOFClosed,boolean readEOFRecord){
-        super(taskContext,removed,reachEOFClosed,  readEOFRecord);
+        super(taskContext,  importContext,removed,reachEOFClosed,  readEOFRecord);
         this.record = record;
         this.offset = offset;
     }
 
-    public CommonMapRecord(TaskContext taskContext, Map<String,Object> record,boolean removed,long offset,
+    public CommonMapRecord(TaskContext taskContext,ImportContext importContext, Map<String,Object> record,boolean removed,long offset,
 
                           boolean readEOFRecord){
-        super(taskContext,removed, readEOFRecord);
+        super(taskContext,  importContext,removed, readEOFRecord);
         this.record = record;
         this.offset = offset;
     }
 
-    public CommonMapRecord(TaskContext taskContext, Map<String,Object> record,boolean removed,boolean reachEOFClosed,boolean readEOFRecord){
-        super(taskContext,removed,reachEOFClosed,  readEOFRecord);
+    public CommonMapRecord(TaskContext taskContext,ImportContext importContext, Map<String,Object> record,boolean removed,boolean reachEOFClosed,boolean readEOFRecord){
+        super(taskContext,  importContext,removed,reachEOFClosed,  readEOFRecord);
         this.record = record;
     }
 
-    public CommonMapRecord(TaskContext taskContext, Map<String,Object> record,boolean removed,boolean readEOFRecord){
-        super(taskContext,removed, readEOFRecord);
+    public CommonMapRecord(TaskContext taskContext,ImportContext importContext, Map<String,Object> record,boolean removed,boolean readEOFRecord){
+        super(taskContext,  importContext,removed, readEOFRecord);
         this.record = record;
     }
 
-	public CommonMapRecord(TaskContext taskContext, Map<String,Object> record){
-		super(taskContext);
+	public CommonMapRecord(TaskContext taskContext,ImportContext importContext, Map<String,Object> record){
+		super(taskContext,  importContext);
 		this.record = record;
 	}
 
@@ -102,6 +103,8 @@ public class CommonMapRecord extends BaseRecord {
 		return record.get(colName);
 	}
 	public Object getKeys(){
+        if(record == null)
+            return null;
 		return record.keySet();
 	}
 	public Object getData(){

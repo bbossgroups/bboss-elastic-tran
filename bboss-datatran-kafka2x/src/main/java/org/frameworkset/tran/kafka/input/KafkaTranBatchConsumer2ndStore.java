@@ -67,22 +67,22 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 			for (int i = 0; i < rs.size(); i++) {
 				Object v = rs.get(i);
 				if (v instanceof Map) {
-					results.add(new KafkaMapRecord(asynESOutPutDataTran.getTaskContext(),consumerRecord.key(), (Map<String, Object>) v,consumerRecord.offset()));
+					results.add(new KafkaMapRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),consumerRecord.key(), (Map<String, Object>) v,consumerRecord.offset()));
 				} else {
-					results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),consumerRecord.key(), (String) v,consumerRecord.offset()));
+					results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),consumerRecord.key(), (String) v,consumerRecord.offset()));
 				}
 			}
 			//return new KafkaMapRecord((ConsumerRecord<Object, List<Map<String, Object>>>) data);
 		} else if (value instanceof Map) {
-			results.add( new KafkaMapRecord(asynESOutPutDataTran.getTaskContext(),consumerRecord.key(), (Map<String, Object>) value,consumerRecord.offset()));
+			results.add( new KafkaMapRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),consumerRecord.key(), (Map<String, Object>) value,consumerRecord.offset()));
 		} else if (value instanceof String) {
-			results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),consumerRecord.key(), (String) value,consumerRecord.offset()));
+			results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),consumerRecord.key(), (String) value,consumerRecord.offset()));
 		}
 		else{
 			if(logger.isWarnEnabled()){
 				logger.warn("unknown value type:{}",value.getClass().getName());
 			}
-			results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),consumerRecord.key(), String.valueOf( value),consumerRecord.offset()));
+			results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),consumerRecord.key(), String.valueOf( value),consumerRecord.offset()));
 		}
 //		throw new IllegalArgumentException(new StringBuilder().append("unknown consumerRecord").append(consumerRecord.toString()).toString());
 	}

@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin.db.input;
 
 import com.frameworkset.orm.adapter.DB;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 
@@ -32,8 +33,8 @@ import java.sql.ResultSet;
  */
 public class JDBCResultRecord extends LocalDateJDBCResultRecord {
 
-	public JDBCResultRecord(TaskContext taskContext,ResultSet resultSet,JDBCTranMetaData metaData,DB dbadapter) {
-		super(  taskContext,  resultSet,  metaData,  dbadapter);
+	public JDBCResultRecord(TaskContext taskContext, ImportContext importContext, ResultSet resultSet, JDBCTranMetaData metaData, DB dbadapter) {
+		super(  taskContext,  importContext,  resultSet,  metaData,  dbadapter);
 
 	}
 

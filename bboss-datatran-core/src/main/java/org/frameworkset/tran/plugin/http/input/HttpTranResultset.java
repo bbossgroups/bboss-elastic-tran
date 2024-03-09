@@ -20,6 +20,7 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.http.HttpResult;
 import org.frameworkset.tran.record.NextAssert;
+import org.frameworkset.tran.record.TranMetaDataLazeLoad;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Date;
@@ -58,21 +59,14 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 		if(datas != null && datas.size() > 0)
 			iterator = datas.iterator();
 	}
-	@Override
-	public TaskContext getRecordTaskContext() {
-		return record.getTaskContext();
-	}
+ 
 
 	@Override
 	public Object getValue(int i, String colName, int sqlType) throws DataImportException {
 		return getValue(  colName);
 	}
 
-	@Override
-	public Object getValue(String colName) throws DataImportException {
-		return record.getValue(colName);
-
-	}
+ 
 
 	@Override
 	public Object getValue(String colName, int sqlType) throws DataImportException {
@@ -93,7 +87,8 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 		boolean hasNext = iterator.hasNext();
 		if( hasNext){
 			current = iterator.next();
-			record = new HttpRecord(httpResult,current,getTaskContext());
+			record = new HttpRecord(httpResult,current,getTaskContext(),importContext);
+            record.setTranMeta(this.getMetaData());
 		}
 		else{
 			if(queryAction.hasMore()){
@@ -104,7 +99,8 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 				if(datas != null && datas.size() > 0) {
 					iterator = datas.iterator();
 					current = iterator.next();
-					record = new HttpRecord(httpResult,current,getTaskContext());
+					record = new HttpRecord(httpResult,current,getTaskContext(),importContext);
+                    record.setTranMeta(this.getMetaData());
 					hasNext = true;
 				}
 			}
@@ -115,7 +111,7 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 
 	@Override
 	public TranMeta getMetaData() {
-		return new DefaultTranMetaData(current.keySet());
+		return new DefaultTranMetaData(() -> DefaultTranMetaData.convert(current.keySet()));
 	}
 
 	public Object getKeys(){
@@ -123,13 +119,10 @@ public class HttpTranResultset extends LastValue implements TranResultSet {
 	}
 	@Override
 	public Object getRecord() {
-		return current;
+		return record.getData();
 	}
 
-	@Override
-	public Record getCurrentRecord() {
-		return record;
-	}
+
 
 //	@Override
 //	public void stop() {

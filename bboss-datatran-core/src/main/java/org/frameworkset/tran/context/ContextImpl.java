@@ -27,6 +27,7 @@ import org.frameworkset.tran.plugin.es.ESField;
 import org.frameworkset.tran.plugin.db.input.DBInputConfig;
 import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
+import org.frameworkset.tran.record.ValueConvert;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.frameworkset.util.ClassUtil;
@@ -60,7 +61,6 @@ public class ContextImpl implements Context {
 	protected Map<String,String> newfieldNames;
 	protected Map<String,ColumnData> newfieldName2ndColumnDatas;
 	protected BaseImportConfig baseImportConfig;
-	protected TranResultSet tranResultSet;
 	protected BatchContext batchContext;
 	protected boolean drop;
 	protected int action = Record.RECORD_INSERT;
@@ -74,11 +74,12 @@ public class ContextImpl implements Context {
 	protected DBInputConfig dbInputConfig;
 	protected DBOutputConfig dbOutputConfig;
 	protected CommonRecord commonRecord;
+    protected Record record;
 	/**
 	 * 在记录处理过程中，使用的临时数据，不会进行持久化处理
 	 */
 	private Map<String,Object> tempDatas;
-	public ContextImpl(TaskContext taskContext, ImportContext importContext, TranResultSet tranResultSet, BatchContext batchContext){
+	public ContextImpl(TaskContext taskContext, ImportContext importContext, Record record, BatchContext batchContext){
 		this.baseImportConfig = importContext.getImportConfig();
 		this.importContext = importContext;
 		OutputConfig outputConfig = importContext.getOutputConfig();
@@ -91,17 +92,17 @@ public class ContextImpl implements Context {
 		if(inputConfig instanceof DBInputConfig){
 			dbInputConfig = (DBInputConfig)inputConfig;
 		}
-		this.tranResultSet = tranResultSet;
 		this.batchContext = batchContext;
+        this.record = record;
 		if(taskContext != null) {
 			this.taskContext = taskContext;
 		}
 		else{
-			this.taskContext = tranResultSet.getRecordTaskContext();
+			this.taskContext = record.getTaskContext();
 		}
 	}
 	public TranMeta getMetaData(){
-		return tranResultSet.getMetaData();
+		return record.getMetaData();
 
 	}
 
@@ -136,7 +137,7 @@ public class ContextImpl implements Context {
      * @return
      */
     public Map<String, Object> getMetaDatas(){
-        return tranResultSet.getMetaDatas();
+        return record.getMetaDatas();
     }
 
     /**
@@ -144,7 +145,7 @@ public class ContextImpl implements Context {
      * @return
      */
     public Map<String, Object> getUpdateFromDatas(){
-        return tranResultSet.getUpdateFromDatas();
+        return record.getUpdateFromDatas();
     }
 	public void afterRefactor(){
 
@@ -203,11 +204,11 @@ public class ContextImpl implements Context {
 		return baseImportConfig.getUseLowcase();
 	}
 	public Object getValue(     int i,String  colName,int sqlType) throws Exception {
-		return tranResultSet.getValue(i,colName,sqlType);
+		return record.getValue(i,colName,sqlType);
 	}
 
 	public Object getValue(String fieldName,int sqlType)  throws Exception{
-		return tranResultSet.getValue(fieldName,sqlType);
+		return record.getValue(fieldName,sqlType);
 	}
 	public Boolean getUseJavaName() {
 		return baseImportConfig.getUseJavaName();
@@ -369,6 +370,13 @@ public class ContextImpl implements Context {
 		return ResultUtil.stringValue(value,null);
 
 	}
+
+
+    @Override
+    public String getStringValue(String fieldName, ValueConvert valueConvert) throws Exception{
+        Object value = this.getValue(fieldName);
+        return (String)valueConvert.convert(value);
+    }
 	@Override
 	public String getStringValue(String fieldName,String defaultValue) throws Exception {
 		Object value = this.getValue(fieldName);
@@ -382,6 +390,13 @@ public class ContextImpl implements Context {
 		return ResultUtil.booleanValue(value,false);
 
 	}
+
+    @Override
+    public boolean getBooleanValue(String fieldName,ValueConvert valueConvert) throws Exception {
+        Object value = this.getValue(fieldName);
+        return (boolean)valueConvert.convert(value);
+
+    }
 	@Override
 	public boolean getBooleanValue(String fieldName,boolean defaultValue) throws Exception {
 		Object value = this.getValue(fieldName);
@@ -504,10 +519,26 @@ public class ContextImpl implements Context {
 	}
 	@Override
 	public Object getResultSetValue(String fieldName){
-		Object value = tranResultSet.getValue(fieldName);
+		Object value = record.getValue(fieldName);
 		return TimeUtil.convertLocalDate(value);
 	}
+    public Object getValue(String fieldName,ValueConvert valueConvert) throws Exception{
+        FieldMeta fieldMeta = null;
+        if(this.valuesIdxByName != null){
+            fieldMeta = valuesIdxByName.get(fieldName);
 
+
+        }
+        if(fieldMeta == null)
+            fieldMeta = baseImportConfig.getValueIdxByName(fieldName);
+
+        Object value = null;
+        if(fieldMeta != null)
+            value = fieldMeta.getValue();
+        else
+            value = record.getValue(fieldName);
+        return valueConvert.convert(value);
+    }
 	public Object getValue(String fieldName) throws Exception{
 		FieldMeta fieldMeta = null;
 		if(this.valuesIdxByName != null){
@@ -522,13 +553,13 @@ public class ContextImpl implements Context {
 		if(fieldMeta != null)
 			value = fieldMeta.getValue();
 		else
-			value = tranResultSet.getValue(fieldName);
+			value = record.getValue(fieldName);
 		return TimeUtil.convertLocalDate(value);
 	}
 
 	@Override
 	public Object getMetaValue(String fieldName) throws Exception {
-		return tranResultSet.getMetaValue(fieldName) ;
+		return record.getMetaValue(fieldName) ;
 	}
 	@Override
 	public FieldMeta getMappingName(String sourceFieldName){
@@ -558,7 +589,6 @@ public class ContextImpl implements Context {
 
 	@Override
 	public IpInfo getIpInfo(String fieldName) throws Exception{
-//		Object _ip = tranResultSet.getValue(fieldName);
 		Object _ip = getValue(fieldName);
 		if(_ip == null){
 			return null;
@@ -601,10 +631,9 @@ public class ContextImpl implements Context {
 		ESField esField = clientOptions != null?clientOptions.getParentIdField():null;
 		if(esField != null) {
 			if(!esField.isMeta())
-//				return tranResultSet.getValue(esField.getField());
 				return getValue(esField.getField());
 			else{
-				return tranResultSet.getMetaValue(esField.getField());
+				return record.getMetaValue(esField.getField());
 			}
 		}
 		else
@@ -615,14 +644,14 @@ public class ContextImpl implements Context {
 	 * @return
 	 */
 	public Object getRecord(){
-		return tranResultSet.getRecord();
+        return record.getData();
 	}
 	/**
 	 * 获取记录对象
 	 * @return
 	 */
 	public Record getCurrentRecord(){
-		return tranResultSet.getCurrentRecord();
+		return record;
 	}
 
 
@@ -697,11 +726,10 @@ public class ContextImpl implements Context {
 		Object routing = null;
 		if(esField != null) {
 			if(!esField.isMeta())
-//				routing = tranResultSet.getValue(esField.getField());
 				routing = getValue(esField.getField());
 
 			else{
-				routing = tranResultSet.getMetaValue(esField.getField());
+				routing = record.getMetaValue(esField.getField());
 			}
 		}
 		else {
@@ -723,10 +751,9 @@ public class ContextImpl implements Context {
 		Object version = null;
 		if(esField != null) {
 			if(!esField.isMeta())
-//				version = tranResultSet.getValue(esField.getField());
 				version = getValue(esField.getField());
 			else{
-				version = tranResultSet.getMetaValue(esField.getField());
+				version = record.getMetaValue(esField.getField());
 			}
 		}
 		else {
@@ -746,12 +773,12 @@ public class ContextImpl implements Context {
 
 	@Override
 	public boolean removed() {
-		return this.tranResultSet.removed() ;
+		return this.record.removed() ;
 	}
 
 
 	public boolean reachEOFClosed(){
-		return this.tranResultSet.reachEOFClosed() ;
+		return this.record.reachEOFClosed() ;
 	}
 	public JobContext getJobContext(){
 		if(importContext != null) {

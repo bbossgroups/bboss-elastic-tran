@@ -15,6 +15,7 @@ package org.frameworkset.tran.input.file;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CommonMapRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -39,8 +40,8 @@ public class FileLogRecord extends CommonMapRecord {
 	 */
 
 
-	public FileLogRecord( TaskContext taskContext,Map meta,Object key, Map<String,Object> record, long offset,boolean reachEOFClosed){
-		super(  taskContext,key,   record,   offset);
+	public FileLogRecord(TaskContext taskContext, ImportContext importContext, Map meta, Object key, Map<String,Object> record, long offset, boolean reachEOFClosed){
+		super(  taskContext,  importContext,key,   record,   offset);
 
 		this.reachEOFClosed = reachEOFClosed;
 		this.taskContext = taskContext;
@@ -48,14 +49,14 @@ public class FileLogRecord extends CommonMapRecord {
 
 	}
 
-	public FileLogRecord(TaskContext taskContext,Map meta,Map<String,Object> record, long offset,boolean reachEOFClosed){
-		super(  taskContext,  record,   offset);
+	public FileLogRecord(TaskContext taskContext,ImportContext importContext,Map meta,Map<String,Object> record, long offset,boolean reachEOFClosed){
+		super(  taskContext,  importContext,  record,   offset);
         setMetaDatas(meta);
 		this.reachEOFClosed = reachEOFClosed;
 		this.taskContext = taskContext;
 	}
-	public FileLogRecord(TaskContext taskContext,boolean removed, long offset,boolean reachEOFClosed,boolean readEOFRecord){
-		super(   taskContext,  (Map<String,Object>)null,  removed,  offset, reachEOFClosed, readEOFRecord);
+	public FileLogRecord(TaskContext taskContext,ImportContext importContext,boolean removed, long offset,boolean reachEOFClosed,boolean readEOFRecord){
+		super(   taskContext,  importContext,  (Map<String,Object>)null,  removed,  offset, reachEOFClosed, readEOFRecord);
 
 	}
 

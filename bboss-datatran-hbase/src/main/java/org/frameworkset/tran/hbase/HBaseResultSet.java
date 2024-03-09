@@ -51,10 +51,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 		HBaseInputConfig hBaseInputConfig = (HBaseInputConfig) importContext.getInputConfig();
 		incrementByTimeRange = hBaseInputConfig.isIncrementByTimeRange();
 	}
-	@Override
-	public Record getCurrentRecord() {
-		return record;
-	}
+
 
 
 	@Override
@@ -62,14 +59,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 		return getValue(  colName);
 	}
 
-	@Override
-	public Object getValue(String colName) throws DataImportException {
-		//todo fixed
-		Object value = record.getValue(colName);
 
-		return value;
-
-	}
 
 	@Override
 	public Object getValue(String colName, int sqlType) throws DataImportException {
@@ -78,10 +68,6 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 
 
 
-	@Override
-	public TaskContext getRecordTaskContext() {
-		return record.getTaskContext();
-	}
 
 
 	@Override
@@ -92,7 +78,8 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 				return nextAssert;
 			Result record = resultScanner.next();
 			if( record != null){
-				this.record = new HBaseRecord(getTaskContext(),familys,record);
+				this.record = new HBaseRecord(getTaskContext(),importContext,familys,record);
+                this.record.setTranMeta(this.getMetaData());
                 nextAssert.setHasNext(true);
 				return nextAssert;
 			}
@@ -146,11 +133,5 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 		}
 		throw new DataImportException("Unsupport last value type:"+importContext.getLastValueType().intValue());
 	}
-	@Override
-	public boolean removed() {
-		return record.removed();
-	}
-	public boolean reachEOFClosed(){
-		return this.record.reachEOFClosed() ;
-	}
+	
 }

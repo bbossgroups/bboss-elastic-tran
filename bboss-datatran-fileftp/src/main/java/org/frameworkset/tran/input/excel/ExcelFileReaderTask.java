@@ -132,11 +132,11 @@ public class ExcelFileReaderTask extends FileReaderTask {
 
 					reachEOFClosed = pointer == rows - 1;
 					if(!reachEOFClosed){
-						recordList.add(new FileLogRecord(taskContext,true,pointer,reachEOFClosed,false));
+						recordList.add(new FileLogRecord(taskContext,this.fileDataTran.getImportContext(),true,pointer,reachEOFClosed,false));
 					}
 					else if(inputPlugin.isStopCollectData()){
                         sendEOFRecord = true;
-						recordList.add(new FileLogRecord(taskContext,true,pointer,reachEOFClosed,true));
+						recordList.add(new FileLogRecord(taskContext,this.fileDataTran.getImportContext(),true,pointer,reachEOFClosed,true));
 						break;
 					}
 					pointer++;
@@ -386,10 +386,10 @@ public class ExcelFileReaderTask extends FileReaderTask {
 				json.put("@filemeta", common);
 				json.put("@timestamp", new Date());
 			}
-			recordList.add(new FileLogRecord(taskContext, common, json, pointer, reachEOFClosed));
+			recordList.add(new FileLogRecord(taskContext,this.fileDataTran.getImportContext(), common, json, pointer, reachEOFClosed));
 		}
 		else if(!reachEOFClosed){
-			recordList.add(new FileLogRecord(taskContext,true,pointer,reachEOFClosed,false));
+			recordList.add(new FileLogRecord(taskContext,this.fileDataTran.getImportContext(),true,pointer,reachEOFClosed,false));
 		}
 
 

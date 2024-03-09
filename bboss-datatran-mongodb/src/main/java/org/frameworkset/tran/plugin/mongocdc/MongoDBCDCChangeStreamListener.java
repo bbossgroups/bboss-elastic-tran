@@ -2,10 +2,7 @@ package org.frameworkset.tran.plugin.mongocdc;
 
 import com.mongodb.client.ChangeStreamIterable;
 import com.mongodb.client.MongoChangeStreamCursor;
-import com.mongodb.client.model.changestream.ChangeStreamDocument;
-import com.mongodb.client.model.changestream.FullDocument;
-import com.mongodb.client.model.changestream.FullDocumentBeforeChange;
-import com.mongodb.client.model.changestream.OperationType;
+import com.mongodb.client.model.changestream.*;
 import org.bson.*;
 import org.bson.types.ObjectId;
 import org.frameworkset.nosql.mongodb.MongoDB;
@@ -52,6 +49,66 @@ public class MongoDBCDCChangeStreamListener {
         this.replicaSet =replicaSet;
         this.isIncreament = mongoCDCInputConfig.isEnableIncrement();
     }
+    
+    private Map<String,Object> convertData(MongoDBCDCData mongoDBCDCData,UpdateDescription bsonDocument){
+        if(bsonDocument == null)
+            return null;
+        Map<String,Object> data = new LinkedHashMap<>();
+        BsonDocument updateFields = bsonDocument.getUpdatedFields();
+        if(updateFields != null) {
+            Set<Map.Entry<String, BsonValue>> entries = updateFields.entrySet();
+
+            Iterator<Map.Entry<String, BsonValue>> iterator = entries.iterator();
+
+            while (iterator.hasNext()) {
+                Map.Entry<String, BsonValue> entry = iterator.next();
+                BsonValue bsonValue = entry.getValue();
+                if(bsonValue.isString()){
+                    data.put(entry.getKey(),  bsonValue.asString().getValue());
+
+                }
+                else if(bsonValue.isInt32()){
+                    data.put(entry.getKey(),  bsonValue.asInt32().getValue());
+                }
+                else if(bsonValue.isInt64()){
+                    data.put(entry.getKey(),  bsonValue.asInt64().getValue());
+                }
+                else if(bsonValue.isDateTime()){
+                    data.put(entry.getKey(),  new Date(bsonValue.asDateTime().getValue()));
+                }
+                else if(bsonValue.isDouble()){
+                    data.put(entry.getKey(),  bsonValue.asDouble().getValue());
+                }
+                else if(bsonValue.isBoolean()){
+                    data.put(entry.getKey(),  bsonValue.asBoolean().getValue());
+                }
+                else if(bsonValue.isNull()){
+//                    data.put(entry.getKey(),  bsonValue.asNumber().);
+                }
+                else if(bsonValue.isArray()){
+                    data.put(entry.getKey(),  bsonValue.asArray().toArray());
+                }
+                
+                else {
+                    data.put(entry.getKey(), bsonValue);
+
+                }
+               
+            }
+        }
+
+        List<String> removedFields = bsonDocument.getRemovedFields();
+        if(removedFields != null && removedFields.size() > 0) {
+//            data.put("mongodb.update.removedFields",removedFields);
+            mongoDBCDCData.setRemovedFields(removedFields);
+            
+             
+        }
+        mongoDBCDCData.setUpdateDescription(bsonDocument);
+//        data.put("mongodb.updateDescription",bsonDocument);
+        data.put("_id",mongoDBCDCData.getId());
+        return data;
+    }
 
     private Map<String,Object> convertData(Document bsonDocument){
         if(bsonDocument == null)
@@ -75,7 +132,7 @@ public class MongoDBCDCChangeStreamListener {
     private MongoDBCDCData buildInsertDocument(ChangeStreamDocument<Document> event){
         MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
         Document bsonDocument = event.getFullDocument();
-	    evalId(  bsonDocument,  mongoDBCDCData );
+	    evalId(  event.getDocumentKey(),  mongoDBCDCData );
         mongoDBCDCData.setData(convertData(  bsonDocument));
         mongoDBCDCData.setAction(Record.RECORD_INSERT);
         return mongoDBCDCData;
@@ -84,11 +141,18 @@ public class MongoDBCDCChangeStreamListener {
 
     private MongoDBCDCData buildUpdateDocument(ChangeStreamDocument<Document> event){
         MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
-        Document bsonDocument = event.getFullDocument();
+        
 
         mongoDBCDCData.setAction(Record.RECORD_UPDATE);
-	    evalId( bsonDocument, mongoDBCDCData );
-        mongoDBCDCData.setData(convertData(  bsonDocument));
+	    evalId( event.getDocumentKey(), mongoDBCDCData );
+        Document bsonDocument = event.getFullDocument();
+        if(bsonDocument != null) {
+            mongoDBCDCData.setData(convertData(bsonDocument));
+        }
+        else{
+            mongoDBCDCData.setData(convertData(mongoDBCDCData,event.getUpdateDescription()));
+        }
+        
         Document updateDocument = event.getFullDocumentBeforeChange();
         if(updateDocument != null)
             mongoDBCDCData.setOldValues(convertData(updateDocument));
@@ -98,11 +162,17 @@ public class MongoDBCDCChangeStreamListener {
 
     private MongoDBCDCData buildReplaceDocument(ChangeStreamDocument<Document> event){
         MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
-        Document bsonDocument = event.getFullDocument();
+        
 
         mongoDBCDCData.setAction(Record.RECORD_REPLACE);
-        evalId( bsonDocument, mongoDBCDCData );
-        mongoDBCDCData.setData(convertData(  bsonDocument));
+        evalId( event.getDocumentKey(), mongoDBCDCData );
+        Document bsonDocument = event.getFullDocument();
+        if(bsonDocument != null) {
+            mongoDBCDCData.setData(convertData(bsonDocument));
+        }
+        else{
+            mongoDBCDCData.setData(convertData(mongoDBCDCData,event.getUpdateDescription()));
+        }
         Document updateDocument = event.getFullDocumentBeforeChange();
         if(updateDocument != null)
             mongoDBCDCData.setOldValues(convertData(updateDocument));
@@ -111,15 +181,19 @@ public class MongoDBCDCChangeStreamListener {
     }
 
 
-    private void evalId(Document bsonDocument,MongoDBCDCData mongoDBCDCData ){
-		Object id = bsonDocument.get("_id");
+    private void evalId(BsonDocument bsonDocument,MongoDBCDCData mongoDBCDCData ){
+        BsonValue id = bsonDocument.get("_id");
 		String _id = null;
-		if(id instanceof ObjectId){
-			_id = ((ObjectId)id).toString();
-		}
-		else{
-			_id = String.valueOf(id);
-		}
+      
+        if(id.isObjectId()){
+            _id = id.asObjectId().getValue().toString();
+        }
+        else if(id.isString()){
+            _id = id.asString().getValue();
+        }
+        else{
+            _id = id.toString();
+        }
 		mongoDBCDCData.setId(_id);
 	}
 
@@ -127,7 +201,7 @@ public class MongoDBCDCChangeStreamListener {
         MongoDBCDCData mongoDBCDCData = new MongoDBCDCData();
         Document bsonDocument = event.getFullDocument();
         if(bsonDocument != null) {
-	        evalId(  bsonDocument,  mongoDBCDCData );
+	        evalId(  event.getDocumentKey(),  mongoDBCDCData );
             mongoDBCDCData.setData(convertData(bsonDocument));
         }
         else{
@@ -190,7 +264,7 @@ public class MongoDBCDCChangeStreamListener {
             mongoDBCDCData.setWallTime(event.getWallTime().getValue());
 
             List<MongoCDCRecord> mongoCDCRecords = new ArrayList<>(1);
-            MongoCDCRecord mongoCDCRecord = new MongoCDCRecord(dataTran.getTaskContext(),
+            MongoCDCRecord mongoCDCRecord = new MongoCDCRecord(dataTran.getTaskContext(),importContext,
                     mongoDBCDCData, this.mongoCDCInputConfig);
 
             mongoCDCRecords.add(mongoCDCRecord);
@@ -298,7 +372,7 @@ public class MongoDBCDCChangeStreamListener {
         mongoDBCDCData.setPosition(postion);
         mongoDBCDCData.setAction(Record.RECORD_DIRECT_IGNORE);
         List<MongoCDCRecord> mongoCDCRecords = new ArrayList<>(1);
-        MongoCDCRecord mongoCDCRecord = new MongoCDCRecord(dataTran.getTaskContext(),
+        MongoCDCRecord mongoCDCRecord = new MongoCDCRecord(dataTran.getTaskContext(),importContext,
                 mongoDBCDCData, this.mongoCDCInputConfig);
 
         mongoCDCRecords.add(mongoCDCRecord);

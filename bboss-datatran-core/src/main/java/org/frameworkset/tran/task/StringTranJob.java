@@ -114,16 +114,17 @@ public class StringTranJob extends BaseTranJob{
                     if(!hasNext.isHasNext()){
                         break;
                     }
+                    Record resultRecord = tranResultSet.getCurrentRecord();
                     if(lastValue == null)
-                        lastValue = importContext.max(currentValue,baseDataTran);
+                        lastValue = importContext.max(currentValue,resultRecord);
                     else{
-                        lastValue = importContext.max(lastValue,baseDataTran);
+                        lastValue = importContext.max(lastValue,resultRecord);
                     }
                     if(tranResultSet.isRecordDirectIgnore()){
                         droped ++;
                         continue;
                     }
-                    Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
+                    Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
 
                     if(!reachEOFClosed)
                         reachEOFClosed = context.reachEOFClosed();
@@ -316,17 +317,17 @@ public class StringTranJob extends BaseTranJob{
 				}
 				if(!hasNext.isHasNext())
 					break;
-
+                Record resultRecord = tranResultSet.getCurrentRecord();
 				if(lastValue == null)
-					lastValue = importContext.max(currentValue,baseDataTran);
+					lastValue = importContext.max(currentValue,resultRecord);
 				else{
-					lastValue = importContext.max(lastValue,baseDataTran);
+					lastValue = importContext.max(lastValue,resultRecord);
 				}
                 if(tranResultSet.isRecordDirectIgnore()){
                     droped ++;
                     continue;
                 }
-				Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
+				Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
 				if(!reachEOFClosed)
 					reachEOFClosed = context.reachEOFClosed();
 				if(context.removed()){
@@ -510,16 +511,17 @@ public class StringTranJob extends BaseTranJob{
 				lastSend = 0l;
 				printed = false;
 				try {
+                    Record resultRecord = tranResultSet.getCurrentRecord();
 					if (lastValue == null)
-						lastValue = importContext.max(currentValue, baseDataTran);
+						lastValue = importContext.max(currentValue, resultRecord);
 					else {
-						lastValue = importContext.max(lastValue,baseDataTran);
+						lastValue = importContext.max(lastValue,resultRecord);
 					}
                     if(tranResultSet.isRecordDirectIgnore()){
                         continue;
                     }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
-					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
+					Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
 
 
 					if(!reachEOFClosed)
@@ -679,16 +681,17 @@ public class StringTranJob extends BaseTranJob{
 					break;
 				}
 				try {
+                    Record resultRecord = tranResultSet.getCurrentRecord();
 					if (lastValue == null)
-						lastValue = importContext.max(currentValue, baseDataTran);
+						lastValue = importContext.max(currentValue, resultRecord);
 					else {
-						lastValue = importContext.max(lastValue, baseDataTran);
+						lastValue = importContext.max(lastValue, resultRecord);
 					}
                     if(tranResultSet.isRecordDirectIgnore()){
                         continue;
                     }
 //					Context context = new ContextImpl(importContext, tranResultSet, null);
-					Context context = importContext.buildContext(baseDataTran.getTaskContext(),tranResultSet, batchContext);
+					Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
 					if(!reachEOFClosed)
 						reachEOFClosed = context.reachEOFClosed();
 					if(context.removed()){

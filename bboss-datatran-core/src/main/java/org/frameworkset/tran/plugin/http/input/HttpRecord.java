@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.http.input;
  */
 
 import org.apache.http.HttpResponse;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.http.HttpResult;
 import org.frameworkset.tran.record.CommonMapRecord;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -32,8 +33,8 @@ import java.util.Map;
  */
 public class HttpRecord  extends CommonMapRecord {
 	private HttpResult<Map> httpResult;
-	public HttpRecord(HttpResult<Map> httpResult,Map record, TaskContext taskContext) {
-		super(taskContext,record);
+	public HttpRecord(HttpResult<Map> httpResult, Map record, TaskContext taskContext, ImportContext importContext) {
+		super(taskContext,  importContext,record);
 		this.httpResult = httpResult;
 	}
 

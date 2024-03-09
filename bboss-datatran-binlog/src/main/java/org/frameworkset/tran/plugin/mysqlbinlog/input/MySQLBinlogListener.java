@@ -261,7 +261,7 @@ public class MySQLBinlogListener {
                 mysqlBinLogData.setPosition(binlogPosition);
                 mysqlBinLogData.setAction(Record.RECORD_DIRECT_IGNORE);
 
-                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
+                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),importContext,mysqlBinLogData,mySQLBinlogConfig);
                 datas.add(mysqlBinlogRecord);
 
                 mysqlBinlogDataTran.appendData(new CommonData(datas));
@@ -314,7 +314,7 @@ public class MySQLBinlogListener {
                                 mysqlBinLogData.setPosition(binlogPosition);
                                 mysqlBinLogData.setAction(Record.RECORD_INSERT);
 
-                                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), mysqlBinLogData, mySQLBinlogConfig);
+                                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),importContext, mysqlBinLogData, mySQLBinlogConfig);
                                 datas.add(mysqlBinlogRecord);
 
                             }
@@ -342,7 +342,7 @@ public class MySQLBinlogListener {
                                 mysqlBinLogData.setAction(Record.RECORD_UPDATE);
                                 mysqlBinLogData.setFileName(binLogFileName);
                                 mysqlBinLogData.setPosition(binlogPosition);
-                                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), mysqlBinLogData, mySQLBinlogConfig);
+                                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), importContext,mysqlBinLogData, mySQLBinlogConfig);
                                 datas.add(mysqlBinlogRecord);
 
                             }
@@ -366,7 +366,7 @@ public class MySQLBinlogListener {
                                 mysqlBinLogData.setAction(Record.RECORD_DELETE);
                                 mysqlBinLogData.setFileName(binLogFileName);
                                 mysqlBinLogData.setPosition(binlogPosition);
-                                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), mysqlBinLogData, mySQLBinlogConfig);
+                                MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),importContext, mysqlBinLogData, mySQLBinlogConfig);
                                 datas.add(mysqlBinlogRecord);
 
                             }
@@ -391,7 +391,7 @@ public class MySQLBinlogListener {
                                     mysqlBinLogData.setAction(Record.RECORD_DDL);
                                     mysqlBinLogData.setFileName(binLogFileName);
                                     mysqlBinLogData.setPosition(binlogPosition);
-                                    MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), mysqlBinLogData, mySQLBinlogConfig);
+                                    MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), importContext,mysqlBinLogData, mySQLBinlogConfig);
                                     datas.add(mysqlBinlogRecord);
                                     mysqlBinlogDataTran.appendData(new CommonData(datas));
                                 }
@@ -475,7 +475,7 @@ public class MySQLBinlogListener {
 
         try {
             List<MysqlBinlogRecord> datas = new ArrayList<>();
-            datas.add(new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mySQLBinlogConfig,true,true));
+            datas.add(new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),   importContext,mySQLBinlogConfig,true,true));
             this.mysqlBinlogDataTran.appendData(new CommonData(datas));
             long end = System.currentTimeMillis();
             if(!mySQLBinlogConfig.isCollectMasterHistoryBinlog())
@@ -549,7 +549,7 @@ public class MySQLBinlogListener {
                         mysqlBinLogData.setDatabase(database);
                         mysqlBinLogData.setAction(Record.RECORD_INSERT);
                         mysqlBinLogData.setFileName(fileName.getFileName());
-                        MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
+                        MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),   importContext,mysqlBinLogData,mySQLBinlogConfig);
                         datas.add(mysqlBinlogRecord);
 
                     }
@@ -576,7 +576,7 @@ public class MySQLBinlogListener {
                         mysqlBinLogData.setDatabase(database);
                         mysqlBinLogData.setAction(Record.RECORD_UPDATE);
                         mysqlBinLogData.setFileName(fileName.getFileName());
-                        MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
+                        MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),   importContext,mysqlBinLogData,mySQLBinlogConfig);
                         datas.add(mysqlBinlogRecord);
 
                     }
@@ -599,7 +599,7 @@ public class MySQLBinlogListener {
                         mysqlBinLogData.setDatabase(database);
                         mysqlBinLogData.setAction(Record.RECORD_DELETE);
                         mysqlBinLogData.setFileName(fileName.getFileName());
-                        MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),mysqlBinLogData,mySQLBinlogConfig);
+                        MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),   importContext,mysqlBinLogData,mySQLBinlogConfig);
                         datas.add(mysqlBinlogRecord);
 
                     }
@@ -621,7 +621,7 @@ public class MySQLBinlogListener {
                             mysqlBinLogData.setDatabase(db);
                             mysqlBinLogData.setAction(Record.RECORD_DDL);
                             mysqlBinLogData.setFileName(fileName.getFileName());
-                            MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(), mysqlBinLogData, mySQLBinlogConfig);
+                            MysqlBinlogRecord mysqlBinlogRecord = new MysqlBinlogRecord(mysqlBinlogDataTran.getTaskContext(),   importContext, mysqlBinLogData, mySQLBinlogConfig);
                             datas.add(mysqlBinlogRecord);
                             mysqlBinlogDataTran.appendData(new CommonData(datas));
                         }

@@ -18,6 +18,7 @@ package org.frameworkset.tran.hbase;
 import com.frameworkset.orm.annotation.BatchContext;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.spi.geoip.IpInfo;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
@@ -37,8 +38,8 @@ import java.util.Date;
  */
 public class HBaseRecordContextImpl extends ContextImpl {
 
-	public HBaseRecordContextImpl(TaskContext taskContext, ImportContext importContext, TranResultSet tranResultSet, BatchContext batchContext){
-		super(  taskContext,importContext,tranResultSet,batchContext);
+	public HBaseRecordContextImpl(TaskContext taskContext, ImportContext importContext,   Record record, BatchContext batchContext){
+		super(  taskContext,importContext,   record,batchContext);
 	}
 
 	@Override
@@ -153,7 +154,7 @@ public class HBaseRecordContextImpl extends ContextImpl {
 
 	@Override
 	public IpInfo getIpInfo(String fieldName) throws Exception{
-		Object _ip = tranResultSet.getValue(fieldName);
+		Object _ip = record.getValue(fieldName);
 		if(_ip == null){
 			return null;
 		}

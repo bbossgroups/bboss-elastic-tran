@@ -62,7 +62,7 @@ public interface DataTranPlugin {
      */
     public LastValueWrapper maxNumberLastValue(LastValueWrapper oldValue, LastValueWrapper newValue);
     public boolean needUpdateLastValueWrapper(Integer lastValueType, LastValueWrapper oldValue,LastValueWrapper newValue);
-    public LastValueWrapper maxLastValue(LastValueWrapper oldValue, BaseDataTran baseDataTran);
+    public LastValueWrapper maxLastValue(LastValueWrapper oldValue, Record record);
     public List<Map> getJobInputParamGroups(TaskContext taskContext);
 	public String getJobType();
 	public LoadCurrentStatus getLoadCurrentStatus();
@@ -91,7 +91,7 @@ public interface DataTranPlugin {
 	public void afterCall(TaskContext taskContext);
 
 		public void throwException(TaskContext taskContext,Throwable e);
-	public Context buildContext(TaskContext taskContext,TranResultSet jdbcResultSet, BatchContext batchContext);
+	public Context buildContext(TaskContext taskContext, Record record,BatchContext batchContext);
 //	public void forceflushLastValue(Status currentStatus);
 	public  void handleOldedTasks(List<Status> olded );
 	public  void handleOldedTask(Status olded );

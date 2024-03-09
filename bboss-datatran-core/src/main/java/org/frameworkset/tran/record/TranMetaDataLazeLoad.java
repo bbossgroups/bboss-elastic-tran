@@ -1,6 +1,6 @@
-package org.frameworkset.tran.plugin.es.input;
+package org.frameworkset.tran.record;
 /**
- * Copyright 2008 biaoping.yin
+ * Copyright 2024 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,13 @@ package org.frameworkset.tran.plugin.es.input;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.AsynBaseTranResultSet;
-import org.frameworkset.tran.Record;
-
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2018</p>
- * @Date 2019/10/28 22:37
+ *
  * @author biaoping.yin
- * @version 1.0
+ * @Date 2024/3/8
  */
-public class ES2TranResultSet extends AsynBaseTranResultSet {
-
-	public ES2TranResultSet(ImportContext importContext) {
-		super(importContext);
-
-	}
-	@Override
-	protected Record buildRecord(Object data){
-		return new ESRecord(getTaskContext(),this.importContext,data);
-	}
-
-
+public interface TranMetaDataLazeLoad {
+    public String[] lazeLoad();
 }

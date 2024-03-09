@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin;
 
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
@@ -88,8 +89,8 @@ public abstract class BasePlugin {
 	public boolean isEnableAutoPauseScheduled(){
 		return true;
 	}
-	public Context buildContext(TaskContext taskContext, TranResultSet tranResultSet, BatchContext batchContext){
-		return new ContextImpl(  taskContext,importContext, tranResultSet, batchContext);
+	public Context buildContext(TaskContext taskContext,  Record record, BatchContext batchContext){
+		return new ContextImpl(  taskContext,importContext,    record,batchContext);
 	}
 	public Long getTimeRangeLastValue(){
 		return null;

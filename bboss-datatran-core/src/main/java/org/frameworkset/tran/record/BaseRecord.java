@@ -18,7 +18,11 @@ package org.frameworkset.tran.record;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
+import org.frameworkset.tran.TranMeta;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.util.TranUtil;
 
 import java.time.LocalDateTime;
@@ -39,27 +43,39 @@ public abstract class BaseRecord implements Record {
     protected boolean removed;
     protected boolean reachEOFClosed;
     protected Map<String,Object> metaDatas;
-	public BaseRecord(TaskContext taskContext){
+    protected ImportContext importContext;
+    protected TranMeta tranMeta;
+	public BaseRecord(TaskContext taskContext,ImportContext importContext){
 		this.taskContext = taskContext;
+        this.importContext = importContext;
 	}
 
-    public BaseRecord(TaskContext taskContext,boolean removed,
+    public BaseRecord(TaskContext taskContext,ImportContext importContext,boolean removed,
                      boolean reachEOFClosed,boolean readEOFRecord){
         this.taskContext = taskContext;
         this.removed = removed;
         this.reachEOFClosed = reachEOFClosed;
         this.readEOFRecord = readEOFRecord;
+        this.importContext = importContext;
     }
 
-    public BaseRecord(TaskContext taskContext,boolean removed,
+    public BaseRecord(TaskContext taskContext,ImportContext importContext,boolean removed,
                      boolean readEOFRecord){
         this.taskContext = taskContext;
         this.removed = removed;
         this.reachEOFClosed = true;
         this.readEOFRecord = readEOFRecord;
+        this.importContext = importContext;
+    }
+    public TranMeta getMetaData(){
+        return tranMeta;
     }
 
-	@Override
+    public void setTranMeta(TranMeta tranMeta) {
+        this.tranMeta = tranMeta;
+    }
+
+    @Override
 	public TaskContext getTaskContext() {
 		return taskContext;
 	}
@@ -96,6 +112,11 @@ public abstract class BaseRecord implements Record {
     @Override
     public boolean reachEOFRecord(){
         return readEOFRecord;
+    }
+
+    @Override
+    public ImportContext getImportContext() {
+        return importContext;
     }
 
     @Override
@@ -141,5 +162,69 @@ public abstract class BaseRecord implements Record {
     @Override
     public int getAction(){
         return Record.RECORD_INSERT;
+    }
+    public Long getLastValueTime(){
+        return System.currentTimeMillis();
+    }
+    @Override
+    public LastValueWrapper getLastValueWrapper(){
+        LastValueWrapper lastValueWrapper = new LastValueWrapper();
+        lastValueWrapper.setTimeStamp(getLastValueTime());
+        lastValueWrapper.setLastValue(getLastValue());
+        lastValueWrapper.setStrLastValue(getStrLastValue());
+        return lastValueWrapper;
+    }
+
+
+    public Object getLastValue(){
+        if(!importContext.useFilePointer()) {
+            if (importContext.getLastValueColumnName() == null) {
+                return -1;
+            }
+            return getLastValue(importContext.getLastValueColumnName());
+        }
+        else{
+            return getLastOffsetValue();
+        }
+    }
+    public String getStrLastValue() throws DataImportException {
+        return null;
+    }
+    public Object getLastValue(String colName) throws DataImportException {
+        try {
+            if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
+                return getValue(colName);
+            else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
+                if(importContext.getLastValueDateformat() == null || importContext.getLastValueDateformat().equals("")) {
+                    return getDateTimeValue(colName);
+                }
+                else{
+                    return getDateTimeValue(colName,importContext.getLastValueDateformat());
+                }
+            }
+            else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
+                return getLocalDateTimeValue(colName);
+            }
+            else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.STRING_TYPE){
+                if(colName != null) {
+                    return getValue(colName);
+                }
+                else{
+                    return null;
+                }
+            }
+        }
+        catch (DataImportException e){
+            throw (e);
+        }
+        catch (Exception e){
+            throw new DataImportException(e);
+        }
+        throw new DataImportException("Unsupport last value type:"+importContext.getLastValueType().intValue());
+    }
+
+    public Object getLastOffsetValue() throws DataImportException {
+       
+        return getOffset();
     }
 }

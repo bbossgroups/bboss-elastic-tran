@@ -48,6 +48,15 @@ public abstract class LastValue implements TranResultSet{
             return status == STATUS_STOP_NORMAL || status == STATUS_STOP_EXCEPTION;
         }
     }
+    @Override
+    public TaskContext getRecordTaskContext() {
+        return record.getTaskContext();
+    }
+
+    @Override
+    public Record getCurrentRecord() {
+        return record;
+    }
 
     public boolean isStop(boolean forceStop){
         if(forceStop) {
@@ -83,14 +92,7 @@ public abstract class LastValue implements TranResultSet{
     public Map<String, Object> getMetaDatas(){
         return record.getMetaDatas();
     }
-    /**
-     * 获取binlog采集的修改前记录信息
-     * @return
-     */
-    public Map<String, Object> getUpdateFromDatas(){
-        return record.getUpdateFromDatas();
-    }
-
+ 
     public int getAction(){
         return record.getAction();
     }
@@ -103,6 +105,15 @@ public abstract class LastValue implements TranResultSet{
 	public void setImportContext(ImportContext importContext) {
 		this.importContext = importContext;
 	}
+
+    @Override
+    public Object getValue(String colName) throws DataImportException {
+        //todo fixed
+        Object value = record.getValue(colName);
+
+        return value;
+
+    }
 	public Object getLastValue(String colName) throws DataImportException {
 		try {
 			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
@@ -151,20 +162,7 @@ public abstract class LastValue implements TranResultSet{
             return getLastOffsetValue();
         }
     }
-    public String getStrLastValue() throws DataImportException {
-        return null;
-    }
-
-    public Long getLastValueTime(){
-        return System.currentTimeMillis();
-    }
-    public LastValueWrapper getLastValueWrapper(){
-        LastValueWrapper lastValueWrapper = new LastValueWrapper();
-        lastValueWrapper.setTimeStamp(getLastValueTime());
-        lastValueWrapper.setLastValue(getLastValue());
-        lastValueWrapper.setStrLastValue(getStrLastValue());
-        return lastValueWrapper;
-    }
+ 
 
 	@Override
 	public Date getDateTimeValue(String colName) throws DataImportException {

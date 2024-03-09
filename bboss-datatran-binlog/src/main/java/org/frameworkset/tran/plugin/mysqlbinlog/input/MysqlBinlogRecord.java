@@ -16,6 +16,8 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  */
 
 
+import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CommonMapRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -33,17 +35,17 @@ import java.util.Map;
 public class MysqlBinlogRecord extends CommonMapRecord {
     private MySQLBinlogConfig mySQLBinlogConfig ;
     private MysqlBinLogData mysqlBinLogData;
-	public MysqlBinlogRecord(TaskContext taskContext,
+	public MysqlBinlogRecord(TaskContext taskContext, ImportContext importContext,
                              MySQLBinlogConfig mySQLBinlogConfig,
-                             boolean removed,boolean readEOFRecord){
-		super(taskContext,(Map<String,Object>)null,  removed,   readEOFRecord);
+                             boolean removed, boolean readEOFRecord){
+		super(taskContext,  importContext,(Map<String,Object>)null,  removed,   readEOFRecord);
         this.mySQLBinlogConfig = mySQLBinlogConfig;
 	}
 
-    public MysqlBinlogRecord(TaskContext taskContext,
+    public MysqlBinlogRecord(TaskContext taskContext,ImportContext importContext,
                              MysqlBinLogData mysqlBinLogData, MySQLBinlogConfig mySQLBinlogConfig
     ){
-        super(taskContext,(Map<String,Object>)(mysqlBinLogData.getData()));
+        super(taskContext,  importContext,(Map<String,Object>)(mysqlBinLogData.getData()));
         this.mySQLBinlogConfig = mySQLBinlogConfig;
         this.mysqlBinLogData = mysqlBinLogData;
         initMetaDatas();
@@ -113,5 +115,21 @@ public class MysqlBinlogRecord extends CommonMapRecord {
 
     public MysqlBinLogData getMysqlBinLogData() {
         return mysqlBinLogData;
+    }
+
+    @Override
+    public String getStrLastValue() throws DataImportException {
+        
+        MysqlBinLogData mysqlBinLogData = getMysqlBinLogData();
+        if(mysqlBinLogData != null) {
+            if(mysqlBinLogData.getGtid() != null){
+                return mysqlBinLogData.getGtid() + MySQLBinlogConfig.split + mysqlBinLogData.getFileName();
+            }
+            else {
+                return mysqlBinLogData.getFileName();
+            }
+        }
+        
+        return null;
     }
 }

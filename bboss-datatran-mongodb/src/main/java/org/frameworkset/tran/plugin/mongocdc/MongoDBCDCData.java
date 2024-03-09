@@ -15,7 +15,10 @@ package org.frameworkset.tran.plugin.mongocdc;
  * limitations under the License.
  */
 
+import com.mongodb.client.model.changestream.UpdateDescription;
 import org.frameworkset.tran.cdc.CDCData;
+
+import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -41,6 +44,8 @@ public class MongoDBCDCData extends CDCData {
     private String id;
 
 
+    private UpdateDescription updateDescription;
+    private List<String> removedFields;
     public String getCollection() {
         return collection;
     }
@@ -93,4 +98,20 @@ public class MongoDBCDCData extends CDCData {
         this.wallTime = wallTime;
     }
 
+    public UpdateDescription getUpdateDescription() {
+        return updateDescription;
+    }
+
+    public void setUpdateDescription(UpdateDescription updateDescription) {
+        this.updateDescription = updateDescription;
+    }
+
+
+    public List<String> getRemovedFields() {
+        return removedFields;
+    }
+
+    public void setRemovedFields(List<String> removedFields) {
+        this.removedFields = removedFields;
+    }
 }

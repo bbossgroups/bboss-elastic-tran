@@ -172,7 +172,7 @@ public class WordFileReaderTask extends FileReaderTask {
                         json.put("@filemeta", common);
                         json.put("@timestamp", new Date());
                     }
-                    recordList.add(new FileLogRecord(taskContext, common, json, pointer, reachEOFClosed));
+                    recordList.add(new FileLogRecord(taskContext,this.fileDataTran.getImportContext(), common, json, pointer, reachEOFClosed));
                 }
             }
         }
@@ -195,7 +195,7 @@ public class WordFileReaderTask extends FileReaderTask {
                 json.put("@filemeta", common);
                 json.put("@timestamp", new Date());
             }
-            recordList.add(new FileLogRecord(taskContext, common, json, pointer, reachEOFClosed));
+            recordList.add(new FileLogRecord(taskContext,this.fileDataTran.getImportContext(), common, json, pointer, reachEOFClosed));
         }
 
 

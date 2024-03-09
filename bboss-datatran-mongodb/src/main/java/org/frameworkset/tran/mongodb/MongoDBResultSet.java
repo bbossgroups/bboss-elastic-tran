@@ -21,6 +21,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.NextAssert;
+import org.frameworkset.tran.record.TranMetaDataLazeLoad;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Date;
@@ -41,21 +42,14 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 		this.importContext = importContext;
 		this.dbCursor = dbCursor;
 	}
-	@Override
-	public TaskContext getRecordTaskContext() {
-		return record.getTaskContext();
-	}
+ 
 
 	@Override
 	public Object getValue(int i, String colName, int sqlType) throws DataImportException {
 		return getValue(  colName);
 	}
 
-	@Override
-	public Object getValue(String colName) throws DataImportException {
-		return record.getValue(colName);
-
-	}
+	 
 
 	@Override
 	public Object getValue(String colName, int sqlType) throws DataImportException {
@@ -76,7 +70,8 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 		boolean hasNext = dbCursor.hasNext();
 		if( hasNext){
 			dbObject = dbCursor.next();
-			record = new MongoDBRecord(dbObject,getTaskContext());
+			record = new MongoDBRecord(dbObject,getTaskContext(),importContext);
+            record.setTranMeta(this.getMetaData());
 		}
         nextAssert.setHasNext(hasNext);
 		return nextAssert;
@@ -84,7 +79,12 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 
 	@Override
 	public TranMeta getMetaData() {
-		return new DefaultTranMetaData(dbObject.keySet());
+		return new DefaultTranMetaData(new TranMetaDataLazeLoad() {
+            @Override
+            public String[] lazeLoad() {
+                return DefaultTranMetaData.convert(dbObject.keySet());
+            }
+        });
 	}
 
 	public Object getKeys(){
@@ -95,10 +95,7 @@ public class MongoDBResultSet extends LastValue implements TranResultSet {
 		return dbObject;
 	}
 
-	@Override
-	public Record getCurrentRecord() {
-		return record;
-	}
+
 
 //	@Override
 //	public void stop() {

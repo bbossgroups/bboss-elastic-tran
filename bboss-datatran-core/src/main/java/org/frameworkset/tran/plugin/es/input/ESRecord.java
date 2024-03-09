@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.es.input;
 
 import org.frameworkset.elasticsearch.entity.MetaMap;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.BaseRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -34,8 +35,8 @@ import java.util.Map;
  */
 public class ESRecord  extends BaseRecord {
 	private MetaMap data;
-	public ESRecord(TaskContext taskContext,Object data){
-		super(taskContext);
+	public ESRecord(TaskContext taskContext, ImportContext importContext, Object data){
+		super(taskContext,  importContext);
 		this.data = (MetaMap) data;
         initMetaDatas();
 	}
@@ -199,6 +200,8 @@ public class ESRecord  extends BaseRecord {
 
 	@Override
 	public Object getKeys() {
+        if(data == null)
+            return null;
 		return data.keySet();
 	}
 	public Object getData(){

@@ -18,6 +18,7 @@ package org.frameworkset.tran.mongodb;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.BaseRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -31,8 +32,8 @@ import org.frameworkset.tran.schedule.TaskContext;
  */
 public class MongoDBRecord extends BaseRecord {
 	private Document record;
-	public MongoDBRecord(Document record,TaskContext taskContext) {
-		super(taskContext);
+	public MongoDBRecord(Document record, TaskContext taskContext, ImportContext importContext) {
+		super(taskContext,  importContext);
 		this.record = record;
 	}
 
@@ -61,6 +62,8 @@ public class MongoDBRecord extends BaseRecord {
 
 	@Override
 	public Object getKeys() {
+        if(record == null)
+            return null;
 		return  record.keySet();
 	}
 

@@ -16,6 +16,7 @@ package org.frameworkset.tran.record;
  */
 
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -30,14 +31,14 @@ public class CommonStringRecord  extends BaseRecord {
 	private Object key;
 	private String record;
 	private long offset;
-	public CommonStringRecord(TaskContext taskContext,Object key, String record, long offset){
-		super(taskContext);
+	public CommonStringRecord(TaskContext taskContext, ImportContext importContext, Object key, String record, long offset){
+		super(taskContext,  importContext);
 		this.record = record;
 		this.key = key;
 		this.offset = offset;
 	}
-	public CommonStringRecord(TaskContext taskContext,String record,long offset){
-		super(taskContext);
+	public CommonStringRecord(TaskContext taskContext,ImportContext importContext,String record,long offset){
+		super(taskContext,  importContext);
 		this.record = record;
 		this.offset = offset;
 	}

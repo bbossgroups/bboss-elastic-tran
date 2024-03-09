@@ -15,6 +15,7 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 
 import java.util.Map;
@@ -30,17 +31,25 @@ import java.util.Map;
 public class SplitRecord extends CommonMapRecord{
 	private Record baseRecord;
 	public SplitRecord(Record baseRecord, Object key, Map<String, Object> record) {
-		super(baseRecord.getTaskContext(), key, record, baseRecord.getOffset());
+		super(baseRecord.getTaskContext(),baseRecord.getImportContext(), key, record, baseRecord.getOffset());
 		this.baseRecord = baseRecord;
+        this.metaDatas = baseRecord.getMetaDatas();
 	}
 
 	public SplitRecord(Record baseRecord, Map<String, Object> record) {
-		super(baseRecord.getTaskContext(), record, baseRecord.getOffset());
+		super(baseRecord.getTaskContext(),baseRecord.getImportContext(), record, baseRecord.getOffset());
 		this.baseRecord = baseRecord;
+        this.metaDatas = baseRecord.getMetaDatas();
 	}
+    @Override
+    public Object getValue(int i, String colName, int sqlType) throws DataImportException {
+        return baseRecord.getValue(  i,   colName,   sqlType);
+    }
 
-
-
+    @Override
+    public Object getValue(String colName, int sqlType) throws DataImportException {
+        return baseRecord.getValue(colName,sqlType);
+    }
 	@Override
 	public Object getValue(String colName) {
 
@@ -78,7 +87,14 @@ public class SplitRecord extends CommonMapRecord{
     public boolean reachEOFRecord(){
         return baseRecord.reachEOFRecord();
     }
-
+    /**
+     * 获取binlog采集的修改前记录信息
+     * @return
+     */
+    @Override
+    public Map<String, Object> getUpdateFromDatas(){
+        return baseRecord.getUpdateFromDatas();
+    }
 
 
 
