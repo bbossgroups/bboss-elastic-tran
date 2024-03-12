@@ -63,10 +63,7 @@ public class StringTranJob extends BaseTranJob{
 		String ret = null;
 		int taskNo = 0;
 		Exception exception = null;
-//		Status currentStatus = importContext.getCurrentStatus();
-//		Status currentStatus = this.currentStatus;
-//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
-//		Object lastValue = null;
+
         LastValueWrapper currentValue = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
         LastValueWrapper lastValue = null;
 		long start = System.currentTimeMillis();
@@ -120,7 +117,7 @@ public class StringTranJob extends BaseTranJob{
                     else{
                         lastValue = importContext.max(lastValue,resultRecord);
                     }
-                    if(tranResultSet.isRecordDirectIgnore()){
+                    if(resultRecord.isRecordDirectIgnore()){
                         droped ++;
                         continue;
                     }
@@ -323,7 +320,7 @@ public class StringTranJob extends BaseTranJob{
 				else{
 					lastValue = importContext.max(lastValue,resultRecord);
 				}
-                if(tranResultSet.isRecordDirectIgnore()){
+                if(resultRecord.isRecordDirectIgnore()){
                     droped ++;
                     continue;
                 }
@@ -461,8 +458,6 @@ public class StringTranJob extends BaseTranJob{
 		Exception exception = null;
 		long start = System.currentTimeMillis();
 		long lastSend = 0;
-//		Status currentStatus = this.currentStatus;
-//		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
         LastValueWrapper currentValue = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
         LastValueWrapper lastValue = null;
 		ImportCount importCount = new SerialImportCount(baseDataTran);
@@ -471,10 +466,6 @@ public class StringTranJob extends BaseTranJob{
 		boolean reachEOFClosed = false;
 		try {
 
-			//		GetCUDResult CUDResult = null;
-			Object temp = null;
-
-//			List<DBRecord> records = new ArrayList<DBRecord>();
 			//十分钟后打印一次等待日志数据，打印后，就等下次
 			long logInterval = 1l * 60l * 1000l;
 			boolean printed = false;
@@ -517,10 +508,9 @@ public class StringTranJob extends BaseTranJob{
 					else {
 						lastValue = importContext.max(lastValue,resultRecord);
 					}
-                    if(tranResultSet.isRecordDirectIgnore()){
+                    if(resultRecord.isRecordDirectIgnore()){
                         continue;
                     }
-//					Context context = new ContextImpl(importContext, tranResultSet, null);
 					Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
 
 

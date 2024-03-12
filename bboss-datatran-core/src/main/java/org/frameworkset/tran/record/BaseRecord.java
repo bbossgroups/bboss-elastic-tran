@@ -110,6 +110,10 @@ public abstract class BaseRecord implements Record {
 
     }
     @Override
+    public boolean isRecordDirectIgnore(){
+        return getAction() == Record.RECORD_DIRECT_IGNORE;
+    }
+    @Override
     public boolean reachEOFRecord(){
         return readEOFRecord;
     }

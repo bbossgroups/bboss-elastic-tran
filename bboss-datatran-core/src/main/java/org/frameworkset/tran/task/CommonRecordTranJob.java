@@ -116,7 +116,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                     else{
                         lastValue = importContext.max(lastValue,resultRecord);
                     }
-                    if(tranResultSet.isRecordDirectIgnore()){
+                    if(resultRecord.isRecordDirectIgnore()){
                         droped ++;
                         continue;
                     }
@@ -296,7 +296,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 				else{
 					lastValue = importContext.max(lastValue,resultRecord);
 				}
-                if(tranResultSet.isRecordDirectIgnore()){
+                if(resultRecord.isRecordDirectIgnore()){
                     droped ++;
                     continue;
                 }
@@ -600,10 +600,9 @@ public class CommonRecordTranJob extends BaseTranJob{
 					else {
 						lastValue = importContext.max(lastValue, resultRecord);
 					}
-                    if(tranResultSet.isRecordDirectIgnore()){
+                    if(resultRecord.isRecordDirectIgnore()){
                         continue;
                     }
-//					Context context = new ContextImpl(importContext, tranResultSet, null);
 					Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
 					if(!reachEOFClosed)
 						reachEOFClosed = context.reachEOFClosed();

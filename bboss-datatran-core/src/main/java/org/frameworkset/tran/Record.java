@@ -45,6 +45,7 @@ public interface Record {
 	public Object getValue( String colName,int sqlType) throws DataImportException;
 	public Date getDateTimeValue(String colName) throws DataImportException;
     public LocalDateTime getLocalDateTimeValue(String colName) throws DataImportException;
+    public boolean isRecordDirectIgnore();
 	public Date getDateTimeValue(String colName,String dateformat) throws DataImportException;
 	Object getValue(String colName);
 	public Object getKeys();

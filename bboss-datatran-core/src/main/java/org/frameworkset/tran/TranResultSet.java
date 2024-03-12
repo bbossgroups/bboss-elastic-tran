@@ -68,7 +68,6 @@ public interface TranResultSet {
 
 
     int getAction();
-    public boolean isRecordDirectIgnore();
 
     public Object getLastValue();
 
