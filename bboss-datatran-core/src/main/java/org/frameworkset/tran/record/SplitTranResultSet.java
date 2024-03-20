@@ -191,7 +191,7 @@ public class SplitTranResultSet  implements TranResultSet {
 			}
 			if(nextAssert.isHasNext()) {
 				Record baseRecord = tranResultSet.getCurrentRecord();
-                if(tranResultSet.isRecordDirectIgnore())
+                if(baseRecord.isRecordDirectIgnore())
                     return nextAssert;
 				if(baseRecord.removed()){//标记为removed状态的记录不需要切割
 					return nextAssert;
@@ -293,10 +293,6 @@ public class SplitTranResultSet  implements TranResultSet {
     @Override
     public int getAction() {
         return tranResultSet.getAction();
-    }
-    @Override
-    public boolean isRecordDirectIgnore(){
-        return tranResultSet.isRecordDirectIgnore();
     }
  
 
