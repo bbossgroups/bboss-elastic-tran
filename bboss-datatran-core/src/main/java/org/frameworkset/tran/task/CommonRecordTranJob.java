@@ -92,7 +92,8 @@ public class CommonRecordTranJob extends BaseTranJob{
                             records = new ArrayList<>();
                             if (baseDataTran.isPrintTaskLog()) {
                                 end = System.currentTimeMillis();
-                                logger.info(new StringBuilder().append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+                                StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                                logger.info(builder.append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
                                         .append(",import ").append(_count).append(" records.").append("Force FlushInterval[").append(importContext.getFlushInterval()).append("ms]").toString());
                                 istart = end;
                             }
@@ -159,7 +160,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 
                         if(baseDataTran.isPrintTaskLog())  {
                             end = System.currentTimeMillis();
-                            logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+                            StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                            logger.info(builder.append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
                                     .append(",import ").append(batchsize).append(" records.").toString());
                             istart = end;
                         }
@@ -180,7 +182,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 			if(count > 0 ){
 				if(baseDataTran.isPrintTaskLog())  {
 					end = System.currentTimeMillis();
-					logger.info(new StringBuilder().append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+                    StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                    logger.info(builder.append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
 							.append(",import ").append(count).append(" records,IgnoreTotalCount ")
 							.append(ignoreTotalCount).append(" records.").toString());
 
@@ -188,7 +191,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 			}
 			if(baseDataTran.isPrintTaskLog()) {
 				end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("Batch import Execute Tasks:").append(taskNo).append(",All Take time:").append((end - start)).append("ms")
+                StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                logger.info(builder.append("Batch import Execute Tasks:").append(taskNo).append(",All Take time:").append((end - start)).append("ms")
 						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
 						.append(ignoreTotalCount).append(" records.").toString());
 
@@ -274,7 +278,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 						taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,records,null,service,tasks,tranErrorWrapper,true);
                         if (baseDataTran.isPrintTaskLog()) {
                             end = System.currentTimeMillis();
-                            logger.info(new StringBuilder().append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
+                            StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                            logger.info(builder.append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
                                     .append(",import ").append(_count).append(" records.").append("Force FlushInterval[").append(importContext.getFlushInterval()).append("ms]").toString());
                             istart = end;
                         }
@@ -347,8 +352,10 @@ public class CommonRecordTranJob extends BaseTranJob{
 				taskNo = parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,records,null,service,tasks,tranErrorWrapper,false);
 
 			}
-			if(baseDataTran.isPrintTaskLog())
-				logger.info(new StringBuilder().append("Pararrel batch submit tasks:").append(taskNo).toString());
+			if(baseDataTran.isPrintTaskLog()){
+                StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                logger.info(builder.append("Pararrel batch submit tasks:").append(taskNo).toString());
+            }
 
 
 		} catch (DataImportException e) {
@@ -486,7 +493,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 					if(totalCount == Long.MAX_VALUE) {
 						if(baseDataTran.isPrintTaskLog()) {
 							long end = System.currentTimeMillis();
-							logger.info(new StringBuilder().append("Send datas  Take time:").append((end - start)).append("ms")
+                            StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                            logger.info(builder.append("Send datas  Take time:").append((end - start)).append("ms")
 									.append(",Send total").append(totalCount).append(" records,IgnoreTotalCount ")
 									.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
 									.append(importCount.getFailedCount()).append(" records. totalCount has reach Long.MAX_VALUE and reset").toString());
@@ -497,7 +505,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 					else{
 						if(baseDataTran.isPrintTaskLog() && importContext.getLogsendTaskMetric() > 0l && (totalCount % importContext.getLogsendTaskMetric()) == 0l) {//每一万条记录打印一次日志
 							long end = System.currentTimeMillis();
-							logger.info(new StringBuilder().append("Send datas Take time:").append((end - start)).append("ms")
+                            StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                            logger.info(builder.append("Send datas Take time:").append((end - start)).append("ms")
 									.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
 									.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
 									.append(importCount.getFailedCount()).append(" records.").toString());
@@ -513,7 +522,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 			serialTranCommand.endSerialActionTask(importCount,-1,-1,lastValue,(CommonRecord)null,null);
 			if(baseDataTran.isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("Send datas Take time:").append((end - start)).append("ms")
+                StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                logger.info(builder.append("Send datas Take time:").append((end - start)).append("ms")
 						.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
 						.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
 						.append(importCount.getFailedCount()).append(" records.").toString());
@@ -582,7 +592,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 					if(baseDataTran.isPrintTaskLog()) {
 
 						long end = System.currentTimeMillis();
-						logger.info(new StringBuilder().append("Force flush datas Take time:").append((end - start)).append("ms")
+                        StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                        logger.info(builder.append("Force flush datas Take time:").append((end - start)).append("ms")
 								.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
 								.append(ignoreTotalCount).append(" records.").toString());
 
@@ -643,7 +654,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 			taskNo = serialTranCommand.endSerialActionTask(importCount,totalCount,taskNo,lastValue,records,null);
 			if(baseDataTran.isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
-				logger.info(new StringBuilder().append("Serial import Take time:").append((end - start)).append("ms")
+                StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                logger.info(builder.append("Serial import Take time:").append((end - start)).append("ms")
 						.append(",Total Import  ").append(totalCount).append(" records,Total Ignore Count ")
 						.append(importCount.getIgnoreTotalCount()).append(" records,Total Failed Count ")
 						.append(importCount.getFailedCount()).append(" records.").toString());

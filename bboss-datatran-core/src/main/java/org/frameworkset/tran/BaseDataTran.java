@@ -461,7 +461,8 @@ public abstract class BaseDataTran implements DataTran{
                 }
 				if(isPrintTaskLog()) {
 
-					logger.info(new StringBuilder().append("Parallel batch import Complete tasks:")
+                    StringBuilder stringBuilder = BaseTranJob.builderJobInfo(new StringBuilder(),  importContext);
+                    logger.info(stringBuilder.append("Parallel batch import Complete tasks:")
 							.append(count).append(",Total success import ")
 							.append(totalCount.getSuccessCount()).append(" records,Ignore Total ")
 							.append(totalCount.getIgnoreTotalCount()).append(" records,failed total ")

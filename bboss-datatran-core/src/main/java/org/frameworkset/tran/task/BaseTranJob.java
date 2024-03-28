@@ -40,6 +40,16 @@ public abstract class BaseTranJob implements TranJob {
         map(  commonRecord,   buildMapDataContext,   importContext.getMetrics(),  importContext.isUseDefaultMapData());
 
     }
+    
+    public static StringBuilder builderJobInfo(StringBuilder builder,ImportContext importContext){
+        builder.append("JobType[").append(importContext.getInputPlugin().getJobType()).append("]");
+        if(importContext.getJobId() != null)
+            builder.append(" jobID[").append(importContext.getJobId()).append("]");
+        if(importContext.getJobName() != null)
+            builder.append(" jobName[").append(importContext.getJobName())
+                .append("] ");
+        return builder;
+    }
 
     public BuildMapDataContext buildMapDataContext(ImportContext importContext){
         List<ETLMetrics> etlMetrics = importContext.getMetrics();
