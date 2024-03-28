@@ -162,7 +162,7 @@ public class TaskCall implements Runnable {
 		}
 		try {
 			if(isPrintTaskLog()) {
-
+                    BaseTranJob.builderJobInfo(info,db2ESImportContext);
 					info.append("Task[").append(taskCommand.getTaskNo()).append("] starting ......");
 					logger.info(info.toString());
 
@@ -172,6 +172,7 @@ public class TaskCall implements Runnable {
 			if(isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
 				info.setLength(0);
+                BaseTranJob.builderJobInfo(info,db2ESImportContext);
 				info.append("Task[").append(taskCommand.getTaskNo()).append("] finish,import ")
 						.append(taskCommand.getDataSize())
 						.append(" records,Total import ")
@@ -186,12 +187,14 @@ public class TaskCall implements Runnable {
 				if (isPrintTaskLog()) {
 					long end = System.currentTimeMillis();
 					info.setLength(0);
+                    BaseTranJob.builderJobInfo(info,db2ESImportContext);
 					info.append("Task[").append(taskCommand.getTaskNo()).append("] failed: ")
 						.append(taskCommand.getDataSize())
 						.append(" records, Take time:").append((end - start)).append("ms");
 					logger.info(info.toString());
 				}
-				throw new TaskFailedException(new StringBuilder().append("Task[").append(taskCommand.getTaskNo()).append("] Execute Failed: ")
+                StringBuilder stringBuilder = BaseTranJob.builderJobInfo(new StringBuilder(),db2ESImportContext);
+				throw new TaskFailedException(stringBuilder.append("Task[").append(taskCommand.getTaskNo()).append("] Execute Failed: ")
 						.append(taskCommand.getDataSize())
 						.append(" records,").toString(), e);
 			}
@@ -204,6 +207,7 @@ public class TaskCall implements Runnable {
 				else {
 					info.setLength(0);
 				}
+                BaseTranJob.builderJobInfo(info,db2ESImportContext);
 				info.append("Task[").append(taskCommand.getTaskNo()).append("] failed: ")
 					.append(taskCommand.getDataSize())
 					.append(" records,but continue On Error! Take time:").append((end - start)).append("ms");
