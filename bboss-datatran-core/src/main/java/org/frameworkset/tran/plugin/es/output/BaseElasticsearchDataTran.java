@@ -436,35 +436,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 	}
 
 	public static void evalDeleteBuilk(Writer writer,  Context context,boolean isUpper7)  throws Exception{
-		/**
-		try {
-			ESIndexWrapper esIndexWrapper = context.getESIndexWrapper();
-
-			JDBCGetVariableValue jdbcGetVariableValue = new JDBCGetVariableValue(context);
-			Object id = context.getEsId();
-
-
-			writer.write("{ \"delete\" : { \"_index\" : \"");
-
-			BuildTool.buildIndiceName(esIndexWrapper,writer,jdbcGetVariableValue);
-
-			writer.write("\"");
-			if(!isUpper7) {
-				writer.write(", \"_type\" : \"");
-				if (esIndexWrapper == null ) {
-					throw new DataImportException(" ESIndex type not seted." );
-				}
-				BuildTool.buildIndiceType(esIndexWrapper,writer,jdbcGetVariableValue);
-				writer.write("\"");
-			}
-			writer.write(", \"_id\" : ");
-			BuildTool.buildId(id,writer,true);
-			writer.write(" } }\n");
-
-
-		} catch (Exception e) {
-			throw new DataImportException(e);
-		}*/
+		
 		buildMeta(context,writer,isUpper7);
 
 	}
