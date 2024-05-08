@@ -307,7 +307,7 @@ public class DBConfig {
 		else if(dbtype.equals("dm")){
 			return dm_createStatusTableSQL;
 		}
-		else if(dbtype.equals("sqlserver")){
+		else if(dbtype.equals("mssql")){
 			return sqlserver_createStatusTableSQL;
 		}
         else if(dbtype.equals(DBFactory.SQLITEX)){
@@ -329,7 +329,7 @@ public class DBConfig {
 		else if(dbtype.equals("dm")){
 			return dm_createHistoryStatusTableSQL;
 		}
-		else if(dbtype.equals("sqlserver")){
+		else if(dbtype.equals("mssql")){
 			return sqlserver_createHistoryStatusTableSQL;
 		}
         else if(dbtype.equals(DBFactory.SQLITEX)){
