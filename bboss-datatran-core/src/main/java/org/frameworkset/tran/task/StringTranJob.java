@@ -234,7 +234,7 @@ public class StringTranJob extends BaseTranJob{
 
 		return ret;
 	}
-	private CommonRecord buildCommonRecord(Context context,BaseDataTran baseDataTran){
+	private CommonRecord buildCommonRecord(Context context,BaseDataTran baseDataTran) throws Exception {
 
 
 		CommonRecord record = baseDataTran.buildRecord(  context );

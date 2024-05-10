@@ -41,7 +41,7 @@ public abstract class BaseDataTran implements DataTran{
 	protected String taskInfo ;
 	protected TranJob tranJob;
     protected JobCountDownLatch countDownLatch;
-	public abstract CommonRecord buildRecord(Context context);
+	public abstract CommonRecord buildRecord(Context context) throws Exception;
 	@Override
 	public void beforeOutputData(BBossStringWriter writer){
 

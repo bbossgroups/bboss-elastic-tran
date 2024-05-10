@@ -22,7 +22,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 			logger.debug("Export Columns is null,you can set Export Columns in importconfig or not.");
 //				throw new DataImportException("Export Columns is null,Please set Export Columns in importconfig.");
 	}
-	public CommonRecord buildRecord(Context context){
+	public CommonRecord buildRecord(Context context) throws Exception {
 		CommonRecord dataRecord = new CommonRecord();
 		buildRecord(dataRecord,context);
 		return dataRecord;

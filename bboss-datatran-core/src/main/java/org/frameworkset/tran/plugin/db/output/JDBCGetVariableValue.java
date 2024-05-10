@@ -16,6 +16,8 @@ package org.frameworkset.tran.plugin.db.output;
  */
 
 import com.frameworkset.orm.annotation.BaseESGetVariableValue;
+import com.frameworkset.orm.annotation.BatchContext;
+import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.Context;
 
@@ -28,16 +30,16 @@ import org.frameworkset.tran.context.Context;
  * @version 1.0
  */
 public class JDBCGetVariableValue extends BaseESGetVariableValue {
-	private Context context;
-	public JDBCGetVariableValue(Context context){
-		this.context = context;
-		this.batchContext = context.getBatchContext();
+	private CommonRecord commonRecord;
+	public JDBCGetVariableValue(CommonRecord commonRecord, BatchContext batchContext){
+		this.commonRecord = commonRecord;
+		this.batchContext = batchContext;
 	}
 	@Override
 	public Object getValue(String field) {
 
 		try {
-			return context.getValue(field);
+			return commonRecord.getData(field);
 		} catch (Exception e) {
 			throw new DataImportException(new StringBuilder()
 											.append("JDBCGetVariableValue getValue failed:")
