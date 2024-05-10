@@ -8,10 +8,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
-import org.frameworkset.tran.task.BaseParrelTranCommand;
-import org.frameworkset.tran.task.BaseSerialTranCommand;
-import org.frameworkset.tran.task.StringTranJob;
-import org.frameworkset.tran.task.TaskCall;
+import org.frameworkset.tran.task.*;
 import org.slf4j.Logger;
 
 import java.io.Writer;
@@ -58,7 +55,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 
 	@Override
 	protected void initTranJob(){
-		tranJob = new StringTranJob();
+		tranJob = new CommonRecordTranJob();
 	}
 	@Override
 	protected void initTranTaskCommand(){
@@ -69,9 +66,10 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 										 ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
 				if(datas != null) {
 					taskNo++;
+                    List<CommonRecord> records = convertDatas( datas);
 					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus,  taskContext);
-					taskCommand.setDatas((String) datas);
+					taskCommand.setDatas(records);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 				}
@@ -91,9 +89,10 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
                                           Object datas) {
 				if(datas != null) {
 					taskNo++;
+                    List<CommonRecord> records = convertDatas( datas);
 					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus,  taskContext);
-					taskCommand.setDatas((String) datas);
+					taskCommand.setDatas(records);
 					TaskCall.call(taskCommand);
 
 				}
@@ -104,10 +103,11 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
 				if(datas != null) {
 					taskNo ++;
+                    List<CommonRecord> records = convertDatas( datas);
 					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
 
-					taskCommand.setDatas((String)datas);
+					taskCommand.setDatas(records);
 					TaskCall.call(taskCommand);
 				}
 				return taskNo;

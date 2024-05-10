@@ -11,10 +11,7 @@ import org.frameworkset.tran.plugin.custom.output.CustomOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
-import org.frameworkset.tran.task.BaseParrelTranCommand;
-import org.frameworkset.tran.task.BaseSerialTranCommand;
-import org.frameworkset.tran.task.StringTranJob;
-import org.frameworkset.tran.task.TaskCall;
+import org.frameworkset.tran.task.*;
 import org.frameworkset.tran.util.TranUtil;
 
 import java.io.Writer;
@@ -68,9 +65,10 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 				if(datas != null )  {
 					taskNo++;
+                    List<CommonRecord> records = convertDatas( datas);
 					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
-					taskCommand.setDatas((String)datas);
+					taskCommand.setDatas(records);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 
@@ -88,9 +86,10 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 			private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas){
 				if(datas != null )  {
 					taskNo++;
+                    List<CommonRecord> records = convertDatas( datas);
 					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
-					taskCommand.setDatas((String)datas);
+					taskCommand.setDatas(records);
 					TaskCall.call(taskCommand);
 
 				}
@@ -126,7 +125,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 	@Override
 	protected void initTranJob(){
-		tranJob = new StringTranJob();
+		tranJob = new CommonRecordTranJob();
 	}
 
 

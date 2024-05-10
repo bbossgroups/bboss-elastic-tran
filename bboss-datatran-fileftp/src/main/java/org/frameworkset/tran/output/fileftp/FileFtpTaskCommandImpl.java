@@ -15,19 +15,21 @@ package org.frameworkset.tran.output.fileftp;
  * limitations under the License.
  */
 
+import org.frameworkset.soa.BBossStringWriter;
+import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
-import org.frameworkset.tran.task.TaskCommand;
 import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -37,22 +39,22 @@ import java.io.IOException;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FileFtpTaskCommandImpl extends BaseTaskCommand<String,String> {
-//	private String refreshOption;
+public class FileFtpTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,String> {
 	private FileTransfer fileTransfer;
-
+    protected FileOutputConfig fileOutputConfig;
 	public FileFtpTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                   long dataSize, int taskNo, String jobNo, FileTransfer fileTransfer,
                                   LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
 		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
 		this.fileTransfer = fileTransfer;
+        fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
 	}
 
 
+    List<CommonRecord> records;
 
-
-	public String getDatas() {
-		return datas;
+	public List<CommonRecord> getDatas() {
+		return records;
 	}
 
 
@@ -60,15 +62,27 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String,String> {
 	private int tryCount;
 
 
-	public void setDatas(String datas) {
-		this.datas = datas;
+	public void setDatas(List<CommonRecord> records) {
+		this.records = records;
 	}
 
 
 
 
+    private String buildDatas() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        BBossStringWriter writer = new BBossStringWriter(builder);
+        CommonRecord record = null;
+        for(int i = 0; i < records.size(); i ++){
+            record = records.get(i);
 
-	private static Logger logger = LoggerFactory.getLogger(TaskCommand.class);
+            fileOutputConfig.generateReocord(taskContext,record, writer);
+            writer.write(fileOutputConfig.getLineSeparator());
+        }
+        return writer.toString();
+    }
+
+	private static Logger logger = LoggerFactory.getLogger(FileFtpTaskCommandImpl.class);
 
 	public String execute(){
 		String data = null;
@@ -79,9 +93,12 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String,String> {
 		this.tryCount ++;
 
 		try {
+            if(datas == null){
+                datas = buildDatas();
+            }
 			fileTransfer.writeData(this,datas,getTotalSize(),dataSize);
 			finishTask();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new DataImportException(datas,e);
 		}
 		return data;

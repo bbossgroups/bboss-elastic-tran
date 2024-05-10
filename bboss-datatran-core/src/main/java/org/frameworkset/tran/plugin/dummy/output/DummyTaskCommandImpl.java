@@ -15,14 +15,19 @@ package org.frameworkset.tran.plugin.dummy.output;
  * limitations under the License.
  */
 
+import org.frameworkset.soa.BBossStringWriter;
+import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
+import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -32,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DummyTaskCommandImpl extends BaseTaskCommand<String,String> {
+public class DummyTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,String> {
 	private Logger logger = LoggerFactory.getLogger(DummyTaskCommandImpl.class);
 	private DummyOutputConfig dummyOutputConfig ;
 	public DummyTaskCommandImpl(ImportCount importCount, ImportContext importContext,
@@ -47,27 +52,37 @@ public class DummyTaskCommandImpl extends BaseTaskCommand<String,String> {
 
 
 
-	public String getDatas() {
-		return datas;
+	public List<CommonRecord> getDatas() {
+		return records;
 	}
 
 
-	private String datas;
+    private List<CommonRecord> records;
 
 
-	public void setDatas(String datas) {
-		this.datas = datas;
+	public void setDatas(List<CommonRecord> records) {
+		this.records = records;
 	}
 
 
 
+    private String buildDatas() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        BBossStringWriter writer = new BBossStringWriter(builder);
+        for(int i = 0; i < records.size(); i ++){
+            dummyOutputConfig.generateReocord(taskContext,records.get(i), writer);
+            writer.write(TranUtil.lineSeparator);
+        }
+        return writer.toString();
+    }
 
 
+	public String execute() throws Exception {
 
-	public String execute(){
-
-		if(dummyOutputConfig.isPrintRecord())
-			logger.info(datas);
+		if(dummyOutputConfig.isPrintRecord()) {
+           
+            logger.info(buildDatas());
+        }
 		finishTask();
 		return null;
 	}

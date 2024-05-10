@@ -16,7 +16,9 @@ package org.frameworkset.tran.plugin.http.output;
  */
 
 import org.apache.http.entity.ContentType;
+import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.spi.remote.http.HttpRequestProxy;
+import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.DynamicParam;
 import org.frameworkset.tran.config.DynamicParamContext;
@@ -34,6 +36,7 @@ import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,8 +47,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class HttpTaskCommandImpl extends BaseTaskCommand<String,String> {
-//	private String refreshOption;
+public class HttpTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,String> {
 	private HttpOutputConfig httpOutputConfig ;
 	public HttpTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                long dataSize, int taskNo, String jobNo,
@@ -57,33 +59,55 @@ public class HttpTaskCommandImpl extends BaseTaskCommand<String,String> {
 
 
 
-	public String getDatas() {
-		return datas;
+	public List<CommonRecord> getDatas() {
+		return records;
 	}
 
-
-	private String datas;
+    private List<CommonRecord> records;
 	private int tryCount;
 
 
-	public void setDatas(String datas) {
-		this.datas = datas;
+	public void setDatas(List<CommonRecord> records) {
+		this.records = records;
 	}
 
 
 
+    private String buildDatas() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        BBossStringWriter bBossStringWriter = new BBossStringWriter(builder);
+        CommonRecord record = null;
+        for(int i = 0; i < records.size(); i ++){
+            record = records.get(i);
+            
+            if (i == 0) {
+                if(httpOutputConfig.isJson())
+                    bBossStringWriter.write("[");
+                httpOutputConfig.generateReocord(taskContext, record, bBossStringWriter);
 
+            } else {
+                bBossStringWriter.write(httpOutputConfig.getLineSeparator());
+                httpOutputConfig.generateReocord(taskContext, record, bBossStringWriter);
+            }
+        }
+        if(httpOutputConfig.isJson())
+            bBossStringWriter.write("]");
+        return bBossStringWriter.toString();
+    }
 
 	private static Logger logger = LoggerFactory.getLogger(TaskCommand.class);
 
-	public String execute(){
+    private String datas;
+	public String execute() throws Exception {
 
 		if(this.importContext.getMaxRetry() > 0){
 			if(this.tryCount >= this.importContext.getMaxRetry())
 				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
 		}
 		this.tryCount ++;
-
+        if(datas == null){
+            datas = buildDatas();
+        }
 		try {
 			String data = null;
 			if(httpOutputConfig.isDirectSendData()) {
