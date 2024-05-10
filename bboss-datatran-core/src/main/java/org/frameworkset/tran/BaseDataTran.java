@@ -46,6 +46,11 @@ public abstract class BaseDataTran implements DataTran{
 	public void beforeOutputData(BBossStringWriter writer){
 
 	}
+
+    @Override
+    public Object buildSerialDatas(Object data,CommonRecord record){
+        return data;
+    }
 	@Override
 	public ImportContext getImportContext(){
 		return importContext;
@@ -370,8 +375,12 @@ public abstract class BaseDataTran implements DataTran{
 		}
 
 	}
+    
 
-	protected void jobComplete(ExecutorService service,Throwable exception,LastValueWrapper lastValue ,TranErrorWrapper tranErrorWrapper,Status currentStatus,boolean reachEOFClosed){
+
+
+
+    protected void jobComplete(ExecutorService service,Throwable exception,LastValueWrapper lastValue ,TranErrorWrapper tranErrorWrapper,Status currentStatus,boolean reachEOFClosed){
 		if (importContext.getScheduleService() == null) {//一次性非定时调度作业调度执行的话，转换完成需要关闭线程池
 			if(reachEOFClosed){
 				if(tranErrorWrapper.assertCondition(exception)){

@@ -42,14 +42,13 @@ public interface ParrelTranCommand {
 	 * @param taskNo
 	 * @param lastValue
 	 * @param datas
-	 * @param record
 	 * @param service
 	 * @param tasks
 	 * @param tranErrorWrapper
 	 * @return
 	 */
 	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue,
-								  Object datas,  CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush);
+								  Object datas,  ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper);
 
 	/**
 	 * 构建数据记录对象

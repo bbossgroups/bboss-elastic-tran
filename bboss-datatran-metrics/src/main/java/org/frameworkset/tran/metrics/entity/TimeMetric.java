@@ -26,7 +26,7 @@ package org.frameworkset.tran.metrics.entity;
 public abstract class TimeMetric extends KeyMetric {
 
 	protected String metricTimeKey;
-	protected String metricSlotTimeKey;
+//	protected String metricSlotTimeKey;
     protected String second;
 	protected String minute;
 	protected String dayHour;
@@ -130,13 +130,13 @@ public abstract class TimeMetric extends KeyMetric {
 		return metricTimeKey;
 	}
 
-	public String getMetricSlotTimeKey() {
-		return metricSlotTimeKey;
-	}
-
-	public void setMetricSlotTimeKey(String metricSlotTimeKey) {
-		this.metricSlotTimeKey = metricSlotTimeKey;
-	}
+//	public String getMetricSlotTimeKey() {
+//		return metricSlotTimeKey;
+//	}
+//
+//	public void setMetricSlotTimeKey(String metricSlotTimeKey) {
+//		this.metricSlotTimeKey = metricSlotTimeKey;
+//	}
     public String getSecond() {
         return second;
     }

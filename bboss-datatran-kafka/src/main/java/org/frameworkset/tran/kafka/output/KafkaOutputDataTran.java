@@ -4,14 +4,13 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.plugin.db.output.Base2DBTaskCommandImpl;
+import org.frameworkset.tran.plugin.db.output.MultiSQLConf2DBTaskCommandImpl;
 import org.frameworkset.tran.plugin.kafka.output.KafkaOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
-import org.frameworkset.tran.task.BaseParrelTranCommand;
-import org.frameworkset.tran.task.BaseSerialTranCommand;
-import org.frameworkset.tran.task.StringTranJob;
-import org.frameworkset.tran.task.TaskCall;
+import org.frameworkset.tran.task.*;
 import org.slf4j.Logger;
 
 import java.io.Writer;
@@ -32,17 +31,33 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 	@Override
 	protected void initTranJob(){
-		tranJob = new StringTranJob();
+		tranJob = new CommonRecordTranJob();
 	}
 	@Override
 	protected void initTranTaskCommand(){
 		parrelTranCommand = new BaseParrelTranCommand() {
-			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue,
-                                          Object datas,
-                                           CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
-				return processDataSerial(  totalCount,   dataSize,   taskNo,   lastValue,   datas,   null,  forceFlush);
-			}
+//			@Override
+//			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue,
+//                                          Object datas,
+//                                          ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
+//				return processDataSerial(  totalCount,   dataSize,   taskNo,   lastValue,   datas,    forceFlush);
+//			}
+
+            @Override
+            public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,
+                                          ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
+
+                if(datas != null) {
+                    taskNo++;
+                    List<CommonRecord> records = convertDatas( datas);
+                    KafkaBatchCommand kafkaCommand = new KafkaBatchCommand(totalCount, importContext,records,
+                            dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus);
+                    tasks.add(service.submit(new TaskCall(kafkaCommand, tranErrorWrapper)));
+                   
+                }
+                return taskNo;
+               
+            }
 
 			@Override
 			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
@@ -52,16 +67,43 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
+            private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas){
+                if(datas != null) {     
+                    if(datas instanceof List || datas instanceof CommonRecord){
+                        taskNo++;
+                        List<CommonRecord> records = convertDatas( datas);
+                        KafkaBatchCommand kafkaCommand = new KafkaBatchCommand(totalCount, importContext,records,
+                                dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus);
+                        TaskCall.call(kafkaCommand);
+                        return taskNo;
+                    }
+                    else{
+                        return processDataSerial(  totalCount, dataSize,
+                                taskNo, lastValue, datas );
+                    }
+                }
+                return taskNo;
+            }
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, CommonRecord record,boolean forceFlush) {
-				return processDataSerial(  totalCount, dataSize,
-						taskNo, lastValue, datas,  record ,  forceFlush);
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
+//                if(datas != null) {
+//                    taskNo++;
+//                    List<CommonRecord> records = convertDatas( datas);
+//                    KafkaBatchCommand kafkaCommand = new KafkaBatchCommand(totalCount, importContext,records,
+//                            dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus);
+//                    TaskCall.call(kafkaCommand);
+//                }
+//                return taskNo;
+                return action(  totalCount,   dataSize,   taskNo,   lastValue,   datas);
 			}
 
+            
+
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,  CommonRecord record) {
-				return processDataSerial(  totalCount, dataSize,
-						taskNo, lastValue, datas,  record,false );
+			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
+//				return processDataSerial(  totalCount, dataSize,
+//						taskNo, lastValue, datas, false );
+                return action(  totalCount,   dataSize,   taskNo,   lastValue,   datas);
 			}
 
 
@@ -100,20 +142,38 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 
 
-
-
-	protected int processDataSerial(ImportCount importCount, long dataSize,
-									int taskNo, LastValueWrapper lastValue, Object datas, CommonRecord record ,boolean forceFlush) {
-		if(datas != null) {
-			KafkaCommand kafkaCommand = new KafkaCommand(importCount, importContext,
-					dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus);
-			kafkaCommand.setDatas((String) datas);
-			kafkaCommand.setKey(record.getRecordKey());
-            kafkaCommand.setForceFlush(forceFlush);
+    class SerialData{
+        String data;
+        Object key;
+        Object topic;
+        public SerialData(Object data,CommonRecord record){
+            this.data = (String)data;
+            key = record.getRecordKey();
             /**
              * 从临时变量中获取记录对应的kafka主题，如果存在，就用记录级别的kafka主题，否则用全局配置的kafka主题发送数据
              */
-            Object topic = record.getTempData(KAFKA_TOPIC_KEY);
+            topic = record.getTempData(KAFKA_TOPIC_KEY);
+        }
+        
+    }
+    @Override
+    public Object buildSerialDatas(Object data,CommonRecord record){
+        
+        return new SerialData(data,record);
+    }
+
+	protected int processDataSerial(ImportCount importCount, long dataSize,
+									int taskNo, LastValueWrapper lastValue, Object datas ) {
+		if(datas != null) {
+			KafkaCommand kafkaCommand = new KafkaCommand(importCount, importContext,
+					dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus);
+            SerialData serialData = (SerialData)datas;
+			kafkaCommand.setDatas(serialData.data);
+			kafkaCommand.setKey(serialData.key);
+            /**
+             * 从临时变量中获取记录对应的kafka主题，如果存在，就用记录级别的kafka主题，否则用全局配置的kafka主题发送数据
+             */
+            Object topic = serialData.topic;
             if(topic != null && topic instanceof String) {
                 if(!topic.equals(""))
                     kafkaCommand.setTopic((String) topic);
@@ -133,7 +193,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 
 		CommonRecord dataRecord = context.getCommonRecord();
-		kafkaOutputConfig.generateReocord(context,dataRecord, writer);
+		kafkaOutputConfig.generateReocord(context.getTaskContext(),dataRecord, writer);
 		return dataRecord;
 	}
 
@@ -144,7 +204,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 	 */
 	@Override
 	public String parallelBatchExecute( ){
-		return serialExecute();
+		return super.parallelBatchExecute();
 	}
 	/**
 	 * 串行批处理导入
@@ -152,7 +212,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 	 */
 	@Override
 	public String batchExecute(  ){
-		return serialExecute();
+		return super.batchExecute();
 	}
 
 

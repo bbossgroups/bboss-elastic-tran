@@ -38,7 +38,7 @@ public class BaseParrelTranCommand implements ParrelTranCommand{
 
 	@Override
 	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,
-                                  CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
+                                   ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
 		return 0;
 	}
 

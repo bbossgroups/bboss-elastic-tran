@@ -31,9 +31,9 @@ import java.io.Writer;
  * @version 1.0
  */
 public interface SerialTranCommand {
-	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,  CommonRecord record,boolean forceFlush);
+	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas);
 
-	public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, CommonRecord record);
+	public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas);
 //	public int splitSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record);
 	public boolean splitCheck(long totalCount);
 	public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception;

@@ -21,6 +21,7 @@ import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
 
@@ -64,7 +65,7 @@ public class DummyOutputConfig extends BaseConfig implements OutputConfig {
 			recordGenerator = new JsonRecordGenerator();
 		}
 	}
-	public void generateReocord(org.frameworkset.tran.context.Context taskContext, CommonRecord record, Writer builder)  throws Exception{
+	public void generateReocord(TaskContext taskContext, CommonRecord record, Writer builder)  throws Exception{
 		if(builder == null){
 			builder = RecordGenerator.tranDummyWriter;
 		}

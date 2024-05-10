@@ -58,7 +58,7 @@ public class KafkaCommand  extends BaseTaskCommand {
 	@Override
 	public Object execute() {
 
-		kafkaOutputConfig.getKafkaSend().send(this,taskContext,key,datas);
+		kafkaOutputConfig.getKafkaSend().send(this,taskContext,topic,key,datas);
 		 return null;
 	}
 

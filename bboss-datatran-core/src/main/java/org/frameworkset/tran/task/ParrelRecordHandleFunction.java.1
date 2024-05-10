@@ -1,0 +1,80 @@
+package org.frameworkset.tran.task;
+/**
+ * Copyright 2024 bboss
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import com.frameworkset.orm.annotation.BatchContext;
+import org.frameworkset.tran.BaseCommonRecordDataTran;
+import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.Record;
+import org.frameworkset.tran.context.Context;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.metrics.job.BuildMapDataContext;
+
+import java.util.List;
+
+/**
+ * <p>Description: </p>
+ * <p></p>
+ *
+ * @author biaoping.yin
+ * @Date 2024/4/30
+ */
+public class ParrelRecordHandleFunction implements RecordHandleFunction{
+    /**
+     * 
+     * @param resultRecord
+     * @param totalCount
+     * @return true 合法记录，false，非法记录
+     */
+    public boolean handle(Record resultRecord, ImportCount totalCount,
+                          List<CommonRecord> records,
+                          BaseCommonRecordDataTran baseCommonRecordDataTran,
+                          ImportContext importContext,
+                          BatchContext batchContext,
+                          BuildMapDataContext buildMapDataContext,
+                          BaseTranJob baseTranJob) throws Exception {
+        if(resultRecord.isRecordDirectIgnore()){
+            totalCount.increamentDroped();
+            return false;
+        }
+
+        Context context = importContext.buildContext(baseCommonRecordDataTran.getTaskContext(),resultRecord, batchContext);
+        boolean reachEOFClosed = context.reachEOFClosed();
+        if(!totalCount.isReachEOFClosed() && reachEOFClosed)
+            totalCount.setReachEOFClosed(reachEOFClosed);
+//				Context context = new ContextImpl(importContext, tranResultSet, batchContext);
+        if(context.removed()){
+            if(!totalCount.isReachEOFClosed())//如果是文件末尾，那么是空行记录，不需要记录忽略信息，
+                totalCount.increamentIgnoreTotalCount();
+            return false;
+        }
+        context.refactorData();
+        context.afterRefactor();
+        if (context.isDrop()) {
+            totalCount.increamentIgnoreTotalCount();
+            totalCount.increamentDroped();
+            return false;
+        }
+        CommonRecord record = baseCommonRecordDataTran.buildRecord(  context );
+        baseTranJob.metricsMap(record,buildMapDataContext,importContext);
+        records.add(record);
+//        count++;
+//        totalSize ++;
+        return true;
+    }
+
+}

@@ -17,6 +17,7 @@ package org.frameworkset.tran.util;
 
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.Context;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.io.Writer;
 
@@ -30,5 +31,7 @@ import java.io.Writer;
  */
 public interface RecordGenerator {
 	public final TranDummyWriter tranDummyWriter = new TranDummyWriter();
-	public void buildRecord(Context taskContext, CommonRecord record, Writer builder) throws Exception;
+	public void buildRecord(TaskContext taskContext, CommonRecord record, Writer builder) throws Exception;
+
+ 
 }

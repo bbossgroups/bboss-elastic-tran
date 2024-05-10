@@ -24,6 +24,7 @@ import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.kafka.output.KafkaOutputConfig;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCall;
 import org.frameworkset.tran.task.TaskCommand;
 import org.slf4j.Logger;
@@ -51,7 +52,8 @@ public class KafkaSendImpl {
 		kafkaProductor.init();
 		return kafkaProductor;
 	}
-	public static void send(KafkaProductor kafkaProductor,KafkaOutputConfig kafkaOutputConfig,final KafkaCommand taskCommand, TaskContext taskContext, Object key, Object data) {
+	public static void send(KafkaProductor kafkaProductor, KafkaOutputConfig kafkaOutputConfig, final BaseTaskCommand taskCommand, TaskContext taskContext,
+                            String topic, Object key, Object data) {
 
 		Callback callback = new Callback() {
 			@Override
@@ -95,7 +97,7 @@ public class KafkaSendImpl {
 			}
 		};
 
-		Future<RecordMetadata> future = kafkaProductor.send(taskCommand.getTopic(),key,data,callback);
+		Future<RecordMetadata> future = kafkaProductor.send(topic,key,data,callback);
 		if(!kafkaOutputConfig.isKafkaAsynSend()){
 			try {
 				future.get();
@@ -106,4 +108,32 @@ public class KafkaSendImpl {
 			}
 		}
 	}
+
+    public static void batchSend(KafkaProductor kafkaProductor, KafkaOutputConfig kafkaOutputConfig, final BaseTaskCommand taskCommand, TaskContext taskContext,
+                            String topic, Object key, Object data) {
+
+        Callback callback = new Callback() {
+            @Override
+            public void onCompletion(RecordMetadata metadata, Exception exception) {
+                ImportContext importContext = taskCommand.getImportContext();
+                ImportCount importCount = taskCommand.getImportCount();
+                TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
+                if(exception != null) {
+                    TaskCall.handleException(new KafkaSendException(metadata,exception),importCount,taskMetrics,taskCommand,importContext);
+                }
+
+            }
+        };
+
+        Future<RecordMetadata> future = kafkaProductor.send(topic,key,data,callback);
+        if(!kafkaOutputConfig.isKafkaAsynSend()){
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                logger.warn("InterruptedException",e);
+            } catch (ExecutionException e) {
+                throw new DataImportException(e.getCause() != null?e.getCause():e);
+            }
+        }
+    }
 }

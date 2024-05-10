@@ -46,7 +46,7 @@ import java.util.concurrent.Future;
  * @version 1.0
  */
 public class AsynStringTranJob extends BaseTranJob{
-    private static Logger logger = LoggerFactory.getLogger(StringTranJob.class);
+    private static Logger logger = LoggerFactory.getLogger(AsynStringTranJob.class);
     /**
      * 串行批处理导入
      * @return
@@ -160,7 +160,7 @@ public class AsynStringTranJob extends BaseTranJob{
                         int _count = count;
                         count = 0;
                         droped = 0;
-                        taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,datas,(CommonRecord)null,false);
+                        taskNo = serialTranCommand.hanBatchActionTask(importCount,_count,taskNo,lastValue,datas,false);
                         if(baseDataTran.isPrintTaskLog())  {
                             end = System.currentTimeMillis();
                             StringBuilder stringBuilder = builderJobInfo(new StringBuilder(),  importContext);
@@ -304,7 +304,7 @@ public class AsynStringTranJob extends BaseTranJob{
                         int _count = count;
                         count = 0;
                         droped = 0;
-                        taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,null,
+                        taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,
                                 service,tasks,tranErrorWrapper,true);
 
                     }
@@ -358,7 +358,7 @@ public class AsynStringTranJob extends BaseTranJob{
                     int _count = count;
                     count = 0;
                     droped = 0;
-                    taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,(CommonRecord)null,
+                    taskNo = parrelTranCommand.hanBatchActionTask(totalCount,_count,taskNo,lastValue,datas,
                             service,tasks,tranErrorWrapper,false);
 
                 }
@@ -375,7 +375,7 @@ public class AsynStringTranJob extends BaseTranJob{
                 baseDataTran.beforeOutputData(writer);
                 String datas = builder.toString();
                 builder.setLength(0);
-                taskNo = parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,datas,null,
+                taskNo = parrelTranCommand.hanBatchActionTask(totalCount,count,taskNo,lastValue,datas,
                         service,tasks,tranErrorWrapper,false);
 
 

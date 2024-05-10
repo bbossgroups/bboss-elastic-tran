@@ -34,7 +34,7 @@ import java.util.concurrent.Future;
  * @version 1.0
  */
 public interface DataTran {
-
+    public Object buildSerialDatas(Object data,CommonRecord record);
 	public void beforeOutputData(BBossStringWriter writer);
 	/**
 	 * 并行批处理导入
@@ -60,4 +60,6 @@ public interface DataTran {
                            final ExecutorService service, Throwable exception, LastValueWrapper lastValue, final ImportCount totalCount ,
                            final TranErrorWrapper tranErrorWrapper , WaitTasksCompleteCallBack waitTasksCompleteCallBack, boolean reachEOFClosed);
 	ImportContext getImportContext();
+
+
 }

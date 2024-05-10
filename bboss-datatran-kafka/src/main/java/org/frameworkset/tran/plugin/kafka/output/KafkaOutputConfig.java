@@ -23,6 +23,7 @@ import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.kafka.output.KafkaSend;
 import org.frameworkset.tran.metrics.TimeWindowExportResultHandler;
 import org.frameworkset.tran.plugin.BaseConfig;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
 
@@ -81,7 +82,7 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 		this.recordGenerator = recordGenerator;
 		return this;
 	}
-	public void generateReocord(org.frameworkset.tran.context.Context context, CommonRecord record, Writer builder) throws Exception{
+	public void generateReocord(TaskContext context, CommonRecord record, Writer builder) throws Exception{
 		if(builder == null){
 			builder = RecordGenerator.tranDummyWriter;
 		}

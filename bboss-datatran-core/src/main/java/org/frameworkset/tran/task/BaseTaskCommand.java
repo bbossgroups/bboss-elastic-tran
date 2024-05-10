@@ -45,16 +45,7 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	protected long dataSize;
 	protected long totalSize;
 	protected Status currentStatus;
-    protected boolean forceFlush;
 
-    public void setForceFlush(boolean forceFlush) {
-        this.forceFlush = forceFlush;
-    }
-
-    @Override
-    public boolean isForceFlush() {
-        return false;
-    }
 
     public void init(){
 		TaskMetrics taskMetrics = getTaskMetrics();

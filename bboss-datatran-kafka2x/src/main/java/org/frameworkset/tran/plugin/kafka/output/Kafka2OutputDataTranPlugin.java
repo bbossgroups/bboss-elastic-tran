@@ -26,6 +26,7 @@ import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommand;
 
 /**
@@ -72,10 +73,21 @@ public class Kafka2OutputDataTranPlugin extends BasePlugin implements OutputPlug
 	public void beforeInit() {
 
 	}
+    @Override
+    public void batchSend(final BaseTaskCommand taskCommand, TaskContext taskContext, String topic,Object key, Object data) {
+        if(kafkaProductor == null){
+            synchronized (this) {
+                if(kafkaProductor == null) {
+                    kafkaProductor = KafkaSendImpl.buildProducer( kafka2OutputConfig);
 
+                }
+            }
+        }
+        KafkaSendImpl.batchSend(kafkaProductor,kafka2OutputConfig,taskCommand,taskContext,topic,key,data);
+    }
 
 	@Override
-	public void send(final KafkaCommand taskCommand, TaskContext taskContext, Object key, Object data) {
+	public void send(final BaseTaskCommand taskCommand, TaskContext taskContext, String topic,Object key, Object data) {
 		if(kafkaProductor == null){
 			synchronized (this) {
 				if(kafkaProductor == null) {
@@ -84,11 +96,16 @@ public class Kafka2OutputDataTranPlugin extends BasePlugin implements OutputPlug
 				}
 			}
 		}
-		KafkaSendImpl.send(kafkaProductor,kafka2OutputConfig,taskCommand,taskContext,key,data);
+		KafkaSendImpl.send(kafkaProductor,kafka2OutputConfig,taskCommand,taskContext,topic,key,data);
 	}
 	@Override
 	public JobTaskMetrics createJobTaskMetrics(){
 //		return getOutputPlugin().createJobTaskMetrics();
-		return new KafkaJobTaskMetrics();
+        if(importContext.isSerial()) {
+            return new KafkaJobTaskMetrics();
+        }
+        else{
+            return super.createJobTaskMetrics();
+        }
 	}
 }

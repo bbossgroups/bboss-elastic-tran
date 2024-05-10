@@ -159,7 +159,7 @@ public abstract class TimeMetrics implements BaseMetrics{
 				metric.setMetric(metricsKey);
 				metric.setSlotTime(new Date());
 				metric.setMetricTimeKey(metricsTime);
-				metric.setMetricSlotTimeKey(data.getMinuteFormat().format(metric.getSlotTime()));
+//				metric.setMetricSlotTimeKey(data.getMinuteFormat().format(metric.getSlotTime()));
 				try {
 					metric.setDataTime(metricTimeDateFormat.parse(metricsTime));
 				} catch (Exception e) {

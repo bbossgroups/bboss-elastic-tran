@@ -16,7 +16,7 @@ package org.frameworkset.tran.kafka.output;
  */
 
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.task.TaskCommand;
+import org.frameworkset.tran.task.BaseTaskCommand;
 
 /**
  * <p>Description: </p>
@@ -27,5 +27,6 @@ import org.frameworkset.tran.task.TaskCommand;
  * @version 1.0
  */
 public interface KafkaSend {
-	void send(  KafkaCommand taskCommand,TaskContext taskContext, Object key, Object data);
+	void send(BaseTaskCommand taskCommand, TaskContext taskContext,  String topic,Object key, Object data);
+    public void batchSend(final BaseTaskCommand taskCommand, TaskContext taskContext, String topic,Object key, Object data);
 }

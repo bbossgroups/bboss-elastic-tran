@@ -52,7 +52,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 //			}
 //		}
 		CommonRecord record = context.getCommonRecord();
-		dummyOupputConfig.generateReocord(context,record, writer);
+		dummyOupputConfig.generateReocord(taskContext,record, writer);
 		if(dummyOupputConfig.isPrintRecord()) {
 			writer.write(TranUtil.lineSeparator);
 		}
@@ -64,14 +64,13 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 			@Override
 			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, 
-                                          CommonRecord record, ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
+                                          ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
 
 				if(datas != null )  {
 					taskNo++;
 					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
 					taskCommand.setDatas((String)datas);
-                    taskCommand.setForceFlush(forceFlush);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 
@@ -86,20 +85,19 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
-			private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, boolean forceFlush){
+			private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas){
 				if(datas != null )  {
 					taskNo++;
 					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
 					taskCommand.setDatas((String)datas);
-                    taskCommand.setForceFlush(forceFlush);
 					TaskCall.call(taskCommand);
 
 				}
 				return taskNo;
 			}
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, CommonRecord record,boolean forceFlush) {
+			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
 //				List<CommonRecord> records = convertDatas( datas);
 //				if(records != null && records.size() > 0)  {
 //					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
@@ -108,12 +106,12 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 //					TaskCall.call(taskCommand);
 //					taskNo++;
 //				}
-				return action(totalCount, dataSize, taskNo, lastValue, datas,  forceFlush);
+				return action(totalCount, dataSize, taskNo, lastValue, datas);
 			}
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, CommonRecord record) {
-				taskNo = action(totalCount, dataSize, taskNo, lastValue, datas, false);
+			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
+				taskNo = action(totalCount, dataSize, taskNo, lastValue, datas);
 				return taskNo;
 
 			}

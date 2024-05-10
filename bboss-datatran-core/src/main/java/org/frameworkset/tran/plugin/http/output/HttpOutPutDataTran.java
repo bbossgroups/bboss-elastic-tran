@@ -66,13 +66,12 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 
 			@Override
 			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,
-										  CommonRecord record,ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper,boolean forceFlush) {
+										 ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
 				if(datas != null) {
 					taskNo++;
 					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus,  taskContext);
 					taskCommand.setDatas((String) datas);
-                    taskCommand.setForceFlush(forceFlush);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 				}
@@ -89,13 +88,12 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 		serialTranCommand = new BaseSerialTranCommand() {
 			@Override
 			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue,
-                                          Object datas,  CommonRecord record,boolean forceFlush) {
+                                          Object datas) {
 				if(datas != null) {
 					taskNo++;
 					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus,  taskContext);
 					taskCommand.setDatas((String) datas);
-                    taskCommand.setForceFlush(forceFlush);
 					TaskCall.call(taskCommand);
 
 				}
@@ -103,7 +101,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 			}
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, CommonRecord record) {
+			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
 				if(datas != null) {
 					taskNo ++;
 					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
@@ -156,7 +154,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 //		}
 		CommonRecord record = context.getCommonRecord();
 		if(writer == null){
-			httpOutputConfig.generateReocord(context, record, writer);
+			httpOutputConfig.generateReocord(taskContext, record, writer);
 			writer.write(httpOutputConfig.getLineSeparator());
 
 		}
@@ -166,14 +164,14 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 				if (bBossStringWriter.getBuffer().length() == 0) {
 					if(httpOutputConfig.isJson())
 						writer.write("[");
-					httpOutputConfig.generateReocord(context, record, writer);
+					httpOutputConfig.generateReocord(taskContext, record, writer);
 
 				} else {
 					writer.write(httpOutputConfig.getLineSeparator());
-					httpOutputConfig.generateReocord(context, record, writer);
+					httpOutputConfig.generateReocord(taskContext, record, writer);
 				}
 			} else {
-				httpOutputConfig.generateReocord(context, record, writer);
+				httpOutputConfig.generateReocord(taskContext, record, writer);
 				writer.write(httpOutputConfig.getLineSeparator());
 			}
 		}

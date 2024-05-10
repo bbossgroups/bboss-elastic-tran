@@ -17,6 +17,7 @@ package org.frameworkset.tran.util;
 
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.io.Writer;
 
@@ -29,7 +30,7 @@ import java.io.Writer;
  * @version 1.0
  */
 public class JsonRecordGenerator implements RecordGenerator {
-	public void buildRecord(org.frameworkset.tran.context.Context context,CommonRecord record, Writer builder){
+	public void buildRecord(TaskContext context, CommonRecord record, Writer builder){
 		if(builder != null)
 			SerialUtil.normalObject2json(record.getDatas(),builder);
 	}

@@ -55,6 +55,17 @@ public  class BaseImportContext implements ImportContext {
 	public JobContext getJobContext() {
 		return jobContext;
 	}
+    public boolean isSerial(){
+        return getStoreBatchSize() <= 0;
+    }
+
+    public boolean isParallelBatch(){
+        return getStoreBatchSize() > 0 && getThreadCount() > 0 && isParallel();
+    }
+
+    public boolean isBatch(){
+        return getStoreBatchSize() > 0;
+    }
 
 	public void setJobContext(JobContext jobContext) {
 		this.jobContext = jobContext;

@@ -39,9 +39,7 @@ public interface TaskCommand<DATA,RESULT> {
 	public TaskMetrics getTaskMetrics();
 	public void setDatas(DATA datas) ;
 	public void finishTask();
-    public boolean isForceFlush();
-    public void setForceFlush(boolean forceFlush);
-    public RESULT execute();
+    public RESULT execute() throws Exception;
 
 	default public int getTryCount() {
 		return -1;

@@ -70,7 +70,7 @@ public class TimeMetricHolder extends BaseKeyMetrics{
 		lastMetricSlotTime = slotTime;
 		timeMetric.setSlotTime(slotTime);
 		timeMetric.setMetricTimeKey(timeMetricKey);
-		timeMetric.setMetricSlotTimeKey(data.getMinuteFormat().format(slotTime));
+//		timeMetric.setMetricSlotTimeKey(data.getMinuteFormat().format(slotTime));
 //				metric.setMiniute(metricsTime);
 		metric.setMetric(metricsKey);
 		try {

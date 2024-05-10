@@ -125,7 +125,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	public String generateFileName(TaskContext taskContext, int fileSeq){
 		return getFilenameGenerator().genName(   taskContext,fileSeq);
 	}
-	public void generateReocord(Context taskContext, CommonRecord record, Writer builder) throws Exception{
+	public void generateReocord(TaskContext taskContext, CommonRecord record, Writer builder) throws Exception{
 		if(builder == null){
 			builder = RecordGenerator.tranDummyWriter;
 		}

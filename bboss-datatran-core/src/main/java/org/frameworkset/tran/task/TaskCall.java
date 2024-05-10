@@ -53,7 +53,6 @@ public class TaskCall implements Runnable {
 		return db2ESImportContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
 	public static void asynCall(TaskCommand taskCommand){
-		ImportCount importCount = taskCommand.getImportCount();
 
 		try {
 			taskCommand.init();

@@ -24,6 +24,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.http.BaseHttpConfig;
 import org.frameworkset.tran.plugin.http.DynamicHeader;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.JsonRecordGenerator;
 import org.frameworkset.tran.util.RecordGenerator;
 import org.frameworkset.tran.util.TranUtil;
@@ -226,7 +227,7 @@ public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 		return db2ESExportResultHandler;
 	}
 
-	public void generateReocord(Context taskContext, CommonRecord record, Writer builder) throws Exception{
+	public void generateReocord(TaskContext taskContext, CommonRecord record, Writer builder) throws Exception{
 		if(builder == null){
 			builder = RecordGenerator.tranDummyWriter;
 		}
