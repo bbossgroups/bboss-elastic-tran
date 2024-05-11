@@ -31,6 +31,7 @@ import org.frameworkset.tran.record.ValueConvert;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.frameworkset.util.ClassUtil;
+import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,8 +214,8 @@ public class ContextImpl implements Context {
 	public Boolean getUseJavaName() {
 		return baseImportConfig.getUseJavaName();
 	}
-	public DateFormat getDateFormat(){
-		return baseImportConfig.getFormat();
+	public DateFormateMeta getDateFormateMeta(){
+		return baseImportConfig.getDateFormateMeta();
 	}
 	public void refactorData() throws Exception{
 		DataRefactor dataRefactor = baseImportConfig.getDataRefactor();

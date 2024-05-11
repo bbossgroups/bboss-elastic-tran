@@ -93,22 +93,11 @@ public abstract class BaseDataTran implements DataTran{
 
 	}
 
+    protected RecordColumnInfo resolveRecordColumnInfo(Object value,FieldMeta fieldMeta,Context context){
+        return null;
+    }
 	private void addRecordValue(CommonRecord record,String fieldName,Object value,FieldMeta fieldMeta,Context context){
-		RecordColumnInfo recordColumnInfo = null;
-		if (value != null && value instanceof Date){
-			DateFormat dateFormat = null;
-			if(fieldMeta != null){
-				DateFormateMeta dateFormateMeta = fieldMeta.getDateFormateMeta();
-				if(dateFormateMeta != null){
-					dateFormat = dateFormateMeta.toDateFormat();
-				}
-			}
-			if(dateFormat == null)
-				dateFormat = context.getDateFormat();
-			recordColumnInfo = new RecordColumnInfo();
-			recordColumnInfo.setDateTag(true);
-			recordColumnInfo.setDateFormat(dateFormat);
-		}
+		RecordColumnInfo recordColumnInfo = resolveRecordColumnInfo(  value,  fieldMeta,  context);		 
 		record.addData(fieldName, value,recordColumnInfo);
 	}
 	protected void appendFieldValues(CommonRecord record,

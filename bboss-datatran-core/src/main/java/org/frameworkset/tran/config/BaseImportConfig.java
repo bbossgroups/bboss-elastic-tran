@@ -29,7 +29,6 @@ import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -317,7 +316,7 @@ public class BaseImportConfig {
 	private String dateFormat;
 	private String locale;
 	private String timeZone;
-	private DateFormat format;
+	private DateFormateMeta dateFormateMeta;
 	/**
 	 * 以字段的小写名称为key
 	 */
@@ -399,32 +398,40 @@ public class BaseImportConfig {
 	public void setUseJavaName(Boolean useJavaName) {
 		this.useJavaName = useJavaName;
 	}
-	public DateFormateMeta getDateFormateMeta(){
+	private DateFormateMeta _getDateFormateMeta(){
 		return DateFormateMeta.buildDateFormateMeta(this.dateFormat,this.locale,this.timeZone);
 	}
 
-	public DateFormat getFormat() {
-		if(format == null)
+    private Object dateFormateMetaLock = new Object();
+    private boolean dateFormateMetaInited = false;
+	public DateFormateMeta getDateFormateMeta() {
+        if(dateFormateMetaInited)
+            return dateFormateMeta;
+		if(dateFormateMeta == null)
 		{
-			DateFormateMeta dateFormateMeta = getDateFormateMeta();
-			if(dateFormateMeta == null){
-				dateFormateMeta = SerialUtil.getDateFormateMeta();
-			}
-			format = dateFormateMeta.toDateFormat();
+            synchronized (dateFormateMetaLock) {
+                if(this.dateFormateMeta == null) {
+                    dateFormateMetaInited = true;
+                    DateFormateMeta dateFormateMeta_ = _getDateFormateMeta();
+                    if (dateFormateMeta_ == null) {
+                        dateFormateMeta_ = SerialUtil.getDateFormateMeta();
+                    }
+                    this.dateFormateMeta = dateFormateMeta_;
+                }
+            }
 		}
-		return format;
+		return dateFormateMeta;
 	}
 
-	public void setFormat(DateFormat format) {
-		this.format = format;
-	}
+
 
 	public Map<String, FieldMeta> getFieldMetaMap() {
 		return fieldMetaMap;
 	}
 
 	public void destroy(){
-		this.format = null;
+		this.dateFormateMeta = null;
+        dateFormateMetaInited = false;
 
 	}
 

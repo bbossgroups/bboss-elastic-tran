@@ -363,13 +363,14 @@ public class TaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,String> 
 //			int colType = metaData.getColumnTypeByIndex(i);
 
             if(value != null) {
-                RecordColumnInfo recordColumnInfo = dataRecord.getRecordColumnInfo(colName);
+                
                 if (value instanceof String) {
                     writer.write("\"");
                     CharEscapeUtil charEscapeUtil = new CharEscapeUtil(writer);
                     charEscapeUtil.writeString((String) value, true);
                     writer.write("\"");
                 } else if (value instanceof Date) {
+                    RecordColumnInfo recordColumnInfo = dataRecord.getRecordColumnInfo(colName);
                     DateFormat dateFormat = recordColumnInfo.getDateFormat();
 
                     String dataStr = ConfigDSLUtil.getDate((Date) value,dateFormat);
@@ -408,8 +409,13 @@ public class TaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,String> 
     private void buildDatas() throws Exception {
         StringBuilder builder = new StringBuilder();
         BBossStringWriter writer = new BBossStringWriter(builder);
+        ElasticsearchCommonRecord elasticsearchCommonRecord = null;
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for(int i = 0; i < records.size(); i ++){
-            evalBuilk(   writer, (ElasticsearchCommonRecord)records.get(i), this.versionUpper7);
+            elasticsearchCommonRecord = (ElasticsearchCommonRecord)records.get(i);
+//            Date c = (Date)elasticsearchCommonRecord.getData("collecttime");
+//            logger.error("collecttime:"+dateFormat.format(c)+",logId:"+elasticsearchCommonRecord.getData("logId"));
+            evalBuilk(   writer, elasticsearchCommonRecord, this.versionUpper7);
         }
         this.datas = writer.toString();
         builder = null;

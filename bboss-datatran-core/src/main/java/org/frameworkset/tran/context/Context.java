@@ -26,6 +26,7 @@ import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.record.ValueConvert;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.util.annotations.DateFormateMeta;
 
 import java.text.DateFormat;
 import java.time.LocalDateTime;
@@ -208,7 +209,7 @@ public interface Context {
      * @return
      */
 	TranMeta getMetaData();
-	DateFormat getDateFormat();
+    DateFormateMeta getDateFormateMeta();
 	Boolean getUseJavaName();
 	Boolean getUseLowcase();
 //	public Boolean getEsDocAsUpsert();

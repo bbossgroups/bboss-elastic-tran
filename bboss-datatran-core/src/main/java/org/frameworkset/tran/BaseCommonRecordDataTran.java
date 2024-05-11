@@ -222,18 +222,8 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 					logger.debug("字段值[目标列{},源列{}]的值为null！",varName,colName);
 			}
 			else if (temp instanceof Date){
-				DateFormat dateFormat = null;
-				if(fieldMeta != null){
-					DateFormateMeta dateFormateMeta = fieldMeta.getDateFormateMeta();
-					if(dateFormateMeta != null){
-						dateFormat = dateFormateMeta.toDateFormat();
-					}
-				}
-				if(dateFormat == null)
-					dateFormat = context.getDateFormat();
-				recordColumnInfo = new RecordColumnInfo();
-				recordColumnInfo.setDateTag(true);
-				recordColumnInfo.setDateFormat(dateFormat);
+                recordColumnInfo = resolveRecordColumnInfo(  temp,  fieldMeta,  context);
+               
 			}
 			dbRecord.addData(varName,temp,recordColumnInfo);
 

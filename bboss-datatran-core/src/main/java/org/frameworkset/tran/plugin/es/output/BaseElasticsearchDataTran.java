@@ -25,6 +25,7 @@ import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.*;
+import org.frameworkset.util.annotations.DateFormateMeta;
 
 import java.io.Writer;
 import java.sql.Blob;
@@ -43,6 +44,23 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 //		evalBuilk(writer, elasticsearchCommonRecord, versionUpper7);
 //		return null;
 //	}
+    @Override
+    protected RecordColumnInfo resolveRecordColumnInfo(Object value,FieldMeta fieldMeta,Context context){
+        RecordColumnInfo recordColumnInfo = null;
+        if (value != null && value instanceof Date){
+            DateFormateMeta dateFormateMeta = null;
+            if(fieldMeta != null){
+                dateFormateMeta = fieldMeta.getDateFormateMeta();
+
+            }
+            if(dateFormateMeta == null)
+                dateFormateMeta = context.getDateFormateMeta();
+            recordColumnInfo = new RecordColumnInfo();
+            recordColumnInfo.setDateTag(true);
+            recordColumnInfo.setDateFormateMeta(dateFormateMeta);
+        }
+        return recordColumnInfo;
+    }
 	private void initClientInterfaces(String elasticsearchs){
 		if(elasticsearchs != null) {
 			String[] _elasticsearchs = elasticsearchs.split(",");

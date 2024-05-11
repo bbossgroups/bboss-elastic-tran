@@ -15,6 +15,8 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
+import org.frameworkset.util.annotations.DateFormateMeta;
+
 import java.text.DateFormat;
 
 /**
@@ -27,7 +29,7 @@ import java.text.DateFormat;
  */
 public class RecordColumnInfo {
 	private boolean dateTag;
-	private DateFormat dateFormat;
+	private DateFormateMeta dateFormateMeta;
 	public boolean isDateTag() {
 		return dateTag;
 	}
@@ -37,10 +39,10 @@ public class RecordColumnInfo {
 	}
 
 	public DateFormat getDateFormat() {
-		return dateFormat;
+		return dateFormateMeta.toDateFormat();
 	}
 
-	public void setDateFormat(DateFormat dateFormat) {
-		this.dateFormat = dateFormat;
+	public void setDateFormateMeta(DateFormateMeta dateFormateMeta) {
+		this.dateFormateMeta = dateFormateMeta;
 	}
 }
