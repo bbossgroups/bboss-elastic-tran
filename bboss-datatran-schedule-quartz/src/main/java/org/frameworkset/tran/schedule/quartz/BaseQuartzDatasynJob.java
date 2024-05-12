@@ -166,21 +166,21 @@ public abstract class BaseQuartzDatasynJob implements Job {
 //            importBuilder.setDebugResponse(false);//设置是否将每次处理的reponse打印到日志文件中，默认false
 //            importBuilder.setDiscardBulkResponse(false);//设置是否需要批量处理的响应报文，不需要设置为false，true为需要，默认false
 //
-//            importBuilder.setExportResultHandler(new ExportResultHandler<String,String>() {
+//            importBuilder.setExportResultHandler(new ExportResultHandler<String>() {
 //                @Override
-//                public void success(TaskCommand<String,String> taskCommand, String result) {
+//                public void success(TaskCommand<String> taskCommand, String result) {
 //                    TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
 //                    logger.info(taskMetrics.toString());
 //                }
 //
 //                @Override
-//                public void error(TaskCommand<String,String> taskCommand, String result) {
+//                public void error(TaskCommand<String> taskCommand, String result) {
 //                    TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
 //                    logger.info(taskMetrics.toString());
 //                }
 //
 //                @Override
-//                public void exception(TaskCommand<String,String> taskCommand, Throwable exception) {
+//                public void exception(TaskCommand<String> taskCommand, Throwable exception) {
 //                    TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
 //                    logger.info(taskMetrics.toString());
 //                }
