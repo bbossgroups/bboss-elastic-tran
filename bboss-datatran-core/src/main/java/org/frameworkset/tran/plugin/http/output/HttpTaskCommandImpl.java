@@ -87,7 +87,9 @@ public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
     }
 
 	private static Logger logger = LoggerFactory.getLogger(TaskCommand.class);
-
+    public Object getDatas(){
+        return datas;
+    }
     private String datas;
 	public String execute() throws Exception {
 

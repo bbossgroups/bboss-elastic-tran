@@ -83,7 +83,9 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
 	private int tryCount;
     private String datas;
     private boolean versionUpper7;
-
+    public Object getDatas(){
+        return datas;
+    }
 	public void setClientInterfaces(ClientInterface[] clientInterfaces) {
 		this.clientInterfaces = clientInterfaces;
         if(clientInterfaces != null && clientInterfaces.length > 0)

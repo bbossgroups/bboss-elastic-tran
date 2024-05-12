@@ -57,6 +57,10 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
         return records;
     }
 
+    public Object getDatas(){
+        return records;
+    }
+
     public void init(){
 		TaskMetrics taskMetrics = getTaskMetrics();
 		taskMetrics.setJobStartTime(taskContext.getJobStartTime());

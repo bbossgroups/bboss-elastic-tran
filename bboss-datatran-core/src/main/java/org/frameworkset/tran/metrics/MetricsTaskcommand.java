@@ -86,7 +86,12 @@ public class MetricsTaskcommand implements TaskCommand {
 		return null;
 	}
 
-	@Override
+    @Override
+    public Object getDatas() {
+        return null;
+    }
+
+    @Override
 	public int getTryCount() {
 		return 0;
 	}

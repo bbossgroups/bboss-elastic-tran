@@ -57,10 +57,12 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
 	private int tryCount;
 
 
- 
 
 
 
+    public Object getDatas(){
+        return datas;
+    }
     private String buildDatas() throws Exception {
         StringBuilder builder = new StringBuilder();
         BBossStringWriter writer = new BBossStringWriter(builder);

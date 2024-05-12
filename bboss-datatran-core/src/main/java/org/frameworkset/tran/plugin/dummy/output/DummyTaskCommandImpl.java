@@ -65,13 +65,15 @@ public class DummyTaskCommandImpl extends BaseTaskCommand<String> {
         }
         return writer.toString();
     }
-
-
+    private String datas;
+    public Object getDatas(){
+        return datas;
+    }
 	public String execute() throws Exception {
-
+        datas = buildDatas();
 		if(dummyOutputConfig.isPrintRecord()) {
-           
-            logger.info(buildDatas());
+            
+            logger.info(datas);
         }
 		finishTask();
 		return null;

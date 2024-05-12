@@ -43,6 +43,8 @@ public interface TaskCommand<RESULT> {
 	public TaskMetrics getTaskMetrics();
 	public void finishTask();
     public RESULT execute() throws Exception;
+    
+    public Object getDatas();
 
 	default public int getTryCount() {
 		return -1;
