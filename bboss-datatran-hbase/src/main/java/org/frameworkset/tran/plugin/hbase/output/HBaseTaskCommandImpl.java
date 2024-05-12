@@ -47,7 +47,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class HBaseTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, String> {
+public class HBaseTaskCommandImpl extends BaseTaskCommand<  String> {
 	private HBaseOutputConfig hBaseOutputConfig;
 	private String taskInfo;
 	private static final Logger logger = LoggerFactory.getLogger(HBaseTaskCommandImpl.class);
@@ -56,27 +56,19 @@ public class HBaseTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, St
                                 LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
 		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
 		this.importContext = importContext;
-		this.datas = datas;
+		this.records = datas;
 		hBaseOutputConfig = (HBaseOutputConfig) importContext.getOutputConfig();
 		this.taskInfo = taskInfo;
 
 	}
 
-
-
-	public List<CommonRecord> getDatas() {
-		return datas;
-	}
-
-
-	private List<CommonRecord> datas;
+ 
+ 
 	private int tryCount;
 
 
 
-	public void setDatas(List<CommonRecord> datas) {
-		this.datas = datas;
-	}
+	 
 
 	private byte[] toBytes(Object data){
 		if(data == null)
@@ -159,8 +151,8 @@ public class HBaseTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, St
 			hBaseHelper = HBaseHelperFactory.getHBaseHelper(hBaseOutputConfig.getName());
 
 			List<Put> resources = new ArrayList<>();
-			for(CommonRecord dbRecord:datas){
-				CommonRecord record = (CommonRecord) dbRecord;
+			for(CommonRecord dbRecord:records){
+				CommonRecord record = dbRecord;
 				Put basicDBObject = convert(dbRecord);
 				resources.add(basicDBObject);
 

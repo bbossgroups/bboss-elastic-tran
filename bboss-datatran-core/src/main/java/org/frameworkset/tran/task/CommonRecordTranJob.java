@@ -23,7 +23,6 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
-import org.frameworkset.tran.metrics.job.BuildMapDataContext;
 import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.schedule.Status;
@@ -76,7 +75,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		try {
 			istart = start;
 			BatchContext batchContext = new BatchContext();
-			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
+//			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
 
                 NextAssert hasNext = tranResultSet.next();
@@ -144,7 +143,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                         continue;
                     }
                     CommonRecord record = baseCommonRecordDataTran.buildRecord(  context );
-                    super.metricsMap(record,buildMapDataContext,importContext);
+//                    super.metricsMap(record,buildMapDataContext,importContext);
                     records.add(record);
                     count++;
                     totalCount ++;
@@ -256,7 +255,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		try {
 
 			BatchContext batchContext = new BatchContext();
-			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
+//			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
 				if(!tranErrorWrapper.assertCondition()) {
 					tranResultSet.stop(true);
@@ -322,7 +321,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					continue;
 				}
 				CommonRecord record = baseCommonRecordDataTran.buildRecord(  context );
-				super.metricsMap(record,buildMapDataContext,importContext);
+//				super.metricsMap(record,buildMapDataContext,importContext);
 				records.add(record);
 				count++;
 				totalSize ++;
@@ -424,7 +423,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 			long logInterval = 1l * 60l * 1000l;
 			boolean printed = false;
 			BatchContext batchContext = new BatchContext();
-			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
+//			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
                 NextAssert hasNext = tranResultSet.next();
 				if(hasNext.isNeedFlush()){
@@ -485,7 +484,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 						continue;
 					}
 					CommonRecord record = baseCommonRecordDataTran.buildRecord(context);
-					super.metricsMap(record,buildMapDataContext,importContext);
+//					super.metricsMap(record,buildMapDataContext,importContext);
 
 					totalCount++;
 					serialTranCommand.hanBatchActionTask(importCount,1, -1,lastValue,record);
@@ -580,7 +579,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 //			List<DBRecord> records = new ArrayList<DBRecord>();
 			BatchContext batchContext = new BatchContext();
-			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
+//			BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
 			while (true) {
                 NextAssert hasNext = tranResultSet.next();
 				if(hasNext.isNeedFlush()){
@@ -632,7 +631,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 						continue;
 					}
 					CommonRecord record = baseCommonRecordDataTran.buildRecord(  context );
-					super.metricsMap(record,buildMapDataContext,importContext);
+//					super.metricsMap(record,buildMapDataContext,importContext);
 					records.add(record);
 
 //					fileUtil.writeData(fileFtpOupputContext.generateReocord(record));

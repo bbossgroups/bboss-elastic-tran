@@ -56,8 +56,8 @@ public class Base2DBTaskCommandImpl extends MultiSQLConf2DBTaskCommandImpl {
 		List<DBRecord> _idatas = new ArrayList<DBRecord>();
 		List<DBRecord> _udatas = new ArrayList<DBRecord>();
 		List<DBRecord> _ddatas = new ArrayList<DBRecord>();
-		for(int i = 0; datas != null && i < datas.size(); i ++){
-			DBRecord dbRecord = (DBRecord)datas.get(i);
+		for(int i = 0; records != null && i < records.size(); i ++){
+			DBRecord dbRecord = (DBRecord)records.get(i);
 			if(dbRecord.isInsert())
 				_idatas.add(dbRecord);
 			else if(dbRecord.isUpdate()){
@@ -73,17 +73,17 @@ public class Base2DBTaskCommandImpl extends MultiSQLConf2DBTaskCommandImpl {
 			return;
 		}
 		else {
-			datas.clear();
+            records.clear();
 			if(_idatas.size() > 0) {
-				datas.addAll(_idatas);
+                records.addAll(_idatas);
 			}
 
 			if(_udatas.size() > 0) {
-				datas.addAll(_udatas);
+                records.addAll(_udatas);
 			}
 
 			if(_ddatas.size() > 0) {
-				datas.addAll(_ddatas);
+                records.addAll(_ddatas);
 			}
 		}
 	}

@@ -77,10 +77,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
                         TaskCall.call(kafkaCommand);
                         return taskNo;
                     }
-                    else{
-                        return processDataSerial(  totalCount, dataSize,
-                                taskNo, lastValue, datas );
-                    }
+                    
                 }
                 return taskNo;
             }
@@ -161,33 +158,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
         
         return new SerialData(data,record);
     }
-
-	protected int processDataSerial(ImportCount importCount, long dataSize,
-									int taskNo, LastValueWrapper lastValue, Object datas ) {
-		if(datas != null) {
-			KafkaCommand kafkaCommand = new KafkaCommand(importCount, importContext,
-					dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus);
-            SerialData serialData = (SerialData)datas;
-			kafkaCommand.setDatas(serialData.data);
-			kafkaCommand.setKey(serialData.key);
-            /**
-             * 从临时变量中获取记录对应的kafka主题，如果存在，就用记录级别的kafka主题，否则用全局配置的kafka主题发送数据
-             */
-            Object topic = serialData.topic;
-            if(topic != null && topic instanceof String) {
-                if(!topic.equals(""))
-                    kafkaCommand.setTopic((String) topic);
-                else{
-                    kafkaCommand.setTopic(kafkaOutputConfig.getTopic());
-                }
-            }
-            else {
-                kafkaCommand.setTopic(kafkaOutputConfig.getTopic());
-            }
-			TaskCall.asynCall(kafkaCommand);
-		}
-		return taskNo;
-	}
+ 
 
 	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
 

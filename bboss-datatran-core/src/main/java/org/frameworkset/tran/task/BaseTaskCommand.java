@@ -15,6 +15,7 @@ package org.frameworkset.tran.task;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.context.ImportContext;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -35,7 +37,7 @@ import java.util.Date;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,RESULT> {
+public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
 	private static Logger logger = LoggerFactory.getLogger(BaseTaskCommand.class);
 	protected ImportCount importCount;
 	protected ImportContext importContext;
@@ -45,7 +47,15 @@ public abstract class BaseTaskCommand<DATA,RESULT> implements TaskCommand<DATA,R
 	protected long dataSize;
 	protected long totalSize;
 	protected Status currentStatus;
+    protected List<CommonRecord> records;
 
+    public void setRecords(List<CommonRecord> records) {
+        this.records = records;
+    }
+
+    public List<CommonRecord> getRecords() {
+        return records;
+    }
 
     public void init(){
 		TaskMetrics taskMetrics = getTaskMetrics();

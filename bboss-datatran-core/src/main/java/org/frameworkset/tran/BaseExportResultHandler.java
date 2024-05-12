@@ -27,16 +27,16 @@ import org.slf4j.LoggerFactory;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class BaseExportResultHandler<DATA,RESULT> implements WrapedExportResultHandler<DATA,RESULT> {
+public abstract class BaseExportResultHandler<RESULT> implements WrapedExportResultHandler<RESULT> {
 	protected   Logger logger = LoggerFactory.getLogger(this.getClass());
 	private ExportResultHandler exportResultHandler;
 	public BaseExportResultHandler(ExportResultHandler exportResultHandler){
 		this.exportResultHandler = exportResultHandler;
 	}
-	public void success(TaskCommand<DATA,RESULT> taskCommand, RESULT result){
+	public void success(TaskCommand<RESULT> taskCommand, RESULT result){
 		this.exportResultHandler.success(  taskCommand,   result);
 	}
-	public void error(TaskCommand<DATA,RESULT> taskCommand, RESULT result){
+	public void error(TaskCommand<RESULT> taskCommand, RESULT result){
 		if(taskCommand.getTaskContext() != null) {
 			taskCommand.getTaskContext().increamentErrorTasks();
 		}
@@ -44,7 +44,7 @@ public abstract class BaseExportResultHandler<DATA,RESULT> implements WrapedExpo
 	}
 
 	@Override
-	public void exception(TaskCommand<DATA,RESULT> taskCommand, Throwable exception) {
+	public void exception(TaskCommand<RESULT> taskCommand, Throwable exception) {
 		if(taskCommand.getTaskContext() != null) {
 			taskCommand.getTaskContext().increamentExceptionTasks();
 		}
@@ -62,7 +62,7 @@ public abstract class BaseExportResultHandler<DATA,RESULT> implements WrapedExpo
 	 * @param result
 	 *
 	 */
-	public void handleResult(TaskCommand<DATA,RESULT> taskCommand, RESULT result){
+	public void handleResult(TaskCommand<RESULT> taskCommand, RESULT result){
 
 		success(  taskCommand,   result);
 
@@ -75,7 +75,7 @@ public abstract class BaseExportResultHandler<DATA,RESULT> implements WrapedExpo
 	 * @param exception
 	 *
 	 */
-	public void handleException(TaskCommand<DATA,RESULT> taskCommand, Throwable exception){
+	public void handleException(TaskCommand<RESULT> taskCommand, Throwable exception){
 		try {
 			exception(taskCommand, exception);
 		}

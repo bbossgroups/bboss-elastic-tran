@@ -260,7 +260,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 
 	@Override
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		return new DefualtExportResultHandler<String,String>(exportResultHandler);
+		return new DefualtExportResultHandler<String>(exportResultHandler);
 	}
 
 

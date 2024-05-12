@@ -15,11 +15,14 @@ package org.frameworkset.tran.metrics;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.TaskCommand;
+
+import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -45,12 +48,18 @@ public class MetricsTaskcommand implements TaskCommand {
 		return taskMetrics.getLastValue();
 	}
 
-	@Override
-	public Object getDatas() {
-		return null;
-	}
+    @Override
+    public List<CommonRecord> getRecords() {
+        return null;
+    }
 
-	@Override
+    @Override
+    public void setRecords(List list) {
+        
+    }
+
+
+    @Override
 	public void init() {
 
 	}
@@ -65,10 +74,7 @@ public class MetricsTaskcommand implements TaskCommand {
 		return taskMetrics;
 	}
 
-	@Override
-	public void setDatas(Object datas) {
-
-	}
+ 
 
 	@Override
 	public void finishTask() {

@@ -47,7 +47,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class HttpTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,String> {
+public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
 	private HttpOutputConfig httpOutputConfig ;
 	public HttpTaskCommandImpl(ImportCount importCount, ImportContext importContext,
                                long dataSize, int taskNo, String jobNo,
@@ -58,19 +58,10 @@ public class HttpTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,Stri
 
 
 
-
-	public List<CommonRecord> getDatas() {
-		return records;
-	}
-
-    private List<CommonRecord> records;
+ 
 	private int tryCount;
 
-
-	public void setDatas(List<CommonRecord> records) {
-		this.records = records;
-	}
-
+ 
 
 
     private String buildDatas() throws Exception {

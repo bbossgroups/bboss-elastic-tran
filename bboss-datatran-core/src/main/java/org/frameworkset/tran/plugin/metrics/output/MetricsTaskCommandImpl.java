@@ -37,9 +37,8 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MetricsTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, String> {
+public class MetricsTaskCommandImpl extends BaseTaskCommand<  String> {
 	private Logger logger = LoggerFactory.getLogger(MetricsTaskCommandImpl.class);
-	private List<CommonRecord> datas;
 	private TaskContext taskContext;
 	private MetricsOutputConfig metricsOutputConfig;
 	public MetricsTaskCommandImpl(ImportCount importCount, ImportContext importContext, List<CommonRecord> datas,
@@ -47,21 +46,14 @@ public class MetricsTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
                                   LastValueWrapper lastValue, Status currentStatus, TaskContext taskContext) {
 		super(importCount,importContext,   datas.size(),  taskNo,  jobNo,lastValue,  currentStatus, taskContext);
 		metricsOutputConfig = (MetricsOutputConfig) importContext.getOutputConfig();
-		this.datas = datas;
+		this.records = datas;
 		if(this.taskContext == null)
 			this.taskContext = new TaskContext(importContext);
 	}
 
 
 
-
-	public List<CommonRecord> getDatas() {
-		return datas;
-	}
-
-	public void setDatas(List<CommonRecord> datas) {
-		this.datas = datas;
-	}
+ 
 
 	public String execute(){
 		BuildMapDataContext buildMapDataContext = new BuildMapDataContext();
@@ -69,7 +61,7 @@ public class MetricsTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 		buildMapDataContext.setDataTimeField(dataTimeField);
         if(metricsOutputConfig.getTimeWindowType() != null)
             buildMapDataContext.setTimeWindowType(metricsOutputConfig.getTimeWindowType());
-		for(CommonRecord commonRecord :datas) {
+		for(CommonRecord commonRecord :records) {
 			BaseTranJob.map(  commonRecord,   buildMapDataContext,   metricsOutputConfig.getMetrics(),  metricsOutputConfig.isUseDefaultMapData());
 		}
 		finishTask();

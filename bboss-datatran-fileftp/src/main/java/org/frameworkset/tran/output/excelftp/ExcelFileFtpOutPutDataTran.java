@@ -51,7 +51,7 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 					taskNo++;
 					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,taskContext);
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 				}
@@ -76,7 +76,7 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 					taskNo++;
 					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), (ExcelFileTransfer) fileTransfer,lastValue,  currentStatus,taskContext);
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					TaskCall.call(taskCommand);
 
 				}

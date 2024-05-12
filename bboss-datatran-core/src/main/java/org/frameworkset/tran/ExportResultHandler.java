@@ -25,26 +25,26 @@ import org.frameworkset.tran.task.TaskCommand;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface ExportResultHandler<DATA,RESULT> {
+public interface ExportResultHandler<RESULT> {
 	/**
 	 * 导入任务成功时执行的回调方法，<DATA,RESULT>中的DATA标识处理数据的类型，RESULT标识返回结果的类型
 	 * @param taskCommand 导入任务相关信息：导入数据，es刷新机制，clientInterface,失败重试次数
 	 * @param result 导入结果，类型由RESULT决定
 	 */
-	public void success(TaskCommand<DATA,RESULT> taskCommand, RESULT result);
+	public void success(TaskCommand<RESULT> taskCommand, RESULT result);
 	/**
 	 * 导入任务存在错误时执行的回调方法，<DATA,RESULT>中的DATA标识处理数据的类型，RESULT标识返回结果的类型
 	 * @param taskCommand 导入任务相关信息：导入数据，es刷新机制，clientInterface,失败重试次数
 	 * @param result 导入结果，类型由RESULT决定
 	 */
-	public void error(TaskCommand<DATA,RESULT> taskCommand, RESULT result);
+	public void error(TaskCommand<RESULT> taskCommand, RESULT result);
 
 	/**
 	 * 导入任务抛出Exception时执行的回调方法，<DATA,RESULT>中的DATA标识处理数据的类型，RESULT标识返回结果的类型
 	 * @param taskCommand 导入任务相关信息：导入数据，es刷新机制，clientInterface,失败重试次数
 	 * @param exception 导入异常
 	 */
-	public void exception(TaskCommand<DATA,RESULT> taskCommand, Throwable exception);
+	public void exception(TaskCommand<RESULT> taskCommand, Throwable exception);
 
 	/**
 	 * 如果对于执行有错误的任务，可以进行修正后重新执行，通过本方法

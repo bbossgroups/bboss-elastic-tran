@@ -15,7 +15,6 @@ package org.frameworkset.tran.output.excelftp;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
@@ -39,7 +38,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ExcelFileFtpTaskCommandImpl extends BaseTaskCommand< List<CommonRecord>,String> {
+public class ExcelFileFtpTaskCommandImpl extends BaseTaskCommand< String> {
 //	private String refreshOption;
 	private ExcelFileTransfer fileTransfer;
 
@@ -53,19 +52,11 @@ public class ExcelFileFtpTaskCommandImpl extends BaseTaskCommand< List<CommonRec
 
 
 
-	public List<CommonRecord> getDatas() {
-		return datas;
-	}
-
-
-	private List<CommonRecord> datas;
+ 
 	private int tryCount;
 
 
-	public void setDatas(List<CommonRecord> datas) {
-		this.datas = datas;
-	}
-
+ 
 
 
 
@@ -80,7 +71,7 @@ public class ExcelFileFtpTaskCommandImpl extends BaseTaskCommand< List<CommonRec
 		}
 		this.tryCount ++;
 		try {
-			fileTransfer.writeData(this,datas);
+			fileTransfer.writeData(this,records);
 			finishTask();
 		} catch (IOException e) {
 			throw new DataImportException("writeData failed:",e);

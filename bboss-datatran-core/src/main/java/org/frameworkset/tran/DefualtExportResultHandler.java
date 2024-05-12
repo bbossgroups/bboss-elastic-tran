@@ -23,7 +23,7 @@ package org.frameworkset.tran;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DefualtExportResultHandler<DATA,RESULT> extends BaseExportResultHandler<DATA,RESULT> {
+public class DefualtExportResultHandler<RESULT> extends BaseExportResultHandler<RESULT> {
 
 	public DefualtExportResultHandler(ExportResultHandler exportResultHandler){
 		super(exportResultHandler);

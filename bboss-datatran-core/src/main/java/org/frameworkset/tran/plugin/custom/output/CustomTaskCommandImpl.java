@@ -35,9 +35,9 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class CustomTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, String> {
+public class CustomTaskCommandImpl extends BaseTaskCommand< String> {
 	private Logger logger = LoggerFactory.getLogger(CustomTaskCommandImpl.class);
-	private List<CommonRecord> datas;
+	
 	private TaskContext taskContext;
 	private CustomOutputConfig customOutputConfig;
 	public CustomTaskCommandImpl(ImportCount importCount, ImportContext importContext,
@@ -52,24 +52,16 @@ public class CustomTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, S
 
 
 
-	public List<CommonRecord> getDatas() {
-		return datas;
-	}
+ 
 
-
-
-
-	public void setDatas(List<CommonRecord> datas) {
-		this.datas = datas;
-	}
-
+ 
 
 
 
 
 
 	public String execute(){
-		customOutputConfig.getCustomOutPut().handleData(taskContext, datas);
+		customOutputConfig.getCustomOutPut().handleData(taskContext, records);
 		finishTask();
 		return null;
 	}

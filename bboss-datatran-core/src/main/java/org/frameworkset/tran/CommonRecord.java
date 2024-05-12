@@ -15,9 +15,18 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
+import org.frameworkset.elasticsearch.client.ResultUtil;
 import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.record.RecordColumnInfo;
+import org.frameworkset.tran.record.ValueConvert;
+import org.frameworkset.tran.schedule.timer.TimeUtil;
 
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -217,5 +226,153 @@ public class CommonRecord {
 	public void setRecordKeyField(String recordKeyField) {
 		this.recordKeyField = recordKeyField;
 	}
+
+    public long getLongValue(String fieldName) throws Exception {
+        Object value = this.getData(fieldName);
+        return ResultUtil.longValue(value,0l);
+
+    }
+
+
+    public String getStringValue(String fieldName) throws Exception {
+        Object value = this.getData(fieldName);
+        return ResultUtil.stringValue(value,null);
+
+    }
+
+
+    public String getStringValue(String fieldName, ValueConvert valueConvert) throws Exception{
+        Object value = this.getData(fieldName);
+        return (String)valueConvert.convert(value);
+    }
+    public String getStringValue(String fieldName,String defaultValue) throws Exception {
+        Object value = this.getData(fieldName);
+        return ResultUtil.stringValue(value,defaultValue);
+
+    }
+
+    public boolean getBooleanValue(String fieldName) throws Exception {
+        Object value = this.getData(fieldName);
+        return ResultUtil.booleanValue(value,false);
+
+    }
+
+    public boolean getBooleanValue(String fieldName,ValueConvert valueConvert) throws Exception {
+        Object value = this.getData(fieldName);
+        return (boolean)valueConvert.convert(value);
+
+    }
+    public boolean getBooleanValue(String fieldName,boolean defaultValue) throws Exception {
+        Object value = this.getData(fieldName);
+        return ResultUtil.booleanValue(value,defaultValue);
+
+    }
+    public double getDoubleValue(String fieldName) throws Exception {
+        Object value = this.getData(fieldName);
+        return ResultUtil.doubleValue(value,0d);
+    }
+
+    public float getFloatValue(String fieldName) throws Exception {
+        Object value = this.getData(fieldName);
+        return ResultUtil.floatValue(value,0f);
+    }
+
+    public int getIntegerValue(String fieldName) throws Exception {
+        Object value = this.getData(fieldName);
+        return ResultUtil.intValue(value,0);
+    }
+
+
+
+    public Date getDateValue(String fieldName) throws Exception {
+        Object value = this.getData(fieldName);
+        if(value == null)
+            return null;
+        else if(value instanceof String){
+            LocalDateTime localDateTime = TimeUtil.localDateTime((String)value);
+            return TimeUtil.convertLocalDatetime(localDateTime);
+        }
+        else if(value instanceof Date){
+            return (Date)value;
+
+        }
+        else if(value instanceof LocalDateTime){
+            return TimeUtil.convertLocalDatetime((LocalDateTime)value);
+
+        }
+        else if(value instanceof LocalDate){
+            return TimeUtil.convertLocalDate((LocalDate)value);
+
+        }
+        else if(value instanceof BigDecimal){
+            return new Date(((BigDecimal)value).longValue());
+        }
+        else if(value instanceof Long){
+            return new Date(((Long)value).longValue());
+        }
+        throw new IllegalArgumentException("Convert date value failed:"+value );
+    }
+
+    public LocalDateTime getLocalDateTime(String fieldName) throws Exception{
+        Object value = this.getData(fieldName);
+        if(value == null)
+            return null;
+        else if(value instanceof String){
+            return TimeUtil.localDateTime((String)value);
+
+        }
+        else if(value instanceof Date){
+            return TimeUtil.date2LocalDateTime((Date)value);
+
+        }
+        else if(value instanceof LocalDateTime){
+            return (LocalDateTime)value;
+
+        }
+        else if(value instanceof LocalDate){
+            return TimeUtil.date2LocalDateTime(TimeUtil.convertLocalDate((LocalDate)value));
+
+        }
+        else if(value instanceof BigDecimal){
+            return TimeUtil.date2LocalDateTime(new Date(((BigDecimal)value).longValue()));
+        }
+        else if(value instanceof Long){
+            return TimeUtil.date2LocalDateTime( new Date(((Long)value).longValue()));
+        }
+
+        throw new IllegalArgumentException("Convert date value failed:"+value );
+    }
+    public Date getDateValue(String fieldName, String dateFormat) throws Exception{
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
+        return getDateValue( fieldName, simpleDateFormat);
+    }
+    public Date getDateValue(String fieldName, DateFormat dateFormat) throws Exception {
+        Object value = this.getData(fieldName);
+        if(value == null)
+            return null;
+        else if(value instanceof Date){
+            return (Date)value;
+
+        }
+        else if(value instanceof LocalDateTime){
+            return TimeUtil.convertLocalDatetime((LocalDateTime)value);
+
+        }
+        else if(value instanceof LocalDate){
+            return TimeUtil.convertLocalDate((LocalDate)value);
+
+        }
+        else if(value instanceof BigDecimal){
+            return new Date(((BigDecimal)value).longValue());
+        }
+        else if(value instanceof Long){
+            return new Date(((Long)value).longValue());
+        }
+        else if(value instanceof String){
+//			SerialUtil.getDateFormateMeta().toDateFormat();
+            return dateFormat.parse((String) value);
+        }
+        throw new IllegalArgumentException("Convert date value failed:"+value );
+    }
 
 }

@@ -154,7 +154,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
                     List<CommonRecord> records = convertDatas( datas);
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus, taskContext);
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 				}
@@ -183,7 +183,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
                     List<CommonRecord> records = convertDatas( datas);
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus,  taskContext);
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					TaskCall.call(taskCommand);
 
 				}
@@ -198,7 +198,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), fileTransfer,lastValue,  currentStatus,taskContext);
 
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					TaskCall.call(taskCommand);
 				}
 				sendFile();

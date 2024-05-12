@@ -20,7 +20,6 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.kafka.output.KafkaCommand;
 import org.frameworkset.tran.kafka.output.KafkaOutputDataTran;
 import org.frameworkset.tran.kafka.output.KafkaSend;
 import org.frameworkset.tran.kafka.output.KafkaSendImpl;

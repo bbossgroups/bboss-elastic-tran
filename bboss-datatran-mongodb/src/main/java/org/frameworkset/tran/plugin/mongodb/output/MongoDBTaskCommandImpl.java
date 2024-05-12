@@ -47,7 +47,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, Object> {
+public class MongoDBTaskCommandImpl extends BaseTaskCommand< Object> {
 	protected MongoDBOutputConfig dbOutputConfig;
 	protected String taskInfo;
 	private static final Logger logger = LoggerFactory.getLogger(MongoDBTaskCommandImpl.class);
@@ -56,28 +56,18 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
                                   LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
 		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
 		this.importContext = importContext;
-		this.datas = datas;
+		this.records = datas;
 		dbOutputConfig = (MongoDBOutputConfig) importContext.getOutputConfig();
 		this.taskInfo = taskInfo;
 
 	}
 
-
-
-	public List<CommonRecord> getDatas() {
-		return datas;
-	}
-
-
-	protected List<CommonRecord> datas;
+ 
 	private int tryCount;
 
 
 
-	public void setDatas(List<CommonRecord> datas) {
-		this.datas = datas;
-	}
-
+ 
 	protected Object _execute(){
 		MongoDB mogodb = MongoDBHelper.getMongoDB(dbOutputConfig.getName());
 		MongoDatabase db = mogodb.getDB(dbOutputConfig.getDB());
@@ -88,7 +78,7 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, 
 			objectIdField = "_id";
 		}
 		List<WriteModel<Document>> bulkOperations = new ArrayList<>();
-		for(CommonRecord dbRecord:datas){
+		for(CommonRecord dbRecord:records){
 			CommonRecord record = dbRecord;
 			DataMap.addRecord(bulkOperations,record,objectIdField);
 

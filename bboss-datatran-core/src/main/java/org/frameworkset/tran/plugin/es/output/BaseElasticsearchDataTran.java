@@ -105,7 +105,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 								dataSize, taskNo, taskContext.getJobNo(), lastValue, currentStatus,  taskContext);
 //						count = 0;
 						taskCommand.setClientInterfaces(clientInterfaces);
-						taskCommand.setDatas(records);
+						taskCommand.setRecords(records);
 						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 //					}
 				}
@@ -171,7 +171,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 						dataSize, taskNo, taskContext.getJobNo(), lastValue, currentStatus, taskContext);
 //						count = 0;
 				taskCommand.setClientInterfaces(clientInterfaces);
-				taskCommand.setDatas(records);
+				taskCommand.setRecords(records);
 				TaskCall.call(taskCommand);
 //			}
 		}

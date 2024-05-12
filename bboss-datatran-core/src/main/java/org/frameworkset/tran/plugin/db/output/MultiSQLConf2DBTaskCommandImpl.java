@@ -46,7 +46,7 @@ import java.util.*;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>, String> {
+public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
     protected DBOutputConfig dbOutputConfig;
     protected String taskInfo;
     protected boolean needBatch;
@@ -57,26 +57,21 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
 		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
 		this.needBatch = needBatch;
 		this.importContext = importContext;
-		this.datas = datas;
+		this.records = datas;
 		dbOutputConfig = (DBOutputConfig) importContext.getOutputConfig();
 		this.taskInfo = taskInfo;
 
 	}
 
 
-	public List<CommonRecord> getDatas() {
-		return datas;
-	}
+ 
 
 
-	protected List<CommonRecord> datas;
     protected int tryCount;
 
 
 
-	public void setDatas(List<CommonRecord> datas) {
-		this.datas = datas;
-	}
+ 
 
 	private void debugDB(String name){
 		DBUtil.debugStatus(name);
@@ -145,7 +140,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
         if(dbname == null){
             dbname = dbOutputConfig.getTargetDbname();
         }
-        return _execute( datas, dbname);
+        return _execute( records, dbname);
     }
 
     private String _execute(List<CommonRecord> datas,String dbname){
@@ -472,7 +467,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand<List<CommonR
         }
         Map<String,List<CommonRecord>> dbRecords = new LinkedHashMap<>();
         Map<String,List<CommonRecord>> ddlRecords = new LinkedHashMap<>();
-        for(CommonRecord dbRecord:datas){
+        for(CommonRecord dbRecord:records){
 
             if(!dbRecord.isDDL()) {
                 TranSQLInfo tranSQLInfo = getTranSQLInfo(dbRecord);

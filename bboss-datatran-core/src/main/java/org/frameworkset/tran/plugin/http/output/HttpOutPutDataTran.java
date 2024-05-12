@@ -69,7 +69,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
                     List<CommonRecord> records = convertDatas( datas);
 					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus,  taskContext);
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 				}
@@ -92,7 +92,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
                     List<CommonRecord> records = convertDatas( datas);
 					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus,  taskContext);
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					TaskCall.call(taskCommand);
 
 				}
@@ -107,7 +107,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
 
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					TaskCall.call(taskCommand);
 				}
 				return taskNo;

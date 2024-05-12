@@ -16,7 +16,6 @@ package org.frameworkset.tran.plugin.dummy.output;
  */
 
 import org.frameworkset.soa.BBossStringWriter;
-import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
@@ -37,7 +36,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DummyTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,String> {
+public class DummyTaskCommandImpl extends BaseTaskCommand<String> {
 	private Logger logger = LoggerFactory.getLogger(DummyTaskCommandImpl.class);
 	private DummyOutputConfig dummyOutputConfig ;
 	public DummyTaskCommandImpl(ImportCount importCount, ImportContext importContext,
@@ -51,18 +50,9 @@ public class DummyTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,Str
 
 
 
+ 
 
-	public List<CommonRecord> getDatas() {
-		return records;
-	}
-
-
-    private List<CommonRecord> records;
-
-
-	public void setDatas(List<CommonRecord> records) {
-		this.records = records;
-	}
+ 
 
 
 

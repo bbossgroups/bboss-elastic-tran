@@ -28,7 +28,7 @@ import org.frameworkset.tran.BaseExportResultHandler;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ESExportResultHandler extends BaseExportResultHandler<String,String> {
+public class ESExportResultHandler extends BaseExportResultHandler<String> {
 	public ESExportResultHandler(ExportResultHandler exportResultHandler){
 		super(exportResultHandler);
 	}
@@ -40,7 +40,7 @@ public class ESExportResultHandler extends BaseExportResultHandler<String,String
 	 * @param result
 	 *
 	 */
-	public void handleResult(TaskCommand<String,String> taskCommand, String result){
+	public void handleResult(TaskCommand<String> taskCommand, String result){
 
 
 		if(!ResultUtil.bulkResponseError(result)){

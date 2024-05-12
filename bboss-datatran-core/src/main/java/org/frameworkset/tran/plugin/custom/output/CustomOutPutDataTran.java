@@ -81,7 +81,7 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 					taskNo++;
 					CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 				}
@@ -97,7 +97,7 @@ public class CustomOutPutDataTran extends BaseCommonRecordDataTran {
 					taskNo++;
 					CustomTaskCommandImpl taskCommand = new CustomTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					TaskCall.call(taskCommand);
 //						importContext.flushLastValue(lastValue);
 

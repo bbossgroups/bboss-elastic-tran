@@ -38,7 +38,7 @@ import static org.frameworkset.tran.context.Context.KAFKA_TOPIC_KEY;
  * @author biaoping.yin
  * @version 1.0
  */
-public class KafkaBatchCommand extends BaseTaskCommand<List<CommonRecord>, Object> {
+public class KafkaBatchCommand extends BaseTaskCommand<  Object> {
 	private KafkaOutputConfig kafkaOutputConfig;
     protected List<CommonRecord> records;
 	public KafkaBatchCommand(ImportCount importCount, ImportContext importContext, List<CommonRecord> records,
@@ -49,15 +49,7 @@ public class KafkaBatchCommand extends BaseTaskCommand<List<CommonRecord>, Objec
 	}
 
 
-    public List<CommonRecord> getDatas() {
-        return records;
-    }
-
-    @Override
-    public void setDatas(List<CommonRecord> records) {
-        this.records = records;
-    }
-
+ 
 
     @Override
 	public Object execute() throws Exception {

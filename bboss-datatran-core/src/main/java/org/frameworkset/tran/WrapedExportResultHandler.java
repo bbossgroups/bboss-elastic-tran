@@ -25,20 +25,20 @@ import org.frameworkset.tran.task.TaskCommand;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface WrapedExportResultHandler<DATA,RESULT> extends ExportResultHandler<DATA,RESULT> {
+public interface WrapedExportResultHandler<RESULT> extends ExportResultHandler<RESULT> {
 	/**
 	 * 处理导入数据结果，如果失败则可以通过重试失败数据
 	 * @param taskCommand
 	 * @param exception
 	 *
 	 */
-	public void handleException(TaskCommand<DATA,RESULT> taskCommand, Throwable exception);
+	public void handleException(TaskCommand<RESULT> taskCommand, Throwable exception);
 	/**
 	 * 处理导入数据结果，如果失败则可以通过重试失败数据
 	 * @param taskCommand
 	 * @param result
 	 *
 	 */
-	public void handleResult(TaskCommand<DATA,RESULT> taskCommand, RESULT result);
+	public void handleResult(TaskCommand<RESULT> taskCommand, RESULT result);
 	public void destroy();
 }

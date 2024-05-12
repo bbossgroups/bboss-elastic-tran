@@ -223,7 +223,7 @@ public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 		return this;
 	}
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		DefualtExportResultHandler<String,String> db2ESExportResultHandler = new DefualtExportResultHandler<String,String>(exportResultHandler);
+		DefualtExportResultHandler<String> db2ESExportResultHandler = new DefualtExportResultHandler<String>(exportResultHandler);
 		return db2ESExportResultHandler;
 	}
 

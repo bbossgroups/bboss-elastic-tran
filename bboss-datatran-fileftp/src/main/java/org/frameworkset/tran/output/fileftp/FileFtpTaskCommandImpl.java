@@ -39,7 +39,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FileFtpTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,String> {
+public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
 	private FileTransfer fileTransfer;
     protected FileOutputConfig fileOutputConfig;
 	public FileFtpTaskCommandImpl(ImportCount importCount, ImportContext importContext,
@@ -51,21 +51,13 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,S
 	}
 
 
-    List<CommonRecord> records;
-
-	public List<CommonRecord> getDatas() {
-		return records;
-	}
-
+     
 
 	private String datas;
 	private int tryCount;
 
 
-	public void setDatas(List<CommonRecord> records) {
-		this.records = records;
-	}
-
+ 
 
 
 

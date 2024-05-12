@@ -68,7 +68,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
                     List<CommonRecord> records = convertDatas( datas);
 					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
 
@@ -89,7 +89,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
                     List<CommonRecord> records = convertDatas( datas);
 					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
 							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
-					taskCommand.setDatas(records);
+					taskCommand.setRecords(records);
 					TaskCall.call(taskCommand);
 
 				}

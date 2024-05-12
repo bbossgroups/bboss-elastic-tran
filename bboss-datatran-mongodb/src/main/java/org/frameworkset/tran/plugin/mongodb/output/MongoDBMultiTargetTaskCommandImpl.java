@@ -73,7 +73,7 @@ public class MongoDBMultiTargetTaskCommandImpl extends MongoDBTaskCommandImpl {
 		defaultKey.append(defaultDb).append(":").append(defaultTable);
 		String dk = defaultKey.toString();
 		String mapKey = null;
-		for(CommonRecord dbRecord:datas){
+		for(CommonRecord dbRecord:records){
 			TableMapping tableMapping = dbRecord.getTableMapping();
 			String tdb = tableMapping != null?tableMapping.getTargetDatabase():null;
 			String tds = tableMapping != null?tableMapping.getTargetDatasource():null;

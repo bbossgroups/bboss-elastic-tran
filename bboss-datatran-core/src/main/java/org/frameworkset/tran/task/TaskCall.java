@@ -15,15 +15,19 @@ package org.frameworkset.tran.task;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.TranErrorWrapper;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.metrics.job.BuildMapDataContext;
+import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -52,29 +56,7 @@ public class TaskCall implements Runnable {
 	protected boolean isPrintTaskLog(){
 		return db2ESImportContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
-	public static void asynCall(TaskCommand taskCommand){
 
-		try {
-			taskCommand.init();
-			taskCommand.execute();
-
-		}
-		catch (DataImportException e){
-
-			throw e;
-		}
-		catch (Exception e){
-
-			throw new DataImportException(e);
-		}
-        catch (Throwable e){
-
-            throw new DataImportException(e);
-        }
-		finally {
-//			taskCommand.finished();
-		}
-	}
     public static void handleException(Throwable e,ImportCount importCount,TaskMetrics taskMetrics,TaskCommand taskCommand,ImportContext importContext){
         long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
         taskMetrics.setFailedRecords(taskCommand.getDataSize());
@@ -95,12 +77,34 @@ public class TaskCall implements Runnable {
             }
         }
     }
-	public static <DATA,RESULT> RESULT call(TaskCommand<DATA,RESULT> taskCommand){
+    private static BuildMapDataContext buildMapDataContext(ImportContext importContext){
+        List<ETLMetrics> etlMetrics = importContext.getMetrics();
+        BuildMapDataContext buildMapDataContext = null;
+        if(etlMetrics != null) {
+            buildMapDataContext = new BuildMapDataContext();
+            String dataTimeField = importContext.getDataTimeField();
+            buildMapDataContext.setDataTimeField(dataTimeField);
+        }
+        return buildMapDataContext;
+    }
+
+    private static void metricsCompute(ImportContext importContext,List<CommonRecord> records){
+        if(importContext.getMetrics() == null || importContext.getMetrics().size() == 0)
+            return;
+        BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
+        for(CommonRecord commonRecord:records){
+            BaseTranJob. map(  commonRecord,   buildMapDataContext,   importContext.getMetrics(),  importContext.isUseDefaultMapData());
+
+        }
+    }
+	public static <DATA,RESULT> RESULT call(TaskCommand<RESULT> taskCommand){
 		ImportContext importContext = taskCommand.getImportContext();
 		ImportCount importCount = taskCommand.getImportCount();
 		TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
 
 		try {
+            //指标计算
+            metricsCompute(  importContext,taskCommand.getRecords());
 			taskCommand.init();
 			RESULT data = taskCommand.execute();
 			Date endTime = new Date();
@@ -166,7 +170,7 @@ public class TaskCall implements Runnable {
 					logger.info(info.toString());
 
 			}
-
+            
 			call(taskCommand);
 			if(isPrintTaskLog()) {
 				long end = System.currentTimeMillis();

@@ -38,7 +38,7 @@ import java.util.Date;
  * @author biaoping.yin
  * @version 1.0
  */
-public class TimeWindowExportResultHandler<DATA,RESULT> extends BaseExportResultHandler<DATA,RESULT> {
+public class TimeWindowExportResultHandler<RESULT> extends BaseExportResultHandler<RESULT> {
 
 	private Metrics keyMetrics ;
 
@@ -122,7 +122,7 @@ public class TimeWindowExportResultHandler<DATA,RESULT> extends BaseExportResult
 	}
 
 	@Override
-	public void success(TaskCommand<DATA, RESULT> taskCommand, RESULT result) {
+	public void success(TaskCommand< RESULT> taskCommand, RESULT result) {
 //		super.success(taskCommand, result);、
 		TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
 		MetricsMapData mapData = new MetricsMapData();

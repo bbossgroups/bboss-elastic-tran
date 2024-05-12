@@ -59,7 +59,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class TaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,String> {
+public class TaskCommandImpl extends BaseTaskCommand< String> {
 	private ElasticsearchOutputConfig elasticsearchOutputConfig;
 	public TaskCommandImpl(ImportCount importCount, ImportContext importContext, ElasticsearchOutputConfig elasticsearchOutputConfig ,
                            long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
@@ -78,12 +78,8 @@ public class TaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,String> 
 		return clientInterfaces;
 	}
 
-	public List<CommonRecord> getDatas() {
-		return records;
-	}
+ 
 
-
-	private List<CommonRecord> records;
 	private int tryCount;
     private String datas;
     private boolean versionUpper7;
@@ -94,9 +90,7 @@ public class TaskCommandImpl extends BaseTaskCommand<List<CommonRecord>,String> 
             versionUpper7 = clientInterfaces[0].isVersionUpper7();
 	}
 
-	public void setDatas(List<CommonRecord> records) {
-		this.records = records;
-	}
+ 
 
 
 	private static Logger logger = LoggerFactory.getLogger(TaskCommand.class);
