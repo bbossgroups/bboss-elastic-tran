@@ -920,7 +920,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 				wrapedExportResultHandler.destroy();
 			}
 			catch (Throwable e){
-				logger.error("Destroy WrapedExportResultHandler failed:",e);
+				logger.warn("Destroy WrapedExportResultHandler failed:",e);
 			}
 		}
         stopMetrics();

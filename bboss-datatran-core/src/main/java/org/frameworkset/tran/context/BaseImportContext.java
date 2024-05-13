@@ -401,6 +401,10 @@ public  class BaseImportContext implements ImportContext {
 		return baseImportConfig;
 	}
 
+    public Boolean isConfigIncreamentImport(){
+        return baseImportConfig.getIncreamentImport();
+    }
+
 	public int getMaxRetry(){
 		return baseImportConfig.getMaxRetry();
 	}
@@ -408,7 +412,32 @@ public  class BaseImportContext implements ImportContext {
 	public boolean isAsyn(){
 		return baseImportConfig.isAsyn();
 	}
-
+    public boolean validateIncreamentConfig(){
+        if(this.isConfigIncreamentImport() != null && isConfigIncreamentImport() == true){
+            if(baseImportConfig.getImportIncreamentConfig() == null
+                    || !baseImportConfig.getImportIncreamentConfig().validate()){
+                return false;
+            }
+            else{
+                return true;
+            }
+        }
+        else{
+            if(baseImportConfig.getImportIncreamentConfig()  != null ){
+                Integer type  = baseImportConfig.getImportIncreamentConfig().getLastValueType();
+                if(type != null && (type == ImportIncreamentConfig.TIMESTAMP_TYPE 
+                        || type == ImportIncreamentConfig.LOCALDATETIME_TYPE))
+                {
+                    String column = baseImportConfig.getImportIncreamentConfig().getLastValueColumn();
+                    if(column == null || column.trim().equals("")){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+       
+    }
 
 	public WrapedExportResultHandler getExportResultHandler(){
 		return baseImportConfig.getExportResultHandler();

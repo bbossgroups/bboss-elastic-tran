@@ -81,6 +81,9 @@ public class ImportBuilder {
      * 默认值STATUSID_POLICY_JOBID_QUERYSTATEMENT 
      */
     private Integer statusIdPolicy ;
+
+
+    private Boolean increamentImport;
 	private List<ETLMetrics> metrics;
 	/**
 	 * 指标时间维度字段，不是设置默认采用当前时间，否则采用字段对应的时间值
@@ -1288,6 +1291,7 @@ public class ImportBuilder {
 		baseImportConfig.setUseJavaName(false);
         baseImportConfig.setJobClosedListener(handleJobClosedListener());
         baseImportConfig.setStatusIdPolicy(this.statusIdPolicy);
+        baseImportConfig.setIncreamentImport(increamentImport);
 		initMetrics(  baseImportConfig);
 
 		baseImportConfig.setJobInputParams(this.jobInputParams);
@@ -1852,6 +1856,15 @@ public class ImportBuilder {
      */
     public ImportBuilder setStatusIdPolicy(Integer statusIdPolicy) {
         this.statusIdPolicy = statusIdPolicy;
+        return this;
+    }
+
+    public Boolean getIncreamentImport() {
+        return increamentImport;
+    }
+
+    public ImportBuilder setIncreamentImport(Boolean increamentImport) {
+        this.increamentImport = increamentImport;
         return this;
     }
 }

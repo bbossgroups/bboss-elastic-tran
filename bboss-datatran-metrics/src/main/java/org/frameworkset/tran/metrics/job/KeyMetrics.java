@@ -173,7 +173,8 @@ public abstract class KeyMetrics extends BaseKeyMetrics implements BaseMetrics {
             stoped = true;
         }
 		forceFlush(true,true);
-        this.metricsPersistent.stop();
+        if(metricsPersistent != null)
+            metricsPersistent.stop();
 	}
 
 

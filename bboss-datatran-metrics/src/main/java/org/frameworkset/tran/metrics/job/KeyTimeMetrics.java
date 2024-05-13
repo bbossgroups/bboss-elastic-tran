@@ -347,8 +347,10 @@ public abstract class KeyTimeMetrics implements BaseMetrics {
 			metricsThread.stopScan();
 			flushOlder.stopFlush();
 			forceFlush(true,true);
-            this.metricsPersistent.stop();
+//            this.metricsPersistent.stop();
 		}
+        if(metricsPersistent != null)
+            metricsPersistent.stop();
 	}
 
 	public List<KeyMetric> getAll(){

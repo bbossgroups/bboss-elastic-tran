@@ -211,6 +211,14 @@ public interface ImportContext {
 //	String getRefreshOption();
 
 	BaseImportConfig getImportConfig();
+
+    /**
+     * 判断通过配置设置增量导入标记，如果配置为增量导入，但是没有指定增量配置（譬如：增量字段信息），抛出异常
+     * @return
+     */
+    Boolean isConfigIncreamentImport();
+    
+    boolean validateIncreamentConfig();
 //	void flushLastValueWrapper(LastValueWrapper lastValue,Status currentStatus);
     void flushLastValue(LastValueWrapper lastValue,Status currentStatus);
 	void flushLastValue(LastValueWrapper lastValue,Status currentStatus,boolean reachEOFClosed);

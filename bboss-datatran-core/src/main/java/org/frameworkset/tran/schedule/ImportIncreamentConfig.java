@@ -85,7 +85,15 @@ public class ImportIncreamentConfig {
 		this.lastValueColumn = lastValueColumn;
 	}
 
-
+    public boolean validate(){
+        if(lastValueColumn == null || lastValueColumn.trim().equals(""))
+        {
+            return false;
+        }
+        else{            
+            return true;
+        }
+    }
 
 
 

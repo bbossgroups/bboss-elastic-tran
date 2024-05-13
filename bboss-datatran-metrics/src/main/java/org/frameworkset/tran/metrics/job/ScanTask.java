@@ -49,7 +49,7 @@ public class ScanTask implements Runnable{
 				return;
 			stoped = true;
 		}
-		this.metricsPersistent.stop();
+//		this.metricsPersistent.stop();
 		metricsThread.interrupt();
 		try {
 			metricsThread.join();

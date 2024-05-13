@@ -90,7 +90,7 @@ public class BaseImportConfig {
     private Map<String,DynamicParam> jobDynamicInputParams;
     private Map<String,DynamicParam> jobDynamicOutputParams;
     private Map jobOutputParams;
-
+    private Boolean increamentImport;
 
     /**
      * 输入参数组，将输入参数和输入动态参数组装为一个参数组添加到参数组集合中，添加完成后重置输入参数和输入动态参数，为增加新的参数组做准备
@@ -521,6 +521,7 @@ public class BaseImportConfig {
         }
 		importIncreamentConfig.setStatusTableId(statusTableId);
 	}
+     
 
 
 
@@ -1023,5 +1024,13 @@ public class BaseImportConfig {
      */
     public void setStatusIdPolicy(Integer statusIdPolicy) {
         this.statusIdPolicy = statusIdPolicy;
+    }
+
+    public Boolean getIncreamentImport() {
+        return increamentImport;
+    }
+
+    public void setIncreamentImport(Boolean increamentImport) {
+        this.increamentImport = increamentImport;
     }
 }

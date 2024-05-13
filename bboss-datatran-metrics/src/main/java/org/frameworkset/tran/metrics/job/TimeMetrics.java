@@ -348,8 +348,10 @@ public abstract class TimeMetrics implements BaseMetrics{
 
 			metricsThread.stopScan();
 			forceFlush(true,true);
-            this.metricsPersistent.stop();
+            
 		}
+        if(metricsPersistent != null)
+            this.metricsPersistent.stop();
 	}
 
 

@@ -24,6 +24,7 @@ import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
@@ -765,6 +766,9 @@ public abstract class BaseStatusManager implements StatusManager {
 		}
 
 		if (lastValueClumnName == null){
+            if(!importContext.validateIncreamentConfig()) {
+                throw ImportExceptionUtil.buildDataImportException(importContext,"配置校验失败：增量导入情况下，未指定增量导入状态字段!");
+            }
 			setIncreamentImport(false);
 		}
 
