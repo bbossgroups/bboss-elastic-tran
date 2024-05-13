@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.file.input;
 import org.frameworkset.tran.AssertMaxThreshold;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,7 @@ public class FileTranThread extends Thread{
         }
         catch (Throwable dataImportException){
             logger.error("",dataImportException);
-            DataImportException dataImportException_ = new DataImportException(dataImportException);
+            DataImportException dataImportException_ = ImportExceptionUtil.buildDataImportException(fileDataTranPlugin.getImportContext(),dataImportException);
             fileDataTranPlugin.throwException(  taskContext, dataImportException_);
             fileDataTran.stop2ndClearResultsetQueue(true);
         }

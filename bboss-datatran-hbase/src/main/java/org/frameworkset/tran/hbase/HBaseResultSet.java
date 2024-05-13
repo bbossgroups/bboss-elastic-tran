@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.hbase.input.HBaseInputConfig;
 import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
@@ -84,7 +85,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 				return nextAssert;
 			}
 		} catch (IOException e) {
-			throw new DataImportException("Get next hbase result failed:",e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,"Get next hbase result failed:",e);
 		}
 
 		return nextAssert;
@@ -129,9 +130,9 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 			throw (e);
 		}
 		catch (Exception e){
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
-		throw new DataImportException("Unsupport last value type:"+importContext.getLastValueType().intValue());
+		throw ImportExceptionUtil.buildDataImportException(importContext,"Unsupport last value type:"+importContext.getLastValueType().intValue());
 	}
 	
 }

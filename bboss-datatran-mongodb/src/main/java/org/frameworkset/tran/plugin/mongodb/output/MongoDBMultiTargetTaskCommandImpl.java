@@ -26,6 +26,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -108,7 +109,7 @@ public class MongoDBMultiTargetTaskCommandImpl extends MongoDBTaskCommandImpl {
 			}
 			String targetDatasource = tds != null? tds:defualtTargetDatasource;
 			if(targetDatasource == null || database == null || table == null){
-				throw new DataImportException(new StringBuilder().append("Setting check failed:targetDatasource == ").append(targetDatasource)
+				throw ImportExceptionUtil.buildDataImportException(importContext,new StringBuilder().append("Setting check failed:targetDatasource == ").append(targetDatasource)
 						.append(" || database == ").append(database)
 						.append(" || table == ").append(table)
 						.append("").toString()
@@ -174,11 +175,11 @@ public class MongoDBMultiTargetTaskCommandImpl extends MongoDBTaskCommandImpl {
 
 		}
 		catch (Exception e) {
-			throw new DataImportException(taskInfo,e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
 		}
 
 		catch (Throwable e) {
-			throw new DataImportException(taskInfo,e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
 		} 
 		return results;
 	}

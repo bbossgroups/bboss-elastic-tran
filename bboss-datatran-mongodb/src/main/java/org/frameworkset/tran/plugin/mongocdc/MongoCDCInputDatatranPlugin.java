@@ -25,6 +25,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.mongodb.cdc.ReplicaSet;
 import org.frameworkset.tran.plugin.BaseInputPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -193,7 +194,7 @@ public  class MongoCDCInputDatatranPlugin extends BaseInputPlugin  {
 					}
 					catch (Throwable dataImportException){
 						logger.error("",dataImportException);
-						DataImportException dataImportException_ = new DataImportException(dataImportException);
+						DataImportException dataImportException_ = ImportExceptionUtil.buildDataImportException(importContext,dataImportException);
 						dataTranPlugin.throwException(  taskContext, dataImportException_);
                         baseDataTran.stop2ndClearResultsetQueue(true);
                         importContext.finishAndWaitTran(dataImportException);
@@ -210,12 +211,12 @@ public  class MongoCDCInputDatatranPlugin extends BaseInputPlugin  {
 		} catch (Exception e) {
             if(baseDataTran != null)
                 baseDataTran.stop2ndClearResultsetQueue(true);
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
         catch (Throwable e) {
             if(baseDataTran != null)
                 baseDataTran.stop2ndClearResultsetQueue(true);
-            throw new DataImportException(e);
+            throw ImportExceptionUtil.buildDataImportException(importContext,e);
         }
 
 

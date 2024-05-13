@@ -477,7 +477,7 @@ public abstract class BaseStatusManager implements StatusManager {
 //							dbStartResult.addDBStartResult(tempConf.getPoolname());
 //						}
 					} catch (Exception e) {
-						throw new DataImportException(e);
+						throw ImportExceptionUtil.buildDataImportException(importContext,e);
 					}
 					initStatusSQL( statusDBConfig );
 				}
@@ -555,7 +555,7 @@ public abstract class BaseStatusManager implements StatusManager {
 		} catch (Exception e1) {
 			if(logger.isInfoEnabled())
 				logger.info("table " + tableName + " create failed：" + sql + ".", e1);
-			throw new DataImportException(e1);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e1);
 
 		}
 	}
@@ -630,7 +630,7 @@ public abstract class BaseStatusManager implements StatusManager {
 				this.currentStatus = currentStatus;
 			}
 			catch (Exception e){
-				throw new DataImportException(e);
+				throw ImportExceptionUtil.buildDataImportException(importContext,e);
 			}
 
 
@@ -708,7 +708,7 @@ public abstract class BaseStatusManager implements StatusManager {
 				logger.warn("Start Status_datasource["+statusDbname+"] complete.");
 			}
 		} catch (Exception e) {
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 	}
 	private void initStatusSQL(DBConfig statusDBConfig ){
@@ -815,7 +815,7 @@ public abstract class BaseStatusManager implements StatusManager {
                 lastValueWrapper.setLastValue(lastValue);
             }
             else{
-                throw new DataImportException("AddStatus: 增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
+                throw ImportExceptionUtil.buildDataImportException(importContext,"AddStatus: 增量字段为日期类型，But the LastValue is not a Date value:"+lastValue+",value type is "+lastValue.getClass().getName());
             }
 //            lastValueWrapper.setStrLastValue(null);
 //            strLastValue = null;
@@ -833,7 +833,7 @@ public abstract class BaseStatusManager implements StatusManager {
                 lastValue = null;
             }
             else{
-                throw new DataImportException("AddStatus: 增量字段为LocalDateTime类型，But the LastValue is not a LocalDateTime value:"+lastValue+",value type is "+lastValue.getClass().getName());
+                throw ImportExceptionUtil.buildDataImportException(importContext,"AddStatus: 增量字段为LocalDateTime类型，But the LastValue is not a LocalDateTime value:"+lastValue+",value type is "+lastValue.getClass().getName());
             }
         }
         else{

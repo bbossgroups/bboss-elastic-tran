@@ -31,6 +31,7 @@ import org.frameworkset.nosql.mongodb.MongoDBStartResult;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.mongodb.MongoDBResultSet;
 import org.frameworkset.tran.plugin.BaseInputPlugin;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
@@ -279,7 +280,7 @@ public class MongoDBInputDatatranPlugin extends BaseInputPlugin {
 			} catch (DataImportException e) {
 				throw e;
 			} catch (Exception e) {
-				throw new DataImportException(e);
+				throw ImportExceptionUtil.buildDataImportException(importContext,e);
 			}
 
 	}

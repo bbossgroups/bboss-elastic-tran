@@ -223,9 +223,9 @@ public abstract class BaseRecord implements Record {
             throw (e);
         }
         catch (Exception e){
-            throw new DataImportException(e);
+            throw ImportExceptionUtil.buildDataImportException(importContext,e);
         }
-        throw new DataImportException("Unsupport last value type:"+importContext.getLastValueType().intValue());
+        throw ImportExceptionUtil.buildDataImportException(importContext,"Unsupport last value type:"+importContext.getLastValueType().intValue());
     }
 
     public Object getLastOffsetValue() throws DataImportException {

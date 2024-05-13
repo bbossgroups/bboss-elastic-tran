@@ -19,6 +19,7 @@ import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.schedule.Status;
@@ -93,7 +94,7 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
 			fileTransfer.writeData(this,datas,getTotalSize(),dataSize);
 			finishTask();
 		} catch (Exception e) {
-			throw new DataImportException(datas,e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,datas,e);
 		}
 		return data;
 	}

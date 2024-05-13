@@ -32,6 +32,7 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.hbase.HBaseRecord;
 import org.frameworkset.tran.hbase.HBaseRecordContextImpl;
 import org.frameworkset.tran.hbase.HBaseResultSet;
@@ -195,7 +196,7 @@ public  class HBaseInputDatatranPlugin extends BaseInputPlugin {
 			doTran(rs,taskContext);
 		}
 		catch (Exception e){
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 		finally {
 			if(hBaseHelper != null && table != null){
@@ -321,7 +322,7 @@ public  class HBaseInputDatatranPlugin extends BaseInputPlugin {
 			} catch (DataImportException e) {
 				throw e;
 			} catch (Exception e) {
-				throw new DataImportException(e);
+				throw ImportExceptionUtil.buildDataImportException(importContext,e);
 			}
 
 	}

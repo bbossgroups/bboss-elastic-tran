@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.kafka.input;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.kafka.KafkaResultSet;
 import org.frameworkset.tran.plugin.BaseInputPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -99,7 +100,7 @@ public abstract class KafkaInputDatatranPlugin extends BaseInputPlugin  {
 					}
 					catch (Throwable dataImportException){
 						logger.error("",dataImportException);
-						DataImportException dataImportException_ = new DataImportException(dataImportException);
+						DataImportException dataImportException_ = ImportExceptionUtil.buildDataImportException(importContext,dataImportException);
 						dataTranPlugin.throwException(  taskContext, dataImportException_);
                         kafka2ESDataTran.stop2ndClearResultsetQueue(true);
                         importContext.finishAndWaitTran(dataImportException);
@@ -114,7 +115,7 @@ public abstract class KafkaInputDatatranPlugin extends BaseInputPlugin  {
 			throw e;
 		} catch (Exception e) {
             kafka2ESDataTran.stop2ndClearResultsetQueue(true);
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 		finally {
 //			kafkaResultSet.reachEend();

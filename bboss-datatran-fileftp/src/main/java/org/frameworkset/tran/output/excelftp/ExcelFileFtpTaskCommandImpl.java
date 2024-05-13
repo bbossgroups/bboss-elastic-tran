@@ -17,6 +17,7 @@ package org.frameworkset.tran.output.excelftp;
 
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -74,7 +75,7 @@ public class ExcelFileFtpTaskCommandImpl extends BaseTaskCommand< String> {
 			fileTransfer.writeData(this,records);
 			finishTask();
 		} catch (IOException e) {
-			throw new DataImportException("writeData failed:",e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,"writeData failed:",e);
 		}
 		return data;
 	}

@@ -20,6 +20,7 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPluginImpl;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.input.file.*;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
@@ -265,7 +266,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                 throwException(taskContext, e);
 
                 fileDataTran.stop2ndClearResultsetQueue(true);
-                DataImportException dataImportException = new DataImportException(e);
+                DataImportException dataImportException = ImportExceptionUtil.buildDataImportException(importContext,e);
                 throw dataImportException;
             } catch (Throwable e) {
                 if (!startTran && assertMaxFilesThreshold != null) {
@@ -273,7 +274,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                 }
                 throwException(taskContext, e);
                 fileDataTran.stop2ndClearResultsetQueue(true);
-                DataImportException dataImportException = new DataImportException(e);
+                DataImportException dataImportException = ImportExceptionUtil.buildDataImportException(importContext,e);
                 throw dataImportException;
             }
         }
@@ -436,7 +437,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 		} catch (DataImportException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 
 	}
@@ -498,7 +499,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                     throw _e;
                 }
                 catch (Exception _e){
-                    e = new DataImportException("",_e);
+                    e = ImportExceptionUtil.buildDataImportException(importContext,"",_e);
                     throw (DataImportException)e;
                 }
                 finally {

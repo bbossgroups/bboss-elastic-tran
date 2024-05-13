@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.mongocdc;
 
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.record.CommonMapRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -80,7 +81,7 @@ public class MongoCDCRecord extends CommonMapRecord {
             return mongoDBCDCData.getClusterTime();
         else if(colName.equals("wallTime"))
             return mongoDBCDCData.getWallTime();
-		throw new DataImportException("Get Meta Value failed: " + colName + " is not a MongoDB CDC meta field.MongoDB CDC meta fields only is one of {position,table,database,action,clusterTime,wallTime}");
+		throw ImportExceptionUtil.buildDataImportException(importContext,"Get Meta Value failed: " + colName + " is not a MongoDB CDC meta field.MongoDB CDC meta fields only is one of {position,table,database,action,clusterTime,wallTime}");
 	}
 
     @Override

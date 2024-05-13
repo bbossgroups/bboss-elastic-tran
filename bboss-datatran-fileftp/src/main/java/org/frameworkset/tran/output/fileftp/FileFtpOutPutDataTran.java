@@ -5,6 +5,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.TaskContextReinitCallback;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.input.file.GenFileInfo;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
@@ -50,11 +51,11 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		do {
 			String name = fileOutputConfig.generateFileName(taskContext, fileSeq);
             if(name == null || name.equals("")){
-                throw new DataImportException("fileOutputConfig.generateFileName with fileSeq="+fileSeq+" failed: return name="+name);
+                throw ImportExceptionUtil.buildDataImportException(importContext,"fileOutputConfig.generateFileName with fileSeq="+fileSeq+" failed: return name="+name);
             }
             if(oldName != null ){
                 if(name.equals(oldName))
-                    throw new DataImportException("fileOutputConfig.generateFileName with fileSeq="+fileSeq+" failed: 每次返回的文件名重复，name="+name+",如果需要替换已存在文件，可以设置：fileOupputConfig.setExistFileReplace(true)替换重名文件");
+                    throw ImportExceptionUtil.buildDataImportException(importContext,"fileOutputConfig.generateFileName with fileSeq="+fileSeq+" failed: 每次返回的文件名重复，name="+name+",如果需要替换已存在文件，可以设置：fileOupputConfig.setExistFileReplace(true)替换重名文件");
 
             }
             oldName = name;

@@ -19,6 +19,7 @@ import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.*;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.status.BaseStatusManager;
 import org.frameworkset.tran.status.InitLastValueClumnName;
@@ -158,8 +159,8 @@ public class MongoCDCDataTranPluginImpl extends DataTranPluginImpl {
             throw dataImportException;
 		}
 		catch (Throwable dataImportException){
-			DataImportException e = new DataImportException(dataImportException);
-			throwException(taskContext,new DataImportException(dataImportException));
+			DataImportException e = ImportExceptionUtil.buildDataImportException(importContext,dataImportException);
+			throwException(taskContext,e);
             importContext.finishAndWaitTran(dataImportException);
             throw e;
 		}
