@@ -26,6 +26,7 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.es.BaseESPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -87,7 +88,7 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 					ESInfo esInfo = clientInterface.getESInfo(elasticsearchInputConfig.getDslName());
 					importContext.setStatusTableId(esInfo.getTemplate().hashCode());
 				} catch (Exception e) {
-					throw new DataImportException(e);
+					throw ImportExceptionUtil.buildDataImportException(importContext,e);
 				}
 			}
 			else if(SimpleStringUtil.isNotEmpty(elasticsearchInputConfig.getDsl())){
@@ -116,7 +117,7 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 		else if(elasticsearchInputConfig.getQueryUrlFunction() != null){
 			return elasticsearchInputConfig.getQueryUrlFunction().queryUrl(  taskContext,  lastStartValue,  lastEndValue);
 		}
-		throw new DataImportException("query url or query url function not setted.");
+		throw ImportExceptionUtil.buildDataImportException(importContext,"query url or query url function not setted.");
 	}
 
 	protected void exportESData(TaskContext taskContext,BaseESExporterScrollHandler<MetaMap> esExporterScrollHandler,Map params,Date lastStartValue,Date lastEndValue){
@@ -154,7 +155,7 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 			dslScriptByConfig( clientUtil,dslName,taskContext,esExporterScrollHandler, params, lastStartValue, lastEndValue);
 		}
 		else{
-			throw new DataImportException("DslFile or DslName or Dsl Script is not setted by ElasticsearchInputConfig.");
+			throw ImportExceptionUtil.buildDataImportException(importContext,"DslFile or DslName or Dsl Script is not setted by ElasticsearchInputConfig.");
 		}
 
 	}

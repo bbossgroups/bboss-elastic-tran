@@ -27,26 +27,84 @@ import org.frameworkset.tran.context.ImportContext;
  */
 public class ImportExceptionUtil {
     public static DataImportException buildDataImportException(ImportContext importContext,String error){
+        if(importContext != null) {
+            StringBuilder builder = new StringBuilder();
+            String jobName = importContext.getJobName();
+            String jobId = importContext.getJobId();
+            String jobType = importContext.getJobType();
+            builder.append("jobName=").append(jobName)
+                    .append(",jobId=").append(jobId)
+                    .append(",jobType=").append(jobType)
+                    .append(",errorinfo=").append(error);
+            return new DataImportException(builder.toString());
+        }
+        else{
+            return new DataImportException(error);
+        }
+        
+    }
+    public static DataImportException buildDataImportException(ImportContext importContext,String error,Throwable throwable){
+        if(importContext != null) {
+            StringBuilder builder = new StringBuilder();
+            String jobName = importContext.getJobName();
+            String jobId = importContext.getJobId();
+            String jobType = importContext.getJobType();
+            builder.append("jobName=").append(jobName)
+                    .append(",jobId=").append(jobId)
+                    .append(",jobType=").append(jobType)
+                    .append(",errorinfo:").append(error);
+            return new DataImportException(builder.toString(),throwable);
+        }
+        else{
+            return new DataImportException(error,throwable);
+        }
+        
+
+    }
+
+    public static DataImportException buildDataImportException(ImportContext importContext,Throwable throwable){
+        if(importContext != null) {
+            StringBuilder builder = new StringBuilder();
+            String jobName = importContext.getJobName();
+            String jobId = importContext.getJobId();
+            String jobType = importContext.getJobType();
+            builder.append("jobName=").append(jobName)
+                    .append(",jobId=").append(jobId)
+                    .append(",jobType=").append(jobType);
+            return new DataImportException(builder.toString(),throwable);
+        }
+        else{
+            return new DataImportException(throwable);
+        }
+       
+
+    }
+
+    public static DataImportException buildDataImportException(String jobName,String jobId,String jobType,String error){
         StringBuilder builder = new StringBuilder();
-        String jobName = importContext.getJobName();
-        String jobId = importContext.getJobId();
-        String jobType = importContext.getJobType();
         builder.append("jobName=").append(jobName)
                 .append(",jobId=").append(jobId)
                 .append(",jobType=").append(jobType)
                 .append(",errorinfo=").append(error);
         return new DataImportException(builder.toString());
-        
+
     }
-    public static DataImportException buildDataImportException(ImportContext importContext,String error,Throwable throwable){
+    public static DataImportException buildDataImportException(String jobName,String jobId,String jobType,String error,Throwable throwable){
         StringBuilder builder = new StringBuilder();
-        String jobName = importContext.getJobName();
-        String jobId = importContext.getJobId();
-        String jobType = importContext.getJobType();
         builder.append("jobName=").append(jobName)
                 .append(",jobId=").append(jobId)
                 .append(",jobType=").append(jobType)
                 .append(",errorinfo:").append(error);
+        return new DataImportException(builder.toString(),throwable);
+
+    }
+
+    public static DataImportException buildDataImportException(String jobName,String jobId,String jobType,Throwable throwable){
+        StringBuilder builder = new StringBuilder();
+     
+        builder.append("jobName=").append(jobName)
+                .append(",jobId=").append(jobId)
+                .append(",jobType=").append(jobType);
         return new DataImportException(builder.toString(),throwable);
 
     }

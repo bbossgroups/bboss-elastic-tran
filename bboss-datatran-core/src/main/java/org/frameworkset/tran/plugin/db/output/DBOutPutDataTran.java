@@ -6,6 +6,7 @@ import org.frameworkset.persitent.util.PersistentSQLVariable;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.input.DBRecord;
@@ -86,14 +87,14 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 					vars = insertSqlinfo.getVars();
 				}
 				else{
-					throw new DataImportException("Record is marked insert,but insert sql not setted. See document to set insert sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
+					throw ImportExceptionUtil.buildDataImportException(importContext,"Record is marked insert,but insert sql not setted. See document to set insert sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
 				}
             } else if (context.isUpdate()) {
 				if(updateSqlinfo != null) {
 					vars = updateSqlinfo.getVars();
 				}
 				else{
-					throw new DataImportException("Record is marked update,but update sql not setted. See document to set update sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
+					throw ImportExceptionUtil.buildDataImportException(importContext,"Record is marked update,but update sql not setted. See document to set update sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
 				}
 
             } else {
@@ -101,7 +102,7 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 					vars = deleteSqlinfo.getVars();
 				}
 				else{
-					throw new DataImportException("Record is marked delete,but delete sql not setted. See document to set delete sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
+					throw ImportExceptionUtil.buildDataImportException(importContext,"Record is marked delete,but delete sql not setted. See document to set delete sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
 				}
             }
             String varName = null;

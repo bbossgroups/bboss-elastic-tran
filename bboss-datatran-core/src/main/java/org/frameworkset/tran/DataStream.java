@@ -15,6 +15,7 @@ package org.frameworkset.tran;/*
  */
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.ScheduleAssert;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.slf4j.Logger;
@@ -129,7 +130,7 @@ public class DataStream {
 		catch (Exception e) {
 
 			endAction(e);
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 
 	}
@@ -260,7 +261,7 @@ public class DataStream {
 		}
 		if(importContext == null || importContext.getImportConfig() == null
 				|| importContext.getInputConfig() == null || importContext.getOutputConfig() == null){
-			throw new DataImportException("import Config is null.");
+			throw ImportExceptionUtil.buildDataImportException(importContext,"import Config is null.");
 		}
 		lock.lock();
 		try {
@@ -282,7 +283,7 @@ public class DataStream {
 		}
 		catch (Exception e) {
 			inited = true;
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 		finally{
 

@@ -23,6 +23,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.DynamicParam;
 import org.frameworkset.tran.config.DynamicParamContext;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.http.DynamicHeaderContext;
 import org.frameworkset.tran.plugin.http.HttpConfigClientProxy;
@@ -113,7 +114,7 @@ public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
 			finishTask();
 			return data;
 		} catch (Exception e) {
-			throw new DataImportException(datas,e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,datas,e);
 		}
 
 	}

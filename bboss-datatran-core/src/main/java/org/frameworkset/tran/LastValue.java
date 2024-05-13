@@ -16,6 +16,7 @@ package org.frameworkset.tran;
  */
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
@@ -142,9 +143,9 @@ public abstract class LastValue implements TranResultSet{
 			throw (e);
 		}
 		catch (Exception e){
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
-		throw new DataImportException("Unsupport last value type:"+importContext.getLastValueType().intValue());
+		throw ImportExceptionUtil.buildDataImportException(importContext,"Unsupport last value type:"+importContext.getLastValueType().intValue());
 	}
 	public Object getLastOffsetValue() throws DataImportException {
 		Record record = this.getCurrentRecord();

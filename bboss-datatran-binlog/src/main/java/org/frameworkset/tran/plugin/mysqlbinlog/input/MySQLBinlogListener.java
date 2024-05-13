@@ -432,7 +432,7 @@ public class MySQLBinlogListener {
         });
 
         this.client = client;
-        ClientConnectThread clientConnectThread = new ClientConnectThread(client);
+        ClientConnectThread clientConnectThread = new ClientConnectThread(    importContext,client);
         if(mySQLBinlogConfig.getJoinToConnectTimeOut() > 0L) {
 
             clientConnectThread.start();

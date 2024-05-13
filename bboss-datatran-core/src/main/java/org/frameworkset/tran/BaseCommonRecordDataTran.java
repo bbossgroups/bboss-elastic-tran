@@ -2,6 +2,7 @@ package org.frameworkset.tran;
 
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.record.SplitKeys;
 import org.frameworkset.tran.schedule.Status;
@@ -199,7 +200,7 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 					continue;
 				varName = fieldMeta.getTargetFieldName();
 				if(varName == null || varName.equals(""))
-					throw new DataImportException("fieldName["+colName+"]名称映射配置错误：varName="+varName);
+					throw ImportExceptionUtil.buildDataImportException(importContext,"fieldName["+colName+"]名称映射配置错误：varName="+varName);
 			}
 			else if(useResultKeys && metaData != null && metaData.getColumnCount() > 0 ){
 				if(useJavaName) {

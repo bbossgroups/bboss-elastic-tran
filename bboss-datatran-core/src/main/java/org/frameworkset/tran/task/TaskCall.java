@@ -19,6 +19,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.TranErrorWrapper;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
@@ -136,13 +137,13 @@ public class TaskCall implements Runnable {
 		catch (Exception e){
 
             handleException(  e,  importCount,  taskMetrics,  taskCommand,  importContext);
-            throw new DataImportException(e);
+            throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 
         catch (Throwable e){
 
             handleException(  e,  importCount,  taskMetrics,  taskCommand,  importContext);
-            throw new DataImportException(e);
+            throw ImportExceptionUtil.buildDataImportException(importContext,e);
         }
 		finally {
 			taskCommand.finished();

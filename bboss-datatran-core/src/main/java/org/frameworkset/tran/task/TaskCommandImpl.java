@@ -31,6 +31,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.db.output.JDBCGetVariableValue;
 import org.frameworkset.tran.plugin.es.output.ElasticsearchCommonRecord;
@@ -110,7 +111,7 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
         writer.write("\" : { \"_index\" : \"");
 
         if (esIndexWrapper == null ) {
-            throw new DataImportException(" ESIndex not seted." );
+            throw ImportExceptionUtil.buildDataImportException(importContext," ESIndex not seted." );
         }
         BuildTool.buildIndiceName(esIndexWrapper,writer,jdbcGetVariableValue);
 
@@ -118,11 +119,11 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
         if(!upper7) {
             writer.write(", \"_type\" : \"");
             if (esIndexWrapper == null ) {
-                throw new DataImportException(" ESIndex type not seted." );
+                throw ImportExceptionUtil.buildDataImportException(importContext," ESIndex type not seted." );
             }
             String indexType = BuildTool.buildIndiceType(esIndexWrapper,jdbcGetVariableValue);
             if(indexType == null || indexType.equals("")){
-                throw new DataImportException(" ESIndex type not seted." );
+                throw ImportExceptionUtil.buildDataImportException(importContext," ESIndex type not seted." );
             }
             writer.write(indexType);
             writer.write("\"");
@@ -444,7 +445,7 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
 					clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST, esVoidResponseHandler);
 
 					if (esVoidResponseHandler.getElasticSearchException() != null)
-						throw new DataImportException(esVoidResponseHandler.getElasticSearchException());
+						throw ImportExceptionUtil.buildDataImportException(importContext,esVoidResponseHandler.getElasticSearchException());
 				}
 				finishTask();
 				return null;

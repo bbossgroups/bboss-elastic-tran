@@ -24,6 +24,7 @@ import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.http.DynamicHeaderContext;
@@ -102,7 +103,7 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 		} catch (DataImportException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 	}
 

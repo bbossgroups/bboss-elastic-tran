@@ -25,6 +25,7 @@ import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPluginImpl;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.db.BaseDBPlugin;
 import org.frameworkset.tran.schedule.SQLInfo;
@@ -113,7 +114,7 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 					dbInputConfig.setSql(sqlInfo.getSql());
 				}
 				catch (SQLException e){
-					throw new DataImportException(e);
+					throw ImportExceptionUtil.buildDataImportException(importContext,e);
 				}
 
 		}
@@ -229,7 +230,7 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 		}
 		if(sourceDBName == null){
 
-			throw new DataImportException("Please set dbname use dbInputConfig.setDbName(dbname).");
+			throw ImportExceptionUtil.buildDataImportException(importContext,"Please set dbname use dbInputConfig.setDbName(dbname).");
 		}
 		return sourceDBName;
 
@@ -295,7 +296,7 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 			throw e;
 		}
 		catch (Exception e){
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 	}
 

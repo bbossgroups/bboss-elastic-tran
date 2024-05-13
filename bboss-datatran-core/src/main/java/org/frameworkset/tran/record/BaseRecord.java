@@ -20,6 +20,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.TranMeta;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
@@ -144,7 +145,7 @@ public abstract class BaseRecord implements Record {
         if(metaDatas.containsKey(metaName))
             return metaDatas.get(metaName);
         else{
-            throw new DataImportException(new StringBuilder().append("Get Meta Value failed: ").append( metaName ).append( " is not a meta field").append( SimpleStringUtil.object2json(metaDatas.keySet())).append(".").toString());
+            throw ImportExceptionUtil.buildDataImportException(importContext,new StringBuilder().append("Get Meta Value failed: ").append( metaName ).append( " is not a meta field").append( SimpleStringUtil.object2json(metaDatas.keySet())).append(".").toString());
         }
     }
     @Override

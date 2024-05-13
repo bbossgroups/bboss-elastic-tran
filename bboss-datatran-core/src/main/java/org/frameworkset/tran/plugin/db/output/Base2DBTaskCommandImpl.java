@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.db.output;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.input.DBRecord;
@@ -102,7 +103,7 @@ public class Base2DBTaskCommandImpl extends MultiSQLConf2DBTaskCommandImpl {
             return deleteSqlinfo.getSql();
         }
         else{
-            throw new DataImportException("record action type must be insert or update or delete record.");
+            throw ImportExceptionUtil.buildDataImportException(importContext,"record action type must be insert or update or delete record.");
         }
     }
 

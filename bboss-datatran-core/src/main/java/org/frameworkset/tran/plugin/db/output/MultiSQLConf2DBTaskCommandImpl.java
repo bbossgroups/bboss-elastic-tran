@@ -21,6 +21,7 @@ import org.frameworkset.persitent.type.BaseTypeMethod;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.input.DBRecord;
@@ -96,7 +97,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
             return (String)record.getData("ddl");
         }
         else{
-            throw new DataImportException("record action type must be insert or update or delete record.");
+            throw ImportExceptionUtil.buildDataImportException(importContext,"record action type must be insert or update or delete record.");
         }
     }
 
@@ -115,7 +116,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
             return deleteSqlinfo;
         }
         else{
-            throw new DataImportException("record action type must be insert or update or delete record.");
+            throw ImportExceptionUtil.buildDataImportException(importContext,"record action type must be insert or update or delete record.");
         }
     }
 	public String execute(){
@@ -329,10 +330,10 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                 try {
                     stmtInfo.errorHandle(error);
                 } catch (SQLException ex) {
-                    throw new DataImportException(taskInfo,error);
+                    throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,error);
                 }
             }
-            throw new DataImportException(taskInfo,error);
+            throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,error);
         }
         catch (Exception e) {
             if(stmtInfo != null) {
@@ -340,10 +341,10 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                 try {
                     stmtInfo.errorHandle(e);
                 } catch (SQLException ex) {
-                    throw new DataImportException(taskInfo,e);
+                    throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
                 }
             }
-            throw new DataImportException(taskInfo,e);
+            throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
 
         } finally {
             if(stmtInfo != null)

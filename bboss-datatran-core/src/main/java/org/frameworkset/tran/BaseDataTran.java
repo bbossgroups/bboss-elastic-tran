@@ -4,6 +4,7 @@ import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.record.AsynSplitTranResultSet;
 import org.frameworkset.tran.record.RecordColumnInfo;
@@ -79,7 +80,7 @@ public abstract class BaseDataTran implements DataTran{
 					continue;
 				varName = fieldMeta.getTargetFieldName();//获取映射字段
 				if(varName == null || varName.equals(""))
-					throw new DataImportException("fieldName["+fieldName+"]名称映射配置错误：varName="+varName);
+					throw ImportExceptionUtil.buildDataImportException(importContext,"fieldName["+fieldName+"]名称映射配置错误：varName="+varName);
 			}
 			else{
 				varName = fieldName;
@@ -325,12 +326,12 @@ public abstract class BaseDataTran implements DataTran{
         catch (Exception dataImportException){
             if(this.countDownLatch != null)
                 countDownLatch.attachException(dataImportException);
-            throw new DataImportException(dataImportException);
+            throw ImportExceptionUtil.buildDataImportException(importContext,dataImportException);
         }
         catch (Throwable dataImportException){
             if(this.countDownLatch != null)
                 countDownLatch.attachException(dataImportException);
-            throw new DataImportException(dataImportException);
+            throw ImportExceptionUtil.buildDataImportException(importContext,dataImportException);
         }
         finally {
             if(this.countDownLatch != null)

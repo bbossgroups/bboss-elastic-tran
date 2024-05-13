@@ -20,6 +20,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
 import org.frameworkset.tran.metrics.SerialImportCount;
@@ -201,7 +202,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 			throw e;
 		} catch (Exception e) {
 			exception = e;
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 		finally {
 
@@ -362,10 +363,10 @@ public class CommonRecordTranJob extends BaseTranJob{
 			throw e;
 		} catch (Exception e) {
 			exception = e;
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}catch (Throwable e) {
             exception = e;
-            throw new DataImportException(e);
+            throw ImportExceptionUtil.buildDataImportException(importContext,e);
         }
 		finally {
 			baseDataTran.waitTasksComplete(tasks, service, exception, lastValue, totalCount, tranErrorWrapper, new WaitTasksCompleteCallBack() {
@@ -513,7 +514,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 						}
 					}
 				} catch (Exception e) {
-					throw new DataImportException(e);
+					throw ImportExceptionUtil.buildDataImportException(importContext,e);
 				}
 			}
 
@@ -537,7 +538,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		}
 		catch (Exception e){
 			exception = e;
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 
 
 		} finally {
@@ -647,7 +648,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					}
 
 				} catch (Exception e) {
-					throw new DataImportException(e);
+					throw ImportExceptionUtil.buildDataImportException(importContext,e);
 				}
 			}
 			taskNo = serialTranCommand.endSerialActionTask(importCount,totalCount,taskNo,lastValue,records);
@@ -669,7 +670,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		}
 		catch (Exception e){
 			exception = e;
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 
 
 		} finally {

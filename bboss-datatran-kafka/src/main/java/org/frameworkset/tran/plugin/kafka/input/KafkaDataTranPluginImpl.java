@@ -21,6 +21,7 @@ import org.frameworkset.tran.DestroyPolicy;
 import org.frameworkset.tran.context.DefaultReInitAction;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.ReInitAction;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -101,8 +102,8 @@ public class KafkaDataTranPluginImpl extends DataTranPluginImpl {
             throw dataImportException;
 		}
 		catch (Throwable dataImportException){
-			DataImportException e = new DataImportException(dataImportException);
-			throwException(taskContext,new DataImportException(dataImportException));
+			DataImportException e = ImportExceptionUtil.buildDataImportException(importContext,dataImportException);
+			throwException(taskContext,e);
             importContext.finishAndWaitTran(dataImportException);
             throw e;
 		}

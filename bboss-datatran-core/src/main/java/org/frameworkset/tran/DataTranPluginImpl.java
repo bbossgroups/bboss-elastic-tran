@@ -26,6 +26,7 @@ import org.frameworkset.tran.config.DynamicParamContext;
 import org.frameworkset.tran.config.JobInputParamGroup;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
@@ -158,7 +159,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			} catch (DataImportException e) {
 				throw e;
 			} catch (Exception e) {
-				throw new DataImportException("get value of "+entry.getKey() + " failed:",e);
+				throw ImportExceptionUtil.buildDataImportException(importContext,"get value of "+entry.getKey() + " failed:",e);
 			}
 			if(value != null)
 				params.put(entry.getKey(),value);
@@ -196,7 +197,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
                     } catch (DataImportException e) {
                         throw e;
                     } catch (Exception e) {
-                        throw new DataImportException("get value of " + entry.getKey() + " failed:", e);
+                        ImportExceptionUtil.buildDataImportException(importContext,"get value of " + entry.getKey() + " failed:", e);
                     }
                     if (value != null)
                         params.put(entry.getKey(), value);
@@ -228,7 +229,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			} catch (DataImportException e) {
 				throw e;
 			} catch (Exception e) {
-				throw new DataImportException("get value of "+entry.getKey() + " failed:",e);
+				throw ImportExceptionUtil.buildDataImportException(importContext,"get value of "+entry.getKey() + " failed:",e);
 			}
 			if(value != null)
 				params.put(entry.getKey(),value);
@@ -258,7 +259,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			} catch (DataImportException e) {
 				throw e;
 			} catch (Exception e) {
-				throw new DataImportException("get value of "+entry.getKey() + " failed:",e);
+				throw ImportExceptionUtil.buildDataImportException(importContext,"get value of "+entry.getKey() + " failed:",e);
 			}
 			if(value != null)
 				params.put(entry.getKey(),value);
@@ -286,7 +287,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			} catch (DataImportException e) {
 				throw e;
 			} catch (Exception e) {
-				throw new DataImportException("get value of "+entry.getKey() + " failed:",e);
+				throw ImportExceptionUtil.buildDataImportException(importContext,"get value of "+entry.getKey() + " failed:",e);
 			}
 			if(value != null)
 				params.put(entry.getKey(),value);
@@ -386,7 +387,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		this.importContext = importContext;
 	}
 
-	protected ImportContext importContext;
+    protected ImportContext importContext;
 
 
 	protected ScheduleService scheduleService;
@@ -576,7 +577,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			}
 			catch (Exception e)
 			{
-				throw new DataImportException(e);
+				throw ImportExceptionUtil.buildDataImportException(importContext,e);
 			}
 		}
 
@@ -1297,7 +1298,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
                     if(logger.isInfoEnabled()) {
                         logger.info("TIMESTAMP TYPE Last Value Illegal:{}", configLastValue);
                     }
-                    throw new DataImportException("TIMESTAMP TYPE Last Value Illegal:"+configLastValue );
+                    throw ImportExceptionUtil.buildDataImportException(importContext,"TIMESTAMP TYPE Last Value Illegal:"+configLastValue );
                 }
 //                lastValueWrapper.setLastValue(currentStatus.getLastValue());
             }
@@ -1333,7 +1334,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
                     if(logger.isInfoEnabled()) {
                         logger.info("TIMESTAMP TYPE Last Value Illegal:{}", configLastValue);
                     }
-                    throw new DataImportException("TIMESTAMP TYPE Last Value Illegal:"+configLastValue );
+                    throw ImportExceptionUtil.buildDataImportException(importContext,"TIMESTAMP TYPE Last Value Illegal:"+configLastValue );
                 }
 
             }

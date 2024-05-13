@@ -16,6 +16,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.input.DBRecord;
 import org.frameworkset.tran.plugin.db.output.JDBCGetVariableValue;
@@ -143,7 +144,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 		super.init();
 		initClientInterfaces(elasticsearch);
 		if(elasticsearchOutputConfig.getEsIndexWrapper() == null){
-			throw new DataImportException("Global Elasticsearch index must be setted, please check your import job builder config.");
+			throw ImportExceptionUtil.buildDataImportException(importContext,"Global Elasticsearch index must be setted, please check your import job builder config.");
 		}
 
 		taskInfo = new StringBuilder().append("import data to elasticsearch[").append(elasticsearch).append("] ")

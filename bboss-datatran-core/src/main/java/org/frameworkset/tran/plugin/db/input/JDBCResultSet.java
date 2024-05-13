@@ -19,6 +19,7 @@ import com.frameworkset.orm.adapter.DB;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -137,7 +138,7 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 			return nextAssert;
 		}
 		catch (Exception e){
-			throw new DataImportException(e);
+			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 	}
  
