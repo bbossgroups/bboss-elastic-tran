@@ -52,7 +52,7 @@ public class ImportExceptionUtil {
             builder.append("jobName=").append(jobName)
                     .append(",jobId=").append(jobId)
                     .append(",jobType=").append(jobType)
-                    .append(",errorinfo:").append(error);
+                    .append(",errorinfo=").append(error);
             return new DataImportException(builder.toString(),throwable);
         }
         else{
@@ -94,7 +94,7 @@ public class ImportExceptionUtil {
         builder.append("jobName=").append(jobName)
                 .append(",jobId=").append(jobId)
                 .append(",jobType=").append(jobType)
-                .append(",errorinfo:").append(error);
+                .append(",errorinfo=").append(error);
         return new DataImportException(builder.toString(),throwable);
 
     }
