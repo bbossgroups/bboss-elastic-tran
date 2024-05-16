@@ -23,7 +23,9 @@ import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.db.BaseDBConfig;
+import org.frameworkset.tran.record.RecordBuidler;
 
+import java.sql.ResultSet;
 import java.util.Properties;
 
 /**
@@ -44,10 +46,33 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 	private Boolean enableDBTransaction;
     private Integer fetchSize;
     private boolean enableLocalDate;
+
+    private Boolean parallelDatarefactor;
+
+    private RecordBuidler<ResultSet> recordBuidler;
+    
     public DBInputConfig setEnableLocalDate(boolean enableLocalDate){
         this.enableLocalDate = enableLocalDate;
         return this;
     }
+    public boolean isParallelDatarefactor(){
+        if(parallelDatarefactor != null)
+            return parallelDatarefactor;
+        return false;
+    }
+
+    /**
+     * 并行Datarefactor处理需要设置RecordBuidler，默认为DBRecordBuilder，如果需要自定义resultset record，从DBRecordBuilder继承实现方法即可：
+     * public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException
+     * @param parallelDatarefactor
+     * @return
+     */
+    public DBInputConfig setParallelDatarefactor(boolean parallelDatarefactor) {
+        this.parallelDatarefactor = parallelDatarefactor;
+        return this;
+    }
+    
+    
 
     @Override
     public boolean enableLocalDate() {
@@ -143,6 +168,11 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
         }
         if(fetchSize != null){
             _setJdbcFetchSize(fetchSize);
+        }
+        if(isParallelDatarefactor()){
+            if(recordBuidler == null){
+                recordBuidler = new DBRecordBuilder();
+            }
         }
 
 	}
@@ -396,6 +426,19 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
      */
     public DBInputConfig setEnableBalance(boolean enableBalance) {
         _setEnableBalance(enableBalance);
+        return this;
+    }
+    public RecordBuidler<ResultSet> getRecordBuidler() {
+        return recordBuidler;
+    }
+    /**
+     * 并行Datarefactor处理标记为parallelDatarefactor=true时，需要设置RecordBuidler，默认为DBRecordBuilder，如果需要自定义resultset record，从DBRecordBuilder继承实现方法即可：
+     * public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException
+     * @param recordBuidler
+     * @return
+     */
+    public DBInputConfig setRecordBuidler(RecordBuidler<ResultSet> recordBuidler) {
+        this.recordBuidler = recordBuidler;
         return this;
     }
 

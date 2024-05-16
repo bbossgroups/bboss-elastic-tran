@@ -51,6 +51,13 @@ public interface Record {
 	public Object getKeys();
 	public Object getData();
 
+    /**
+     * 返回自己，如果WrapRecord则返回封装的源Record
+     * @return
+     */
+    default Record getRecord(){
+        return this;
+    }
 	public Object getMetaValue(String metaName);
 	default public long getOffset(){
         return 0L;

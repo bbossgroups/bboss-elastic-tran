@@ -7,7 +7,6 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.Record;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.file.monitor.FileManager;
 import org.frameworkset.tran.ftp.FtpConfig;

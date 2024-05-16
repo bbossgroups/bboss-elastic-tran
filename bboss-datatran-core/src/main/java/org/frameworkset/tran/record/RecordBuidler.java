@@ -1,6 +1,6 @@
-package org.frameworkset.tran.plugin.es.input;
+package org.frameworkset.tran.record;
 /**
- * Copyright 2008 biaoping.yin
+ * Copyright 2024 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,20 @@ package org.frameworkset.tran.plugin.es.input;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.AsynBaseTranResultSet;
-import org.frameworkset.tran.Record;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.TaskContext;
+
+import java.util.Map;
 
 /**
- * <p>Description: </p>
+ * <p>Description: 从原始数据集中构建Record记录对象，通过记录构建器，提前从源数据流中构建一个数据记录，用于后续并发处理</p>
  * <p></p>
- * <p>Copyright (c) 2018</p>
- * @Date 2019/10/28 22:37
+ *
  * @author biaoping.yin
- * @version 1.0
+ * @Date 2024/5/16
  */
-public class ES2TranResultSet extends AsynBaseTranResultSet {
-
-	public ES2TranResultSet(ImportContext importContext) {
-		super(importContext);
-
-	}
-	@Override
-	protected Record buildRecord(Object data){
-		return new ESRecord(getTaskContext(),this.importContext,data);
-	}
-
-
+public interface RecordBuidler<T> {
+    Map<String,Object> build(RecordBuidlerContext<T> recordBuidlerContext) throws DataImportException; 
+    
 }

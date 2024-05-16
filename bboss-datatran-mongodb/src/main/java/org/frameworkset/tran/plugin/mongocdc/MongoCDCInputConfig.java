@@ -22,10 +22,8 @@ import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.mongodb.cdc.ChangeStreamPipeline;
 import org.frameworkset.tran.plugin.InputPlugin;
-import org.frameworkset.tran.plugin.mongodb.input.MongoDBInputDatatranPlugin;
 
 import java.util.ArrayList;
-
 import java.util.List;
 
 /**

@@ -28,9 +28,6 @@ import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
-import org.frameworkset.tran.task.TaskCommand;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * <p>Description: </p>

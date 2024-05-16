@@ -2,27 +2,22 @@ package org.frameworkset.tran;
 
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.soa.BBossStringWriter;
-import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.record.AsynSplitTranResultSet;
-import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.record.SplitTranResultSet;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.*;
-import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -30,7 +25,6 @@ import java.util.function.Consumer;
 
 public abstract class BaseDataTran implements DataTran{
 	protected  Logger logger = LoggerFactory.getLogger(this.getClass());
-	protected static Object dummy = new Object();
 	protected ImportContext importContext;
 	protected TranResultSet tranResultSet;
     protected boolean dataTranStopped;
@@ -42,12 +36,18 @@ public abstract class BaseDataTran implements DataTran{
 	protected String taskInfo ;
 	protected TranJob tranJob;
     protected JobCountDownLatch countDownLatch;
-	public abstract CommonRecord buildRecord(Context context) throws Exception;
+    
 	@Override
 	public void beforeOutputData(BBossStringWriter writer){
 
 	}
-
+    protected void initTaskCommandContext(TaskCommandContext taskCommandContext){
+        taskCommandContext.setTaskContext(taskContext);
+        taskCommandContext.setJobNo(taskContext.getJobNo());
+        taskCommandContext.setCurrentStatus(currentStatus);
+        taskCommandContext.setTaskInfo(taskInfo);
+        taskCommandContext.evalDataSize();
+    }
     @Override
     public Object buildSerialDatas(Object data,CommonRecord record){
         return data;
@@ -64,85 +64,7 @@ public abstract class BaseDataTran implements DataTran{
 		return taskContext;
 	}
 
-	protected void appendSplitFieldValues(CommonRecord record,
-										  String[] splitColumns,
-										  Map<String, Object> addedFields, Context context) {
-		if(splitColumns ==  null || splitColumns.length == 0){
-			return;
-		}
-
-		String varName = null;
-		for (String fieldName : splitColumns) {
-			FieldMeta fieldMeta = context.getMappingName(fieldName);//获取字段映射或者忽略配置
-
-			if(fieldMeta != null) {
-				if(fieldMeta.getIgnore() != null && fieldMeta.getIgnore() == true)//忽略字段
-					continue;
-				varName = fieldMeta.getTargetFieldName();//获取映射字段
-				if(varName == null || varName.equals(""))
-					throw ImportExceptionUtil.buildDataImportException(importContext,"fieldName["+fieldName+"]名称映射配置错误：varName="+varName);
-			}
-			else{
-				varName = fieldName;
-			}
-			if (addedFields.containsKey(varName))
-				continue;
-			addRecordValue( record, varName, tranResultSet.getValue(fieldName),fieldMeta ,context);
-			addedFields.put(varName, dummy);
-
-		}
-
-	}
-
-    protected RecordColumnInfo resolveRecordColumnInfo(Object value,FieldMeta fieldMeta,Context context){
-        return null;
-    }
-	private void addRecordValue(CommonRecord record,String fieldName,Object value,FieldMeta fieldMeta,Context context){
-		RecordColumnInfo recordColumnInfo = resolveRecordColumnInfo(  value,  fieldMeta,  context);		 
-		record.addData(fieldName, value,recordColumnInfo);
-	}
-	protected void appendFieldValues(CommonRecord record,
-									 String[] columns ,
-									 List<FieldMeta> fieldValueMetas,
-									 Map<String, Object> addedFields, boolean useResultKeys,Context context) {
-		if(fieldValueMetas ==  null || fieldValueMetas.size() == 0){
-			return;
-		}
-
-		if(columns != null && columns.length > 0) {
-			for (FieldMeta fieldMeta : fieldValueMetas) {
-				String fieldName = fieldMeta.getTargetFieldName();
-				if (addedFields.containsKey(fieldName))
-					continue;
-				boolean matched = false;
-				for (String name : columns) {
-					if (name.equals(fieldName)) {
-						addRecordValue( record,name, fieldMeta.getValue(), fieldMeta, context);
-//						record.addData(name, fieldMeta.getValue());
-						addedFields.put(name, dummy);
-						matched = true;
-						break;
-					}
-				}
-				if (useResultKeys && !matched) {
-					addRecordValue( record,fieldName, fieldMeta.getValue(), fieldMeta, context);
-//					record.addData(fieldName, fieldMeta.getValue());
-					addedFields.put(fieldName, dummy);
-				}
-			}
-		}
-		else{ //hbase之类的数据同步工具，数据都是在datarefactor接口中封装处理，columns信息不存在，直接用fieldValueMetas即可
-			for (FieldMeta fieldMeta : fieldValueMetas) {
-				String fieldName = fieldMeta.getTargetFieldName();
-				if (addedFields.containsKey(fieldName))
-					continue;
-				addRecordValue( record,fieldName, fieldMeta.getValue(), fieldMeta, context);
-//				record.addData(fieldName, fieldMeta.getValue());
-				addedFields.put(fieldName, dummy);
-
-			}
-		}
-	}
+	  
 	/**
 	 * 当前作业处理的增量状态信息
 	 */
@@ -207,7 +129,6 @@ public abstract class BaseDataTran implements DataTran{
 		tranResultSet.setBaseDataTran(this);
 	}
 
-	protected abstract void initTranJob();
 	protected abstract void initTranTaskCommand();
 	public void init(){
 
@@ -544,6 +465,10 @@ public abstract class BaseDataTran implements DataTran{
 
     public boolean isRecordDirectIgnore(){
         return tranResultSet.getAction() == Record.RECORD_DIRECT_IGNORE;
+    }
+
+    protected void initTranJob(){
+        tranJob = importContext.getInputPlugin().getTranJob();
     }
 
 }

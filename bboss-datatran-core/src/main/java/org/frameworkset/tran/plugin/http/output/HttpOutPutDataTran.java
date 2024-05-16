@@ -1,20 +1,18 @@
 package org.frameworkset.tran.plugin.http.output;
 
 import org.frameworkset.soa.BBossStringWriter;
-import org.frameworkset.tran.*;
+import org.frameworkset.tran.BaseCommonRecordDataTran;
+import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.JobCountDownLatch;
+import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.*;
 import org.slf4j.Logger;
 
 import java.io.Writer;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 	protected HttpOutputConfig httpOutputConfig;
@@ -53,27 +51,38 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 //		super.stopTranOnly();
 //	}
 
-	@Override
-	protected void initTranJob(){
-		tranJob = new CommonRecordTranJob();
-	}
+//	@Override
+//	protected void initTranJob(){
+//		tranJob = new CommonRecordTranJob();
+//	}
 	@Override
 	protected void initTranTaskCommand(){
 		parrelTranCommand = new BaseParrelTranCommand(){
 
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,
-										 ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
-				if(datas != null) {
-					taskNo++;
-                    List<CommonRecord> records = convertDatas( datas);
-					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus,  taskContext);
-					taskCommand.setRecords(records);
-					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
+                if(taskCommandContext.containData() )  {
+                    taskCommandContext.increamentTaskNo();
+                    initTaskCommandContext(taskCommandContext);
+//                    List<CommonRecord> records = convertDatas( datas);
+                    HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(  taskCommandContext);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+                    taskCommandContext.addTask(taskCommand);
 
-				}
-				return taskNo;
+
+                }
+                return taskCommandContext.getTaskNo();
+//				if(datas != null) {
+//					taskNo++;
+//                    List<CommonRecord> records = convertDatas( datas);
+//					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
+//							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus,  taskContext);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+//
+//				}
+//				return taskNo;
 			}
 
 			@Override
@@ -85,32 +94,55 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue,
-                                          Object datas) {
-				if(datas != null) {
-					taskNo++;
-                    List<CommonRecord> records = convertDatas( datas);
-					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus,  taskContext);
-					taskCommand.setRecords(records);
-					TaskCall.call(taskCommand);
+			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
+                if(taskCommandContext.containData() )  {
+                    taskCommandContext.increamentTaskNo();
+                    initTaskCommandContext(taskCommandContext);
+//                    List<CommonRecord> records = convertDatas( datas);
+                    HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(  taskCommandContext);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+                    TaskCall.call(taskCommand);
 
-				}
-				return taskNo;
+
+                }
+                return taskCommandContext.getTaskNo();
+//				if(datas != null) {
+//					taskNo++;
+//                    List<CommonRecord> records = convertDatas( datas);
+//					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
+//							dataSize, taskNo, taskContext.getJobNo(),  lastValue, currentStatus,  taskContext);
+//					taskCommand.setRecords(records);
+//					TaskCall.call(taskCommand);
+//
+//				}
+//				return taskNo;
 			}
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
-				if(datas != null) {
-					taskNo ++;
-                    List<CommonRecord> records = convertDatas( datas);
-					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
+			public int endSerialActionTask(TaskCommandContext taskCommandContext) {
+                if(taskCommandContext.containData() )  {
+                    taskCommandContext.increamentTaskNo();
+                    initTaskCommandContext(taskCommandContext);
+//                    List<CommonRecord> records = convertDatas( datas);
+                    HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(  taskCommandContext);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+                    TaskCall.call(taskCommand);
 
-					taskCommand.setRecords(records);
-					TaskCall.call(taskCommand);
-				}
-				return taskNo;
+
+                }
+                return taskCommandContext.getTaskNo();
+//				if(datas != null) {
+//					taskNo ++;
+//                    List<CommonRecord> records = convertDatas( datas);
+//					HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(totalCount, importContext,
+//							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
+//
+//					taskCommand.setRecords(records);
+//					TaskCall.call(taskCommand);
+//				}
+//				return taskNo;
 			}
 
 

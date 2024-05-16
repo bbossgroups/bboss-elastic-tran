@@ -52,9 +52,22 @@ public class CommonRecord {
 
     private Map<String,Object> metaDatas;
 
+    /**
+     * 设置kafka的消息key
+     */
 	private Object recordKey;
 
+    /**
+     * 指定包含kafka消息key的字段
+     */
 	private String recordKeyField;
+
+
+
+    /**
+     * 记录字段名称集合
+     */
+    private Object keys;
 
     /**
      * binlog采集的修改前记录信息
@@ -373,6 +386,14 @@ public class CommonRecord {
             return dateFormat.parse((String) value);
         }
         throw new IllegalArgumentException("Convert date value failed:"+value );
+    }
+
+    public Object getKeys() {
+        return keys;
+    }
+
+    public void setKeys(Object keys) {
+        this.keys = keys;
     }
 
 }

@@ -17,20 +17,13 @@ package org.frameworkset.tran.output.fileftp;
 
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
+import org.frameworkset.tran.task.TaskCommandContext;
 import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -43,10 +36,8 @@ import java.util.List;
 public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
 	private FileTransfer fileTransfer;
     protected FileOutputConfig fileOutputConfig;
-	public FileFtpTaskCommandImpl(ImportCount importCount, ImportContext importContext,
-                                  long dataSize, int taskNo, String jobNo, FileTransfer fileTransfer,
-                                  LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
-		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
+	public FileFtpTaskCommandImpl(TaskCommandContext taskCommandContext, FileTransfer fileTransfer) {
+		super(taskCommandContext);
 		this.fileTransfer = fileTransfer;
         fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
 	}
@@ -91,7 +82,7 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
             if(datas == null){
                 datas = buildDatas();
             }
-			fileTransfer.writeData(this,datas,getTotalSize(),dataSize);
+			fileTransfer.writeData(this,datas,getTotalSize(),taskCommandContext.getDataSize());
 			finishTask();
 		} catch (Exception e) {
 			throw ImportExceptionUtil.buildDataImportException(importContext,datas,e);

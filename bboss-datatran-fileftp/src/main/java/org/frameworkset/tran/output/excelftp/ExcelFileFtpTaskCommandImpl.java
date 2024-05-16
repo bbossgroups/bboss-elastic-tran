@@ -15,21 +15,15 @@ package org.frameworkset.tran.output.excelftp;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
-import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommand;
+import org.frameworkset.tran.task.TaskCommandContext;
 import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -43,10 +37,8 @@ public class ExcelFileFtpTaskCommandImpl extends BaseTaskCommand< String> {
 //	private String refreshOption;
 	private ExcelFileTransfer fileTransfer;
 
-	public ExcelFileFtpTaskCommandImpl(ImportCount importCount, ImportContext importContext,
-                                       long dataSize, int taskNo, String jobNo, ExcelFileTransfer fileTransfer,
-                                       LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
-		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,  taskContext);
+	public ExcelFileFtpTaskCommandImpl(TaskCommandContext taskCommandContext, ExcelFileTransfer fileTransfer) {
+		super(  taskCommandContext);
 		this.fileTransfer = fileTransfer;
 	}
 

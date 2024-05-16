@@ -1,6 +1,6 @@
-package org.frameworkset.tran.plugin;
+package org.frameworkset.tran.plugin.db.input;
 /**
- * Copyright 2022 bboss
+ * Copyright 2024 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,26 @@ package org.frameworkset.tran.plugin;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.context.ImportContext;
+import com.frameworkset.common.poolman.StatementInfo;
+import org.frameworkset.tran.record.RecordBuidlerContext;
+
+import java.sql.ResultSet;
 
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2020</p>
- * @Date 2022/6/19
+ *
  * @author biaoping.yin
- * @version 1.0
+ * @Date 2024/5/16
  */
-public abstract class BaseOutputPlugin extends BasePlugin implements OutputPlugin{
-	public BaseOutputPlugin(ImportContext importContext){
-		super(importContext);
-//		init(importContext,targetImportContext);
-//		importContext.setDataTranPlugin(this);
-//		targetImportContext.setDataTranPlugin(this);
-	}
+public class DBRecordBuilderContext extends RecordBuidlerContext<ResultSet> {
+    private StatementInfo statementInfo;
 
+    public StatementInfo getStatementInfo() {
+        return statementInfo;
+    }
+
+    public void setStatementInfo(StatementInfo statementInfo) {
+        this.statementInfo = statementInfo;
+    }
 }

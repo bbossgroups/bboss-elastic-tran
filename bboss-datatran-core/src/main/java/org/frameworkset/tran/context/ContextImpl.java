@@ -19,13 +19,13 @@ import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.elasticsearch.client.ResultUtil;
 import org.frameworkset.spi.geoip.IpInfo;
-import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.*;
-import org.frameworkset.tran.plugin.es.ESField;
 import org.frameworkset.tran.plugin.db.input.DBInputConfig;
 import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
+import org.frameworkset.tran.plugin.es.ESField;
 import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 import org.frameworkset.tran.record.ValueConvert;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -208,7 +208,7 @@ public class ContextImpl implements Context {
 		return record.getValue(i,colName,sqlType);
 	}
 
-	public Object getValue(String fieldName,int sqlType)  throws Exception{
+	public Object getValue(String fieldName,int sqlType)  throws DataImportException{
 		return record.getValue(fieldName,sqlType);
 	}
 	public Boolean getUseJavaName() {
@@ -797,6 +797,9 @@ public class ContextImpl implements Context {
 	public CommonRecord getCommonRecord() {
 		return commonRecord;
 	}
+    public Object getKeys(){
+        return record.getKeys();
+    }
 
 
 	/**

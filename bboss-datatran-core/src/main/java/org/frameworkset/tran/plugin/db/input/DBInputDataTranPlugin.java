@@ -30,7 +30,10 @@ import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.db.BaseDBPlugin;
 import org.frameworkset.tran.schedule.SQLInfo;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.CommonAsynRecordTranJob;
+import org.frameworkset.tran.task.CommonRecordTranJob;
 import org.frameworkset.tran.task.TaskFailedException;
+import org.frameworkset.tran.task.TranJob;
 import org.frameworkset.util.tokenizer.TextGrammarParser;
 
 import java.sql.SQLException;
@@ -70,7 +73,13 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 		this.initSourceSQLInfo();
 
 	}
-
+    @Override
+    public TranJob getTranJob(){
+        if(dbInputConfig.isParallelDatarefactor())
+            return new CommonAsynRecordTranJob();
+        else 
+            return new CommonRecordTranJob();
+    }
 	@Override
 	public String getJobType() {
 		return jobType;

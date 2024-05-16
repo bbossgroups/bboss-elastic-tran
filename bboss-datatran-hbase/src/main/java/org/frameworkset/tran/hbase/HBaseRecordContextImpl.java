@@ -19,7 +19,6 @@ import com.frameworkset.orm.annotation.BatchContext;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.tran.Record;
-import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;

@@ -1,17 +1,14 @@
 package org.frameworkset.tran.plugin.mongodb.output;
 
 import org.frameworkset.tran.AbstraCommonRecordOutPutDataTran;
-import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.TaskCommand;
+import org.frameworkset.tran.task.TaskCommandContext;
 
-import java.util.List;
 
 public class MongoDBOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
 	protected MongoDBOutputConfig mongoDBOutputConfig ;
@@ -38,16 +35,12 @@ public class MongoDBOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
 		super(   taskContext,jdbcResultSet,importContext,   currentStatus);
 	}
     @Override
-	protected TaskCommand buildTaskCommand(ImportCount totalCount,
-                                           List<CommonRecord> records, int taskNo,
-                                           LastValueWrapper lastValue){
+	protected TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext){
 		if(!mongoDBOutputConfig.isMultiCollections()) {
-			return new MongoDBTaskCommandImpl(totalCount, importContext, records,
-					taskNo, taskContext.getJobNo(), taskInfo, lastValue, currentStatus, taskContext);
+			return new MongoDBTaskCommandImpl(taskCommandContext);
 		}
 		else{
-			return new MongoDBMultiTargetTaskCommandImpl(totalCount, importContext, records,
-					taskNo, taskContext.getJobNo(), taskInfo, lastValue, currentStatus, taskContext);
+			return new MongoDBMultiTargetTaskCommandImpl(  taskCommandContext);
 		}
 	}
 

@@ -17,8 +17,6 @@ package org.frameworkset.tran.task;
 
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.io.Writer;
 
@@ -31,9 +29,10 @@ import java.io.Writer;
  * @version 1.0
  */
 public interface SerialTranCommand {
-	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas);
-
-	public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas);
+//	public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas);
+    public int hanBatchActionTask(TaskCommandContext taskCommandContext);
+//	public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas);
+    public int endSerialActionTask(TaskCommandContext taskCommandContext);
 //	public int splitSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record);
 	public boolean splitCheck(long totalCount);
 	public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception;

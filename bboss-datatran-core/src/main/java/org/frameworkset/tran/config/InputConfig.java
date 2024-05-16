@@ -18,6 +18,7 @@ package org.frameworkset.tran.config;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.record.RecordBuidler;
 
 /**
  * <p>Description: </p>
@@ -32,7 +33,12 @@ public interface InputConfig {
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext);
 	InputPlugin getInputPlugin(ImportContext importContext);
 	void afterBuild(ImportBuilder importBuilder,ImportContext importContext);
-
+    default boolean isParallelDatarefactor(){
+        return true;
+    }
+    default RecordBuidler getRecordBuidler(){
+        return null;
+    }
     boolean isSortedDefault();
     default boolean enableLocalDate(){
         return false;

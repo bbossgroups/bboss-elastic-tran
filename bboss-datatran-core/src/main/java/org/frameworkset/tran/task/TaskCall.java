@@ -15,9 +15,12 @@ package org.frameworkset.tran.task;
  * limitations under the License.
  */
 
+import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.Record;
 import org.frameworkset.tran.TranErrorWrapper;
+import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
@@ -27,6 +30,7 @@ import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -98,12 +102,55 @@ public class TaskCall implements Runnable {
 
         }
     }
-	public static <DATA,RESULT> RESULT call(TaskCommand<RESULT> taskCommand){
+
+    /**
+     * 第二阶段数据加工处理
+     */
+    private static List<CommonRecord> dataRefactor(TaskCommand taskCommand) throws Exception {
+        TaskCommandContext taskCommandContext = taskCommand.getTaskCommandContext();
+        if(taskCommandContext.getCommonRecords() != null){
+            taskCommand.setRecords(taskCommandContext.getCommonRecords());
+        }
+        else if(taskCommandContext.getCommonRecord() != null){
+            List<CommonRecord> commonRecords = new ArrayList<>(1);
+            commonRecords.add(taskCommandContext.getCommonRecord());
+            taskCommand.setRecords(commonRecords);            
+        }
+        else if(taskCommandContext.getRecords() != null){
+            List<CommonRecord> commonRecords = new ArrayList<>();
+
+            List<Record> records = taskCommandContext.getRecords();
+            BatchContext batchContext = new BatchContext();
+            ImportContext importContext = taskCommand.getImportContext();
+            ImportCount totalCount = taskCommandContext.getTotalCount();
+            int droped = 0;
+            for (Record resultRecord : records) {
+                Context context = importContext.buildContext(taskCommand.getTaskContext(), resultRecord, batchContext);
+                context.refactorData();
+                context.afterRefactor();
+                if (context.isDrop()) {
+                    totalCount.increamentIgnoreTotalCount();
+                    taskCommandContext.increamentDataSize(-1);
+                    taskCommandContext.increamentIgnoreCount();
+                    droped++;
+                    continue;
+                }
+                CommonRecord record = importContext.getOutputPlugin().buildRecord(context);
+                commonRecords.add(record);
+            }
+            taskCommandContext.setCommonRecords(commonRecords);
+            taskCommand.setRecords(commonRecords);
+            taskCommandContext.setDroped(droped);
+        }
+        return taskCommand.getRecords();
+    }
+	public static <RESULT> RESULT call(TaskCommand<RESULT> taskCommand){
 		ImportContext importContext = taskCommand.getImportContext();
 		ImportCount importCount = taskCommand.getImportCount();
 		TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
 
 		try {
+            dataRefactor(taskCommand);
             //指标计算
             metricsCompute(  importContext,taskCommand.getRecords());
 			taskCommand.init();
@@ -116,7 +163,7 @@ public class TaskCall implements Runnable {
 			taskMetrics.setSuccessRecords((long)taskCommand.getDataSize());
 			taskMetrics.setRecords(taskMetrics.getSuccessRecords());
 			long ignoreTotalCount = importCount.getIgnoreTotalCount();
-			taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
+			taskMetrics.setIgnoreRecords(taskCommand.getTaskCommandContext().getIgnoreCount());
 			taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
 			taskMetrics.setTaskEndTime(endTime);
 			if (importContext.getExportResultHandler() != null) {//处理返回值

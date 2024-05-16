@@ -16,9 +16,13 @@ package org.frameworkset.tran.plugin.mongocdc;
  */
 
 import com.frameworkset.orm.annotation.BatchContext;
-import org.frameworkset.tran.*;
+import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.DataTranPluginImpl;
+import org.frameworkset.tran.DestroyPolicy;
 import org.frameworkset.tran.Record;
-import org.frameworkset.tran.context.*;
+import org.frameworkset.tran.context.Context;
+import org.frameworkset.tran.context.ContextImpl;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.status.BaseStatusManager;

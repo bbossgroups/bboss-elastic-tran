@@ -15,8 +15,6 @@ package org.frameworkset.tran.metrics;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.BaseDataTran;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -30,7 +28,8 @@ public abstract class ImportCount {
 	protected long failedCount;
 	protected long successCount;
 	protected long ignoreTotalCount;
-	public ImportCount(BaseDataTran baseDataTran){
+    
+	public ImportCount(){
 
 
 

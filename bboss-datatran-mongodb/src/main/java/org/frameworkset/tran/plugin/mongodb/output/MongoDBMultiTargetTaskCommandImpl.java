@@ -18,21 +18,12 @@ package org.frameworkset.tran.plugin.mongodb.output;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.*;
-import org.bson.Document;
 import org.frameworkset.nosql.mongodb.MongoDB;
 import org.frameworkset.nosql.mongodb.MongoDBHelper;
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.cdc.TableMapping;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
-import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
-import org.frameworkset.tran.task.BaseTaskCommand;
-import org.frameworkset.tran.task.TaskFailedException;
+import org.frameworkset.tran.task.TaskCommandContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,12 +40,8 @@ import java.util.*;
 public class MongoDBMultiTargetTaskCommandImpl extends MongoDBTaskCommandImpl {
 
 	private static final Logger logger = LoggerFactory.getLogger(MongoDBMultiTargetTaskCommandImpl.class);
-	public MongoDBMultiTargetTaskCommandImpl(ImportCount importCount, ImportContext importContext,
-	                                         List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
-	                                         LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
-		super(  importCount,   importContext,
-				 datas,   taskNo,   jobNo,   taskInfo,
-				  lastValue,   currentStatus,    taskContext);
+	public MongoDBMultiTargetTaskCommandImpl(TaskCommandContext taskCommandContext) {
+		super(    taskCommandContext);
 
 	}
 

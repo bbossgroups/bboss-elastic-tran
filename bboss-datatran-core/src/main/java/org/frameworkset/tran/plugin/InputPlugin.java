@@ -19,10 +19,12 @@ import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.Record;
-import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.CommonAsynRecordTranJob;
+import org.frameworkset.tran.task.CommonRecordTranJob;
+import org.frameworkset.tran.task.TranJob;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -66,4 +68,8 @@ public interface InputPlugin {
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);
 
 	String getJobType();
+
+    default TranJob getTranJob(){
+        return new CommonAsynRecordTranJob();
+    }
 }

@@ -15,15 +15,12 @@ package org.frameworkset.tran.plugin.mongocdc;
  * limitations under the License.
  */
 
-import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.nosql.mongodb.MongoDBConfig;
 import org.frameworkset.nosql.mongodb.MongoDBHelper;
 import org.frameworkset.nosql.mongodb.MongoDBStartResult;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.Record;
-import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.mongodb.cdc.ReplicaSet;

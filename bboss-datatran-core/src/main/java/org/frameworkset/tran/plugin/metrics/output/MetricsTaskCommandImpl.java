@@ -16,18 +16,13 @@ package org.frameworkset.tran.plugin.metrics.output;
  */
 
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
-import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.BaseTranJob;
+import org.frameworkset.tran.task.TaskCommandContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -41,14 +36,14 @@ public class MetricsTaskCommandImpl extends BaseTaskCommand<  String> {
 	private Logger logger = LoggerFactory.getLogger(MetricsTaskCommandImpl.class);
 	private TaskContext taskContext;
 	private MetricsOutputConfig metricsOutputConfig;
-	public MetricsTaskCommandImpl(ImportCount importCount, ImportContext importContext, List<CommonRecord> datas,
-                                  int taskNo, String jobNo,
-                                  LastValueWrapper lastValue, Status currentStatus, TaskContext taskContext) {
-		super(importCount,importContext,   datas.size(),  taskNo,  jobNo,lastValue,  currentStatus, taskContext);
+	public MetricsTaskCommandImpl(TaskCommandContext taskCommandContext) {
+		super(  taskCommandContext);
 		metricsOutputConfig = (MetricsOutputConfig) importContext.getOutputConfig();
-		this.records = datas;
-		if(this.taskContext == null)
-			this.taskContext = new TaskContext(importContext);
+		if(this.taskContext == null) {
+            this.taskContext = new TaskContext(importContext);
+            taskCommandContext.setTaskContext(taskContext);
+            
+        }
 	}
 
 

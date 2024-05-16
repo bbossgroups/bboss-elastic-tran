@@ -16,6 +16,7 @@ package org.frameworkset.tran;
  */
 
 import org.frameworkset.tran.context.Context;
+import org.frameworkset.tran.schedule.TaskContext;
 
 /**
  * <p>Description: 加工处理数据接口</p>
@@ -27,9 +28,19 @@ import org.frameworkset.tran.context.Context;
  */
 public interface DataRefactor {
 	/**
-	 * 加工处理数据方法
+	 * 数据处理第一阶段：串行处理阶段，串行加工处理数据方法,适应于轻量级数据处理逻辑
 	 * @param context 包含需要加工数据记录的上下文对象
 	 * @return
 	 */
 	public void refactor(Context context) throws Exception;
+
+    /**
+     * 数据处理第二阶段：并行处理阶段，
+     * @param taskContext
+     * @param commonRecord
+     * @throws Exception
+     */
+    default public void refactorStage2(TaskContext taskContext,CommonRecord commonRecord) throws Exception{
+        
+    }
 }

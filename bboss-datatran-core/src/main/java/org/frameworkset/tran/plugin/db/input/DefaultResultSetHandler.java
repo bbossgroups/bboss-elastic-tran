@@ -47,7 +47,7 @@ public class DefaultResultSetHandler extends ResultSetHandler {
 
 		JDBCResultSet jdbcResultSet = new JDBCResultSet(taskContext,   importContext,resultSet,
                                     new JDBCTranMetaData(statementInfo.getMeta()),statementInfo.getDbadapter(),
-                                    dataTranPlugin.getImportContext().getInputConfig().enableLocalDate());
+                                    dataTranPlugin.getImportContext().getInputConfig().enableLocalDate(),statementInfo);
 		BaseDataTran baseDataTran = dataTranPlugin.createBaseDataTran( taskContext,jdbcResultSet,null,dataTranPlugin.getCurrentStatus());
         dataTranPlugin.callTran( baseDataTran);
 	}

@@ -15,16 +15,11 @@ package org.frameworkset.tran.kafka.output;
  * limitations under the License.
  */
 
-import org.frameworkset.soa.BBossStringReader;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.kafka.output.KafkaOutputConfig;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
+import org.frameworkset.tran.task.TaskCommandContext;
 
 import java.util.List;
 
@@ -40,12 +35,9 @@ import static org.frameworkset.tran.context.Context.KAFKA_TOPIC_KEY;
  */
 public class KafkaBatchCommand extends BaseTaskCommand<  Object> {
 	private KafkaOutputConfig kafkaOutputConfig;
-    protected List<CommonRecord> records;
-	public KafkaBatchCommand(ImportCount importCount, ImportContext importContext, List<CommonRecord> records,
-                             long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, TaskContext context, Status currentStatus) {
-		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,context);
+	public KafkaBatchCommand(TaskCommandContext taskCommandContext) {
+		super(  taskCommandContext);
 		kafkaOutputConfig = (KafkaOutputConfig) importContext.getOutputConfig();
-        this.records = records;
 	}
 
 

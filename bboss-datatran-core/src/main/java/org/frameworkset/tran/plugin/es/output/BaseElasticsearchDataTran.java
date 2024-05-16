@@ -1,40 +1,16 @@
 package org.frameworkset.tran.plugin.es.output;
 
-import com.frameworkset.common.poolman.Param;
-import com.frameworkset.common.poolman.handle.ValueExchange;
-import com.frameworkset.orm.annotation.ESIndexWrapper;
-import com.frameworkset.util.SimpleStringUtil;
-import com.frameworkset.util.VariableHandler;
+
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
-import org.frameworkset.elasticsearch.client.BuildTool;
 import org.frameworkset.elasticsearch.client.ClientInterface;
-import org.frameworkset.elasticsearch.serial.CharEscapeUtil;
-import org.frameworkset.elasticsearch.serial.SerialUtil;
-import org.frameworkset.elasticsearch.template.ConfigDSLUtil;
-import org.frameworkset.persitent.util.PersistentSQLVariable;
-import org.frameworkset.tran.*;
-import org.frameworkset.tran.config.ClientOptions;
-import org.frameworkset.tran.context.Context;
+import org.frameworkset.tran.BaseCommonRecordDataTran;
+import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
-import org.frameworkset.tran.plugin.db.TranSQLInfo;
-import org.frameworkset.tran.plugin.db.input.DBRecord;
-import org.frameworkset.tran.plugin.db.output.JDBCGetVariableValue;
-import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.*;
-import org.frameworkset.util.annotations.DateFormateMeta;
-
-import java.io.Writer;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.text.DateFormat;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+ 
 
 public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 	private ClientInterface[] clientInterfaces;
@@ -45,23 +21,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 //		evalBuilk(writer, elasticsearchCommonRecord, versionUpper7);
 //		return null;
 //	}
-    @Override
-    protected RecordColumnInfo resolveRecordColumnInfo(Object value,FieldMeta fieldMeta,Context context){
-        RecordColumnInfo recordColumnInfo = null;
-        if (value != null && value instanceof Date){
-            DateFormateMeta dateFormateMeta = null;
-            if(fieldMeta != null){
-                dateFormateMeta = fieldMeta.getDateFormateMeta();
-
-            }
-            if(dateFormateMeta == null)
-                dateFormateMeta = context.getDateFormateMeta();
-            recordColumnInfo = new RecordColumnInfo();
-            recordColumnInfo.setDateTag(true);
-            recordColumnInfo.setDateFormateMeta(dateFormateMeta);
-        }
-        return recordColumnInfo;
-    }
+    
 	private void initClientInterfaces(String elasticsearchs){
 		if(elasticsearchs != null) {
 			String[] _elasticsearchs = elasticsearchs.split(",");
@@ -88,29 +48,30 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 
 //		clientInterface = ElasticSearchHelper.getRestClientUtil(elasticsearch);
 	}
-	@Override
-	protected void initTranJob(){
-//		tranJob = new StringTranJob();
-        tranJob = new CommonRecordTranJob();
-	}
+//	@Override
+//	protected void initTranJob(){
+////		tranJob = new StringTranJob();
+//        tranJob = new CommonRecordTranJob();
+//	}
 	@Override
 	protected void initTranTaskCommand(){
 		parrelTranCommand = new BaseParrelTranCommand() {
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,  ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
-				if(datas != null) {
+			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
+				if(taskCommandContext.containData()) {
 //					for (ClientInterface clientInterface : clientInterfaces) {
-						taskNo++;
-                        List<CommonRecord> records = convertDatas( datas);
-						TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext,  elasticsearchOutputConfig,
-								dataSize, taskNo, taskContext.getJobNo(), lastValue, currentStatus,  taskContext);
+                    taskCommandContext.increamentTaskNo();
+                    initTaskCommandContext(taskCommandContext);
+//                        List<CommonRecord> records = convertDatas( datas);
+						TaskCommandImpl taskCommand = new TaskCommandImpl(taskCommandContext,  elasticsearchOutputConfig);
 //						count = 0;
 						taskCommand.setClientInterfaces(clientInterfaces);
-						taskCommand.setRecords(records);
-						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+//						taskCommand.setRecords(records);
+                    taskCommandContext.addTask(taskCommand);
+//						tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 //					}
 				}
-				return taskNo;
+				return taskCommandContext.getTaskNo();
 			}
 
 //			@Override
@@ -122,13 +83,13 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
-				return processDataSerial(  totalCount,  dataSize,  taskNo,   lastValue,  datas);
+			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
+				return processDataSerial(    taskCommandContext);
 			}
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
-				return processDataSerial(  totalCount,  dataSize,  taskNo,   lastValue,  datas);
+			public int endSerialActionTask(TaskCommandContext taskCommandContext) {
+				return processDataSerial(    taskCommandContext);
 			}
 
 
@@ -163,20 +124,20 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 
 
 
-	protected int processDataSerial(ImportCount totalCount,long dataSize,int taskNo, LastValueWrapper lastValue,Object datas){
-		if(datas != null) {
+	protected int processDataSerial(TaskCommandContext taskCommandContext){
+		if(taskCommandContext.containData()) {
 //			for (ClientInterface clientInterface : clientInterfaces) {
-				taskNo++;
-                List<CommonRecord> records = convertDatas( datas);
-				TaskCommandImpl taskCommand = new TaskCommandImpl(totalCount, importContext, elasticsearchOutputConfig,
-						dataSize, taskNo, taskContext.getJobNo(), lastValue, currentStatus, taskContext);
+            taskCommandContext.increamentTaskNo();
+            initTaskCommandContext(taskCommandContext);
+//                List<CommonRecord> records = convertDatas( datas);
+				TaskCommandImpl taskCommand = new TaskCommandImpl(taskCommandContext, elasticsearchOutputConfig);
 //						count = 0;
 				taskCommand.setClientInterfaces(clientInterfaces);
-				taskCommand.setRecords(records);
+//				taskCommand.setRecords(records);
 				TaskCall.call(taskCommand);
 //			}
 		}
-		return taskNo;
+		return taskCommandContext.getTaskNo();
 	}
 
 
@@ -186,39 +147,7 @@ public class BaseElasticsearchDataTran extends BaseCommonRecordDataTran {
 //		return tran();
 //	}
 
-
-    @Override
-    public CommonRecord buildRecord(Context context) throws Exception {
-        ElasticsearchCommonRecord elasticsearchCommonRecord = new ElasticsearchCommonRecord();
-
-
-        super.buildRecord(elasticsearchCommonRecord,context);
-        elasticsearchCommonRecord.setEsId(context.getEsId());
-        elasticsearchCommonRecord.setParentId(context.getParentId());
-        elasticsearchCommonRecord.setRouting(context.getRouting());
-        ClientOptions clientOptions = context.getClientOptions();
-        elasticsearchCommonRecord.setClientOptions(clientOptions);
-        elasticsearchCommonRecord.setEsIndexWrapper(context.getESIndexWrapper());
-        JDBCGetVariableValue jdbcGetVariableValue = new JDBCGetVariableValue(elasticsearchCommonRecord,context.getBatchContext());
-        elasticsearchCommonRecord.setJdbcGetVariableValue(jdbcGetVariableValue);
-        String operation = null;
-            if(context.isInsert() ){
-                operation = "index";
-            }
-            else if(context.isUpdate()){
-                operation = "update";
-            }
-            else if(context.isDelete()){
-                operation = "delete";
-            }
-            else{
-                operation = "index";
-            }
-        elasticsearchCommonRecord.setOperation(operation);
-        return elasticsearchCommonRecord;
-
-    }
-
+ 
 
 
 

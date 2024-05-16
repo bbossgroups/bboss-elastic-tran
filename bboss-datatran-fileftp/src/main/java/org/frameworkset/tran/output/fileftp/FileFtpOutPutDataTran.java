@@ -7,13 +7,11 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.TaskContextReinitCallback;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.input.file.GenFileInfo;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.schedule.JobExecuteMetric;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.*;
 import org.slf4j.Logger;
 
@@ -21,8 +19,6 @@ import java.io.File;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
@@ -116,28 +112,17 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	}
 	protected FileTransfer initFileTransfer(){
 		path = fileOutputConfig.getFileDir();
+        FileTransfer fileTransfer = buildFileTransfer(  fileOutputConfig) ;
 
-
-
-
-
-
-			FileTransfer fileTransfer = buildFileTransfer(  fileOutputConfig) ;
-
-			if(fileOutputConfig.transferEmptyFiles()){
-				fileTransfer.init();
-				taskInfo = fileTransfer.getTaskInfo();
-			}
-			return fileTransfer;
-
-
+        if(fileOutputConfig.transferEmptyFiles()){
+            fileTransfer.init();
+            taskInfo = fileTransfer.getTaskInfo();
+        }
+        return fileTransfer;
 	}
 
 
-	@Override
-	protected void initTranJob(){
-		tranJob = new CommonRecordTranJob();
-	}
+
 	protected boolean _splitCheck(long totalCount) {
 		return fileOutputConfig.getMaxFileRecordSize() > 0 && totalCount > 0
 				&& (totalCount % fileOutputConfig.getMaxFileRecordSize() == 0);
@@ -147,19 +132,29 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		parrelTranCommand = new BaseParrelTranCommand(){
 
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, 
-                                          
-										 ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
-				if(datas != null) {
-					taskNo++;
-                    List<CommonRecord> records = convertDatas( datas);
-					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus, taskContext);
-					taskCommand.setRecords(records);
-					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
+                if(taskCommandContext.containData() )  {
+                    taskCommandContext.increamentTaskNo();
+                    initTaskCommandContext(taskCommandContext);
+//                    List<CommonRecord> records = convertDatas( datas);
+                    FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(taskCommandContext, fileTransfer);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+                    taskCommandContext.addTask(taskCommand);
 
-				}
-				return taskNo;
+
+                }
+                return taskCommandContext.getTaskNo();
+//				if(datas != null) {
+//					taskNo++;
+//                    List<CommonRecord> records = convertDatas( datas);
+//					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
+//							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus, taskContext);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+//
+//				}
+//				return taskNo;
 			}
 
 			@Override
@@ -178,32 +173,57 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
-				if(datas != null) {
-					taskNo++;
-                    List<CommonRecord> records = convertDatas( datas);
-					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus,  taskContext);
-					taskCommand.setRecords(records);
-					TaskCall.call(taskCommand);
+			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
+                if(taskCommandContext.containData() )  {
+                    taskCommandContext.increamentTaskNo();
+                    initTaskCommandContext(taskCommandContext);
+//                    List<CommonRecord> records = convertDatas( datas);
+                    FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(taskCommandContext, fileTransfer);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+                    TaskCall.call(taskCommand);
 
-				}
-				return taskNo;
+
+                }
+                return taskCommandContext.getTaskNo();
+//				if(datas != null) {
+//					taskNo++;
+//                    List<CommonRecord> records = convertDatas( datas);
+//					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
+//							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus,  taskContext);
+//					taskCommand.setRecords(records);
+//					TaskCall.call(taskCommand);
+//
+//				}
+//				return taskNo;
 			}
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
-				if(datas != null) {
-					taskNo ++;
-                    List<CommonRecord> records = convertDatas( datas);
-					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(), fileTransfer,lastValue,  currentStatus,taskContext);
+			public int endSerialActionTask(TaskCommandContext taskCommandContext) {
+                if(taskCommandContext.containData() )  {
+                    taskCommandContext.increamentTaskNo();
+                    initTaskCommandContext(taskCommandContext);
+//                    List<CommonRecord> records = convertDatas( datas);
+                    FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(taskCommandContext, fileTransfer);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+                    TaskCall.call(taskCommand);
 
-					taskCommand.setRecords(records);
-					TaskCall.call(taskCommand);
-				}
-				sendFile();
-				return taskNo;
+
+                }
+                sendFile();
+                return taskCommandContext.getTaskNo();
+//				if(datas != null) {
+//					taskNo ++;
+//                    List<CommonRecord> records = convertDatas( datas);
+//					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
+//							dataSize, taskNo, taskContext.getJobNo(), fileTransfer,lastValue,  currentStatus,taskContext);
+//
+//					taskCommand.setRecords(records);
+//					TaskCall.call(taskCommand);
+//				}
+//				sendFile();
+//				return taskNo;
 			}
 
 			@Override
@@ -291,15 +311,17 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	}
 
 	/**
-	 * 并行批处理导入，ftp上传，不支持并行生成文件
+	 * 并行批处理导入，ftp上传，不支持并行生成文件?????
+     * 分析一下，为什么不能并行生产文件,目前已经调整为并行处理和生成数据文件
 
 	 * @return
 	 */
 	@Override
 	public String parallelBatchExecute( ) {
+        /**
 		if (!fileOutputConfig.isDisableftp()) {
 			return batchExecute();
-		}
+		}*/
 		return super.parallelBatchExecute() ;
 	}
 

@@ -15,8 +15,6 @@ package org.frameworkset.tran.metrics;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.BaseDataTran;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -27,8 +25,8 @@ import org.frameworkset.tran.BaseDataTran;
  */
 public class SerialImportCount extends ImportCount{
 
-	public SerialImportCount(BaseDataTran baseDataTran){
-		super(baseDataTran);
+	public SerialImportCount( ){
+		super( );
 	}
 	public long getTotalCount() {
 			return totalCount;
@@ -55,8 +53,10 @@ public class SerialImportCount extends ImportCount{
 			return ignoreTotalCount;
 	}
 
+ 
 
-	public long getSuccessCount() {
+
+    public long getSuccessCount() {
 			return successCount;
 
 	}

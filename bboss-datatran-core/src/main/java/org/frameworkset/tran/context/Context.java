@@ -18,10 +18,8 @@ package org.frameworkset.tran.context;
 import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.spi.geoip.IpInfo;
-import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.FieldMeta;
 import org.frameworkset.tran.Record;
-import org.frameworkset.tran.TranMeta;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.record.ValueConvert;
@@ -251,7 +249,7 @@ public interface Context {
 	float getFloatValue(String fieldName) throws Exception;
 	int getIntegerValue(String fieldName) throws Exception;
 	Date getDateValue(String fieldName) throws Exception;
-	Object getValue(String fieldName,int sqlType)  throws Exception;
+	Object getValue(String fieldName,int sqlType)  throws DataImportException;
 	Date getDateValue(String fieldName, DateFormat dateFormat) throws Exception;
     Date getDateValue(String fieldName, String dateFormat) throws Exception;
 	List<FieldMeta> getFieldValues();
@@ -408,5 +406,6 @@ public interface Context {
 	boolean removed();
 
 	boolean reachEOFClosed();
-    public LocalDateTime getLocalDateTime(String fieldName) throws Exception;
+    LocalDateTime getLocalDateTime(String fieldName) throws Exception;
+    Object getKeys();
 }

@@ -16,7 +16,6 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  */
 
 import org.frameworkset.tran.AsynBaseTranResultSet;
-import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 

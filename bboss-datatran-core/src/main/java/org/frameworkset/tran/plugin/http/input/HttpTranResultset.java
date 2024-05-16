@@ -16,12 +16,9 @@ package org.frameworkset.tran.plugin.http.input;
  */
 
 import org.frameworkset.tran.*;
-import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.http.HttpResult;
 import org.frameworkset.tran.record.NextAssert;
-import org.frameworkset.tran.record.TranMetaDataLazeLoad;
-import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.Date;
 import java.util.Iterator;

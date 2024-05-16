@@ -2,22 +2,16 @@ package org.frameworkset.tran.plugin.dummy.output;
 
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.JobCountDownLatch;
-import org.frameworkset.tran.TranErrorWrapper;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.custom.output.CustomOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.*;
 import org.frameworkset.tran.util.TranUtil;
 
 import java.io.Writer;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 public class DummyOutPutDataTran extends CustomOutPutDataTran {
 	protected DummyOutputConfig dummyOupputConfig ;
@@ -60,20 +54,20 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 		parrelTranCommand = new BaseParrelTranCommand(){
 
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas, 
-                                          ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
+			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
 
-				if(datas != null )  {
-					taskNo++;
-                    List<CommonRecord> records = convertDatas( datas);
-					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
-					taskCommand.setRecords(records);
-					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+				if(taskCommandContext.containData() )  {
+                    taskCommandContext.increamentTaskNo();
+                    initTaskCommandContext(taskCommandContext);
+//                    List<CommonRecord> records = convertDatas( datas);
+					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(  taskCommandContext);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+                    taskCommandContext.addTask(taskCommand);
 
 
 				}
-				return taskNo;
+				return taskCommandContext.getTaskNo();
 			}
 
 			@Override
@@ -83,20 +77,31 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
-			private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas){
-				if(datas != null )  {
-					taskNo++;
-                    List<CommonRecord> records = convertDatas( datas);
-					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
-							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
-					taskCommand.setRecords(records);
-					TaskCall.call(taskCommand);
+			private int action(TaskCommandContext taskCommandContext){
+                if(taskCommandContext.containData() )  {
+                    taskCommandContext.increamentTaskNo();
+                    initTaskCommandContext(taskCommandContext);
+//                    List<CommonRecord> records = convertDatas( datas);
+                    DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(  taskCommandContext);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+                    TaskCall.call(taskCommand);
 
-				}
-				return taskNo;
+
+                }
+//				if(datas != null )  {
+//					taskNo++;
+//                    List<CommonRecord> records = convertDatas( datas);
+//					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(totalCount, importContext,
+//							dataSize, taskNo, taskContext.getJobNo(), lastValue,  currentStatus,taskContext);
+//					taskCommand.setRecords(records);
+//					TaskCall.call(taskCommand);
+//
+//				}
+				return taskCommandContext.getTaskNo();
 			}
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
+			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
 //				List<CommonRecord> records = convertDatas( datas);
 //				if(records != null && records.size() > 0)  {
 //					ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(totalCount, importContext,targetImportContext,
@@ -105,13 +110,12 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 //					TaskCall.call(taskCommand);
 //					taskNo++;
 //				}
-				return action(totalCount, dataSize, taskNo, lastValue, datas);
+				return action(  taskCommandContext);
 			}
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
-				taskNo = action(totalCount, dataSize, taskNo, lastValue, datas);
-				return taskNo;
+			public int endSerialActionTask(TaskCommandContext taskCommandContext) {
+				return action(  taskCommandContext);
 
 			}
 
@@ -123,10 +127,10 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 		};
 	}
 
-	@Override
-	protected void initTranJob(){
-		tranJob = new CommonRecordTranJob();
-	}
+//	@Override
+//	protected void initTranJob(){
+//		tranJob = new CommonRecordTranJob();
+//	}
 
 
 

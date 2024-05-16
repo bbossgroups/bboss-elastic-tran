@@ -15,10 +15,8 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  * limitations under the License.
  */
 
-import com.github.shyiko.mysql.binlog.GtidSet;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.plugin.db.CDCDBTable;
-import org.frameworkset.tran.plugin.mysqlbinlog.input.util.BBossGtidSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

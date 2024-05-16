@@ -29,7 +29,6 @@ import org.frameworkset.nosql.hbase.HBaseResourceStartResult;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.Record;
-import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
@@ -41,6 +40,8 @@ import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
+import org.frameworkset.tran.task.CommonRecordTranJob;
+import org.frameworkset.tran.task.TranJob;
 import org.frameworkset.util.ResourceStartResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,10 @@ public  class HBaseInputDatatranPlugin extends BaseInputPlugin {
 
 
 	}
+//    @Override
+//    public TranJob getTranJob(){
+//        return new CommonRecordTranJob();
+//    }
 	@Override
 	public Context buildContext(TaskContext taskContext, Record record, BatchContext batchContext){
 		return new HBaseRecordContextImpl(  taskContext,importContext,    record, batchContext);

@@ -21,7 +21,9 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.frameworkset.plugin.kafka.KafkaBatchConsumer2ndStore;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.Record;
-import org.frameworkset.tran.kafka.*;
+import org.frameworkset.tran.kafka.KafkaData;
+import org.frameworkset.tran.kafka.KafkaMapRecord;
+import org.frameworkset.tran.kafka.KafkaStringRecord;
 import org.frameworkset.tran.kafka.codec.CodecObjectUtil;
 import org.frameworkset.tran.plugin.kafka.input.Kafka1InputConfig;
 

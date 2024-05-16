@@ -16,9 +16,9 @@ package org.frameworkset.tran.task;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
@@ -34,33 +34,36 @@ import java.util.List;
  * @version 1.0
  */
 public interface TaskCommand<RESULT> {
-	public JobContext getJobContext();
-	public LastValueWrapper getLastValue();
-    public void setRecords(List<CommonRecord> records);
-    public List<CommonRecord> getRecords();
-	public void init();
-	public TaskContext getTaskContext();
-	public TaskMetrics getTaskMetrics();
-	public void finishTask();
-    public RESULT execute() throws Exception;
+	 JobContext getJobContext();
+	 LastValueWrapper getLastValue();
+    TaskCommandContext getTaskCommandContext();
+     void setRecords(List<CommonRecord> records);
+     List<CommonRecord> getRecords();
+ 
+	 void init();
+	 TaskContext getTaskContext();
+	 TaskMetrics getTaskMetrics();
+	 void finishTask();
+     RESULT execute() throws Exception;
     
-    public Object getDatas();
+     Object getDatas();
 
-	default public int getTryCount() {
+	default  int getTryCount() {
 		return -1;
 	}
-	public ImportContext getImportContext();
-	public ImportCount getImportCount();
-	public long getDataSize();
-	public int getTaskNo();
-	public String getJobNo();
+	 ImportContext getImportContext();
+	 ImportCount getImportCount();
+	 long getDataSize();
+    
+	 int getTaskNo();
+	 String getJobNo();
 	/**
 	 * 获取任务执行耗时
 	 * -1 表示没有执行耗时
 	 * @return
 	 */
-	public long getElapsed();
-	public void finished();
+	 long getElapsed();
+	 void finished();
 
 
 }

@@ -21,6 +21,7 @@ import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.TaskCommand;
+import org.frameworkset.tran.task.TaskCommandContext;
 
 import java.util.List;
 
@@ -47,6 +48,11 @@ public class MetricsTaskcommand implements TaskCommand {
 	public LastValueWrapper getLastValue() {
 		return taskMetrics.getLastValue();
 	}
+
+    @Override
+    public TaskCommandContext getTaskCommandContext() {
+        return null;
+    }
 
     @Override
     public List<CommonRecord> getRecords() {

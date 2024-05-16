@@ -19,7 +19,6 @@ import com.frameworkset.orm.annotation.BaseESGetVariableValue;
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.context.Context;
 
 /**
  * <p>Description: </p>

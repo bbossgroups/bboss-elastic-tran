@@ -19,7 +19,8 @@ package org.frameworkset.nosql.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Factory for creating HBase specific configuration. By default cleans up any connection associated with the current configuration.

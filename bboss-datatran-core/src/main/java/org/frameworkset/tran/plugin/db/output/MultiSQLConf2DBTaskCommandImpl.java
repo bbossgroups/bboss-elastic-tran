@@ -19,16 +19,11 @@ import com.frameworkset.common.poolman.*;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.persitent.type.BaseTypeMethod;
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.input.DBRecord;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
+import org.frameworkset.tran.task.TaskCommandContext;
 import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,15 +47,11 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
     protected String taskInfo;
     protected boolean needBatch;
 	private static final Logger logger = LoggerFactory.getLogger(MultiSQLConf2DBTaskCommandImpl.class);
-	public MultiSQLConf2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext,
-                                          List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
-                                          boolean needBatch, LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
-		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
+	public MultiSQLConf2DBTaskCommandImpl(TaskCommandContext taskCommandContext,
+                                          boolean needBatch ) {
+		super(taskCommandContext);
 		this.needBatch = needBatch;
-		this.importContext = importContext;
-		this.records = datas;
 		dbOutputConfig = (DBOutputConfig) importContext.getOutputConfig();
-		this.taskInfo = taskInfo;
 
 	}
 

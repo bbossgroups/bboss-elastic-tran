@@ -16,13 +16,13 @@ package org.frameworkset.tran.task;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.TaskMetrics;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.status.LastValueWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +44,10 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
 	protected TaskMetrics taskMetrics;
 	protected TaskContext taskContext;
 	protected LastValueWrapper lastValue;
-	protected long dataSize;
 	protected long totalSize;
 	protected Status currentStatus;
     protected List<CommonRecord> records;
+    protected TaskCommandContext taskCommandContext;
 
     public void setRecords(List<CommonRecord> records) {
         this.records = records;
@@ -84,7 +84,7 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
 	}
 
 	public long getDataSize(){
-		return dataSize;
+		return taskCommandContext.getDataSize();
 	}
 	public TaskMetrics getTaskMetrics(){
 		return taskMetrics;
@@ -121,27 +121,30 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
 		return totalSize;
 	}
 
-	public BaseTaskCommand(ImportCount importCount,
-						   ImportContext importContext,
-						   long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext){
-		this.importCount = importCount;
-		this.importContext =  importContext;
-		this.dataSize = dataSize;
+	public BaseTaskCommand(TaskCommandContext taskCommandContext){
+        this.taskCommandContext = taskCommandContext;
+		this.importCount = taskCommandContext.getTotalCount();
+		this.importContext =  taskCommandContext.getImportContext();
 		totalSize = importCount.getTotalCount();
 		this.taskMetrics = new TaskMetrics();
-		taskMetrics.setTaskNo(taskNo);
-		taskMetrics.setJobNo(jobNo);
+		taskMetrics.setTaskNo(taskCommandContext.getTaskNo());
+		taskMetrics.setJobNo(taskCommandContext.getJobNo());
 		taskMetrics.setJobId(importContext.getJobId());
 		taskMetrics.setJobName(importContext.getJobName());
-		this.lastValue = lastValue;
-		this.currentStatus = currentStatus;
-		this.taskContext = taskContext;
+		this.lastValue = taskCommandContext.getLastValue();
+		this.currentStatus = taskCommandContext.getCurrentStatus();
+		this.taskContext = taskCommandContext.getTaskContext();
 	}
 	public ImportCount getImportCount(){
 		return this.importCount;
 	}
 
-	@Override
+    @Override
+    public TaskCommandContext getTaskCommandContext() {
+        return taskCommandContext;
+    }
+
+    @Override
 	public TaskContext getTaskContext() {
 		return taskContext;
 	}

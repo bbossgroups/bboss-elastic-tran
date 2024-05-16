@@ -21,8 +21,6 @@ import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  * <p>Description: </p>
  * <p></p>

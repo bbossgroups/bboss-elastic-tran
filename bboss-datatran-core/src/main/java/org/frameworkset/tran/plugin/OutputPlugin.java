@@ -15,10 +15,8 @@ package org.frameworkset.tran.plugin;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DataTranPlugin;
-import org.frameworkset.tran.JobCountDownLatch;
-import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.*;
+import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.schedule.Status;
@@ -33,17 +31,19 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public interface OutputPlugin {
-	public ImportContext getImportContext() ;
-	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus);
-	public void afterInit();
-	public void beforeInit();
-	public void init();
-	public void setDataTranPlugin(DataTranPlugin dataTranPlugin);
-	public void destroy(boolean waitTranStop);
+	ImportContext getImportContext() ;
+	BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus);
+	void afterInit();
+	void beforeInit();
+	void init();
+	void setDataTranPlugin(DataTranPlugin dataTranPlugin);
+	void destroy(boolean waitTranStop);
 
 	JobTaskMetrics createJobTaskMetrics();
 
-    default public void stopCollectData(){
+    default void stopCollectData(){
 
 	}
+
+    CommonRecord buildRecord(Context context) throws Exception;
 }

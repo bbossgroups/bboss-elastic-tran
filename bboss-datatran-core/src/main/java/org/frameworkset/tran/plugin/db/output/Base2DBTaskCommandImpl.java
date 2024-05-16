@@ -16,15 +16,10 @@ package org.frameworkset.tran.plugin.db.output;
  */
 
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.input.DBRecord;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
+import org.frameworkset.tran.task.TaskCommandContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +37,10 @@ import java.util.List;
 public class Base2DBTaskCommandImpl extends MultiSQLConf2DBTaskCommandImpl {
 
 	private static final Logger blogger = LoggerFactory.getLogger(Base2DBTaskCommandImpl.class);
-	public Base2DBTaskCommandImpl(ImportCount importCount, ImportContext importContext,
-                                  List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
-                                  boolean needBatch, LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
-        super( importCount,  importContext,
-                 datas,  taskNo,  jobNo,  taskInfo,
-         needBatch,  lastValue,  currentStatus,   taskContext);
+	public Base2DBTaskCommandImpl(TaskCommandContext taskCommandContext,
+                                  boolean needBatch ) {
+        super( taskCommandContext,
+         needBatch );
 		if(dbOutputConfig.optimize()){
 			sortData();
 		}

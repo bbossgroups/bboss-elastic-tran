@@ -19,25 +19,19 @@ import org.apache.http.entity.ContentType;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.DynamicParam;
 import org.frameworkset.tran.config.DynamicParamContext;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.http.DynamicHeaderContext;
 import org.frameworkset.tran.plugin.http.HttpConfigClientProxy;
 import org.frameworkset.tran.plugin.http.HttpProxyHelper;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommand;
+import org.frameworkset.tran.task.TaskCommandContext;
 import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,10 +44,8 @@ import java.util.Map;
  */
 public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
 	private HttpOutputConfig httpOutputConfig ;
-	public HttpTaskCommandImpl(ImportCount importCount, ImportContext importContext,
-                               long dataSize, int taskNo, String jobNo,
-                               LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
-		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
+	public HttpTaskCommandImpl(TaskCommandContext taskCommandContext) {
+		super(  taskCommandContext);
 		httpOutputConfig = (HttpOutputConfig) importContext.getOutputConfig();
 	}
 

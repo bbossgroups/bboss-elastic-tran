@@ -15,17 +15,11 @@ package org.frameworkset.tran.plugin.custom.output;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
+import org.frameworkset.tran.task.TaskCommandContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -40,13 +34,13 @@ public class CustomTaskCommandImpl extends BaseTaskCommand< String> {
 	
 	private TaskContext taskContext;
 	private CustomOutputConfig customOutputConfig;
-	public CustomTaskCommandImpl(ImportCount importCount, ImportContext importContext,
-                                 long dataSize, int taskNo, String jobNo,
-                                 LastValueWrapper lastValue, Status currentStatus, TaskContext taskContext) {
-		super(importCount,importContext,   dataSize,  taskNo,  jobNo,lastValue,  currentStatus, taskContext);
+	public CustomTaskCommandImpl(TaskCommandContext taskCommandContext) {
+		super(  taskCommandContext);
 		customOutputConfig = (CustomOutputConfig) importContext.getOutputConfig();
-		if(this.taskContext == null)
-			this.taskContext = new TaskContext(importContext);
+		if(this.taskContext == null) {
+            this.taskContext = new TaskContext(importContext);
+            taskCommandContext.setTaskContext(taskContext);
+        }
 	}
 
 

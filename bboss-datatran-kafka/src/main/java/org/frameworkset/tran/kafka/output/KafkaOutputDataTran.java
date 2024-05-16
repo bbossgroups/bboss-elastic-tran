@@ -1,22 +1,18 @@
 package org.frameworkset.tran.kafka.output;
 
-import org.frameworkset.tran.*;
+import org.frameworkset.tran.BaseCommonRecordDataTran;
+import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.JobCountDownLatch;
+import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.plugin.db.output.Base2DBTaskCommandImpl;
-import org.frameworkset.tran.plugin.db.output.MultiSQLConf2DBTaskCommandImpl;
 import org.frameworkset.tran.plugin.kafka.output.KafkaOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.*;
 import org.slf4j.Logger;
 
 import java.io.Writer;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import static org.frameworkset.tran.context.Context.KAFKA_TOPIC_KEY;
 
@@ -29,10 +25,10 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 		logger.info(taskInfo);
 	}
 
-	@Override
-	protected void initTranJob(){
-		tranJob = new CommonRecordTranJob();
-	}
+//	@Override
+//	protected void initTranJob(){
+//		tranJob = new CommonRecordTranJob();
+//	}
 	@Override
 	protected void initTranTaskCommand(){
 		parrelTranCommand = new BaseParrelTranCommand() {
@@ -44,18 +40,28 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 //			}
 
             @Override
-            public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas,
-                                          ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper) {
+            public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
+                if(taskCommandContext.containData() )  {
+                    taskCommandContext.increamentTaskNo();
+                    initTaskCommandContext(taskCommandContext);
+//                    List<CommonRecord> records = convertDatas( datas);
+                    KafkaBatchCommand kafkaCommand = new KafkaBatchCommand(  taskCommandContext);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+                    taskCommandContext.addTask(kafkaCommand);
 
-                if(datas != null) {
-                    taskNo++;
-                    List<CommonRecord> records = convertDatas( datas);
-                    KafkaBatchCommand kafkaCommand = new KafkaBatchCommand(totalCount, importContext,records,
-                            dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus);
-                    tasks.add(service.submit(new TaskCall(kafkaCommand, tranErrorWrapper)));
-                   
+
                 }
-                return taskNo;
+                return taskCommandContext.getTaskNo();
+//                if(datas != null) {
+//                    taskNo++;
+//                    List<CommonRecord> records = convertDatas( datas);
+//                    KafkaBatchCommand kafkaCommand = new KafkaBatchCommand(totalCount, importContext,records,
+//                            dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus);
+//                    tasks.add(service.submit(new TaskCall(kafkaCommand, tranErrorWrapper)));
+//                   
+//                }
+//                return taskNo;
                
             }
 
@@ -67,22 +73,34 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
-            private int action(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas){
-                if(datas != null) {     
-                    if(datas instanceof List || datas instanceof CommonRecord){
-                        taskNo++;
-                        List<CommonRecord> records = convertDatas( datas);
-                        KafkaBatchCommand kafkaCommand = new KafkaBatchCommand(totalCount, importContext,records,
-                                dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus);
-                        TaskCall.call(kafkaCommand);
-                        return taskNo;
-                    }
-                    
+            private int action(TaskCommandContext taskCommandContext){
+                if(taskCommandContext.containData() )  {
+                    taskCommandContext.increamentTaskNo();
+                    initTaskCommandContext(taskCommandContext);
+//                    List<CommonRecord> records = convertDatas( datas);
+                    KafkaBatchCommand kafkaCommand = new KafkaBatchCommand(  taskCommandContext);
+//					taskCommand.setRecords(records);
+//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+                    TaskCall.call(kafkaCommand);
+
+
                 }
-                return taskNo;
+                return taskCommandContext.getTaskNo();
+//                if(datas != null) {     
+//                    if(datas instanceof List || datas instanceof CommonRecord){
+//                        taskNo++;
+//                        List<CommonRecord> records = convertDatas( datas);
+//                        KafkaBatchCommand kafkaCommand = new KafkaBatchCommand(totalCount, importContext,records,
+//                                dataSize, taskNo, taskContext.getJobNo(), lastValue, taskContext, currentStatus);
+//                        TaskCall.call(kafkaCommand);
+//                        return taskNo;
+//                    }
+//                    
+//                }
+//                return taskNo;
             }
 			@Override
-			public int hanBatchActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
+			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
 //                if(datas != null) {
 //                    taskNo++;
 //                    List<CommonRecord> records = convertDatas( datas);
@@ -91,16 +109,16 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 //                    TaskCall.call(kafkaCommand);
 //                }
 //                return taskNo;
-                return action(  totalCount,   dataSize,   taskNo,   lastValue,   datas);
+                return action(    taskCommandContext);
 			}
 
             
 
 			@Override
-			public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas) {
+			public int endSerialActionTask(TaskCommandContext taskCommandContext) {
 //				return processDataSerial(  totalCount, dataSize,
 //						taskNo, lastValue, datas, false );
-                return action(  totalCount,   dataSize,   taskNo,   lastValue,   datas);
+                return action(    taskCommandContext);
 			}
 
 
@@ -167,24 +185,6 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 		kafkaOutputConfig.generateReocord(context.getTaskContext(),dataRecord, writer);
 		return dataRecord;
 	}
-
-	/**
-	 * 并行批处理导入
-
-	 * @return
-	 */
-	@Override
-	public String parallelBatchExecute( ){
-		return super.parallelBatchExecute();
-	}
-	/**
-	 * 串行批处理导入
-	 * @return
-	 */
-	@Override
-	public String batchExecute(  ){
-		return super.batchExecute();
-	}
-
+ 
 
 }

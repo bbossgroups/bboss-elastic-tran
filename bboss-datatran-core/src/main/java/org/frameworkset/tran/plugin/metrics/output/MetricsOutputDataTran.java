@@ -1,17 +1,13 @@
 package org.frameworkset.tran.plugin.metrics.output;
 
 import org.frameworkset.tran.AbstraCommonRecordOutPutDataTran;
-import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.TaskCommand;
-
-import java.util.List;
+import org.frameworkset.tran.task.TaskCommandContext;
 
 public class MetricsOutputDataTran extends AbstraCommonRecordOutPutDataTran {
 	private MetricsOutputConfig metricsOutputConfig;
@@ -30,9 +26,8 @@ public class MetricsOutputDataTran extends AbstraCommonRecordOutPutDataTran {
 	}
 
 	@Override
-	protected TaskCommand buildTaskCommand(ImportCount totalCount, List<CommonRecord> records, int taskNo, LastValueWrapper lastValue) {
-		return new MetricsTaskCommandImpl( totalCount, importContext, records,
-				taskNo, taskContext.getJobNo(),lastValue,  currentStatus, taskContext);
+	protected TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext) {
+		return new MetricsTaskCommandImpl(   taskCommandContext);
 
 
 

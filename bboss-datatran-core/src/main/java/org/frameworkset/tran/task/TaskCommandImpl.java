@@ -27,19 +27,12 @@ import org.frameworkset.elasticsearch.serial.CharEscapeUtil;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.elasticsearch.template.ConfigDSLUtil;
 import org.frameworkset.soa.BBossStringWriter;
-import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.ClientOptions;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
-import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.plugin.db.output.JDBCGetVariableValue;
 import org.frameworkset.tran.plugin.es.output.ElasticsearchCommonRecord;
 import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 import org.frameworkset.tran.record.RecordColumnInfo;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,9 +55,9 @@ import java.util.Map;
  */
 public class TaskCommandImpl extends BaseTaskCommand< String> {
 	private ElasticsearchOutputConfig elasticsearchOutputConfig;
-	public TaskCommandImpl(ImportCount importCount, ImportContext importContext, ElasticsearchOutputConfig elasticsearchOutputConfig ,
-                           long dataSize, int taskNo, String jobNo, LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
-		super(importCount,importContext,    dataSize,  taskNo,  jobNo,  lastValue,  currentStatus,  taskContext);
+	public TaskCommandImpl(TaskCommandContext taskCommandContext, ElasticsearchOutputConfig elasticsearchOutputConfig 
+                           ) {
+		super(taskCommandContext);
 		this.elasticsearchOutputConfig = elasticsearchOutputConfig;
 	}
 

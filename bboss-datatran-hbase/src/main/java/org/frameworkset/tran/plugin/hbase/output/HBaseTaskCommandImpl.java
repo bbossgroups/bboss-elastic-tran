@@ -21,14 +21,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.nosql.hbase.HBaseHelper;
 import org.frameworkset.nosql.hbase.HBaseHelperFactory;
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
-import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
+import org.frameworkset.tran.task.TaskCommandContext;
 import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,14 +47,11 @@ public class HBaseTaskCommandImpl extends BaseTaskCommand<  String> {
 	private HBaseOutputConfig hBaseOutputConfig;
 	private String taskInfo;
 	private static final Logger logger = LoggerFactory.getLogger(HBaseTaskCommandImpl.class);
-	public HBaseTaskCommandImpl(ImportCount importCount, ImportContext importContext,
-                                List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
-                                LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
-		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
-		this.importContext = importContext;
-		this.records = datas;
+	public HBaseTaskCommandImpl(TaskCommandContext taskCommandContext) {
+		super(  taskCommandContext);
+//		this.records = datas;
 		hBaseOutputConfig = (HBaseOutputConfig) importContext.getOutputConfig();
-		this.taskInfo = taskInfo;
+		this.taskInfo = taskCommandContext.getTaskInfo();
 
 	}
 

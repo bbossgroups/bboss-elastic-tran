@@ -15,10 +15,10 @@ package org.frameworkset.tran.plugin.es.input;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.elasticsearch.client.ResultUtil;
-import org.frameworkset.tran.task.TaskCommand;
 import org.frameworkset.tran.BaseExportResultHandler;
+import org.frameworkset.tran.ExportResultHandler;
+import org.frameworkset.tran.task.TaskCommand;
 
 /**
  * <p>Description: </p>

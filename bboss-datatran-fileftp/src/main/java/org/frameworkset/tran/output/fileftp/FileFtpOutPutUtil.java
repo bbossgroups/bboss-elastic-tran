@@ -24,8 +24,6 @@ import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
-import java.util.concurrent.CountDownLatch;
-
 /**
  * <p>Description: </p>
  * <p></p>

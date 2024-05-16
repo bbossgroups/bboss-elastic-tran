@@ -15,24 +15,17 @@ package org.frameworkset.tran.plugin.mongodb.output;
  * limitations under the License.
  */
 
-import com.mongodb.BasicDBObject;
-
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.*;
+import com.mongodb.client.model.WriteModel;
 import org.bson.Document;
 import org.frameworkset.nosql.mongodb.MongoDB;
 import org.frameworkset.nosql.mongodb.MongoDBHelper;
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
-import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.schedule.Status;
-import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.BaseTaskCommand;
+import org.frameworkset.tran.task.TaskCommandContext;
 import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,14 +45,10 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand< Object> {
 	protected MongoDBOutputConfig dbOutputConfig;
 	protected String taskInfo;
 	private static final Logger logger = LoggerFactory.getLogger(MongoDBTaskCommandImpl.class);
-	public MongoDBTaskCommandImpl(ImportCount importCount, ImportContext importContext,
-                                  List<CommonRecord> datas, int taskNo, String jobNo, String taskInfo,
-                                  LastValueWrapper lastValue, Status currentStatus,  TaskContext taskContext) {
-		super(importCount,importContext, datas.size(),  taskNo,  jobNo,lastValue,  currentStatus,   taskContext);
-		this.importContext = importContext;
-		this.records = datas;
+	public MongoDBTaskCommandImpl(TaskCommandContext taskCommandContext) {
+		super(  taskCommandContext);
 		dbOutputConfig = (MongoDBOutputConfig) importContext.getOutputConfig();
-		this.taskInfo = taskInfo;
+		this.taskInfo = taskCommandContext.getTaskInfo();
 
 	}
 

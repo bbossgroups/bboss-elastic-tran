@@ -20,14 +20,16 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.kafka.output.*;
+import org.frameworkset.tran.kafka.output.KafkaJobTaskMetrics;
+import org.frameworkset.tran.kafka.output.KafkaOutputDataTran;
+import org.frameworkset.tran.kafka.output.KafkaSend;
+import org.frameworkset.tran.kafka.output.KafkaSendImpl;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
-import org.frameworkset.tran.task.TaskCommand;
 
 /**
  * <p>Description: </p>

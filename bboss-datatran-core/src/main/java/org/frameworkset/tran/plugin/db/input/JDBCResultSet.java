@@ -14,10 +14,13 @@ package org.frameworkset.tran.plugin.db.input;/*
  *  limitations under the License.
  */
 
+import com.frameworkset.common.poolman.StatementInfo;
 import com.frameworkset.common.poolman.sql.PoolManResultSetMetaData;
 import com.frameworkset.orm.adapter.DB;
-import org.frameworkset.tran.*;
-import org.frameworkset.tran.Record;
+import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.LastValue;
+import org.frameworkset.tran.TranMeta;
+import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.record.NextAssert;
@@ -30,26 +33,38 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 	protected JDBCTranMetaData metaData;
 	protected DB dbadapter;
     protected boolean enableLocalDate;
+    protected boolean parallelDatarefactor;
+    protected TaskContext taskContext;
+    protected StatementInfo statementInfo;
 
 //	protected boolean stoped;
 	public JDBCResultSet(){
 
 	}
-	public JDBCResultSet(TaskContext taskContext, ImportContext importContext, ResultSet resultSet, JDBCTranMetaData metaData, DB dbadapter, boolean enableLocalDate){
+	public JDBCResultSet(TaskContext taskContext, ImportContext importContext, ResultSet resultSet, 
+                         JDBCTranMetaData metaData, 
+                         DB dbadapter, boolean enableLocalDate,
+                         StatementInfo statementInfo){
 		this.resultSet = resultSet;
         this.importContext = importContext;
 		this.metaData = metaData;
 		this.dbadapter = dbadapter;
         this.enableLocalDate = enableLocalDate;
-        if(!enableLocalDate) {
-            record = new JDBCResultRecord(taskContext,   importContext, resultSet, metaData, dbadapter);
+        parallelDatarefactor = importContext.getInputConfig().isParallelDatarefactor();
+        this.taskContext = taskContext;
+        this.statementInfo = statementInfo;
+        if(!parallelDatarefactor) {
+            if (!enableLocalDate) {
+                record = new JDBCResultRecord(taskContext, importContext, resultSet, metaData, dbadapter, statementInfo);
+            } else {
+                record = new LocalDateJDBCResultRecord(taskContext, importContext, resultSet, metaData, dbadapter, statementInfo);
+            }
+            record.setTranMeta(this.getMetaData());
         }
-        else{
-            record = new LocalDateJDBCResultRecord(taskContext,   importContext, resultSet, metaData, dbadapter);
-        }
-        record.setTranMeta(this.getMetaData());
 
 	}
+
+
 
 //	@Override
 //	public void setBaseDataTran(BaseDataTran baseDataTran) {
@@ -135,6 +150,15 @@ public class JDBCResultSet extends LastValue implements TranResultSet {
 			if(isStop() || importContext.getInputPlugin().isStopCollectData())
 				return nextAssert;
             nextAssert.setHasNext(resultSet.next());
+            if(nextAssert.isHasNext() && parallelDatarefactor){
+                if (!enableLocalDate) {
+                    record = new JDBCResultRecord(taskContext, importContext, resultSet, metaData, dbadapter, statementInfo);
+                } else {
+                    record = new LocalDateJDBCResultRecord(taskContext, importContext, resultSet, metaData, dbadapter, statementInfo);
+                }
+                record.setTranMeta(this.getMetaData());
+                
+            }
 			return nextAssert;
 		}
 		catch (Exception e){

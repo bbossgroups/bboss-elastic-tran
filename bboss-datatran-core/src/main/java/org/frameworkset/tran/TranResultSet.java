@@ -17,7 +17,6 @@ package org.frameworkset.tran;/*
 
 import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.time.LocalDateTime;
 import java.util.Date;

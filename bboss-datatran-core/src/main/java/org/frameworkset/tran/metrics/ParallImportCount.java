@@ -15,8 +15,6 @@ package org.frameworkset.tran.metrics;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.BaseDataTran;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -33,8 +31,8 @@ public class ParallImportCount extends ImportCount{
 	private Lock readLock = lock.readLock();
 	private Lock writeLock = lock.writeLock();
 
-	public ParallImportCount(BaseDataTran baseDataTran){
-		super(  baseDataTran);
+	public ParallImportCount(){
+		super(  );
 	}
 	public long getTotalCount() {
 		readLock.lock();
@@ -93,6 +91,7 @@ public class ParallImportCount extends ImportCount{
 		}
 	}
 
+ 
 
 	public long getSuccessCount() {
 		readLock.lock();

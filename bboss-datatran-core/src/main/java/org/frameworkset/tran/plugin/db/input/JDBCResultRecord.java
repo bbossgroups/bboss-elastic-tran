@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.db.input;
  * limitations under the License.
  */
 
+import com.frameworkset.common.poolman.StatementInfo;
 import com.frameworkset.orm.adapter.DB;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
@@ -34,8 +35,8 @@ import java.sql.ResultSet;
  */
 public class JDBCResultRecord extends LocalDateJDBCResultRecord {
 
-	public JDBCResultRecord(TaskContext taskContext, ImportContext importContext, ResultSet resultSet, JDBCTranMetaData metaData, DB dbadapter) {
-		super(  taskContext,  importContext,  resultSet,  metaData,  dbadapter);
+	public JDBCResultRecord(TaskContext taskContext, ImportContext importContext, ResultSet resultSet, JDBCTranMetaData metaData, DB dbadapter, StatementInfo statementInfo) {
+		super(  taskContext,  importContext,  resultSet,  metaData,  dbadapter,statementInfo);
 
 	}
 
@@ -43,7 +44,12 @@ public class JDBCResultRecord extends LocalDateJDBCResultRecord {
 	@Override
 	public Object getValue(  int i, String colName,int sqlType) throws DataImportException {
 		try {
-			if(!this.isOracleTimestamp(sqlType)) {
+            if(record != null){
+                Object value = this.record.get(colName);
+                value = TimeUtil.convertLocalDate2Date(value);
+                return value;
+            }
+			else if(!this.isOracleTimestamp(sqlType)) {
 				Object value = this.resultSet.getObject(i + 1);
 				value = TimeUtil.convertLocalDate2Date(value);
 				return value;
@@ -65,7 +71,12 @@ public class JDBCResultRecord extends LocalDateJDBCResultRecord {
 		if(colName == null)
 			return null;
 		try {
-			if(!this.isOracleTimestamp(sqlType)) {
+            if(record != null){
+                Object value = this.record.get(colName);
+                value = TimeUtil.convertLocalDate2Date(value);
+                return value;
+            }
+            else if(!this.isOracleTimestamp(sqlType)) {
 				Object value = this.resultSet.getObject(colName);
 				value = TimeUtil.convertLocalDate2Date(value);
 				return value;
@@ -86,7 +97,13 @@ public class JDBCResultRecord extends LocalDateJDBCResultRecord {
 		if(colName == null)
 			return null;
 		try {
-			Object value = this.resultSet.getObject(colName);
+            Object value = null;
+            if(record != null){
+                value = this.record.get(colName);                
+            }
+            else {
+                value = this.resultSet.getObject(colName);
+            }
 			value = TimeUtil.convertLocalDate2Date(value);
 			return value;
 		}
