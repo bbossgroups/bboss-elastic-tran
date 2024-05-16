@@ -411,12 +411,13 @@ public class BaseImportConfig {
 		{
             synchronized (dateFormateMetaLock) {
                 if(this.dateFormateMeta == null) {
-                    dateFormateMetaInited = true;
+                   
                     DateFormateMeta dateFormateMeta_ = _getDateFormateMeta();
                     if (dateFormateMeta_ == null) {
                         dateFormateMeta_ = SerialUtil.getDateFormateMeta();
                     }
                     this.dateFormateMeta = dateFormateMeta_;
+                    dateFormateMetaInited = true;
                 }
             }
 		}

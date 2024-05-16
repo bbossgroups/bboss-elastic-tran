@@ -1,8 +1,10 @@
 package org.frameworkset.tran.input.file;
 
 import org.apache.commons.lang.StringUtils;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.schedule.timer.TimeRange;
@@ -426,10 +428,15 @@ public class FileConfig extends FieldManager{
                     try {
                         return fileFilter.accept(new LocalFilterFileInfo(dir, name), FileConfig.this);
                     }
-                    catch (Exception e){
+                    catch (DataImportException e){
                         logger.warn(name,e);
-                        return false;
+                        throw e;
                     }
+                    catch (Exception e){
+//                        logger.warn(name,e);
+                        throw ImportExceptionUtil.buildDataImportException(importContext,name,e);
+                    }
+
                 }
                 /**
                  * 默认接收所有文件
