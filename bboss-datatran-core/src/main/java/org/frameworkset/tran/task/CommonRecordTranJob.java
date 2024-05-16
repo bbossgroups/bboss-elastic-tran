@@ -272,7 +272,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		int taskNo = 0;
 		ImportCount totalCount = new ParallImportCount();
         Throwable exception = null;
-		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
+//		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
         LastValueWrapper currentLastValueWrapper = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
         LastValueWrapper lastValue = null;
 		TranErrorWrapper tranErrorWrapper = new TranErrorWrapper(importContext);
@@ -477,7 +477,7 @@ public class CommonRecordTranJob extends BaseTranJob{
         LastValueWrapper lastValue = null;
 		ImportCount importCount = new SerialImportCount( );
 		long totalCount = 0;
-		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
+//		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
 		boolean reachEOFClosed = false;
         int ignoreCount  = 0;
 		try {
@@ -653,7 +653,7 @@ public class CommonRecordTranJob extends BaseTranJob{
         LastValueWrapper currentValue = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
         LastValueWrapper lastValue = null;
 		ImportCount importCount = new SerialImportCount( );
-		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
+//		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
 		int taskNo = 0;
 		long totalCount = 0;
 		int count = 0;
