@@ -36,8 +36,26 @@ public interface InputConfig {
     default boolean isParallelDatarefactor(){
         return true;
     }
+    /**
+     * 并行Datarefactor处理需要设置RecordBuidler，默认为DBRecordBuilder，如果需要自定义resultset record，从DBRecordBuilder继承实现方法即可：
+     * public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException
+     * @param parallelDatarefactor
+     * @return
+     */
+    default InputConfig setParallelDatarefactor(boolean parallelDatarefactor){
+        return this;
+    }
     default RecordBuidler getRecordBuidler(){
         return null;
+    }
+    /**
+     * 并行Datarefactor处理标记为parallelDatarefactor=true时，需要设置RecordBuidler，默认为DBRecordBuilder，如果需要自定义resultset record，从DBRecordBuilder继承实现方法即可：
+     * public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException
+     * @param recordBuidler
+     * @return
+     */
+    default InputConfig setRecordBuidler(RecordBuidler recordBuidler){
+        return this;
     }
     boolean isSortedDefault();
     default boolean enableLocalDate(){

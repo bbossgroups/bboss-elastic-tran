@@ -127,7 +127,15 @@ public class ImportBuilder {
 		return importEndAction;
 	}
 
-	public List<ETLMetrics> getMetrics() {
+    public InputConfig getInputConfig() {
+        return inputConfig;
+    }
+
+    public OutputConfig getOutputConfig() {
+        return outputConfig;
+    }
+
+    public List<ETLMetrics> getMetrics() {
 		return metrics;
 	}
 

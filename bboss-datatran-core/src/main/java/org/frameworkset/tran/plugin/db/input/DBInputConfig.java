@@ -437,8 +437,8 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
      * @param recordBuidler
      * @return
      */
-    public DBInputConfig setRecordBuidler(RecordBuidler<ResultSet> recordBuidler) {
-        this.recordBuidler = recordBuidler;
+    public DBInputConfig setRecordBuidler(RecordBuidler recordBuidler) {
+        this.recordBuidler = (RecordBuidler<ResultSet>)recordBuidler;
         return this;
     }
 
