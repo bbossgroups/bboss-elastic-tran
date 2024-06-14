@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.common.poolman.util.DBConf;
 import com.frameworkset.orm.adapter.DBFactory;
 
+import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
@@ -40,6 +41,11 @@ public class DBConfig {
 	private String dbDriver;
 	private String dbUrl;
 	private String dbUser;
+
+    
+
+    @JsonIgnore
+    private DataSource dataSource;
     /**
      * 1. 为Clickhouse数据源增加负载均衡机制，解决Clickhouse-native-jdbc驱动只有容灾功能而没有负载均衡功能的缺陷，使用方法如下：
      * 在jdbc url地址后面增加b.balance和b.enableBalance参数
@@ -770,5 +776,12 @@ public class DBConfig {
      */
     public void setEnableBalance(boolean enableBalance) {
         this.enableBalance = enableBalance;
+    }
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 }

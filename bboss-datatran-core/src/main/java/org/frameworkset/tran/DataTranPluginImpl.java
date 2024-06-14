@@ -705,6 +705,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
             temConf.setConnectionProperties(dbConfig.getConnectionProperties());
             temConf.setEnableBalance(dbConfig.isEnableBalance());
             temConf.setBalance(dbConfig.getBalance());
+            temConf.setDatasource(dbConfig.getDataSource());
             boolean ret = SQLManager.startPool(temConf);
 			if(ret){
 				dbStartResult.addDBStartResult(temConf.getPoolname());

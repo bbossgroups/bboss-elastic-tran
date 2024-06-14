@@ -178,7 +178,7 @@ public class BaseImportConfig {
 	private long asynResultPollTimeOut = 3000l;
 	/**
 	 * 单位：秒
-	 * 对于有延迟的数据源，指定增量截止时间与当前时间的便宜量
+	 * 对于有延迟的数据源，指定增量截止时间与当前时间的偏移量
 	 */
 	private Integer increamentEndOffset;
 	private String dataTimeField;

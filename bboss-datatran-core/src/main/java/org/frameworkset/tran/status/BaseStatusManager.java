@@ -464,6 +464,7 @@ public abstract class BaseStatusManager implements StatusManager {
 						tempConf.setDbInfoEncryptClass(statusDBConfig.getDbInfoEncryptClass());
                         tempConf.setConnectionProperties(statusDBConfig.getConnectionProperties());
                         tempConf.setEnableBalance(statusDBConfig.isEnableBalance());
+                        tempConf.setDatasource(statusDBConfig.getDataSource());
                         tempConf.setBalance(statusDBConfig.getBalance());
 						boolean ret = SQLManager.startPool(tempConf);
 //						JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);

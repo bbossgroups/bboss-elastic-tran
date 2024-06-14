@@ -214,7 +214,7 @@ public  class BaseImportContext implements ImportContext {
 	}
 
 	/**
-	 *  对于有延迟的数据源，指定增量截止时间与当前时间的便宜量
+	 *  对于有延迟的数据源，指定增量截止时间与当前时间的偏移量
 	 *  增量查询截止时间为：System.currenttime - increamentEndOffset
 	 *  单位：秒
 	 * @return

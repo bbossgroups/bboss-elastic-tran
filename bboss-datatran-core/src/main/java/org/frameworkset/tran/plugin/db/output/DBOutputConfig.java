@@ -29,6 +29,7 @@ import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.input.StatementHandler;
 import org.frameworkset.tran.schedule.TaskContext;
 
+import javax.sql.DataSource;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -73,6 +74,7 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
     private Map<String,DDLConf> ddlConfs;
     private SQLConfResolver sqlConfResolver;
     private boolean ignoreDDLSynError;
+    
 
     /**
      * mysql binlog输入插件对接时，默认使用表名称映射对应的sqlconf配置
@@ -305,6 +307,9 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 			targetDbname = targetDBConfig.getDbName();
 		}
 
+        if(dbConfig != null){
+            dbConfig.setDataSource(dataSource);
+        }
 
 
 
@@ -692,6 +697,15 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
      */
     public DBOutputConfig setEnableBalance(boolean enableBalance) {
         _setEnableBalance(enableBalance);
+        return this;
+    }
+    /**
+     * 设置外部数据源
+     * @param dataSource
+     * @return
+     */
+    public DBOutputConfig setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
         return this;
     }
 }

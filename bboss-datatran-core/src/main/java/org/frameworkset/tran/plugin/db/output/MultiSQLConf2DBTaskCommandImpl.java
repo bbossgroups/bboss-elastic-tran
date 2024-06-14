@@ -167,7 +167,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
 
                         oldSql = sql;
                         statement = stmtInfo
-                                .prepareStatement(sql);
+                                .prepareStatement(sql,"DB output taskCommand statement:{}");
                     }
                     else if(!oldSql.equals(sql)){
                         try {
@@ -188,7 +188,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
 
                         oldSql = sql;
                         statement = stmtInfo
-                                .prepareStatement(sql);
+                                .prepareStatement(sql,"DB output taskCommand statement:{}");
                     }
                     if (dbOutputConfig.getStatementHandler() == null) {
                         BaseTypeMethod baseTypeMethod = null;
@@ -240,7 +240,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
 
                         oldSql = sql;
                         statement = stmtInfo
-                                .prepareStatement(sql);
+                                .prepareStatement(sql,"DB output taskCommand statement:{}");
                     }
                     else if(!oldSql.equals(sql)){
                         if(count > 0) {
@@ -264,7 +264,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                         count = 0;
                         oldSql = sql;
                         statement = stmtInfo
-                                .prepareStatement(sql);
+                                .prepareStatement(sql,"DB output taskCommand statement:{}");
                     }
                     if (dbOutputConfig.getStatementHandler() == null) {
                         BaseTypeMethod baseTypeMethod = null;
@@ -379,7 +379,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                  try {
                      sql = getSQL( record);
                     statement = stmtInfo
-                            .prepareStatement(sql);
+                            .prepareStatement(sql,"DB output taskCommand statement:{}");
                     statement.executeUpdate();
                 }
                  catch (SQLException e){

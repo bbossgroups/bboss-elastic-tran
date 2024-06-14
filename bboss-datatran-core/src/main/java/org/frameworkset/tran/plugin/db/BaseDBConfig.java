@@ -15,9 +15,11 @@ package org.frameworkset.tran.plugin.db;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.plugin.BaseConfig;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -36,6 +38,10 @@ public abstract class BaseDBConfig extends BaseConfig {
 	protected DBConfig dbConfig;
 	protected Map<String,DBConfig> dbConfigMap = new LinkedHashMap<>();
 
+    
+
+    @JsonIgnore
+    protected DataSource dataSource;
 	protected void _setJdbcFetchSize(Integer jdbcFetchSize) {
 		this.customDBConfigs.put(DBConfig.db_jdbcFetchSize_key,1);
 		checkDBConfig();
@@ -288,4 +294,9 @@ public abstract class BaseDBConfig extends BaseConfig {
     public String getBalance() {
         return dbConfig != null ? dbConfig.getBalance() : null;
     }
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
+    
 }

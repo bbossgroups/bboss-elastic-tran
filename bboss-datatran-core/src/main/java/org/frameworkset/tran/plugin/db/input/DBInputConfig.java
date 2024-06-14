@@ -23,8 +23,10 @@ import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.db.BaseDBConfig;
+import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 import org.frameworkset.tran.record.RecordBuidler;
 
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.util.Properties;
 
@@ -173,6 +175,9 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
             if(recordBuidler == null){
                 recordBuidler = new DBRecordBuilder();
             }
+        }
+        if(dbConfig != null){
+            dbConfig.setDataSource(dataSource);
         }
 
 	}
@@ -442,4 +447,13 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
         return this;
     }
 
+    /**
+     * 设置外部数据源
+     * @param dataSource
+     * @return
+     */
+    public DBInputConfig setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+        return this;
+    }
 }
