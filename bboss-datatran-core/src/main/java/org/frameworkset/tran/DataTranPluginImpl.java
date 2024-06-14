@@ -712,6 +712,22 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			}
 
 		}
+        else if(dbConfig.getDataSource() != null){
+            DBConf temConf = new DBConf();
+            temConf.setPoolname(dbConfig.getDbName());
+            temConf.setJndiName(dbConfig.getDbName()+"_jndi");
+            temConf.setDriver(dbConfig.getDbDriver());
+            temConf.setShowsql(dbConfig.isShowSql());            
+            temConf.setQueryfetchsize(dbConfig.getJdbcFetchSize() == null?null:dbConfig.getJdbcFetchSize());
+            temConf.setDbAdaptor(dbConfig.getDbAdaptor());
+            temConf.setDbtype(dbConfig.getDbtype());
+            temConf.setColumnLableUpperCase(dbConfig.isColumnLableUpperCase());            
+            temConf.setDatasource(dbConfig.getDataSource());
+            boolean ret = SQLManager.startPool(temConf);
+            if(ret){
+                dbStartResult.addDBStartResult(temConf.getPoolname());
+            }
+        }
 	}
 
 	@Override

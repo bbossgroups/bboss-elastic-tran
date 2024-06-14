@@ -423,21 +423,7 @@ public abstract class BaseStatusManager implements StatusManager {
 					String dbJNDIName = statusDbname+"_jndi";
 					try {
 
-//						SQLUtil.startPool(statusDbname,
-//								statusDBConfig.getDbDriver(),
-//								statusDBConfig.getDbUrl(),
-//								statusDBConfig.getDbUser(), statusDBConfig.getDbPassword(),
-//								null,//"false",
-//								null,// "READ_UNCOMMITTED",
-//								statusDBConfig.getValidateSQL(),
-//								dbJNDIName,
-//								10,
-//								10,
-//								20,
-//								true,
-//								false,
-//								null, false, false
-//						);
+
 
 						DBConf tempConf = new DBConf();
 						tempConf.setPoolname(statusDbname);
@@ -458,7 +444,7 @@ public abstract class BaseStatusManager implements StatusManager {
 						tempConf.setUsepool(true);
 						tempConf.setExternal(false);
 						tempConf.setExternaljndiName((String)null);
-						tempConf.setShowsql(false);
+						tempConf.setShowsql(statusDBConfig.isShowSql());
 						tempConf.setEncryptdbinfo(false);
 						tempConf.setQueryfetchsize(null);
 						tempConf.setDbInfoEncryptClass(statusDBConfig.getDbInfoEncryptClass());
@@ -467,21 +453,47 @@ public abstract class BaseStatusManager implements StatusManager {
                         tempConf.setDatasource(statusDBConfig.getDataSource());
                         tempConf.setBalance(statusDBConfig.getBalance());
 						boolean ret = SQLManager.startPool(tempConf);
-//						JDBCPool jdbcPool = SQLUtil.getSQLManager().getPool(tempConf.getPoolname(),false);
 						if(!ret){
-//							throw new DataImportException("status_datasource["+statusDbname+"] not started.");
 							logger.warn("Ignore start started Status_datasource["+statusDbname+"].");
 							this.useOuterStatusDb = true;
 							initStatusSQL(statusDbname );
 						}
-//						else{
-//							dbStartResult.addDBStartResult(tempConf.getPoolname());
-//						}
 					} catch (Exception e) {
 						throw ImportExceptionUtil.buildDataImportException(importContext,e);
 					}
 					initStatusSQL( statusDBConfig );
 				}
+                else if(statusDBConfig.getDataSource() != null){
+                    if(statusDbname == null || statusDbname.trim().equals(""))
+                        statusDbname =  "_status_datasource";
+
+                    String dbJNDIName = statusDbname+"_jndi";
+                    try {
+
+
+
+                        DBConf tempConf = new DBConf();
+                        tempConf.setPoolname(statusDbname);
+                        tempConf.setDriver(statusDBConfig.getDbDriver());
+                       
+                        tempConf.setJndiName(dbJNDIName);
+                       
+                        tempConf.setShowsql(statusDBConfig.isShowSql());
+                        tempConf.setDbAdaptor(statusDBConfig.getDbAdaptor());
+                        tempConf.setDbtype(statusDBConfig.getDbtype());
+                        tempConf.setColumnLableUpperCase(statusDBConfig.isColumnLableUpperCase());
+                        tempConf.setDatasource(statusDBConfig.getDataSource());
+                        boolean ret = SQLManager.startPool(tempConf);
+                        if(!ret){
+                            logger.warn("Ignore start started Status_datasource["+statusDbname+"].");
+                            this.useOuterStatusDb = true;
+                            initStatusSQL(statusDbname );
+                        }
+                    } catch (Exception e) {
+                        throw ImportExceptionUtil.buildDataImportException(importContext,e);
+                    }
+                    initStatusSQL( statusDBConfig );
+                }
 				else{
 					if(statusStorePath != null && !statusStorePath.equals("")){
 						if(statusDbname == null || statusDbname.trim().equals(""))
