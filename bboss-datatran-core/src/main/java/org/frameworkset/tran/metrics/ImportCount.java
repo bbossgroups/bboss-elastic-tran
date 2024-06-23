@@ -28,10 +28,13 @@ public abstract class ImportCount {
 	protected long failedCount;
 	protected long successCount;
 	protected long ignoreTotalCount;
+    protected long startTime;
+    protected long endTime;
+    protected long submitTasksEndTime;
     
 	public ImportCount(){
 
-
+        this.startTime = System.currentTimeMillis();
 
 	}
 	public abstract long getTotalCount() ;
@@ -47,6 +50,35 @@ public abstract class ImportCount {
 	public abstract long getSuccessCount() ;
 	public abstract long[] increamentSuccessCount(long successCount) ;
 
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
+    public long getElapsed(){
+        return endTime - startTime;
+    }
+
+    public long getSubmitTasksElapsed(){
+        return submitTasksEndTime - startTime;
+    }
 
 
+    public long getSubmitTasksEndTime() {
+        return submitTasksEndTime;
+    }
+
+    public void setSubmitTasksEndTime(long submitTasksEndTime) {
+        this.submitTasksEndTime = submitTasksEndTime;
+    }
 }

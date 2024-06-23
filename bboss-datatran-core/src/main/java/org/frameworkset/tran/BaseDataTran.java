@@ -344,6 +344,13 @@ public abstract class BaseDataTran implements DataTran{
 								   final ExecutorService service,final Throwable exception,LastValueWrapper lastValue,
 								  final ImportCount totalCount ,final TranErrorWrapper tranErrorWrapper ,final WaitTasksCompleteCallBack waitTasksCompleteCallBack,
 								  final boolean reachEOFClosed){
+        totalCount.setSubmitTasksEndTime(System.currentTimeMillis());
+        if(isPrintTaskLog()) {
+
+            StringBuilder stringBuilder = BaseTranJob.builderJobInfo(new StringBuilder(),  importContext);
+            logger.info(stringBuilder.append("Parallel batch import submit tasks:")
+                    .append(tasks.size()).append(" and take times:").append(totalCount.getSubmitTasksElapsed()).append("ms.").toString());
+        }
 		Consumer function = new Consumer<Object>(){
 
 			@Override
@@ -379,6 +386,7 @@ public abstract class BaseDataTran implements DataTran{
                         if( logger.isErrorEnabled()) logger.error("",throwable);
                     }
                 }
+                totalCount.setEndTime(System.currentTimeMillis());
 				if(isPrintTaskLog()) {
 
                     StringBuilder stringBuilder = BaseTranJob.builderJobInfo(new StringBuilder(),  importContext);
@@ -386,7 +394,7 @@ public abstract class BaseDataTran implements DataTran{
 							.append(count).append(",Total success import ")
 							.append(totalCount.getSuccessCount()).append(" records,Ignore Total ")
 							.append(totalCount.getIgnoreTotalCount()).append(" records,failed total ")
-							.append(totalCount.getFailedCount()).append(" records.").toString());
+							.append(totalCount.getFailedCount()).append(" records,Take times:").append(totalCount.getElapsed()).append("ms.").toString());
 				}
 				jobComplete(  service,_exception,lastValue ,tranErrorWrapper,currentStatus,reachEOFClosed);
 				endJob(  reachEOFClosed, totalCount,_exception);

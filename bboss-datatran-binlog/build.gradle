@@ -29,7 +29,7 @@ dependencies {
 	api project(':bboss-datatran-schedule-quartz')
 //	api 'com.github.shyiko:mysql-binlog-connector-java:0.21.0'
 
-	api 'com.zendesk:mysql-binlog-connector-java:0.29.0'
+	api 'com.zendesk:mysql-binlog-connector-java:0.29.2'
 //	api 'io.debezium:debezium-connector-oracle:2.3.2.Final'
 }
 

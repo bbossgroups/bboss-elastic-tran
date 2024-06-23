@@ -216,18 +216,20 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 				}
 			}
+            importCount.setEndTime(System.currentTimeMillis());
 			if(baseDataTran.isPrintTaskLog()) {
-				end = System.currentTimeMillis();
                 StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
-                logger.info(builder.append("Batch import Execute Tasks:").append(taskNo).append(",All Take time:").append((end - start)).append("ms")
+                logger.info(builder.append("Batch import Execute Tasks:").append(taskNo).append(",All Take time:").append((importCount.getElapsed())).append("ms")
 						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
 						.append(ignoreTotalCount).append(" records.").toString());
 
 			}
 		} catch (DataImportException e) {
+            importCount.setEndTime(System.currentTimeMillis());
 			exception = e;
 			throw e;
 		} catch (Exception e) {
+            importCount.setEndTime(System.currentTimeMillis());
 			exception = e;
 			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
@@ -428,10 +430,12 @@ public class CommonRecordTranJob extends BaseTranJob{
 			exception = e;
 			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}catch (Throwable e) {
+           
             exception = e;
             throw ImportExceptionUtil.buildDataImportException(importContext,e);
         }
 		finally {
+            
 			baseDataTran.waitTasksComplete(tasks, service, exception, lastValue, totalCount, tranErrorWrapper, new WaitTasksCompleteCallBack() {
 				@Override
 				public void call() {
@@ -471,7 +475,6 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 //		Object lastValue = null;
 		Exception exception = null;
-		long start = System.currentTimeMillis();
 		long lastSend = 0;
         LastValueWrapper currentLastValueWrapper = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
         LastValueWrapper lastValue = null;
@@ -497,7 +500,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 							long end = System.currentTimeMillis();
 							long interval = end - lastSend;
 							if (interval >= logInterval) {
-								logger.info(new StringBuilder().append("Auto Log Send datas Take time:").append((end - start)).append("ms")
+								logger.info(new StringBuilder().append("Auto Log Send datas Take time:").append((end - importCount.getStartTime())).append("ms")
 										.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
 										.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
 										.append(importCount.getFailedCount()).append(" records.").append("Force FlushInterval[").append(importContext.getFlushInterval()).append("ms]").toString());
@@ -572,7 +575,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 						if(baseDataTran.isPrintTaskLog()) {
 							long end = System.currentTimeMillis();
                             StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
-                            logger.info(builder.append("Send datas  Take time:").append((end - start)).append("ms")
+                            logger.info(builder.append("Send datas  Take time:").append((end - importCount.getStartTime())).append("ms")
 									.append(",Send total").append(totalCount).append(" records,IgnoreTotalCount ")
 									.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
 									.append(importCount.getFailedCount()).append(" records. totalCount has reach Long.MAX_VALUE and reset").toString());
@@ -584,7 +587,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 						if(baseDataTran.isPrintTaskLog() && importContext.getLogsendTaskMetric() > 0l && (totalCount % importContext.getLogsendTaskMetric()) == 0l) {//每一万条记录打印一次日志
 							long end = System.currentTimeMillis();
                             StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
-                            logger.info(builder.append("Send datas Take time:").append((end - start)).append("ms")
+                            logger.info(builder.append("Send datas Take time:").append((end - importCount.getStartTime())).append("ms")
 									.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
 									.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
 									.append(importCount.getFailedCount()).append(" records.").toString());
@@ -607,23 +610,26 @@ public class CommonRecordTranJob extends BaseTranJob{
             ignoreCount = 0;
 
             serialTranCommand.endSerialActionTask(taskCommandContext);
+            importCount.setEndTime(System.currentTimeMillis());
 			if(baseDataTran.isPrintTaskLog()) {
-				long end = System.currentTimeMillis();
                 StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
-                logger.info(builder.append("Send datas Take time:").append((end - start)).append("ms")
+                logger.info(builder.append("Send datas Take time:").append(importCount.getElapsed()).append("ms")
 						.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
 						.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
 						.append(importCount.getFailedCount()).append(" records.").toString());
 
 			}
+            
 		}
 		catch (DataImportException e){
+            importCount.setEndTime(System.currentTimeMillis());
 			exception = e;
 			throw e;
 
 
 		}
 		catch (Exception e){
+            importCount.setEndTime(System.currentTimeMillis());
 			exception = e;
 			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 
@@ -647,7 +653,6 @@ public class CommonRecordTranJob extends BaseTranJob{
 		List<CommonRecord> records = new ArrayList<>();
 //		Object lastValue = null;
 		Exception exception = null;
-		long start = System.currentTimeMillis();
 //		Status currentStatus = importContext.getCurrentStatus();
 //		Object currentValue = currentStatus != null? currentStatus.getLastValue():null;
         LastValueWrapper currentValue = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
@@ -690,7 +695,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 						long end = System.currentTimeMillis();
                         StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
-                        logger.info(builder.append("Force flush datas Take time:").append((end - start)).append("ms")
+                        logger.info(builder.append("Force flush datas Take time:").append((end - importCount.getStartTime())).append("ms")
 								.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
 								.append(ignoreTotalCount).append(" records.").toString());
 
@@ -768,10 +773,10 @@ public class CommonRecordTranJob extends BaseTranJob{
             taskCommandContext.setIgnoreCount(ignoreCount);
             taskCommandContext.setImportContext(importContext);
 			taskNo = serialTranCommand.endSerialActionTask(taskCommandContext);
+            importCount.setEndTime(System.currentTimeMillis());
 			if(baseDataTran.isPrintTaskLog()) {
-				long end = System.currentTimeMillis();
                 StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
-                logger.info(builder.append("Serial import Take time:").append((end - start)).append("ms")
+                logger.info(builder.append("Serial import Take time:").append(importCount.getElapsed()).append("ms")
 						.append(",Total Import  ").append(totalCount).append(" records,Total Ignore Count ")
 						.append(importCount.getIgnoreTotalCount()).append(" records,Total Failed Count ")
 						.append(importCount.getFailedCount()).append(" records.").toString());
@@ -779,12 +784,14 @@ public class CommonRecordTranJob extends BaseTranJob{
 			}
 		}
 		catch (DataImportException e){
+            importCount.setEndTime(System.currentTimeMillis());
 			exception = e;
 			throw e;
 
 
 		}
 		catch (Exception e){
+            importCount.setEndTime(System.currentTimeMillis());
 			exception = e;
 			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 

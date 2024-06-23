@@ -160,17 +160,17 @@ public class DBConfig {
 					.append( "statusId number(10)) ")  //状态表中使用的主键标识
 //					.append( "PRIMARY KEY (ID))")
 					.toString();
-	public static final String mysql_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName ( ID varchar(100) NOT NULL, lasttime bigint(20) NOT NULL, " )
-                            .append("lastvalue bigint(20) NOT NULL,")
-                            .append( "strLastValue varchar(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
-                            .append( "lastvaluetype int(1) NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
-							.append( "status int(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
-							.append( "filePath varchar(500) ,")  //日志文件路径
-							.append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径,relativeParentDir,
-							.append( "fileId varchar(500) ,")   //日志文件indoe标识
-							.append( "jobId varchar(500) ,")   //作业id 6.7.7版本新增
-							.append( "jobType varchar(500) ,")   //作业输入插件类型 6.7.7版本新增
-							.append( "PRIMARY KEY(ID)) ENGINE=InnoDB").toString();
+	public static final String mysql_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName ( ID varchar(100) NOT NULL comment '唯一标识', lasttime bigint(20) NOT NULL comment '最后记录时间戳', " )
+                            .append("lastvalue bigint(20) NOT NULL comment '最后记录时间戳',")
+                            .append( "strLastValue varchar(2000) comment '增量字段值，存储字符串形式的增量值，比如LocalDateTime',")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+                            .append( "lastvaluetype int(1) NOT NULL comment '值类型 0-数字 1-日期 2-LocalDateTime',") //值类型 0-数字 1-日期 2-LocalDateTime
+							.append( "status int(1)  comment '数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0',")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+							.append( "filePath varchar(500)  comment '日志文件路径',")  //日志文件路径
+							.append( "relativeParentDir varchar(500)  comment '日志文件子目录相对路径,relativeParentDir',")  //日志文件子目录相对路径,relativeParentDir,
+							.append( "fileId varchar(500)  comment '日志文件indoe标识',")   //日志文件indoe标识
+							.append( "jobId varchar(500)  comment '作业id',")   //作业id 6.7.7版本新增
+							.append( "jobType varchar(500)  comment '作业输入插件类型',")   //作业输入插件类型 6.7.7版本新增
+							.append( "PRIMARY KEY(ID)) comment '增量状态同步表' ENGINE=InnoDB").toString();
 	public static final String oracle_createStatusTableSQL = new StringBuilder().append("CREATE TABLE $statusTableName ( ID varchar2(100) NOT NULL, lasttime NUMBER(20) NOT NULL,")
             .append(" lastvalue NUMBER(20) NOT NULL, " )
             .append( "strLastValue varchar2(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
@@ -215,16 +215,16 @@ public class DBConfig {
             .append( "jobType varchar(500) ,")   //作业输入插件类型 6.7.7版本新增
             .append( "primary key(ID))").toString();
 
-	public static final String mysql_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName ( ID varchar(100) NOT NULL, lasttime bigint(20) NOT NULL, lastvalue bigint(20) NOT NULL, " )
-            .append( "strLastValue varchar(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
-            .append("lastvaluetype int(1) NOT NULL,") //值类型 0-数字 1-日期 2-LocalDateTime
-			.append( "status int(1) ,")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
-			.append( "filePath varchar(500) ,")  //日志文件路径
-			.append( "relativeParentDir varchar(500) ,")  //日志文件子目录相对路径,relativeParentDir,
-			.append( "fileId varchar(500) ,")   //日志文件indoe标识
-			.append( "jobId varchar(500) ,")   //作业id 6.7.7版本新增
-			.append( "jobType varchar(500) ,")   //作业输入插件类型 6.7.7版本新增
-			.append( "statusId varchar(100) ) ENGINE=InnoDB").toString(); //状态表中使用的主键标识
+	public static final String mysql_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName ( ID varchar(100) NOT NULL comment '历史记录唯一标识', lasttime bigint(20) NOT NULL comment '最后同步时间戳', lastvalue bigint(20) NOT NULL comment '最后记录值', " )
+            .append( "strLastValue varchar(2000) comment '增量字段值，存储字符串形式的增量值，比如LocalDateTime',")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
+            .append("lastvaluetype int(1) NOT NULL comment '值类型 0-数字 1-日期 2-LocalDateTime',") //值类型 0-数字 1-日期 2-LocalDateTime
+			.append( "status int(1)  comment '数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0',")  //数据采集完成状态：0-采集中  1-完成  适用于文件日志采集 默认值 0
+			.append( "filePath varchar(500)  comment '日志文件路径',")  //日志文件路径
+			.append( "relativeParentDir varchar(500)  comment '日志文件子目录相对路径,relativeParentDir',")  //日志文件子目录相对路径,relativeParentDir,
+			.append( "fileId varchar(500)  comment '日志文件indoe标识',")   //日志文件indoe标识
+			.append( "jobId varchar(500)  comment '作业id 6.7.7版本新增',")   //作业id 6.7.7版本新增
+			.append( "jobType varchar(500)  comment '作业输入插件类型 6.7.7版本新增',")   //作业输入插件类型 6.7.7版本新增
+			.append( "statusId varchar(100)  comment '增量状态唯一标识' ) comment '增量状态同步记录历史表' ENGINE=InnoDB").toString(); 
 //			.append( "PRIMARY KEY(ID)) ENGINE=InnoDB").toString();
 	public static final String oracle_createHistoryStatusTableSQL = new StringBuilder().append("CREATE TABLE $historyStatusTableName ( ID varchar2(100) NOT NULL, lasttime NUMBER(10) NOT NULL, lastvalue NUMBER(10) NOT NULL, " )
             .append( "strLastValue varchar2(2000),")  //增量字段值，存储字符串形式的增量值，比如LocalDateTime
