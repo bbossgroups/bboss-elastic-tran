@@ -162,7 +162,7 @@ public class HttpConfigClientProxy {
 			throws ClientProtocolException, IOException {
 		int status = response.getStatusLine().getStatusCode();
 
-		if (status >= 200 && status < 300) {
+		if (org.frameworkset.spi.remote.http.ResponseUtil.isHttpStatusOK( status)) {
 			if(httpInputConfig.getHttpResultParser() == null) {
 				HttpEntity entity = response.getEntity();
 				List<T> datas = entity != null ? converJson2List(  entity,  resultType) : null;

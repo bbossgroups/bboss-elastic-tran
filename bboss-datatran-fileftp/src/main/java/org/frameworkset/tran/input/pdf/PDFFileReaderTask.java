@@ -93,10 +93,10 @@ public class PDFFileReaderTask extends FileReaderTask {
                 document = org.apache.pdfbox.Loader.loadPDF(file);
 
 
-                result(file, pointer,   document , recordList, reachEOFClosed);
+                resultPDF(file, pointer,   document , recordList, reachEOFClosed);
             }
             else{
-                result(file, pointer, null, recordList, reachEOFClosed);
+                resultPDF(file, pointer, (PDDocument)null, recordList, reachEOFClosed);
             }
             fileDataTran.appendData(new CommonData(recordList));
 			//如果设置了文件结束，及结束作业，则进行相应处理，需迁移到通道结束处进行归档和删除处理
@@ -149,7 +149,7 @@ public class PDFFileReaderTask extends FileReaderTask {
 
 	}
 
-	private void result(File file, long pointer, PDDocument document , List<Record> recordList, boolean reachEOFClosed) throws Exception {
+	private void resultPDF(File file, long pointer, PDDocument document , List<Record> recordList, boolean reachEOFClosed) throws Exception {
 
         if(pdfFileConfig.getPdfExtractor() != null){
             RecordExtractor<PDDocument> recordExtractor = new RecordExtractor<>(document, fileConfig.getImportContext(),file);

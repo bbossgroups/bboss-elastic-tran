@@ -35,18 +35,8 @@ public class DummyTaskCommandImpl extends BaseTaskCommand<String> {
 	private DummyOutputConfig dummyOutputConfig ;
 	public DummyTaskCommandImpl(TaskCommandContext taskCommandContext) {
 		super(  taskCommandContext);
-//		if(targetImportContext instanceof DummyOupputContext)
-//			dummyOupputContext = (DummyOupputContext)targetImportContext;
 		dummyOutputConfig = (DummyOutputConfig) importContext.getOutputConfig();
 	}
-
-
-
- 
-
- 
-
-
 
     private String buildDatas() throws Exception {
         StringBuilder builder = new StringBuilder();
@@ -62,18 +52,23 @@ public class DummyTaskCommandImpl extends BaseTaskCommand<String> {
         return datas;
     }
 	public String execute() throws Exception {
-        datas = buildDatas();
-		if(dummyOutputConfig.isPrintRecord()) {
-            
-            logger.info(datas);
+        if(records.size() > 0) {
+            datas = buildDatas();
+            if (dummyOutputConfig.isPrintRecord()) {
+
+                logger.info(datas);
+            }
+        }
+        else{
+            if (logger.isInfoEnabled()){
+                logger.info("All output data is ignored and do nothing.");
+            }
         }
 		finishTask();
 		return null;
 	}
 
-	public int getTryCount() {
-		return -1;
-	}
+	 
 
 
 }

@@ -111,15 +111,23 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
         }
     }
 	public String execute(){
-        String data  = null;
-		if(!dbOutputConfig.isMultiSQLConfTargetDBName()){
-            data = singleTargetDBExecute();
+        String data = null;
+        if (records.size() > 0) {
+            
+            if (!dbOutputConfig.isMultiSQLConfTargetDBName()) {
+                data = singleTargetDBExecute();
+            } else {
+                data = multiTargetDBExecute();
+            }
         }
         else{
-            data = multiTargetDBExecute();
+            if (logger.isInfoEnabled()){
+                logger.info("All output data is ignored and do nothing.");
+            }
         }
         finishTask();
         return data;
+        
 	}
 
     private String singleTargetDBExecute() {

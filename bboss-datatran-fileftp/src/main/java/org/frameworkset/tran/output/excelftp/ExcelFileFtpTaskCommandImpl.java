@@ -42,34 +42,34 @@ public class ExcelFileFtpTaskCommandImpl extends BaseTaskCommand< String> {
 		this.fileTransfer = fileTransfer;
 	}
 
-
-
-
- 
 	private int tryCount;
-
-
- 
-
-
 
 
 	private static Logger logger = LoggerFactory.getLogger(TaskCommand.class);
 
 	public String execute(){
-		String data = null;
-		if(this.importContext.getMaxRetry() > 0){
-			if(this.tryCount >= this.importContext.getMaxRetry())
-				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
-		}
-		this.tryCount ++;
-		try {
-			fileTransfer.writeData(this,records);
-			finishTask();
-		} catch (IOException e) {
-			throw ImportExceptionUtil.buildDataImportException(importContext,"writeData failed:",e);
-		}
-		return data;
+        String data = null;
+        if(records != null && records.size() > 0) {
+            
+            if (this.importContext.getMaxRetry() > 0) {
+                if (this.tryCount >= this.importContext.getMaxRetry())
+                    throw new TaskFailedException("task execute failed:reached max retry times " + this.importContext.getMaxRetry());
+            }
+            this.tryCount++;
+            try {
+                fileTransfer.writeData(this, records);
+               
+            } catch (IOException e) {
+                throw ImportExceptionUtil.buildDataImportException(importContext, "writeData failed:", e);
+            }
+        }
+        else{
+            if (logger.isInfoEnabled()){
+                logger.info("All output data is ignored and do nothing.");
+            }
+        }
+        finishTask();
+        return data;
 	}
 
 	public int getTryCount() {

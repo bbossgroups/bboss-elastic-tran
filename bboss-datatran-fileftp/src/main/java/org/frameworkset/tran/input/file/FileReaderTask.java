@@ -36,13 +36,16 @@ import static java.lang.Thread.sleep;
  * @author xutengfei,yin-bp@163.com
  * @description
  * @create 2021/3/15
+ * 后续版本会调整为abstract类
  */
+
 public class FileReaderTask extends FieldManager{
     private static Logger logger = LoggerFactory.getLogger(FileReaderTask.class);
     protected FileInfo fileInfo;
     protected FileInputConfig fileImportConfig;
 
-
+   
+   
     /**
      * 文件监听事件服务
      */
@@ -50,12 +53,12 @@ public class FileReaderTask extends FieldManager{
     /**
      * 文件开始行标识正则
      */
-    private Pattern pattern;
+    protected Pattern pattern;
     private boolean rootLevel;
     protected boolean enableMeta;
 
     protected BaseDataTran fileDataTran;
-    private RandomAccessFile raf ;
+    protected RandomAccessFile raf ;
     //状态 0启用 1失效
     public static final int STATUS_OK = 0;
     public static final int STATUS_NO = 1;
@@ -96,14 +99,13 @@ public class FileReaderTask extends FieldManager{
 						  FileListenerService fileListenerService,
 						  BaseDataTran fileDataTran,
 						  Status currentStatus , FileInputConfig fileImportConfig ) {
+        
         this.fileImportConfig = fileImportConfig;
+        
         this.sleepAwaitTimeAfterFetch = fileImportConfig.getSleepAwaitTimeAfterFetch();
 		this.sleepAwaitTimeAfterCollect = fileImportConfig.getSleepAwaitTimeAfterCollect();
         this.fileListenerService = fileListenerService;
-        String charSet = fileConfig.getCharsetEncode() ;
-        if(charSet == null || charSet.equals("")){
-            charSet = this.fileListenerService.getFileInputConfig().getCharsetEncode();
-        }
+        
         this.pointer = 0;
         this.fileConfig = fileConfig;
         this.taskContext = taskContext;
@@ -132,10 +134,12 @@ public class FileReaderTask extends FieldManager{
     }
     public FileReaderTask(String fileId, Status currentStatus, FileInputConfig fileImportConfig ) {
         this.fileImportConfig = fileImportConfig;
+        
         this.currentStatus = currentStatus;
         this.fileInfo = new FileInfo( fileId);
         this.sleepAwaitTimeAfterFetch = fileImportConfig.getSleepAwaitTimeAfterFetch();
 		this.sleepAwaitTimeAfterCollect = fileImportConfig.getSleepAwaitTimeAfterCollect();
+       
     }
 
     public FileInfo getFileInfo() {
@@ -599,27 +603,63 @@ public class FileReaderTask extends FieldManager{
         return taskEndOrStop;
     }
 
-    class Line{
+    static class Line{
+        /**
+         * 文本行内容
+         */
         private String line;
+        /**
+         * 文件末尾标记
+         */
         private boolean eof;
+        /**
+         * 行结束标记
+         */
         private boolean eol;
+
+
+        /**
+         * 行截止位置
+         */
+        private long offset;
+        /**
+         * 行开始为止
+         */
+        private long prePointer ;
+        Line(String line, boolean eof,boolean eol,long prePointer ,long offset) {
+            this.line = line;
+            this.eof = eof;
+            this.eol = eol;
+            this.prePointer = prePointer;
+            this.offset = offset;
+        }
         Line(String line, boolean eof,boolean eol) {
             this.line = line;
             this.eof = eof;
             this.eol = eol;
         }
 
+        public long getPrePointer() {
+            return prePointer;
+        }
+
         public String getLine() {
             return line;
         }
 
+        public long getOffset() {
+            return offset;
+        }
 
+        public void setOffset(int offset) {
+            this.offset = offset;
+        }
 
         public boolean isEof() {
             return eof;
         }
 
-        public boolean isRollbackPreLine(){
+        public boolean isRollbackPreLine(FileInfo fileInfo){
 //            return eof && !eol && !fileInfo.getFileConfig().isCloseEOF();
 			return eof && !eol && !fileInfo.isCloseEOF();
         }
@@ -653,7 +693,7 @@ public class FileReaderTask extends FieldManager{
      * @exception  IOException  if an I/O error occurs.
      */
 
-    public final Line readLine(long startPointer) throws IOException {
+    public Line readLine(long startPointer) throws IOException {
         StringBuilder input = new StringBuilder();
         int c = -1;
         boolean eol = false;
@@ -681,7 +721,6 @@ public class FileReaderTask extends FieldManager{
             if(input.length() == 0)
                 return new Line(null,true,true);
             else{
-//                if(fileConfig.isCloseEOF())
 				if(fileInfo.isCloseEOF())
                     return new Line(input.toString(),true,false);
                 else{ // 需要结束本次采集
@@ -694,7 +733,38 @@ public class FileReaderTask extends FieldManager{
             return new Line(input.toString(),false,eol);
     }
 
-    private boolean reachEOFClosed(Line line){
+    /**
+    public final String readLine0() throws IOException {
+        StringBuilder input = new StringBuilder();
+        int c = -1;
+        boolean eol = false;
+
+        while (!eol) {
+            switch (c = read()) {
+                case -1:
+                case '\n':
+                    eol = true;
+                    break;
+                case '\r':
+                    eol = true;
+                    long cur = getFilePointer();
+                    if ((read()) != '\n') {
+                        seek(cur);
+                    }
+                    break;
+                default:
+                    input.append((char)c);
+                    break;
+            }
+        }
+
+        if ((c == -1) && (input.length() == 0)) {
+            return null;
+        }
+        return input.toString();
+    }
+*/
+    protected boolean reachEOFClosed(Line line){
 //        if(fileConfig.isCloseEOF() && line.isEof()){
 		if(fileInfo.isCloseEOF() && line.isEof()){
             return true;
@@ -846,9 +916,12 @@ public class FileReaderTask extends FieldManager{
                     }
                 }
                 if(builder.length() > 0 ){
-                    if(!line_.isRollbackPreLine()) {
+                    if(!line_.isRollbackPreLine(fileInfo)) {
                         pointer = raf.getFilePointer();
                         result(file, pointer, builder.toString(), recordList, reachEOFClosed);
+                    }
+                    else{
+                        pointer = raf.getFilePointer();
                     }
                     builder.setLength(0);
                     builder = null;
@@ -1069,7 +1142,7 @@ public class FileReaderTask extends FieldManager{
     	return SimpleStringUtil.isEmpty(fileConfig.getFieldSplit()) || SimpleStringUtil.isEmpty(fileConfig.getCellMappingList());
 	}
 
-    private void result(File file, long pointer, String line,List<Record> recordList,boolean reachEOFClosed) {
+    protected void result(File file, long pointer, String line,List<Record> recordList,boolean reachEOFClosed) {
         if(!check(line)){
             recordList.add(new FileLogRecord(taskContext,this.fileDataTran.getImportContext(),true,pointer,reachEOFClosed,false));
         }

@@ -397,6 +397,9 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
         writer.write("}");
     }
     private void buildDatas() throws Exception {
+        if(records.size() == 0){
+            return;
+        }
         StringBuilder builder = new StringBuilder();
         BBossStringWriter writer = new BBossStringWriter(builder);
         ElasticsearchCommonRecord elasticsearchCommonRecord = null;
@@ -412,44 +415,47 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
     }
 	public String execute() throws Exception {
 		String data = null;
-		if(this.importContext.getMaxRetry() > 0){
-			if(this.tryCount >= this.importContext.getMaxRetry())
-				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
-		}
-        if(datas == null){
-            this.buildDatas();
+        if(records.size() > 0){
+            if(this.importContext.getMaxRetry() > 0){
+                if(this.tryCount >= this.importContext.getMaxRetry())
+                    throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
+            }
+            if(datas == null){
+                this.buildDatas();
+            }
+            this.tryCount ++;
+            String actionUrl = BuildTool.buildActionUrl(elasticsearchOutputConfig.getClientOptions(), BulkConfig.ERROR_FILTER_PATH);
+            if (elasticsearchOutputConfig.isDebugResponse()) {
+
+                for (ClientInterface clientInterface : clientInterfaces) {
+                    data = clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST);
+                }
+                if (logger.isInfoEnabled())
+                    logger.info(data);
+
+            } else {
+                if (elasticsearchOutputConfig.isDiscardBulkResponse() && importContext.getExportResultHandler() == null) {
+                    for (ClientInterface clientInterface : clientInterfaces) {
+                        ESVoidResponseHandler esVoidResponseHandler = new ESVoidResponseHandler();
+                        clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST, esVoidResponseHandler);
+
+                        if (esVoidResponseHandler.getElasticSearchException() != null)
+                            throw ImportExceptionUtil.buildDataImportException(importContext, esVoidResponseHandler.getElasticSearchException());
+                    }
+                    return null;
+                } else {
+                    for (ClientInterface clientInterface : clientInterfaces) {
+                        data = clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST);
+                    }
+                }
+            }
         }
-		this.tryCount ++;
-		String actionUrl = BuildTool.buildActionUrl(elasticsearchOutputConfig.getClientOptions(), BulkConfig.ERROR_FILTER_PATH);
-		if(elasticsearchOutputConfig.isDebugResponse()) {
-
-			for (ClientInterface clientInterface : clientInterfaces) {
-				data = clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST);
-			}
-			finishTask();
-			if(logger.isInfoEnabled())
-				logger.info(data);
-
-		}
-		else{
-			if(elasticsearchOutputConfig.isDiscardBulkResponse() && importContext.getExportResultHandler() == null) {
-				for (ClientInterface clientInterface : clientInterfaces) {
-					ESVoidResponseHandler esVoidResponseHandler = new ESVoidResponseHandler();
-					clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST, esVoidResponseHandler);
-
-					if (esVoidResponseHandler.getElasticSearchException() != null)
-						throw ImportExceptionUtil.buildDataImportException(importContext,esVoidResponseHandler.getElasticSearchException());
-				}
-				finishTask();
-				return null;
-			}
-			else{
-				for (ClientInterface clientInterface : clientInterfaces) {
-					data = clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST);
-				}
-				finishTask();
-			}
-		}
+        else{
+            if (logger.isInfoEnabled()){
+                logger.info("All output data is ignored and do nothing.");
+            }            
+        }
+        finishTask();
 		return data;
 	}
 

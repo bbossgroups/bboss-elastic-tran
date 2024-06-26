@@ -7,6 +7,7 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.input.file.BufferFileReaderTask;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileListenerService;
 import org.frameworkset.tran.input.file.FileReaderTask;
@@ -30,8 +31,10 @@ import static org.frameworkset.tran.schedule.ImportIncreamentConfig.STATUSID_POL
  * @create 2021/3/12
  */
 public class FileInputConfig extends BaseConfig implements InputConfig {
-
+    public static final int DEFAULT_BUFFER_CAPACITY = 8092;
+    private int bufferCapacity = DEFAULT_BUFFER_CAPACITY;
     private AssertMaxThreshold assertMaxFilesThreshold;
+    private boolean enableBufferRead = true;
     /**
      * 每次扫描新文件时间间隔，单位毫秒
      */
@@ -323,12 +326,25 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
 
     public FileReaderTask buildFileReaderTask(TaskContext taskContext, File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
 											  Status currentStatus , FileInputConfig fileImportConfig ){
-        FileReaderTask task = new FileReaderTask(taskContext,file,fileId,fileConfig,pointer,
-                fileListenerService,fileDataTran,currentStatus,fileImportConfig);
+        FileReaderTask task = null;
+        if(fileImportConfig.isEnableBufferRead()) {
+            task = new BufferFileReaderTask(taskContext, file, fileId, fileConfig, pointer,
+                    fileListenerService, fileDataTran, currentStatus, fileImportConfig);
+        }
+        else{
+            task = new FileReaderTask(taskContext, file, fileId, fileConfig, pointer,
+                    fileListenerService, fileDataTran, currentStatus, fileImportConfig);
+        }
         return task;
     }
     public FileReaderTask buildFileReaderTask(String fileId, Status currentStatus, FileInputConfig fileImportConfig ){
-        FileReaderTask task =  new FileReaderTask(fileId,currentStatus,fileImportConfig);
+        FileReaderTask task = null;
+        if(fileImportConfig.isEnableBufferRead()) {
+            task = new BufferFileReaderTask(fileId,currentStatus,fileImportConfig);
+        }
+        else{
+            task = new FileReaderTask(fileId,currentStatus,fileImportConfig);
+        }
         return task;
     }
     /**
@@ -511,5 +527,23 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
     @Override
     public Integer getStatusIdPolicy(ImportContext importContext) {
         return STATUSID_POLICY_JOBID_QUERYSTATEMENT;
+    }
+
+    public int getBufferCapacity() {
+        return bufferCapacity;
+    }
+
+    public FileInputConfig setBufferCapacity(int bufferCapacity) {
+        this.bufferCapacity = bufferCapacity;
+        return this;
+    }
+
+    public boolean isEnableBufferRead() {
+        return enableBufferRead;
+    }
+
+    public FileInputConfig setEnableBufferRead(boolean enableBufferRead) {
+        this.enableBufferRead = enableBufferRead;
+        return this;
     }
 }

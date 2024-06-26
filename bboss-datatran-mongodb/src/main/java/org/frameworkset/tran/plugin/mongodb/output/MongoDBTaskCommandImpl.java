@@ -59,62 +59,66 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand< Object> {
 
  
 	protected Object _execute(){
-		MongoDB mogodb = MongoDBHelper.getMongoDB(dbOutputConfig.getName());
-		MongoDatabase db = mogodb.getDB(dbOutputConfig.getDB());
-		MongoCollection dbCollection = db.getCollection(dbOutputConfig.getDBCollection());
+        
+        MongoDB mogodb = MongoDBHelper.getMongoDB(dbOutputConfig.getName());
+        MongoDatabase db = mogodb.getDB(dbOutputConfig.getDB());
+        MongoCollection dbCollection = db.getCollection(dbOutputConfig.getDBCollection());
 
-		String objectIdField = dbOutputConfig.getObjectIdField();
-		if(objectIdField == null){
-			objectIdField = "_id";
-		}
-		List<WriteModel<Document>> bulkOperations = new ArrayList<>();
-		for(CommonRecord dbRecord:records){
-			CommonRecord record = dbRecord;
-			DataMap.addRecord(bulkOperations,record,objectIdField);
+        String objectIdField = dbOutputConfig.getObjectIdField();
+        if (objectIdField == null) {
+            objectIdField = "_id";
+        }
+        List<WriteModel<Document>> bulkOperations = new ArrayList<>();
+        for (CommonRecord dbRecord : records) {
+            CommonRecord record = dbRecord;
+            DataMap.addRecord(bulkOperations, record, objectIdField);
 
 
-		}
-		if(bulkOperations.size() > 0){
-			BulkWriteResult bulkWriteResult = dbCollection.bulkWrite(bulkOperations);
-			return bulkWriteResult;
+        }
+        if (bulkOperations.size() > 0) {
+            BulkWriteResult bulkWriteResult = dbCollection.bulkWrite(bulkOperations);
+            return bulkWriteResult;
 
-		}
+        }
+        
 		return null;
 	}
 
 	@Override
 	public Object execute(){
-		Object data = null;
-		if(this.importContext.getMaxRetry() > 0){
-			if(this.tryCount >= this.importContext.getMaxRetry())
-				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
-		}
-		this.tryCount ++;
-
-		try {
-
-
-
-			Object bulkWriteResult =  _execute(  );
-			if(bulkWriteResult != null){
-				data = bulkWriteResult;
-				finishTask();
-
-			}
-
-		}
-
-		catch (Exception e) {
-
-			throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
-
-		}
-
-		catch (Throwable e) {
-
-			throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
-
-		} 
+        Object data = null;
+        if(records.size() > 0) {
+           
+            if(this.importContext.getMaxRetry() > 0){
+                if(this.tryCount >= this.importContext.getMaxRetry())
+                    throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
+            }
+            this.tryCount ++;
+    
+            try {
+    
+                Object bulkWriteResult =  _execute(  );
+                if(bulkWriteResult != null){
+                    data = bulkWriteResult;		
+    
+                }
+               
+            }
+    
+            catch (Exception e) {    
+                throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);    
+            }
+    
+            catch (Throwable e) {    
+                throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);    
+            }
+        }
+        else{
+            if (logger.isInfoEnabled()){
+                logger.info("All output data is ignored and do nothing.");
+            }
+        }
+        finishTask();
 		return data;
 	}
 

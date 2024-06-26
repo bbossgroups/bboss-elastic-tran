@@ -43,26 +43,19 @@ public class CustomTaskCommandImpl extends BaseTaskCommand< String> {
         }
 	}
 
-
-
-
- 
-
- 
-
-
-
-
-
 	public String execute(){
-		customOutputConfig.getCustomOutPut().handleData(taskContext, records);
+        if(records != null && records.size() > 0) {
+            customOutputConfig.getCustomOutPut().handleData(taskContext, records);
+        }
+        else{
+            if (logger.isInfoEnabled()){
+                logger.info("All output data is ignored and do nothing.");
+            }
+        }
 		finishTask();
 		return null;
 	}
 
-	public int getTryCount() {
-		return -1;
-	}
 
 
 }

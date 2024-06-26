@@ -90,7 +90,7 @@ public class CommonFileReaderTask extends FileReaderTask {
 
 
 
-            result(file, pointer,   recordList, reachEOFClosed);
+            resultOfCommon(file, pointer,   recordList, reachEOFClosed);
 
             if(recordList.size() > 0 )
                 fileDataTran.appendData(new CommonData(recordList));
@@ -131,7 +131,7 @@ public class CommonFileReaderTask extends FileReaderTask {
 
 	}
 
-	private void result(File file, long pointer,List<Record> recordList, boolean reachEOFClosed) throws Exception {
+	private void resultOfCommon(File file, long pointer,List<Record> recordList, boolean reachEOFClosed) throws Exception {
 
         if(commonFileConfig.getCommonFileExtractor() != null){
             RecordExtractor<File> recordExtractor = new RecordExtractor<>(file, fileConfig.getImportContext(),file);

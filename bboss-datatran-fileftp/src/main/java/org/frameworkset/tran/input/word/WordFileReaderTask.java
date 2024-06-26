@@ -96,10 +96,10 @@ public class WordFileReaderTask extends FileReaderTask {
 
 
 
-                result(file, pointer, extractor, recordList, reachEOFClosed);
+                resultOfWord(file, pointer, extractor, recordList, reachEOFClosed);
             }
             else{
-                result(file, pointer, null, recordList, reachEOFClosed);
+                resultOfWord(file, pointer, (XWPFWordExtractor)null, recordList, reachEOFClosed);
             }
             fileDataTran.appendData(new CommonData(recordList));
 			//如果设置了文件结束，及结束作业，则进行相应处理，需迁移到通道结束处进行归档和删除处理
@@ -152,7 +152,7 @@ public class WordFileReaderTask extends FileReaderTask {
 
 	}
 
-	private void result(File file, long pointer, XWPFWordExtractor extractor, List<Record> recordList, boolean reachEOFClosed) throws Exception {
+	private void resultOfWord(File file, long pointer, XWPFWordExtractor extractor, List<Record> recordList, boolean reachEOFClosed) throws Exception {
 
 
 

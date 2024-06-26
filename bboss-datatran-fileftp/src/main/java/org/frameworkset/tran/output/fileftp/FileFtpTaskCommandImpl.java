@@ -71,23 +71,30 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
 	private static Logger logger = LoggerFactory.getLogger(FileFtpTaskCommandImpl.class);
 
 	public String execute(){
-		String data = null;
-		if(this.importContext.getMaxRetry() > 0){
-			if(this.tryCount >= this.importContext.getMaxRetry())
-				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
-		}
-		this.tryCount ++;
-
-		try {
-            if(datas == null){
-                datas = buildDatas();
+        if(records != null && records.size() > 0) {
+            if (this.importContext.getMaxRetry() > 0) {
+                if (this.tryCount >= this.importContext.getMaxRetry())
+                    throw new TaskFailedException("task execute failed:reached max retry times " + this.importContext.getMaxRetry());
             }
-			fileTransfer.writeData(this,datas,getTotalSize(),taskCommandContext.getDataSize());
-			finishTask();
-		} catch (Exception e) {
-			throw ImportExceptionUtil.buildDataImportException(importContext,datas,e);
-		}
-		return data;
+            this.tryCount++;
+
+            try {
+                if (datas == null) {
+                    datas = buildDatas();
+                }
+                fileTransfer.writeData(this, datas, getTotalSize(), taskCommandContext.getDataSize());
+                
+            } catch (Exception e) {
+                throw ImportExceptionUtil.buildDataImportException(importContext, datas, e);
+            }
+        }
+        else{
+            if (logger.isInfoEnabled()){
+                logger.info("All output data is ignored and do nothing.");
+            }
+        }
+        finishTask();
+        return null;
 	}
 
 	public int getTryCount() {

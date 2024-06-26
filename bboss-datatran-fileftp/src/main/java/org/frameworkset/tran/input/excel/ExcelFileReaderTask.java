@@ -144,7 +144,7 @@ public class ExcelFileReaderTask extends FileReaderTask {
 					continue;
 				}
 				reachEOFClosed = pointer == rows - 1;
-				result(file, pointer, xssfRow, recordList, reachEOFClosed);
+                resultOfExcel(file, pointer, xssfRow, recordList, reachEOFClosed);
 				if(inputPlugin.isStopCollectData()){
 					break;
 				}
@@ -219,7 +219,7 @@ public class ExcelFileReaderTask extends FileReaderTask {
 		}
 	}
 
-	private void result(File file, long pointer, XSSFRow xssfRow, List<Record> recordList, boolean reachEOFClosed) {
+	private void resultOfExcel(File file, long pointer, XSSFRow xssfRow, List<Record> recordList, boolean reachEOFClosed) {
 		List<CellMapping> cellMappings = excelFileConfig.getCellMappingList();
 		if (cellMappings == null || cellMappings.size() == 0) {
 			throw new DataImportException("未指定cell与字段映射关系，参考文档：https://esdoc.bbossgroups.com/#/filelog-guide");

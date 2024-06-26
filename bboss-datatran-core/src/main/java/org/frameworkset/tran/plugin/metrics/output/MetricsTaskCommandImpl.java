@@ -51,14 +51,21 @@ public class MetricsTaskCommandImpl extends BaseTaskCommand<  String> {
  
 
 	public String execute(){
-		BuildMapDataContext buildMapDataContext = new BuildMapDataContext();
-		String dataTimeField = metricsOutputConfig.getDataTimeField();
-		buildMapDataContext.setDataTimeField(dataTimeField);
-        if(metricsOutputConfig.getTimeWindowType() != null)
-            buildMapDataContext.setTimeWindowType(metricsOutputConfig.getTimeWindowType());
-		for(CommonRecord commonRecord :records) {
-			BaseTranJob.map(  commonRecord,   buildMapDataContext,   metricsOutputConfig.getMetrics(),  metricsOutputConfig.isUseDefaultMapData());
-		}
+        if(records.size() > 0) {
+            BuildMapDataContext buildMapDataContext = new BuildMapDataContext();
+            String dataTimeField = metricsOutputConfig.getDataTimeField();
+            buildMapDataContext.setDataTimeField(dataTimeField);
+            if (metricsOutputConfig.getTimeWindowType() != null)
+                buildMapDataContext.setTimeWindowType(metricsOutputConfig.getTimeWindowType());
+            for (CommonRecord commonRecord : records) {
+                BaseTranJob.map(commonRecord, buildMapDataContext, metricsOutputConfig.getMetrics(), metricsOutputConfig.isUseDefaultMapData());
+            }
+        }
+        else{
+            if (logger.isInfoEnabled()){
+                logger.info("All output data is ignored and do nothing.");
+            }
+        }
 		finishTask();
 		return null;
 	}

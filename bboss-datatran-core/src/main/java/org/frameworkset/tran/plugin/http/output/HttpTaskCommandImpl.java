@@ -85,30 +85,37 @@ public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
     }
     private String datas;
 	public String execute() throws Exception {
+        String data = null;
+        if(records.size() > 0) {
 
-		if(this.importContext.getMaxRetry() > 0){
-			if(this.tryCount >= this.importContext.getMaxRetry())
-				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
-		}
-		this.tryCount ++;
-        if(datas == null){
-            datas = buildDatas();
+            if (this.importContext.getMaxRetry() > 0) {
+                if (this.tryCount >= this.importContext.getMaxRetry())
+                    throw new TaskFailedException("task execute failed:reached max retry times " + this.importContext.getMaxRetry());
+            }
+            this.tryCount++;
+            if (datas == null) {
+                datas = buildDatas();
+            }
+            try {
+               
+                if (httpOutputConfig.isDirectSendData()) {
+                    data = directSendData();
+                } else {
+                    data = unDirectSendData();
+                }
+
+                
+            } catch (Exception e) {
+                throw ImportExceptionUtil.buildDataImportException(importContext, datas, e);
+            }
         }
-		try {
-			String data = null;
-			if(httpOutputConfig.isDirectSendData()) {
-				data = directSendData();
-			}
-			else {
-				data = unDirectSendData();
-			}
-
-			finishTask();
-			return data;
-		} catch (Exception e) {
-			throw ImportExceptionUtil.buildDataImportException(importContext,datas,e);
-		}
-
+        else{
+            if (logger.isInfoEnabled()){
+                logger.info("All output data is ignored and do nothing.");
+            }
+        }
+        finishTask();
+        return data;
 	}
 	private String directSendData(){
 		String data = null;

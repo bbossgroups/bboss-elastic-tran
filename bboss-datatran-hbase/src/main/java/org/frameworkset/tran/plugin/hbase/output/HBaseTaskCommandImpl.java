@@ -132,47 +132,48 @@ public class HBaseTaskCommandImpl extends BaseTaskCommand<  String> {
 		return put;
 	}
 	public String execute(){
-		String data = null;
-		if(this.importContext.getMaxRetry() > 0){
-			if(this.tryCount >= this.importContext.getMaxRetry())
-				throw new TaskFailedException("task execute failed:reached max retry times "+this.importContext.getMaxRetry());
-		}
-		this.tryCount ++;
-		HBaseHelper hBaseHelper = null;
-		try {
+        if(records.size() > 0) {
+            if (this.importContext.getMaxRetry() > 0) {
+                if (this.tryCount >= this.importContext.getMaxRetry())
+                    throw new TaskFailedException("task execute failed:reached max retry times " + this.importContext.getMaxRetry());
+            }
+            this.tryCount++;
+            HBaseHelper hBaseHelper = null;
+            try {
 
-			hBaseHelper = HBaseHelperFactory.getHBaseHelper(hBaseOutputConfig.getName());
+                hBaseHelper = HBaseHelperFactory.getHBaseHelper(hBaseOutputConfig.getName());
 
-			List<Put> resources = new ArrayList<>();
-			for(CommonRecord dbRecord:records){
-				CommonRecord record = dbRecord;
-				Put basicDBObject = convert(dbRecord);
-				resources.add(basicDBObject);
+                List<Put> resources = new ArrayList<>();
+                for (CommonRecord dbRecord : records) {
+                    CommonRecord record = dbRecord;
+                    Put basicDBObject = convert(dbRecord);
+                    resources.add(basicDBObject);
 
-			}
-			if(resources .size() >  0) {
-				hBaseHelper.put(hBaseOutputConfig.getHbaseTable(),resources);
-				finishTask();
-			}
+                }
+                if (resources.size() > 0) {
+                    hBaseHelper.put(hBaseOutputConfig.getHbaseTable(), resources);
+                   
+                }
+                
 
+            } catch (Exception e) {
 
-		}
+                throw ImportExceptionUtil.buildDataImportException(importContext, taskInfo, e);
 
-		catch (Exception e) {
+            } catch (Throwable e) {
 
-			throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
+                throw ImportExceptionUtil.buildDataImportException(importContext, taskInfo, e);
 
-		}
-
-		catch (Throwable e) {
-
-			throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
-
-		}
-		finally {
-
-		}
-		return data;
+            } 
+            
+        }
+        else {
+            if (logger.isInfoEnabled()){
+                logger.info("All output data is ignored and do nothing.");
+            }
+        }
+        finishTask();
+        return null;
 	}
 
 	public int getTryCount() {
