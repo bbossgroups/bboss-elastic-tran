@@ -62,9 +62,7 @@ public class MetricsTaskCommandImpl extends BaseTaskCommand<  String> {
             }
         }
         else{
-            if (logger.isInfoEnabled()){
-                logger.info("All output data is ignored and do nothing.");
-            }
+            logNodatas( logger);
         }
 		finishTask();
 		return null;

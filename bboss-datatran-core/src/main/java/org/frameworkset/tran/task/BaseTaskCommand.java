@@ -18,6 +18,7 @@ package org.frameworkset.tran.task;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.schedule.Status;
@@ -52,7 +53,10 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
     public void setRecords(List<CommonRecord> records) {
         this.records = records;
     }
-
+    protected void logNodatas(Logger logger){
+        ImportExceptionUtil.loginfo(logger,importContext,"All output data is ignored and do nothing.");
+       
+    }
     public List<CommonRecord> getRecords() {
         return records;
     }

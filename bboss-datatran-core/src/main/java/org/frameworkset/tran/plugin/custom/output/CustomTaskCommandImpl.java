@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.custom.output;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
@@ -48,9 +49,8 @@ public class CustomTaskCommandImpl extends BaseTaskCommand< String> {
             customOutputConfig.getCustomOutPut().handleData(taskContext, records);
         }
         else{
-            if (logger.isInfoEnabled()){
-                logger.info("All output data is ignored and do nothing.");
-            }
+            
+            logNodatas( logger);
         }
 		finishTask();
 		return null;

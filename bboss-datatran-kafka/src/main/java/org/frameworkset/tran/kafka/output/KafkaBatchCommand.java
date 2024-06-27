@@ -81,9 +81,7 @@ public class KafkaBatchCommand extends BaseTaskCommand<  Object> {
             builder.setLength(0);
         }
         else{
-            if (logger.isInfoEnabled()){
-                logger.info("All output data is ignored and do nothing.");
-            }
+            logNodatas( logger);
         }
         finishTask();
 		 return null;

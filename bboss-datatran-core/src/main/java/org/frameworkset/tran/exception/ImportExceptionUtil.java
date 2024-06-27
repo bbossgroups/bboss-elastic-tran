@@ -17,6 +17,7 @@ package org.frameworkset.tran.exception;
 
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
+import org.slf4j.Logger;
 
 /**
  * <p>Description: </p>
@@ -43,6 +44,28 @@ public class ImportExceptionUtil {
         }
         
     }
+
+    public static void loginfo(Logger logger,ImportContext importContext, String loginfo){
+        if(logger.isInfoEnabled()) {
+            if (importContext != null) {
+                StringBuilder builder = new StringBuilder();
+                String jobName = importContext.getJobName();
+                String jobId = importContext.getJobId();
+                String jobType = importContext.getJobType();
+                builder.append("jobName=").append(jobName)
+                        .append(",jobId=").append(jobId)
+                        .append(",jobType=").append(jobType)
+                        .append(",log:").append(loginfo);
+//            return new DataImportException(builder.toString());
+
+                logger.info(builder.toString());
+
+            } else {
+                logger.info(loginfo);
+            }
+        }
+    }
+    
     public static DataImportException buildDataImportException(ImportContext importContext,String error,Throwable throwable){
         if(importContext != null) {
             StringBuilder builder = new StringBuilder();
