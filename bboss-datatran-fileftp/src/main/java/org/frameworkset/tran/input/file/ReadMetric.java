@@ -27,17 +27,37 @@ import java.util.List;
  * @Date 2024/6/26
  */
 public class ReadMetric {
+    private boolean collectStarted ;
+    private boolean enableMultiLine ;
+
     private boolean  reachEOFClosed;
     private int readLines = 0;
-
+    
 
     private long startPointer ;
     private long prePointer = 0;
 //    private boolean firstReader;
 
 
-    private boolean firstRow = true;
+    /**
+     * 多行类型记录第一行标记
+     */
+    private boolean multiFirstRow ;
+
+    /**
+     * 标记多行记录开始
+     */
+    private boolean multilineBegin;
     private List<Record> recordList;
+
+    public boolean isCollectStarted() {
+        return collectStarted;
+    }
+
+    public void setCollectStarted(boolean collectStarted) {
+        this.collectStarted = collectStarted;
+    }
+
     /**
      * 最新的行
      */
@@ -45,9 +65,15 @@ public class ReadMetric {
     public boolean isReachEOFClosed() {
         return reachEOFClosed;
     }
- 
 
-//    public void setFirstReader(boolean firstReader) {
+    public void setMultilineBegin(boolean multilineBegin) {
+        this.multilineBegin = multilineBegin;
+    }
+
+    public boolean isMultilineBegin() {
+        return multilineBegin;
+    }
+    //    public void setFirstReader(boolean firstReader) {
 //        this.firstReader = firstReader;
 //    }
 
@@ -86,12 +112,12 @@ public class ReadMetric {
  
 
 
-    public boolean isFirstRow() {
-        return firstRow;
+    public boolean isMultiFirstRow() {
+        return multiFirstRow;
     }
 
-    public void setFirstRow(boolean firstRow) {
-        this.firstRow = firstRow;
+    public void setMultiFirstRow(boolean multiFirstRow) {
+        this.multiFirstRow = multiFirstRow;
     }
 
 //    public boolean isFirstReader() {
@@ -115,5 +141,13 @@ public class ReadMetric {
 
     public void setLine(FileReaderTask.Line line) {
         this.line = line;
+    }
+
+    public boolean isEnableMultiLine() {
+        return enableMultiLine;
+    }
+
+    public void setEnableMultiLine(boolean enableMultiLine) {
+        this.enableMultiLine = enableMultiLine;
     }
 }

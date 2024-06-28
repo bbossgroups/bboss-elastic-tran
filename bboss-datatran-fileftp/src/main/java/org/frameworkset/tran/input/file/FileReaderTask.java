@@ -664,7 +664,9 @@ public class FileReaderTask extends FieldManager{
 			return eof && !eol && !fileInfo.isCloseEOF();
         }
 
-
+        public boolean isEol() {
+            return eol;
+        }
     }
     public Status getCurrentStatus() {
         return currentStatus;

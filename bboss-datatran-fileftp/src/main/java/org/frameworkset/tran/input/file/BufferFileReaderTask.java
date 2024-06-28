@@ -34,7 +34,6 @@ import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 
 import static org.frameworkset.tran.plugin.file.input.FileInputConfig.DEFAULT_BUFFER_CAPACITY;
@@ -98,7 +97,6 @@ public class BufferFileReaderTask extends FileReaderTask{
         int limit = raf.read(buffer);        
         long offset = 0l;
         int position = 0;
-//        boolean hasData = limit > 0;
         //文件结束标记
         boolean eof = limit <= 0;
         while (!eof) {            
@@ -107,6 +105,7 @@ public class BufferFileReaderTask extends FileReaderTask{
             boolean eol = false;            
             byte[] arrays = new byte[1024];
             int arrPos = 0;
+            //循环消费缓冲区的数据
             while (!eol) {
                 //没达到行尾，继续读取下一波缓存                
                 if(position >= limit){
@@ -121,13 +120,11 @@ public class BufferFileReaderTask extends FileReaderTask{
                     }
                 }
                 switch (c = buffer[position]) {
-//                    case -1:
                     case 10: //Unix or Linux line separator:
-                        eol = true;
+                        eol = true;                         
                         break;
                     case 13: //Windows or Mac line separator:
                         eol = true;
-//                    long cur = raf.getFilePointer();
                         if (position < limit - 1) {
                             byte b1 = buffer[position + 1];
                             if (b1 == 10) {// Mac line separator{
@@ -135,27 +132,11 @@ public class BufferFileReaderTask extends FileReaderTask{
                                 offset ++;
                             }
                         }
-                        /**
-                        else{
-                            long cur = startPointer + offset;
-                            if ((raf.read()) != '\n') {
-                                raf.seek(cur);
-                            }
-                            else{
-                                offset ++;
-                            }
-                        }*/
-                        
-//                        long cur = startPointer + position;
-//                        if ((raf.read()) != '\n') {
-//                            raf.seek(cur);
-//                        }
                         break;
                     default:
                         if (arrPos >= arrays.length)
                             arrays = grow(arrays);
                         arrays[arrPos++] = c;
-//                        input.append((char) c);
                         break;
                 }
                 position++;
@@ -165,24 +146,19 @@ public class BufferFileReaderTask extends FileReaderTask{
             boolean continueRead = false;
             if (c == -1) {
                 if (arrPos == 0) {
-//                    lines.add(new Line(null, true, true));
                     continueRead = lineHandler.apply(new Line(null, true, true,prePointer,startPointer+offset));
                 }
                 else {
                     if (fileInfo.isCloseEOF()) {
-//                        lines.add( new Line(decode(arrays, arrPos), true, false));
                         continueRead = lineHandler.apply(new Line(decode(arrays, arrPos), true, false,prePointer,startPointer+offset));
                     }
                     else { // 需要结束本次采集,并退回到采集开始为止
-//                        raf.seek(startPointer);
                         long rollbackPointer = readMetric.getStartPointer();
                         raf.seek(rollbackPointer);
-//                        lines.add( new Line(null, true, false));
                         continueRead = lineHandler.apply(new Line(null, true, false,rollbackPointer,rollbackPointer));
                     }
                 }
             } else {
-//                lines.add(new Line(input.toString(), false, eol));
                 long pos = startPointer+offset;
                 continueRead = lineHandler.apply(new Line(decode(arrays, arrPos), false, eol,prePointer,pos));
                 prePointer = pos;
@@ -213,8 +189,7 @@ public class BufferFileReaderTask extends FileReaderTask{
                 raf.seek(pointer);
                 this.raf = raf;
             }
-            //缓存
-            final StringBuilder builder = new StringBuilder();
+          
 //            Line line_;
 //            String line = null;
             List<Record> recordList = new ArrayList<Record>();
@@ -232,14 +207,25 @@ public class BufferFileReaderTask extends FileReaderTask{
 //                prePointer = raf.getFilePointer();
             ReadMetric readMetric = new ReadMetric();
             readMetric.setStartPointer(pointer);
+            readMetric.setEnableMultiLine(pattern != null);
             readMetric.setRecordList(recordList);
+            //缓存
+            StringBuilder tmp = null;
+            if(readMetric.isEnableMultiLine()){
+                tmp = new StringBuilder();
+            }
+            final StringBuilder builder = tmp;
             readLines(readMetric, new FileReadFunction() {
                 @Override
                 public boolean apply(Line line_) throws Exception{
+                    
 //                        reachEOFClosed = reachEOFClosed(line_);
                     readMetric.setReachEOFClosed(reachEOFClosed(line_));
                     readMetric.setLine(line_);
                     if(line_.getLine() != null) {
+                        if(!readMetric.isCollectStarted()){
+                            readMetric.setCollectStarted(true);
+                        }
                         String line = line_.getLine();
 //                            if(firstReader && skipHeaderLines > 0 && readLines < skipHeaderLines){
                         if(firstReader && skipHeaderLines > 0 && readMetric.getReadLines() < skipHeaderLines){
@@ -260,50 +246,46 @@ public class BufferFileReaderTask extends FileReaderTask{
                                 return true;
                             }
                         }
-                        //读函数中已经进行了转码处理
-                        /**
-                        if (charsetEncode != null)
-                            line = new String(line.getBytes("ISO-8859-1"), charsetEncode);
-                         */
 
-                        if (null != pattern) {//多行记录匹配模式
+                        if (readMetric.isEnableMultiLine()) {//多行记录匹配模式
                             Matcher m = pattern.matcher(line);
-                            if (m.find() && builder.length() > 0) {//下行记录行开始
-
-//                                    pointer = raf.getFilePointer();
-                                pointer = line_.getOffset();
-                                //应该使用下行记录开始的位置
-                                if(readMetric.isFirstRow()){
+                            if (m.find() ) {//下行记录行开始
+                                if (!readMetric.isMultiFirstRow()) {
 //                                        firstRow = false;
-                                    readMetric.setFirstRow(false);
-//                                        result(file, prePointer, builder.toString(), recordList,reachEOFClosed);
-                                    result(file, line_.getPrePointer(), builder.toString(), readMetric.getRecordList(),readMetric.isReachEOFClosed());
+                                    readMetric.setMultiFirstRow(true);
 
                                 }
-                                else{
-//                                        result(file, prePointer, builder.toString(), recordList,reachEOFClosed);
-                                    result(file, line_.getPrePointer(), builder.toString(), readMetric.getRecordList(),readMetric.isReachEOFClosed());
-                                }
-                                
+                                readMetric.setMultilineBegin(true);
+                                if(builder.length() > 0) {
+//                                    pointer = raf.getFilePointer();
+                                    pointer = line_.getOffset();
+                                    //应该使用下行记录开始的位置
+
+                                    result(file, line_.getPrePointer(), builder.toString(), readMetric.getRecordList(), readMetric.isReachEOFClosed());
 //                                    startPointer =  prePointer;
-                                readMetric.setStartPointer(line_.getPrePointer());
-                                //分批处理数据
-                                if (fetchSize > 0 && ( readMetric.recordSize() >= fetchSize)) {
-                                    fileDataTran.appendData(new CommonData(readMetric.getRecordList()));
-                                    try {
-                                        fetchAwaitSleep();
-                                    } catch (InterruptedException e) {
+                                    readMetric.setStartPointer(line_.getPrePointer());
+                                    //分批处理数据
+                                    if (fetchSize > 0 && (readMetric.recordSize() >= fetchSize)) {
+                                        fileDataTran.appendData(new CommonData(readMetric.getRecordList()));
+                                        try {
+                                            fetchAwaitSleep();
+                                        } catch (InterruptedException e) {
+                                            return false;
+                                        }
+//                                        recordList = new ArrayList<Record>();
+                                        readMetric.setRecordList(new ArrayList<Record>());
+                                    }
+
+                                    builder.setLength(0);
+                                    if (inputPlugin.isStopCollectData()) {
                                         return false;
                                     }
-//                                        recordList = new ArrayList<Record>();
-                                    readMetric.setRecordList(new ArrayList<Record>());
-                                }
-
-                                builder.setLength(0);
-                                if(inputPlugin.isStopCollectData()){
-                                    return false;
                                 }
                             }
+                            else{                                
+                                readMetric.setMultiFirstRow(false);
+                            }
+                           
 
                             if (builder.length() > 0) {
                                 builder.append(TranUtil.lineSeparator);
@@ -339,8 +321,16 @@ public class BufferFileReaderTask extends FileReaderTask{
 
                         }
                     }
-                    else{
-                        return false;
+                    else{//空行处理
+                        if(readMetric.getLine().isEol() && !readMetric.getLine().isEof()){
+                            if(!readMetric.isEnableMultiLine()  //单行记录模式 
+                                    || !readMetric.isCollectStarted())  //头部空行记录全部忽略
+                                pointer = line_.getOffset();
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
                     }
                     return true;
                 }
@@ -349,7 +339,8 @@ public class BufferFileReaderTask extends FileReaderTask{
             /**
              * 多行记录未结束情况处理
              */
-            if(builder.length() > 0 ){
+            
+            if(readMetric.isEnableMultiLine() && builder.length() > 0 ){
                 if(!readMetric.getLine().isRollbackPreLine(fileInfo)) {
 //                    pointer = raf.getFilePointer();
                     pointer = readMetric.getLine().getOffset();
