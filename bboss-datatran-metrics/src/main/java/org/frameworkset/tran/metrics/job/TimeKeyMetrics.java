@@ -315,6 +315,10 @@ public abstract class TimeKeyMetrics implements BaseMetrics {
 	 * 扫描达到时间窗口阈值的指标
 	 */
 	public void scanPersistentMetrics(){
+        if(logger.isDebugEnabled()) {
+            logger.debug("Scan persistent timekey metrics begin.....");
+        }
+        long start = System.currentTimeMillis();
 		Date slot = TimeUtil.addDateSeconds(new Date(),metricsConfig.getTimeWindows());
 //		final Map<String,Map<String,TimeMetric>>  persistentData = new HashMap<String,Map<String,TimeMetric>>();
 		PersistentDataHolder persistentData = new PersistentDataHolder();
@@ -375,7 +379,10 @@ public abstract class TimeKeyMetrics implements BaseMetrics {
 		finally {
 			write.unlock();
 		}
-
+        if(logger.isDebugEnabled()) {
+            long end = System.currentTimeMillis();
+            logger.debug("Scan persistent timekey metrics complete,take times:{} ms", end - start);
+        }
 
 
 	}

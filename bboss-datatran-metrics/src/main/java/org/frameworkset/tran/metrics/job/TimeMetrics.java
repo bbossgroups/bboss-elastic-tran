@@ -84,6 +84,10 @@ public abstract class TimeMetrics implements BaseMetrics{
 
 
 	public List<KeyMetric> scanPersistentMetrics(){
+        if(logger.isDebugEnabled()) {
+            logger.debug("Scan persistent time metrics begin.....");
+        }
+        long start = System.currentTimeMillis();
 		Date slot = TimeUtil.addDateSeconds(new Date(),metricsConfig.getTimeWindows());
 		final List<KeyMetric>  persistentData = new ArrayList<>();
 		read.lock();
@@ -117,6 +121,14 @@ public abstract class TimeMetrics implements BaseMetrics{
 		finally {
 			read.unlock();
 		}
+        if(logger.isDebugEnabled()) {
+            long end = System.currentTimeMillis();
+            if (persistentData != null) {
+                logger.debug("Scan persistent time metrics complete,persistent metrics:{},take times:{} ms", persistentData.size(), end - start);
+            } else {
+                logger.debug("Scan persistent time metrics complete,persistent metrics:0,take times:{} ms", end - start);
+            }
+        }
 		return persistentData;
 	}
 
