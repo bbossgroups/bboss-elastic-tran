@@ -1,5 +1,6 @@
 package org.frameworkset.tran.input.excel;
 
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -39,6 +40,7 @@ public class ExcelFileReaderTask extends FileReaderTask {
 	private static Logger logger = LoggerFactory.getLogger(ExcelFileReaderTask.class);
 	private ExcelFileConfig excelFileConfig;
 	private XSSFWorkbook sheets;
+    private OPCPackage inputStream ;
 	private XSSFSheet sheet;
 
 	public ExcelFileReaderTask(TaskContext taskContext, File file, String fileId, ExcelFileConfig fileConfig,
@@ -93,12 +95,12 @@ public class ExcelFileReaderTask extends FileReaderTask {
 			return;
 
 		try {
-			InputStream inputStream = new FileInputStream(file);
 			//获取sheet
 			//获取sheet
 //            synchronized (this){  单线程处理，无需同步处理
 
 			if (sheets == null) {
+                inputStream = OPCPackage.open(file);
 				sheets = new XSSFWorkbook(inputStream);
 				sheet = sheets.getSheetAt(excelFileConfig.getSheet());
 
@@ -208,11 +210,19 @@ public class ExcelFileReaderTask extends FileReaderTask {
 	}
 
 	public void destroy() {
+        if(inputStream != null){
+            try {
+                inputStream.close();
+                inputStream = null;
+            } catch (IOException e) {
+//                throw new RuntimeException(e);
+            }
+        }
 		if (sheets != null) {
 			try {
 				sheets.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+//				e.printStackTrace();
 			}
 			sheets = null;
 			sheet = null;
