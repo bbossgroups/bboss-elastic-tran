@@ -1,5 +1,6 @@
 package org.frameworkset.tran.input.word;
 
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.frameworkset.tran.BaseDataTran;
@@ -82,7 +83,7 @@ public class WordFileReaderTask extends FileReaderTask {
 		InputPlugin inputPlugin = dataTranPlugin.getInputPlugin();
 		if (taskEnded || inputPlugin.isStopCollectData())
 			return;
-        FileInputStream fis = null;
+        OPCPackage fis = null;
         XWPFDocument document = null;
 
         try {
@@ -90,7 +91,7 @@ public class WordFileReaderTask extends FileReaderTask {
             List<Record> recordList = new ArrayList<Record>();
             reachEOFClosed = true;
             if(pointer > 0) {
-                fis = new FileInputStream(file);
+                fis = OPCPackage.open(file);
                 document = new XWPFDocument(fis);
                 XWPFWordExtractor extractor = new XWPFWordExtractor(document);
 
