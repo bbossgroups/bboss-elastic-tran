@@ -21,6 +21,7 @@ import org.frameworkset.tran.DataImportException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>Description: </p>
@@ -31,7 +32,7 @@ import java.util.Map;
  * @version 1.0
  */
 public class HttpProxyHelper {
-	private static Map<String, HttpConfigClientProxy> configDSLUtils = new LinkedHashMap<>();
+	private static Map<String, HttpConfigClientProxy> configDSLUtils = new ConcurrentHashMap<>();
 	public static HttpConfigClientProxy getHttpConfigClientProxy(String configDSLFile){
 		HttpConfigClientProxy httpConfigClientProxy = configDSLUtils.get(configDSLFile);
 		if(httpConfigClientProxy != null)

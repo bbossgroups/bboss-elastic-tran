@@ -25,6 +25,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>Description: </p>
@@ -239,7 +240,7 @@ public class TimeUtil {
     }
     private static DateTimeFormatter dateTimeFormatter;
     private static DateTimeFormatter dateTimeFormatterDefault = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'");
-    private static Map<String,DateTimeFormatter> dateTimeFormatterMap = new LinkedHashMap<>();
+    private static Map<String,DateTimeFormatter> dateTimeFormatterMap = new ConcurrentHashMap<>();
     private static Object lock = new Object();
     public static DateTimeFormatter getDateTimeFormatter(){
         if(dateTimeFormatter != null){

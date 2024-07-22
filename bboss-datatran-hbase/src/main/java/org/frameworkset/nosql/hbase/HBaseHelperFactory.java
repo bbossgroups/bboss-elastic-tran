@@ -15,6 +15,7 @@ package org.frameworkset.nosql.hbase;
  * limitations under the License.
  */
 
+import java.util.concurrent.ConcurrentHashMap;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.plugin.hbase.HBasePluginConfig;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ import java.util.Map;
  */
 public class HBaseHelperFactory {
 	private static Logger logger = LoggerFactory.getLogger(HBaseHelperFactory.class);
-	private static Map<String,HBaseHelper> hBaseHelperMap = new HashMap<>();
+	private static Map<String,HBaseHelper> hBaseHelperMap = new ConcurrentHashMap();
 	public static HBaseHelper getHBaseHelper(String name){
 		return hBaseHelperMap.get(name);
 	}

@@ -176,8 +176,10 @@ public class TaskContext {
 		return importContext;
 	}
 	public synchronized void release(){
-		this.taskDatas.clear();
-		this.taskDatas = null;
+        if(taskDatas != null) {
+            this.taskDatas.clear();
+            this.taskDatas = null;
+        }
 	}
 
 

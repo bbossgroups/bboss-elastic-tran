@@ -133,7 +133,7 @@ public class GeoIPFilter {
               sleep(60000l);//延迟60秒关闭老对象
 
             } catch (InterruptedException e) {
-              e.printStackTrace();
+              
             }
             if(temp != null) {
               try {
@@ -172,7 +172,7 @@ public class GeoIPFilter {
               sleep(60000l);//延迟60秒关闭老对象
 
             } catch (InterruptedException e) {
-              e.printStackTrace();
+              
             }
             if(temp != null) {
               try {

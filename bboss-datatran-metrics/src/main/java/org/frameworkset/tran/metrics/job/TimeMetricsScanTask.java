@@ -36,17 +36,7 @@ public class TimeMetricsScanTask extends Thread{
 	}
 
 
-	//	/**
-//	 * 强制将指标持久化
-//	 */
-//	public synchronized void forceFlush(boolean cleanMetricsKey){
-//		Map<String, Map<String,TimeMetric>> persistentMetrics = metrics.scanPersistentMetrics(true);
-//		if(persistentMetrics.size() > 0)
-//			metricsPersistent.persistent(metrics,persistentMetrics);
-//		if(cleanMetricsKey){
-//			metrics.cleanMetrics();
-//		}
-//	}
+
     private boolean started;
     public void start(){
         super.start();

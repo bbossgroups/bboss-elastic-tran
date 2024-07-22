@@ -150,25 +150,7 @@ public abstract class BaseDataTran implements DataTran{
 	 */
 	public void stop(boolean fromException){
         innerStop( fromException, false);
-//        if(dataTranStopped)
-//            return;
-//        synchronized (stopLock){
-//            if(dataTranStopped)
-//                return;
-//            dataTranStopped = true;
-//        }
-//		if(asynTranResultSet != null) {
-//			asynTranResultSet.stop(fromException);
-////            asynTranResultSet.clearQueue();
-//			asynTranResultSet = null;
-//		}
-//		if(breakableScrollHandler != null) {
-//			breakableScrollHandler.setBreaked(true);
-//		}
-////		importContext.finishAndWaitTran();
-//
-//        if(logger.isInfoEnabled())
-//            logger.info("DataTran load data completed.");
+
 
 	}
 
@@ -196,25 +178,6 @@ public abstract class BaseDataTran implements DataTran{
     }
 
     public void stop2ndClearResultsetQueue(boolean fromException){
-//        if(dataTranStopped)
-//            return;
-//        synchronized (stopLock){
-//            if(dataTranStopped)
-//                return;
-//            dataTranStopped = true;
-//        }
-//        if(asynTranResultSet != null) {
-//            asynTranResultSet.stop(fromException);
-//            asynTranResultSet.clearQueue();
-//            asynTranResultSet = null;
-//        }
-//        if(breakableScrollHandler != null) {
-//            breakableScrollHandler.setBreaked(true);
-//        }
-////		importContext.finishAndWaitTran();
-//
-//        if(logger.isInfoEnabled())
-//            logger.info("DataTran load data completed.");
 
         innerStop( fromException, true);
 
