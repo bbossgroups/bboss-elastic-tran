@@ -37,7 +37,7 @@ import java.io.File;
  * @Date 2024/8/9
  */
 public class MinioSendFileFunction implements SendFileFunction{
-    private Logger logger = LoggerFactory.getLogger(FtpSendFileFunction.class);
+    private Logger logger = LoggerFactory.getLogger(MinioSendFileFunction.class);
     private FileOutputConfig fileOutputConfig;
     private MinioStartResult minioStartResult;
     private Minio minio ;
