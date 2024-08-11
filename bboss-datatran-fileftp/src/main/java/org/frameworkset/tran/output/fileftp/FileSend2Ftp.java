@@ -40,8 +40,8 @@ public class FileSend2Ftp {
 		if(remoteFileChannel == null) {
 			remoteFileChannel = new RemoteFileChannel();
 			//用远程文件路径作为线程池名称
-			remoteFileChannel.setThreadName("FileSend2Ftp");
-			remoteFileChannel.setWorkThreads(fileOutputConfig.getFtpOutConfig().getSendFileAsynWorkThreads());
+			remoteFileChannel.setThreadName(fileOutputConfig.getFileSendThreadName());
+			remoteFileChannel.setWorkThreads(fileOutputConfig.getSendFileAsynWorkThreads());
 			remoteFileChannel.init();
 		}
 	}

@@ -37,15 +37,17 @@ public class FileOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 	private FailedResend failedResend;
 	private SuccessFilesClean successFilesClean;
 	private FileSend2Ftp fileSend2Ftp;
+    private FileOutputConfig fileOutputConfig;
 	public FileOutputDataTranPlugin(ImportContext importContext){
 		super(importContext);
-
+        fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
 	}
 
 	@Override
 	public void afterInit() {
 		FileOutputConfig fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
-		if(!fileOutputConfig.isDisableftp() && fileOutputConfig.getFtpOutConfig() != null) {
+        boolean initSendFile = !fileOutputConfig.isDisableftp() && (fileOutputConfig.getFtpOutConfig() != null || fileOutputConfig.getMinioFileConfig() != null);
+		if(initSendFile) {
 
 			if(fileOutputConfig.getFailedFileResendInterval() > 0) {
 				if (failedResend == null) {
@@ -103,6 +105,9 @@ public class FileOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 		if(fileSend2Ftp != null){
 			fileSend2Ftp.destroy();
 		}
+        if(fileOutputConfig != null){
+            fileOutputConfig.shutdown();
+        }
 	}
 
 	public FileSend2Ftp getFileSend2Ftp() {

@@ -85,7 +85,7 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
                 fileTransfer.writeData(this, datas, getTotalSize(), taskCommandContext.getDataSize());
                 
             } catch (Exception e) {
-                throw ImportExceptionUtil.buildDataImportException(importContext, datas, e);
+                throw ImportExceptionUtil.buildDataImportException(importContext, "发送数据失败", e);
             }
         }
         else{

@@ -15,6 +15,7 @@ package org.frameworkset.tran.output.fileftp;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.databind.DatabindException;
 import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.soa.BBossStringWriter;
@@ -104,28 +105,7 @@ public class FileTransfer {
 
     public long getMaxForceFileThresholdInterval() {
         return maxForceFileThresholdInterval;
-    }
-
-    /**
-	public void initFtp(String remoteFilePath){
-		if(!fileOupputConfig.isDisableftp()) {
-			this.remoteFilePath = remoteFilePath;
-			transferFailedFile = SimpleStringUtil.getPath(fileOupputConfig.getFileDir(), "transferFailedFileDir/" + file.getName());
-			File path = new File(transferFailedFile).getParentFile();
-			if (!path.exists())
-				path.mkdirs();
-
-			transferSuccessFile = SimpleStringUtil.getPath(fileOupputConfig.getFileDir(), "transferSuccessFileDir/" + file.getName());
-			path = new File(transferSuccessFile).getParentFile();
-			if (!path.exists())
-				path.mkdirs();
-		}
-	}
-	public void initTransfer() throws IOException {
-
-		fw = new FileWriter(file);
-		bw = new BufferedWriter(fw,buffsize);
-	}*/
+    }   
 
 	protected void initTransfer() throws IOException {
         if(!file.exists())
@@ -218,8 +198,12 @@ public class FileTransfer {
 
                     if(splitFile) {
                         logger.info("Reach Max Force File Threshold[{}ms]: do force send file.",maxForceFileThreshold);
-                        this.sendFile();
-                        reset();
+                        try {
+                            this.sendFile();
+                        }
+                        finally {
+                            reset();
+                        }
                     }
                     else{
                         if(sended || !init)
@@ -259,19 +243,25 @@ public class FileTransfer {
                     dataSize = 1L;
                 records.increamentUnSynchronized(dataSize);
             }
-
+            if(bw == null){
+                logger.error("bw is null");
+                throw new DataImportException("bw is null") ;
+            }
             bw.write(data);
             this.lastWriteDataTime = System.currentTimeMillis();
             if (maxFileRecordSize > 0L) {
                 boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
                 if (reachMaxedSize) {
-                    sendFile();
-                    reset();
+                    try {
+                        sendFile();
+                    }
+                    finally {
+                        reset();    
+                    }
+                    
                 }
             }
-//            else {
-//                bw.write(data);
-//            }
+
         }
         finally {
             transferLock.unlock();
@@ -348,18 +338,23 @@ public class FileTransfer {
 					try {
 						if (_file.length() <= 0) {
 							if (fileOutputConfig.transferEmptyFiles()) {
+                                /**
 								if (fileOutputConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
 									FtpTransfer.sendFile(fileOutputConfig, _filePath, _remoteFilePath);
 								} else {
 									SFTPTransfer.sendFile(fileOutputConfig, _filePath);
 								}
+                                 */
+                                fileOutputConfig.getSendFileFunction().sendFile(fileOutputConfig,_filePath,_remoteFilePath,false);
 							}
 						} else {
+                            /**
 							if (fileOutputConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
 								FtpTransfer.sendFile(fileOutputConfig, _filePath, _remoteFilePath);
 							} else {
 								SFTPTransfer.sendFile(fileOutputConfig, _filePath);
-							}
+							}*/
+                            fileOutputConfig.getSendFileFunction().sendFile(fileOutputConfig,_filePath,_remoteFilePath,false);
 						}
 						try {
 							if (fileOutputConfig.backupSuccessFiles())

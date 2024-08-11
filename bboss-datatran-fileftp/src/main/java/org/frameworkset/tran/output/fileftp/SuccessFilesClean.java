@@ -41,7 +41,7 @@ public class SuccessFilesClean{
 
 	}
 	public void start(){
-		FileCleanThread fileCleanThread = new FileCleanThread("SuccessFTPFilesClean-Thread",
+		FileCleanThread fileCleanThread = new FileCleanThread("SuccessFilesClean-Thread",
 				transferSuccessFileDir,
 				fileOutputConfig.getSuccessFilesCleanInterval(),
 				fileOutputConfig.getFileLiveTime() * 1000L);

@@ -16,6 +16,7 @@ package org.frameworkset.tran.output.ftp;
  */
 
 import org.frameworkset.tran.ftp.FtpConfig;
+import org.frameworkset.tran.output.BaseRemoteConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,40 +29,12 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FtpOutConfig {
+public class FtpOutConfig extends BaseRemoteConfig {
  
-	private boolean backupSuccessFiles;
-	private boolean transferEmptyFiles;
+	
 	private List<String> hostKeyVerifiers;
 	private int transferProtocol = FtpConfig.TRANSFER_PROTOCOL_SFTP;
-	/**
-	 * 异步发送文件，默认同步发送
-	 * true 异步发送 false同步发送
-	 */
-	private boolean sendFileAsyn;
-	private int sendFileAsynWorkThreads = 10;
-	/**
-	 * 单位：毫秒,默认1分钟
-	 * @return
-	 */
-	public long getSuccessFilesCleanInterval() {
-		return successFilesCleanInterval;
-	}
-
-	public FtpOutConfig setSuccessFilesCleanInterval(long successFilesCleanInterval) {
-		this.successFilesCleanInterval = successFilesCleanInterval;
-		return  this;
-	}
-
-	/**
-	 * 单位：毫秒,默认1分钟
-	 * 小于等于0时禁用归档功能
-	 */
-	private long successFilesCleanInterval = 60000;
-	/**
-	 * 单位：秒,默认2天
-	 */
-	private int fileLiveTime = 86400*2;
+	
 	public FtpOutConfig addHostKeyVerifier(String hostKeyVerifier) {
 		if(hostKeyVerifiers  == null){
 			this.hostKeyVerifiers = new ArrayList<String>();
@@ -119,16 +92,7 @@ public class FtpOutConfig {
 
 	private Boolean useEpsvWithIPv4;
 	private String remoteFileDir;
-	private long failedFileResendInterval = 300000l;
-
-	public FtpOutConfig setFailedFileResendInterval(long failedFileResendInterval) {
-		this.failedFileResendInterval = failedFileResendInterval;
-		return  this;
-	}
-
-	public long getFailedFileResendInterval() {//300000l
-		return failedFileResendInterval;
-	}
+	
 	public String getFtpProtocol() {
 		return ftpProtocol;
 	}
@@ -313,59 +277,6 @@ public class FtpOutConfig {
 		return  this;
 	}
 
-	public boolean isBackupSuccessFiles() {
-		return backupSuccessFiles;
-	}
-
-	public FtpOutConfig setBackupSuccessFiles(boolean backupSuccessFiles) {
-		this.backupSuccessFiles = backupSuccessFiles;
-		return  this;
-	}
-
-	public boolean isTransferEmptyFiles() {
-		return transferEmptyFiles;
-	}
-
-	public FtpOutConfig setTransferEmptyFiles(boolean transferEmptyFiles) {
-		this.transferEmptyFiles = transferEmptyFiles;
-		return  this;
-	}
-
-
-	public int getFileLiveTime() {
-		return fileLiveTime;
-	}
-
-	/**
-	 * 单位：秒
-	 * @param fileLiveTime
-	 * @return
-	 */
-
-	public FtpOutConfig setFileLiveTime(int fileLiveTime) {
-		this.fileLiveTime = fileLiveTime;
-		return this;
-	}
-	public boolean isSendFileAsyn() {
-		return sendFileAsyn;
-	}
-	/**
-	 * 设置是否异步发送文件，默认同步发送
-	 * true 异步发送 false同步发送
-	 */
-	public FtpOutConfig setSendFileAsyn(boolean sendFileAsyn) {
-		this.sendFileAsyn = sendFileAsyn;
-		return this;
-	}
-
-	public int getSendFileAsynWorkThreads() {
-		return sendFileAsynWorkThreads;
-	}
-
-	public FtpOutConfig setSendFileAsynWorkThreads(int sendFileAsynWorkThreads) {
-		this.sendFileAsynWorkThreads = sendFileAsynWorkThreads;
-		return this;
-	}
 
 	public long getSocketTimeout() {
 		return socketTimeout;

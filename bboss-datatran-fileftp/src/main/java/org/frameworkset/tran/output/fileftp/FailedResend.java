@@ -65,20 +65,26 @@ public class FailedResend extends StoppedThread{
 						String remoteFilePath = SimpleStringUtil.getPath(fileOutputConfig.getRemoteFileDir(), file.getName());
 						if (file.length() <= 0) {
 							if (fileOutputConfig.transferEmptyFiles()) {
+                                /**
 								if (fileOutputConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
 									FtpTransfer.sendFile(fileOutputConfig, file.getPath(), remoteFilePath);
 								} else {
 									SFTPTransfer.sendFile(fileOutputConfig, file.getPath());
 								}
+                                 */
+                                fileOutputConfig.getSendFileFunction().sendFile(fileOutputConfig,file.getPath(),remoteFilePath,true);
 							}
 						} else {
+                            /**
 							if (fileOutputConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
 
 								FtpTransfer.sendFile(fileOutputConfig, file.getPath(), remoteFilePath);
 							} else {
 								SFTPTransfer.sendFile(fileOutputConfig, file.getPath());
 							}
-							logger.error("Resend file "+ file.getPath() + " to " + remoteFilePath + " complete.");
+                             */
+                            fileOutputConfig.getSendFileFunction().sendFile(fileOutputConfig,file.getPath(),remoteFilePath,true);
+							logger.info("Resend file "+ file.getPath() + " to " + remoteFilePath + " complete.");
 						}
 						if (fileOutputConfig.backupSuccessFiles()) {
 							String transferSuccessFile = SimpleStringUtil.getPath(transferSuccessFileDir, file.getName());
@@ -86,7 +92,7 @@ public class FailedResend extends StoppedThread{
 						} else {
 							FileUtil.deleteFile(file.getPath());
 						}
-						logger.error("Resend file "+ file.getPath() + " success.");
+						logger.info("Resend file "+ file.getPath() + " success.");
 					}
 					catch (Exception e){
 						logger.error("Resend file "+ file.getPath() + " failed:",e);

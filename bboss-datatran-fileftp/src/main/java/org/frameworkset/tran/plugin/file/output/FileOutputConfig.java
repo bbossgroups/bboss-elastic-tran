@@ -28,7 +28,10 @@ import org.frameworkset.tran.ftp.FtpContext;
 import org.frameworkset.tran.ftp.RemoteFileValidate;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
+import org.frameworkset.tran.input.file.FilelogPluginException;
 import org.frameworkset.tran.input.file.FtpFileFilter;
+import org.frameworkset.tran.output.BaseRemoteConfig;
+import org.frameworkset.tran.output.minio.MinioFileConfig;
 import org.frameworkset.tran.output.fileftp.FileSend2Ftp;
 import org.frameworkset.tran.output.fileftp.FilenameGenerator;
 import org.frameworkset.tran.output.ftp.FtpOutConfig;
@@ -56,6 +59,9 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
     private static Logger logger = LoggerFactory.getLogger(FileOutputConfig.class);
 	private FtpOutConfig ftpOutConfig;
 	private FileSend2Ftp fileSend2Ftp;
+    private MinioFileConfig minioFileConfig;
+    private BaseRemoteConfig baseRemoteConfig;
+    
 	public final static String JobExecutorDatas_genFileInfos = "jobExecutorDatas.fileFtpOutPut.genFileInfos";
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.kafka.output.fileftp.ReocordGenerator
@@ -94,6 +100,9 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	 */
 	private boolean enableGenFileInfoMetric;
 
+    private String lineSeparator;
+
+    private SendFileFunction sendFileFunction;
 
 	public String getLineSeparator() {
 		return lineSeparator;
@@ -104,9 +113,11 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 		return this;
 	}
 
-	private String lineSeparator;
+    public MinioFileConfig getMinioFileConfig() {
+        return minioFileConfig;
+    }
 
-	@Override
+    @Override
 	public boolean deleteRemoteFile() {
 		return false;
 	}
@@ -119,7 +130,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 		return fileDir;
 	}
 	public long getFailedFileResendInterval() {//300000l
-		return ftpOutConfig.getFailedFileResendInterval();
+		return baseRemoteConfig.getFailedFileResendInterval();
 	}
 	public String generateFileName(TaskContext taskContext, int fileSeq){
 		return getFilenameGenerator().genName(   taskContext,fileSeq);
@@ -131,7 +142,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 		getRecordGenerator().buildRecord(  taskContext, record,  builder);
 	}
 	public int getFileLiveTime() {
-		return ftpOutConfig.getFileLiveTime();
+		return baseRemoteConfig.getFileLiveTime();
 	}
 	@Override
 	public RemoteFileValidate getRemoteFileValidate() {
@@ -227,9 +238,22 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
-		if(ftpOutConfig == null){
+		if(ftpOutConfig == null && minioFileConfig == null){
 			disableftp = true;
 		}
+        else if(ftpOutConfig != null && minioFileConfig != null){
+            throw new FilelogPluginException("不能同时进行ftp配置和minio配置。");
+        }
+        else if(ftpOutConfig != null){
+            baseRemoteConfig = ftpOutConfig;
+            sendFileFunction = new FtpSendFileFunction(this);
+            sendFileFunction.init();
+        }
+        else if(minioFileConfig != null){
+            baseRemoteConfig = minioFileConfig;
+            sendFileFunction = new MinioSendFileFunction(this);
+            sendFileFunction.init();
+        }
 
 //		if(getMaxFileRecordSize() == 0){//默认1万条记录一个文件
 //			setMaxFileRecordSize(50000);
@@ -251,8 +275,19 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
         }
 
 	}
+    
+    public void shutdown(){
+        if(sendFileFunction != null){
+            sendFileFunction.close();
+        }
+    }
+    
 
-	@Override
+    public SendFileFunction getSendFileFunction() {
+        return sendFileFunction;
+    }
+
+    @Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
 		return new FileOutputDataTranPlugin(importContext);
 	}
@@ -332,11 +367,11 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	}
 
 	public boolean backupSuccessFiles(){
-		return ftpOutConfig.isBackupSuccessFiles();
+		return baseRemoteConfig.isBackupSuccessFiles();
 	}
 	public boolean transferEmptyFiles(){
-		if(ftpOutConfig != null) {
-			return ftpOutConfig.isTransferEmptyFiles();
+		if(baseRemoteConfig != null) {
+			return baseRemoteConfig.isTransferEmptyFiles();
 		}
 		else {
 			return false;
@@ -353,7 +388,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 
 
 	public long getSuccessFilesCleanInterval(){
-		return ftpOutConfig.getSuccessFilesCleanInterval();
+		return baseRemoteConfig.getSuccessFilesCleanInterval();
 	}
 
 	/**
@@ -385,7 +420,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	}
 
 	public boolean isSendFileAsyn() {
-		return ftpOutConfig != null && ftpOutConfig.isSendFileAsyn();
+		return baseRemoteConfig != null && baseRemoteConfig.isSendFileAsyn();
 
 
 
@@ -424,5 +459,23 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
     public FileOutputConfig setMaxForceFileThresholdInterval(long maxForceFileThresholdInterval) {
         this.maxForceFileThresholdInterval = maxForceFileThresholdInterval;
         return this;
+    }
+
+    public FileOutputConfig setMinioFileConfig(MinioFileConfig minioFileConfig) {
+        this.minioFileConfig = minioFileConfig;
+        return this;
+    }
+
+    public int getSendFileAsynWorkThreads() {
+        return baseRemoteConfig.getSendFileAsynWorkThreads();
+    }
+    
+    public String getFileSendThreadName(){
+        if(ftpOutConfig != null){
+            return "FileSend2Ftp";
+        }
+        else {
+            return "FileSend2Minio";
+        }
     }
 }

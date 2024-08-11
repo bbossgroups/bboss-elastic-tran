@@ -57,7 +57,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
             oldName = name;
 
 			String fileName = SimpleStringUtil.getPath(path, name);
-			String remoteFileName = !fileOutputConfig.isDisableftp() ? SimpleStringUtil.getPath(fileOutputConfig.getRemoteFileDir(), name) : null;
+			String remoteFileName = fileOutputConfig.getSendFileFunction().getRemoteFilePath(name);//!fileOutputConfig.isDisableftp() ? SimpleStringUtil.getPath(fileOutputConfig.getRemoteFileDir(), name) : null;
             synchronized (resetFileSeqLock) {
                 fileSeq++;
             }
@@ -145,16 +145,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
                 }
                 return taskCommandContext.getTaskNo();
-//				if(datas != null) {
-//					taskNo++;
-//                    List<CommonRecord> records = convertDatas( datas);
-//					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
-//							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus, taskContext);
-//					taskCommand.setRecords(records);
-//					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
-//
-//				}
-//				return taskNo;
+
 			}
 
 			@Override
@@ -186,16 +177,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
                 }
                 return taskCommandContext.getTaskNo();
-//				if(datas != null) {
-//					taskNo++;
-//                    List<CommonRecord> records = convertDatas( datas);
-//					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
-//							dataSize, taskNo, taskContext.getJobNo(), fileTransfer, lastValue, currentStatus,  taskContext);
-//					taskCommand.setRecords(records);
-//					TaskCall.call(taskCommand);
-//
-//				}
-//				return taskNo;
+
 			}
 
 			@Override
@@ -213,17 +195,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
                 }
                 sendFile();
                 return taskCommandContext.getTaskNo();
-//				if(datas != null) {
-//					taskNo ++;
-//                    List<CommonRecord> records = convertDatas( datas);
-//					FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(totalCount, importContext,
-//							dataSize, taskNo, taskContext.getJobNo(), fileTransfer,lastValue,  currentStatus,taskContext);
-//
-//					taskCommand.setRecords(records);
-//					TaskCall.call(taskCommand);
-//				}
-//				sendFile();
-//				return taskNo;
+
 			}
 
 			@Override
@@ -257,32 +229,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
             fileTransfer.close();
             fileTransfer = null;
         }
-
-//		try {
-//			String ret = super.tran();
-//			fileTransfer.close();
-//			fileTransfer = null;
-//			return ret;
-//		}
-//		catch (DataImportException dataImportException){
-//			if(this.countDownLatch != null)
-//				countDownLatch.attachException(dataImportException);
-//			throw dataImportException;
-//		}
-//		catch (Exception dataImportException){
-//			if(this.countDownLatch != null)
-//				countDownLatch.attachException(dataImportException);
-//			throw new DataImportException(dataImportException);
-//		}
-//		catch (Throwable dataImportException){
-//			if(this.countDownLatch != null)
-//				countDownLatch.attachException(dataImportException);
-//			throw new DataImportException(dataImportException);
-//		}
-//		finally {
-//			if(this.countDownLatch != null)
-//				countDownLatch.countDown();
-//		}
+        
 	}
 	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,Status currentStatus) {
 		super(taskContext,jdbcResultSet,importContext,   currentStatus);
@@ -318,10 +265,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	 */
 	@Override
 	public String parallelBatchExecute( ) {
-        /**
-		if (!fileOutputConfig.isDisableftp()) {
-			return batchExecute();
-		}*/
+
 		return super.parallelBatchExecute() ;
 	}
 
@@ -336,7 +280,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 
 	protected void sendFile(){
-			fileTransfer.sendFile2ndStopCheckers();
+        fileTransfer.sendFile2ndStopCheckers();
 	}
     @Override
     public void stop(boolean fromException){

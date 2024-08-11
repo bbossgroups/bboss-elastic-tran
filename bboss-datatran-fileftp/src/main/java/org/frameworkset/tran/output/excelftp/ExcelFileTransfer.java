@@ -71,8 +71,12 @@ public class ExcelFileTransfer extends FileTransfer {
             if (maxFileRecordSize > 0L) {
                 boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
                 if (reachMaxedSize) {
-                    sendFile();
-                    reset();
+                    try {
+                        sendFile();
+                    }
+                    finally {
+                        reset();
+                    }
                 }
             }
         }
