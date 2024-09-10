@@ -1,5 +1,5 @@
 # bboss-datatran简介
-Bboss is a good elasticsearch Java rest client and etl&stream metrics tool.
+Bboss is a [Elasticsearch Java rest client](https://esdoc.bbossgroups.com/#/quickstart) ,a [Etl engine](https://esdoc.bbossgroups.com/#/db-es-tool) ,a [Batch/Stream Metrics tool](https://esdoc.bbossgroups.com/#/etl-metrics).
 
 <https://esdoc.bbossgroups.com/#/README>
 
