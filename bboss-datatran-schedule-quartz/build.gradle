@@ -29,8 +29,8 @@ dependencies {
 	api (project(':bboss-datatran-core'))
 	compileOnly "com.bbossgroups:bboss-schedule:${PROJ_BBOSS_VERSION}"
 	testImplementation (
-
-			[group: 'mysql', name: 'mysql-connector-java', version: "${mysqlconnectorversion}", transitive: false]
+            [group: 'com.mysql', name: 'mysql-connector-j', version: "${mysqlconnectorversion}", transitive: false],
+//			[group: 'mysql', name: 'mysql-connector-java', version: "${mysqlconnectorversion}", transitive: false]
 	)
 
 }

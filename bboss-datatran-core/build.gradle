@@ -30,7 +30,8 @@ dependencies {
 	api (project(':bboss-datatran-metrics'))
 	testImplementation (
 			[group: 'org.xerial', name: 'sqlite-jdbc', version: "3.45.1.0", transitive: false],
-			[group: 'mysql', name: 'mysql-connector-java', version: "${mysqlconnectorversion}", transitive: false]
+//			[group: 'mysql', name: 'mysql-connector-java', version: "${mysqlconnectorversion}", transitive: false]
+            [group: 'com.mysql', name: 'mysql-connector-j', version: "${mysqlconnectorversion}", transitive: false],
 	)
 
 }
