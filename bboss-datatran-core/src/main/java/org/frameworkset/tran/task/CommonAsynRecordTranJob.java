@@ -21,6 +21,8 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.ParallImportCount;
+import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.metrics.TaskMetricsUtil;
 import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.record.WrappedRecord;
 import org.frameworkset.tran.schedule.Status;
@@ -65,6 +67,7 @@ public class CommonAsynRecordTranJob extends CommonRecordTranJob{
 //        ExecutorService buildRecordHandlerExecutor = importContext.buildRecordHandlerExecutor();
 		List<Future> tasks = new ArrayList<Future>();
 		int taskNo = 0;
+        TaskMetrics taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
 		ImportCount totalCount = new ParallImportCount();
         Throwable exception = null;
         LastValueWrapper currentLastValueWrapper = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
@@ -103,11 +106,13 @@ public class CommonAsynRecordTranJob extends CommonRecordTranJob{
                         taskCommandContext.setTranErrorWrapper(tranErrorWrapper);
                         taskCommandContext.setIgnoreCount(ignoreCount);
                         taskCommandContext.setImportContext(importContext);
+                        taskCommandContext.setTaskMetrics(taskMetrics);
 						count = 0;
                         droped = 0;
                         ignoreCount = 0;
                        
 						taskNo = parrelTranCommand.hanBatchActionTask(taskCommandContext);
+                        taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
                         if (baseDataTran.isPrintTaskLog()) {
                             end = System.currentTimeMillis();
                             StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
@@ -175,10 +180,12 @@ public class CommonAsynRecordTranJob extends CommonRecordTranJob{
                     taskCommandContext.setTranErrorWrapper(tranErrorWrapper);
                     taskCommandContext.setIgnoreCount(ignoreCount);
                     taskCommandContext.setImportContext(importContext);
+                    taskCommandContext.setTaskMetrics(taskMetrics);
 					count = 0;
                     droped = 0;
                     ignoreCount = 0;
 					taskNo = parrelTranCommand.hanBatchActionTask(taskCommandContext);
+                    taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
 					records = new ArrayList<>();
 
 				}
@@ -203,6 +210,7 @@ public class CommonAsynRecordTranJob extends CommonRecordTranJob{
                 taskCommandContext.setTranErrorWrapper(tranErrorWrapper);
                 taskCommandContext.setIgnoreCount(ignoreCount);
                 taskCommandContext.setImportContext(importContext);
+                taskCommandContext.setTaskMetrics(taskMetrics);
 				taskNo = parrelTranCommand.hanBatchActionTask(taskCommandContext);
 
 			}

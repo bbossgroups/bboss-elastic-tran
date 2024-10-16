@@ -96,7 +96,7 @@ public class TimeMetricHolder extends BaseKeyMetrics{
 		}
 		if(keyMetric == null){
 			keyMetric =  metricBuilder.build();
-
+            keyMetric.setMetricsLogAPI(timeMetrics.getMetricsLogAPI());
 			initKeyMetric(keyMetric,data,metricsKey);
 
 			isFull = !keyMetricsContainerTemp.putKeyMetric(metricsKey,keyMetric);

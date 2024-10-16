@@ -16,6 +16,7 @@ package org.frameworkset.tran.record;
  */
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.metrics.BaseMetricsLogReport;
 import org.frameworkset.tran.schedule.TaskContext;
 
 
@@ -26,7 +27,7 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @author biaoping.yin
  * @Date 2024/5/16
  */
-public class RecordBuidlerContext<T> {
+public class RecordBuidlerContext<T> extends BaseMetricsLogReport {
     private TaskContext taskContext;
     private ImportContext importContext;
     private T resultSet;
@@ -53,5 +54,33 @@ public class RecordBuidlerContext<T> {
 
     public void setResultSet(T resultSet) {
         this.resultSet = resultSet;
+    }
+
+    /**
+     * 记录作业处理过程中的异常日志
+     *
+     * @param msg
+     * @param e
+     */
+    public void reportJobMetricErrorLog(  String msg, Throwable e) {
+        dataTranPlugin.reportJobMetricErrorLog(  taskContext, msg, e);
+    }
+
+    /**
+     * 记录作业处理过程中的日志
+     *
+     * @param msg
+     */
+    public void reportJobMetricLog(  String msg) {
+        dataTranPlugin.reportJobMetricLog(taskContext, msg);
+    }
+
+    /**
+     * 记录作业处理过程中的警告日志
+     *
+     * @param msg
+     */
+    public void reportJobMetricWarn(  String msg) {
+        dataTranPlugin.reportJobMetricWarn(taskContext, msg);
     }
 }

@@ -34,6 +34,7 @@ import java.util.List;
  * @version 1.0
  */
 public abstract class Metrics implements BaseMetrics {
+    private MetricsLogAPI metricsLogAPI;
 	private BaseMetrics baseMetrics;
 	private List<MetricBuilder> metricBuilders;
 	private boolean inited;
@@ -51,9 +52,18 @@ public abstract class Metrics implements BaseMetrics {
 	public Metrics(int metricsType){
 		this.metricsType = metricsType;
 	}
+    protected MetricsLogAPI buildMetricsLogAPI(){
+        return null;
+    }
 
+    public void setMetricsLogAPI(MetricsLogAPI metricsLogAPI) {
+        this.metricsLogAPI = metricsLogAPI;
+    }
 
-	/**
+    public MetricsLogAPI getMetricsLogAPI() {
+        return metricsLogAPI;
+    }
+    /**
 	 * 新区和老区大小：做多存放指标个数
 	 */
 	private int segmentBoundSize = 10000000;
@@ -144,6 +154,7 @@ public abstract class Metrics implements BaseMetrics {
 			if(inited)
 				return;
 			builderMetrics();
+            metricsLogAPI = buildMetricsLogAPI();
 			if(metricsType == MetricsType_KeyTimeMetircs || metricsType == MetricsType_DEFAULT) {
 				KeyTimeMetrics baseMetrics = new KeyTimeMetrics() {
 					@Override
@@ -161,6 +172,7 @@ public abstract class Metrics implements BaseMetrics {
 				baseMetrics.setSegmentBoundSize(segmentBoundSize);
 				baseMetrics.setPersistentDataHolderSize(persistentDataHolderSize);
 				baseMetrics.setTimeWindowType(timeWindowType);
+                baseMetrics.setMetricsLogAPI(metricsLogAPI);
 				this.baseMetrics = baseMetrics;
 			}
 			else if(metricsType == MetricsType_TimeKeyMetircs) {
@@ -179,6 +191,7 @@ public abstract class Metrics implements BaseMetrics {
 				baseMetrics.setScanInterval(scanInterval);
 				baseMetrics.setSegmentBoundSize(segmentBoundSize);
 				baseMetrics.setTimeWindowType(timeWindowType);
+                baseMetrics.setMetricsLogAPI(metricsLogAPI);
 				this.baseMetrics = baseMetrics;
 			}
 			else if(metricsType == MetricsType_TimeMetircs) {
@@ -196,6 +209,7 @@ public abstract class Metrics implements BaseMetrics {
 				baseMetrics.setTimeWindows(timeWindows);
 				baseMetrics.setScanInterval(scanInterval);
 				baseMetrics.setTimeWindowType(timeWindowType);
+                baseMetrics.setMetricsLogAPI(metricsLogAPI);
 				this.baseMetrics = baseMetrics;
 			}
 			else if(metricsType == MetricsType_KeyMetircs) {
@@ -211,6 +225,7 @@ public abstract class Metrics implements BaseMetrics {
 					}
 				};
 				baseMetrics.setSegmentBoundSize(segmentBoundSize);
+                baseMetrics.setMetricsLogAPI(metricsLogAPI);
 				this.baseMetrics = baseMetrics;
 
 			}

@@ -20,7 +20,10 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.*;
 import org.frameworkset.tran.listener.JobClosedListener;
+import org.frameworkset.tran.metrics.DataTranPluginMetricsLogAPI;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
+import org.frameworkset.tran.metrics.MetricsLogReport;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
@@ -43,7 +46,7 @@ import java.util.concurrent.ExecutorService;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface ImportContext {
+public interface ImportContext extends DataTranPluginMetricsLogAPI {
 	public DataStream getDataStream();
 	public String buildStatusId( int hashCode);
 	public void cleanResource();
@@ -153,6 +156,7 @@ public interface ImportContext {
 	ScheduleConfig getScheduleConfig();
 
 	List<CallInterceptor> getCallInterceptors();
+    MetricsLogReport getMetricsLogReport();
 
 //	void doImportData(TaskContext taskContext);
 
@@ -303,4 +307,6 @@ public interface ImportContext {
      * @return
      */
     public boolean isCleanKeysWhenflushMetricsOnScheduleTaskCompleted();
+
+    void initETLMetrics();
 }

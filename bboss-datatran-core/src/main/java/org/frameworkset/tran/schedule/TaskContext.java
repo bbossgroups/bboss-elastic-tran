@@ -21,6 +21,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.context.ReInitAction;
 import org.frameworkset.tran.context.TaskContextReinitCallback;
+import org.frameworkset.tran.metrics.BaseMetricsLogReport;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
@@ -40,7 +41,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class TaskContext {
+public class TaskContext extends BaseMetricsLogReport {
 	private static Logger logger = LoggerFactory.getLogger(TaskContext.class);
     public static final String taskDataKey_jobTaskStartTime = "__jobTaskStartTime";
 	private Map<String,Object> taskDatas;
@@ -81,7 +82,7 @@ public class TaskContext {
         if(this.getJobTaskMetrics().getTotalRecords() > 0) {
             TaskContext taskContextCopy = copy();
             reInitAction.afterCall(taskContextCopy);
-            initContext();
+            initContext(false);
             reInitAction.preCall(this);
             if(taskContextReinitCallback != null) {
                 try {
@@ -97,20 +98,29 @@ public class TaskContext {
             
         }
     }
-	public void initContext(){
+	public void initContext(boolean useJobContextStartTime){
 		taskDatas = new LinkedHashMap<>();
 
 		jobTaskMetrics = importContext.createJobTaskMetrics();
 		jobTaskMetrics.setJobNo( UUID.randomUUID().toString());
-		jobTaskMetrics.setJobStartTime(new Date());
+        if(!useJobContextStartTime)
+		    jobTaskMetrics.setJobStartTime(new Date());
+        else{
+            jobTaskMetrics.setJobStartTime(importContext.getJobContext().getJobStartTime());
+        }
         taskDatas.put(taskDataKey_jobTaskStartTime,jobTaskMetrics.getJobStartTime());
 		jobTaskMetrics.setJobId(importContext.getJobId());
 		jobTaskMetrics.setJobName(importContext.getJobName());
 	}
 	public TaskContext(ImportContext importContext){
-		this.importContext = importContext;
-		initContext();
+        this(importContext,false);
 	}
+
+    public TaskContext(ImportContext importContext,boolean useJobContextStartTime){
+        super(importContext.getDataTranPlugin());
+        this.importContext = importContext;
+        initContext(useJobContextStartTime);
+    }
 
 	public void await(){
 		jobTaskMetrics.await();
@@ -312,6 +322,7 @@ public class TaskContext {
 		taskContext.targetDeleteSqlInfo = this.targetDeleteSqlInfo;
 		taskContext.taskDatas = taskDatas;
 		taskContext.jobTaskMetrics = jobTaskMetrics;
+        taskContext.setDataTranPlugin(this.getDataTranPlugin());
 		return taskContext;
 	}
 
@@ -325,5 +336,41 @@ public class TaskContext {
 
     public Date getJobTaskStartTime(){
         return this.getJobTaskMetrics().getJobStartTime();
+    }
+
+    /**
+     * 记录作业处理过程中的异常日志
+     *
+     * @param msg
+     * @param e
+     */
+    public void reportJobMetricErrorLog(  String msg, Throwable e) {
+        dataTranPlugin.reportJobMetricErrorLog(  this, msg, e);
+    }
+
+    /**
+     * 记录作业处理过程中的日志
+     *
+     * @param msg
+     */
+    public void reportJobMetricLog( String msg) {
+        dataTranPlugin.reportJobMetricLog(this, msg);
+    }
+
+    /**
+     * 记录作业处理过程中的日志
+     *
+     * @param msg
+     */
+    public void reportJobMetricWarn(   String msg) {
+        dataTranPlugin.reportJobMetricWarn( this, msg);
+    }
+
+    public String getJobId() {
+        return importContext.getJobId();
+    }
+
+    public String getJobName() {
+        return importContext.getJobName();
     }
 }

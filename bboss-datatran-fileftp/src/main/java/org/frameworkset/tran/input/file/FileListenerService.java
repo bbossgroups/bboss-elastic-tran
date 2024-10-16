@@ -560,6 +560,7 @@ public class FileListenerService {
                                     relativeParentDir, remoteFile, ftpContext, remoteFileAction);
                         }
 					    catch (Exception e){
+                            
 					        logger.error("Download remoteFile" + remoteFile+ " to " + localFile+ " And Collect File failed：",e);
                         }
 					}

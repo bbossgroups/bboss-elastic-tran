@@ -15,9 +15,13 @@ package org.frameworkset.tran.context;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.metrics.BaseMetricsLogReport;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,14 +33,29 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class JobContext {
+public class JobContext extends BaseMetricsLogReport {
 	private static Logger logger = LoggerFactory.getLogger(JobContext.class);
 	private Map<String,Object> jobDatas;
+    private Date jobStartTime;
+    private Date endStartTime;
 	public JobContext(){
 		jobDatas = new HashMap<String, Object>();
+        jobStartTime = new Date();
 	}
 
-	public JobContext addJobData(String name, Object value){
+    public Date getJobStartTime() {
+        return jobStartTime;
+    }
+
+    public void setEndStartTime(Date endStartTime) {
+        this.endStartTime = endStartTime;
+    }
+
+    public Date getEndStartTime() {
+        return endStartTime;
+    }
+
+    public JobContext addJobData(String name, Object value){
 		jobDatas.put(name,value);
 		return this;
 	}
@@ -48,5 +67,33 @@ public class JobContext {
 	public Object getJobData(String name){
 		return jobDatas.get(name);
 	}
+
+    /**
+     * 记录作业处理过程中的异常日志
+     *
+     * @param msg
+     * @param e
+     */
+    public void reportJobMetricErrorLog( String msg, Throwable e) {
+        super.reportJobMetricErrorLog(  null, msg, e);
+    }
+
+    /**
+     * 记录作业处理过程中的日志
+     *
+     * @param msg
+     */
+    public void reportJobMetricLog(  String msg) {
+        super.reportJobMetricLog(null, msg);
+    }
+
+    /**
+     * 记录作业处理过程中的日志
+     *
+     * @param msg
+     */
+    public void reportJobMetricWarn( String msg) {
+        super.reportJobMetricWarn(null,msg);
+    }
 
 }

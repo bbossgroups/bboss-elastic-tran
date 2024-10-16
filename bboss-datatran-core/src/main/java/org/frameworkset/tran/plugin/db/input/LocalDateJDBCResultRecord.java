@@ -50,6 +50,7 @@ public class LocalDateJDBCResultRecord extends BaseRecord {
         RecordBuidler recordBuidler = importContext.getInputConfig().getRecordBuidler();
         if(recordBuidler != null){
             DBRecordBuilderContext dbRecordBuilderContext = new DBRecordBuilderContext();
+            dbRecordBuilderContext.setDataTranPlugin(importContext.getDataTranPlugin());
             dbRecordBuilderContext.setStatementInfo(statementInfo);
             dbRecordBuilderContext.setResultSet(resultSet);
             dbRecordBuilderContext.setImportContext(importContext);

@@ -22,6 +22,8 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.ClientOptions;
+import org.frameworkset.tran.metrics.DataTranPluginMetricsLogAPI;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.record.ValueConvert;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.annotations.DateFormateMeta;
@@ -40,9 +42,10 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface Context {
+public interface Context extends DataTranPluginMetricsLogAPI {
     public static final String KAFKA_TOPIC_KEY = "_____kafka.topic";
-
+    TaskMetrics getTaskMetrics();
+    void setTaskMetrics(TaskMetrics taskMetrics);
     /**
      * 设置记录级别的kafka主题
      * @param topic
@@ -408,4 +411,58 @@ public interface Context {
 	boolean reachEOFClosed();
     LocalDateTime getLocalDateTime(String fieldName) throws Exception;
     Object getKeys();
+
+    /**
+     * 记录作业处理过程中的异常日志
+     * @param msg
+     * @param e
+     */
+    default public void reportJobMetricErrorLog( String msg, Throwable e){
+
+    }
+
+
+
+    /**
+     * 记录作业处理过程中的日志
+     * @param msg
+     */
+    default public void reportJobMetricLog(String msg){
+
+    }
+
+    /**
+     * 记录作业处理过程中的日志
+     * @param msg
+     */
+    default public void reportJobMetricWarn(  String msg){
+
+    }
+
+    /**
+     * 记录作业任务处理过程中的异常日志
+     * @param msg
+     * @param e
+     */
+    default public void reportTaskMetricErrorLog(String msg, Throwable e){
+
+    }
+
+
+
+    /**
+     * 记录作业任务处理过程中的日志
+     * @param msg
+     */
+    default public void reportTaskMetricLog( String msg){
+
+    }
+
+    /**
+     * 记录作业任务处理过程中的日志
+     * @param msg
+     */
+    default public void reportTaskMetricWarn(String msg){
+
+    }
 }

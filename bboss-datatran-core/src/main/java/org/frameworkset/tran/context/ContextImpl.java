@@ -23,6 +23,8 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.*;
+import org.frameworkset.tran.metrics.BaseMetricsLogReport;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.db.input.DBInputConfig;
 import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 import org.frameworkset.tran.plugin.es.ESField;
@@ -51,7 +53,7 @@ import java.util.*;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ContextImpl implements Context {
+public class ContextImpl extends BaseMetricsLogReport implements Context {
     private static Logger logger = LoggerFactory.getLogger(ContextImpl.class);
 	private TableMapping tableMapping;
 	private String recordKeyField;
@@ -67,6 +69,7 @@ public class ContextImpl implements Context {
 	protected int action = Record.RECORD_INSERT;
 	protected String index;
 	protected String indexType;
+    protected TaskMetrics taskMetrics;
 	protected ESIndexWrapper esIndexWrapper;
 	protected ClientOptions clientOptions;
 	protected ImportContext importContext;
@@ -81,6 +84,7 @@ public class ContextImpl implements Context {
 	 */
 	private Map<String,Object> tempDatas;
 	public ContextImpl(TaskContext taskContext, ImportContext importContext, Record record, BatchContext batchContext){
+        super(importContext.getDataTranPlugin());
 		this.baseImportConfig = importContext.getImportConfig();
 		this.importContext = importContext;
 		OutputConfig outputConfig = importContext.getOutputConfig();
@@ -847,5 +851,79 @@ public class ContextImpl implements Context {
     public void setKafkaTopic(String topic){
         addTempData(KAFKA_TOPIC_KEY,topic);
     }
+    /**
+     * 记录作业处理过程中的异常日志
+     * @param msg
+     * @param e
+     */
+    public void reportJobMetricErrorLog( String msg, Throwable e){
+        this.reportJobMetricErrorLog(taskContext,msg,e);
+    }
 
+
+
+    /**
+     * 记录作业处理过程中的日志
+     * @param msg
+     */
+    public void reportJobMetricLog(String msg){
+
+        this.reportJobMetricLog(taskContext,msg);
+    }
+
+    /**
+     * 记录作业处理过程中的日志
+     * @param msg
+     */
+    public void reportJobMetricWarn(  String msg){
+        this.reportJobMetricWarn(taskContext,msg);
+    }
+
+    /**
+     * 记录作业任务处理过程中的异常日志
+     * @param msg
+     * @param e
+     */
+    public void reportTaskMetricErrorLog(String msg, Throwable e){
+        if(taskMetrics != null){
+            this.reportTaskMetricErrorLog(taskMetrics,msg,e);
+        }
+        else{
+            this.reportJobMetricErrorLog(msg,e);
+        }
+    }
+
+
+
+    /**
+     * 记录作业任务处理过程中的日志
+     * @param msg
+     */
+    public void reportTaskMetricLog( String msg){
+        if(taskMetrics != null){
+            this.reportTaskMetricLog(taskMetrics,msg);
+        }
+        else{
+            this.reportJobMetricLog(msg);
+        }
+    }
+
+    /**
+     * 记录作业任务处理过程中的日志
+     * @param msg
+     */
+    public void reportTaskMetricWarn(String msg){
+        if(taskMetrics != null){
+            this.reportTaskMetricWarn(taskMetrics,msg);
+        }
+        else{
+            this.reportJobMetricWarn(msg);
+        }
+    }
+    public TaskMetrics getTaskMetrics(){
+        return taskMetrics;
+    }
+    public void setTaskMetrics(TaskMetrics taskMetrics){
+        this.taskMetrics = taskMetrics;
+    }
 }

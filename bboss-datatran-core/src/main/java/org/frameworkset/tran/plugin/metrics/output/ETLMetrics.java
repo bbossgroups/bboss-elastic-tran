@@ -16,8 +16,13 @@ package org.frameworkset.tran.plugin.metrics.output;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.metrics.entity.MapData;
 import org.frameworkset.tran.metrics.job.Metrics;
+import org.frameworkset.tran.metrics.job.MetricsLogAPI;
+import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.tran.task.TaskCommand;
 
 /**
  * <p>Description: etl指标计算器</p>
@@ -29,6 +34,7 @@ import org.frameworkset.tran.metrics.job.Metrics;
  */
 public abstract class ETLMetrics extends Metrics {
 
+    protected ImportContext importContext;
 
     private String dataTimeField;
 
@@ -36,7 +42,79 @@ public abstract class ETLMetrics extends Metrics {
     public ETLMetrics() {
         super();
     }
+    @Override
+    protected MetricsLogAPI buildMetricsLogAPI(){
+        return new MetricsLogAPI<TaskContext, TaskMetrics>() {
+            /**
+             * 记录作业处理过程中的异常日志
+             *
+             * @param logcontext
+             * @param msg
+             * @param e
+             */
+            @Override
+            public void reportJobMetricErrorLog(TaskContext logcontext, String msg, Throwable e) {
+                importContext.reportJobMetricErrorLog(logcontext, msg, e);
+            }
 
+            /**
+             * 记录作业处理过程中的日志
+             *
+             * @param logcontext
+             * @param msg
+             */
+            @Override
+            public void reportJobMetricLog(TaskContext logcontext, String msg) {
+                importContext.reportJobMetricLog(logcontext, msg);
+            }
+
+            /**
+             * 记录作业处理过程中的日志
+             *
+             * @param logcontext
+             * @param msg
+             */
+            @Override
+            public void reportJobMetricWarn(TaskContext logcontext, String msg) {
+                importContext.reportJobMetricWarn(logcontext, msg);
+            }
+
+            /**
+             * 记录作业任务处理过程中的异常日志
+             *
+             * @param logcontext
+             * @param msg
+             * @param e
+             */
+            @Override
+            public void reportTaskMetricErrorLog(TaskMetrics logcontext, String msg, Throwable e) {
+                importContext.reportTaskMetricErrorLog(logcontext, msg, e);
+            }
+
+            /**
+             * 记录作业任务处理过程中的日志
+             *
+             * @param logcontext
+             * @param msg
+             */
+            @Override
+            public void reportTaskMetricLog(TaskMetrics logcontext, String msg) {
+                importContext.reportTaskMetricLog(logcontext, msg);
+            }
+
+            /**
+             * 记录作业任务处理过程中的日志
+             *
+             * @param logcontext
+             * @param msg
+             */
+            @Override
+            public void reportTaskMetricWarn(TaskMetrics logcontext, String msg) {
+                if(logcontext != null && logcontext instanceof TaskMetrics)
+                importContext.reportTaskMetricWarn(logcontext, msg);
+            }
+        };
+    }
     public ETLMetrics(int metricsType) {
         super(metricsType);
     }
@@ -83,5 +161,11 @@ public abstract class ETLMetrics extends Metrics {
         this.dataTimeField = dataTimeField;
     }
 
+    public ImportContext getImportContext() {
+        return importContext;
+    }
 
+    public void setImportContext(ImportContext importContext) {
+        this.importContext = importContext;
+    }
 }

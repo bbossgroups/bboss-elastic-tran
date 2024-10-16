@@ -473,8 +473,28 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                                         for (LogDirScan logDirScan : logDirScans) {
                                             try {
                                                 logDirScan.scanNewFile();
-                                            } catch (Exception e) {
-                                                logger.error("扫描新文件异常:" + logDirScan.getFileConfig().toString(), e);
+                                            } catch (DataImportException dataImportException) {
+                                                String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
+                                                if(taskContext != null) {
+                                                    dataTranPlugin.throwException(taskContext, new DataImportException(msg,
+                                                            dataImportException));
+                                                }
+                                                else{
+                                                    dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,
+                                                            dataImportException);
+                                                }
+                                                logger.error(msg, dataImportException);
+                                            }
+                                            catch (Exception e) {
+                                                String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
+                                                if(taskContext != null) {
+                                                    dataTranPlugin.throwException(  taskContext,   new DataImportException( msg,e));
+                                                }
+                                                else{
+                                                    dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,
+                                                            e);
+                                                }
+                                                logger.error(msg, e);
                                             }
                                         }
                                     } else {
@@ -520,7 +540,15 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                                     try {
                                         logDirScan.scanNewFile();
                                     } catch (Exception e) {
-                                        logger.error("扫描新文件异常:" + logDirScan.getFileConfig().toString(), e);
+                                        String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
+                                        if(taskContext != null) {
+                                            dataTranPlugin.throwException(  taskContext,   new DataImportException( msg,e));
+                                        }
+                                        else{
+                                            dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,
+                                                    e);
+                                        }
+                                        logger.error(msg, e);
                                     }
                                 }
                             }

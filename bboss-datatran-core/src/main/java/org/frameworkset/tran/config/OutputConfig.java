@@ -19,6 +19,9 @@ import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
+
+import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -34,4 +37,7 @@ public interface OutputConfig {
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler);
 	void afterBuild(ImportBuilder importBuilder,ImportContext importContext);
 	public int getMetricsAggWindow();
+    default public List<ETLMetrics> getMetrics() {
+        return null;
+    }
 }

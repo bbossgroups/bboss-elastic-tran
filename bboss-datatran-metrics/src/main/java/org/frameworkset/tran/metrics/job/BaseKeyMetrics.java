@@ -31,11 +31,17 @@ import java.util.concurrent.Future;
 public abstract class BaseKeyMetrics {
 	private static Logger logger = LoggerFactory.getLogger(BaseKeyMetrics.class);
 	protected KeyMetricsPersistent metricsPersistent;
-
+    protected MetricsLogAPI metricsLogAPI;
 	public void setMetricsPersistent(KeyMetricsPersistent metricsPersistent) {
 		this.metricsPersistent = metricsPersistent;
 	}
+    public void setMetricsLogAPI(MetricsLogAPI metricsLogAPI) {
+        this.metricsLogAPI = metricsLogAPI;
+    }
 
+    public MetricsLogAPI getMetricsLogAPI() {
+        return metricsLogAPI;
+    }
 	/**
 	 * s0和s1区域大小
 	 */

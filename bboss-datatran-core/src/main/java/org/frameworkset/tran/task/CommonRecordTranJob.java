@@ -21,9 +21,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
-import org.frameworkset.tran.metrics.ImportCount;
-import org.frameworkset.tran.metrics.ParallImportCount;
-import org.frameworkset.tran.metrics.SerialImportCount;
+import org.frameworkset.tran.metrics.*;
 import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.record.WrappedRecord;
 import org.frameworkset.tran.schedule.Status;
@@ -59,6 +57,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		List<CommonRecord> records = new ArrayList<>();
 		String ret = null;
 		int taskNo = 0;
+        TaskMetrics taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
 		Exception exception = null;
 		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
         LastValueWrapper currentLastValueWrapper = currentStatus != null? currentStatus.getCurrentLastValueWrapper():null;
@@ -92,11 +91,13 @@ public class CommonRecordTranJob extends BaseTranJob{
                             taskCommandContext.setCommonRecords(records);
                             taskCommandContext.setIgnoreCount(ignoreCount);
                             taskCommandContext.setImportContext(importContext);
+                            taskCommandContext.setTaskMetrics(taskMetrics);
                             count = 0;
                             droped = 0;
                             ignoreCount = 0;
 
                             taskNo = serialTranCommand.hanBatchActionTask(taskCommandContext);
+                            taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
                             records = new ArrayList<>();
                             if (baseDataTran.isPrintTaskLog()) {
                                 end = System.currentTimeMillis();
@@ -145,7 +146,8 @@ public class CommonRecordTranJob extends BaseTranJob{
                         continue;
                     }
                     Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
-
+//                    context.setTaskMetrics(TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo));
+                    context.setTaskMetrics(taskMetrics);
                     context.refactorData();                    
                     if (context.isDrop()) {
                         importCount.increamentIgnoreTotalCount();
@@ -169,11 +171,13 @@ public class CommonRecordTranJob extends BaseTranJob{
                         taskCommandContext.setCommonRecords(records);
                         taskCommandContext.setIgnoreCount(ignoreCount);
                         taskCommandContext.setImportContext(importContext);
+                        taskCommandContext.setTaskMetrics(taskMetrics);
                         
                         count = 0;
                         droped = 0;
                         ignoreCount = 0;
                         taskNo = serialTranCommand.hanBatchActionTask(taskCommandContext);
+                        taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
                         records = new ArrayList<>();
 
 
@@ -204,6 +208,7 @@ public class CommonRecordTranJob extends BaseTranJob{
             taskCommandContext.setCommonRecords(records);
             taskCommandContext.setIgnoreCount(ignoreCount);
             taskCommandContext.setImportContext(importContext);
+            taskCommandContext.setTaskMetrics(taskMetrics);
 			taskNo = serialTranCommand.endSerialActionTask(taskCommandContext);
 
 			if(count > 0 ){
@@ -272,6 +277,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 //        ExecutorService buildRecordHandlerExecutor = importContext.buildRecordHandlerExecutor();
 		List<Future> tasks = new ArrayList<Future>();
 		int taskNo = 0;
+        TaskMetrics taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
 		ImportCount totalCount = new ParallImportCount();
         Throwable exception = null;
 //		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
@@ -313,10 +319,12 @@ public class CommonRecordTranJob extends BaseTranJob{
                         taskCommandContext.setTranErrorWrapper(tranErrorWrapper);
                         taskCommandContext.setIgnoreCount(ignoreCount);
                         taskCommandContext.setImportContext(importContext);
+                        taskCommandContext.setTaskMetrics(taskMetrics);
 						count = 0;
                         droped = 0;
                         ignoreCount = 0;
 						taskNo = parrelTranCommand.hanBatchActionTask(taskCommandContext);
+                        taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
                         if (baseDataTran.isPrintTaskLog()) {
                             end = System.currentTimeMillis();
                             StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
@@ -358,6 +366,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 					continue;
 				}
                 Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
+//                context.setTaskMetrics(TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo));
+                context.setTaskMetrics(taskMetrics);
 				context.refactorData();
 				context.afterRefactor();
 				if (context.isDrop()) {
@@ -383,11 +393,13 @@ public class CommonRecordTranJob extends BaseTranJob{
                     taskCommandContext.setTranErrorWrapper(tranErrorWrapper);
                     taskCommandContext.setIgnoreCount(ignoreCount);
                     taskCommandContext.setImportContext(importContext);
+                    taskCommandContext.setTaskMetrics(taskMetrics);
 					count = 0;
                     droped = 0;
                     ignoreCount = 0;
 
 					taskNo = parrelTranCommand.hanBatchActionTask(taskCommandContext);
+                    taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
 					records = new ArrayList<>();
 
 				}
@@ -414,6 +426,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                 taskCommandContext.setTranErrorWrapper(tranErrorWrapper);
                 taskCommandContext.setIgnoreCount(ignoreCount);
                 taskCommandContext.setImportContext(importContext);
+                taskCommandContext.setTaskMetrics(taskMetrics);
 				taskNo = parrelTranCommand.hanBatchActionTask(taskCommandContext);
 
 			}
@@ -485,8 +498,8 @@ public class CommonRecordTranJob extends BaseTranJob{
         int ignoreCount  = 0;
 		try {
 
-			Object temp = null;
-
+//			Object temp = null;
+            TaskMetrics taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),-1);
 			//十分钟后打印一次等待日志数据，打印后，就等下次
 			long logInterval = 1l * 60l * 1000l;
 			boolean printed = false;
@@ -547,7 +560,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 						continue;
 					}
                     Context context = importContext.buildContext(baseDataTran.getTaskContext(), resultRecord, batchContext);
-
+//                    context.setTaskMetrics(TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),-1));
+                    context.setTaskMetrics(taskMetrics);
                     context.refactorData();
 					context.afterRefactor();
 					if (context.isDrop()) {
@@ -607,6 +621,7 @@ public class CommonRecordTranJob extends BaseTranJob{
             taskCommandContext.setCommonRecord(null);
             taskCommandContext.setIgnoreCount(ignoreCount);
             taskCommandContext.setImportContext(importContext);
+            taskCommandContext.setTaskMetrics(taskMetrics);
             ignoreCount = 0;
 
             serialTranCommand.endSerialActionTask(taskCommandContext);
@@ -660,6 +675,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 		ImportCount importCount = new SerialImportCount( );
 //		BaseCommonRecordDataTran baseCommonRecordDataTran = (BaseCommonRecordDataTran)baseDataTran;
 		int taskNo = 0;
+        TaskMetrics taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
 		long totalCount = 0;
 		int count = 0;
 		long ignoreTotalCount = 0;
@@ -686,8 +702,10 @@ public class CommonRecordTranJob extends BaseTranJob{
                         taskCommandContext.setCommonRecords(records);
                         taskCommandContext.setIgnoreCount(ignoreCount);
                         taskCommandContext.setImportContext(importContext);
+                        taskCommandContext.setTaskMetrics(taskMetrics);
                         ignoreCount = 0;
 						taskNo = serialTranCommand.hanBatchActionTask(taskCommandContext);
+                        taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
 						records = new ArrayList<>();
 					}
 
@@ -729,7 +747,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 						continue;
 					}
                     Context context = importContext.buildContext(baseDataTran.getTaskContext(),resultRecord, batchContext);
-
+//                    context.setTaskMetrics(TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo));
+                    context.setTaskMetrics(taskMetrics);
                     context.refactorData();
 					context.afterRefactor();
 					if (context.isDrop()) {
@@ -754,9 +773,11 @@ public class CommonRecordTranJob extends BaseTranJob{
                         taskCommandContext.setCommonRecords(records);
                         taskCommandContext.setIgnoreCount(ignoreCount);
                         taskCommandContext.setImportContext(importContext);
+                        taskCommandContext.setTaskMetrics(taskMetrics);
                         ignoreCount = 0;
 						count = 0;
 						taskNo = serialTranCommand.hanBatchActionTask(taskCommandContext);
+                        taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
 						records = new ArrayList<>();
 					}
 
@@ -772,6 +793,7 @@ public class CommonRecordTranJob extends BaseTranJob{
             taskCommandContext.setCommonRecords(records);
             taskCommandContext.setIgnoreCount(ignoreCount);
             taskCommandContext.setImportContext(importContext);
+            taskCommandContext.setTaskMetrics(taskMetrics);
 			taskNo = serialTranCommand.endSerialActionTask(taskCommandContext);
             importCount.setEndTime(System.currentTimeMillis());
 			if(baseDataTran.isPrintTaskLog()) {

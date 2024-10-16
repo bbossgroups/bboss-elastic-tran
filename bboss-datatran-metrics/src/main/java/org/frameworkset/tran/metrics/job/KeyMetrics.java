@@ -37,6 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public abstract class KeyMetrics extends BaseKeyMetrics implements BaseMetrics {
 	private String metricsName = "TimeMetrics";
 	private ReentrantLock lock = new ReentrantLock();
+    private MetricsLogAPI metricsLogAPI;
 	private static Logger logger = LoggerFactory.getLogger(KeyMetrics.class);
 	protected void initKeyMetric(KeyMetric keyMetric, MapData data, String metricsKey){
 		keyMetric.setDataTime(data.metricsDataTime(metricsKey));
@@ -69,7 +70,7 @@ public abstract class KeyMetrics extends BaseKeyMetrics implements BaseMetrics {
 			}
 			if(keyMetric == null){
 				keyMetric =  metricBuilder.build();
-
+                keyMetric.setMetricsLogAPI(this.getMetricsLogAPI());
 				initKeyMetric(keyMetric,data,metricsKey);
 
 				isFull = !keyMetricsContainerTemp.putKeyMetric(metricsKey,keyMetric);

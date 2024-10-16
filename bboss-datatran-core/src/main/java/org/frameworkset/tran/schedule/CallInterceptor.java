@@ -15,6 +15,8 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.context.ImportContext;
+
 /**
  * <p>Description: 数据导入作业拦截器,每次定时任务执行前或者执行完毕后触发</p>
  * <p></p>
@@ -27,4 +29,6 @@ public interface CallInterceptor {
 	public void preCall(TaskContext taskContext);
 	public void afterCall(TaskContext taskContext);
 	public void throwException(TaskContext taskContext,Throwable e);
+
+  
 }

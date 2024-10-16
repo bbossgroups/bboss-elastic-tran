@@ -15,6 +15,8 @@ package org.frameworkset.tran.metrics.entity;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.metrics.job.MetricsLogAPI;
+
 import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -27,6 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @version 1.0
  */
 public abstract class KeyMetric {
+    protected MetricsLogAPI metricsLogAPI;
 	protected String metric;
 
 	protected Date dataTime;
@@ -137,4 +140,12 @@ public abstract class KeyMetric {
 	public void setFailed(long failed) {
 		this.failed = failed;
 	}
+
+    public void setMetricsLogAPI(MetricsLogAPI metricsLogAPI) {
+        this.metricsLogAPI = metricsLogAPI;
+    }
+
+    public MetricsLogAPI getMetricsLogAPI() {
+        return metricsLogAPI;
+    }
 }

@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.custom.output;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.List;
@@ -29,5 +30,16 @@ import java.util.List;
  * @version 1.0
  */
 public interface CustomOutPut {
-	public void handleData(TaskContext taskContext,List<CommonRecord> datas);
+    @Deprecated
+    /**
+     * 不建议方法
+     * 使用handleData(TaskContext taskContext, TaskMetrics taskMetrics,List<CommonRecord> datas)
+     */
+	default public void handleData(TaskContext taskContext,List<CommonRecord> datas){
+        
+    }
+
+    default public void handleData(TaskContext taskContext, TaskMetrics taskMetrics,List<CommonRecord> datas){
+        handleData(  taskContext,datas);
+    }
 }

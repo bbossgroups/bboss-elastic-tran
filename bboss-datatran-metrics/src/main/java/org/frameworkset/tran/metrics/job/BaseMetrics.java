@@ -36,7 +36,13 @@ public interface BaseMetrics {
 	default public BaseMetrics addMetricBuilder(MetricBuilder metricBuilder){
 		return this;
 	}
+    default public void setMetricsLogAPI(MetricsLogAPI metricsLogAPI){
+        
+    }
 
+    default public MetricsLogAPI getMetricsLogAPI(){
+        return null;
+    }
 	default public List<MetricBuilder> getMetricBuilders(){
 		return null;
 	}

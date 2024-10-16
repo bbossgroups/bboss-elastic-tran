@@ -66,9 +66,8 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
     }
 
     public void init(){
-		TaskMetrics taskMetrics = getTaskMetrics();
-		taskMetrics.setJobStartTime(taskContext.getJobStartTime());
-		taskMetrics.setTaskStartTime(new Date());
+		TaskMetrics taskMetrics = getTaskMetrics();		
+//		taskMetrics.setTaskStartTime(new Date());
 		if(taskContext != null){
 			taskContext.beginTask(taskMetrics);
 		}
@@ -130,11 +129,12 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
 		this.importCount = taskCommandContext.getTotalCount();
 		this.importContext =  taskCommandContext.getImportContext();
 		totalSize = importCount.getTotalCount();
-		this.taskMetrics = new TaskMetrics();
-		taskMetrics.setTaskNo(taskCommandContext.getTaskNo());
-		taskMetrics.setJobNo(taskCommandContext.getJobNo());
-		taskMetrics.setJobId(importContext.getJobId());
-		taskMetrics.setJobName(importContext.getJobName());
+//		this.taskMetrics = new TaskMetrics();
+//		taskMetrics.setTaskNo(taskCommandContext.getTaskNo());
+//		taskMetrics.setJobNo(taskCommandContext.getJobNo());
+//		taskMetrics.setJobId(importContext.getJobId());
+//		taskMetrics.setJobName(importContext.getJobName());
+        taskMetrics = taskCommandContext.getTaskMetrics();
 		this.lastValue = taskCommandContext.getLastValue();
 		this.currentStatus = taskCommandContext.getCurrentStatus();
 		this.taskContext = taskCommandContext.getTaskContext();

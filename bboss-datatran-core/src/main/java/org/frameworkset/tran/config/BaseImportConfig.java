@@ -20,6 +20,7 @@ import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.spi.geoip.GeoIPUtil;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.listener.JobClosedListener;
+import org.frameworkset.tran.metrics.MetricsLogReport;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.CallInterceptor;
@@ -280,7 +281,7 @@ public class BaseImportConfig {
 	 */
 	private List<CallInterceptor> callInterceptors;
 	private WrapedExportResultHandler exportResultHandler;
-
+    private MetricsLogReport metricsLogReport;
 
 	public String getApplicationPropertiesFile() {
 		return applicationPropertiesFile;
@@ -579,8 +580,15 @@ public class BaseImportConfig {
 	public List<CallInterceptor> getCallInterceptors() {
 		return callInterceptors;
 	}
+    public MetricsLogReport getMetricsLogReport(){
+        return metricsLogReport;
+    }
 
-	public void setCallInterceptors(List<CallInterceptor> callInterceptors) {
+    public void setMetricsLogReport(MetricsLogReport metricsLogReport) {
+        this.metricsLogReport = metricsLogReport;
+    }
+
+    public void setCallInterceptors(List<CallInterceptor> callInterceptors) {
 		this.callInterceptors = callInterceptors;
 	}
 

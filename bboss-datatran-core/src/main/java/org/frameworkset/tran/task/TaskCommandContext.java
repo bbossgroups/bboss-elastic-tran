@@ -20,6 +20,7 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.TranErrorWrapper;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
@@ -54,6 +55,7 @@ public class TaskCommandContext {
     private ImportContext importContext ;
     private int ignoreCount;
     private int droped;
+    private TaskMetrics taskMetrics;
     public String getJobNo() {
         return jobNo;
     }
@@ -232,5 +234,13 @@ public class TaskCommandContext {
 
     public void setImportContext(ImportContext importContext) {
         this.importContext = importContext;
+    }
+
+    public TaskMetrics getTaskMetrics() {
+        return taskMetrics;
+    }
+
+    public void setTaskMetrics(TaskMetrics taskMetrics) {
+        this.taskMetrics = taskMetrics;
     }
 }

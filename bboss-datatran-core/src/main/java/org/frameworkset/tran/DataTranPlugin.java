@@ -19,6 +19,7 @@ import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.config.DynamicParamContext;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.metrics.DataTranPluginMetricsLogAPI;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.*;
@@ -37,7 +38,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface DataTranPlugin {
+public interface DataTranPlugin extends DataTranPluginMetricsLogAPI {
     public StatusManager getStatusManager();
 //    public boolean onlyUseBatchExecute();
     /**
@@ -90,7 +91,8 @@ public interface DataTranPlugin {
 	public void preCall(TaskContext taskContext);
 	public void afterCall(TaskContext taskContext);
 
-		public void throwException(TaskContext taskContext,Throwable e);
+    public void throwException(TaskContext taskContext,Throwable e);
+    
 	public Context buildContext(TaskContext taskContext, Record record,BatchContext batchContext);
 //	public void forceflushLastValue(Status currentStatus);
 	public  void handleOldedTasks(List<Status> olded );

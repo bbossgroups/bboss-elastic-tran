@@ -126,6 +126,7 @@ public class TaskCall implements Runnable {
             int droped = 0;
             for (Record resultRecord : records) {
                 Context context = importContext.buildContext(taskCommand.getTaskContext(), resultRecord, batchContext);
+                context.setTaskMetrics(taskCommand.getTaskMetrics());
                 context.refactorData();
                 context.afterRefactor();
                 if (context.isDrop()) {
@@ -150,10 +151,11 @@ public class TaskCall implements Runnable {
 		TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
 
 		try {
-            dataRefactor(taskCommand);
+            taskCommand.init();
+            dataRefactor(taskCommand);            
             //指标计算
             metricsCompute(  importContext,taskCommand.getRecords());
-			taskCommand.init();
+			
 			RESULT data = taskCommand.execute();
 			Date endTime = new Date();
 			long[] metrics = importCount.increamentSuccessCount((long)taskCommand.getDataSize());

@@ -26,6 +26,7 @@ import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.listener.AsynJobClosedListener;
 import org.frameworkset.tran.listener.AsynJobClosedListenerImpl;
 import org.frameworkset.tran.listener.JobClosedListener;
+import org.frameworkset.tran.metrics.MetricsLogReport;
 import org.frameworkset.tran.metrics.job.Metrics;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.plugin.metrics.output.MetricsOutputConfig;
@@ -309,6 +310,9 @@ public class ImportBuilder {
 	 * 打印任务日志
 	 */
 	private boolean printTaskLog = false;
+
+
+    private MetricsLogReport metricsLogReport;
 
 	/**
 	 * 定时任务拦截器
@@ -1264,13 +1268,10 @@ public class ImportBuilder {
 			if(outputConfig != null && outputConfig instanceof MetricsOutputConfig) {
 				throw new DataImportException("指标输出插件不支持作业级别指标计算器，不能从importbuilder设置metrics！");
 			}
-
-//			if(SimpleStringUtil.isNotEmpty(dataTimeField) && useDefaultMapData){
-//				throw new DataImportException("设置了dataTimeField["+dataTimeField+"],useDefaultMapData["+useDefaultMapData+"]必须设置为false.");
+//            迁移至DataTranPluginImpl.init---》importContext.initETLMetrics()
+//			for(Metrics metrics: this.metrics){
+//				metrics.init();
 //			}
-			for(Metrics metrics: this.metrics){
-				metrics.init();
-			}
 			baseImportConfig.setMetrics(this.metrics);
 			baseImportConfig.setDataTimeField(dataTimeField);
 			baseImportConfig.setUseDefaultMapData(this.useDefaultMapData);
@@ -1294,6 +1295,7 @@ public class ImportBuilder {
         }
     }
 	protected void buildImportConfig(BaseImportConfig baseImportConfig){
+        baseImportConfig.setMetricsLogReport(this.metricsLogReport);
 		baseImportConfig.setImportStartAction(importStartAction);
 		baseImportConfig.setImportEndAction(importEndAction);
 		baseImportConfig.setUseJavaName(false);
@@ -1431,9 +1433,12 @@ public class ImportBuilder {
 		return this;
 	}
 
+    public ImportBuilder setMetricsLogReport(MetricsLogReport metricsLogReport) {
+        this.metricsLogReport = metricsLogReport;
+        return this;
+    }
 
-
-	public boolean isContinueOnError() {
+    public boolean isContinueOnError() {
 		return continueOnError;
 	}
 
@@ -1497,20 +1502,9 @@ public class ImportBuilder {
 		}
 		importContext.afterBuild(this);
 
-//		DBImportConfig db2DBImportConfig = new DBImportConfig();
-//		super.buildImportConfig(db2DBImportConfig);
-
-//		db2DBImportConfig.setTargetDBConfig(this.targetDBConfig);
-//		super.buildDBImportConfig(db2DBImportConfig);
 
 		DataStream dataStream = this.createDataStream();
-//		ImportContext sourceImportContext = this.buildImportContext(inputConfig);
-//		ImportContext targetImportContext = this.buildTargetImportContext(outputConfig);
-
-//		dataStream.setImportConfig(db2DBImportConfig);
 		dataStream.setImportContext(importContext);
-//		dataStream.setTargetImportContext(this.buildTargetImportContext(db2DBImportConfig));
-//		dataStream.setTargetImportContext(dataStream.getImportContext());
 		dataStream.setDataTranPlugin(this.buildDataTranPlugin(importContext));
 		dataStream.initDatastream();
         importContext.registEndAction(new EndAction() {

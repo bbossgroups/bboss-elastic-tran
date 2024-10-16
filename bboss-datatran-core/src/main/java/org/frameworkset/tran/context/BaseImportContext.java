@@ -20,8 +20,8 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.*;
 import org.frameworkset.tran.listener.JobClosedListener;
-import org.frameworkset.tran.metrics.ETLMetricsCallInterceptor;
-import org.frameworkset.tran.metrics.JobTaskMetrics;
+import org.frameworkset.tran.metrics.*;
+import org.frameworkset.tran.metrics.job.Metrics;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
@@ -46,7 +46,7 @@ import java.util.concurrent.ExecutorService;
  * @author biaoping.yin
  * @version 1.0
  */
-public  class BaseImportContext implements ImportContext {
+public  class BaseImportContext extends BaseMetricsLogReport implements ImportContext {
 	protected BaseImportConfig baseImportConfig;
 	protected InputConfig inputConfig;
 	protected OutputConfig outputConfig;
@@ -75,6 +75,9 @@ public  class BaseImportContext implements ImportContext {
 		return getOutputPlugin().createJobTaskMetrics();
 //		return new JobTaskMetrics();
 	}
+
+
+
 	public ImportStartAction getImportStartAction(){
 		return baseImportConfig.getImportStartAction();
 	}
@@ -186,10 +189,7 @@ public  class BaseImportContext implements ImportContext {
 	public Map<String, DynamicParam> getJobDynamicOutputParams() {
 		return baseImportConfig.getJobDynamicOutputParams();
 	}
-	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
-		this.dataTranPlugin = dataTranPlugin;
-
-	}
+ 
 
 	public String[] getExportColumns(){
 		return  baseImportConfig.getExportColumns();
@@ -198,7 +198,6 @@ public  class BaseImportContext implements ImportContext {
 		return dataTranPlugin.useFilePointer();
 	}
 	//	private JDBCResultSet jdbcResultSet;
-	private DataTranPlugin dataTranPlugin;
 	private DataStream dataStream;
 	private boolean currentStoped = false;
 
@@ -381,7 +380,9 @@ public  class BaseImportContext implements ImportContext {
 	public List<CallInterceptor> getCallInterceptors(){
 		return baseImportConfig.getCallInterceptors();
 	}
-
+    public MetricsLogReport getMetricsLogReport(){
+        return baseImportConfig.getMetricsLogReport();
+    }
 
 
 	public boolean isCurrentStoped(){
@@ -544,9 +545,7 @@ public  class BaseImportContext implements ImportContext {
 //
 //	}
 
-	public DataTranPlugin getDataTranPlugin() {
-		return dataTranPlugin;
-	}
+
 
 	public boolean needUpdateLastValueWrapper(LastValueWrapper oldValue,LastValueWrapper newValue){
 		return dataTranPlugin.needUpdateLastValueWrapper(this.getLastValueType(),oldValue,  newValue);
@@ -742,4 +741,22 @@ public  class BaseImportContext implements ImportContext {
 		if(dataStream != null)
 			this.dataStream.destroy(throwable,waitTranStopped,fromScheduleEnd);
 	}
+    
+    @Override
+    public void initETLMetrics(){
+        List<ETLMetrics> metrics = baseImportConfig.getMetrics();
+        if(metrics == null){
+            metrics = outputConfig.getMetrics();
+        }
+        if(metrics != null && metrics.size() > 0){            
+            for(ETLMetrics metrics_: metrics){
+                metrics_.setImportContext(this);
+                metrics_.init();
+            }
+        }
+        
+        
+        
+         
+    }
 }

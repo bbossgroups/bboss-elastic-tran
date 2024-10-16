@@ -15,6 +15,7 @@ package org.frameworkset.tran;/*
  */
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.ScheduleAssert;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
@@ -22,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -60,7 +62,7 @@ public class DataStream {
 	}
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
 		this.dataTranPlugin = dataTranPlugin;
-
+        this.getJobContext().setDataTranPlugin(dataTranPlugin);
 
 	}
 	public void initDatastream(){
@@ -85,6 +87,10 @@ public class DataStream {
 	public void setImportContext(ImportContext importContext) {
 		this.importContext = importContext;
 	}
+    
+    public JobContext getJobContext(){
+        return importContext.getJobContext();
+    }
 
 //	public ImportContext getTargetImportContext() {
 //		return targetImportContext;
@@ -141,6 +147,7 @@ public class DataStream {
 			if (endActioned) {
 				return;
 			}
+            
 			endActioned = true;
 		}
 		if(importContext != null && this.importContext.getImportEndAction() != null){
@@ -150,7 +157,9 @@ public class DataStream {
 			catch (Exception ee){
 				logger.warn("",ee);
 			}
+            importContext.getJobContext().setEndStartTime(new Date());
 		}
+        
 	}
 	public void destroy() {
 		destroy(false);

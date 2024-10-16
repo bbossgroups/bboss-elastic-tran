@@ -27,12 +27,15 @@ import org.frameworkset.tran.config.JobInputParamGroup;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
+import org.frameworkset.tran.metrics.MetricsLogReport;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.frameworkset.tran.status.*;
+import org.frameworkset.tran.task.TaskCommand;
 import org.frameworkset.tran.util.TranConstant;
 import org.frameworkset.tran.util.TranUtil;
 import org.frameworkset.util.ResourceEnd;
@@ -448,6 +451,144 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 
 	}
+
+    /**
+     * 记录作业处理过程中的异常日志
+     * @param taskContext
+     * @param msg
+     * @param e
+     */
+    @Override
+    public void reportJobMetricErrorLog(TaskContext taskContext, String msg, Throwable e){
+        MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
+        if(metricsLogReport == null ) {
+            logger.error("reportMetricErrorLog:"+msg,e);
+            return;
+        }
+        try{
+            if(taskContext == null) {
+                taskContext = new TaskContext(importContext,true);
+                
+            }
+            metricsLogReport.reportJobMetricErrorLog(taskContext, msg, e);
+        }
+        catch (Exception e1){
+            logger.error("reportMetricErrorLog failed:"+msg,e1);
+        }
+    }
+
+    /**
+     * 记录作业处理过程中的日志
+     * @param taskContext
+     * @param msg
+     */
+    @Override
+    public void reportJobMetricLog(TaskContext taskContext,String msg){
+        MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
+        if(metricsLogReport == null ) {
+            logger.error("reportMetricLog:{}",msg);
+            return;
+        }
+        try{
+            if(taskContext == null) {
+                taskContext = new TaskContext(importContext,true);
+
+            }
+            metricsLogReport.reportJobMetricLog(taskContext, msg);
+        }
+        catch (Exception e1){
+            logger.error("reportMetricLog:{}",msg);
+        }
+    }
+
+    /**
+     * 记录作业处理过程中的日志
+     * @param taskContext
+     * @param msg
+     */
+    @Override
+    public void reportJobMetricWarn(TaskContext taskContext,String msg){
+        MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
+        if(metricsLogReport == null ) {
+            logger.error("reportMetricWarn:{}",msg);
+            return;
+        }
+        try{
+            if(taskContext == null) {
+                taskContext = new TaskContext(importContext,true);
+
+            }
+            metricsLogReport.reportJobMetricWarn(taskContext, msg);
+        }
+        catch (Exception e1){
+            logger.error("reportMetricWarn:{}",msg);
+        }
+    }
+
+
+
+    /**
+     * 记录作业任务处理过程中的异常日志
+     * @param taskMetrics
+     * @param msg
+     * @param e
+     */
+     public void reportTaskMetricErrorLog(TaskMetrics taskMetrics, String msg, Throwable e){
+         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
+         if(metricsLogReport == null ) {
+             logger.error("reportTaskMetricErrorLog:"+msg,e);
+             return;
+         }
+         try{
+              
+             metricsLogReport.reportTaskMetricErrorLog(taskMetrics, msg,e);
+         }
+         catch (Exception e1){
+             logger.error("reportTaskMetricErrorLog:"+msg,e);
+         }
+    }
+
+
+
+    /**
+     * 记录作业任务处理过程中的日志
+     * @param taskMetrics
+     * @param msg
+     */
+    public void reportTaskMetricLog(TaskMetrics taskMetrics, String msg){
+        MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
+        if(metricsLogReport == null ) {
+            logger.error("reportTaskMetricLog:{}",msg);
+            return;
+        }
+        try{
+
+            metricsLogReport.reportTaskMetricLog(taskMetrics, msg);
+        }
+        catch (Exception e1){
+            logger.error("reportTaskMetricLog:"+msg,e1);
+        }
+    }
+
+    /**
+     * 记录作业任务处理过程中的日志
+     * @param taskMetrics
+     * @param msg
+     */
+    public void reportTaskMetricWarn(TaskMetrics taskMetrics, String msg){
+        MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
+        if(metricsLogReport == null ) {
+            logger.error("reportTaskMetricWarn:{}",msg);
+            return;
+        }
+        try{
+
+            metricsLogReport.reportTaskMetricWarn(taskMetrics, msg);
+        }
+        catch (Exception e1){
+            logger.error("reportTaskMetricWarn:"+msg,e1);
+        }
+    }
 	@Override
 	public boolean isEnableAutoPauseScheduled(){
 		return true;
@@ -732,8 +873,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
 	@Override
 	public void init(ImportContext importContext) {
-
+        
 		this.importContext = importContext;
+        this.importContext.initETLMetrics();
 		exportCount = new ExportCount();
 		this.inputPlugin = importContext.getInputPlugin();
 		this.outputPlugin = importContext.getOutputPlugin();

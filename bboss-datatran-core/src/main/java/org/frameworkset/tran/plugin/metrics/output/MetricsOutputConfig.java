@@ -63,12 +63,10 @@ public class MetricsOutputConfig extends BaseConfig implements OutputConfig {
 		if(metrics == null || metrics.size() == 0){
 			throw new DataImportException("未正确设置metrics,可以通过addMetrics方法添加注册ETLMetrics!，参考文档：\r\nhttps://esdoc.bbossgroups.com/#/etl-metrics");
 		}
-//		if(SimpleStringUtil.isNotEmpty(dataTimeField) && useDefaultMapData){
-//			throw new DataImportException("设置了dataTimeField["+dataTimeField+"],useDefaultMapData["+useDefaultMapData+"]必须设置为false.");
+//      迁移至DataTranPluginImpl.init---》importContext.initETLMetrics()
+//		for(Metrics metrics: this.metrics){
+//			metrics.init();
 //		}
-		for(Metrics metrics: this.metrics){
-			metrics.init();
-		}
 	}
 
 	@Override

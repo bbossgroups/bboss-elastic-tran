@@ -134,19 +134,7 @@ public abstract class TimeMetrics implements BaseMetrics{
 
 	private static Logger logger = LoggerFactory.getLogger(TimeMetrics.class);
 	public DateFormat getMetricsTimeKeyFormat(MapData data){
-//		if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MINUTE)
-//			return data.getMinuteFormat();
-//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_SECOND)
-//			return data.getSecondFormat();
-//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_HOUR)
-//			return data.getHourFormat();
-//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_DAY)
-//			return data.getDayFormat();
-//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_WEEK)
-//			return data.getWeekFormat();
-//		else if(this.timeWindowType == MetricsConfig.TIME_WINDOW_TYPE_MONTH)
-//			return data.getMonthFormat();
-//		return data.getMinuteFormat();
+
         return MetricUtil.getMetricsTimeKeyFormat(this.timeWindowType,data);
 	}
 	public TimeMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder)  {
@@ -165,8 +153,8 @@ public abstract class TimeMetrics implements BaseMetrics{
 			metric = metrics.get(metricsTime);
 			if (metric == null) {
 				metric = (TimeMetric)metricBuilder.build();
+                metric.setMetricsLogAPI(this.getMetricsLogAPI());
                 MetricUtil.buildMetricTimeField( metric,  data,  time);
-
 
 				metric.setMetric(metricsKey);
 				metric.setSlotTime(new Date());

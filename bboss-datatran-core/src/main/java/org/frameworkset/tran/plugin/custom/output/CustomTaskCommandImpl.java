@@ -46,7 +46,7 @@ public class CustomTaskCommandImpl extends BaseTaskCommand< String> {
 
 	public String execute(){
         if(records != null && records.size() > 0) {
-            customOutputConfig.getCustomOutPut().handleData(taskContext, records);
+            customOutputConfig.getCustomOutPut().handleData(taskContext, taskMetrics,records);
         }
         else{
             

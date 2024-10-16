@@ -346,7 +346,6 @@ public class FtpTransfer {
 			throw new DataImportException("Could not connect to server.", e);
 		}
 
-		__main:
 		try {
 			if (!ftp.login(fileFtpOupputContext.getFtpUser(), fileFtpOupputContext.getFtpPassword())) {
 				ftp.logout();
