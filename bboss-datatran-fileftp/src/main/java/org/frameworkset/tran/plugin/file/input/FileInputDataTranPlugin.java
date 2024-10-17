@@ -472,7 +472,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                                     if (!schedulePaused) {
                                         for (LogDirScan logDirScan : logDirScans) {
                                             try {
-                                                logDirScan.scanNewFile();
+                                                logDirScan.scanNewFile(taskContext);
                                             } catch (DataImportException dataImportException) {
                                                 String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
                                                 if(taskContext != null) {
@@ -528,7 +528,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                         if (logDirScans == null) { //初始执行不判断是否调度暂停，后续需要进行判断
                             markscanStart();
                             try {
-                                doFirstTime(fileConfigs);
+                                doFirstTime(  taskContext,fileConfigs);
                             }
                             finally {
                                 markscanFinished();
@@ -538,7 +538,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                             try {
                                 for (LogDirScan logDirScan : logDirScans) {
                                     try {
-                                        logDirScan.scanNewFile();
+                                        logDirScan.scanNewFile(taskContext);
                                     } catch (Exception e) {
                                         String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
                                         if(taskContext != null) {
@@ -562,7 +562,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                 else{
                     markscanStart();
                     try {
-                        doFirstTime(fileConfigs);
+                        doFirstTime(  taskContext,fileConfigs);
                     }
                     finally {
                         markscanFinished();
@@ -581,14 +581,14 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
 
     }
 
-    private void doFirstTime(List<FileConfig> fileConfigs){
+    private void doFirstTime(TaskContext taskContext,List<FileConfig> fileConfigs){
         logDirsScanThread = new LogDirsScanThread(null, fileInputConfig);
         logDirScans = new ArrayList<>(fileConfigs.size());
         logDirsScanThread.statusRunning();
         for (FileConfig fileConfig : fileConfigs) {
             LogDirScan logDirScan = logDirScanThread(logDirsScanThread, fileConfig);
             logDirScans.add(logDirScan);
-            logDirScan.scanNewFile();
+            logDirScan.scanNewFile(  taskContext);
         }
     }
 

@@ -79,4 +79,33 @@ public interface MetricsLogAPI<J,T> {
     default public void reportTaskMetricWarn(T logcontext, String msg){
 
     }
+
+    /**
+     * 记录作业处理过程中的异常日志
+     * @param msg
+     * @param e
+     */
+    default public void reportJobMetricErrorLog( String msg, Throwable e){
+        this.reportJobMetricErrorLog(null,msg,e);
+    }
+
+
+
+    /**
+     * 记录作业处理过程中的日志
+     * @param msg
+     */
+    default public void reportJobMetricLog(String msg){
+        this.reportJobMetricLog(null,msg);
+    }
+
+    /**
+     * 记录作业处理过程中的日志
+     * @param msg
+     */
+    default public void reportJobMetricWarn(String msg){
+        this.reportJobMetricWarn(null,msg);
+    }
+
+
 }

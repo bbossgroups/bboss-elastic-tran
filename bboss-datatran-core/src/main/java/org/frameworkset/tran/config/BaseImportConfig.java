@@ -19,6 +19,7 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.spi.geoip.GeoIPUtil;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.context.InitJobContextCall;
 import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.MetricsLogReport;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
@@ -51,6 +52,8 @@ public class BaseImportConfig {
 	private boolean sortLastValue ;
 	private List<ETLMetrics> metrics;
 	private boolean useDefaultMapData = false;
+
+    private transient InitJobContextCall initJobContextCall;
     /**
      * 设置增量状态ID生成策略，在设置jobId的情况下起作用
      * STATUSID_POLICY_JOBID 采用jobType+jobId作为增量状态id
@@ -1041,5 +1044,13 @@ public class BaseImportConfig {
 
     public void setIncreamentImport(Boolean increamentImport) {
         this.increamentImport = increamentImport;
+    }
+
+    public InitJobContextCall getInitJobContextCall() {
+        return initJobContextCall;
+    }
+
+    public void setInitJobContextCall(InitJobContextCall initJobContextCall) {
+        this.initJobContextCall = initJobContextCall;
     }
 }

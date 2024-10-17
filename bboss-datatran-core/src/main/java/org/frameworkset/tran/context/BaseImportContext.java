@@ -52,9 +52,11 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 	protected OutputConfig outputConfig;
 	protected JobContext jobContext;
     protected EndAction endAction;
+    
 	public JobContext getJobContext() {
 		return jobContext;
 	}
+ 
     public boolean isSerial(){
         return getStoreBatchSize() <= 0;
     }
@@ -758,5 +760,18 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
         
         
          
+    }
+
+    public void initJobcontext(){
+        jobContext.setDataTranPlugin(dataTranPlugin);
+        if(baseImportConfig.getInitJobContextCall() != null){
+            try {
+                baseImportConfig.getInitJobContextCall().initJobContext(jobContext);
+            }
+            catch (Exception e){
+                throw new DataImportException(e);
+            }
+        }
+
     }
 }

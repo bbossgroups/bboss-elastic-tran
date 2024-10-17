@@ -12,6 +12,7 @@ import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.frameworkset.tran.plugin.file.input.FileInputDataTranPlugin;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.status.StatusManager;
 import org.slf4j.Logger;
@@ -359,8 +360,8 @@ public class FileListenerService {
 
 
 
-    public void checkSFtpNewFile(String relativeParentDir,RemoteResourceInfo remoteResourceInfo,  final FtpContext ftpContext, List<Future> downloadFutures) {
-        checkRemoteNewFile( relativeParentDir,remoteResourceInfo.getName(), remoteResourceInfo.getPath(),  ftpContext, new RemoteFileAction() {
+    public void checkSFtpNewFile(TaskContext taskContext, String relativeParentDir, RemoteResourceInfo remoteResourceInfo, final FtpContext ftpContext, List<Future> downloadFutures) {
+        checkRemoteNewFile(  taskContext, relativeParentDir,remoteResourceInfo.getName(), remoteResourceInfo.getPath(),  ftpContext, new RemoteFileAction() {
             @Override
             public boolean downloadFile(String localFile,String remoteFile) {
                 SFTPTransfer.downloadFile(ftpContext,remoteFile,localFile);
@@ -508,7 +509,7 @@ public class FileListenerService {
      * @param ftpContext
      * @param remoteFileAction
      */
-    private void checkRemoteNewFile(final String relativeParentDir, String fileName, final String remoteFile,
+    private void checkRemoteNewFile(TaskContext taskContext,final String relativeParentDir, String fileName, final String remoteFile,
                                     final FtpContext ftpContext, final RemoteFileAction remoteFileAction, List<Future> downloadFutures) {
         FtpConfig ftpConfig = ftpContext.getFtpConfig();
         FileConfig fileConfig = ftpContext.getFileConfig();
@@ -556,7 +557,7 @@ public class FileListenerService {
 					@Override
 					public void run() {
 					    try {
-                            downAndCollectFile(handleFile, localFile, fileId,
+                            downAndCollectFile(  taskContext,handleFile, localFile, fileId,
                                     relativeParentDir, remoteFile, ftpContext, remoteFileAction);
                         }
 					    catch (Exception e){
@@ -568,7 +569,7 @@ public class FileListenerService {
                 downloadFutures.add(future);
 			}
         	else{ //同步串行下载文件
-				downAndCollectFile(handleFile, localFile, fileId,
+				downAndCollectFile(  taskContext,handleFile, localFile, fileId,
 						relativeParentDir, remoteFile, ftpContext, remoteFileAction);
 			}
         }
@@ -590,7 +591,7 @@ public class FileListenerService {
         }
     }
 
-    private void downAndCollectFile( File handleFile,File localFile,String fileId ,
+    private void downAndCollectFile( TaskContext taskContext,File handleFile,File localFile,String fileId ,
                                     String relativeParentDir, final String remoteFile, FtpContext ftpContext, final RemoteFileAction remoteFileAction){
         FileConfig fileConfig = ftpContext.getFileConfig();
         /**
@@ -606,21 +607,56 @@ public class FileListenerService {
                 DownAction downAction = new DownAction() {
                     @Override
                     public void down(int times, boolean redown) {
+                        String msg = null;
+                        StringBuilder builder = new StringBuilder();
                         if (redown) {
-                            logger.warn("第{}次重试下载文件：localPath:{},remotePath:{}", times + 1, localFile.getAbsolutePath(), remoteFile);
+                           
+                            builder.append("开始第").append(times + 1).append("次重试下载文件：localPath:").append(localFile.getAbsolutePath()).append(",remotePath:").append(remoteFile).append("");
+                            msg = builder.toString();
+                            logger.warn(msg);
+                            
                         }
+                        else{
+                            
+                            builder.append("开始下载文件：localPath:").append(localFile.getAbsolutePath()).append(",remotePath:").append(remoteFile).append("");
+                            msg = builder.toString();
+                        }
+                        builder.setLength(0);
+                        dataTranPlugin.reportJobMetricLog(taskContext,msg);
+                         
+                         
+                        long start = System.currentTimeMillis();
                         remoteFileAction.downloadFile(localFile.getAbsolutePath(), remoteFile);
+                        long elapsed = System.currentTimeMillis() - start ;
+                        
                         if (!localFile.exists()) {
+                            
                             if (!redown) {
-                                logger.warn("下载文件失败：localPath:{},remotePath:{}", localFile.getAbsolutePath(), remoteFile);
+                                builder.append("下载文件失败：localPath:").append(localFile.getAbsolutePath()).append(",remotePath:").append(remoteFile)
+                                        .append(",耗时:").append(elapsed).append("毫秒!");
+                                msg = builder.toString();
+                                builder.setLength(0);
+                                logger.warn(msg);
                             } else {
-                                logger.warn("第{}次重试下载文件失败：localPath:{},remotePath:{}", times + 1, localFile.getAbsolutePath(), remoteFile);
+                                builder.append("第").append(times + 1).append("次重试下载文件失败：localPath:").append(localFile.getAbsolutePath())
+                                        .append(",remotePath:").append(remoteFile).append(",耗时:").append(elapsed).append("毫秒!");
+                                msg = builder.toString();
+                                builder.setLength(0);
+                                logger.warn(msg);
                             }
 
+                            dataTranPlugin.reportJobMetricWarn(taskContext,msg);
+                        }
+                        else{
+                            builder.append("下载文件完成：localPath:").append(localFile.getAbsolutePath()).append(",remotePath:").append(remoteFile)
+                                    .append(",耗时:").append(elapsed).append("毫秒!");
+                            msg = builder.toString();
+                            builder.setLength(0);
+
+                            dataTranPlugin.reportJobMetricLog(taskContext,msg);
                         }
                     }
                 };
-//                    remoteFileAction.downloadFile(localFile.getAbsolutePath(),remoteFile);
                 downAction.down(-1, false);
                 if (!localFile.exists()) {
                     removeDownTrace(fileId);
@@ -631,13 +667,31 @@ public class FileListenerService {
                     long startTime = System.currentTimeMillis();
                     RemoteFileValidate.Result result = remoteFileValidate(remoteFile, localFile, ftpContext, remoteFileAction, downAction, false);
                     long endTime = System.currentTimeMillis();
+                    
                     if (!result.isOk()) {
-                        logger.warn("文件校验失败：localPath:{},remotePath:{},校验耗时：{}毫秒，失败原因：{}", localFile.getAbsolutePath(), remoteFile, endTime - startTime,result.getMessage());
+                        StringBuilder builder = new StringBuilder();
+                        builder.append("文件校验失败：localPath:")
+                                .append(localFile.getAbsolutePath()).append(",remotePath:")
+                                .append(remoteFile).append(",校验耗时：")
+                                .append(endTime - startTime).append("毫秒，失败原因：").append(result.getMessage());
+                        String msg = builder.toString();
+                        logger.warn(msg);
+
+                        dataTranPlugin.reportJobMetricWarn(taskContext,msg);
                         removeDownTrace(fileId);
                         return;
                     }
                     else{
-                        logger.info("文件校验成功：localPath:{},remotePath:{},校验耗时：{}毫秒", localFile.getAbsolutePath(), remoteFile, endTime - startTime);
+                        StringBuilder builder = new StringBuilder();
+                        builder.append("文件校验成功：localPath:")
+                                .append(localFile.getAbsolutePath()).append(",remotePath:")
+                                .append(remoteFile).append(",校验耗时：")
+                                .append(endTime - startTime).append("毫秒 ");
+                        String msg = builder.toString();
+                        logger.info(msg);
+                        if(taskContext != null) {
+                            taskContext.reportJobMetricLog(msg);
+                        }
                     }
                 }
                 boolean renamesuccess = localFile.renameTo(handleFile);
@@ -646,7 +700,15 @@ public class FileListenerService {
                         logger.info("Rename " + localFile.getAbsolutePath() + " to " + handleFile.getAbsolutePath());
                 } else {
                     removeDownTrace(fileId);
-                    logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}", localFile.getAbsolutePath(), remoteFile, handleFile.getAbsolutePath());
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("文件下载后重命名失败：tempPath:")
+                                .append(localFile.getAbsolutePath()).append(",remotePath:")
+                                .append(remoteFile).append(",handle file path:")
+                                .append(handleFile.getAbsolutePath());
+                    String msg = builder.toString();
+
+                    dataTranPlugin.reportJobMetricWarn(taskContext,msg);
+                    logger.warn(msg);
                     return;
                 }
             }
@@ -718,11 +780,11 @@ public class FileListenerService {
 
 
 
-    public void checkFtpNewFile(String relativeParentDir,String parentDir,FTPFile remoteResourceInfo,   final FtpContext ftpContext, List<Future> downloadFutures) {
+    public void checkFtpNewFile(TaskContext taskContext,String relativeParentDir,String parentDir,FTPFile remoteResourceInfo,   final FtpContext ftpContext, List<Future> downloadFutures) {
         String name = remoteResourceInfo.getName().trim();
 
         String remoteFile = SimpleStringUtil.getPath(parentDir,name);
-        checkRemoteNewFile( relativeParentDir,name, remoteFile,   ftpContext, new RemoteFileAction() {
+        checkRemoteNewFile(   taskContext,relativeParentDir,name, remoteFile,   ftpContext, new RemoteFileAction() {
             @Override
             public boolean downloadFile(String localFile,String remoteFile) {
                 FtpTransfer.downloadFile(ftpContext,localFile,remoteFile);

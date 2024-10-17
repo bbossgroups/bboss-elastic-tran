@@ -2,6 +2,7 @@ package org.frameworkset.tran.input.file;
 
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.plugin.file.input.FileInputDataTranPlugin;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class LogDirScan implements LogDirScanInf{
      * 识别新增的文件，如果有新增文件，将启动新的文件采集作业
      */
     @Override
-    public void scanNewFile(){
+    public void scanNewFile(TaskContext taskContext){
 
         if(logger.isDebugEnabled()){
             logger.debug("scan new log file in dir {} with filename regex {}.",fileConfig.getLogDir(),fileConfig.getFileNameRegular());

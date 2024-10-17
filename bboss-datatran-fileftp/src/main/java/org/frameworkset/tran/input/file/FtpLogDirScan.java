@@ -5,6 +5,7 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.frameworkset.tran.ftp.FtpContext;
 import org.frameworkset.tran.ftp.FtpContextImpl;
 import org.frameworkset.tran.ftp.FtpTransfer;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class FtpLogDirScan extends LogDirScan {
      * 识别新增的文件，如果有新增文件，将启动新的文件采集作业
      */
     @Override
-    public void scanNewFile(){
+    public void scanNewFile(TaskContext taskContext){
         if(logger.isDebugEnabled()){
             if(fileConfig.getFileFilter() == null)
                 logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",ftpContext.getRemoteFileDir(),fileConfig.getFileNameRegular());
@@ -66,11 +67,11 @@ public class FtpLogDirScan extends LogDirScan {
                         }
                         continue;
                     } else {
-                        scanSubDirNewFile(remoteResourceInfo, name,
+                        scanSubDirNewFile(  taskContext,remoteResourceInfo, name,
                                 SimpleStringUtil.getPath(ftpContext.getRemoteFileDir(), name), downloadFutures);
                     }
                 } else {
-                    fileListenerService.checkFtpNewFile("", ftpContext.getRemoteFileDir(), remoteResourceInfo, ftpContext, downloadFutures);
+                    fileListenerService.checkFtpNewFile(  taskContext,"", ftpContext.getRemoteFileDir(), remoteResourceInfo, ftpContext, downloadFutures);
                 }
             }
         }
@@ -90,7 +91,7 @@ public class FtpLogDirScan extends LogDirScan {
 
     }
 
-    public void scanSubDirNewFile(FTPFile logDir,String relativeParentDir,String subdir, List<Future> downloadFutures){
+    public void scanSubDirNewFile(TaskContext taskContext,FTPFile logDir,String relativeParentDir,String subdir, List<Future> downloadFutures){
         if(logger.isDebugEnabled()){
             if(fileConfig.getFileFilter() == null)
                 logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",subdir,fileConfig.getFileNameRegular());
@@ -119,12 +120,12 @@ public class FtpLogDirScan extends LogDirScan {
                     continue;
                 }
                 else{
-                    scanSubDirNewFile(remoteResourceInfo,SimpleStringUtil.getPath(relativeParentDir,name),
+                    scanSubDirNewFile(  taskContext,remoteResourceInfo,SimpleStringUtil.getPath(relativeParentDir,name),
                             SimpleStringUtil.getPath(subdir,name),  downloadFutures);
                 }
             }
             else{
-                fileListenerService.checkFtpNewFile(relativeParentDir,subdir,remoteResourceInfo,ftpContext ,downloadFutures);
+                fileListenerService.checkFtpNewFile(  taskContext,relativeParentDir,subdir,remoteResourceInfo,ftpContext ,downloadFutures);
             }
         }
     }

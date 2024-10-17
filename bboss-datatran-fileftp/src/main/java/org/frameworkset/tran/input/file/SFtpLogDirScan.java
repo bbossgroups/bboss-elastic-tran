@@ -3,6 +3,7 @@ package org.frameworkset.tran.input.file;
 import com.frameworkset.util.SimpleStringUtil;
 import net.schmizz.sshj.sftp.RemoteResourceInfo;
 import org.frameworkset.tran.ftp.SFTPTransfer;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public class SFtpLogDirScan extends FtpLogDirScan {
      * 识别新增的文件，如果有新增文件，将启动新的文件采集作业
      */
     @Override
-    public void scanNewFile(){
+    public void scanNewFile(TaskContext taskContext){
         if(logger.isDebugEnabled()){
             if(fileConfig.getFileFilter() == null)
                 logger.debug("Scan new sftp file in remote dir {} with filename regex {}.",ftpContext.getRemoteFileDir(),fileConfig.getFileNameRegular());
@@ -56,7 +57,7 @@ public class SFtpLogDirScan extends FtpLogDirScan {
         }
         List<Future> downloadFutures = ftpContext.getFtpConfig().getRemoteFileChannel() != null?new ArrayList<>():null;
         try {
-            _scanCheck("", files, downloadFutures);
+            _scanCheck(taskContext,"", files, downloadFutures);
         }
         finally {
             if(downloadFutures != null && downloadFutures.size() > 0){
@@ -76,7 +77,7 @@ public class SFtpLogDirScan extends FtpLogDirScan {
 
     }
 
-    public void scanSubDirNewFile(String relativeParentDir,RemoteResourceInfo logDir,List<Future> downloadFutures){
+    public void scanSubDirNewFile(TaskContext taskContext,String relativeParentDir,RemoteResourceInfo logDir,List<Future> downloadFutures){
         if(logger.isDebugEnabled()){
             if(fileConfig.getFileFilter() == null)
                 logger.debug("Scan new sftp file in remote dir {} with filename regex {}.",logDir.getPath(),fileConfig.getFileNameRegular());
@@ -92,7 +93,7 @@ public class SFtpLogDirScan extends FtpLogDirScan {
             }
             return;
         }
-        _scanCheck(relativeParentDir,files, downloadFutures);
+        _scanCheck(  taskContext,relativeParentDir,files, downloadFutures);
     }
 
     /**
@@ -100,7 +101,7 @@ public class SFtpLogDirScan extends FtpLogDirScan {
      * @param relativeParentDir 相对路径
      * @param files
      */
-    private void _scanCheck(String relativeParentDir,List<RemoteResourceInfo> files,List<Future> downloadFutures){
+    private void _scanCheck(TaskContext taskContext,String relativeParentDir,List<RemoteResourceInfo> files,List<Future> downloadFutures){
         for(RemoteResourceInfo remoteResourceInfo:files){
             if (!logDirsScanThread.isRunning()) {
                 break;
@@ -113,11 +114,11 @@ public class SFtpLogDirScan extends FtpLogDirScan {
                     continue;
                 }
                 else{
-                    scanSubDirNewFile(SimpleStringUtil.getPath(relativeParentDir,remoteResourceInfo.getName()),remoteResourceInfo, downloadFutures);
+                    scanSubDirNewFile(  taskContext,SimpleStringUtil.getPath(relativeParentDir,remoteResourceInfo.getName()),remoteResourceInfo, downloadFutures);
                 }
             }
             else{
-                fileListenerService.checkSFtpNewFile(relativeParentDir,remoteResourceInfo,ftpContext,downloadFutures);
+                fileListenerService.checkSFtpNewFile(  taskContext,relativeParentDir,remoteResourceInfo,ftpContext,downloadFutures);
             }
         }
     }

@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.metrics.output;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.metrics.entity.MapData;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
 import org.frameworkset.tran.metrics.job.MetricsConfig;
@@ -37,7 +38,17 @@ import java.util.Date;
 public class MetricsData {
     private BuildMapDataContext buildMapDataContext;
     private CommonRecord commonRecord;
-    public void setData(MapData mapData,ETLMetrics etlMetrics){
+    private TaskMetrics taskMetrics;
+
+    public void setTaskMetrics(TaskMetrics taskMetrics) {
+        this.taskMetrics = taskMetrics;
+    }
+
+    public TaskMetrics getTaskMetrics() {
+        return taskMetrics;
+    }
+
+    public void setData(MapData mapData, ETLMetrics etlMetrics){
         String dataTimeField = null;
         int timeWindowType = -1;
         if(etlMetrics == null) {

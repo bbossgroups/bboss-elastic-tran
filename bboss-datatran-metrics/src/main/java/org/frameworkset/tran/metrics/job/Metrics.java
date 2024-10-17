@@ -34,7 +34,7 @@ import java.util.List;
  * @version 1.0
  */
 public abstract class Metrics implements BaseMetrics {
-    private MetricsLogAPI metricsLogAPI;
+    protected MetricsLogAPI metricsLogAPI;
 	private BaseMetrics baseMetrics;
 	private List<MetricBuilder> metricBuilders;
 	private boolean inited;

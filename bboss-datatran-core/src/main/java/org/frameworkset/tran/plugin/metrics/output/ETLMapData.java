@@ -1,6 +1,6 @@
 package org.frameworkset.tran.plugin.metrics.output;
 /**
- * Copyright 2023 bboss
+ * Copyright 2024 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,24 @@ package org.frameworkset.tran.plugin.metrics.output;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.metrics.entity.MapData;
 
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2023</p>
- * @Date 2023/2/15
+ *
  * @author biaoping.yin
- * @version 1.0
+ * @Date 2024/10/16
  */
-public interface BuildMapData {
-    public ETLMapData buildMapData(MetricsData metricsData);
+public class ETLMapData<T> extends MapData<T> {
+    private TaskMetrics taskMetrics;
+
+    public TaskMetrics getTaskMetrics() {
+        return taskMetrics;
+    }
+
+    public void setTaskMetrics(TaskMetrics taskMetrics) {
+        this.taskMetrics = taskMetrics;
+    }
 }

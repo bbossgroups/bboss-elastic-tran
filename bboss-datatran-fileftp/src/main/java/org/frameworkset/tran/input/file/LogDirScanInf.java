@@ -1,5 +1,7 @@
 package org.frameworkset.tran.input.file;
 
+import org.frameworkset.tran.schedule.TaskContext;
+
 /**
  * 扫描新增日志文件
  * @author biaoping.yin
@@ -15,7 +17,7 @@ public interface LogDirScanInf {
     /**
      * 识别新增的文件，如果有新增文件，将启动新的文件采集作业
      */
-    public void scanNewFile();
+    public void scanNewFile(TaskContext taskContext);
 
 
     /**

@@ -875,6 +875,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	public void init(ImportContext importContext) {
         
 		this.importContext = importContext;
+        this.importContext.initJobcontext();
         this.importContext.initETLMetrics();
 		exportCount = new ExportCount();
 		this.inputPlugin = importContext.getInputPlugin();

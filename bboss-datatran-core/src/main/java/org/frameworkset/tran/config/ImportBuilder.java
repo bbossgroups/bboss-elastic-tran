@@ -1295,6 +1295,7 @@ public class ImportBuilder {
         }
     }
 	protected void buildImportConfig(BaseImportConfig baseImportConfig){
+        baseImportConfig.setInitJobContextCall(this.initJobContextCall);
         baseImportConfig.setMetricsLogReport(this.metricsLogReport);
 		baseImportConfig.setImportStartAction(importStartAction);
 		baseImportConfig.setImportEndAction(importEndAction);
@@ -1458,20 +1459,9 @@ public class ImportBuilder {
         return setFetchSized;
     }
 
-    private JobContext initJobcontext(){
-		JobContext jobContext = new JobContext();
-		if(this.initJobContextCall != null){
-			try {
-				initJobContextCall.initJobContext(jobContext);
-			}
-			catch (Exception e){
-				throw new DataImportException(e);
-			}
-		}
-		return jobContext;
-	}
+
 	protected DataStream innerBuilder(){
-		JobContext jobContext = initJobcontext();
+		
 		this.buildGeoipConfig();
 		buildDBConfig();
 		this.buildOtherDBConfigs();
@@ -1488,6 +1478,7 @@ public class ImportBuilder {
 
 		}
 		BaseImportContext importContext = new BaseImportContext();
+        JobContext jobContext = new JobContext();
 		importContext.setJobContext(jobContext);
 		BaseImportConfig baseImportConfig = new BaseImportConfig() ;
 		buildImportConfig(baseImportConfig);

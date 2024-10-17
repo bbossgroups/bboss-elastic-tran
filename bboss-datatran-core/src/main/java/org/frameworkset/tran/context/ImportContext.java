@@ -309,4 +309,6 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
     public boolean isCleanKeysWhenflushMetricsOnScheduleTaskCompleted();
 
     void initETLMetrics();
+
+    void initJobcontext();
 }

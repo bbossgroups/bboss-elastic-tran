@@ -58,7 +58,7 @@ public class MetricsTaskCommandImpl extends BaseTaskCommand<  String> {
             if (metricsOutputConfig.getTimeWindowType() != null)
                 buildMapDataContext.setTimeWindowType(metricsOutputConfig.getTimeWindowType());
             for (CommonRecord commonRecord : records) {
-                BaseTranJob.map(commonRecord, buildMapDataContext, metricsOutputConfig.getMetrics(), metricsOutputConfig.isUseDefaultMapData());
+                BaseTranJob.map(commonRecord,this.taskMetrics, buildMapDataContext, metricsOutputConfig.getMetrics(), metricsOutputConfig.isUseDefaultMapData());
             }
         }
         else{

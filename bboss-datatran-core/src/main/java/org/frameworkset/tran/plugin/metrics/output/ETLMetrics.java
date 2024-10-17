@@ -132,15 +132,17 @@ public abstract class ETLMetrics extends Metrics {
      * @param metricsData
      * @return
      */
-    public MapData buildMapData(MetricsData metricsData){
+    public ETLMapData buildMapData(MetricsData metricsData){
+        ETLMapData etlMapData = null;
         if(buildMapData != null){
-            return buildMapData.buildMapData(metricsData);
+            etlMapData = buildMapData.buildMapData(metricsData);
         }
         else {
-            MapData mapData = new MapData();
-            metricsData.setData(mapData, this);
-            return mapData;
+            etlMapData = new ETLMapData();           
+            metricsData.setData(etlMapData, this);
         }
+        etlMapData.setTaskMetrics(metricsData.getTaskMetrics());
+        return etlMapData;
 
     }
     /**

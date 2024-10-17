@@ -17,8 +17,10 @@ package org.frameworkset.tran.task;
 
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.metrics.entity.MapData;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
+import org.frameworkset.tran.plugin.metrics.output.ETLMapData;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.plugin.metrics.output.MetricsData;
 
@@ -33,14 +35,7 @@ import java.util.List;
  * @version 1.0
  */
 public abstract class BaseTranJob implements TranJob {
-    protected void metricsMap(CommonRecord commonRecord, BuildMapDataContext buildMapDataContext, ImportContext importContext){
-        if(buildMapDataContext == null){
-            return;
-        }
-        map(  commonRecord,   buildMapDataContext,   importContext.getMetrics(),  importContext.isUseDefaultMapData());
-
-    }
-    
+ 
     public static StringBuilder builderJobInfo(StringBuilder builder,ImportContext importContext){
         builder.append("JobType[").append(importContext.getInputPlugin().getJobType()).append("]");
         if(importContext.getJobId() != null)
@@ -62,16 +57,18 @@ public abstract class BaseTranJob implements TranJob {
         return buildMapDataContext;
     }
 
-    public static void map(CommonRecord commonRecord, BuildMapDataContext buildMapDataContext, List<ETLMetrics> etlMetrics,boolean isUseDefaultMapData){
+    public static void map(CommonRecord commonRecord, TaskMetrics taskMetrics,BuildMapDataContext buildMapDataContext, List<ETLMetrics> etlMetrics, boolean isUseDefaultMapData){
 
         MetricsData metricsData = new MetricsData();
         metricsData.setBuildMapDataContext(buildMapDataContext);
         metricsData.setCommonRecord(commonRecord);
+        metricsData.setTaskMetrics(taskMetrics);
 
-        MapData defaultMapData = null;
+        ETLMapData defaultMapData = null;
         if(isUseDefaultMapData){
 
-            defaultMapData = new MapData();
+            defaultMapData = new ETLMapData();
+            defaultMapData.setTaskMetrics(taskMetrics);
             metricsData.setData(defaultMapData,null);
         }
         for (ETLMetrics metrics : etlMetrics) {

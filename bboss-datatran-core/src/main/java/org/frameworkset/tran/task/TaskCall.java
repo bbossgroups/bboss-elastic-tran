@@ -93,12 +93,12 @@ public class TaskCall implements Runnable {
         return buildMapDataContext;
     }
 
-    private static void metricsCompute(ImportContext importContext,List<CommonRecord> records){
+    private static void metricsCompute(ImportContext importContext,TaskMetrics taskMetrics,List<CommonRecord> records){
         if(importContext.getMetrics() == null || importContext.getMetrics().size() == 0)
             return;
         BuildMapDataContext buildMapDataContext = buildMapDataContext( importContext);
         for(CommonRecord commonRecord:records){
-            BaseTranJob. map(  commonRecord,   buildMapDataContext,   importContext.getMetrics(),  importContext.isUseDefaultMapData());
+            BaseTranJob. map(  commonRecord,   taskMetrics,  buildMapDataContext,   importContext.getMetrics(),  importContext.isUseDefaultMapData());
 
         }
     }
@@ -154,7 +154,7 @@ public class TaskCall implements Runnable {
             taskCommand.init();
             dataRefactor(taskCommand);            
             //指标计算
-            metricsCompute(  importContext,taskCommand.getRecords());
+            metricsCompute(  importContext,  taskMetrics,taskCommand.getRecords());
 			
 			RESULT data = taskCommand.execute();
 			Date endTime = new Date();
