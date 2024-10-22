@@ -992,7 +992,7 @@ public abstract class BaseStatusManager implements StatusManager {
 		this.currentStatus = currentStatus;
 		this.firstStatus = (Status) currentStatus.copy();
 		if(logger.isInfoEnabled())
-			logger.info("Init LastValue Status: {}",currentStatus.toString());
+			logger.info("Init Job {} LastValue Status: {}",importContext.getJobName(),currentStatus.toString());
 	}
 
 	public  void handleLostedTasks(List<Status> losteds , boolean needSyn){

@@ -28,19 +28,11 @@ import org.frameworkset.tran.schedule.TaskContext;
  */
 public interface DataRefactor {
 	/**
-	 * 数据处理第一阶段：串行处理阶段，串行加工处理数据方法,适应于轻量级数据处理逻辑
+	 * 数据处理:加工处理数据方法,自定义数据处理逻辑，包括数据转换处理，添加、删除、修改字段，过滤记录，ip地址转换等
 	 * @param context 包含需要加工数据记录的上下文对象
 	 * @return
 	 */
 	public void refactor(Context context) throws Exception;
 
-    /**
-     * 数据处理第二阶段：并行处理阶段，
-     * @param taskContext
-     * @param commonRecord
-     * @throws Exception
-     */
-    default public void refactorStage2(TaskContext taskContext,CommonRecord commonRecord) throws Exception{
-        
-    }
+    
 }

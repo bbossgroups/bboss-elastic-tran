@@ -41,7 +41,7 @@ public class IPDBTest1 {
 			GeoIPUtil addressUtils = new GeoIPUtil();
 			addressUtils.setAsnDatabase("C:\\data\\geolite2\\GeoLite2-ASN.mmdb");
 			addressUtils.setDatabase("C:\\data\\geolite2\\GeoLite2-City.mmdb");
-			addressUtils.setIp2regionDatabase("C:\\data\\geolite2\\ip2region.xdb");
+			addressUtils.setIp2regionDatabase("C:\\data\\geolite2\\ip2region.db");
 			addressUtils.setCachesize(2000);
 			addressUtils.init();
 			IpInfo address = addressUtils.getIpInfo("223.104.130.11");
