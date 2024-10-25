@@ -83,4 +83,13 @@ public class RecordBuidlerContext<T> extends BaseMetricsLogReport {
     public void reportJobMetricWarn(  String msg) {
         dataTranPlugin.reportJobMetricWarn(taskContext, msg);
     }
+
+    /**
+     * 记录作业处理过程中的debug日志
+     *
+     * @param msg
+     */
+    public void reportJobMetricDebug(  String msg) {
+        dataTranPlugin.reportJobMetricDebug(taskContext, msg);
+    }
 }

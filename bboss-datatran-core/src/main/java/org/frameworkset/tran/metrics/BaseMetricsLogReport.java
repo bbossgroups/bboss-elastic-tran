@@ -16,9 +16,7 @@ package org.frameworkset.tran.metrics;
  */
 
 import org.frameworkset.tran.DataTranPlugin;
-import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.task.TaskCommand;
 
 /**
  * <p>Description: </p>
@@ -110,5 +108,27 @@ public abstract class BaseMetricsLogReport implements DataTranPluginMetricsLogAP
     @Override
     public void reportTaskMetricWarn(TaskMetrics taskMetrics, String msg) {
         dataTranPlugin.reportTaskMetricWarn(taskMetrics, msg);
+    }
+
+    /**
+     * 记录作业处理过程中的debug日志
+     *
+     * @param taskContext
+     * @param msg
+     */
+    @Override
+    public void reportJobMetricDebug(TaskContext taskContext, String msg) {
+        dataTranPlugin.reportJobMetricDebug(taskContext, msg);
+    }
+
+    /**
+     * 记录作业任务处理过程中的debug日志
+     *
+     * @param taskMetrics
+     * @param msg
+     */
+    @Override
+    public void reportTaskMetricDebug(TaskMetrics taskMetrics, String msg) {
+        dataTranPlugin.reportTaskMetricDebug(taskMetrics, msg);
     }
 }

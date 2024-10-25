@@ -1,4 +1,4 @@
-package org.frameworkset.tran.util;
+package org.frameworkset.tran.plugin.custom.output;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -15,22 +15,29 @@ package org.frameworkset.tran.util;
  * limitations under the License.
  */
 
-import java.io.Writer;
-
+ 
+ 
 /**
- * <p>Description: 用于生成第一行记录，主要用于生成csv文件的title和其他文本的第一行标题</p>
+ * <p>Description: 自定义数据处理组件</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/1/28 16:52
+ * @Date 2021/10/9 17:08
  * @author biaoping.yin
  * @version 1.0
  */
-@Deprecated
-public interface HeaderRecordGenerator extends RecordGenerator{
-	/**
-	 * 构建头行数据方法
-	 * @param builder
-	 * @throws Exception
-	 */
-	public void buildHeaderRecord(Writer builder) throws Exception;
+public interface CustomOutPutV1 {
+//    @Deprecated
+//    /**
+//     * 不建议方法
+//     * 使用handleData(TaskContext taskContext, TaskMetrics taskMetrics,List<CommonRecord> datas)
+//     */
+//	default public void handleData(TaskContext taskContext,List<CommonRecord> datas){
+//        
+//    }
+
+    /**
+     * 自定义输出数据方法
+     * @param customOutPutContext 封装需要处理的数据和其他作业上下文信息
+     */
+    public void handleData(CustomOutPutContext customOutPutContext);
 }

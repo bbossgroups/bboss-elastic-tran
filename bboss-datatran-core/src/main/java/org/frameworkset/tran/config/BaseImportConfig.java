@@ -21,6 +21,7 @@ import org.frameworkset.spi.geoip.GeoIPUtil;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.InitJobContextCall;
 import org.frameworkset.tran.listener.JobClosedListener;
+import org.frameworkset.tran.metrics.MetricsLogLevel;
 import org.frameworkset.tran.metrics.MetricsLogReport;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.record.SplitHandler;
@@ -52,6 +53,8 @@ public class BaseImportConfig {
 	private boolean sortLastValue ;
 	private List<ETLMetrics> metrics;
 	private boolean useDefaultMapData = false;
+
+    private int metricsLogLevel = MetricsLogLevel.INFO;
 
     private transient InitJobContextCall initJobContextCall;
     /**
@@ -1052,5 +1055,13 @@ public class BaseImportConfig {
 
     public void setInitJobContextCall(InitJobContextCall initJobContextCall) {
         this.initJobContextCall = initJobContextCall;
+    }
+
+    public int getMetricsLogLevel() {
+        return metricsLogLevel;
+    }
+
+    public void setMetricsLogLevel(int metricsLogLevel) {
+        this.metricsLogLevel = metricsLogLevel;
     }
 }

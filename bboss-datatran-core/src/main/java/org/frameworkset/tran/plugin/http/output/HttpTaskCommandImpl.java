@@ -67,11 +67,11 @@ public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
             if (i == 0) {
                 if(httpOutputConfig.isJson())
                     bBossStringWriter.write("[");
-                httpOutputConfig.generateReocord(taskContext, record, bBossStringWriter);
+                httpOutputConfig.generateReocord(taskContext, taskMetrics,record, bBossStringWriter);
 
             } else {
                 bBossStringWriter.write(httpOutputConfig.getLineSeparator());
-                httpOutputConfig.generateReocord(taskContext, record, bBossStringWriter);
+                httpOutputConfig.generateReocord(taskContext,taskMetrics, record, bBossStringWriter);
             }
         }
         if(httpOutputConfig.isJson())
@@ -123,6 +123,7 @@ public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
 			dynamicHeaderContext = new DynamicHeaderContext();
 			dynamicHeaderContext.setDatas(datas);
 			dynamicHeaderContext.setTaskContext(taskContext);
+            dynamicHeaderContext.setTaskMetrics(this.taskMetrics);
 			dynamicHeaderContext.setImportContext(httpOutputDataTranPlugin.getImportContext());
 		}
 		if(httpOutputConfig.isPostMethod() )
@@ -144,6 +145,7 @@ public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
 			dynamicHeaderContext = new DynamicHeaderContext();
 			dynamicHeaderContext.setDatas(datas);
 			dynamicHeaderContext.setTaskContext(taskContext);
+            dynamicHeaderContext.setTaskMetrics(this.taskMetrics);
 			dynamicHeaderContext.setImportContext(httpOutputDataTranPlugin.getImportContext());
 		}
 		Map<String, DynamicParam> dynamicParams = importContext.getJobDynamicOutputParams();

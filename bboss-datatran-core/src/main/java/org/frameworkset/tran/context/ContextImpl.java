@@ -872,11 +872,18 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
     }
 
     /**
-     * 记录作业处理过程中的日志
+     * 记录作业处理过程中的告警日志
      * @param msg
      */
     public void reportJobMetricWarn(  String msg){
         this.reportJobMetricWarn(taskContext,msg);
+    }
+    /**
+     * 记录作业处理过程中的告警日志
+     * @param msg
+     */
+    public void reportJobMetricDebug(  String msg){
+        this.reportJobMetricDebug(taskContext,msg);
     }
 
     /**
@@ -905,6 +912,19 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
         }
         else{
             this.reportJobMetricLog(msg);
+        }
+    }
+
+    /**
+     * 记录作业任务处理过程中的日志
+     * @param msg
+     */
+    public void reportTaskMetricDebug( String msg){
+        if(taskMetrics != null){
+            this.reportTaskMetricDebug(taskMetrics,msg);
+        }
+        else{
+            this.reportJobMetricDebug(msg);
         }
     }
 

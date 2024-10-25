@@ -42,7 +42,7 @@ public class DummyTaskCommandImpl extends BaseTaskCommand<String> {
         StringBuilder builder = new StringBuilder();
         BBossStringWriter writer = new BBossStringWriter(builder);
         for(int i = 0; i < records.size(); i ++){
-            dummyOutputConfig.generateReocord(taskContext,records.get(i), writer);
+            dummyOutputConfig.generateReocord(taskContext,taskMetrics,records.get(i), writer);
             writer.write(TranUtil.lineSeparator);
         }
         return writer.toString();

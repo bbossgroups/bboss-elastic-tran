@@ -1,6 +1,6 @@
 package org.frameworkset.tran.util;
 /**
- * Copyright 2020 bboss
+ * Copyright 2024 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,20 @@ package org.frameworkset.tran.util;
  * limitations under the License.
  */
 
-import java.io.Writer;
-
 /**
- * <p>Description: 用于生成第一行记录，主要用于生成csv文件的title和其他文本的第一行标题</p>
+ * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2020</p>
- * @Date 2021/1/28 16:52
+ *
  * @author biaoping.yin
- * @version 1.0
+ * @Date 2024/10/24
  */
-@Deprecated
-public interface HeaderRecordGenerator extends RecordGenerator{
-	/**
-	 * 构建头行数据方法
-	 * @param builder
-	 * @throws Exception
-	 */
-	public void buildHeaderRecord(Writer builder) throws Exception;
+public class DefaultRecordGeneratorV1 implements RecordGeneratorV1{
+    private RecordGenerator recordGenerator;
+    public DefaultRecordGeneratorV1(RecordGenerator recordGenerator){
+        this.recordGenerator = recordGenerator;
+    }
+    @Override
+    public void buildRecord(RecordGeneratorContext recordGeneratorContext) throws Exception {
+        this.recordGenerator.buildRecord(recordGeneratorContext.getTaskContext(),recordGeneratorContext.getRecord(),recordGeneratorContext.getBuilder());
+    }
 }

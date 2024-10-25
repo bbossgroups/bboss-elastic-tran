@@ -27,10 +27,12 @@ import java.io.Writer;
  * @Date 2021/1/28 16:52
  * @author biaoping.yin
  * @version 1.0
+ * use RecordGeneratorV1
  */
+@Deprecated
 public interface RecordGenerator {
 	public final TranDummyWriter tranDummyWriter = new TranDummyWriter();
-	public void buildRecord(TaskContext taskContext, CommonRecord record, Writer builder) throws Exception;
-
+	public void buildRecord(TaskContext taskContext,  CommonRecord record, Writer builder) throws Exception;
+//    public void buildRecord(Context context, CommonRecord record, Writer builder) throws Exception ;
  
 }

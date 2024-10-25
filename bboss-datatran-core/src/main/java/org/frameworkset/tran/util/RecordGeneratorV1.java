@@ -15,22 +15,23 @@ package org.frameworkset.tran.util;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.schedule.TaskContext;
+
 import java.io.Writer;
 
 /**
- * <p>Description: 用于生成第一行记录，主要用于生成csv文件的title和其他文本的第一行标题</p>
+ * <p>Description: </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2021/1/28 16:52
  * @author biaoping.yin
  * @version 1.0
  */
-@Deprecated
-public interface HeaderRecordGenerator extends RecordGenerator{
-	/**
-	 * 构建头行数据方法
-	 * @param builder
-	 * @throws Exception
-	 */
-	public void buildHeaderRecord(Writer builder) throws Exception;
+public interface RecordGeneratorV1 {
+    public final TranDummyWriter tranDummyWriter = new TranDummyWriter();
+	public void buildRecord(RecordGeneratorContext recordGeneratorContext) throws Exception;
+//    public void buildRecord(Context context, CommonRecord record, Writer builder) throws Exception ;
+ 
 }

@@ -18,6 +18,7 @@ package org.frameworkset.tran.output.fileftp;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
@@ -62,7 +63,7 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
         for(int i = 0; i < records.size(); i ++){
             record = records.get(i);
 
-            fileOutputConfig.generateReocord(taskContext,record, writer);
+            fileOutputConfig.generateReocord(taskContext,   taskMetrics,record, writer);
             writer.write(fileOutputConfig.getLineSeparator());
         }
         return writer.toString();

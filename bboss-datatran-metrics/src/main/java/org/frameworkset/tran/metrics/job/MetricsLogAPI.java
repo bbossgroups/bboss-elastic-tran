@@ -45,10 +45,18 @@ public interface MetricsLogAPI<J,T> {
     }
 
     /**
-     * 记录作业处理过程中的日志
+     * 记录作业处理过程中的告警日志
      * @param msg
      */
     default public void reportJobMetricWarn(J logcontext,String msg){
+
+    }
+
+    /**
+     * 记录作业处理过程中的debug日志
+     * @param msg
+     */
+    default public void reportJobMetricDebug(J logcontext,String msg){
 
     }
 
@@ -73,10 +81,18 @@ public interface MetricsLogAPI<J,T> {
     }
 
     /**
-     * 记录作业任务处理过程中的日志
+     * 记录作业任务处理过程中的告警日志
      * @param msg
      */
     default public void reportTaskMetricWarn(T logcontext, String msg){
+
+    }
+
+    /**
+     * 记录作业任务处理过程中的告警日志
+     * @param msg
+     */
+    default public void reportTaskMetricDebug(T logcontext, String msg){
 
     }
 
@@ -100,11 +116,19 @@ public interface MetricsLogAPI<J,T> {
     }
 
     /**
-     * 记录作业处理过程中的日志
+     * 记录作业处理过程中的告警日志
      * @param msg
      */
     default public void reportJobMetricWarn(String msg){
         this.reportJobMetricWarn(null,msg);
+    }
+
+    /**
+     * 记录作业处理过程中的debug日志
+     * @param msg
+     */
+    default public void reportJobMetricDebug(String msg){
+        this.reportJobMetricDebug(null,msg);
     }
 
 

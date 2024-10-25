@@ -182,7 +182,7 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 
 		CommonRecord dataRecord = context.getCommonRecord();
-		kafkaOutputConfig.generateReocord(context.getTaskContext(),dataRecord, writer);
+		kafkaOutputConfig.generateReocord(context.getTaskContext(),context.getTaskMetrics(),dataRecord, writer);
 		return dataRecord;
 	}
  

@@ -20,13 +20,12 @@ import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.ftp.FtpConfig;
-import org.frameworkset.tran.ftp.FtpTransfer;
-import org.frameworkset.tran.ftp.SFTPTransfer;
+ 
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.task.TaskCommand;
-import org.frameworkset.tran.util.HeaderRecordGenerator;
-import org.frameworkset.tran.util.RecordGenerator;
+import org.frameworkset.tran.util.HeaderRecordGeneratorV1;
+import org.frameworkset.tran.util.RecordGeneratorContext;
+import org.frameworkset.tran.util.RecordGeneratorV1;
 import org.frameworkset.util.concurrent.LongCount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +63,7 @@ public class FileTransfer {
 	private String taskInfo;
 	protected File file;
 	protected FileOutputConfig fileOutputConfig;
-	private HeaderRecordGenerator headerRecordGenerator;
+	private HeaderRecordGeneratorV1 headerRecordGenerator;
 	private int buffsize = 8192;
 	protected long maxFileRecordSize;
 	private FileFtpOutPutDataTran fileFtpOutPutDataTran;
@@ -85,9 +84,9 @@ public class FileTransfer {
         if(fileOutputConfig.getMaxFileRecordSize() > 0){
 			maxFileRecordSize = fileOutputConfig.getMaxFileRecordSize();
 		}
-		RecordGenerator recordGenerator = fileOutputConfig.getRecordGenerator();
-		if(recordGenerator instanceof HeaderRecordGenerator){
-			this.headerRecordGenerator = (HeaderRecordGenerator)recordGenerator;
+		RecordGeneratorV1 recordGenerator = fileOutputConfig.getRecordGeneratorV1();
+		if(recordGenerator instanceof HeaderRecordGeneratorV1){
+			this.headerRecordGenerator = (HeaderRecordGeneratorV1)recordGenerator;
 		}
 		File path = new File(dir);
 		if(!path.exists())
@@ -228,7 +227,10 @@ public class FileTransfer {
 	public void writeHeader() throws Exception {
 		if(headerRecordGenerator != null) {
 			BBossStringWriter writer = new BBossStringWriter();
-			headerRecordGenerator.buildHeaderRecord(writer);
+            RecordGeneratorContext recordGeneratorContext = new RecordGeneratorContext();
+            recordGeneratorContext.setMetricsLogAPI(this.fileFtpOutPutDataTran.getDataTranPlugin());
+            recordGeneratorContext.setBuilder(writer);
+			headerRecordGenerator.buildHeaderRecord(recordGeneratorContext);
 			bw.write(writer.toString());
 //			bw.write(TranUtil.lineSeparator);
 			bw.write(fileOutputConfig.getLineSeparator());

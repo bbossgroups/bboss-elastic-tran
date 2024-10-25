@@ -58,6 +58,47 @@ public abstract class ETLMetrics extends Metrics {
             }
 
             /**
+             * 记录作业处理过程中的异常日志
+             *
+             * @param msg
+             * @param e
+             */
+            @Override
+            public void reportJobMetricErrorLog(String msg, Throwable e) {
+                importContext.reportJobMetricErrorLog(msg, e);
+            }
+
+            /**
+             * 记录作业处理过程中的日志
+             *
+             * @param msg
+             */
+            @Override
+            public void reportJobMetricLog(String msg) {
+                importContext.reportJobMetricLog(msg);
+            }
+
+            /**
+             * 记录作业处理过程中的告警日志
+             *
+             * @param msg
+             */
+            @Override
+            public void reportJobMetricWarn(String msg) {
+                importContext.reportJobMetricWarn(msg);
+            }
+
+            /**
+             * 记录作业处理过程中的debug日志
+             *
+             * @param msg
+             */
+            @Override
+            public void reportJobMetricDebug(String msg) {
+                importContext.reportJobMetricDebug(msg);
+            }
+
+            /**
              * 记录作业处理过程中的日志
              *
              * @param logcontext
@@ -69,7 +110,7 @@ public abstract class ETLMetrics extends Metrics {
             }
 
             /**
-             * 记录作业处理过程中的日志
+             * 记录作业处理过程中的告警日志
              *
              * @param logcontext
              * @param msg
@@ -77,6 +118,17 @@ public abstract class ETLMetrics extends Metrics {
             @Override
             public void reportJobMetricWarn(TaskContext logcontext, String msg) {
                 importContext.reportJobMetricWarn(logcontext, msg);
+            }
+
+            /**
+             * 记录作业处理过程中的日志
+             *
+             * @param logcontext
+             * @param msg
+             */
+            @Override
+            public void reportJobMetricDebug(TaskContext logcontext, String msg) {
+                importContext.reportJobMetricDebug(logcontext, msg);
             }
 
             /**
@@ -103,7 +155,7 @@ public abstract class ETLMetrics extends Metrics {
             }
 
             /**
-             * 记录作业任务处理过程中的日志
+             * 记录作业任务处理过程中的告警日志
              *
              * @param logcontext
              * @param msg
@@ -112,6 +164,18 @@ public abstract class ETLMetrics extends Metrics {
             public void reportTaskMetricWarn(TaskMetrics logcontext, String msg) {
                 if(logcontext != null && logcontext instanceof TaskMetrics)
                 importContext.reportTaskMetricWarn(logcontext, msg);
+            }
+
+            /**
+             * 记录作业任务处理过程中的debug日志
+             *
+             * @param logcontext
+             * @param msg
+             */
+            @Override
+            public void reportTaskMetricDebug(TaskMetrics logcontext, String msg) {
+                if(logcontext != null && logcontext instanceof TaskMetrics)
+                    importContext.reportTaskMetricDebug(logcontext, msg);
             }
         };
     }

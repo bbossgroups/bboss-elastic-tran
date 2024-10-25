@@ -88,12 +88,19 @@ public class JobContext extends BaseMetricsLogReport {
     }
 
     /**
-     * 记录作业处理过程中的日志
+     * 记录作业处理过程中的告警日志
      *
      * @param msg
      */
     public void reportJobMetricWarn( String msg) {
         super.reportJobMetricWarn(null,msg);
     }
-
+    /**
+     * 记录作业处理过程中的debug日志
+     *
+     * @param msg
+     */
+    public void reportJobMetricDebug( String msg) {
+        super.reportJobMetricDebug(null,msg);
+    }
 }

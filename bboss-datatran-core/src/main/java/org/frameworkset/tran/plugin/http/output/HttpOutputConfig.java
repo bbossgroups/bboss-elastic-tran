@@ -20,13 +20,12 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.http.BaseHttpConfig;
 import org.frameworkset.tran.plugin.http.DynamicHeader;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.JsonRecordGenerator;
-import org.frameworkset.tran.util.RecordGenerator;
-import org.frameworkset.tran.util.TranUtil;
+import org.frameworkset.tran.util.*;
 
 import java.io.Writer;
 import java.util.LinkedHashMap;
@@ -91,19 +90,17 @@ public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 	private String targetHttpPool;
 	private String serviceUrl;
 
-	public RecordGenerator getRecordGenerator() {
-		return recordGenerator;
-	}
 
-	public HttpOutputConfig setRecordGenerator(RecordGenerator recordGenerator) {
-		this.recordGenerator = recordGenerator;
-		return this;
-	}
+
+
 
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.kafka.output.fileftp.ReocordGenerator
 	 */
+    @Deprecated
 	private RecordGenerator recordGenerator;
+
+    private RecordGeneratorV1 recordGeneratorV1;
 
 	public Map<String, Object> getHttpConfigs() {
 		return httpConfigs;
@@ -184,9 +181,12 @@ public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 				dataKey = "httpDatas";
 
 		}
-		if(getRecordGenerator() == null){
-			setRecordGenerator(new JsonRecordGenerator());//默认采用json格式输出数据
+		if(this.recordGeneratorV1 == null && this.recordGenerator == null){
+			setRecordGeneratorV1(new JsonRecordGenerator());//默认采用json格式输出数据
 		}
+        if(recordGeneratorV1 == null){
+            recordGeneratorV1 = new DefaultRecordGeneratorV1(recordGenerator);
+        }
 		if(json) {
 			lineSeparator = ",";
 		}
@@ -226,12 +226,18 @@ public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 		return db2ESExportResultHandler;
 	}
 
-	public void generateReocord(TaskContext taskContext, CommonRecord record, Writer builder) throws Exception{
+	public void generateReocord(TaskContext taskContext,TaskMetrics taskMetrics, CommonRecord record, Writer builder) throws Exception{
 		if(builder == null){
-			builder = RecordGenerator.tranDummyWriter;
+			builder = RecordGeneratorV1.tranDummyWriter;
 		}
+        RecordGeneratorContext recordGeneratorContext = new RecordGeneratorContext();
+        recordGeneratorContext.setRecord(record);
+        recordGeneratorContext.setTaskContext(taskContext);
+        recordGeneratorContext.setBuilder(builder);
+        recordGeneratorContext.setTaskMetrics(taskMetrics).setMetricsLogAPI(taskContext.getDataTranPlugin());
 
-		getRecordGenerator().buildRecord(taskContext, record, builder);
+        getRecordGeneratorV1().buildRecord(  recordGeneratorContext);
+//		getRecordGenerator().buildRecord(taskContext,  taskMetrics, record, builder);
 	}
 
 	public HttpOutputConfig addHttpHeaders(Map<String, String> _httpHeaders){
@@ -260,4 +266,22 @@ public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 		this.dataDsl = dataDsl;
 		return this;
 	}
+
+    public RecordGeneratorV1 getRecordGeneratorV1() {
+        return recordGeneratorV1;
+    }
+
+    public HttpOutputConfig setRecordGeneratorV1(RecordGeneratorV1 recordGeneratorV1) {
+        this.recordGeneratorV1 = recordGeneratorV1;
+        return this;
+    }
+
+    @Deprecated
+    /**
+     * use  public HttpOutputConfig setRecordGeneratorV1(RecordGeneratorV1 recordGeneratorV1)
+     */
+    public HttpOutputConfig setRecordGenerator(RecordGenerator recordGenerator) {
+        this.recordGenerator = recordGenerator;
+        return this;
+    }
 }

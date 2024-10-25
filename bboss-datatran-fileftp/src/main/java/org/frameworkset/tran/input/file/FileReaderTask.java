@@ -267,8 +267,10 @@ public class FileReaderTask extends FieldManager{
                             }
                         }
                         else if(fileOlded){
+                            String msg = "文件["+fileInfo.getFilePath()+"]超过静默时间或者空闲时间内容未变化，完成采集作业";
+                            fileListenerService.getBaseDataTranPlugin().reportJobMetricLog(taskContext,msg);
                             if(logger.isInfoEnabled())
-                                logger.info("文件[{}]超过静默时间或者空闲时间内容未变化，完成采集作业",fileInfo.getFilePath());
+                                logger.info(msg);
                             fileListenerService.addOldedFileTask(currentStatus.getFileId(),new FileReaderTask(currentStatus.getFileId()
                                     ,currentStatus,fileImportConfig));
 //                            fileDataTran.getDataTranPlugin().handleOldedTask(currentStatus);
@@ -340,23 +342,28 @@ public class FileReaderTask extends FieldManager{
 
         @Override
         public void run() {
-            logger.info("文件内容{}采集任务开始.",
-                    fileInfo.getFilePath());
+            String msg = "文件"+
+                    fileInfo.getFilePath()+"内容采集任务开始.";
+            DataTranPlugin dataTranPlugin = fileListenerService.getBaseDataTranPlugin();
+            dataTranPlugin.reportJobMetricLog(taskContext,msg);
+            logger.info(msg);
             boolean delete = false;
             boolean olded = false;
             boolean errorComplete = false;
             File file = fileInfo.getFile();
             String fileId = fileInfo.getFileId();
             long pauseScheduleTimeStamp = 0L;
-            DataTranPlugin dataTranPlugin = fileListenerService.getBaseDataTranPlugin();
+           
             InputPlugin inputPlugin = dataTranPlugin.getInputPlugin();
             boolean _taskEndOrStop = false;
             do {
                 try {
                     _taskEndOrStop = taskEnded || dataTranPlugin.checkTranToStop() || inputPlugin.isStopCollectData();
                     if (_taskEndOrStop) {
-                        logger.info("退出文件内容采集循环：taskEnded={}，dataTranPlugin.checkTranToStop = {},inputPlugin.isStopCollectData={},file={}",
-                                taskEnded,dataTranPlugin.checkTranToStop(),inputPlugin.isStopCollectData(),fileInfo.getFilePath());
+                        msg = "退出文件内容采集循环：taskEnded="+taskEnded+"，dataTranPlugin.checkTranToStop = "
+                                +dataTranPlugin.checkTranToStop()+",inputPlugin.isStopCollectData="+inputPlugin.isStopCollectData()+",file="+fileInfo.getFilePath();
+                        dataTranPlugin.reportJobMetricLog(taskContext,msg);
+                        logger.info(msg);
                         break;
                     }
                     if (file.exists()) {
@@ -383,17 +390,19 @@ public class FileReaderTask extends FieldManager{
                                 } else {
                                     olded = closeOldedFileAssert.canClose(fileInfo);
                                     if (!olded) {
+                                        msg = "文件[新："+fileInfo.getFilePath()+"|"+fileInfo.getFileId()+"，老："+fileInfo.getOriginFilePath()+"],idleTime:"+idleTime+",内容超过"+closeOlderTime+"毫秒未变化，已经超过指定的最大空闲静默时间closeOlderTime，停止本文件采集作业,olded:"+olded;
+                                        dataTranPlugin.reportJobMetricDebug(taskContext,msg);
                                         if (logger.isDebugEnabled()) {
-                                            logger.debug("文件[新：{}|{}，老：{}],idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间closeOlderTime，停止本文件采集作业,olded:{}",
-                                                    fileInfo.getFilePath(), fileInfo.getFileId(), fileInfo.getOriginFilePath(), idleTime, closeOlderTime, olded);
+                                            logger.debug(msg);
                                         }
                                     }
 
                                 }
                                 if (olded) {
+                                    msg = "文件["+fileInfo.getFilePath()+"|"+fileInfo.getFileId()+"]idleTime:"+idleTime+",内容超过"+closeOlderTime+"毫秒未变化，已经超过指定的最大空闲静默时间closeOlderTime，停止本文件采集作业.";
+                                    dataTranPlugin.reportJobMetricLog(taskContext,msg);
                                     if (logger.isInfoEnabled())
-                                        logger.info("文件[{}|{}]idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间closeOlderTime，停止本文件采集作业.",
-                                                fileInfo.getFilePath(), fileInfo.getFileId(), idleTime, closeOlderTime);
+                                        logger.info(msg);
                                     break;
                                 }
                             }
@@ -408,25 +417,28 @@ public class FileReaderTask extends FieldManager{
                                     olded = ignoreFileAssert.canIgnore(fileInfo);
                                 }
                                 if (olded) {
+                                    msg = "文件["+fileInfo.getFilePath()+"|"+fileInfo.getFileId()+"]idleTime:"+idleTime+",内容超过"+ignoreOlderTime+"毫秒未变化，已经超过指定的最大空闲静默时间ignoreOlderTime，停止本文件采集作业.";
+                                    dataTranPlugin.reportJobMetricLog(taskContext,msg);
                                     if (logger.isInfoEnabled())
-                                        logger.info("文件[{}|{}]idleTime:{},内容超过{}毫秒未变化，已经超过指定的最大空闲静默时间ignoreOlderTime，停止本文件采集作业.",
-                                                fileInfo.getFilePath(), fileInfo.getFileId(), idleTime, ignoreOlderTime);
+                                        logger.info(msg);
                                     break;
                                 }
                             }
                             if (closeOldedFileAssert != null) {
                                 olded = closeOldedFileAssert.canClose(fileInfo);
                                 if (olded) {
-                                    logger.info("文件[新：{}|{},老:{}]内容已经采集完毕，停止本文件采集作业.",
-                                            fileInfo.getFilePath(), fileInfo.getFileId(), fileInfo.getOriginFilePath());
+                                    msg = "文件[新："+fileInfo.getFilePath()+"|"+fileInfo.getFileId()+",老:"+fileInfo.getOriginFilePath()+"]内容已经采集完毕，停止本文件采集作业.";
+                                    dataTranPlugin.reportJobMetricLog(taskContext,msg);
+                                    logger.info(msg);
                                     break;
                                 }
                             }
                             if (ignoreFileAssert != null) {
                                 olded = ignoreFileAssert.canIgnore(fileInfo);
                                 if (olded) {
-                                    logger.info("文件[新：{}|{},老:{}]内容已经采集完毕，停止本文件采集作业.",
-                                            fileInfo.getFilePath(), fileInfo.getFileId(), fileInfo.getOriginFilePath());
+                                    msg = "文件[新："+fileInfo.getFilePath()+"|"+fileInfo.getFileId()+",老:"+fileInfo.getOriginFilePath()+"]内容已经采集完毕，停止本文件采集作业.";
+                                    dataTranPlugin.reportJobMetricLog(taskContext,msg);
+                                    logger.info(msg);
                                     break;
                                 }
                             }
@@ -526,8 +538,10 @@ public class FileReaderTask extends FieldManager{
             }while(true);
             if(delete){
                 //文件被删除，只清理作业任务，停止转换通道，清理和销毁通道任务上下文，当文件回来或者文件恢复后重新分配新的采集通道采集数据
+                msg = "文件["+fileInfo.getFilePath()+"]被删除，停止文件内容采集，只清理作业任务，停止转换通道，清理和销毁通道任务上下文，当文件回来或者文件恢复后重新分配新的采集通道采集数据";
+                dataTranPlugin.reportJobMetricLog(taskContext,msg);
                 if(logger.isInfoEnabled())
-                    logger.info("文件[{}]被删除，停止文件内容采集，只清理作业任务，停止转换通道，清理和销毁通道任务上下文，当文件回来或者文件恢复后重新分配新的采集通道采集数据",fileInfo.getFilePath());
+                    logger.info(msg);
 //                fileListenerService.doDelete(fileId);
                 //need test
                 /**
@@ -542,8 +556,10 @@ public class FileReaderTask extends FieldManager{
 //                destroyTaskContext();
             }
             else if(olded){
+                msg = "文件[{"+fileInfo.getFilePath()+"]超过静默时间或者空闲时间内容未变化，完成文件内容采集，等待内容处理完毕后终止文件采集通道。";
+                dataTranPlugin.reportJobMetricLog(taskContext,msg);
                 if(logger.isInfoEnabled())
-                    logger.info("文件[{}]超过静默时间或者空闲时间内容未变化，完成文件内容采集，等待内容处理完毕后终止文件采集通道。",fileInfo.getFilePath());
+                    logger.info(msg);
                 fileOlded = true;
                 try {
                     sendReadEOFcloseEvent(pointer);
@@ -559,8 +575,10 @@ public class FileReaderTask extends FieldManager{
 //                destroyTaskContext();
             }
             else if(errorComplete){ //dataTraan execute afterCall and destroyTaskContext
+                msg = "文件["+fileInfo.getFilePath()+"]采集异常，终止文件内容采集，等待内容处理完毕后终止文件采集通道";
+                dataTranPlugin.reportJobMetricLog(taskContext,msg);
                 if(logger.isInfoEnabled())
-                    logger.info("文件[{}]采集异常，终止文件内容采集，等待内容处理完毕后终止文件采集通道",fileInfo.getFilePath());
+                    logger.info(msg);
                 fileCompleteErrored = true;
                 taskEnded();
 
@@ -571,19 +589,24 @@ public class FileReaderTask extends FieldManager{
 
                 if(_taskEndOrStop) {
                     taskEndOrStop = _taskEndOrStop;
+                    if(taskEnded) {
+                        msg = "数据内容采集完成:"+ fileInfo.getFilePath()+"，等待内容处理完毕后终止文件采集通道";
+                    }
+                    else{
+                        msg = "停止数据内容采集:"+ fileInfo.getFilePath()+"，等待内容处理完毕后终止文件采集通道";
+                        
+                    }
+                    dataTranPlugin.reportJobMetricLog(taskContext,msg);
                     if(logger.isInfoEnabled()) {
-                        if(taskEnded) {
-                            logger.info("数据内容采集完成:{}，等待内容处理完毕后终止文件采集通道", fileInfo.getFilePath());
-                        }
-                        else{
-                            logger.info("停止数据内容采集:{}，等待内容处理完毕后终止文件采集通道", fileInfo.getFilePath());
-                        }
+                       logger.info(msg);
                     }
                 }
                 else{
                     interrupted = true;
+                    msg = "文件["+ fileInfo.getFilePath()+"]任务中断，导致终止文件内容采集，等待内容处理完毕后终止文件采集通道";
+                    dataTranPlugin.reportJobMetricLog(taskContext,msg);
                     if(logger.isInfoEnabled()) {
-                        logger.info("文件[{}]任务中断，导致终止文件内容采集，等待内容处理完毕后终止文件采集通道", fileInfo.getFilePath());
+                        logger.info(msg);
                     }
                 }
 

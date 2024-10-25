@@ -25,12 +25,11 @@ import java.io.Writer;
  * @author biaoping.yin
  * @version 1.0
  */
-@Deprecated
-public interface HeaderRecordGenerator extends RecordGenerator{
+public interface HeaderRecordGeneratorV1 extends RecordGeneratorV1{
 	/**
 	 * 构建头行数据方法
-	 * @param builder
+	 * @param recordGeneratorContext
 	 * @throws Exception
 	 */
-	public void buildHeaderRecord(Writer builder) throws Exception;
+	public void buildHeaderRecord(RecordGeneratorContext recordGeneratorContext) throws Exception;
 }

@@ -27,6 +27,7 @@ import org.frameworkset.tran.config.JobInputParamGroup;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
+import org.frameworkset.tran.metrics.MetricsLogLevel;
 import org.frameworkset.tran.metrics.MetricsLogReport;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.InputPlugin;
@@ -453,6 +454,35 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	}
 
     /**
+     * 记录作业处理过程中的debug日志
+     *
+     * @param taskContext
+     * @param msg
+     */
+    @Override
+    public void reportJobMetricDebug(TaskContext taskContext, String msg) {
+        if(!MetricsLogLevel.isDebugEnabled(importContext.getMetricsLogLevel())){
+            return;
+        }
+        MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
+        if(metricsLogReport == null ) {
+            logger.error("reportJobMetricDebug:"+msg);
+            return;
+        }
+        try{
+            if(taskContext == null) {
+                taskContext = new TaskContext(importContext,true);
+
+            }
+            metricsLogReport.reportJobMetricDebug(taskContext, msg);
+        }
+        catch (Exception e1){
+            logger.error("reportJobMetricDebug failed:"+msg,e1);
+        }
+    }
+ 
+
+    /**
      * 记录作业处理过程中的异常日志
      * @param taskContext
      * @param msg
@@ -460,6 +490,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
      */
     @Override
     public void reportJobMetricErrorLog(TaskContext taskContext, String msg, Throwable e){
+        if(!MetricsLogLevel.isErrorEnabled(importContext.getMetricsLogLevel())){
+            return;
+        }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
             logger.error("reportMetricErrorLog:"+msg,e);
@@ -484,6 +517,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
      */
     @Override
     public void reportJobMetricLog(TaskContext taskContext,String msg){
+        if(!MetricsLogLevel.isInfoEnabled(importContext.getMetricsLogLevel())){
+            return;
+        }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
             logger.error("reportMetricLog:{}",msg);
@@ -508,6 +544,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
      */
     @Override
     public void reportJobMetricWarn(TaskContext taskContext,String msg){
+        if(!MetricsLogLevel.isWarnEnabled(importContext.getMetricsLogLevel())){
+            return;
+        }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
             logger.error("reportMetricWarn:{}",msg);
@@ -534,6 +573,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
      * @param e
      */
      public void reportTaskMetricErrorLog(TaskMetrics taskMetrics, String msg, Throwable e){
+         if(!MetricsLogLevel.isErrorEnabled(importContext.getMetricsLogLevel())){
+             return;
+         }
          MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
          if(metricsLogReport == null ) {
              logger.error("reportTaskMetricErrorLog:"+msg,e);
@@ -556,6 +598,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
      * @param msg
      */
     public void reportTaskMetricLog(TaskMetrics taskMetrics, String msg){
+        if(!MetricsLogLevel.isInfoEnabled(importContext.getMetricsLogLevel())){
+            return;
+        }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
             logger.error("reportTaskMetricLog:{}",msg);
@@ -571,11 +616,14 @@ public class DataTranPluginImpl implements DataTranPlugin {
     }
 
     /**
-     * 记录作业任务处理过程中的日志
+     * 记录作业任务处理过程中的告警日志
      * @param taskMetrics
      * @param msg
      */
     public void reportTaskMetricWarn(TaskMetrics taskMetrics, String msg){
+        if(!MetricsLogLevel.isWarnEnabled(importContext.getMetricsLogLevel())){
+            return;
+        }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
             logger.error("reportTaskMetricWarn:{}",msg);
@@ -587,6 +635,30 @@ public class DataTranPluginImpl implements DataTranPlugin {
         }
         catch (Exception e1){
             logger.error("reportTaskMetricWarn:"+msg,e1);
+        }
+    }
+
+
+    /**
+     * 记录作业任务处理过程中的debug日志
+     * @param taskMetrics
+     * @param msg
+     */
+    public void reportTaskMetricDebug(TaskMetrics taskMetrics, String msg){
+        if(!MetricsLogLevel.isDebugEnabled(importContext.getMetricsLogLevel())){
+            return;
+        }
+        MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
+        if(metricsLogReport == null ) {
+            logger.error("reportTaskMetricDebug:{}",msg);
+            return;
+        }
+        try{
+
+            metricsLogReport.reportTaskMetricDebug(taskMetrics, msg);
+        }
+        catch (Exception e1){
+            logger.error("reportTaskMetricDebug:"+msg,e1);
         }
     }
 	@Override

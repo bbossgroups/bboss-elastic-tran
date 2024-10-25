@@ -365,7 +365,14 @@ public class TaskContext extends BaseMetricsLogReport {
     public void reportJobMetricWarn(   String msg) {
         dataTranPlugin.reportJobMetricWarn( this, msg);
     }
-
+    /**
+     * 记录作业处理过程中的日志
+     *
+     * @param msg
+     */
+    public void reportJobMetricDebug(   String msg) {
+        dataTranPlugin.reportJobMetricDebug( this, msg);
+    }
     public String getJobId() {
         return importContext.getJobId();
     }

@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.custom.output;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
@@ -31,17 +32,23 @@ import org.frameworkset.tran.plugin.OutputPlugin;
  */
 public class CustomOutputConfig extends BaseConfig implements OutputConfig {
 
-	public CustomOutputConfig setCustomOutPut(CustomOutPut customOutPut) {
-		this.customOutPut = customOutPut;
-		return this;
-	}
-
+   
+    private CustomOutPutV1 customOutPutV1;
+    @Deprecated
 	private CustomOutPut customOutPut;
 
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
-
+        if(customOutPutV1 == null){
+            if( customOutPut != null) {
+                customOutPutV1 = new DefaultCustomOutPutV1(customOutPut);
+            }
+            else {
+                throw new DataImportException("必须设置CustomOutPutV1接口处理数据");
+            }
+        }
+        
 	}
 
 	@Override
@@ -54,4 +61,21 @@ public class CustomOutputConfig extends BaseConfig implements OutputConfig {
 	}
 
 
+    public CustomOutPutV1 getCustomOutPutV1() {
+        return customOutPutV1;
+    }
+
+    public CustomOutputConfig setCustomOutPutV1(CustomOutPutV1 customOutPutV1) {
+        this.customOutPutV1 = customOutPutV1;
+        return this;
+    }
+    @Deprecated
+    /**
+     * 未来版本将剔除本方法，请使用以下方法：
+     * public void setCustomOutPutV1(CustomOutPutV1 customOutPutV1)
+     */
+    public CustomOutputConfig setCustomOutPut(CustomOutPut customOutPut) {
+        this.customOutPut = customOutPut;
+        return this;
+    }
 }

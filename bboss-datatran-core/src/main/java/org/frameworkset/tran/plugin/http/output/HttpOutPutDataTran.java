@@ -186,7 +186,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 //		}
 		CommonRecord record = context.getCommonRecord();
 		if(writer == null){
-			httpOutputConfig.generateReocord(taskContext, record, writer);
+			httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(),record, writer);
 			writer.write(httpOutputConfig.getLineSeparator());
 
 		}
@@ -196,14 +196,14 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 				if (bBossStringWriter.getBuffer().length() == 0) {
 					if(httpOutputConfig.isJson())
 						writer.write("[");
-					httpOutputConfig.generateReocord(taskContext, record, writer);
+					httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(), record, writer);
 
 				} else {
 					writer.write(httpOutputConfig.getLineSeparator());
-					httpOutputConfig.generateReocord(taskContext, record, writer);
+					httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(), record, writer);
 				}
 			} else {
-				httpOutputConfig.generateReocord(taskContext, record, writer);
+				httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(), record, writer);
 				writer.write(httpOutputConfig.getLineSeparator());
 			}
 		}

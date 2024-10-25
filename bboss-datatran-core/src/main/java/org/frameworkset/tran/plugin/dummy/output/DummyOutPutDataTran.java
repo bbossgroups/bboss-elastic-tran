@@ -43,7 +43,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 //			}
 //		}
 		CommonRecord record = context.getCommonRecord();
-		dummyOupputConfig.generateReocord(taskContext,record, writer);
+		dummyOupputConfig.generateReocord(taskContext,context.getTaskMetrics(),record, writer);
 		if(dummyOupputConfig.isPrintRecord()) {
 			writer.write(TranUtil.lineSeparator);
 		}

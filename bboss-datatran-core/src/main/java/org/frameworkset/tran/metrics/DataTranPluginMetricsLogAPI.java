@@ -27,6 +27,44 @@ import org.frameworkset.tran.schedule.TaskContext;
 public interface DataTranPluginMetricsLogAPI {
     /**
      * 记录作业处理过程中的异常日志
+     * @param msg
+     * @param e
+     */
+    default public void reportJobMetricErrorLog( String msg, Throwable e){
+        reportJobMetricErrorLog( (TaskContext)null,  msg, e);
+    }
+
+
+
+    /**
+     * 记录作业处理过程中的info日志
+     * @param msg
+     */
+    default public void reportJobMetricLog(String msg){
+        reportJobMetricLog( (TaskContext)null,  msg);
+    }
+
+    /**
+     * 记录作业处理过程中的告警日志
+     * @param msg
+     */
+    default public void reportJobMetricWarn( String msg){
+        reportJobMetricWarn( (TaskContext)null,  msg);
+
+    }
+
+    /**
+     * 记录作业处理过程中的debug日志
+     * @param msg
+     */
+    default public void reportJobMetricDebug( String msg){
+        reportJobMetricDebug( (TaskContext)null,  msg);
+
+    }
+
+
+    /**
+     * 记录作业处理过程中的异常日志
      * @param taskContext
      * @param msg
      * @param e
@@ -55,6 +93,15 @@ public interface DataTranPluginMetricsLogAPI {
 
     }
 
+    /**
+     * 记录作业处理过程中的debug日志
+     * @param taskContext
+     * @param msg
+     */
+    default public void reportJobMetricDebug( TaskContext taskContext,String msg){
+
+    }
+
 
     /**
      * 记录作业任务处理过程中的异常日志
@@ -69,7 +116,7 @@ public interface DataTranPluginMetricsLogAPI {
 
 
     /**
-     * 记录作业任务处理过程中的日志
+     * 记录作业任务处理过程中的info日志
      * @param taskMetrics
      * @param msg
      */
@@ -78,11 +125,58 @@ public interface DataTranPluginMetricsLogAPI {
     }
 
     /**
-     * 记录作业任务处理过程中的日志
+     * 记录作业任务处理过程中的告警日志
      * @param taskMetrics
      * @param msg
      */
     default public void reportTaskMetricWarn(TaskMetrics taskMetrics,String msg){
 
+    }
+
+    /**
+     * 记录作业任务处理过程中的debug日志
+     * @param taskMetrics
+     * @param msg
+     */
+    default public void reportTaskMetricDebug(TaskMetrics taskMetrics,String msg){
+
+    }
+
+
+
+
+    /**
+     * 记录作业任务处理过程中的异常日志
+     * @param msg
+     * @param e
+     */
+    default public void reportTaskMetricErrorLog( String msg, Throwable e){
+        reportTaskMetricErrorLog(null, msg,e);
+    }
+
+
+
+    /**
+     * 记录作业任务处理过程中的info日志
+     * @param msg
+     */
+    default public void reportTaskMetricLog( String msg){
+        reportTaskMetricLog(null, msg);
+    }
+
+    /**
+     * 记录作业任务处理过程中的告警日志
+     * @param msg
+     */
+    default public void reportTaskMetricWarn(String msg){
+        reportTaskMetricWarn(null, msg);
+    }
+
+    /**
+     * 记录作业任务处理过程中的告警日志
+     * @param msg
+     */
+    default public void reportTaskMetricDebug(String msg){
+        reportTaskMetricDebug(null, msg);
     }
 }

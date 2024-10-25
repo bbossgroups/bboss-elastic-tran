@@ -432,10 +432,18 @@ public interface Context extends DataTranPluginMetricsLogAPI {
     }
 
     /**
-     * 记录作业处理过程中的日志
+     * 记录作业处理过程中的告警日志
      * @param msg
      */
     default public void reportJobMetricWarn(  String msg){
+
+    }
+
+    /**
+     * 记录作业处理过程中的debug日志
+     * @param msg
+     */
+    default public void reportJobMetricDebug(  String msg){
 
     }
 
@@ -459,10 +467,18 @@ public interface Context extends DataTranPluginMetricsLogAPI {
     }
 
     /**
-     * 记录作业任务处理过程中的日志
+     * 记录作业任务处理过程中的告警日志
      * @param msg
      */
     default public void reportTaskMetricWarn(String msg){
+
+    }
+
+    /**
+     * 记录作业任务处理过程中的debug日志
+     * @param msg
+     */
+    default public void reportTaskMetricDebug(String msg){
 
     }
 }

@@ -273,7 +273,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
 		CommonRecord record = context.getCommonRecord();
-		fileOutputConfig.generateReocord(context.getTaskContext(),record, writer);
+		fileOutputConfig.generateReocord(context.getTaskContext(),context.getTaskMetrics(),record, writer);
 		writer.write(fileOutputConfig.getLineSeparator());
 		return record;
 	}

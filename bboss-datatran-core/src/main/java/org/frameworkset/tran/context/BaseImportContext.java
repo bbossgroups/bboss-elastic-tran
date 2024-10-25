@@ -52,8 +52,11 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 	protected OutputConfig outputConfig;
 	protected JobContext jobContext;
     protected EndAction endAction;
-    
-	public JobContext getJobContext() {
+    public int getMetricsLogLevel() {
+        return baseImportConfig.getMetricsLogLevel();
+    }
+
+    public JobContext getJobContext() {
 		return jobContext;
 	}
  

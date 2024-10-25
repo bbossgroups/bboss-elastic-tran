@@ -16,7 +16,6 @@ package org.frameworkset.tran.metrics;
  */
 
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.task.TaskCommand;
 
 /**
  * <p>Description: 用于在作业过程中记录作业和作业任务中的日志信息</p>
@@ -32,27 +31,21 @@ public interface MetricsLogReport {
      * @param msg
      * @param e
      */
-    default public void reportJobMetricErrorLog(TaskContext taskContext, String msg, Throwable e){
-
-    }
+    public void reportJobMetricErrorLog(TaskContext taskContext, String msg, Throwable e);
 
     /**
      * 记录作业处理过程中的一般日志
      * @param taskContext
      * @param msg
      */
-    default public void reportJobMetricLog(  TaskContext taskContext,String msg){
-
-    }
+    public void reportJobMetricLog(  TaskContext taskContext,String msg);
 
     /**
      * 记录作业处理过程中的告警日志
      * @param taskContext
      * @param msg
      */
-    default public void reportJobMetricWarn(TaskContext taskContext,String msg){
-
-    }
+      public void reportJobMetricWarn(TaskContext taskContext,String msg);
 
     /**
      * 记录作业处理过程中的异常日志
@@ -60,24 +53,32 @@ public interface MetricsLogReport {
      * @param msg
      * @param e
      */
-    default public void reportTaskMetricErrorLog(TaskMetrics taskMetrics, String msg, Throwable e){
-
-    }
+    public void reportTaskMetricErrorLog(TaskMetrics taskMetrics, String msg, Throwable e);
 
     /**
      * 记录作业处理过程中的一般日志
      * @param taskMetrics
      * @param msg
      */
-    default public void reportTaskMetricLog(TaskMetrics taskMetrics,String msg){
-
-    }
+    public void reportTaskMetricLog(TaskMetrics taskMetrics,String msg);
 
     /**
      * 记录作业处理过程中的告警日志
      * @param msg
      */
-    default public void reportTaskMetricWarn( TaskMetrics taskMetrics, String msg){
+     public void reportTaskMetricWarn( TaskMetrics taskMetrics, String msg);
 
-    }
+    /**
+     * 记录作业处理过程中的debug日志
+     * @param taskContext
+     * @param msg
+     */
+    void reportJobMetricDebug(TaskContext taskContext, String msg);
+
+    /**
+     * 记录作业子任务处理过程中的debug日志
+     * @param taskMetrics
+     * @param msg
+     */
+    void reportTaskMetricDebug(TaskMetrics taskMetrics, String msg);
 }

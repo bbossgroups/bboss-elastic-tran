@@ -16,6 +16,9 @@ package org.frameworkset.tran.plugin.http;
  */
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.metrics.DataTranPluginMetricsLogAPI;
+import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.metrics.job.MetricsLogAPI;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
@@ -26,9 +29,13 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DynamicHeaderContext {
+public class DynamicHeaderContext implements DataTranPluginMetricsLogAPI {
 	private ImportContext importContext;
 	private TaskContext taskContext;
+
+   
+
+    private TaskMetrics taskMetrics;
 	private Object datas;
 
 	public ImportContext getImportContext() {
@@ -54,4 +61,95 @@ public class DynamicHeaderContext {
 	public void setDatas(Object datas) {
 		this.datas = datas;
 	}
+
+    /**
+     * 记录作业处理过程中的异常日志
+     *
+     * @param msg
+     * @param e
+     */
+    @Override
+    public void reportJobMetricErrorLog(String msg, Throwable e) {
+        taskContext.reportJobMetricErrorLog(msg, e);
+    }
+
+    /**
+     * 记录作业处理过程中的告警日志
+     *
+     * @param msg
+     */
+    @Override
+    public void reportJobMetricLog(String msg) {
+        taskContext.reportJobMetricLog(msg);
+    }
+
+    /**
+     * 记录作业处理过程中的debug日志
+     *
+     * @param msg
+     */
+    @Override
+    public void reportJobMetricDebug(String msg) {
+        taskContext.reportJobMetricDebug(msg);
+    }
+
+    /**
+     * 记录作业处理过程中的告警日志
+     *
+     * @param msg
+     */
+    @Override
+    public void reportJobMetricWarn(String msg) {
+        taskContext.reportJobMetricWarn(msg);
+    }
+
+    /**
+     * 记录作业任务处理过程中的异常日志
+     *
+     * @param msg
+     * @param e
+     */
+    @Override
+    public void reportTaskMetricErrorLog( String msg, Throwable e) {
+        taskContext.reportTaskMetricErrorLog(taskMetrics, msg, e);
+    }
+
+    /**
+     * 记录作业任务处理过程中的日志
+     *
+     * @param msg
+     */
+    @Override
+    public void reportTaskMetricLog(  String msg) {
+        taskContext.reportTaskMetricLog(taskMetrics, msg);
+    }
+
+    /**
+     * 记录作业任务处理过程中的告警日志
+     *
+     * @param msg
+     */
+    @Override
+    public void reportTaskMetricWarn( String msg) {
+        taskContext.reportTaskMetricWarn(taskMetrics, msg);
+    }
+
+    /**
+     * 记录作业任务处理过程中的debug日志
+     *
+     * @param msg
+     */
+    @Override
+    public void reportTaskMetricDebug( String msg) {
+        taskContext.reportTaskMetricDebug(taskMetrics, msg);
+    }
+
+    public TaskMetrics getTaskMetrics() {
+        return taskMetrics;
+    }
+
+    public DynamicHeaderContext setTaskMetrics(TaskMetrics taskMetrics) {
+        this.taskMetrics = taskMetrics;
+        return this;
+    }
 }

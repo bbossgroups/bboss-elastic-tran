@@ -20,10 +20,10 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.plugin.kafka.output.KafkaOutputConfig;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
+import org.frameworkset.tran.util.RecordGeneratorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 
 import static org.frameworkset.tran.context.Context.KAFKA_TOPIC_KEY;
 
@@ -72,8 +72,14 @@ public class KafkaBatchCommand extends BaseTaskCommand<  Object> {
                 } else {
                     topic = kafkaOutputConfig.getTopic();
                 }
+                RecordGeneratorContext recordGeneratorContext = new RecordGeneratorContext();
+                recordGeneratorContext.setRecord(record);
+                recordGeneratorContext.setTaskContext(taskContext);
+                recordGeneratorContext.setBuilder(writer);
+                recordGeneratorContext.setTaskMetrics(taskMetrics);
 
-                kafkaOutputConfig.getRecordGenerator().buildRecord(taskContext, record, writer);
+                kafkaOutputConfig.getRecordGeneratorV1().buildRecord(  recordGeneratorContext);
+//                kafkaOutputConfig.getRecordGeneratorV1().buildRecord(taskContext,taskMetrics, record, writer);
                 datas = writer.toString();
                 builder.setLength(0);
                 kafkaOutputConfig.getKafkaSend().batchSend(this, taskContext, topic, key, datas);

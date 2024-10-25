@@ -19,11 +19,11 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.JsonRecordGenerator;
-import org.frameworkset.tran.util.RecordGenerator;
+import org.frameworkset.tran.util.*;
 
 import java.io.Writer;
 
@@ -40,7 +40,9 @@ public class DummyOutputConfig extends BaseConfig implements OutputConfig {
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.util.ReocordGenerator
 	 */
+    @Deprecated
 	private RecordGenerator recordGenerator;
+    private RecordGeneratorV1 recordGeneratorV1;
 	public boolean isPrintRecord() {
 		return printRecord;
 	}
@@ -50,10 +52,7 @@ public class DummyOutputConfig extends BaseConfig implements OutputConfig {
 		return this;
 	}
 
-	public RecordGenerator getRecordGenerator() {
-		return recordGenerator;
-	}
-
+    @Deprecated
 	public DummyOutputConfig setRecordGenerator(RecordGenerator recordGenerator) {
 		this.recordGenerator = recordGenerator;
 		return this;
@@ -61,19 +60,36 @@ public class DummyOutputConfig extends BaseConfig implements OutputConfig {
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
-		if(recordGenerator == null){
-			recordGenerator = new JsonRecordGenerator();
+		if(recordGenerator == null && recordGeneratorV1 == null){
+            recordGeneratorV1 = new JsonRecordGenerator();
 		}
+        if(recordGeneratorV1 == null){
+            recordGeneratorV1 = new DefaultRecordGeneratorV1(recordGenerator);
+        }
 	}
-	public void generateReocord(TaskContext taskContext, CommonRecord record, Writer builder)  throws Exception{
+	public void generateReocord(TaskContext taskContext, TaskMetrics taskMetrics, CommonRecord record, Writer builder)  throws Exception{
 		if(builder == null){
-			builder = RecordGenerator.tranDummyWriter;
+			builder = RecordGeneratorV1.tranDummyWriter;
 		}
-		getRecordGenerator().buildRecord(  taskContext, record,  builder);
+        RecordGeneratorContext recordGeneratorContext = new RecordGeneratorContext();
+        recordGeneratorContext.setRecord(record)
+                .setTaskContext(taskContext)
+                .setBuilder(builder)
+                .setTaskMetrics(taskMetrics).setMetricsLogAPI(taskContext.getDataTranPlugin());       
+        
+		getRecordGeneratorV1().buildRecord(  recordGeneratorContext);
 	}
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
 		return new DummyOutputDataTranPlugin(importContext);
 	}
 
+    public RecordGeneratorV1 getRecordGeneratorV1() {
+        return recordGeneratorV1;
+    }
+
+    public DummyOutputConfig setRecordGeneratorV1(RecordGeneratorV1 recordGeneratorV1) {
+        this.recordGeneratorV1 = recordGeneratorV1;
+        return this;
+    }
 }

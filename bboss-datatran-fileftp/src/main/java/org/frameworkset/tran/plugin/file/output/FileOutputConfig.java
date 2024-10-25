@@ -30,6 +30,7 @@ import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FilelogPluginException;
 import org.frameworkset.tran.input.file.FtpFileFilter;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.output.BaseRemoteConfig;
 import org.frameworkset.tran.output.minio.MinioFileConfig;
 import org.frameworkset.tran.output.fileftp.FileSend2Ftp;
@@ -38,9 +39,7 @@ import org.frameworkset.tran.output.ftp.FtpOutConfig;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.JsonRecordGenerator;
-import org.frameworkset.tran.util.RecordGenerator;
-import org.frameworkset.tran.util.TranUtil;
+import org.frameworkset.tran.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +64,12 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	public final static String JobExecutorDatas_genFileInfos = "jobExecutorDatas.fileFtpOutPut.genFileInfos";
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.kafka.output.fileftp.ReocordGenerator
+     * use recordGeneratorV1
 	 */
-	private RecordGenerator recordGenerator;
+    @Deprecated
+    private RecordGenerator recordGenerator;
+
+    private RecordGeneratorV1 recordGeneratorV1;
 
 	/**
 	 *  导出文件名称生成接口实现类型（必须指定）：org.frameworkset.tran.kafka.output.fileftp.FilenameGenerator
@@ -135,11 +138,18 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	public String generateFileName(TaskContext taskContext, int fileSeq){
 		return getFilenameGenerator().genName(   taskContext,fileSeq);
 	}
-	public void generateReocord(TaskContext taskContext, CommonRecord record, Writer builder) throws Exception{
+	public void generateReocord(TaskContext taskContext, TaskMetrics taskMetrics, CommonRecord record, Writer builder) throws Exception{
 		if(builder == null){
-			builder = RecordGenerator.tranDummyWriter;
+			builder = RecordGeneratorV1.tranDummyWriter;
 		}
-		getRecordGenerator().buildRecord(  taskContext, record,  builder);
+        RecordGeneratorContext recordGeneratorContext = new RecordGeneratorContext();
+        recordGeneratorContext.setRecord(record);
+        recordGeneratorContext.setTaskContext(taskContext);
+        recordGeneratorContext.setBuilder(builder);
+        recordGeneratorContext.setTaskMetrics(taskMetrics).setMetricsLogAPI(taskContext.getDataTranPlugin());
+
+        getRecordGeneratorV1().buildRecord(  recordGeneratorContext);
+//		getRecordGenerator().buildRecord(  taskContext,taskMetrics, record,  builder);
 	}
 	public int getFileLiveTime() {
 		return baseRemoteConfig.getFileLiveTime();
@@ -177,14 +187,20 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	public FileConfig getFileConfig() {
 		throw new UnsupportedOperationException("getFileConfig");
 	}
-	public RecordGenerator getRecordGenerator() {
-		return recordGenerator;
-	}
+    
 
 	@Override
 	public String getRemoteFileDir() {
 		return ftpOutConfig.getRemoteFileDir();
 	}
+
+    /**
+     * 
+     * @param recordGenerator
+     * @return
+     * use   public void setRecordGeneratorV1(RecordGeneratorV1 recordGeneratorV1)
+     */
+    @Deprecated
 	public FileOutputConfig setRecordGenerator(RecordGenerator recordGenerator) {
 		this.recordGenerator = recordGenerator;
 		return  this;
@@ -258,9 +274,18 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 //		if(getMaxFileRecordSize() == 0){//默认1万条记录一个文件
 //			setMaxFileRecordSize(50000);
 //		}
-		if(getRecordGenerator() == null){
-			setRecordGenerator(new JsonRecordGenerator());
+		if(recordGenerator == null && recordGeneratorV1 == null){
+			setRecordGeneratorV1(new JsonRecordGenerator());
 		}
+        if(recordGeneratorV1 == null){
+            if(recordGenerator instanceof HeaderRecordGenerator) {
+                recordGeneratorV1 = new DefaultHeaderRecordGeneratorV1((HeaderRecordGenerator)recordGenerator);
+            }
+            else{
+                recordGeneratorV1 = new DefaultRecordGeneratorV1(recordGenerator);
+                
+            }
+        }
 		if (SimpleStringUtil.isEmpty(lineSeparator))
 			lineSeparator = TranUtil.lineSeparator;
         if(maxFileRecordSize > 0 ){
@@ -477,5 +502,13 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
         else {
             return "FileSend2Minio";
         }
+    }
+
+    public RecordGeneratorV1 getRecordGeneratorV1() {
+        return recordGeneratorV1;
+    }
+
+    public void setRecordGeneratorV1(RecordGeneratorV1 recordGeneratorV1) {
+        this.recordGeneratorV1 = recordGeneratorV1;
     }
 }

@@ -28,18 +28,18 @@ import java.util.List;
  * @Date 2021/10/9 17:08
  * @author biaoping.yin
  * @version 1.0
+ * use CustomOutPutV1
  */
+@Deprecated 
 public interface CustomOutPut {
-    @Deprecated
-    /**
-     * 不建议方法
-     * 使用handleData(TaskContext taskContext, TaskMetrics taskMetrics,List<CommonRecord> datas)
-     */
-	default public void handleData(TaskContext taskContext,List<CommonRecord> datas){
-        
-    }
+//    @Deprecated
+//    /**
+//     * 不建议方法
+//     * 使用handleData(TaskContext taskContext, TaskMetrics taskMetrics,List<CommonRecord> datas)
+//     */
+//	default public void handleData(TaskContext taskContext,List<CommonRecord> datas){
+//        
+//    }
 
-    default public void handleData(TaskContext taskContext, TaskMetrics taskMetrics,List<CommonRecord> datas){
-        handleData(  taskContext,datas);
-    }
+    public void handleData(TaskContext taskContext,List<CommonRecord> datas);
 }

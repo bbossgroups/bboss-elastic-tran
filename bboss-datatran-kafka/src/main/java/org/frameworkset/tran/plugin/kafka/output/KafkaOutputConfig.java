@@ -21,11 +21,11 @@ import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.kafka.output.KafkaSend;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.metrics.TimeWindowExportResultHandler;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.util.JsonRecordGenerator;
-import org.frameworkset.tran.util.RecordGenerator;
+import org.frameworkset.tran.util.*;
 
 import java.io.Writer;
 import java.util.Map;
@@ -74,24 +74,35 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 	}
 
 	private boolean kafkaAsynSend = true;
-	public RecordGenerator getRecordGenerator() {
-		return recordGenerator;
-	}
-
+ 
+    @Deprecated
+    /**
+     * use  public void setRecordGeneratorV1(RecordGeneratorV1 recordGeneratorV1)
+     */
 	public KafkaOutputConfig setRecordGenerator(RecordGenerator recordGenerator) {
 		this.recordGenerator = recordGenerator;
 		return this;
 	}
-	public void generateReocord(TaskContext context, CommonRecord record, Writer builder) throws Exception{
+	public void generateReocord(TaskContext taskContext, TaskMetrics taskMetrics, CommonRecord record, Writer builder) throws Exception{
 		if(builder == null){
-			builder = RecordGenerator.tranDummyWriter;
+			builder = RecordGeneratorV1.tranDummyWriter;
 		}
-		getRecordGenerator().buildRecord(context,record,builder);
+        RecordGeneratorContext recordGeneratorContext = new RecordGeneratorContext();
+        recordGeneratorContext.setRecord(record);
+        recordGeneratorContext.setTaskContext(taskContext);
+        recordGeneratorContext.setBuilder(builder);
+        recordGeneratorContext.setTaskMetrics(taskMetrics).setMetricsLogAPI(taskContext.getDataTranPlugin());
+
+        getRecordGeneratorV1().buildRecord(  recordGeneratorContext);
+//		getRecordGenerator().buildRecord(context,taskMetrics,record,builder);
 	}
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.util.ReocordGenerator
 	 */
-	private RecordGenerator recordGenerator;
+    @Deprecated
+    private RecordGenerator recordGenerator;
+
+    private RecordGeneratorV1 recordGeneratorV1;
 	public String getTopic() {
 		return topic;
 	}
@@ -131,9 +142,12 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 
 	@Override
 	public void build(ImportBuilder importBuilder) {
-		if(recordGenerator == null){
-			recordGenerator = new JsonRecordGenerator();
+		if(recordGenerator == null && recordGeneratorV1 == null){
+			recordGeneratorV1 = new JsonRecordGenerator();
 		}
+        if(recordGeneratorV1 == null){
+            recordGeneratorV1 = new DefaultRecordGeneratorV1(recordGenerator);
+        }
 	}
 
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
@@ -166,4 +180,13 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 		this.metricsAggWindow = metricsAggWindow;
 		return this;
 	}
+
+    public RecordGeneratorV1 getRecordGeneratorV1() {
+        return recordGeneratorV1;
+    }
+
+    public KafkaOutputConfig setRecordGeneratorV1(RecordGeneratorV1 recordGeneratorV1) {
+        this.recordGeneratorV1 = recordGeneratorV1;
+        return this;
+    }
 }

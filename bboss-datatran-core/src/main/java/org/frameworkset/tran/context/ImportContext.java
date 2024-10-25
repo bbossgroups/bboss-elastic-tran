@@ -48,7 +48,9 @@ import java.util.concurrent.ExecutorService;
  */
 public interface ImportContext extends DataTranPluginMetricsLogAPI {
 	public DataStream getDataStream();
-	public String buildStatusId( int hashCode);
+    public int getMetricsLogLevel() ;
+
+    public String buildStatusId( int hashCode);
 	public void cleanResource();
     public void registEndAction(EndAction endAction);
     public EndAction getEndAction();
