@@ -27,6 +27,11 @@ public class MetricsLogLevel {
     public static final int INFO = 2;
     public static final int WARN = 3;
     public static final int ERROR = 4;
+
+    /**
+     * 忽略所有日志
+     */
+    public static final int NO_LOG = 5;
     
     public static boolean isDebugEnabled(int metricsLogLevel){
         return metricsLogLevel == DEBUG;

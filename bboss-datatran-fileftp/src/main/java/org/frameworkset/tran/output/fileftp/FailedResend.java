@@ -17,6 +17,7 @@ package org.frameworkset.tran.output.fileftp;
 
 import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpTransfer;
 import org.frameworkset.tran.ftp.SFTPTransfer;
@@ -40,8 +41,10 @@ public class FailedResend extends StoppedThread{
 	private String transferSuccessFileDir;
 	private static final Logger logger = LoggerFactory.getLogger(FailedResend.class);
 	private FileOutputConfig fileOutputConfig;
-	public FailedResend(FileOutputConfig fileOutputConfig){
+    private ImportContext importContext;
+	public FailedResend(ImportContext importContext,FileOutputConfig fileOutputConfig){
 		super("FailedFileResend-Thread");
+        this.importContext = importContext;
 		this.fileOutputConfig = fileOutputConfig;
 		transferFailedFileDir = SimpleStringUtil.getPath(fileOutputConfig.getFileDir(),"transferFailedFileDir");
 		transferSuccessFileDir = SimpleStringUtil.getPath(fileOutputConfig.getFileDir(),"transferSuccessFileDir");
@@ -53,6 +56,7 @@ public class FailedResend extends StoppedThread{
 	}
 	public void run(){
 		File transferFailedFileDir_ = new File(transferFailedFileDir);
+        boolean isFtp = fileOutputConfig.getFtpOutConfig() != null && fileOutputConfig.getMinioFileConfig() == null;
 		logger.info("FailedFileResend-Thread started,transferFailedFileDir["+transferFailedFileDir+"],failedFileResendInterval:"+ fileOutputConfig.getFailedFileResendInterval()+"毫秒");
 		while(true){
 			if(transferFailedFileDir_.exists()){
@@ -62,7 +66,7 @@ public class FailedResend extends StoppedThread{
 					if(!file.isFile())
 						continue;
 					try {
-						String remoteFilePath = SimpleStringUtil.getPath(fileOutputConfig.getRemoteFileDir(), file.getName());
+						String remoteFilePath = isFtp ?SimpleStringUtil.getPath(fileOutputConfig.getRemoteFileDir(), file.getName()):null;
 						if (file.length() <= 0) {
 							if (fileOutputConfig.transferEmptyFiles()) {
                                 /**
@@ -84,7 +88,6 @@ public class FailedResend extends StoppedThread{
 							}
                              */
                             fileOutputConfig.getSendFileFunction().sendFile(fileOutputConfig,file.getPath(),remoteFilePath,true);
-							logger.info("Resend file "+ file.getPath() + " to " + remoteFilePath + " complete.");
 						}
 						if (fileOutputConfig.backupSuccessFiles()) {
 							String transferSuccessFile = SimpleStringUtil.getPath(transferSuccessFileDir, file.getName());
@@ -95,10 +98,14 @@ public class FailedResend extends StoppedThread{
 						logger.info("Resend file "+ file.getPath() + " success.");
 					}
 					catch (Exception e){
-						logger.error("Resend file "+ file.getPath() + " failed:",e);
+                        String msg = "Resend file "+ file.getPath() + " failed:";
+                        importContext.reportJobMetricErrorLog(msg,e);
+						logger.error(msg,e);
 					}
 					catch (Throwable e){
-						logger.error("Resend file "+ file.getPath() + " failed:",e);
+                        String msg = "Resend file "+ file.getPath() + " failed:";
+                        importContext.reportJobMetricErrorLog(msg,e);
+                        logger.error(msg,e);
 					}
 				}
 			}

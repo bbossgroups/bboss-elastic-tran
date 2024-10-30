@@ -313,4 +313,10 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
     void initETLMetrics();
 
     void initJobcontext();
+
+    /**
+     * 重置日志级别,无需重启作业
+     * @param metricsLogLevel
+     */
+    void resetMetricsLogLevel(int metricsLogLevel);
 }

@@ -777,4 +777,7 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
         }
 
     }
+    public    void resetMetricsLogLevel(int metricsLogLevel){
+        this.baseImportConfig.resetMetricsLogLevel(  metricsLogLevel);
+    }
 }

@@ -53,7 +53,7 @@ public class FileOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 				if (failedResend == null) {
 					synchronized (FailedResend.class) {
 						if (failedResend == null) {
-							failedResend = new FailedResend(fileOutputConfig);
+							failedResend = new FailedResend(importContext,fileOutputConfig);
 							failedResend.start();
 						}
 					}

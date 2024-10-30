@@ -325,4 +325,12 @@ public class DataStream {
 		if(dataTranPlugin != null)
 			this.dataTranPlugin.setScheduleAssert(scheduleAssert);
 	}
+
+    /**
+     * 重置日志级别,无需重启作业
+     * @param metricsLogLevel
+     */
+    public void resetMetricsLogLevel(int metricsLogLevel){
+        this.importContext.resetMetricsLogLevel(  metricsLogLevel);
+    }
 }

@@ -1064,4 +1064,8 @@ public class BaseImportConfig {
     public void setMetricsLogLevel(int metricsLogLevel) {
         this.metricsLogLevel = metricsLogLevel;
     }
+
+    public void resetMetricsLogLevel(int metricsLogLevel) {
+        this.metricsLogLevel = metricsLogLevel;
+    }
 }

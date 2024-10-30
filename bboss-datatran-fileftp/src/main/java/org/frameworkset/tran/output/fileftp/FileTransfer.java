@@ -372,16 +372,20 @@ public class FileTransfer {
 //                                logger.error("Backup Success File task[" + taskInfo + "],file[" + _file.getAbsolutePath() + "] failed:", e);
 
                                 String msg = "Backup Success File task[" + taskInfo + "],file[" + _file.getAbsolutePath() + "] failed:";
+                                importContext.reportJobMetricErrorLog(msg,e);
                                 logger.error(msg, e);
 
                             }
 							else{
-								logger.error("Delete Success File task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",e);
+                                String msg = "Delete Success File task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:";
+                                importContext.reportJobMetricErrorLog(msg,e);
+								logger.error(msg,e);
 							}
 						}
 					}
 					catch (Exception e){
                         String msg = "SendFile task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:";
+                        importContext.reportJobMetricErrorLog(msg,e);
                         logger.error(msg, e);
 //						logger.error("SendFile task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",e);
 						if(_file.exists() && _file.length() > 0) {
@@ -400,6 +404,7 @@ public class FileTransfer {
 
 					catch (Throwable e){
                         String msg = "SendFile task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:";
+                        importContext.reportJobMetricErrorLog(msg,e);
                         logger.error(msg, e);
 //						logger.error("SendFile task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",e);
 						try {
