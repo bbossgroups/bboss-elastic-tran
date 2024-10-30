@@ -18,11 +18,9 @@ package org.frameworkset.tran.plugin.metrics.output;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.TaskMetrics;
-import org.frameworkset.tran.metrics.entity.MapData;
 import org.frameworkset.tran.metrics.job.Metrics;
 import org.frameworkset.tran.metrics.job.MetricsLogAPI;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.tran.task.TaskCommand;
 
 /**
  * <p>Description: etl指标计算器</p>

@@ -103,7 +103,7 @@ public class ElasticsearchInputConfig extends BaseConfig implements InputConfig 
 	}
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
 //		if(esConfig != null){
 //			ElasticSearchPropertiesFilePlugin.init(esConfig.getConfigs());
 //		}

@@ -146,7 +146,7 @@ public class HBaseInputConfig extends HBasePluginConfig implements InputConfig {
 
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
 //		if(getEsIdGenerator() == null || hBaseImportConfig.getEsIdGenerator() == hBaseImportConfig.DEFAULT_EsIdGenerator) {
 //			hBaseImportConfig.setEsIdGenerator(new HBaseEsIdGenerator());
 //		}

@@ -411,7 +411,7 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
     }
 
     @Override
-    public void build(ImportBuilder importBuilder) {
+    public void build(ImportContext importContext,ImportBuilder importBuilder) {
 
         if(getMaxFilesThreshold() > 0)
             assertMaxFilesThreshold = new AssertMaxThreshold(getMaxFilesThreshold());

@@ -39,7 +39,7 @@ public class CustomOutputConfig extends BaseConfig implements OutputConfig {
 
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
         if(customOutPutV1 == null){
             if( customOutPut != null) {
                 customOutPutV1 = new DefaultCustomOutPutV1(customOutPut);

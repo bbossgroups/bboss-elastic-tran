@@ -85,8 +85,8 @@ public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfi
 	}
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
-		super.build(importBuilder);
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
+		super.build(  importContext,importBuilder);
 		if(userPipeline != null && userPipeline.equals("")) {
 			ChangeStreamPipeline changeStreamPipeline = new ChangeStreamPipeline(userPipeline);
 		}

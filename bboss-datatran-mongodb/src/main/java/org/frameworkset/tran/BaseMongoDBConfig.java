@@ -20,6 +20,7 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.nosql.mongodb.ClientMongoCredential;
 import org.frameworkset.nosql.mongodb.CustomSettingBuilder;
 import org.frameworkset.tran.config.ImportBuilder;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
 
 import java.util.ArrayList;
@@ -207,7 +208,7 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		this.authDb = authDb;
 		return this;
 	}
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext, ImportBuilder importBuilder) {
 
 		if(SimpleStringUtil.isNotEmpty(userName) && SimpleStringUtil.isNotEmpty(password)) {
 			if (credentials == null) {

@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.file.output;
 
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.ImportBuilder;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CellMapping;
 
 import java.util.ArrayList;
@@ -140,9 +141,9 @@ public class ExcelFileOutputConfig extends FileOutputConfig {
 	}
 
     @Override
-    public void build(ImportBuilder importBuilder) {
+    public void build(ImportContext importContext, ImportBuilder importBuilder) {
 
-        super.build(importBuilder);
+        super.build(  importContext,importBuilder);
         if(maxForceFileThreshold != null && maxForceFileThreshold > 0)
         {
             if(maxFileRecordSize <= 0L){

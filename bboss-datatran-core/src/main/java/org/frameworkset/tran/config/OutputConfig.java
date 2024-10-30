@@ -17,6 +17,7 @@ package org.frameworkset.tran.config;
 
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
+import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
@@ -32,7 +33,7 @@ import java.util.List;
  * @version 1.0
  */
 public interface OutputConfig {
-	public void build(ImportBuilder importBuilder);
+	public void build(ImportContext importContext,ImportBuilder importBuilder);
 	OutputPlugin getOutputPlugin(ImportContext importContext);
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler);
 	void afterBuild(ImportBuilder importBuilder,ImportContext importContext);

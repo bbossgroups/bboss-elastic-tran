@@ -16,6 +16,7 @@ package org.frameworkset.tran.config;
  */
 
 import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.record.RecordBuidler;
@@ -29,7 +30,7 @@ import org.frameworkset.tran.record.RecordBuidler;
  * @version 1.0
  */
 public interface InputConfig {
-	public void build(ImportBuilder importBuilder);
+	public void build(ImportContext importContext,ImportBuilder importBuilder);
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext);
 	InputPlugin getInputPlugin(ImportContext importContext);
 	void afterBuild(ImportBuilder importBuilder,ImportContext importContext);

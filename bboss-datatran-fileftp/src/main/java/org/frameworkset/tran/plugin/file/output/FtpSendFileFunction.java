@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.file.output;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpTransfer;
 import org.frameworkset.tran.ftp.SFTPTransfer;
@@ -32,22 +33,29 @@ import org.slf4j.LoggerFactory;
 public class FtpSendFileFunction implements SendFileFunction{
     private Logger logger = LoggerFactory.getLogger(FtpSendFileFunction.class);
     private FileOutputConfig fileOutputConfig;
-    public FtpSendFileFunction(FileOutputConfig fileOutputConfig){
+    private ImportContext importContext;
+    public FtpSendFileFunction(ImportContext importContext,FileOutputConfig fileOutputConfig){
         this.fileOutputConfig = fileOutputConfig;
+        this.importContext = importContext;
     }
     @Override
     public void sendFile(FileOutputConfig fileOutputConfig, String filePath, String remoteFilePath,boolean resend) {
+        long s = System.currentTimeMillis();
         if (fileOutputConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
             FtpTransfer.sendFile(fileOutputConfig, filePath, remoteFilePath);
         } else {
             SFTPTransfer.sendFile(fileOutputConfig, filePath);
         }
+        long e = System.currentTimeMillis();
+        String msg = null;
         if(!resend) {
-            logger.info("Resend file " + filePath + " to " + remoteFilePath + " complete.");
+            msg = "Send file " + filePath + " to " + remoteFilePath + " complete,耗时:"+(e-s)+"毫秒";
         }
         else{
-            logger.info("Send file " + filePath + " to " + remoteFilePath + " complete.");
-        }
+            msg = "Resend file " + filePath + " to " + remoteFilePath + " complete,耗时:"+(e-s)+"毫秒";
+        }  
+        logger.info(msg);
+        importContext.reportJobMetricLog(msg);
     }
 
     public String getRemoteFilePath(String name){

@@ -44,7 +44,7 @@ public class HBaseOutputConfig extends HBasePluginConfig implements OutputConfig
 	private String globalFamiliy;
 	private byte[] bglobalFamiliy = Bytes.toBytes("df");
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
 		if(SimpleStringUtil.isEmpty(rowKeyField)){
 			throw new HBaseAccessException("rowKeyField not setted , please use HBaseOutputConfig.setRowKeyField(String rowKeyField) to set rowKeyField.");
 		}

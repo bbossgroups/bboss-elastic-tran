@@ -59,7 +59,7 @@ public class DummyOutputConfig extends BaseConfig implements OutputConfig {
 	}
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
 		if(recordGenerator == null && recordGeneratorV1 == null){
             recordGeneratorV1 = new JsonRecordGenerator();
 		}

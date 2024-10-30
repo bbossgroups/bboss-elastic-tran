@@ -278,7 +278,7 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 	}
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
 		if(targetDBConfig == null ) {
 			if(dbConfig == null) {
 //				GetProperties propertiesContainer = DefaultApplicationContext.getApplicationContext("conf/elasticsearch-boot-config.xml", false);

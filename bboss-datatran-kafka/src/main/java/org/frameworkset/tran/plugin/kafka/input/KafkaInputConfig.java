@@ -191,7 +191,7 @@ public abstract class KafkaInputConfig extends BaseConfig implements InputConfig
 	}
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
 		preHandlerCodec();
 	}
 	@Override

@@ -188,7 +188,7 @@ public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfi
 	}
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
 //		if(esConfig != null){
 //			ElasticSearchPropertiesFilePlugin.init(esConfig.getConfigs());
 //		}

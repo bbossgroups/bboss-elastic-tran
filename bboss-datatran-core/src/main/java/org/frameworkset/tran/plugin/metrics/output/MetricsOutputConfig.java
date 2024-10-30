@@ -59,7 +59,7 @@ public class MetricsOutputConfig extends BaseConfig implements OutputConfig {
 	}
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
 		if(metrics == null || metrics.size() == 0){
 			throw new DataImportException("未正确设置metrics,可以通过addMetrics方法添加注册ETLMetrics!，参考文档：\r\nhttps://esdoc.bbossgroups.com/#/etl-metrics");
 		}

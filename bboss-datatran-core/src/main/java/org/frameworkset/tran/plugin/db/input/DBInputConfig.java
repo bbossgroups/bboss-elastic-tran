@@ -144,7 +144,7 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 	}
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
 
 		if(SimpleStringUtil.isEmpty(this.getSql())){
 			if(SimpleStringUtil.isEmpty(getSqlFilepath()) || SimpleStringUtil.isEmpty(getSqlName()) ){

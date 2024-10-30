@@ -20,7 +20,8 @@ import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.DataImportException;
- 
+
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.task.TaskCommand;
 import org.frameworkset.tran.util.HeaderRecordGeneratorV1;
@@ -334,6 +335,7 @@ public class FileTransfer {
 			final String _remoteFilePath = remoteFilePath;
 			final String _transferSuccessFile = transferSuccessFile;
 			final String _transferFailedFile  = transferFailedFile;
+            final ImportContext importContext = this.fileFtpOutPutDataTran.getImportContext();
 			Runnable runnable = new Runnable() {
 				@Override
 				public void run() {

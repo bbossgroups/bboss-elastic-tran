@@ -20,6 +20,7 @@ import org.frameworkset.nosql.minio.Minio;
 import org.frameworkset.nosql.minio.MinioConfig;
 import org.frameworkset.nosql.minio.MinioHelper;
 import org.frameworkset.nosql.minio.MinioStartResult;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.input.file.FilelogPluginException;
 import org.frameworkset.tran.output.minio.MinioFileConfig;
 import org.frameworkset.tran.output.minio.OSSFileInfo;
@@ -43,9 +44,11 @@ public class MinioSendFileFunction implements SendFileFunction{
     private Minio minio ;
     private MinioFileConfig minioFileConfig;
     private OSSInfoBuilder ossInfoBuilder;
-    public MinioSendFileFunction(FileOutputConfig fileOutputConfig){
+    private ImportContext importContext;
+    public MinioSendFileFunction(ImportContext importContext,FileOutputConfig fileOutputConfig){
         this.fileOutputConfig = fileOutputConfig;
         minioFileConfig = fileOutputConfig.getMinioFileConfig();
+        this.importContext = importContext;
     }
     public void init(){
         minioFileConfig.init();
@@ -76,14 +79,20 @@ public class MinioSendFileFunction implements SendFileFunction{
         File file = new File(filePath);
         OSSFileInfo ossFileInfo = ossInfoBuilder.buildOSSFileInfo(minioFileConfig,file);
         try {
+            long s = System.currentTimeMillis();
             minio.createBucket(ossFileInfo.getBucket());
             minio.saveOssFile(file,ossFileInfo.getBucket(),ossFileInfo.getId());
+            long e = System.currentTimeMillis();
+            String msg = null;
             if(!resend) {
-                logger.info("Resend file {} to minio complete.",filePath );
+                msg = "Send file "+filePath+" to minio bucket "+ossFileInfo.getBucket()+" complete,耗时:"+(e-s)+"毫秒";
             }
             else{
-                logger.info("Send file {} to minio complete.",filePath);
+                msg = "Resend file "+filePath+" to minio bucket "+ossFileInfo.getBucket()+" complete,耗时:"+(e-s)+"毫秒";
+               
             }
+            logger.info(msg);
+            importContext.reportJobMetricLog(msg);
         } catch (Exception e) {
             throw new FilelogPluginException("createBucket failed:"+ossFileInfo.toString(),e);
         }

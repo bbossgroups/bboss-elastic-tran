@@ -22,6 +22,7 @@ import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
+import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpContext;
@@ -253,7 +254,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	}
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext,ImportBuilder importBuilder) {
 		if(ftpOutConfig == null && minioFileConfig == null){
 			disableftp = true;
 		}
@@ -262,12 +263,12 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
         }
         else if(ftpOutConfig != null){
             baseRemoteConfig = ftpOutConfig;
-            sendFileFunction = new FtpSendFileFunction(this);
+            sendFileFunction = new FtpSendFileFunction(importContext,this);
             sendFileFunction.init();
         }
         else if(minioFileConfig != null){
             baseRemoteConfig = minioFileConfig;
-            sendFileFunction = new MinioSendFileFunction(this);
+            sendFileFunction = new MinioSendFileFunction(importContext,this);
             sendFileFunction.init();
         }
 

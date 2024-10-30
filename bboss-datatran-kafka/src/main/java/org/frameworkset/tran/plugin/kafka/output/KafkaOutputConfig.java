@@ -20,6 +20,7 @@ import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.output.KafkaSend;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.metrics.TimeWindowExportResultHandler;
@@ -141,7 +142,7 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 //	}
 
 	@Override
-	public void build(ImportBuilder importBuilder) {
+	public void build(ImportContext importContext, ImportBuilder importBuilder) {
 		if(recordGenerator == null && recordGeneratorV1 == null){
 			recordGeneratorV1 = new JsonRecordGenerator();
 		}

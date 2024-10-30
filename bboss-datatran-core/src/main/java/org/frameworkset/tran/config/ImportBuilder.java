@@ -1495,8 +1495,8 @@ public class ImportBuilder {
 		BaseImportConfig baseImportConfig = new BaseImportConfig() ;
 		buildImportConfig(baseImportConfig);
 		importContext.setBaseImportConfig(baseImportConfig);
-		inputConfig.build(this);
-		outputConfig.build(this);
+		inputConfig.build(importContext,this);
+		outputConfig.build(importContext,this);
 		importContext.setInputConfig(inputConfig);
 		importContext.setOutputConfig(outputConfig);
 		if(this.exportResultHandler != null){
@@ -1523,8 +1523,11 @@ public class ImportBuilder {
 		return new ImportBuilder();
 	}
 
+    public MetricsLogReport getMetricsLogReport() {
+        return metricsLogReport;
+    }
 
-	/**
+    /**
 	 * 创建持续运行的数据同步作业
 	 * @return
 	 */
