@@ -1,0 +1,35 @@
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+           
+        }
+        resources {
+			srcDir 'src/main/resources'
+			srcDir 'src/main/java'  exclude '**/*.java'
+        }
+        
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+           
+        }
+        resources {
+			srcDir 'src/test/resources'
+			srcDir 'src/test/java'  exclude '**/*.java'
+        }
+        
+    }
+    
+}
+
+
+dependencies {
+	api project(':bboss-datatran-schedule-quartz')
+//	api project(':bboss-datatran-fileftp')
+	api([group: 'com.bbossgroups', name: 'bboss-data', version: "${PROJ_BBOSS_DATA_VERSION}", transitive: true])
+
+    api group: 'io.milvus', name: 'milvus-sdk-java', version: '2.4.8'
+}
+

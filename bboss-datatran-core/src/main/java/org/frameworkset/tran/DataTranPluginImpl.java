@@ -1482,8 +1482,12 @@ public class DataTranPluginImpl implements DataTranPlugin {
 				resourceStartResults.add(resourceStartResult);
 			}
 		}
+        catch (DataImportException e){
+            throw e;
+        }
 		catch (Exception e){
-			logger.error("Resource Start failed:",e);
+//			logger.error("Resource Start failed:",e);
+            throw new DataImportException("Resource Start failed:",e);
 		}
 
 	}

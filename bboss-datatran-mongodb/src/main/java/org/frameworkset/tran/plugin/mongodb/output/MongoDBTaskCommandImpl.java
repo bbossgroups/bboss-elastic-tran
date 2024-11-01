@@ -70,8 +70,7 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand< Object> {
         }
         List<WriteModel<Document>> bulkOperations = new ArrayList<>();
         for (CommonRecord dbRecord : records) {
-            CommonRecord record = dbRecord;
-            DataMap.addRecord(bulkOperations, record, objectIdField);
+            DataMap.addRecord(bulkOperations, dbRecord, objectIdField);
 
 
         }

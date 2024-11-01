@@ -100,14 +100,15 @@ public class MongoDBOutputDataTranPlugin extends BasePlugin implements OutputPlu
 	@Override
 
 	public void destroy(boolean waitTranStop) {
-		Map<String,Object> dbs = mongoDBStartResult.getDbstartResult();
-		if (dbs != null && dbs.size() > 0){
-			Iterator<Map.Entry<String, Object>> iterator = dbs.entrySet().iterator();
-			while(iterator.hasNext()){
-				Map.Entry<String, Object> entry = iterator.next();
-				MongoDBHelper.closeDB(entry.getKey());
-			}
-		}
+        MongoDBHelper.closeDB(mongoDBStartResult);
+//		Map<String,Object> dbs = mongoDBStartResult.getDbstartResult();
+//		if (dbs != null && dbs.size() > 0){
+//			Iterator<Map.Entry<String, Object>> iterator = dbs.entrySet().iterator();
+//			while(iterator.hasNext()){
+//				Map.Entry<String, Object> entry = iterator.next();
+//				MongoDBHelper.closeDB(entry.getKey());
+//			}
+//		}
 	}
 
 	@Override

@@ -44,9 +44,14 @@ public class DataStream {
 			try {
 				importContext.getImportStartAction().startAction(importContext);
 			}
-			catch (Exception e){
-				logger.warn("",e);
+			catch (DataImportException e){
+//				logger.warn("",e);
+                throw e;
 			}
+            catch (Exception e){
+//                logger.warn("",e);
+                throw new DataImportException("startAction failed:",e);
+            }
 		}
 	}
 
@@ -55,9 +60,14 @@ public class DataStream {
 			try {
 				importContext.getImportStartAction().afterStartAction(importContext);
 			}
-			catch (Exception e){
-				logger.warn("",e);
-			}
+            catch (DataImportException e){
+//				logger.warn("",e);
+                throw e;
+            }
+            catch (Exception e){
+//                logger.warn("",e);
+                throw new DataImportException("afterStartAction failed:",e);
+            }
 		}
 	}
 	public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {

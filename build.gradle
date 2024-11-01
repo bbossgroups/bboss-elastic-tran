@@ -103,7 +103,8 @@ configure([project(":bboss-datatran-jdbc"),
 		   project(":bboss-datatran-mongodb"),
 		   project(":bboss-datatran-schedule-quartz"),
 		   project(":bboss-datatran-schedule-xxljob"),
-		   project(":bboss-datatran-binlog")
+		   project(":bboss-datatran-binlog"),
+           project(":bboss-datatran-milvus")
 ]) { subproject ->
 
 
