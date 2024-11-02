@@ -29,6 +29,9 @@ import org.frameworkset.tran.plugin.OutputPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -63,8 +66,30 @@ public class MilvusOutputConfig extends BaseConfig implements OutputConfig {
     private boolean upsert;
     private String collectionName;
     private String partitionName;
+    private Map<String, Object> collectionSchemaIdx;
+    List<String> fields;
+    
+    private boolean loadCollectionSchema = true;
     public String getName() {
         return name;
+    }
+
+    public Map<String, Object> getCollectionSchemaIdx() {
+        return collectionSchemaIdx;
+    }
+
+    public MilvusOutputConfig setCollectionSchemaIdx(Map<String, Object> collectionSchemaIdx) {
+        this.collectionSchemaIdx = collectionSchemaIdx;
+        return this;
+    }
+
+    public List<String> getFields() {
+        return fields;
+    }
+
+    public MilvusOutputConfig setFields(List<String> fields) {
+        this.fields = fields;
+        return this;
     }
 
     public MilvusOutputConfig setName(String name) {
@@ -268,5 +293,13 @@ public class MilvusOutputConfig extends BaseConfig implements OutputConfig {
     public OutputPlugin getOutputPlugin(ImportContext importContext) {
         return new MilvusOutputDataTranPlugin(importContext);
     }
- 
+
+    public boolean isLoadCollectionSchema() {
+        return loadCollectionSchema;
+    }
+
+    public MilvusOutputConfig setLoadCollectionSchema(boolean loadCollectionSchema) {
+        this.loadCollectionSchema = loadCollectionSchema;
+        return this;
+    }
 }

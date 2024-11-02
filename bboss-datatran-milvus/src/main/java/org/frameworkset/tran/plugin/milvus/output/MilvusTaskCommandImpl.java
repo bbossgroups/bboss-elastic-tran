@@ -18,16 +18,13 @@ package org.frameworkset.tran.plugin.milvus.output;
 import com.frameworkset.util.SimpleStringUtil;
 import com.google.gson.*;
 import io.milvus.v2.client.MilvusClientV2;
-import io.milvus.v2.service.collection.request.DescribeCollectionReq;
-import io.milvus.v2.service.collection.response.DescribeCollectionResp;
 import io.milvus.v2.service.vector.request.InsertReq;
 import io.milvus.v2.service.vector.request.UpsertReq;
 import io.milvus.v2.service.vector.response.InsertResp;
 import io.milvus.v2.service.vector.response.UpsertResp;
-import org.frameworkset.nosql.milvus.Milvus;
+import org.frameworkset.nosql.milvus.MilvusFunction;
 import org.frameworkset.nosql.milvus.MilvusHelper;
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.task.CommonBaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
 import org.slf4j.Logger;
@@ -120,52 +117,55 @@ public class MilvusTaskCommandImpl  extends CommonBaseTaskCommand<Object>  {
         }
         return null;
     }
-
-    
-    @Override
-    protected Object _execute(){
-        Milvus milvus = MilvusHelper.getMilvus(milvusOutputConfig.getName());
-        MilvusClientV2 milvusClientV2 = null;
-        try {
-            milvusClientV2 = milvus.getMilvusClientV2();
-            // get the collection detail
-            DescribeCollectionReq describeCollectionReq = DescribeCollectionReq.builder()
-                    .collectionName(milvusOutputConfig.getCollectionName())
-                    .build();
-            DescribeCollectionResp describeCollectionResp = milvusClientV2.describeCollection(describeCollectionReq);
-            if(describeCollectionResp == null){
-                throw new DataImportException("Get describe of collection "+milvusOutputConfig.getCollectionName()+": null ");
-            }
-            List<String> fields = describeCollectionResp.getFieldNames();
+    protected  Map<String,Object> getCollectionSchemaIdx(MilvusClientV2 milvusClientV2){
+        if(milvusOutputConfig.isLoadCollectionSchema()){
+            return milvusOutputConfig.getCollectionSchemaIdx();
+        }
+        else{
+             
+            List<String> fields = MilvusHelper.getCollectionSchemaIdx(milvusOutputConfig.getCollectionName(),milvusClientV2);
             Map<String,Object> fidx = new HashMap<>();
             for(String f:fields){
                 fidx.put(f,1);
             }
-            if (milvusOutputConfig.isUpsert()) {
-                UpsertReq.UpsertReqBuilder<?, ?> upsertReqBuilder = UpsertReq.builder();
-                upsertReqBuilder.collectionName(milvusOutputConfig.getCollectionName());
-                if (SimpleStringUtil.isNotEmpty(milvusOutputConfig.getPartitionName())) {
-                    upsertReqBuilder.partitionName(milvusOutputConfig.getPartitionName());
-                }
-                upsertReqBuilder.data(_buildDatas(fidx));
-                UpsertResp upsertResp = milvusClientV2.upsert(upsertReqBuilder.build());
-                return upsertResp;
-            } else {
-                InsertReq.InsertReqBuilder<?, ?> insertReqBuilder = InsertReq.builder();
-                insertReqBuilder.collectionName(milvusOutputConfig.getCollectionName());
-                if (SimpleStringUtil.isNotEmpty(milvusOutputConfig.getPartitionName())) {
-                    insertReqBuilder.partitionName(milvusOutputConfig.getPartitionName());
-                }
-                insertReqBuilder.data(_buildDatas(fidx));
-                InsertResp insertResp = milvusClientV2.insert(insertReqBuilder.build());
-                return insertResp;
+            if(logger.isInfoEnabled()) {
+                logger.info("collection {} collectionSchema {}", milvusOutputConfig.getCollectionName(), SimpleStringUtil.object2json(fields));
             }
+            return fidx;
         }
-        finally {
-            if(milvusClientV2 != null){
-                milvus.release(milvusClientV2);
+    }
+    
+    @Override
+    protected Object _execute(){
+        return MilvusHelper.executeRequest(milvusOutputConfig.getName(), new MilvusFunction<Object>() {
+            @Override
+            public Object execute(MilvusClientV2 milvusClientV2) {
+                // get the collection detail
+               
+                 
+                Map<String,Object> collectionSchemaIdx = getCollectionSchemaIdx(  milvusClientV2);
+                
+                if (milvusOutputConfig.isUpsert()) {
+                    UpsertReq.UpsertReqBuilder<?, ?> upsertReqBuilder = UpsertReq.builder();
+                    upsertReqBuilder.collectionName(milvusOutputConfig.getCollectionName());
+                    if (SimpleStringUtil.isNotEmpty(milvusOutputConfig.getPartitionName())) {
+                        upsertReqBuilder.partitionName(milvusOutputConfig.getPartitionName());
+                    }
+                    upsertReqBuilder.data(_buildDatas(collectionSchemaIdx));
+                    UpsertResp upsertResp = milvusClientV2.upsert(upsertReqBuilder.build());
+                    return upsertResp;
+                } else {
+                    InsertReq.InsertReqBuilder<?, ?> insertReqBuilder = InsertReq.builder();
+                    insertReqBuilder.collectionName(milvusOutputConfig.getCollectionName());
+                    if (SimpleStringUtil.isNotEmpty(milvusOutputConfig.getPartitionName())) {
+                        insertReqBuilder.partitionName(milvusOutputConfig.getPartitionName());
+                    }
+                    insertReqBuilder.data(_buildDatas(collectionSchemaIdx));
+                    InsertResp insertResp = milvusClientV2.insert(insertReqBuilder.build());
+                    return insertResp;
+                }
             }
-        }
+        });       
         
 	}
 

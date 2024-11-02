@@ -16,10 +16,9 @@ package org.frameworkset.tran.plugin.milvus.output;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.nosql.milvus.MilvusConfig;
-import org.frameworkset.nosql.milvus.MilvusHelper;
-import org.frameworkset.nosql.milvus.MilvusStartResult;
+import org.frameworkset.nosql.milvus.*;
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -27,6 +26,12 @@ import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -38,6 +43,8 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @version 1.0
  */
 public class MilvusOutputDataTranPlugin extends BasePlugin implements OutputPlugin {
+
+    private static Logger log = LoggerFactory.getLogger(MilvusOutputDataTranPlugin.class);
 	/**
 	 * 包含所有启动成功的db数据源
 	 */
@@ -88,7 +95,35 @@ public class MilvusOutputDataTranPlugin extends BasePlugin implements OutputPlug
             milvusStartResult = MilvusHelper.init(milvusConfig);
             
         }
+        if(milvusOutputConfig.isLoadCollectionSchema()){
+            loadCollectionSchema();
+        }
 	}
+    
+    private void loadCollectionSchema(){
+        
+        try {
+            List<String> fields = MilvusHelper.loadCollectionSchema(milvusOutputConfig.getName(),
+                    milvusOutputConfig.getCollectionName());
+            Map<String, Object> collectionSchemaIdx = new LinkedHashMap<>();
+            for (String f : fields) {
+                collectionSchemaIdx.put(f, 1);
+            }
+            milvusOutputConfig.setFields(fields);
+            milvusOutputConfig.setCollectionSchemaIdx(collectionSchemaIdx);
+            if(log.isInfoEnabled()) {
+                log.info("collection {} collectionSchema {}", milvusOutputConfig.getCollectionName(), SimpleStringUtil.object2json(fields));
+            }
+            
+        }
+        catch (DataImportException dataImportException){
+            throw dataImportException;
+        }
+        catch (Exception exception){
+            throw new DataImportException("loadCollectionSchema failed:",exception);
+        }
+        
+    }
 
 
 	@Override
