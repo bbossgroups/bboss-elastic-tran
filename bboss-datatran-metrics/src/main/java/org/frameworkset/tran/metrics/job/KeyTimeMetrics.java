@@ -18,6 +18,7 @@ package org.frameworkset.tran.metrics.job;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.metrics.entity.KeyMetric;
 import org.frameworkset.tran.metrics.entity.MapData;
+import org.frameworkset.tran.metrics.entity.MetricKey;
 import org.frameworkset.tran.metrics.entity.TimeMetric;
 import org.frameworkset.util.TimeUtil;
 import org.slf4j.Logger;
@@ -222,13 +223,16 @@ public abstract class KeyTimeMetrics implements BaseMetrics {
 
         return MetricUtil.getMetricsTimeKeyFormat(this.timeWindowType,data);
 	}
-	public TimeMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder)  {
+    public TimeMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder)  {
+        return metric(new MetricKey( metricsKey),  data,  metricBuilder);
+    }
+	public TimeMetric metric(MetricKey metricsKey, MapData data, KeyMetricBuilder metricBuilder)  {
 		if(!metricBuilder.validateData( data)){
 			if(logger.isDebugEnabled())
 				logger.debug("data validate failed:{}", SimpleStringUtil.object2json(data.getData()));
 			return null;
 		}
-		Map<String, TimeMetric> metrics = getTimeKeyMetrics( metricsKey);
+		Map<String, TimeMetric> metrics = getTimeKeyMetrics( metricsKey.getMetricKey());
 		Date time = data.metricsDataTime(metricsKey);
 		DateFormat dateFormat = this.getMetricsTimeKeyFormat(data);//data.getMinuteFormat();
 		DateFormat metricTimeDateFormat = dateFormat;
@@ -241,7 +245,7 @@ public abstract class KeyTimeMetrics implements BaseMetrics {
                 metric.setMetricsLogAPI(this.getMetricsLogAPI());
                 MetricUtil.buildMetricTimeField( metric,  data,  time);
 
-				metric.setMetric(metricsKey);
+				metric.setMetric(metricsKey.getMetricKey());
 				try {
 					metric.setDataTime(metricTimeDateFormat.parse(metricsTime));
 				} catch (Exception e) {

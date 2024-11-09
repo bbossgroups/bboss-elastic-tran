@@ -1,0 +1,79 @@
+package org.frameworkset.tran.metrics.entity;
+/**
+ * Copyright 2024 bboss
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import java.io.Serializable;
+import java.util.Map;
+
+/**
+ * <p>Description: </p>
+ * <p></p>
+ *
+ * @author biaoping.yin
+ * @Date 2024/11/6
+ */
+public class MetricKey implements Serializable {
+    /**
+     * 指标key
+     */
+    private String metricKey;
+    /**
+     * 可以设置一个指标类型标记，方便后续基于类型实现指标的判断规则
+     */
+    private int metricType;
+    private Map<String,Object> metricMeta;
+    public MetricKey(String metricKey){
+        this.metricKey = metricKey;
+    }
+    public MetricKey(String metricKey,int metricType){
+        this.metricKey = metricKey;
+        this.metricType = metricType;
+    }
+
+    public MetricKey(String metricKey,int metricType,Map<String,Object> metricMeta){
+        this.metricKey = metricKey;
+        this.metricType = metricType;
+        this.metricMeta = metricMeta;
+    }
+    public MetricKey(){
+        
+    }
+
+
+    public Map<String, Object> getMetricMeta() {
+        return metricMeta;
+    }
+
+    public void setMetricMeta(Map<String, Object> metricMeta) {
+        this.metricMeta = metricMeta;
+    }
+
+    public String getMetricKey() {
+        return metricKey;
+    }
+
+    public void setMetricKey(String metricKey) {
+        this.metricKey = metricKey;
+    }
+
+    public int getMetricType() {
+        return metricType;
+    }
+
+    public void setMetricType(int metricType) {
+        this.metricType = metricType;
+    }
+}

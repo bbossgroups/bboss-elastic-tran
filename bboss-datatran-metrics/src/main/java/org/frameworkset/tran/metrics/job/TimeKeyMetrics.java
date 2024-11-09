@@ -18,6 +18,7 @@ package org.frameworkset.tran.metrics.job;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.metrics.entity.KeyMetric;
 import org.frameworkset.tran.metrics.entity.MapData;
+import org.frameworkset.tran.metrics.entity.MetricKey;
 import org.frameworkset.tran.metrics.entity.TimeMetric;
 import org.frameworkset.util.TimeUtil;
 import org.slf4j.Logger;
@@ -266,7 +267,10 @@ public abstract class TimeKeyMetrics implements BaseMetrics {
 
 
 	}
-	public TimeMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder)  {
+    public TimeMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder){
+        return metric(new MetricKey( metricsKey),  data,  metricBuilder);
+    }
+    public TimeMetric metric(MetricKey metricsKey, MapData data, KeyMetricBuilder metricBuilder)  {
 		if(!metricBuilder.validateData( data)){
 			if(logger.isDebugEnabled())
 				logger.debug("data validate failed:{}", SimpleStringUtil.object2json(data.getData()));

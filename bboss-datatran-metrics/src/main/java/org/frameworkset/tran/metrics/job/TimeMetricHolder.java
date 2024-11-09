@@ -18,6 +18,7 @@ package org.frameworkset.tran.metrics.job;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.metrics.entity.KeyMetric;
 import org.frameworkset.tran.metrics.entity.MapData;
+import org.frameworkset.tran.metrics.entity.MetricKey;
 import org.frameworkset.tran.metrics.entity.TimeMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public class TimeMetricHolder extends BaseKeyMetrics{
 	protected void initMetrics(){
 
 	}
-	protected void initKeyMetric(KeyMetric metric,MapData data,String metricsKey){
+	protected void initKeyMetric(KeyMetric metric,MapData data,MetricKey metricsKey){
 		Date time = data.metricsDataTime(metricsKey);
 		DateFormat metricsTimeKeyFormat = timeMetrics.getMetricsTimeKeyFormat(data);//data.getMinuteFormat();
 		String timeMetricKey = metricsTimeKeyFormat.format(time);
@@ -72,7 +73,7 @@ public class TimeMetricHolder extends BaseKeyMetrics{
 		timeMetric.setMetricTimeKey(timeMetricKey);
 //		timeMetric.setMetricSlotTimeKey(data.getMinuteFormat().format(slotTime));
 //				metric.setMiniute(metricsTime);
-		metric.setMetric(metricsKey);
+		metric.setMetric(metricsKey.getMetricKey());
 		try {
 			metric.setDataTime(metricsTimeKeyFormat.parse(timeMetricKey));
 		} catch (Exception e) {
@@ -80,7 +81,10 @@ public class TimeMetricHolder extends BaseKeyMetrics{
 		}
 		metric.init(data);
 	}
-	public KeyMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder)  {
+    public KeyMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder){
+        return metric(new MetricKey( metricsKey),  data,  metricBuilder);
+    }
+    public KeyMetric metric(MetricKey metricsKey, MapData data, KeyMetricBuilder metricBuilder)  {
 		if(!metricBuilder.validateData( data)){
 			if(logger.isDebugEnabled())
 				logger.debug("data validate failed:{}", SimpleStringUtil.object2json(data.getData()));
@@ -90,16 +94,16 @@ public class TimeMetricHolder extends BaseKeyMetrics{
 		KeyMetric keyMetric = null;
 		KeyMetricsContainer keyMetricsContainerTemp = keyMetricsContainerS0;
 		KeyMetricsContainer persistent = null;
-		keyMetric = keyMetricsContainerTemp.getKeyMetric(metricsKey);
+		keyMetric = keyMetricsContainerTemp.getKeyMetric(metricsKey.getMetricKey());
 		if(keyMetric == null){
-			keyMetric = keyMetricsContainerS1.getKeyMetric(metricsKey);
+			keyMetric = keyMetricsContainerS1.getKeyMetric(metricsKey.getMetricKey());
 		}
 		if(keyMetric == null){
 			keyMetric =  metricBuilder.build();
             keyMetric.setMetricsLogAPI(timeMetrics.getMetricsLogAPI());
 			initKeyMetric(keyMetric,data,metricsKey);
 
-			isFull = !keyMetricsContainerTemp.putKeyMetric(metricsKey,keyMetric);
+			isFull = !keyMetricsContainerTemp.putKeyMetric(metricsKey.getMetricKey(),keyMetric);
 			if(isFull){
 				if(keyMetricsContainerS1.isEmpty()) {//交换分区s0和s1
 					keyMetricsContainerS0 = keyMetricsContainerS1;

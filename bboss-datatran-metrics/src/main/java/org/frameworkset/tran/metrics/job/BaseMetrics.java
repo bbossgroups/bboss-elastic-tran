@@ -17,6 +17,7 @@ package org.frameworkset.tran.metrics.job;
 
 import org.frameworkset.tran.metrics.entity.KeyMetric;
 import org.frameworkset.tran.metrics.entity.MapData;
+import org.frameworkset.tran.metrics.entity.MetricKey;
 import org.frameworkset.tran.metrics.job.builder.MetricBuilder;
 
 import java.util.Collection;
@@ -65,9 +66,9 @@ public interface BaseMetrics {
 	public abstract void persistent(Collection<KeyMetric> metrics);
 
 	public KeyMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder);
+    public KeyMetric metric(MetricKey metricsKey, MapData data, KeyMetricBuilder metricBuilder);
 
-
-	/**
+    /**
 	 *
 	 * @param cleanMetricsKey 参数含义说明：
 	 *                           TimeMetrics和KeyTimeMetrics true 代表清理指标key，false代表不清理指标key

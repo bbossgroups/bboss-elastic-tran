@@ -36,7 +36,7 @@ public abstract class ETLMetrics extends Metrics {
 
     private String dataTimeField;
 
-    private BuildMapData buildMapData;
+    private SimpleBuildMapData buildMapData;
     public ETLMetrics() {
         super();
     }
@@ -180,12 +180,12 @@ public abstract class ETLMetrics extends Metrics {
     public ETLMetrics(int metricsType) {
         super(metricsType);
     }
-    public ETLMetrics setBuildMapData(BuildMapData buildMapData) {
+    public ETLMetrics setBuildMapData(SimpleBuildMapData buildMapData) {
         this.buildMapData = buildMapData;
         return this;
     }
 
-    public BuildMapData getBuildMapData() {
+    public SimpleBuildMapData getBuildMapData() {
         return buildMapData;
     }
 
@@ -197,7 +197,13 @@ public abstract class ETLMetrics extends Metrics {
     public ETLMapData buildMapData(MetricsData metricsData){
         ETLMapData etlMapData = null;
         if(buildMapData != null){
-            etlMapData = buildMapData.buildMapData(metricsData);
+            if(buildMapData instanceof BuildMapData) {
+                etlMapData = buildMapData.buildMapData(metricsData);
+            }
+            else {
+                etlMapData = buildMapData.buildMapData(metricsData);
+                metricsData.setData(etlMapData, this);
+            }
         }
         else {
             etlMapData = new ETLMapData();           

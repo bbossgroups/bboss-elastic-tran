@@ -15,8 +15,6 @@ package org.frameworkset.tran.plugin.metrics.output;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.metrics.entity.MapData;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -25,5 +23,12 @@ import org.frameworkset.tran.metrics.entity.MapData;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface BuildMapData extends SimpleBuildMapData{
+public interface SimpleBuildMapData {
+    /**
+     * 只负责创建ETLMapData对象，无需设置其他数据
+     * 子接口BuildMapData必须设置其他数据
+     * @param metricsData
+     * @return
+     */
+    public ETLMapData buildMapData(MetricsData metricsData);
 }

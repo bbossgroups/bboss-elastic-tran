@@ -17,6 +17,7 @@ package org.frameworkset.tran.metrics.job;
 
 import org.frameworkset.tran.metrics.entity.KeyMetric;
 import org.frameworkset.tran.metrics.entity.MapData;
+import org.frameworkset.tran.metrics.entity.MetricKey;
 import org.frameworkset.tran.metrics.job.builder.MetricBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -239,8 +240,13 @@ public abstract class Metrics implements BaseMetrics {
 
 	@Override
 	public KeyMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder) {
-		return baseMetrics.metric(metricsKey,data,metricBuilder);
+		return baseMetrics.metric(new MetricKey(metricsKey),data,metricBuilder);
 	}
+
+    @Override
+    public KeyMetric metric(MetricKey metricsKey, MapData data, KeyMetricBuilder metricBuilder) {
+        return baseMetrics.metric(metricsKey,data,metricBuilder);
+    }
 	public String getMetricsName() {
 		return metricsName;
 	}

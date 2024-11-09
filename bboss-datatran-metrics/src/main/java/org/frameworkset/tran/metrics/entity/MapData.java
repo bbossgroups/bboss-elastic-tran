@@ -115,17 +115,28 @@ public class MapData<T> {
 		this.minuteFormat = minuteFormat;
 	}
 
-	/**
-	 * 根据指标标识，获取指标的时间统计维度字段，默认返回dataTime字段值，不同的指标需要指定不同的时间维度统计字段
-	 * 分析处理作业可以覆盖本方法，自定义获取时间维度字段值
-	 * @param metricsKey
-	 * @return
-	 */
-	public Date metricsDataTime(String metricsKey) {
-		return dataTime;
-	}
+//	/**
+//	 * 根据指标标识，获取指标的时间统计维度字段，默认返回dataTime字段值，不同的指标需要指定不同的时间维度统计字段
+//	 * 分析处理作业可以覆盖本方法，自定义获取时间维度字段值
+//	 * @param metricsKey
+//	 * @return
+//	 */
+//	public Date metricsDataTime(String metricsKey) {
+//		return dataTime;
+//	}
 
-	public Date getDataTime() {
+    /**
+     * 根据指标标识，获取指标的时间统计维度字段，默认返回dataTime字段值，不同的指标需要指定不同的时间维度统计字段
+     * 分析处理作业可以覆盖本方法，自定义获取时间维度字段值
+     * @param metricsKey
+     * @return
+     */
+    public Date metricsDataTime(MetricKey metricsKey) {
+        return dataTime;
+    }
+
+
+    public Date getDataTime() {
 		return dataTime;
 	}
 

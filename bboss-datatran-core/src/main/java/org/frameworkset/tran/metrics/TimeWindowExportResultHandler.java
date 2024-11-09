@@ -20,6 +20,7 @@ import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.metrics.entity.KeyMetric;
 import org.frameworkset.tran.metrics.entity.MapData;
+import org.frameworkset.tran.metrics.entity.MetricKey;
 import org.frameworkset.tran.metrics.job.KeyMetricBuilder;
 import org.frameworkset.tran.metrics.job.Metrics;
 import org.frameworkset.tran.metrics.job.MetricsConfig;
@@ -54,12 +55,12 @@ public class TimeWindowExportResultHandler<RESULT> extends BaseExportResultHandl
 			public void builderMetrics(){
 				addMetricBuilder(new MetricBuilder() {
 					@Override
-					public String buildMetricKey(MapData mapData){
+					public MetricKey buildMetricKey(MapData mapData){
 						TaskMetrics taskMetrics = (TaskMetrics) mapData.getData();
 
 						StringBuilder mkey = new StringBuilder();
 						mkey.append(metricKeyPrex).append("-").append(taskMetrics.getJobNo());
-						return mkey.toString();
+						return new MetricKey(mkey.toString());
 					}
 					@Override
 					public KeyMetricBuilder metricBuilder(){

@@ -18,6 +18,7 @@ package org.frameworkset.tran.metrics.job;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.metrics.entity.KeyMetric;
 import org.frameworkset.tran.metrics.entity.MapData;
+import org.frameworkset.tran.metrics.entity.MetricKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,18 +41,28 @@ public abstract class KeyMetrics extends BaseKeyMetrics implements BaseMetrics {
     private MetricsLogAPI metricsLogAPI;
 	private static Logger logger = LoggerFactory.getLogger(KeyMetrics.class);
 	protected void initKeyMetric(KeyMetric keyMetric, MapData data, String metricsKey){
-		keyMetric.setDataTime(data.metricsDataTime(metricsKey));
-		keyMetric.setSlotTime(new Date());
-		keyMetric.setMetric(metricsKey);
-		keyMetric.init(data);
+//		keyMetric.setDataTime(data.metricsDataTime(new MetricKey(metricsKey)));
+//		keyMetric.setSlotTime(new Date());
+//		keyMetric.setMetric(metricsKey);
+//		keyMetric.init(data);
+        initKeyMetric(  keyMetric,   data, new MetricKey(metricsKey));
 	}
+
+    protected void initKeyMetric(KeyMetric keyMetric, MapData data, MetricKey metricsKey){
+        keyMetric.setDataTime(data.metricsDataTime(metricsKey));
+        keyMetric.setSlotTime(new Date());
+        keyMetric.setMetric(metricsKey.getMetricKey());
+        keyMetric.init(data);
+    }
 
 	@Override
 	public void setMetricsName(String metricsName) {
 		this.metricsName = metricsName;
 	}
-
-	public KeyMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder)  {
+    public KeyMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder){
+        return metric(new MetricKey( metricsKey),  data,  metricBuilder);
+    }
+    public KeyMetric metric(MetricKey metricsKey, MapData data, KeyMetricBuilder metricBuilder)  {
 		if(!metricBuilder.validateData( data)){
 			if(logger.isDebugEnabled())
 				logger.debug("data validate failed:{}", SimpleStringUtil.object2json(data.getData()));
@@ -64,16 +75,16 @@ public abstract class KeyMetrics extends BaseKeyMetrics implements BaseMetrics {
 		lock.lock();
 		try {
 
-			keyMetric = keyMetricsContainerTemp.getKeyMetric(metricsKey);
+			keyMetric = keyMetricsContainerTemp.getKeyMetric(metricsKey.getMetricKey());
 			if(keyMetric == null){
-				keyMetric = keyMetricsContainerS1.getKeyMetric(metricsKey);
+				keyMetric = keyMetricsContainerS1.getKeyMetric(metricsKey.getMetricKey());
 			}
 			if(keyMetric == null){
 				keyMetric =  metricBuilder.build();
                 keyMetric.setMetricsLogAPI(this.getMetricsLogAPI());
 				initKeyMetric(keyMetric,data,metricsKey);
 
-				isFull = !keyMetricsContainerTemp.putKeyMetric(metricsKey,keyMetric);
+				isFull = !keyMetricsContainerTemp.putKeyMetric(metricsKey.getMetricKey(),keyMetric);
 				if(isFull){
 					if(keyMetricsContainerS1.isEmpty()) {//交换分区s0和s1
 						keyMetricsContainerS0 = keyMetricsContainerS1;

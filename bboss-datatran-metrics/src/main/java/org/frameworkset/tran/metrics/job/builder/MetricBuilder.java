@@ -16,6 +16,7 @@ package org.frameworkset.tran.metrics.job.builder;
  */
 
 import org.frameworkset.tran.metrics.entity.MapData;
+import org.frameworkset.tran.metrics.entity.MetricKey;
 import org.frameworkset.tran.metrics.job.KeyMetricBuilder;
 
 /**
@@ -34,7 +35,7 @@ public abstract class MetricBuilder {
      * @param mapData
      * @return
      */
-    public abstract String buildMetricKey(MapData mapData);
+    public abstract MetricKey buildMetricKey(MapData mapData);
 
     /**
      * 构建指标计算器对象

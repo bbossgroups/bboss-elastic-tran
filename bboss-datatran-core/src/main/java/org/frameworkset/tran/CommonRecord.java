@@ -301,13 +301,17 @@ public class CommonRecord {
         Object value = this.getData(fieldName);
         if(value == null)
             return null;
-        else if(value instanceof String){
-            LocalDateTime localDateTime = TimeUtil.localDateTime((String)value);
-            return TimeUtil.convertLocalDatetime(localDateTime);
-        }
+        
         else if(value instanceof Date){
             return (Date)value;
 
+        }
+        else if(value instanceof Long){
+            return new Date(((Long)value).longValue());
+        }
+        else if(value instanceof String){
+            LocalDateTime localDateTime = TimeUtil.localDateTime((String)value);
+            return TimeUtil.convertLocalDatetime(localDateTime);
         }
         else if(value instanceof LocalDateTime){
             return TimeUtil.convertLocalDatetime((LocalDateTime)value);
@@ -320,9 +324,7 @@ public class CommonRecord {
         else if(value instanceof BigDecimal){
             return new Date(((BigDecimal)value).longValue());
         }
-        else if(value instanceof Long){
-            return new Date(((Long)value).longValue());
-        }
+
         throw new IllegalArgumentException("Convert date value failed:"+value );
     }
 
