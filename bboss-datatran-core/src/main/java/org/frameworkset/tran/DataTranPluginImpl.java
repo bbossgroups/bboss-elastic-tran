@@ -466,7 +466,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
         }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
-            logger.error("reportJobMetricDebug:"+msg);
+            if(logger.isDebugEnabled())
+                logger.debug("reportJobMetricDebug:{}",msg);
             return;
         }
         try{
@@ -495,7 +496,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
         }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
-            logger.error("reportMetricErrorLog:"+msg,e);
+            if(logger.isErrorEnabled())
+                logger.error("reportMetricErrorLog:"+msg,e);
             return;
         }
         try{
@@ -522,7 +524,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
         }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
-            logger.error("reportMetricLog:{}",msg);
+            if(logger.isInfoEnabled())
+                logger.info("reportMetricLog:{}",msg);
             return;
         }
         try{
@@ -549,7 +552,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
         }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
-            logger.error("reportMetricWarn:{}",msg);
+            if(logger.isWarnEnabled())
+                logger.warn("reportMetricWarn:{}",msg);
             return;
         }
         try{
@@ -603,7 +607,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
         }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
-            logger.error("reportTaskMetricLog:{}",msg);
+            if(logger.isInfoEnabled())
+                logger.info("reportTaskMetricLog:{}",msg);
             return;
         }
         try{
@@ -626,7 +631,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
         }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
-            logger.error("reportTaskMetricWarn:{}",msg);
+            if(logger.isWarnEnabled())
+                logger.warn("reportTaskMetricWarn:{}",msg);
             return;
         }
         try{
@@ -650,7 +656,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
         }
         MetricsLogReport metricsLogReport = importContext.getMetricsLogReport();
         if(metricsLogReport == null ) {
-            logger.error("reportTaskMetricDebug:{}",msg);
+            if(logger.isDebugEnabled())
+                logger.debug("reportTaskMetricDebug:{}",msg);
             return;
         }
         try{
