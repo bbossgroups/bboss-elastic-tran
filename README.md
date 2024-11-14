@@ -66,9 +66,9 @@ First add the maven dependency of BBoss to your pom.xml:
         </dependency>
 ```
 # 蓝图规划
-1. 增加oracle cdc、postgresql cdc、sql server cdc、MongoDB cdc插件
-2. mysql cdc支持 ddl的同步
-3. 增加redis插件
+1. 增加oracle cdc、postgresql cdc、sql server cdc插件
+2. 增加redis插件
+3. 增加多输出源功能
 
 # 联系我们
 
