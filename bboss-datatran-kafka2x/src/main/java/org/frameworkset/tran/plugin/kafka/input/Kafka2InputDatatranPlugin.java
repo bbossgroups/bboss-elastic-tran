@@ -61,7 +61,7 @@ public class Kafka2InputDatatranPlugin extends KafkaInputDatatranPlugin {
 //		Thread consumerThread = new Thread(kafkaBatchConsumer2ndStore,"kafka-elasticsearch-BatchConsumer2ndStore");
 //		consumerThread.start();
 //		this.consumerThread = consumerThread;
-		kafkaBatchConsumer2ndStore.run();
+		kafkaBatchConsumer2ndStore.run(false);
 		this.kafkaBatchConsumer2ndStore = kafkaBatchConsumer2ndStore;
 	}
 	@Override

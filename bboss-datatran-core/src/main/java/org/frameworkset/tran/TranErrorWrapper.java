@@ -56,6 +56,13 @@ public class TranErrorWrapper {
 			}
 		}
 	}
+    public boolean exceptionOccur(Throwable e){
+        return e != null || error != null;
+    }
+
+    public Throwable getError(Throwable exception){
+        return exception != null ? exception:error;
+    }
 
 	/**
 	 * 判断异常情况下是否继续允许作业，返回true，继续执行，否则中断执行
@@ -74,10 +81,10 @@ public class TranErrorWrapper {
 		if(error == null && e != null){
 			this.setError(e);
 		}
-        stopFromError = e != null && !importContext.isContinueOnError();
+        stopFromError = exceptionOccur(e) && !importContext.isContinueOnError();
         if(stopFromError)
             return false;
-		return assertCondition(error,importContext);
+		return assertCondition(importContext);
 	}
 
     public boolean isStopFromError() {
@@ -89,7 +96,7 @@ public class TranErrorWrapper {
 	 * 判断执行条件是否成立，成立返回true，否则返回false
 	 * @return
 	 */
-	private static boolean assertCondition(Throwable e,ImportContext importContext){
+	private static boolean assertCondition(ImportContext importContext){
 
 //		if(e != null && !importContext.isContinueOnError() ) {
 //
@@ -98,6 +105,8 @@ public class TranErrorWrapper {
 		if(importContext.isCurrentStoped()){
 			return false;
 		}
+
+        
 		return true;
 	}
 

@@ -253,38 +253,54 @@ public abstract class BaseDataTran implements DataTran{
 
 
 
-
+    private void flush(Throwable exception,LastValueWrapper lastValue ,TranErrorWrapper tranErrorWrapper,Status currentStatus,boolean reachEOFClosed){
+        if(reachEOFClosed){
+            if(tranErrorWrapper.assertCondition(exception)){
+                if(tranErrorWrapper.exceptionOccur(exception)){
+                    importContext.reportJobMetricErrorLog("Excetion occur but continue on error,so flushLastValue last status to job status registry table.",tranErrorWrapper.getError(exception));
+                }
+                importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
+            }
+            else{//不继续执行作业关闭作业依赖的相关资源池
+                if(!tranErrorWrapper.exceptionOccur(exception)){
+                    importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
+                }
+            }
+        }
+    }
     protected void jobComplete(ExecutorService service,Throwable exception,LastValueWrapper lastValue ,TranErrorWrapper tranErrorWrapper,Status currentStatus,boolean reachEOFClosed){
-		if (importContext.getScheduleService() == null) {//一次性非定时调度作业调度执行的话，转换完成需要关闭线程池
-			if(reachEOFClosed){
-				if(tranErrorWrapper.assertCondition(exception)){
-					importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-				}
-				else{//不继续执行作业关闭作业依赖的相关资源池
-					if(exception == null){
-						importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-					}
-				}
-			}
-
-
-
-		}
-		else{
-
-			if(tranErrorWrapper.assertCondition(exception)){
-				if(reachEOFClosed ){
-					importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-				}
-			}
-			else{//不继续执行作业关闭作业依赖的相关资源池
-				if(reachEOFClosed && exception == null){
-					importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
-				}
-
-			}
-		}
-        this.stop2ndClearResultsetQueue(exception != null);
+//		if (importContext.getScheduleService() == null) {//一次性非定时调度作业调度执行的话，转换完成需要关闭线程池
+////			if(reachEOFClosed){
+////				if(tranErrorWrapper.assertCondition(exception)){
+////					importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
+////				}
+////				else{//不继续执行作业关闭作业依赖的相关资源池
+////					if(exception == null){
+////						importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
+////					}
+////				}
+////			}
+//            flush(  exception,  lastValue ,  tranErrorWrapper,  currentStatus,  reachEOFClosed);
+//
+//
+//		}
+//		else{
+//
+////			if(tranErrorWrapper.assertCondition(exception)){
+////				if(reachEOFClosed ){
+////					importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
+////				}
+////			}
+////			else{//不继续执行作业关闭作业依赖的相关资源池
+////				if(reachEOFClosed && exception == null){
+////					importContext.flushLastValue(lastValue,   currentStatus,reachEOFClosed);
+////				}
+////
+////			}
+//            flush(  exception,  lastValue ,  tranErrorWrapper,  currentStatus,  reachEOFClosed);
+//		}
+        flush(  exception,  lastValue ,  tranErrorWrapper,  currentStatus,  reachEOFClosed);
+        this.stop2ndClearResultsetQueue(tranErrorWrapper.exceptionOccur(exception));
 	}
 	public void endJob( boolean reachEOFClosed, ImportCount importCount,Throwable errorStop){
 		Date endTime = new Date();

@@ -44,6 +44,7 @@ import java.util.Map;
  */
 public interface Context extends DataTranPluginMetricsLogAPI {
     public static final String KAFKA_TOPIC_KEY = "_____kafka.topic";
+    public static final String ROCKETMQ_TOPIC_KEY = "_____rocketmq.topic";
     TaskMetrics getTaskMetrics();
     void setTaskMetrics(TaskMetrics taskMetrics);
     /**

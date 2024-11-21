@@ -147,7 +147,13 @@ public class LogDirsScanThread implements Runnable{
                 }
                 else {
                     try {
+                        if(logger.isInfoEnabled()) {
+                            if (interval > 30000) {
+                                logger.info("Wait {} ms to next newfiles scan.", interval);
+                            }
+                        }
                         Thread.sleep(interval);
+                        
                     } catch (final InterruptedException ignored) {
                         // ignore
                         break;
@@ -158,6 +164,11 @@ public class LogDirsScanThread implements Runnable{
                 break;
             }
             try {
+                if(logger.isInfoEnabled()) {
+                    if (interval > 30000) {
+                        logger.info("Wait {} ms to next newfiles scan.", interval);
+                    }
+                }
                 Thread.sleep(interval);
             } catch (final InterruptedException ignored) {
                 // ignore

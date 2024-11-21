@@ -90,7 +90,7 @@ configure(subprojects) { subproject ->
 	}
 
 }
-//,project(":bboss-elasticsearch-rest-file")
+
 configure([project(":bboss-datatran-jdbc"),
 		   project(":bboss-datatran-geoip"),
 		   project(":bboss-datatran-metrics"),
@@ -104,7 +104,9 @@ configure([project(":bboss-datatran-jdbc"),
 		   project(":bboss-datatran-schedule-quartz"),
 		   project(":bboss-datatran-schedule-xxljob"),
 		   project(":bboss-datatran-binlog"),
-           project(":bboss-datatran-milvus")
+           project(":bboss-datatran-milvus"),
+           project(":bboss-datatran-rocketmq")
+           
 ]) { subproject ->
 
 

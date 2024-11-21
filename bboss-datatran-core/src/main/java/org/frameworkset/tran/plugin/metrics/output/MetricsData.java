@@ -69,6 +69,9 @@ public class MetricsData {
         Date dateTime = null;
         if(dataTimeField != null && !dataTimeField.equals("")){
             Object value =  commonRecord.getData(dataTimeField);
+            if(value == null){
+                throw new MetricsException("Metirc Data TimeField["+dataTimeField+"]'s value is null!Check job Metirc Data TimeField config or Set Metirc Data TimeField["+dataTimeField+"] value please!");
+            }
             if(value instanceof Date){
                 dateTime = (Date)value;
             }
