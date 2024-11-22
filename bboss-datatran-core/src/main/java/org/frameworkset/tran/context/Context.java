@@ -482,4 +482,12 @@ public interface Context extends DataTranPluginMetricsLogAPI {
     default public void reportTaskMetricDebug(String msg){
 
     }
+    /**
+     * 指定kafka,rockemq消息key
+     */
+    public void setMessageKey(Object messageKey);
+    /**
+     * 获取kafka,rockemq消息key
+     */
+    public Object getMessageKey();
 }

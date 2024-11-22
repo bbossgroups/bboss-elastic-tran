@@ -119,6 +119,7 @@ public abstract class BasePlugin {
         dbRecord.setMetaDatas(context.getMetaDatas());
         dbRecord.setTableMapping(context.getTableMapping());
         dbRecord.setRecordKeyField(context.getRecordKeyField());
+        dbRecord.setRecordKey(context.getMessageKey());
         dbRecord.setKeys(context.getKeys());
         ImportContext importContext = context.getImportContext();
         String[] columns = importContext.getExportColumns();

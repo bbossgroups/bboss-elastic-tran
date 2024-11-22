@@ -295,8 +295,9 @@ public class RocketmqOutputConfig extends BaseConfig implements OutputConfig {
         return tag;
     }
 
-    public void setTag(String tag) {
+    public RocketmqOutputConfig setTag(String tag) {
         this.tag = tag;
+        return this;
     }
 
 }

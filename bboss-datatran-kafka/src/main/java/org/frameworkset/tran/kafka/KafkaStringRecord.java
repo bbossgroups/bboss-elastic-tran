@@ -19,6 +19,8 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CommonStringRecord;
 import org.frameworkset.tran.schedule.TaskContext;
 
+import java.util.Map;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -29,8 +31,9 @@ import org.frameworkset.tran.schedule.TaskContext;
  */
 public class KafkaStringRecord extends CommonStringRecord {
 
-	public KafkaStringRecord(TaskContext taskContext, ImportContext importContext, Object key, String record, long offset){
+	public KafkaStringRecord(TaskContext taskContext, ImportContext importContext, Object key, String record, long offset, Map<String,Object> metas){
 		super(  taskContext,  importContext,key,record,offset);
+        this.setMetaDatas(metas);
 	}
 
 }

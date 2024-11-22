@@ -31,8 +31,9 @@ import java.util.Map;
  */
 public class RocketmqMapRecord extends CommonMapRecord {
 
-	public RocketmqMapRecord(TaskContext taskContext, ImportContext importContext, Object key, Map<String, Object> record, long offset) {
+	public RocketmqMapRecord(TaskContext taskContext, ImportContext importContext, Object key, Map<String, Object> record, long offset,Map<String,Object> metas) {
 		super(taskContext,  importContext,key, record,offset);
+        this.setMetaDatas(metas);
 	}
 
 }

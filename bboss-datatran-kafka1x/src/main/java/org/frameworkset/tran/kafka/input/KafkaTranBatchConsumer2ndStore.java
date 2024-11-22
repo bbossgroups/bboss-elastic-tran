@@ -17,6 +17,7 @@ package org.frameworkset.tran.kafka.input;
 
 
 import kafka.message.MessageAndMetadata;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.frameworkset.plugin.kafka.KafkaBatchConsumer2ndStore;
 import org.frameworkset.tran.BaseDataTran;
@@ -28,6 +29,7 @@ import org.frameworkset.tran.kafka.codec.CodecObjectUtil;
 import org.frameworkset.tran.plugin.kafka.input.Kafka1InputConfig;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +73,15 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 		List<Record> records = parserData(messages);
 		asynESOutPutDataTran.appendData(new KafkaData(records));
 	}
-
+    private Map<String,Object> buildMetas(MessageAndMetadata<byte[], byte[]> consumerRecord,Object key){
+        Map<String,Object> metas = new LinkedHashMap<>();
+        metas.put("topic",consumerRecord.topic());
+        metas.put("offset",consumerRecord.offset());
+        metas.put("key",key);
+        metas.put("partition",consumerRecord.partition());
+        metas.put("timestamp",consumerRecord.timestamp());
+        return metas;
+    }
 	@Override
 	public void store(MessageAndMetadata<byte[], byte[]> message) throws Exception {
 		List<MessageAndMetadata<byte[], byte[]>> messages = new ArrayList<MessageAndMetadata<byte[], byte[]>>();
@@ -81,28 +91,29 @@ public class KafkaTranBatchConsumer2ndStore extends KafkaBatchConsumer2ndStore {
 	private void deserializeData(MessageAndMetadata<byte[], byte[]> consumerRecord, List<Record> results){
 		Object value = valueDeserializer.deserialize(consumerRecord.topic(),consumerRecord.message());
 		Object key = keyDeserializer.deserialize(consumerRecord.topic(),consumerRecord.key());
+        Map<String,Object> metas = buildMetas( consumerRecord,key);
 		if (value instanceof List) {
 			List rs = (List) value;
 
 			for (int i = 0; i < rs.size(); i++) {
 				Object v = rs.get(i);
 				if (v instanceof Map) {
-					results.add(new KafkaMapRecord(asynESOutPutDataTran.getTaskContext(), asynESOutPutDataTran.getImportContext(), key, (Map<String, Object>) v,consumerRecord.offset()));
+					results.add(new KafkaMapRecord(asynESOutPutDataTran.getTaskContext(), asynESOutPutDataTran.getImportContext(), key, (Map<String, Object>) v,consumerRecord.offset(),metas));
 				} else {
-					results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),key, (String) v,consumerRecord.offset()));
+					results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),key, (String) v,consumerRecord.offset(),metas));
 				}
 			}
 			//return new KafkaMapRecord((ConsumerRecord<Object, List<Map<String, Object>>>) data);
 		} else if (value instanceof Map) {
-			results.add( new KafkaMapRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),key, (Map<String, Object>) value,consumerRecord.offset()));
+			results.add( new KafkaMapRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),key, (Map<String, Object>) value,consumerRecord.offset(),metas));
 		} else if (value instanceof String) {
-			results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),key, (String) value,consumerRecord.offset()));
+			results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),key, (String) value,consumerRecord.offset(),metas));
 		}
 		else{
 			if(logger.isWarnEnabled()){
 				logger.warn("unknown value type:{}",value.getClass().getName());
 			}
-			results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),key, String.valueOf( value),consumerRecord.offset()));
+			results.add(new KafkaStringRecord(asynESOutPutDataTran.getTaskContext(),asynESOutPutDataTran.getImportContext(),key, String.valueOf( value),consumerRecord.offset(),metas));
 		}
 //		throw new IllegalArgumentException(new StringBuilder().append("unknown consumerRecord").append(consumerRecord.toString()).toString());
 	}

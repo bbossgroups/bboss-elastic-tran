@@ -79,6 +79,10 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 	protected DBOutputConfig dbOutputConfig;
 	protected CommonRecord commonRecord;
     protected Record record;
+    /**
+     * 指定kafka,rockemq消息key
+     */
+    protected Object messageKey;
 	/**
 	 * 在记录处理过程中，使用的临时数据，不会进行持久化处理
 	 */
@@ -945,5 +949,13 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
     }
     public void setTaskMetrics(TaskMetrics taskMetrics){
         this.taskMetrics = taskMetrics;
+    }
+
+    public void setMessageKey(Object messageKey){
+        this.messageKey = messageKey;
+    }
+
+    public Object getMessageKey() {
+        return messageKey;
     }
 }

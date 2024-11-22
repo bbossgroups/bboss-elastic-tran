@@ -53,7 +53,7 @@ public class CommonRecord {
     private Map<String,Object> metaDatas;
 
     /**
-     * 设置kafka的消息key
+     * 指定kafka,rockemq消息key
      */
 	private Object recordKey;
 
@@ -139,11 +139,15 @@ public class CommonRecord {
 			return datas.containsKey(name);
 		return false;
 	}
-
+    /**
+     * 获取kafka,rockemq消息key
+     */
 	public Object getRecordKey() {
 		return recordKey;
 	}
-
+    /**
+     * 指定kafka,rockemq消息key
+     */
 	public void setRecordKey(Object recordKey) {
 		this.recordKey = recordKey;
 	}
