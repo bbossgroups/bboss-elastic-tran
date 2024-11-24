@@ -29,7 +29,21 @@ dependencies {
 	api project(':bboss-datatran-schedule-quartz')
 //	api project(':bboss-datatran-fileftp')
 	api([group: 'com.bbossgroups', name: 'bboss-data', version: "${PROJ_BBOSS_DATA_VERSION}", transitive: true])
+    api([group: 'io.milvus', name: 'milvus-sdk-java', version: "2.4.8", transitive: true])
+    { 
+//        exclude group: 'com.amazonaws', module: 'aws-java-sdk-s3'
+//        exclude group: 'com.amazonaws', module: 'aws-java-sdk-sts'
+        exclude group: 'com.azure', module: 'azure-identity'
+        exclude group: 'com.azure', module: 'azure-storage-blob' 
+        exclude group: 'org.apache.hadoop', module: 'hadoop-client'
+        exclude group: 'org.apache.parquet', module: 'parquet-avro'
+        exclude group: 'org.apache.parquet', module: 'parquet-hadoop'
 
-    api group: 'io.milvus', name: 'milvus-sdk-java', version: '2.4.8'
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-cbor'
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-annotations'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
 }
 
