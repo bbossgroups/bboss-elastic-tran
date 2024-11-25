@@ -226,6 +226,13 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 	public Integer increamentEndOffset(){
 		return baseImportConfig.getIncreamentEndOffset();
 	}
+    /**
+     * 标识数字类型增量字段是否是时间戳，如果是时间戳，那么increamentEndOffset配置将起作用
+     * @return
+     */
+    public boolean isNumberTypeTimestamp(){
+        return baseImportConfig.isNumberTypeTimestamp();
+    }
 	public boolean isAsynFlushStatus(){
 		return baseImportConfig.isAsynFlushStatus();
 	}

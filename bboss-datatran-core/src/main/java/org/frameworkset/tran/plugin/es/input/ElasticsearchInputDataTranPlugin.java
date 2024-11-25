@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.es.input;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
+import com.frameworkset.util.ValueCastUtil;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.frameworkset.elasticsearch.entity.ESDatas;
@@ -31,6 +32,7 @@ import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.es.BaseESPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
+import org.frameworkset.util.NumberUtils;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -250,8 +252,20 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
                     TimeUtil.convertLocalDatetime((LocalDateTime)lastValue),lastEndValue);
         }
 		else{
-			Date date = new Date();
-			exportESData(  taskContext,esExporterScrollHandler, params, date,date);
+            if(!importContext.isNumberTypeTimestamp()) {
+                Date date = new Date();
+                exportESData(taskContext, esExporterScrollHandler, params, date, date);
+            }
+            else{     //数字类型：值为时间戳
+                Date endDate = null;
+                if(importContext.increamentEndOffset() == null){
+                    endDate = new Date();
+                }
+                else{
+                    endDate = (Date) lastValues[1];
+                }
+                exportESData(taskContext, esExporterScrollHandler, params, new Date(ValueCastUtil.longValue(lastValues[0],null)), endDate);
+            }
 		}
 
 	}

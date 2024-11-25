@@ -189,11 +189,13 @@ public class BaseImportConfig {
 	 */
 	private Integer increamentEndOffset;
 	private String dataTimeField;
+    private boolean numberTypeTimestamp;
 	public String[] getExportColumns() {
 		return exportColumns;
 	}
 
-	/**
+
+    /**
 	 * 是否采用异步模式存储增量状态，默认true
 	 * true 异步模式
 	 * false 同步模式
@@ -1067,5 +1069,12 @@ public class BaseImportConfig {
 
     public void resetMetricsLogLevel(int metricsLogLevel) {
         this.metricsLogLevel = metricsLogLevel;
+    }
+    public boolean isNumberTypeTimestamp(){
+        return numberTypeTimestamp;
+    }
+
+    public void setNumberTypeTimestamp(boolean numberTypeTimestamp) {
+        this.numberTypeTimestamp = numberTypeTimestamp;
     }
 }

@@ -121,6 +121,12 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
 	 */
 	Integer increamentEndOffset();
 
+    /**
+     * 标识数字类型增量字段是否是时间戳，如果是时间戳，那么increamentEndOffset配置将起作用
+     * @return
+     */
+    boolean isNumberTypeTimestamp();
+
 	/**
 	 * 异步消费数据时，强制刷新检测空闲时间间隔，在空闲flushInterval后，还没有数据到来，强制将已经入列的数据进行存储操作
 	 * @return

@@ -1177,9 +1177,15 @@ public abstract class BaseStatusManager implements StatusManager {
 	public Object[] putLastParamValue(Map params){
 		Object[] ret = new Object[2];
         LastValueWrapper lastValueWrapper = this.currentStatus.getCurrentLastValueWrapper();
+        String lastValueVarName = dataTranPlugin.getLastValueVarName();
         Object lastValue = lastValueWrapper.getLastValue();
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
-			params.put(dataTranPlugin.getLastValueVarName(), lastValue);
+			params.put(lastValueVarName, lastValue);
+            if(importContext.increamentEndOffset() != null && importContext.isNumberTypeTimestamp()){
+                Date lastOffsetValue = org.frameworkset.util.TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
+                ret[1] = lastOffsetValue;
+                params.put(lastValueVarName+"__endTime", lastOffsetValue.getTime());
+            }
 
 
 		}
@@ -1207,21 +1213,21 @@ public abstract class BaseStatusManager implements StatusManager {
 					ldate = new Date(((Number) lastValue).longValue());
 				}
 			}
-			params.put(dataTranPlugin.getLastValueVarName(), formatLastDateValue(ldate));
+			params.put(lastValueVarName, formatLastDateValue(ldate));
 
 			if(importContext.increamentEndOffset() != null){
 				Date lastOffsetValue = org.frameworkset.util.TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
 				ret[1] = lastOffsetValue;
-				params.put(dataTranPlugin.getLastValueVarName()+"__endTime", formatLastDateValue(lastOffsetValue));
+				params.put(lastValueVarName+"__endTime", formatLastDateValue(lastOffsetValue));
 			}
 		}
         else if(this.lastValueType == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
-            params.put(dataTranPlugin.getLastValueVarName(), formatLastLocalDateTimeValue((LocalDateTime)lastValue));
+            params.put(lastValueVarName, formatLastLocalDateTimeValue((LocalDateTime)lastValue));
             if(importContext.increamentEndOffset() != null){
                 Date lastOffsetValue = org.frameworkset.util.TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
                 LocalDateTime localDateTime = TimeUtil.date2LocalDateTime(lastOffsetValue);
                 ret[1] = localDateTime;
-                params.put(dataTranPlugin.getLastValueVarName()+"__endTime", formatLastLocalDateTimeValue(localDateTime));
+                params.put(lastValueVarName+"__endTime", formatLastLocalDateTimeValue(localDateTime));
             }
         }
 		if(isPrintTaskLog()){
@@ -1264,39 +1270,44 @@ public abstract class BaseStatusManager implements StatusManager {
 	public Map getParamValue(Map params){
         LastValueWrapper lastValueWrapper = currentStatus.getCurrentLastValueWrapper();
 		Object lastValue = lastValueWrapper.getLastValue();
+        String lastValueVarName = dataTranPlugin.getLastValueVarName();
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
-			params.put(dataTranPlugin.getLastValueVarName(), lastValue);
+			params.put(lastValueVarName, lastValue);
+            if(importContext.isNumberTypeTimestamp() && importContext.increamentEndOffset() != null){
+                Date lastOffsetValue = org.frameworkset.util.TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
+                params.put(lastValueVarName+"__endTime", lastOffsetValue.getTime());
+            }
 		}
 		else if(this.lastValueType == ImportIncreamentConfig.TIMESTAMP_TYPE){
 			if(lastValue instanceof Date)
-				params.put(dataTranPlugin.getLastValueVarName(), lastValue);
+				params.put(lastValueVarName, lastValue);
 			else {
 				if(lastValue instanceof Long) {
-					params.put(dataTranPlugin.getLastValueVarName(), new Date((Long)lastValue));
+					params.put(lastValueVarName, new Date((Long)lastValue));
 				}
 				else if(lastValue instanceof BigDecimal){
-					params.put(dataTranPlugin.getLastValueVarName(), new Date(((BigDecimal)lastValue).longValue()));
+					params.put(lastValueVarName, new Date(((BigDecimal)lastValue).longValue()));
 				}
 				else if(lastValue instanceof Integer){
-					params.put(dataTranPlugin.getLastValueVarName(), new Date(((Integer) lastValue).longValue()));
+					params.put(lastValueVarName, new Date(((Integer) lastValue).longValue()));
 				}
 				else if(lastValue instanceof Short){
-					params.put(dataTranPlugin.getLastValueVarName(), new Date(((Short) lastValue).longValue()));
+					params.put(lastValueVarName, new Date(((Short) lastValue).longValue()));
 				}
 				else{
-					params.put(dataTranPlugin.getLastValueVarName(), new Date(((Number) lastValue).longValue()));
+					params.put(lastValueVarName, new Date(((Number) lastValue).longValue()));
 				}
 			}
 			if(importContext.increamentEndOffset() != null){
 				Date lastOffsetValue = org.frameworkset.util.TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
-				params.put(dataTranPlugin.getLastValueVarName()+"__endTime", lastOffsetValue);
+				params.put(lastValueVarName+"__endTime", lastOffsetValue);
 			}
 		}
         else if(this.lastValueType == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
-            params.put(dataTranPlugin.getLastValueVarName(), lastValue);
+            params.put(lastValueVarName, lastValue);
             if(importContext.increamentEndOffset() != null){
                 Date lastOffsetValue = org.frameworkset.util.TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
-                params.put(dataTranPlugin.getLastValueVarName()+"__endTime", TimeUtil.date2LocalDateTime(lastOffsetValue));
+                params.put(lastValueVarName+"__endTime", TimeUtil.date2LocalDateTime(lastOffsetValue));
             }
         }
 		if(isPrintTaskLog()){
@@ -1304,34 +1315,7 @@ public abstract class BaseStatusManager implements StatusManager {
 		}
 		return params;
 	}
-//    @Override
-//    public void flushLastValue(Object lastValue,Status currentStatus,boolean reachEOFClosed) {
-//        if(lastValue != null) {
-//            synchronized (currentStatus) {
-//                Object oldLastValue = currentStatus.getLastValue();
-//                if (!reachEOFClosed && !importContext.needUpdate(oldLastValue, lastValue))
-//                    return;
-//                long time = System.currentTimeMillis();
-//                currentStatus.setTime(time);
-//
-//                currentStatus.setLastValue(lastValue);
-//                if(reachEOFClosed){
-//                    currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
-//                }
-//
-//
-//                if (this.isIncreamentImport()) {
-//                    Status status = currentStatus.copy();
-////					Status temp = new Status();
-////					temp.setTime(time);
-////					temp.setId(this.currentStatus.getId());
-////					temp.setLastValueType(this.currentStatus.getLastValueType());
-////					temp.setLastValue(lastValue);
-//                    this.storeStatus(status);
-//                }
-//            }
-//        }
-//    }
+
 
 	@Override
 	public void flushLastValue(LastValueWrapper lastValueWrapper, Status currentStatus, boolean reachEOFClosed) {

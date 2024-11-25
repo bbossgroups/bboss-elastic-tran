@@ -223,8 +223,19 @@ public class MongoDBInputDatatranPlugin extends BaseInputPlugin {
         LastValueWrapper currentLastValueWrapper = currentStatus.getCurrentLastValueWrapper();
         Object lastValue = currentLastValueWrapper.getLastValue();
 		if(lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
-			query.append(getLastValueVarName(),
-					new BasicDBObject("$gt", lastValue));
+            if(importContext.isNumberTypeTimestamp() && importContext.increamentEndOffset() != null ){
+                Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
+                BasicDBObject basicDBObject = new BasicDBObject();
+                basicDBObject.put("$gt", lastValue);
+                basicDBObject.put("$lte",lastOffsetValue.getTime());
+                query.append(getLastValueVarName(),
+                        basicDBObject);
+                 ;
+            }
+            else {
+                query.append(getLastValueVarName(),
+                        new BasicDBObject("$gt", lastValue));
+            }
 		}
 		else{
 			Object lv = null;

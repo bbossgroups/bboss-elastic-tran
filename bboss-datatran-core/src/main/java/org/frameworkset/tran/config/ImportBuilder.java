@@ -62,6 +62,8 @@ public class ImportBuilder {
 
     private JobClosedListener jobClosedListener;
     private int metricsLogLevel = MetricsLogLevel.INFO;
+
+    private boolean numberTypeTimestamp;
     /**
      * 输入参数组，将输入参数和输入动态参数组装为一个参数组添加到参数组集合中，添加完成后重置输入参数和输入动态参数，为增加新的参数组做准备
      * 通过添加多个参数组，作业调度时，特定的输入插件可以利用参数组中的每组参数发起并发数据请求，比如httpinput插件
@@ -945,6 +947,11 @@ public class ImportBuilder {
 		return this;
 	}
 
+    /**
+     * 设置增量起始值
+     * @param lastValue
+     * @return
+     */
 	public ImportBuilder setLastValue(Object lastValue) {
 		if(importIncreamentConfig == null){
 			importIncreamentConfig = new ImportIncreamentConfig();
@@ -1308,6 +1315,7 @@ public class ImportBuilder {
 	protected void buildImportConfig(BaseImportConfig baseImportConfig){
         baseImportConfig.setInitJobContextCall(this.initJobContextCall);
         baseImportConfig.setMetricsLogLevel(this.metricsLogLevel);
+        baseImportConfig.setNumberTypeTimestamp(this.numberTypeTimestamp);
         baseImportConfig.setMetricsLogReport(this.metricsLogReport);
 		baseImportConfig.setImportStartAction(importStartAction);
 		baseImportConfig.setImportEndAction(importEndAction);
@@ -1873,6 +1881,15 @@ public class ImportBuilder {
 
     public ImportBuilder setIncreamentImport(Boolean increamentImport) {
         this.increamentImport = increamentImport;
+        return this;
+    }
+
+    public boolean isNumberTypeTimestamp() {
+        return numberTypeTimestamp;
+    }
+
+    public ImportBuilder setNumberTypeTimestamp(boolean numberTypeTimestamp) {
+        this.numberTypeTimestamp = numberTypeTimestamp;
         return this;
     }
 }

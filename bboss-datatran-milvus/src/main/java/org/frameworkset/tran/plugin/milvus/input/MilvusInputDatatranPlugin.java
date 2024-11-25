@@ -166,8 +166,16 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
 		Status currentStatus = dataTranPlugin.getCurrentStatus();
         LastValueWrapper currentLastValueWrapper = currentStatus.getCurrentLastValueWrapper();
         Object lastValue = currentLastValueWrapper.getLastValue();
+        //Milvus目前没有时间类型，所以用long时间戳来表示时间，因此如果使用对应的字段作为增量字段时，并且指定了increamentEndOffset，将进行相应处理
 		if(lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
-            expr.append(" and ").append(getLastValueVarName()).append(" > ").append(lastValue);
+            if(importContext.isNumberTypeTimestamp() && importContext.increamentEndOffset() != null ){
+                Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());               
+                expr.append(" and ").append(getLastValueVarName()).append(" > ").append(lastValue);
+                expr.append(" and ").append(getLastValueVarName()).append(" <= ").append(lastOffsetValue.getTime());
+            }
+            else {
+                expr.append(" and ").append(getLastValueVarName()).append(" > ").append(lastValue);
+            }
 		}
 		else{
             Date lv = null;
@@ -191,9 +199,7 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
 
 			if(importContext.increamentEndOffset() != null){
 				Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
-				BasicDBObject basicDBObject = new BasicDBObject();
-				basicDBObject.put("$gt", lv);
-				basicDBObject.put("$lte",lastOffsetValue);
+				 
                 expr.append(" and ").append(getLastValueVarName()).append(" > ").append(lv.getTime());
                 expr.append(" and ").append(getLastValueVarName()).append(" <= ").append(lastOffsetValue.getTime());
 			}
