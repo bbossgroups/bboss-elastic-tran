@@ -249,6 +249,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 
 			baseDataTran.endJob( reachEOFClosed, importCount, exception);
+            if(tranResultSet != null)
+                tranResultSet.destroy();
 		}
 
 		return ret;
@@ -456,7 +458,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 				}
 			},reachEOFClosed);
-
+            if(tranResultSet != null)
+                tranResultSet.destroy();
 
 		}
 
@@ -654,6 +657,8 @@ public class CommonRecordTranJob extends BaseTranJob{
             baseDataTran.stop2ndClearResultsetQueue(exception != null);// a{2}
 
 			baseDataTran.endJob( reachEOFClosed, importCount, exception);
+            if(tranResultSet != null)
+                tranResultSet.destroy();
 		}
 		return null;
 
@@ -837,6 +842,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 //				baseDataTran.getTaskContext().setJobEndTime(endTime);
 //			importCount.setJobEndTime(endTime);
 			baseDataTran.endJob(  reachEOFClosed, importCount, exception);
+            if(tranResultSet != null)
+                tranResultSet.destroy();
 		}
 		return null;
 

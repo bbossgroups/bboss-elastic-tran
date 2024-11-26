@@ -50,6 +50,12 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 		return record.getKeys();
 	}
 
+    /**
+     * 销毁资源
+     */
+    public void destroy(){
+        this.clearQueue();
+    }
 
 
 

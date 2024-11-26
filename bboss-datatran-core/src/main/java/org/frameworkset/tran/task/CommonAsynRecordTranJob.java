@@ -238,6 +238,8 @@ public class CommonAsynRecordTranJob extends CommonRecordTranJob{
 
 				}
 			},reachEOFClosed);
+            if(tranResultSet != null)
+                tranResultSet.destroy();
 
 
 		}

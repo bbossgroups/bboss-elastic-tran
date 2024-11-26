@@ -125,5 +125,15 @@ public class MilvusResultSet extends LastValue implements TranResultSet {
 	public Object getMetaValue(String fieldName) {
 		return getValue(fieldName);
 	}
+    @Override
+    public void destroy(){
+        if(this.queryIterator != null){
+            try {
+                queryIterator.close();
+            }
+            catch (Exception e){
 
+            }
+        }
+    }
 }

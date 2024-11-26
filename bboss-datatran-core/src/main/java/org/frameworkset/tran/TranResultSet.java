@@ -74,4 +74,11 @@ public interface TranResultSet {
     default public void clearQueue(){
 
     }
+
+    /**
+     * 销毁资源
+     */
+    default public void destroy(){
+        
+    }
 }

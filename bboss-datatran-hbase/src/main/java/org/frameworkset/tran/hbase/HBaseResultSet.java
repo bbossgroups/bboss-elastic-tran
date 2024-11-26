@@ -132,5 +132,17 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 		}
 		throw ImportExceptionUtil.buildDataImportException(importContext,"Unsupport last value type:"+importContext.getLastValueType().intValue());
 	}
+
+    @Override
+    public void destroy(){
+        if(resultScanner != null){
+            try {
+                resultScanner.close();
+            }
+            catch (Exception e){
+                
+            }
+        }
+    }
 	
 }

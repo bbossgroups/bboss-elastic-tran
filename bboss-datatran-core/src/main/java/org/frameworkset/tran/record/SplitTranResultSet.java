@@ -300,5 +300,10 @@ public class SplitTranResultSet  implements TranResultSet {
         return tranResultSet.getLastValue();
     }
 
-
+    @Override
+    public void destroy(){
+        if(tranResultSet != null){
+            tranResultSet.destroy();
+        }
+    }
 }
