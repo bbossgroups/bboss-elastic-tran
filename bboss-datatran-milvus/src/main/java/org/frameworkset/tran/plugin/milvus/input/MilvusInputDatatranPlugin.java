@@ -26,6 +26,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.BaseInputPlugin;
+import org.frameworkset.tran.plugin.milvus.InitMilvusUtil;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -56,7 +57,8 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
 
 	@Override
 	public void destroy(boolean waitTranStop) {
-        MilvusHelper.shutdown(milvusStartResult); 
+        if(milvusStartResult != null)
+            MilvusHelper.shutdown(milvusStartResult); 
 	}
 
 
@@ -75,26 +77,7 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
 	}
 
 	protected void initMilvus(){
-        MilvusConfig milvusConfig = new MilvusConfig();
-        milvusConfig.setName(milvusInputConfig.getName());//数据源名称
-        milvusConfig.setDbName(milvusInputConfig.getDbName());//Milvus数据库名称
-        milvusConfig.setUri(milvusInputConfig.getUri());//Milvus数据库地址
-        milvusConfig.setToken(milvusInputConfig.getToken());//认证token：root:xxxx
-        milvusConfig.setMaxIdlePerKey(milvusInputConfig.getMaxIdlePerKey());
-        milvusConfig.setMinIdlePerKey(milvusInputConfig.getMinIdlePerKey());
-        milvusConfig.setMaxTotalPerKey(milvusInputConfig.getMaxTotalPerKey());
-        milvusConfig.setMaxTotal(milvusInputConfig.getMaxTotal());
-        milvusConfig.setBlockWhenExhausted(milvusInputConfig.getBlockWhenExhausted());
-        milvusConfig.setMaxBlockWaitDuration(milvusInputConfig.getMaxBlockWaitDuration());
-        milvusConfig.setMinEvictableIdleDuration(milvusInputConfig.getMinEvictableIdleDuration());
-        milvusConfig.setEvictionPollingInterval(milvusInputConfig.getEvictionPollingInterval());
-        milvusConfig.setTestOnBorrow(milvusInputConfig.getTestOnBorrow());
-        milvusConfig.setTestOnReturn(milvusInputConfig.getTestOnReturn());
-
-        milvusConfig.setConnectTimeoutMs(milvusInputConfig.getConnectTimeoutMs());
-        milvusConfig.setIdleTimeoutMs(milvusInputConfig.getIdleTimeoutMs());
-        milvusConfig.setCustomConnectConfigBuilder(milvusInputConfig.getCustomConnectConfigBuilder());
-        this.milvusStartResult = MilvusHelper.init(milvusConfig);//启动初始化Milvus数据源
+        this.milvusStartResult = InitMilvusUtil.initMilvus(milvusInputConfig);//启动初始化Milvus数据源
         
 	}
 	@Override
@@ -169,12 +152,16 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
         //Milvus目前没有时间类型，所以用long时间戳来表示时间，因此如果使用对应的字段作为增量字段时，并且指定了increamentEndOffset，将进行相应处理
 		if(lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
             if(importContext.isNumberTypeTimestamp() && importContext.increamentEndOffset() != null ){
-                Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());               
-                expr.append(" and ").append(getLastValueVarName()).append(" > ").append(lastValue);
+                Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset()); 
+                if(expr.length() > 0)
+                    expr.append(" and ");
+                expr.append(getLastValueVarName()).append(" > ").append(lastValue);
                 expr.append(" and ").append(getLastValueVarName()).append(" <= ").append(lastOffsetValue.getTime());
             }
             else {
-                expr.append(" and ").append(getLastValueVarName()).append(" > ").append(lastValue);
+                if(expr.length() > 0)
+                    expr.append(" and ");
+                expr.append(getLastValueVarName()).append(" > ").append(lastValue);
             }
 		}
 		else{
@@ -199,12 +186,16 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
 
 			if(importContext.increamentEndOffset() != null){
 				Date lastOffsetValue = TimeUtil.addDateSeconds(new Date(),0-importContext.increamentEndOffset());
-				 
-                expr.append(" and ").append(getLastValueVarName()).append(" > ").append(lv.getTime());
+
+                if(expr.length() > 0)
+                    expr.append(" and ");
+                expr.append(getLastValueVarName()).append(" > ").append(lv.getTime());
                 expr.append(" and ").append(getLastValueVarName()).append(" <= ").append(lastOffsetValue.getTime());
 			}
 			else{
-                expr.append(" and ").append(getLastValueVarName()).append(" > ").append(lv.getTime());
+                if(expr.length() > 0)
+                    expr.append(" and ");
+                expr.append(getLastValueVarName()).append(" > ").append(lv.getTime());
 			}
 		}
         String ex = expr.toString();
@@ -215,7 +206,6 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
 	}
 
 	public void doImportData( TaskContext taskContext)  throws DataImportException {
-
 
 			try {
 				if (!importContext.isIncreamentImport()) {

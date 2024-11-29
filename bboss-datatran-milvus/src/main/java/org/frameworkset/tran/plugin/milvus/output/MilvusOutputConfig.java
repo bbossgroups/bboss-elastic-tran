@@ -26,6 +26,7 @@ import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.plugin.milvus.MilvusConfigInf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @Date 2024/11/1
  */
-public class MilvusOutputConfig extends BaseConfig implements OutputConfig {
+public class MilvusOutputConfig extends BaseConfig implements OutputConfig, MilvusConfigInf {
     private static Logger logger = LoggerFactory.getLogger(MilvusOutputConfig.class);
     private String name;
     private String uri;

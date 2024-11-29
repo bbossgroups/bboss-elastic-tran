@@ -24,6 +24,7 @@ import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.plugin.milvus.InitMilvusUtil;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class MilvusOutputDataTranPlugin extends BasePlugin implements OutputPlug
 	 */
     protected MilvusOutputConfig milvusOutputConfig;
 
-	private MilvusStartResult milvusStartResult = new MilvusStartResult();
+	private MilvusStartResult milvusStartResult ;
 	public MilvusOutputDataTranPlugin(ImportContext importContext){
 		super(importContext);
         milvusOutputConfig = (MilvusOutputConfig) importContext.getOutputConfig();
@@ -70,31 +71,7 @@ public class MilvusOutputDataTranPlugin extends BasePlugin implements OutputPlug
 
 
 	protected void initMilvus(){
-		MilvusConfig milvusConfig = new MilvusConfig();
-        milvusConfig.setName(milvusOutputConfig.getName());
-        if(SimpleStringUtil.isNotEmpty(milvusOutputConfig.getUri())) {
-            milvusConfig.setUri(milvusOutputConfig.getUri());
-            milvusConfig.setToken(milvusOutputConfig.getToken());
-            milvusConfig.setMaxIdlePerKey(milvusOutputConfig.getMaxIdlePerKey());
-            milvusConfig.setMinIdlePerKey(milvusOutputConfig.getMinIdlePerKey());
-            milvusConfig.setMaxTotalPerKey(milvusOutputConfig.getMaxTotalPerKey());
-            milvusConfig.setMaxTotal(milvusOutputConfig.getMaxTotal());
-            milvusConfig.setBlockWhenExhausted(milvusOutputConfig.getBlockWhenExhausted());
-            milvusConfig.setMaxBlockWaitDuration(milvusOutputConfig.getMaxBlockWaitDuration());
-            milvusConfig.setMinEvictableIdleDuration(milvusOutputConfig.getMinEvictableIdleDuration());
-            milvusConfig.setEvictionPollingInterval(milvusOutputConfig.getEvictionPollingInterval());
-            milvusConfig.setTestOnBorrow(milvusOutputConfig.getTestOnBorrow());
-            milvusConfig.setTestOnReturn(milvusOutputConfig.getTestOnReturn());
-            milvusConfig.setDbName(milvusOutputConfig.getDbName());
-
-            milvusConfig.setConnectTimeoutMs(milvusOutputConfig.getConnectTimeoutMs());
-            milvusConfig.setIdleTimeoutMs(milvusOutputConfig.getIdleTimeoutMs());
-            milvusConfig.setCustomConnectConfigBuilder(milvusOutputConfig.getCustomConnectConfigBuilder());
-
-
-            milvusStartResult = MilvusHelper.init(milvusConfig);
-            
-        }
+		milvusStartResult = InitMilvusUtil.initMilvus(milvusOutputConfig);
         if(milvusOutputConfig.isLoadCollectionSchema()){
             loadCollectionSchema();
         }

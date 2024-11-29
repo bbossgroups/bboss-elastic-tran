@@ -23,6 +23,7 @@ import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.plugin.milvus.MilvusConfigInf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ import java.util.List;
  * @author biaoping.yin
  * @Date 2024/11/1
  */
-public class MilvusInputConfig extends BaseConfig implements InputConfig {
+public class MilvusInputConfig extends BaseConfig implements InputConfig, MilvusConfigInf {
     private static Logger logger = LoggerFactory.getLogger(MilvusInputConfig.class);
     private String name;
     private String dbName;
