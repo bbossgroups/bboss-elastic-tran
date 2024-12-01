@@ -125,8 +125,7 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
            
             QueryIterator queryIterator = milvusClientV2.queryIterator(queryIteratorReq);
             doTran(() -> {
-                MilvusResultSet milvusResultSet = new MilvusResultSet(importContext,   queryIterator);
-                return milvusResultSet;
+                return new MilvusResultSet(importContext,   queryIterator);
             }, taskContext);
              
             return null;

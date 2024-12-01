@@ -94,8 +94,7 @@ public class MilvusVectorInputDatatranPlugin extends MilvusInputDatatranPlugin {
 
             SearchIterator searchIterator = milvusClientV2.searchIterator(searchIteratorReq);
             doTran(() -> {
-                MilvusResultSet milvusResultSet = new MilvusVectorResultSet(importContext,   searchIterator);
-                return milvusResultSet;
+                return new MilvusVectorResultSet(importContext,   searchIterator);
             }, taskContext);
              
             return null;
