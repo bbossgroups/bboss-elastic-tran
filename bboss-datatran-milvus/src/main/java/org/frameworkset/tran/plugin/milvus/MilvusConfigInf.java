@@ -16,9 +16,7 @@ package org.frameworkset.tran.plugin.milvus;
  */
 
 import org.frameworkset.nosql.milvus.CustomConnectConfigBuilder;
-import org.frameworkset.tran.plugin.milvus.input.MilvusInputConfig;
 
-import java.util.List;
 
 /**
  * <p>Description: </p>

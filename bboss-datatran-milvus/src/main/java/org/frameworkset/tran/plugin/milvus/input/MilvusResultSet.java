@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * <p>Description: </p>
+ * <p>Description: Milvus query结果集</p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
  * @Date 2019/8/3 12:27
@@ -35,9 +35,9 @@ import java.util.List;
  */
 public class MilvusResultSet extends LastValue implements TranResultSet {
 	private QueryIterator queryIterator;
-    private List<QueryResultsWrapper.RowRecord> res;
-    private MilvusRecord milvusRecord;
-    private int pos;
+    protected List<QueryResultsWrapper.RowRecord> res;
+    protected MilvusRecord milvusRecord;
+    protected int pos;
 	public MilvusResultSet(ImportContext importContext, QueryIterator queryIterator) {
 		this.importContext = importContext;
 		this.queryIterator = queryIterator;
@@ -62,11 +62,19 @@ public class MilvusResultSet extends LastValue implements TranResultSet {
 
 	}
 
+    protected void _close(){
+        if(queryIterator != null) {
+            queryIterator.close();
+        }
+    }
+    protected List<QueryResultsWrapper.RowRecord> _next(){
+        return queryIterator.next();
+    }
 	@Override
 	public NextAssert next() throws DataImportException {
         NextAssert nextAssert = new NextAssert();
 		if(isStop() || importContext.getInputPlugin().isStopCollectData()) {
-            queryIterator.close();
+            _close();
             return nextAssert;
         }
         boolean hasNext = false;
@@ -76,7 +84,7 @@ public class MilvusResultSet extends LastValue implements TranResultSet {
         }
         else{
             pos = 0;
-            res = queryIterator.next();
+            res = _next();
             hasNext = !res.isEmpty();
             
         }
@@ -88,7 +96,7 @@ public class MilvusResultSet extends LastValue implements TranResultSet {
            
         }
         else{
-            queryIterator.close();
+            _close();
         }
         
         nextAssert.setHasNext(hasNext);
@@ -127,13 +135,11 @@ public class MilvusResultSet extends LastValue implements TranResultSet {
 	}
     @Override
     public void destroy(){
-        if(this.queryIterator != null){
-            try {
-                queryIterator.close();
-            }
-            catch (Exception e){
-
-            }
+        try {
+            _close();
+        }
+        catch (Exception e){
+            
         }
     }
 }

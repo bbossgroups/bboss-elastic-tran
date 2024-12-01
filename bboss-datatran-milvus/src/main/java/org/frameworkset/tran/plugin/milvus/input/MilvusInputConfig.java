@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.milvus.input;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
+import io.milvus.v2.common.ConsistencyLevel;
 import org.frameworkset.nosql.milvus.CustomConnectConfigBuilder;
 import org.frameworkset.tran.IllegementConfigException;
 import org.frameworkset.tran.config.ImportBuilder;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * <p>Description: </p>
+ * <p>Description: Milvus query插件</p>
  * <p></p>
  *
  * @author biaoping.yin
@@ -48,13 +49,17 @@ public class MilvusInputConfig extends BaseConfig implements InputConfig, Milvus
     /**
      * 指定要返回的字段
      */
-    List<String> outputFields;
+    private List<String> outputFields;
 
 
     /**
      * 指定过滤条件，可以进行条件组合，具体参考文档：https://milvus.io/api-reference/java/v2.4.x/v2/Vector/search.md
      */
     private String expr;
+
+    private ConsistencyLevel consistencyLevel;
+     
+    
     
     private Integer maxIdlePerKey;
     private Integer minIdlePerKey;
@@ -282,5 +287,13 @@ public class MilvusInputConfig extends BaseConfig implements InputConfig, Milvus
         return this;
     }
 
- 
+    public ConsistencyLevel getConsistencyLevel() {
+        return consistencyLevel;
+    }
+
+    public MilvusInputConfig setConsistencyLevel(ConsistencyLevel consistencyLevel) {
+        this.consistencyLevel = consistencyLevel;
+        return this;
+    }
+
 }

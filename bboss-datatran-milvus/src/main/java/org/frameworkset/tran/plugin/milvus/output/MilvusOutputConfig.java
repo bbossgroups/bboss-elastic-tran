@@ -17,10 +17,7 @@ package org.frameworkset.tran.plugin.milvus.output;
 
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.nosql.milvus.CustomConnectConfigBuilder;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.IllegementConfigException;
-import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;

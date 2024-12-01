@@ -15,10 +15,8 @@ package org.frameworkset.tran.plugin.milvus.input;
  * limitations under the License.
  */
 
-import com.mongodb.BasicDBObject;
 import io.milvus.orm.iterator.QueryIterator;
 import io.milvus.v2.service.vector.request.QueryIteratorReq;
-import org.frameworkset.nosql.milvus.MilvusConfig;
 import org.frameworkset.nosql.milvus.MilvusHelper;
 import org.frameworkset.nosql.milvus.MilvusStartResult;
 import org.frameworkset.tran.BaseDataTran;
@@ -48,6 +46,7 @@ import java.util.*;
 public class MilvusInputDatatranPlugin extends BaseInputPlugin {
 	private static Logger logger = LoggerFactory.getLogger(MilvusInputDatatranPlugin.class);
 	private MilvusInputConfig milvusInputConfig;
+    private MilvusVectorInputConfig milvusVectorInputConfig;
 	private MilvusStartResult milvusStartResult = new MilvusStartResult();
 	@Override
 	public void init(){
@@ -65,6 +64,9 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
 	public MilvusInputDatatranPlugin(ImportContext importContext){
 		super(  importContext);
         milvusInputConfig = (MilvusInputConfig) importContext.getInputConfig();
+        if(milvusInputConfig instanceof MilvusVectorInputConfig) {
+            milvusVectorInputConfig = (MilvusVectorInputConfig) milvusInputConfig;
+        }
 		this.jobType = "MilvusInputDatatranPlugin";
 
 	}
@@ -104,9 +106,12 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
                 .collectionName(milvusInputConfig.getCollectionName())
                 .outputFields(milvusInputConfig.getOutputFields())
                 .batchSize(importContext.getFetchSize());
+        if(milvusInputConfig.getConsistencyLevel() != null){
+            queryIteratorReqBuilder.consistencyLevel(milvusInputConfig.getConsistencyLevel());
+        }
         return queryIteratorReqBuilder;
     }
-	private void commonImportData( TaskContext taskContext) throws Exception {
+	protected void commonImportData( TaskContext taskContext) throws Exception {
 
         
 
@@ -119,7 +124,10 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
         MilvusHelper.executeRequest(milvusInputConfig.getName(), milvusClientV2 -> {
            
             QueryIterator queryIterator = milvusClientV2.queryIterator(queryIteratorReq);
-            doTran(queryIterator, taskContext);
+            doTran(() -> {
+                MilvusResultSet milvusResultSet = new MilvusResultSet(importContext,   queryIterator);
+                return milvusResultSet;
+            }, taskContext);
              
             return null;
 
@@ -127,20 +135,29 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
 		
 
 	}
-	protected  void doTran(QueryIterator queryIterator, TaskContext taskContext){
-        MilvusResultSet milvusResultSet = new MilvusResultSet(importContext,   queryIterator);
+    
+	protected  void doTran(BuildMilvusResultSetFunction buildMilvusResultSetFunction, TaskContext taskContext){
+        MilvusResultSet milvusResultSet = buildMilvusResultSetFunction.buildMilvusResultSet();
 		BaseDataTran baseDataTran = dataTranPlugin.createBaseDataTran(taskContext,milvusResultSet,null,dataTranPlugin.getCurrentStatus());//new BaseElasticsearchDataTran( taskContext,mongoDB2ESResultSet,importContext,targetImportContext,this.currentStatus);
         baseDataTran.initTran();
         dataTranPlugin.callTran( baseDataTran);
 	}
-	private void increamentImportData( TaskContext taskContext) throws Exception {
+ 
+    protected void increamentImportData( TaskContext taskContext) throws Exception {
 
         QueryIteratorReq.QueryIteratorReqBuilder queryIteratorReqBuilder = getQueryIteratorReqBuilder();       
          
 		putLastParamValue(queryIteratorReqBuilder);
 		exportData(  queryIteratorReqBuilder.build(), taskContext);
 	}
-	public void putLastParamValue(QueryIteratorReq.QueryIteratorReqBuilder queryIteratorReqBuilder){
+    public void putLastParamValue(QueryIteratorReq.QueryIteratorReqBuilder queryIteratorReqBuilder){        
+        String ex = buildExpr();
+        queryIteratorReqBuilder.expr(ex);//指定过滤条件，可以进行条件组合，具体参考文档：https://milvus.io/api-reference/java/v2.4.x/v2/Vector/search.md
+        if(importContext.isPrintTaskLog()){
+            logger.info(new StringBuilder().append("Current values: ").append(ex).toString());
+        }
+    }
+	protected String buildExpr(){
         StringBuilder expr = new StringBuilder();
         if(milvusInputConfig.getExpr() != null)
             expr.append("(").append(milvusInputConfig.getExpr()).append(")");
@@ -199,10 +216,10 @@ public class MilvusInputDatatranPlugin extends BaseInputPlugin {
 			}
 		}
         String ex = expr.toString();
-        queryIteratorReqBuilder.expr(ex);//指定过滤条件，可以进行条件组合，具体参考文档：https://milvus.io/api-reference/java/v2.4.x/v2/Vector/search.md
 		if(importContext.isPrintTaskLog()){
 			logger.info(new StringBuilder().append("Current values: ").append(ex).toString());
 		}
+        return ex;
 	}
 
 	public void doImportData( TaskContext taskContext)  throws DataImportException {
