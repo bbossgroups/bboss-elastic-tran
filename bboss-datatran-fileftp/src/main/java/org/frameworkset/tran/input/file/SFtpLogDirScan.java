@@ -51,7 +51,7 @@ public class SFtpLogDirScan extends FtpLogDirScan {
 
         if(files == null || files.size() == 0){
             if(logger.isInfoEnabled()) {
-                logger.info("{} must be a directory or is empty directory.", ftpContext.getRemoteFileDir());
+                logger.warn("Remote ftp dir[{}] is a file or empty directory.", ftpContext.getRemoteFileDir());
             }
             return;
         }
