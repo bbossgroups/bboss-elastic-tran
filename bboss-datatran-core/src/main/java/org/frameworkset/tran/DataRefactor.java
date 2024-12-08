@@ -16,10 +16,9 @@ package org.frameworkset.tran;
  */
 
 import org.frameworkset.tran.context.Context;
-import org.frameworkset.tran.schedule.TaskContext;
 
 /**
- * <p>Description: 加工处理数据接口</p>
+ * <p>Description: 记录级别数据加工、转换、过滤处理接口</p>
  * <p></p>
  * <p>Copyright (c) 2018</p>
  * @Date 2018/9/4 9:19
