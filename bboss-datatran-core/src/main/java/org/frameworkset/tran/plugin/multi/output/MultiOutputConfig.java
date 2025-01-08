@@ -22,6 +22,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.RecordSpecialConfigsContext;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +96,16 @@ public class MultiOutputConfig  extends BaseConfig implements OutputConfig {
         for(OutputConfig outputConfig:outputConfigs){
             if(outputConfigClass.isInstance(outputConfig)){
                 ts.add ((T)outputConfig);
+            }
+        }
+        return ts;
+    }
+
+    public List<ETLMetrics> getMetrics() {
+        List<ETLMetrics> ts = new ArrayList<>();
+        for(OutputConfig outputConfig:outputConfigs){
+            if(outputConfig.getMetrics() != null && outputConfig.getMetrics().size() > 0){
+                ts.addAll(outputConfig.getMetrics());
             }
         }
         return ts;

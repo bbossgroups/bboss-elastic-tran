@@ -59,7 +59,7 @@ public class RecordSpecialConfigsContext {
         if(recordOutpluginSpecialConfig != null) {
             recordOutpluginSpecialConfig.resolveRecordColumnInfo(   name, temp,   fieldMeta,  context);
         }
-        else{
+        else if(recordOutpluginSpecialConfigs != null){
             recordOutpluginSpecialConfigs.resolveRecordColumnInfo(   name, temp,   fieldMeta,  context);
         }
         
@@ -68,7 +68,7 @@ public class RecordSpecialConfigsContext {
         if(recordOutpluginSpecialConfig != null) {
             recordOutpluginSpecialConfig.afterRefactor(  context);
         }
-        else{
+        else if(recordOutpluginSpecialConfigs != null){
             recordOutpluginSpecialConfigs.afterRefactor(  context);
         }
     }
@@ -116,7 +116,7 @@ public class RecordSpecialConfigsContext {
             recordOutpluginSpecialConfig.addRecordSpecialConfig(  name,   value);
 
         }
-        else{
+        else if(recordOutpluginSpecialConfigs != null){
             recordOutpluginSpecialConfigs.addRecordSpecialConfig(  name,   value);
         }
     }

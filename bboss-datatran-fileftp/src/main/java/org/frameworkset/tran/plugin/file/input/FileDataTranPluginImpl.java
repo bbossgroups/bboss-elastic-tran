@@ -499,7 +499,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                     throw _e;
                 }
                 catch (Exception _e){
-                    e = ImportExceptionUtil.buildDataImportException(importContext,"",_e);
+                    e = ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,"",_e);
                     throw (DataImportException)e;
                 }
                 finally {

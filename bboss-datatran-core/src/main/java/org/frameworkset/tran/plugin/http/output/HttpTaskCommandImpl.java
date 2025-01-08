@@ -107,7 +107,7 @@ public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
 
                 
             } catch (Exception e) {
-                throw ImportExceptionUtil.buildDataImportException(importContext, "发送数据失败", e);
+                throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext, "发送数据失败", e);
             }
         }
         else{

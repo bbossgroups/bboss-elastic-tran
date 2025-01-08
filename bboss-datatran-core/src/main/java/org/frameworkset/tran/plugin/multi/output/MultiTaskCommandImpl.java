@@ -75,7 +75,7 @@ public class MultiTaskCommandImpl extends BaseTaskCommand< String> {
             }
 
             if(exceptions.size() > 0)
-                throw ImportExceptionUtil.buildDataImportException(importContext,"MultiTaskCommandImpl exceptions occur",exceptions);
+                throw ImportExceptionUtil.buildDataImportException(importContext,"MultiTaskCommandImpl exceptions occur",exceptions,outputPlugin);
             
         }        
 		finishTask();

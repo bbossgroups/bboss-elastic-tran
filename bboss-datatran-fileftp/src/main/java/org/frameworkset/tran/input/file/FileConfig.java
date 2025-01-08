@@ -434,7 +434,7 @@ public class FileConfig extends FieldManager{
                     }
                     catch (Exception e){
 //                        logger.warn(name,e);
-                        throw ImportExceptionUtil.buildDataImportException(importContext,name,e);
+                        throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,name,e);
                     }
 
                 }

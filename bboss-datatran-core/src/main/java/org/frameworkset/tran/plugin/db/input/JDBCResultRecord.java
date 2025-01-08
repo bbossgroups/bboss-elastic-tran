@@ -59,7 +59,7 @@ public class JDBCResultRecord extends LocalDateJDBCResultRecord {
 			}
 		}
 		catch (Exception ex){
-			throw ImportExceptionUtil.buildDataImportException(importContext,new StringBuilder().append("getValue(  ")
+			throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,new StringBuilder().append("getValue(  ")
 					.append(i).append(", ").append(colName).append(",").append(sqlType).append(")").toString(),ex);
 		}
 	}
@@ -86,7 +86,7 @@ public class JDBCResultRecord extends LocalDateJDBCResultRecord {
 			}
 		}
 		catch (Exception ex){
-			throw ImportExceptionUtil.buildDataImportException(importContext,new StringBuilder().append("getValue(  ")
+			throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,new StringBuilder().append("getValue(  ")
 					.append(colName).append(",").append(sqlType).append(")").toString(),ex);
 		}
 
@@ -108,7 +108,7 @@ public class JDBCResultRecord extends LocalDateJDBCResultRecord {
 			return value;
 		}
 		catch (Exception ex){
-			throw ImportExceptionUtil.buildDataImportException(importContext,new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
+			throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
 		}
 	}
 

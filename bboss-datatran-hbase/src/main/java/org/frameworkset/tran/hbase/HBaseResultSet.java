@@ -83,7 +83,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 				return nextAssert;
 			}
 		} catch (IOException e) {
-			throw ImportExceptionUtil.buildDataImportException(importContext,"Get next hbase result failed:",e);
+			throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,"Get next hbase result failed:",e);
 		}
 
 		return nextAssert;

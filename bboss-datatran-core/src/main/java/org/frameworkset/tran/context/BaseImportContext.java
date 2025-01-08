@@ -116,11 +116,15 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 		inputConfig.afterBuild(importBuilder,this);
 		outputConfig.afterBuild(importBuilder,this);
         if(baseImportConfig.isFlushMetricsOnScheduleTaskCompleted()) {
+            List<ETLMetrics> metrics = null;
             if (this.getMetrics() != null && this.getMetrics().size() > 0) {
-                importBuilder.addCallInterceptor(new ETLMetricsCallInterceptor(this.getMetrics(), this),true);
+                metrics = this.getMetrics();
             } else if(outputConfig instanceof MetricsOutputConfig){
-                importBuilder.addCallInterceptor(new ETLMetricsCallInterceptor(((MetricsOutputConfig)outputConfig).getMetrics(), this),true);
+                metrics = outputConfig.getMetrics();
+//                importBuilder.addCallInterceptor(new ETLMetricsCallInterceptor(((MetricsOutputConfig)outputConfig).getMetrics(), this),true);
             }
+
+            importBuilder.addCallInterceptor(new ETLMetricsCallInterceptor(metrics, this),true);
             baseImportConfig.setCallInterceptors(importBuilder.taskCallInterceptors());
         }
 	}

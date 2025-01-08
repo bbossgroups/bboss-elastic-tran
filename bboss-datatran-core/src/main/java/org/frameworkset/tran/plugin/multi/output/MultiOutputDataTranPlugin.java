@@ -143,7 +143,12 @@ public class MultiOutputDataTranPlugin extends BasePlugin implements OutputPlugi
             outputPlugin.destroy(waitTranStop);
         }
     }
-    
-    
+
+    public void setDataTranPlugin(DataTranPlugin dataTranPlugin) {
+        this.dataTranPlugin = dataTranPlugin;
+        for (OutputPlugin outputPlugin:outputPlugins) {
+            outputPlugin.setDataTranPlugin(dataTranPlugin);
+        }
+    }
  
 }

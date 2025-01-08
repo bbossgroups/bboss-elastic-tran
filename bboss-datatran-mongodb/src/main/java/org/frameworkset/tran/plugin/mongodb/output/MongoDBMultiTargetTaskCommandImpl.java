@@ -163,11 +163,11 @@ public class MongoDBMultiTargetTaskCommandImpl extends MongoDBTaskCommandImpl {
 
 		}
 		catch (Exception e) {
-			throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
+			throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,taskInfo,e);
 		}
 
 		catch (Throwable e) {
-			throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
+			throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,taskInfo,e);
 		} 
 		return results;
 	}

@@ -157,11 +157,11 @@ public class HBaseTaskCommandImpl extends BaseTaskCommand<  String> {
 
             } catch (Exception e) {
 
-                throw ImportExceptionUtil.buildDataImportException(importContext, taskInfo, e);
+                throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext, taskInfo, e);
 
             } catch (Throwable e) {
 
-                throw ImportExceptionUtil.buildDataImportException(importContext, taskInfo, e);
+                throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext, taskInfo, e);
 
             } 
             

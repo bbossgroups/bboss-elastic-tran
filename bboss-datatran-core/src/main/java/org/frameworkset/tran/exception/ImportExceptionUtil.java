@@ -17,6 +17,8 @@ package org.frameworkset.tran.exception;
 
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -47,7 +49,7 @@ public class ImportExceptionUtil {
         
     }
 
-    public static void loginfo(Logger logger,ImportContext importContext, String loginfo){
+    public static void loginfo(Logger logger,ImportContext importContext, String loginfo,OutputPlugin outputPlugin){
         if(logger.isInfoEnabled()) {
             if (importContext != null) {
                 StringBuilder builder = new StringBuilder();
@@ -56,7 +58,8 @@ public class ImportExceptionUtil {
                 String jobType = importContext.getJobType();
                 builder.append("jobName=").append(jobName)
                         .append(",jobId=").append(jobId)
-                        .append(",jobType=").append(jobType)
+                        .append(",inputJobType=").append(jobType)
+                        .append(",outputJobType=").append(outputPlugin.getJobType())
                         .append(",log:").append(loginfo);
 //            return new DataImportException(builder.toString());
 
@@ -68,7 +71,7 @@ public class ImportExceptionUtil {
         }
     }
 
-    public static DataImportException buildDataImportException(ImportContext importContext, String error, List<Throwable> throwables){
+    public static DataImportException buildDataImportException(ImportContext importContext, String error, List<Throwable> throwables,OutputPlugin outputPlugin){
         DataImportException dataImportException = null;
         if(importContext != null) {
             StringBuilder builder = new StringBuilder();
@@ -77,7 +80,8 @@ public class ImportExceptionUtil {
             String jobType = importContext.getJobType();
             builder.append("jobName=").append(jobName)
                     .append(",jobId=").append(jobId)
-                    .append(",jobType=").append(jobType)
+                    .append(",inputjobType=").append(jobType)
+                    .append(",outputJobType=").append(outputPlugin.getJobType())
                     .append(",errorinfo=").append(error);
             dataImportException = new DataImportException(builder.toString());
            
@@ -91,7 +95,7 @@ public class ImportExceptionUtil {
         return dataImportException;
 
     }
-    public static DataImportException buildDataImportException(ImportContext importContext,String error,Throwable throwable){
+    public static DataImportException buildDataImportException(OutputPlugin outputPlugin,ImportContext importContext, String error, Throwable throwable){
         if(importContext != null) {
             StringBuilder builder = new StringBuilder();
             String jobName = importContext.getJobName();
@@ -99,7 +103,7 @@ public class ImportExceptionUtil {
             String jobType = importContext.getJobType();
             builder.append("jobName=").append(jobName)
                     .append(",jobId=").append(jobId)
-                    .append(",jobType=").append(jobType)
+                    .append(",inputJobType=").append(jobType).append(",outputJobType=").append(outputPlugin.getJobType())
                     .append(",errorinfo=").append(error);
             return new DataImportException(builder.toString(),throwable);
         }
@@ -118,7 +122,8 @@ public class ImportExceptionUtil {
             String jobType = importContext.getJobType();
             builder.append("jobName=").append(jobName)
                     .append(",jobId=").append(jobId)
-                    .append(",jobType=").append(jobType);
+                    .append(",inputjobType=").append(jobType)
+                    .append(",outputJobType=").append(importContext.getOutputPlugin().getJobType());
             return new DataImportException(builder.toString(),throwable);
         }
         else{

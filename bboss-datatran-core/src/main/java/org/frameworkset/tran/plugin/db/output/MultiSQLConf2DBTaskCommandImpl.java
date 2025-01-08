@@ -334,10 +334,10 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                 try {
                     stmtInfo.errorHandle(error);
                 } catch (SQLException ex) {
-                    throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,error);
+                    throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,taskInfo,error);
                 }
             }
-            throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,error);
+            throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,taskInfo,error);
         }
         catch (Exception e) {
             if(stmtInfo != null) {
@@ -345,10 +345,10 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                 try {
                     stmtInfo.errorHandle(e);
                 } catch (SQLException ex) {
-                    throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
+                    throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,taskInfo,e);
                 }
             }
-            throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
+            throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,taskInfo,e);
 
         } finally {
             if(stmtInfo != null)
@@ -400,11 +400,11 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                          logger.warn("Ignore Syn ddl["+sql+"] failed:",e);
                      }
                      else{
-                         throw ImportExceptionUtil.buildDataImportException(importContext,"Syn ddl["+sql+"] failed:",e);
+                         throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,"Syn ddl["+sql+"] failed:",e);
                      }
                  }
                  catch (Exception e){
-                     throw ImportExceptionUtil.buildDataImportException(importContext,"Syn ddl["+sql+"] failed:",e);
+                     throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,"Syn ddl["+sql+"] failed:",e);
                  }
 
                 finally {
@@ -428,10 +428,10 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                 try {
                     stmtInfo.errorHandle(error);
                 } catch (SQLException ex) {
-                    throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,error);
+                    throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,taskInfo,error);
                 }
             }
-            throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,error);
+            throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,taskInfo,error);
         }
         catch (Exception e) {
             if(stmtInfo != null) {
@@ -439,10 +439,10 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                 try {
                     stmtInfo.errorHandle(e);
                 } catch (SQLException ex) {
-                    throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
+                    throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,taskInfo,e);
                 }
             }
-            throw ImportExceptionUtil.buildDataImportException(importContext,taskInfo,e);
+            throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext,taskInfo,e);
 
         } finally {
             if(stmtInfo != null)

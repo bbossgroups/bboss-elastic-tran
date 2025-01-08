@@ -71,7 +71,7 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
         this.records = records;
     }
     protected void logNodatas(Logger logger){
-        ImportExceptionUtil.loginfo(logger,importContext,"All output data is ignored and do nothing.");
+        ImportExceptionUtil.loginfo(logger,importContext,"All output data is ignored and do nothing.",outputPlugin);
        
     }
     public List<CommonRecord> getRecords() {

@@ -61,7 +61,7 @@ public class ExcelFileFtpTaskCommandImpl extends BaseTaskCommand< String> {
                 fileTransfer.writeData(this, records);
                
             } catch (IOException e) {
-                throw ImportExceptionUtil.buildDataImportException(importContext, "writeData failed:", e);
+                throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext, "writeData failed:", e);
             }
         }
         else{

@@ -162,7 +162,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			} catch (DataImportException e) {
 				throw e;
 			} catch (Exception e) {
-				throw ImportExceptionUtil.buildDataImportException(importContext,"get value of "+entry.getKey() + " failed:",e);
+				throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,"get value of "+entry.getKey() + " failed:",e);
 			}
 			if(value != null)
 				params.put(entry.getKey(),value);
@@ -200,7 +200,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
                     } catch (DataImportException e) {
                         throw e;
                     } catch (Exception e) {
-                        ImportExceptionUtil.buildDataImportException(importContext,"get value of " + entry.getKey() + " failed:", e);
+                        ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,"get value of " + entry.getKey() + " failed:", e);
                     }
                     if (value != null)
                         params.put(entry.getKey(), value);
@@ -232,7 +232,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			} catch (DataImportException e) {
 				throw e;
 			} catch (Exception e) {
-				throw ImportExceptionUtil.buildDataImportException(importContext,"get value of "+entry.getKey() + " failed:",e);
+				throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,"get value of "+entry.getKey() + " failed:",e);
 			}
 			if(value != null)
 				params.put(entry.getKey(),value);
@@ -262,7 +262,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			} catch (DataImportException e) {
 				throw e;
 			} catch (Exception e) {
-				throw ImportExceptionUtil.buildDataImportException(importContext,"get value of "+entry.getKey() + " failed:",e);
+				throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,"get value of "+entry.getKey() + " failed:",e);
 			}
 			if(value != null)
 				params.put(entry.getKey(),value);
@@ -290,7 +290,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			} catch (DataImportException e) {
 				throw e;
 			} catch (Exception e) {
-				throw ImportExceptionUtil.buildDataImportException(importContext,"get value of "+entry.getKey() + " failed:",e);
+				throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,"get value of "+entry.getKey() + " failed:",e);
 			}
 			if(value != null)
 				params.put(entry.getKey(),value);
@@ -1190,6 +1190,21 @@ public class DataTranPluginImpl implements DataTranPlugin {
     }
     private void stopMetrics(){
         List<ETLMetrics> etlMetrics = importContext.getMetrics();
+        if(etlMetrics != null && etlMetrics.size() > 0){
+            for(ETLMetrics etlMetric : etlMetrics){
+                //强制刷指标数据
+                try {
+                    etlMetric.stopMetrics();
+                }
+                catch (Exception e){
+                    logger.error("",e);
+                }
+
+            }
+        }
+        
+
+        etlMetrics = importContext.getOutputConfig().getMetrics();
         if(etlMetrics != null && etlMetrics.size() > 0){
             for(ETLMetrics etlMetric : etlMetrics){
                 //强制刷指标数据

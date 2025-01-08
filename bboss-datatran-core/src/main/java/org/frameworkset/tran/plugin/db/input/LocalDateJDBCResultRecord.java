@@ -84,7 +84,7 @@ public class LocalDateJDBCResultRecord extends BaseRecord {
 			}
 		}
 		catch (Exception ex){
-			throw ImportExceptionUtil.buildDataImportException(importContext,new StringBuilder().append("getValue(  ")
+			throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,new StringBuilder().append("getValue(  ")
 					.append(i).append(", ").append(colName).append(",").append(sqlType).append(")").toString(),ex);
 		}
 	}
@@ -107,7 +107,7 @@ public class LocalDateJDBCResultRecord extends BaseRecord {
                     Date value = this.resultSet.getDate(colName);
                     return value;
                 } catch (Exception ex) {
-                    throw ImportExceptionUtil.buildDataImportException(importContext, new StringBuilder().append("getValue(").append(colName).append(")").toString(), ex);
+                    throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext, new StringBuilder().append("getValue(").append(colName).append(")").toString(), ex);
                 }
 
             }
@@ -134,7 +134,7 @@ public class LocalDateJDBCResultRecord extends BaseRecord {
                     return value;
                 }
                 catch (Exception ex){
-                    throw ImportExceptionUtil.buildDataImportException(importContext,new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
+                    throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
                 }
 
             }
@@ -162,7 +162,7 @@ public class LocalDateJDBCResultRecord extends BaseRecord {
 			}
 		}
 		catch (Exception ex){
-			throw ImportExceptionUtil.buildDataImportException(importContext,new StringBuilder().append("getValue(  ")
+			throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,new StringBuilder().append("getValue(  ")
 					.append(colName).append(",").append(sqlType).append(")").toString(),ex);
 		}
 
@@ -185,7 +185,7 @@ public class LocalDateJDBCResultRecord extends BaseRecord {
             }
 		}
 		catch (Exception ex){
-			throw ImportExceptionUtil.buildDataImportException(importContext,new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
+			throw ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,new StringBuilder().append("getValue(").append(colName).append(")").toString(),ex);
 		}
 	}
 
