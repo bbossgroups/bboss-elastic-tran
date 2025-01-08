@@ -209,7 +209,7 @@ public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return new HttpOutputDataTranPlugin(importContext);
+		return new HttpOutputDataTranPlugin(this,importContext);
 	}
 
 

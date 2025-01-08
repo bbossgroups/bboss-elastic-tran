@@ -15,6 +15,7 @@ package org.frameworkset.tran.output.excelftp;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommand;
@@ -37,8 +38,8 @@ public class ExcelFileFtpTaskCommandImpl extends BaseTaskCommand< String> {
 //	private String refreshOption;
 	private ExcelFileTransfer fileTransfer;
 
-	public ExcelFileFtpTaskCommandImpl(TaskCommandContext taskCommandContext, ExcelFileTransfer fileTransfer) {
-		super(  taskCommandContext);
+	public ExcelFileFtpTaskCommandImpl(TaskCommandContext taskCommandContext, ExcelFileTransfer fileTransfer, OutputConfig outputConfig) {
+		super( outputConfig, taskCommandContext);
 		this.fileTransfer = fileTransfer;
 	}
 

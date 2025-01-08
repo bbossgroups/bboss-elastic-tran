@@ -85,7 +85,29 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
 	//	BaseImportConfig getBaseImportConfig();
 	InputConfig getInputConfig();
 	ImportStartAction getImportStartAction();
+
+    /**
+     * 获取输出插件配置
+     * @return
+     */
 	OutputConfig getOutputConfig();
+
+    /**
+     * 搜索对应的类型输出配置类，如果是单输出源，直接判别单输出源配置类是否是对应类型，如果不是返回null；
+     * 如果是多输出源，则从多输出源配置中筛选出第一个符合类型的配置类
+     * @param outputConfigClass
+     * @return
+     */
+    <T extends OutputConfig> T getOutputConfig(Class<T> outputConfigClass);
+
+    /**
+     * 搜索对应的类型所有输出配置类，如果是单输出源，直接判别单输出源配置类是否是对应类型，如果不是返回null；
+     * 如果是多输出源，则从多输出源配置中筛选出第一个符合类型的配置类
+     * @param outputConfigClass
+     * @return
+     */
+    <T extends OutputConfig> List<T> getOutputConfigs(Class<T> outputConfigClass);
+    
 	InputPlugin getInputPlugin();
 	OutputPlugin getOutputPlugin();
 	DataTranPlugin buildDataTranPlugin();
@@ -101,7 +123,6 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
 	public Long getTimeRangeLastValue();
 	public DataTranPlugin getDataTranPlugin();
 	Map getJobInputParams();
-    public ExecutorService buildRecordHandlerExecutor();
 	/**
 	 * 判断调度任务是否被暂停
 	 * @return

@@ -34,11 +34,7 @@ public class BaseParrelTranCommand implements ParrelTranCommand{
 	public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
 		return 0;
 	}
-
-	@Override
-	public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-		return null;
-	}
+ 
 
 	@Override
 	public void parrelCompleteAction() {

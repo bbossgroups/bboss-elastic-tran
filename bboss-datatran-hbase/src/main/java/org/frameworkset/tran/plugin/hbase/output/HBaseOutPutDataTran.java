@@ -1,6 +1,7 @@
 package org.frameworkset.tran.plugin.hbase.output;
 
 import org.frameworkset.tran.AbstraCommonRecordOutPutDataTran;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -11,11 +12,14 @@ import org.frameworkset.tran.task.TaskCommandContext;
 
 public class HBaseOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
 	protected HBaseOutputConfig hBaseOutputConfig ;
-
+    public HBaseOutPutDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
 	@Override
 	public void init(){
 		super.init();
-		hBaseOutputConfig = (HBaseOutputConfig) importContext.getOutputConfig();
+        if(hBaseOutputConfig == null)
+		    hBaseOutputConfig = (HBaseOutputConfig) outputPlugin.getOutputConfig();
 		StringBuilder builder = new StringBuilder();
 
 		if(hBaseOutputConfig != null){
@@ -33,10 +37,8 @@ public class HBaseOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
 		super(   taskContext,jdbcResultSet,importContext,   currentStatus);
 	}
     @Override
-	protected TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext){
-//		return new HBaseTaskCommandImpl( totalCount, importContext, records,
-//				taskNo, taskContext.getJobNo(),taskInfo,lastValue,  currentStatus,taskContext);
-        return new HBaseTaskCommandImpl(   taskCommandContext);
+	public TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext){
+        return new HBaseTaskCommandImpl(   taskCommandContext,outputPlugin.getOutputConfig());
 	}
 
 

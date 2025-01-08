@@ -19,12 +19,14 @@ import org.frameworkset.plugin.kafka.KafkaProductor;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.kafka.output.KafkaOutputDataTran;
 import org.frameworkset.tran.kafka.output.KafkaSend;
 import org.frameworkset.tran.kafka.output.KafkaSendImpl;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.plugin.http.output.HttpOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
@@ -44,7 +46,10 @@ public class Kafka1OutputDataTranPlugin extends BasePlugin implements OutputPlug
 	public void init(){
 
 	}
-
+    @Override
+    public String getJobType(){
+        return "Kafka1OutputDataTranPlugin";
+    }
 	@Override
 	public void destroy(boolean waitTranStop) {
 		if(kafkaProductor != null){
@@ -57,11 +62,20 @@ public class Kafka1OutputDataTranPlugin extends BasePlugin implements OutputPlug
 		kafkaOutputDataTran.initTran();
 		return kafkaOutputDataTran;
 	}
+    /**
+     * 创建内部转换器
+     * @param baseDataTran
+     * @return
+     */
+    @Override
+    public BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) {
+        KafkaOutputDataTran kafkaOutputDataTran = new KafkaOutputDataTran( baseDataTran);
+        return kafkaOutputDataTran;
+    }
 
-
-	public Kafka1OutputDataTranPlugin(ImportContext importContext){
-		super(importContext);
-		kafka1OutputConfig = (Kafka1OutputConfig) importContext.getOutputConfig();
+	public Kafka1OutputDataTranPlugin(ImportContext importContext, OutputConfig outputConfig){
+		super(outputConfig,importContext);
+		kafka1OutputConfig = (Kafka1OutputConfig) outputConfig;
 	}
 
 	@Override

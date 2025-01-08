@@ -55,8 +55,5 @@ public class BaseSerialTranCommand implements SerialTranCommand {
 //		return false;
 //	}
 
-	@Override
-	public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-		return null;
-	}
+ 
 }

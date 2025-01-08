@@ -110,8 +110,18 @@ public class TaskCommandContext {
         return dataSize;
     }
     public void addTask(TaskCommand taskCommand){
-        this.tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+        this.addTask(  service,  tasks,  taskCommand);
         
+    }
+
+    public void addTask(ExecutorService service,List<Future> tasks,TaskCommand taskCommand){
+        tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
+
+    }
+
+    public void addMultiOutputTask(ExecutorService service,List<Future> tasks,TaskCommand taskCommand){
+        tasks.add(service.submit(new MultiOutputTaskCall(taskCommand, tranErrorWrapper)));
+
     }
     public int evalDataSize(){
         if(records != null && records.size() > 0){

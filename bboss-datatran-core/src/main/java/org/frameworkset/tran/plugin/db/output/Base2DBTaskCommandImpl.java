@@ -16,9 +16,9 @@ package org.frameworkset.tran.plugin.db.output;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
-import org.frameworkset.tran.plugin.db.input.DBRecord;
 import org.frameworkset.tran.task.TaskCommandContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,20 +38,20 @@ public class Base2DBTaskCommandImpl extends MultiSQLConf2DBTaskCommandImpl {
 
 	private static final Logger blogger = LoggerFactory.getLogger(Base2DBTaskCommandImpl.class);
 	public Base2DBTaskCommandImpl(TaskCommandContext taskCommandContext,
-                                  boolean needBatch ) {
+                                  boolean needBatch , OutputConfig outputConfig) {
         super( taskCommandContext,
-         needBatch );
+         needBatch ,   outputConfig);
 		if(dbOutputConfig.optimize()){
 			sortData();
 		}
 	}
 
 	private void sortData(){
-		List<DBRecord> _idatas = new ArrayList<DBRecord>();
-		List<DBRecord> _udatas = new ArrayList<DBRecord>();
-		List<DBRecord> _ddatas = new ArrayList<DBRecord>();
+		List<CommonRecord> _idatas = new ArrayList<CommonRecord>();
+		List<CommonRecord> _udatas = new ArrayList<CommonRecord>();
+		List<CommonRecord> _ddatas = new ArrayList<CommonRecord>();
 		for(int i = 0; records != null && i < records.size(); i ++){
-			DBRecord dbRecord = (DBRecord)records.get(i);
+            CommonRecord dbRecord = records.get(i);
 			if(dbRecord.isInsert())
 				_idatas.add(dbRecord);
 			else if(dbRecord.isUpdate()){

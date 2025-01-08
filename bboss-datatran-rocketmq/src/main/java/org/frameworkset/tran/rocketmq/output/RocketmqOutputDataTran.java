@@ -1,10 +1,6 @@
 package org.frameworkset.tran.rocketmq.output;
 
-import org.frameworkset.tran.BaseCommonRecordDataTran;
-import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.JobCountDownLatch;
-import org.frameworkset.tran.TranResultSet;
-import org.frameworkset.tran.context.Context;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.rocketmq.output.RocketmqOutputConfig;
 import org.frameworkset.tran.schedule.Status;
@@ -12,14 +8,15 @@ import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.*;
 import org.slf4j.Logger;
 
-import java.io.Writer;
-
 import static org.frameworkset.tran.context.Context.ROCKETMQ_TOPIC_KEY;
 
 public class RocketmqOutputDataTran extends BaseCommonRecordDataTran {
 	protected String taskInfo;
 
 	private RocketmqOutputConfig rocketmqOutputConfig ;
+    public RocketmqOutputDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
 	@Override
 	public void logTaskStart(Logger logger) {
 		logger.info(taskInfo);
@@ -43,9 +40,8 @@ public class RocketmqOutputDataTran extends BaseCommonRecordDataTran {
             public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
                 if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    RocketmqBatchCommand kafkaCommand = new RocketmqBatchCommand(  taskCommandContext);
+                    RocketmqBatchCommand kafkaCommand = (RocketmqBatchCommand) _buildTaskCommand(  taskCommandContext);
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     taskCommandContext.addTask(kafkaCommand);
@@ -64,11 +60,7 @@ public class RocketmqOutputDataTran extends BaseCommonRecordDataTran {
 //                return taskNo;
                
             }
-
-			@Override
-			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return RocketmqOutputDataTran.this.buildStringRecord(context,writer);
-			}
+ 
 
 
 		};
@@ -76,9 +68,8 @@ public class RocketmqOutputDataTran extends BaseCommonRecordDataTran {
             private int action(TaskCommandContext taskCommandContext){
                 if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    RocketmqBatchCommand kafkaCommand = new RocketmqBatchCommand(  taskCommandContext);
+                    RocketmqBatchCommand kafkaCommand = (RocketmqBatchCommand) _buildTaskCommand(  taskCommandContext);
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     TaskCall.call(kafkaCommand);
@@ -121,17 +112,15 @@ public class RocketmqOutputDataTran extends BaseCommonRecordDataTran {
                 return action(    taskCommandContext);
 			}
 
-
-			@Override
-			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return RocketmqOutputDataTran.this.buildStringRecord(context,writer);
-			}
+ 
 		};
 	}
 	@Override
 	public void init() {
 		super.init();
-
+        if(rocketmqOutputConfig == null){
+            rocketmqOutputConfig = (RocketmqOutputConfig) outputPlugin.getOutputConfig();
+        }
 		//使用importContext.getLogsendTaskMetric()
 //		logsendTaskMetric = kafkaOutputContext.getLogsendTaskMetric();
 		taskInfo = new StringBuilder().append("Send data to Rocketmq topic[")
@@ -145,7 +134,10 @@ public class RocketmqOutputDataTran extends BaseCommonRecordDataTran {
 		this.countDownLatch = countDownLatch;
 	}
 
-
+    @Override
+    public TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext) {
+        return new RocketmqBatchCommand(  taskCommandContext,outputPlugin.getOutputConfig());
+    }
 
 
 	public String serialExecute(){
@@ -178,13 +170,13 @@ public class RocketmqOutputDataTran extends BaseCommonRecordDataTran {
     }
  
 
-	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-
-
-		CommonRecord dataRecord = context.getCommonRecord();
-		rocketmqOutputConfig.generateReocord(context.getTaskContext(),context.getTaskMetrics(),dataRecord, writer);
-		return dataRecord;
-	}
- 
+//	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
+//
+//
+//		CommonRecord dataRecord = context.getCommonRecord();
+//		rocketmqOutputConfig.generateReocord(context.getTaskContext(),context.getTaskMetrics(),dataRecord, writer);
+//		return dataRecord;
+//	}
+// 
 
 }

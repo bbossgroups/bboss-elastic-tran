@@ -21,14 +21,12 @@ import org.frameworkset.nosql.mongodb.MongoDBStartResult;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * <p>Description: </p>
@@ -45,12 +43,15 @@ public class MongoDBOutputDataTranPlugin extends BasePlugin implements OutputPlu
 	private MongoDBOutputConfig mongoDBOutputConfig;
 
 	private MongoDBStartResult mongoDBStartResult = new MongoDBStartResult();
-	public MongoDBOutputDataTranPlugin(ImportContext importContext){
-		super(importContext);
-		mongoDBOutputConfig = (MongoDBOutputConfig) importContext.getOutputConfig();
+	public MongoDBOutputDataTranPlugin(ImportContext importContext, OutputConfig outputConfig){
+		super(outputConfig,importContext);
+		mongoDBOutputConfig = (MongoDBOutputConfig) outputConfig;
 
 	}
-
+    @Override
+    public String getJobType(){
+        return "MongoDBOutputDataTranPlugin";
+    }
 	@Override
 	public void afterInit() {
 
@@ -114,18 +115,27 @@ public class MongoDBOutputDataTranPlugin extends BasePlugin implements OutputPlu
 	@Override
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus){
 		if(countDownLatch == null) {
-			MongoDBOutPutDataTran db2DBDataTran = new MongoDBOutPutDataTran(taskContext, tranResultSet, importContext, currentStatus);
-			db2DBDataTran.initTran();
-			return db2DBDataTran;
+			MongoDBOutPutDataTran mongoDBOutPutDataTran = new MongoDBOutPutDataTran(taskContext, tranResultSet, importContext, currentStatus);
+            mongoDBOutPutDataTran.initTran();
+			return mongoDBOutPutDataTran;
 		}
 		else{
-			MongoDBOutPutDataTran asynDBOutPutDataTran = new MongoDBOutPutDataTran(  taskContext,tranResultSet,importContext,    currentStatus,countDownLatch);
-			asynDBOutPutDataTran.initTran();
-			return asynDBOutPutDataTran;
+			MongoDBOutPutDataTran mongoDBOutPutDataTran = new MongoDBOutPutDataTran(  taskContext,tranResultSet,importContext,    currentStatus,countDownLatch);
+            mongoDBOutPutDataTran.initTran();
+			return mongoDBOutPutDataTran;
 		}
 	}
 
-
+    /**
+     * 创建内部转换器
+     * @param baseDataTran
+     * @return
+     */
+    @Override
+    public BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) {
+        MongoDBOutPutDataTran mongoDBOutPutDataTran = new MongoDBOutPutDataTran( baseDataTran);
+        return mongoDBOutPutDataTran;
+    }
 
 
 }

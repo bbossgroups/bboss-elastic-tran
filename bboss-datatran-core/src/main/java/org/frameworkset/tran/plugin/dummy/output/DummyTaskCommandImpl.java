@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.dummy.output;
  */
 
 import org.frameworkset.soa.BBossStringWriter;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
 import org.frameworkset.tran.util.TranUtil;
@@ -33,9 +34,9 @@ import org.slf4j.LoggerFactory;
 public class DummyTaskCommandImpl extends BaseTaskCommand<String> {
 	private Logger logger = LoggerFactory.getLogger(DummyTaskCommandImpl.class);
 	private DummyOutputConfig dummyOutputConfig ;
-	public DummyTaskCommandImpl(TaskCommandContext taskCommandContext) {
-		super(  taskCommandContext);
-		dummyOutputConfig = (DummyOutputConfig) importContext.getOutputConfig();
+	public DummyTaskCommandImpl(TaskCommandContext taskCommandContext, OutputConfig outputConfig) {
+		super( outputConfig, taskCommandContext);
+		dummyOutputConfig = (DummyOutputConfig) outputConfig;
 	}
 
     private String buildDatas() throws Exception {

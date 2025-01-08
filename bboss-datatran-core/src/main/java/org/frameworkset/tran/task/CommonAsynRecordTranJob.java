@@ -115,7 +115,7 @@ public class CommonAsynRecordTranJob extends CommonRecordTranJob{
                         taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
                         if (baseDataTran.isPrintTaskLog()) {
                             end = System.currentTimeMillis();
-                            StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                            StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                             logger.info(builder.append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
                                     .append(",import ").append(taskCommandContext.getDataSize()).append(" records.").append("Force FlushInterval[").append(importContext.getFlushInterval()).append("ms]").toString());
                             istart = end;
@@ -215,7 +215,7 @@ public class CommonAsynRecordTranJob extends CommonRecordTranJob{
 
 			}
 			if(baseDataTran.isPrintTaskLog()){
-                StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                 logger.info(builder.append("Pararrel batch submit tasks:").append(taskNo).toString());
             }
 

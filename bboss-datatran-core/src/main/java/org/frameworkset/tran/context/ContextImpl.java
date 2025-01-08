@@ -18,6 +18,7 @@ package org.frameworkset.tran.context;
 import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.elasticsearch.client.ResultUtil;
+import org.frameworkset.spi.geoip.GeoIPUtil;
 import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
@@ -25,10 +26,10 @@ import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.*;
 import org.frameworkset.tran.metrics.BaseMetricsLogReport;
 import org.frameworkset.tran.metrics.TaskMetrics;
-import org.frameworkset.tran.plugin.db.input.DBInputConfig;
-import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.es.ESField;
-import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
+import org.frameworkset.tran.record.RecordColumnInfo;
+import org.frameworkset.tran.record.RecordOutpluginSpecialConfig;
 import org.frameworkset.tran.record.ValueConvert;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
@@ -44,6 +45,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig.SPECIALCONFIG_CLIENTOPTIONS_NAME;
 
 /**
  * <p>Description: </p>
@@ -71,12 +74,12 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 	protected String indexType;
     protected TaskMetrics taskMetrics;
 	protected ESIndexWrapper esIndexWrapper;
-	protected ClientOptions clientOptions;
+//	protected ClientOptions clientOptions;
 	protected ImportContext importContext;
 	protected TaskContext taskContext;
-	protected ElasticsearchOutputConfig elasticsearchOutputConfig;
-	protected DBInputConfig dbInputConfig;
-	protected DBOutputConfig dbOutputConfig;
+//	protected ElasticsearchOutputConfig elasticsearchOutputConfig;
+//	protected DBInputConfig dbInputConfig;
+//	protected DBOutputConfig dbOutputConfig;
 	protected CommonRecord commonRecord;
     protected Record record;
     /**
@@ -87,20 +90,17 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 	 * 在记录处理过程中，使用的临时数据，不会进行持久化处理
 	 */
 	private Map<String,Object> tempDatas;
+
+    private RecordSpecialConfigsContext recordSpecialConfigsContext;
 	public ContextImpl(TaskContext taskContext, ImportContext importContext, Record record, BatchContext batchContext){
         super(importContext.getDataTranPlugin());
 		this.baseImportConfig = importContext.getImportConfig();
 		this.importContext = importContext;
 		OutputConfig outputConfig = importContext.getOutputConfig();
-		if(outputConfig instanceof ElasticsearchOutputConfig)
-			elasticsearchOutputConfig = (ElasticsearchOutputConfig)outputConfig;
-		else if(outputConfig instanceof DBOutputConfig){
-			dbOutputConfig = (DBOutputConfig)outputConfig;
-		}
-		InputConfig inputConfig = importContext.getInputConfig();
-		if(inputConfig instanceof DBInputConfig){
-			dbInputConfig = (DBInputConfig)inputConfig;
-		}
+        recordSpecialConfigsContext = new RecordSpecialConfigsContext(importContext);
+        outputConfig.initRecordSpecialConfigsContext(recordSpecialConfigsContext,false);
+        InputConfig inputConfig = importContext.getInputConfig();
+        inputConfig.initRecordSpecialConfigsContext(recordSpecialConfigsContext);
 		this.batchContext = batchContext;
         this.record = record;
 		if(taskContext != null) {
@@ -156,53 +156,59 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
     public Map<String, Object> getUpdateFromDatas(){
         return record.getUpdateFromDatas();
     }
-	public void afterRefactor(){
-
-		if(elasticsearchOutputConfig != null) {
-
-			if (index != null && !index.equals("")) {
-				if (indexType == null) {
-					esIndexWrapper = new ESIndexWrapper(index, elasticsearchOutputConfig.getEsIndexWrapper().getType());
-				}
-				else {
-					esIndexWrapper = new ESIndexWrapper(index, indexType);
-				}
-//			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);
-			}
-		}
+	public void afterRefactor() throws Exception {
+        recordSpecialConfigsContext.afterRefactor(this);
+//		if(elasticsearchOutputConfig != null) {
+//
+//			if (index != null && !index.equals("")) {
+//				if (indexType == null) {
+//					esIndexWrapper = new ESIndexWrapper(index, elasticsearchOutputConfig.getEsIndexWrapper().getType());
+//				}
+//				else {
+//					esIndexWrapper = new ESIndexWrapper(index, indexType);
+//				}
+////			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);
+//			}
+//		}
 	}
 
 	@Override
 	public void setClientOptions(ClientOptions clientOptions) {
 
-		this.clientOptions = clientOptions;
-		if(elasticsearchOutputConfig.getClientOptions() != null && clientOptions != null){
-			clientOptions.setParentClientOptions(elasticsearchOutputConfig.getClientOptions());
-		}
+        recordSpecialConfigsContext.addRecordSpecialConfig(SPECIALCONFIG_CLIENTOPTIONS_NAME,clientOptions);
+//		this.clientOptions = clientOptions;
+//		if(elasticsearchOutputConfig.getClientOptions() != null && clientOptions != null){
+//			clientOptions.setParentClientOptions(elasticsearchOutputConfig.getClientOptions());
+//		}
 	}
-
-	public ClientOptions getClientOptions(){
-		if(clientOptions != null){
-			return clientOptions;
-		}
-		else{
-			return elasticsearchOutputConfig != null ?elasticsearchOutputConfig.getClientOptions():null;
-		}
+    @Override
+	public Object getSpecialConfig(OutputConfig outputConfig,String name){
+//		if(clientOptions != null){
+//			return clientOptions;
+//		}
+//		else{
+//			return elasticsearchOutputConfig != null ?elasticsearchOutputConfig.getClientOptions():null;
+//		}
+        RecordOutpluginSpecialConfig recordOutpluginSpecialConfig = recordSpecialConfigsContext.getRecordOutpluginSpecialConfig(outputConfig.getOutputPlugin());
+        if(recordOutpluginSpecialConfig != null){
+            return recordOutpluginSpecialConfig.getSpecialConfig(name);
+        }
+        return null;
 	}
-	public String getOperation(){
-		if(this.isInsert() ){
-			return "index";
-		}
-		else if(this.isUpdate()){
-			return "update";
-		}
-		else if(isDelete()){
-			return "delete";
-		}
-		else{
-			return "index";
-		}
-	}
+//	public String getOperation(){
+//		if(this.isInsert() ){
+//			return "index";
+//		}
+//		else if(this.isUpdate()){
+//			return "update";
+//		}
+//		else if(isDelete()){
+//			return "delete";
+//		}
+//		else{
+//			return "index";
+//		}
+//	}
 
 
 	@Override
@@ -355,14 +361,9 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 	}
 
 
+    @Deprecated
 	public String getDBName(){
-		if(dbInputConfig != null)
-			return dbInputConfig.getDBName();
-		else if(dbOutputConfig != null){
-			return dbInputConfig.getDBName();
-		}
-		else
-			return null;
+		return recordSpecialConfigsContext.getDBName();
 	}
 
 	@Override
@@ -581,11 +582,11 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 		return baseImportConfig.getMappingName(sourceFieldName);
 	}
 
-	@Override
-	public Object getEsId() throws Exception {
-
-		return elasticsearchOutputConfig.getEsIdGenerator().genId(this);
-	}
+//	@Override
+//	public Object getEsId() throws Exception {
+//
+//		return elasticsearchOutputConfig.getEsIdGenerator().genId(this);
+//	}
 
 
 	public boolean isDrop() {
@@ -602,8 +603,9 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 		if(_ip == null){
 			return null;
 		}
-		if(BaseImportConfig.getGeoIPUtil(getGeoipConfig()) != null) {
-			return BaseImportConfig.getGeoIPUtil(getGeoipConfig()).getIpInfo(String.valueOf(_ip));
+        GeoIPUtil geoIPUtil = BaseImportConfig.getGeoIPUtil(getGeoipConfig());
+		if(geoIPUtil != null) {
+			return geoIPUtil.getIpInfo(String.valueOf(_ip));
 		}
 		return null;
 	}
@@ -634,20 +636,20 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 	public BatchContext getBatchContext() {
 		return batchContext;
 	}
-
-	public  Object getParentId() throws Exception {
-		ClientOptions clientOptions = getClientOptions();
-		ESField esField = clientOptions != null?clientOptions.getParentIdField():null;
-		if(esField != null) {
-			if(!esField.isMeta())
-				return getValue(esField.getField());
-			else{
-				return record.getMetaValue(esField.getField());
-			}
-		}
-		else
-			return clientOptions != null?clientOptions.getEsParentIdValue():null;
-	}
+//
+//	public  Object getParentId() throws Exception {
+//		ClientOptions clientOptions = getClientOptions();
+//		ESField esField = clientOptions != null?clientOptions.getParentIdField():null;
+//		if(esField != null) {
+//			if(!esField.isMeta())
+//				return getValue(esField.getField());
+//			else{
+//				return record.getMetaValue(esField.getField());
+//			}
+//		}
+//		else
+//			return clientOptions != null?clientOptions.getEsParentIdValue():null;
+//	}
 	/**
 	 * 获取原始数据对象,，可能是一个map，jdbcresultset，DBObject,hbaseresult
 	 * @return
@@ -729,47 +731,47 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
         return action;
     }
 
-	public Object getRouting() throws Exception{
-		ClientOptions clientOptions = getClientOptions();
-		ESField esField = clientOptions != null?clientOptions.getRoutingField():null;
-		Object routing = null;
-		if(esField != null) {
-			if(!esField.isMeta())
-				routing = getValue(esField.getField());
+//	public Object getRouting() throws Exception{
+//		ClientOptions clientOptions = getClientOptions();
+//		ESField esField = clientOptions != null?clientOptions.getRoutingField():null;
+//		Object routing = null;
+//		if(esField != null) {
+//			if(!esField.isMeta())
+//				routing = getValue(esField.getField());
+//
+//			else{
+//				routing = record.getMetaValue(esField.getField());
+//			}
+//		}
+//		else {
+//			routing = clientOptions != null? clientOptions.getRouting():null;
+//		}
+//		return routing;
+//	}
 
-			else{
-				routing = record.getMetaValue(esField.getField());
-			}
-		}
-		else {
-			routing = clientOptions != null? clientOptions.getRouting():null;
-		}
-		return routing;
-	}
+//	public ESIndexWrapper getESIndexWrapper(){
+//		if(esIndexWrapper == null)
+//			return elasticsearchOutputConfig != null?elasticsearchOutputConfig.getEsIndexWrapper():null;
+//		else
+//			return esIndexWrapper;
+//	}
 
-	public ESIndexWrapper getESIndexWrapper(){
-		if(esIndexWrapper == null)
-			return elasticsearchOutputConfig != null?elasticsearchOutputConfig.getEsIndexWrapper():null;
-		else
-			return esIndexWrapper;
-	}
-
-	public Object getVersion() throws Exception {
-		ClientOptions clientOptions = getClientOptions();
-		ESField esField = clientOptions != null ?clientOptions.getVersionField():null;
-		Object version = null;
-		if(esField != null) {
-			if(!esField.isMeta())
-				version = getValue(esField.getField());
-			else{
-				version = record.getMetaValue(esField.getField());
-			}
-		}
-		else {
-			version =  clientOptions != null?clientOptions.getVersion():null;
-		}
-		return version;
-	}
+//	public Object getVersion() throws Exception {
+//		ClientOptions clientOptions = getClientOptions();
+//		ESField esField = clientOptions != null ?clientOptions.getVersionField():null;
+//		Object version = null;
+//		if(esField != null) {
+//			if(!esField.isMeta())
+//				version = getValue(esField.getField());
+//			else{
+//				version = record.getMetaValue(esField.getField());
+//			}
+//		}
+//		else {
+//			version =  clientOptions != null?clientOptions.getVersion():null;
+//		}
+//		return version;
+//	}
 
 
 	public boolean isUseBatchContextIndexName() {
@@ -957,5 +959,14 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 
     public Object getMessageKey() {
         return messageKey;
+    }
+
+    public RecordSpecialConfigsContext getRecordSpecialConfigsContext() {
+        return recordSpecialConfigsContext;
+    }
+
+
+    public void resolveRecordColumnInfo(String name,Object temp, FieldMeta fieldMeta){
+        recordSpecialConfigsContext.resolveRecordColumnInfo(   name, temp,   fieldMeta,this);
     }
 }

@@ -18,6 +18,7 @@ package org.frameworkset.tran.plugin.metrics.output;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
@@ -36,12 +37,15 @@ import java.util.List;
  */
 public class MetricsOutputDataTranPlugin extends BasePlugin implements OutputPlugin {
 	private MetricsOutputConfig metricsOutputConfig;
-	public MetricsOutputDataTranPlugin(ImportContext importContext){
-		super(importContext);
-		metricsOutputConfig = (MetricsOutputConfig) importContext.getOutputConfig();
+	public MetricsOutputDataTranPlugin(OutputConfig pluginOutputConfig, ImportContext importContext){
+		super(  pluginOutputConfig,importContext);
+		metricsOutputConfig = (MetricsOutputConfig) pluginOutputConfig;
 
 	}
-
+    @Override
+    public String getJobType(){
+        return "MetricsOutputDataTranPlugin";
+    }
 	@Override
 	public void afterInit() {
 
@@ -78,7 +82,16 @@ public class MetricsOutputDataTranPlugin extends BasePlugin implements OutputPlu
 		return metricsOutputDataTran;
 	}
 
-
+    /**
+     * 创建内部转换器
+     * @param baseDataTran
+     * @return
+     */
+    @Override
+    public BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) {
+        MetricsOutputDataTran metricsOutputDataTran = new MetricsOutputDataTran(baseDataTran);
+        return metricsOutputDataTran;
+    }
 
 
 

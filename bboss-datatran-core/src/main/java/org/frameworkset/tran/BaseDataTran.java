@@ -2,9 +2,11 @@ package org.frameworkset.tran;
 
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.soa.BBossStringWriter;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.record.AsynSplitTranResultSet;
 import org.frameworkset.tran.record.SplitTranResultSet;
 import org.frameworkset.tran.schedule.Status;
@@ -28,6 +30,8 @@ public abstract class BaseDataTran implements DataTran{
 	protected ImportContext importContext;
 	protected TranResultSet tranResultSet;
     protected boolean dataTranStopped;
+    protected OutputPlugin outputPlugin;
+    protected OutputConfig outputConfig;
 
     protected AsynTranResultSet asynTranResultSet;
 	protected TaskContext taskContext;
@@ -36,8 +40,25 @@ public abstract class BaseDataTran implements DataTran{
 	protected String taskInfo ;
 	protected TranJob tranJob;
     protected JobCountDownLatch countDownLatch;
-    
-	@Override
+    public abstract TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext);
+
+    public void setOutputPlugin(OutputPlugin outputPlugin) {
+        this.outputPlugin = outputPlugin;
+        this.outputConfig = outputPlugin.getOutputConfig();
+    }
+
+    public OutputConfig getOutputConfig() {
+        return outputConfig;
+    }
+
+    public OutputPlugin getOutputPlugin() {
+        return outputPlugin;
+    }
+    protected TaskCommand _buildTaskCommand( TaskCommandContext taskCommandContext){
+        initTaskCommandContext(taskCommandContext);
+        return buildTaskCommand(taskCommandContext);
+    }
+    @Override
 	public void beforeOutputData(BBossStringWriter writer){
 
 	}
@@ -108,7 +129,8 @@ public abstract class BaseDataTran implements DataTran{
 	public BaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, ImportContext importContext, Status currentStatus) {
 		this.currentStatus = currentStatus;
 		this.taskContext = taskContext;
-
+        this.outputPlugin = importContext.getOutputPlugin();
+        this.outputConfig = outputPlugin.getOutputConfig();
 		if(importContext.getSplitHandler() != null){
 			if(tranResultSet instanceof AsynTranResultSet) {
 				AsynSplitTranResultSet asynSplitTranResultSet = new AsynSplitTranResultSet(importContext, (AsynTranResultSet) tranResultSet);
@@ -128,8 +150,19 @@ public abstract class BaseDataTran implements DataTran{
 		this.importContext = importContext;
 		tranResultSet.setBaseDataTran(this);
 	}
+    protected BaseDataTran parent;
+    private boolean multiOutputTran;
+    public BaseDataTran(BaseDataTran parent) {
+        this.parent = parent;
+        this.multiOutputTran = true;
+        this.taskContext = parent.getTaskContext();
+    }
 
-	protected abstract void initTranTaskCommand();
+    public boolean isMultiOutputTran() {
+        return multiOutputTran;
+    }
+
+    protected abstract void initTranTaskCommand();
 	public void init(){
 
 	}
@@ -326,7 +359,7 @@ public abstract class BaseDataTran implements DataTran{
         totalCount.setSubmitTasksEndTime(System.currentTimeMillis());
         if(isPrintTaskLog()) {
 
-            StringBuilder stringBuilder = BaseTranJob.builderJobInfo(new StringBuilder(),  importContext);
+            StringBuilder stringBuilder = BaseTranJob.builderJobInfo(importContext.getInputPlugin(), outputPlugin, new StringBuilder(),  importContext);
             logger.info(stringBuilder.append("Parallel batch import submit tasks:")
                     .append(tasks.size()).append(" and take times:").append(totalCount.getSubmitTasksElapsed()).append("ms.").toString());
         }
@@ -368,7 +401,7 @@ public abstract class BaseDataTran implements DataTran{
                 totalCount.setEndTime(System.currentTimeMillis());
 				if(isPrintTaskLog()) {
 
-                    StringBuilder stringBuilder = BaseTranJob.builderJobInfo(new StringBuilder(),  importContext);
+                    StringBuilder stringBuilder = BaseTranJob.builderJobInfo(importContext.getInputPlugin(), outputPlugin, new StringBuilder(),  importContext);
                     logger.info(stringBuilder.append("Parallel batch import Complete tasks:")
 							.append(count).append(",Total success import ")
 							.append(totalCount.getSuccessCount()).append(" records,Ignore Total ")
@@ -458,4 +491,8 @@ public abstract class BaseDataTran implements DataTran{
         tranJob = importContext.getInputPlugin().getTranJob();
     }
 
+    @Override
+    public BaseDataTran getParent() {
+        return parent;
+    }
 }

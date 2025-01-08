@@ -1,22 +1,19 @@
 package org.frameworkset.tran.plugin.dummy.output;
 
-import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
-import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.custom.output.CustomOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.*;
-import org.frameworkset.tran.util.TranUtil;
-
-import java.io.Writer;
 
 public class DummyOutPutDataTran extends CustomOutPutDataTran {
 	protected DummyOutputConfig dummyOupputConfig ;
-//	protected String fileName;
-//	protected String remoteFileName;
+    public DummyOutPutDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
 
 
 	public DummyOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, JobCountDownLatch countDownLatch, Status currentStatus) {
@@ -33,22 +30,22 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 
 	}
-
-	public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-//		CommonRecord record = buildRecord(  context );
-//		if(record.getDatas() == null){
-//			Record dataRecord = context.getCurrentRecord();
-//			if(dataRecord instanceof CommonStringRecord) {
-//				record.setOringeData(dataRecord.getData());
-//			}
+//
+//	public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
+////		CommonRecord record = buildRecord(  context );
+////		if(record.getDatas() == null){
+////			Record dataRecord = context.getCurrentRecord();
+////			if(dataRecord instanceof CommonStringRecord) {
+////				record.setOringeData(dataRecord.getData());
+////			}
+////		}
+//		CommonRecord record = context.getCommonRecord();
+//		dummyOupputConfig.generateReocord(taskContext,context.getTaskMetrics(),record, writer);
+//		if(dummyOupputConfig.isPrintRecord()) {
+//			writer.write(TranUtil.lineSeparator);
 //		}
-		CommonRecord record = context.getCommonRecord();
-		dummyOupputConfig.generateReocord(taskContext,context.getTaskMetrics(),record, writer);
-		if(dummyOupputConfig.isPrintRecord()) {
-			writer.write(TranUtil.lineSeparator);
-		}
-		return record;
-	}
+//		return record;
+//	}
 	@Override
 	protected void initTranTaskCommand(){
 		parrelTranCommand = new BaseParrelTranCommand(){
@@ -58,9 +55,8 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 				if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-					DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(  taskCommandContext);
+                    DummyTaskCommandImpl taskCommand = (DummyTaskCommandImpl) _buildTaskCommand(  taskCommandContext);
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     taskCommandContext.addTask(taskCommand);
@@ -70,19 +66,15 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 				return taskCommandContext.getTaskNo();
 			}
 
-			@Override
-			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return DummyOutPutDataTran.this.buildStringRecord(context,writer);
-			}
+	 
 
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
 			private int action(TaskCommandContext taskCommandContext){
                 if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    DummyTaskCommandImpl taskCommand = new DummyTaskCommandImpl(  taskCommandContext);
+                    DummyTaskCommandImpl taskCommand = (DummyTaskCommandImpl) _buildTaskCommand(  taskCommandContext);
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     TaskCall.call(taskCommand);
@@ -119,11 +111,7 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 
 			}
 
-
-			@Override
-			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return DummyOutPutDataTran.this.buildStringRecord(context,writer);
-			}
+ 
 		};
 	}
 
@@ -132,7 +120,10 @@ public class DummyOutPutDataTran extends CustomOutPutDataTran {
 //		tranJob = new CommonRecordTranJob();
 //	}
 
-
+    @Override
+    public TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext) {
+        return new DummyTaskCommandImpl(  taskCommandContext,outputPlugin.getOutputConfig());
+    }
 
 
 

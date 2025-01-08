@@ -17,7 +17,11 @@ package org.frameworkset.tran;
 
 import org.frameworkset.elasticsearch.client.ResultUtil;
 import org.frameworkset.tran.cdc.TableMapping;
+import org.frameworkset.tran.config.OutputConfig;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.record.RecordColumnInfo;
+import org.frameworkset.tran.record.RecordOutpluginSpecialConfig;
+import org.frameworkset.tran.record.RecordOutpluginSpecialConfigs;
 import org.frameworkset.tran.record.ValueConvert;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 
@@ -39,7 +43,8 @@ import java.util.Map;
  * @version 1.0
  */
 public class CommonRecord {
-
+    private RecordOutpluginSpecialConfigs recordOutpluginSpecialConfigs;
+    private RecordOutpluginSpecialConfig recordOutpluginSpecialConfig;
     /**
      * @see Record
      *     public final int RECORD_INSERT = 0;
@@ -96,31 +101,46 @@ public class CommonRecord {
 	}
 
 	private Map<String,Object> datas;
-	private Map<String,RecordColumnInfo> dataInfos;
+//	private Map<String,RecordColumnInfo> dataInfos;
 
 	/**
 	 * 在记录处理过程中，使用的临时数据，不会进行持久化处理
 	 */
 	private Map<String,Object> tempDatas;
 	private TableMapping tableMapping;
-	public void addData(String name, Object value, RecordColumnInfo recordColumnInfo){
-		if(datas == null) {
-			datas = new LinkedHashMap<String, Object>();
-		}
-		if(recordColumnInfo != null){
-			if(dataInfos == null ){
-				dataInfos = new LinkedHashMap<>();
-			}
-			dataInfos.put(name,recordColumnInfo);
-		}
+//	public void addData(String name, Object value, RecordColumnInfo recordColumnInfo){
+//		if(datas == null) {
+//			datas = new LinkedHashMap<String, Object>();
+//		}
+//		if(recordColumnInfo != null){
+//			if(dataInfos == null ){
+//				dataInfos = new LinkedHashMap<>();
+//			}
+//			dataInfos.put(name,recordColumnInfo);
+//		}
+//
+//		datas.put(name,value);
+//	}
 
-		datas.put(name,value);
-	}
-	public RecordColumnInfo getRecordColumnInfo(String name){
-		if(dataInfos != null){
-			return dataInfos.get(name);
-		}
-		return null;
+    public void setRecordOutpluginSpecialConfigs(RecordOutpluginSpecialConfigs recordOutpluginSpecialConfigs) {
+        this.recordOutpluginSpecialConfigs = recordOutpluginSpecialConfigs;
+    }
+    
+    public RecordOutpluginSpecialConfig getRecordOutpluginSpecialConfig(OutputConfig outputConfig){
+        return recordOutpluginSpecialConfigs != null? recordOutpluginSpecialConfigs.getRecordOutpluginSpecialConfig(outputConfig) :recordOutpluginSpecialConfig; 
+    }
+
+    public RecordOutpluginSpecialConfig getRecordOutpluginSpecialConfig(OutputPlugin outputPlugin){
+        return recordOutpluginSpecialConfigs != null? recordOutpluginSpecialConfigs.getRecordOutpluginSpecialConfig(outputPlugin) :recordOutpluginSpecialConfig;
+    }
+
+    public RecordColumnInfo getRecordColumnInfo(OutputConfig outputConfig,String name){
+		 if(recordOutpluginSpecialConfig != null){
+             return recordOutpluginSpecialConfig.getRecordColumnInfo(name);
+         }
+         else{
+             return recordOutpluginSpecialConfigs.getRecordColumnInfo(outputConfig,name);
+         }
 	}
 	public void addData(String name,Object value){
 		if(datas == null) {
@@ -402,4 +422,11 @@ public class CommonRecord {
         this.keys = keys;
     }
 
+    public RecordOutpluginSpecialConfig getRecordOutpluginSpecialConfig() {
+        return recordOutpluginSpecialConfig;
+    }
+
+    public void setRecordOutpluginSpecialConfig(RecordOutpluginSpecialConfig recordOutpluginSpecialConfig) {
+        this.recordOutpluginSpecialConfig = recordOutpluginSpecialConfig;
+    }
 }

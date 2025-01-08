@@ -2,20 +2,20 @@ package org.frameworkset.tran.plugin.http.output;
 
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.BaseCommonRecordDataTran;
-import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
-import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.*;
 import org.slf4j.Logger;
 
-import java.io.Writer;
-
 public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 	protected HttpOutputConfig httpOutputConfig;
+    public HttpOutPutDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
 //	protected String fileName;
 //	protected String remoteFileName;
 
@@ -65,7 +65,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
                     taskCommandContext.increamentTaskNo();
                     initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(  taskCommandContext);
+                    HttpTaskCommandImpl taskCommand = (HttpTaskCommandImpl)_buildTaskCommand(  taskCommandContext) ;
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     taskCommandContext.addTask(taskCommand);
@@ -85,10 +85,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 //				return taskNo;
 			}
 
-			@Override
-			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return HttpOutPutDataTran.this.buildStringRecord(context,writer);
-			}
+ 
 
 
 		};
@@ -97,9 +94,8 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
                 if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(  taskCommandContext);
+                    HttpTaskCommandImpl taskCommand = (HttpTaskCommandImpl)_buildTaskCommand(  taskCommandContext) ;
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     TaskCall.call(taskCommand);
@@ -123,9 +119,8 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 			public int endSerialActionTask(TaskCommandContext taskCommandContext) {
                 if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    HttpTaskCommandImpl taskCommand = new HttpTaskCommandImpl(  taskCommandContext);
+                    HttpTaskCommandImpl taskCommand = (HttpTaskCommandImpl)_buildTaskCommand(  taskCommandContext) ;
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     TaskCall.call(taskCommand);
@@ -147,11 +142,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 
 
 
-
-			@Override
-			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return HttpOutPutDataTran.this.buildStringRecord(context,writer);
-			}
+ 
 		};
 	}
 	public void init(){
@@ -162,10 +153,7 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 	}
 
 
-	public HttpOutPutDataTran(TaskContext taskContext, TranResultSet tranResultSet, ImportContext importContext, Status currentStatus) {
-		super(taskContext,tranResultSet,importContext,   currentStatus);
-		httpOutputConfig = (HttpOutputConfig) importContext.getOutputConfig();
-	}
+ 
 
 
 	public HttpOutPutDataTran(TaskContext taskContext, TranResultSet tranResultSet, ImportContext importContext, JobCountDownLatch countDownLatch, Status currentStatus) {
@@ -174,44 +162,49 @@ public class HttpOutPutDataTran extends BaseCommonRecordDataTran {
 		httpOutputConfig = (HttpOutputConfig) importContext.getOutputConfig();
 	}
 
-
-
-	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-//		CommonRecord record = buildRecord(  context );
-//		if(record.getDatas() == null){
-//			Record dataRecord = context.getCurrentRecord();
-//			if(dataRecord instanceof CommonStringRecord) {
-//				record.setOringeData(dataRecord.getData());
+//
+//
+//	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
+////		CommonRecord record = buildRecord(  context );
+////		if(record.getDatas() == null){
+////			Record dataRecord = context.getCurrentRecord();
+////			if(dataRecord instanceof CommonStringRecord) {
+////				record.setOringeData(dataRecord.getData());
+////			}
+////		}
+//		CommonRecord record = context.getCommonRecord();
+//		if(writer == null){
+//			httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(),record, writer);
+//			writer.write(httpOutputConfig.getLineSeparator());
+//
+//		}
+//		else {
+//			if (writer instanceof BBossStringWriter) {
+//				BBossStringWriter bBossStringWriter = (BBossStringWriter) writer;
+//				if (bBossStringWriter.getBuffer().length() == 0) {
+//					if(httpOutputConfig.isJson())
+//						writer.write("[");
+//					httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(), record, writer);
+//
+//				} else {
+//					writer.write(httpOutputConfig.getLineSeparator());
+//					httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(), record, writer);
+//				}
+//			} else {
+//				httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(), record, writer);
+//				writer.write(httpOutputConfig.getLineSeparator());
 //			}
 //		}
-		CommonRecord record = context.getCommonRecord();
-		if(writer == null){
-			httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(),record, writer);
-			writer.write(httpOutputConfig.getLineSeparator());
+//		return record;
+//
+//	}
 
-		}
-		else {
-			if (writer instanceof BBossStringWriter) {
-				BBossStringWriter bBossStringWriter = (BBossStringWriter) writer;
-				if (bBossStringWriter.getBuffer().length() == 0) {
-					if(httpOutputConfig.isJson())
-						writer.write("[");
-					httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(), record, writer);
+    @Override
+    public TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext) {
+        return new HttpTaskCommandImpl(  taskCommandContext,outputPlugin.getOutputConfig());
+    }
 
-				} else {
-					writer.write(httpOutputConfig.getLineSeparator());
-					httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(), record, writer);
-				}
-			} else {
-				httpOutputConfig.generateReocord(taskContext, context.getTaskMetrics(), record, writer);
-				writer.write(httpOutputConfig.getLineSeparator());
-			}
-		}
-		return record;
-
-	}
-
-	@Override
+    @Override
 	public void beforeOutputData(BBossStringWriter writer){
 		if(httpOutputConfig.isJson() && writer.getBuffer().length() >  0){
 			writer.write("]");

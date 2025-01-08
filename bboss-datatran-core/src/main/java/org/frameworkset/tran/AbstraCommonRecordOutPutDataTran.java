@@ -20,18 +20,12 @@ public abstract class AbstraCommonRecordOutPutDataTran extends BaseCommonRecordD
 		super(   taskContext,jdbcResultSet,importContext,   currentStatus);
 	}
 
- 
-
-    protected abstract TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext);
-    protected TaskCommand _buildTaskCommand(TaskCommandContext taskCommandContext){
-//        taskCommandContext.setTaskContext(taskContext);
-//        taskCommandContext.setJobNo(taskContext.getJobNo());
-//        taskCommandContext.setCurrentStatus(currentStatus);
-//        taskCommandContext.setTaskInfo(taskInfo);
-//        taskCommandContext.evalDataSize();
-        initTaskCommandContext( taskCommandContext);
-        return buildTaskCommand(taskCommandContext);
+    public AbstraCommonRecordOutPutDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
     }
+    
+   
+ 
 	@Override
 	protected void initTranTaskCommand(){
 		parrelTranCommand = new BaseParrelTranCommand(){

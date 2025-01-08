@@ -19,6 +19,7 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.boot.ElasticSearchBoot;
 import org.frameworkset.elasticsearch.boot.ElasticsearchBootResult;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.slf4j.Logger;
@@ -39,9 +40,12 @@ public abstract class BaseESPlugin extends BasePlugin {
 
 	protected ESConfig esConfig;
 	protected String applicationPropertiesFile;
-	public BaseESPlugin(ImportContext importContext) {
-		super(importContext);
+	public BaseESPlugin(OutputConfig pluginOutputConfig, ImportContext importContext) {
+		super(  pluginOutputConfig,importContext);
 	}
+    public BaseESPlugin( ImportContext importContext) {
+        super(  importContext);
+    }
 	private ElasticsearchBootResult elasticsearchBootResult ;
 	protected void initES(){
 		if(esConfig != null){

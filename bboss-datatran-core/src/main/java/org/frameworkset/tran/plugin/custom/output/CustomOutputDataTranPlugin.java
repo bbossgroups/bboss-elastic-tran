@@ -19,6 +19,7 @@ import org.frameworkset.tran.BaseCommonRecordDataTran;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
@@ -35,11 +36,15 @@ import org.frameworkset.tran.schedule.TaskContext;
  */
 public class CustomOutputDataTranPlugin extends BasePlugin implements OutputPlugin {
 
-	public CustomOutputDataTranPlugin(ImportContext importContext){
-		super(importContext);
+	public CustomOutputDataTranPlugin(OutputConfig pluginOutputConfig, ImportContext importContext){
+		super(  pluginOutputConfig,importContext);
 
 
 	}
+    @Override
+    public String getJobType(){
+        return "CustomOutputDataTranPlugin";
+    }
 
 	@Override
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus) {
@@ -47,7 +52,16 @@ public class CustomOutputDataTranPlugin extends BasePlugin implements OutputPlug
 		baseCommonRecordDataTran.initTran();
 		return baseCommonRecordDataTran;
 	}
-
+    /**
+     * 创建内部转换器
+     * @param baseDataTran
+     * @return
+     */
+    @Override
+    public BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) {
+        BaseCommonRecordDataTran baseCommonRecordDataTran = new CustomOutPutDataTran(baseDataTran);
+        return baseCommonRecordDataTran;
+    }
 	@Override
 	public void afterInit() {
 

@@ -356,42 +356,38 @@ public class GeoIPUtil {
 
 
 	private static final Logger logger = LoggerFactory.getLogger(GeoIPUtil.class);
-	private static boolean getGeoIPUtil ;
 	public static GeoIPUtil getGeoIPUtil(Map<String, Object> geoipConfig) {
-		if(getGeoIPUtil)
+		if(geoIPUtil != null)
 			return  geoIPUtil;
 		synchronized (GeoIPUtil.class){
-			if(getGeoIPUtil)
+			if(geoIPUtil != null)
 				return  geoIPUtil;
-			getGeoIPUtil = true;
-			if(geoIPUtil == null) {
 
-				try {
-					if(geoipConfig == null)
-						geoipConfig = ElasticSearchHelper.getGeoipConfig();
-					if(geoipConfig == null || geoipConfig.size() == 0){
-						return null;
-					}
-					GeoIPUtil geoIPUtil = new GeoIPUtil();
-					geoIPUtil.setDatabase((String)geoipConfig.get("ip.database"));
-					geoIPUtil.setAsnDatabase((String)geoipConfig.get("ip.asnDatabase"));
-					geoIPUtil.setIp2regionDatabase((String)geoipConfig.get("ip.ip2regionDatabase"));
-					geoIPUtil.setIspConverter(geoipConfig.get("ip.ispConverter"));
-					String _cachsize = (String)geoipConfig.get("ip.cachesize");
-					if (_cachsize != null) {
-						try {
-							geoIPUtil.setCachesize(Integer.parseInt(_cachsize));
-						} catch (Exception e) {
-							logger.info("getGeoIPUtil ip.cachesize must be a number:" + _cachsize, e);
-						}
-					}
-					geoIPUtil.setIpUrl((String)geoipConfig.get("ip.serviceUrl"));
-					geoIPUtil.init();
-					GeoIPUtil.geoIPUtil = geoIPUtil;
-				} catch (Exception e) {
-					logger.info("getGeoIPUtil failed:", e);
-				}
-			}
+            try {
+                if(geoipConfig == null)
+                    geoipConfig = ElasticSearchHelper.getGeoipConfig();
+                if(geoipConfig == null || geoipConfig.size() == 0){
+                    return null;
+                }
+                GeoIPUtil geoIPUtil = new GeoIPUtil();
+                geoIPUtil.setDatabase((String)geoipConfig.get("ip.database"));
+                geoIPUtil.setAsnDatabase((String)geoipConfig.get("ip.asnDatabase"));
+                geoIPUtil.setIp2regionDatabase((String)geoipConfig.get("ip.ip2regionDatabase"));
+                geoIPUtil.setIspConverter(geoipConfig.get("ip.ispConverter"));
+                String _cachsize = (String)geoipConfig.get("ip.cachesize");
+                if (_cachsize != null) {
+                    try {
+                        geoIPUtil.setCachesize(Integer.parseInt(_cachsize));
+                    } catch (Exception e) {
+                        logger.info("getGeoIPUtil ip.cachesize must be a number:" + _cachsize, e);
+                    }
+                }
+                geoIPUtil.setIpUrl((String)geoipConfig.get("ip.serviceUrl"));
+                geoIPUtil.init();
+                GeoIPUtil.geoIPUtil = geoIPUtil;
+            } catch (Exception e) {
+                logger.info("getGeoIPUtil failed:", e);
+            }
 
 		}
 		return geoIPUtil;

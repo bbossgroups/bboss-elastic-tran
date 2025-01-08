@@ -206,7 +206,7 @@ public class RocketmqOutputConfig extends BaseConfig implements OutputConfig {
 
     @Override
     public OutputPlugin getOutputPlugin(ImportContext importContext) {
-        return new RocketmqOutputDataTranPlugin(importContext);
+        return new RocketmqOutputDataTranPlugin(importContext,this);
     }
 
 

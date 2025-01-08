@@ -21,6 +21,7 @@ import org.frameworkset.nosql.hbase.HBaseResourceStartResult;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
@@ -45,12 +46,15 @@ public class HBaseOutputDataTranPlugin extends BasePlugin implements OutputPlugi
 	 */
 	private HBaseOutputConfig hBaseOutputConfig;
 	private ResourceStartResult resourceStartResult = new HBaseResourceStartResult();
-	public HBaseOutputDataTranPlugin(ImportContext importContext){
-		super(importContext);
-		hBaseOutputConfig = (HBaseOutputConfig) importContext.getOutputConfig();
+	public HBaseOutputDataTranPlugin(ImportContext importContext, OutputConfig outputConfig){
+		super(outputConfig,importContext);
+		hBaseOutputConfig = (HBaseOutputConfig) outputConfig;
 
 	}
-
+    @Override
+    public String getJobType(){
+        return "HBaseOutputDataTranPlugin";
+    }
 	@Override
 	public void afterInit() {
 
@@ -106,7 +110,16 @@ public class HBaseOutputDataTranPlugin extends BasePlugin implements OutputPlugi
 			return asynDBOutPutDataTran;
 		}
 	}
-
+    /**
+     * 创建内部转换器
+     * @param baseDataTran
+     * @return
+     */
+    @Override
+    public BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) {
+        HBaseOutPutDataTran baseOutPutDataTran = new HBaseOutPutDataTran(baseDataTran);
+        return baseOutPutDataTran;
+    }
 
 
 

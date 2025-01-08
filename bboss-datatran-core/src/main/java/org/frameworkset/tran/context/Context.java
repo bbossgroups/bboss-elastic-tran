@@ -22,8 +22,11 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.ClientOptions;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.metrics.DataTranPluginMetricsLogAPI;
 import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.record.ValueConvert;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.annotations.DateFormateMeta;
@@ -99,7 +102,7 @@ public interface Context extends DataTranPluginMetricsLogAPI {
      * @return
      */
 	public JobContext getJobContext();
-	void afterRefactor();
+	void afterRefactor() throws Exception;
 
     /**
      * Elasticsearch输出插件：用于设置批量操作中每条记录的控制参数
@@ -201,8 +204,8 @@ public interface Context extends DataTranPluginMetricsLogAPI {
      * @return
      */
 	Context addIgnoreFieldMapping(String dbColumnName);
-	ESIndexWrapper getESIndexWrapper();
-	Object getVersion() throws Exception;
+//	ESIndexWrapper getESIndexWrapper();
+//	Object getVersion() throws Exception;
 //	public Object getEsVersionType();
 	void refactorData() throws Exception;
 
@@ -220,6 +223,7 @@ public interface Context extends DataTranPluginMetricsLogAPI {
 	List<FieldMeta> getGlobalFieldValues();
 	Object getValue(int i, String colName, int sqlType) throws Exception;
 	ImportContext getImportContext();
+    @Deprecated
 	String getDBName();
 
 	/**
@@ -242,8 +246,8 @@ public interface Context extends DataTranPluginMetricsLogAPI {
 	String getStringValue(String fieldName, ValueConvert valueConvert) throws Exception;
 
     String getStringValue(String fieldName) throws Exception;
-	Object getParentId() throws Exception;
-	Object getRouting() throws Exception;
+//	Object getParentId() throws Exception;
+//	Object getRouting() throws Exception;
 //	public Object getEsRetryOnConflict();
 	long getLongValue(String fieldName) throws Exception;
 	String getStringValue(String fieldName, String defaultValue) throws Exception;
@@ -265,8 +269,8 @@ public interface Context extends DataTranPluginMetricsLogAPI {
 	 * @return
 	 */
 	FieldMeta getMappingName(String colName);
-	Object getEsId() throws Exception;
-	ClientOptions getClientOptions();
+//	Object getEsId() throws Exception;
+    Object getSpecialConfig(OutputConfig outputConfig, String name);
 //	ESField getEsIdField();
 	boolean isDrop();
 
@@ -397,7 +401,7 @@ public interface Context extends DataTranPluginMetricsLogAPI {
 	 */
 	String getIndexType();
 
-	String getOperation();
+//	String getOperation();
 
 	boolean isUseBatchContextIndexName() ;
 
@@ -490,4 +494,7 @@ public interface Context extends DataTranPluginMetricsLogAPI {
      * 获取kafka,rockemq消息key
      */
     public Object getMessageKey();
+    public RecordSpecialConfigsContext getRecordSpecialConfigsContext();
+
+    void resolveRecordColumnInfo(String name,Object temp, FieldMeta fieldMeta);
 }

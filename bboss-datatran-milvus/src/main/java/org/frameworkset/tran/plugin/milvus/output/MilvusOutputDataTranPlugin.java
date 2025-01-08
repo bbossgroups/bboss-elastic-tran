@@ -21,9 +21,11 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.plugin.metrics.output.MetricsOutputDataTran;
 import org.frameworkset.tran.plugin.milvus.InitMilvusUtil;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -52,12 +54,15 @@ public class MilvusOutputDataTranPlugin extends BasePlugin implements OutputPlug
     protected MilvusOutputConfig milvusOutputConfig;
 
 	private MilvusStartResult milvusStartResult ;
-	public MilvusOutputDataTranPlugin(ImportContext importContext){
-		super(importContext);
-        milvusOutputConfig = (MilvusOutputConfig) importContext.getOutputConfig();
+	public MilvusOutputDataTranPlugin(ImportContext importContext, OutputConfig outputConfig){
+		super(outputConfig,importContext);
+        milvusOutputConfig = (MilvusOutputConfig) outputConfig;
 
 	}
-
+    @Override
+    public String getJobType(){
+        return "MilvusOutputDataTranPlugin";
+    }
 	@Override
 	public void afterInit() {
 
@@ -129,7 +134,16 @@ public class MilvusOutputDataTranPlugin extends BasePlugin implements OutputPlug
 		}
 	}
 
-
+    /**
+     * 创建内部转换器
+     * @param baseDataTran
+     * @return
+     */
+    @Override
+    public BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) {
+        MilvusOutPutDataTran milvusOutPutDataTran = new MilvusOutPutDataTran(baseDataTran);
+        return milvusOutPutDataTran;
+    }
 
 
 }

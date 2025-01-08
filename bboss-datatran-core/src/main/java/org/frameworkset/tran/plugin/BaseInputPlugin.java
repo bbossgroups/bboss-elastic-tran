@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 
 /**
@@ -29,8 +30,10 @@ public abstract class BaseInputPlugin extends BasePlugin implements InputPlugin 
 	protected String jobType ;
 
 	public BaseInputPlugin(ImportContext importContext) {
-		super(importContext);
+		super(  importContext);
 	}
+
+ 
 	public String getJobType(){
 		return jobType;
 	}

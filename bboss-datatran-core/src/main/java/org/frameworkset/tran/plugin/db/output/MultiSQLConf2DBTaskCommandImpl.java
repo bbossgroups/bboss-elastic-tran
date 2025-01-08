@@ -19,9 +19,10 @@ import com.frameworkset.common.poolman.*;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.persitent.type.BaseTypeMethod;
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
-import org.frameworkset.tran.plugin.db.input.DBRecord;
+import org.frameworkset.tran.record.RecordOutpluginSpecialConfig;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
 import org.frameworkset.tran.task.TaskFailedException;
@@ -33,6 +34,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+
+import static org.frameworkset.tran.plugin.db.output.DBOutputConfig.SPECIALCONFIG_RECORDPARAMS_NAME;
 
 /**
  * <p>Description: import datas to database task command</p>
@@ -48,10 +51,10 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
     protected boolean needBatch;
 	private static final Logger logger = LoggerFactory.getLogger(MultiSQLConf2DBTaskCommandImpl.class);
 	public MultiSQLConf2DBTaskCommandImpl(TaskCommandContext taskCommandContext,
-                                          boolean needBatch ) {
-		super(taskCommandContext);
+                                          boolean needBatch, OutputConfig outputConfig) {
+		super(outputConfig,taskCommandContext);
 		this.needBatch = needBatch;
-		dbOutputConfig = (DBOutputConfig) importContext.getOutputConfig();
+		dbOutputConfig = (DBOutputConfig) outputConfig;
 
 	}
 
@@ -166,7 +169,9 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
             if(batchsize <= 1 || !needBatch) {//如果batchsize被设置为0或者1直接一次性批处理所有记录
                 List resources = null;
                 for(CommonRecord dbRecord:datas){
-                    DBRecord record = (DBRecord)dbRecord;
+                    CommonRecord record = dbRecord;
+                    RecordOutpluginSpecialConfig recordOutpluginSpecialConfig = record.getRecordOutpluginSpecialConfig(this.getOutputPlugin());
+                    List<Param> recordParams = (List<Param>) recordOutpluginSpecialConfig.getSpecialConfig(SPECIALCONFIG_RECORDPARAMS_NAME);
                     sql = getSQL( record);
 
                     if(oldSql == null){
@@ -199,8 +204,8 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                     if (dbOutputConfig.getStatementHandler() == null) {
                         BaseTypeMethod baseTypeMethod = null;
 
-                        for (int i = 0; i < record.size(); i++) {
-                            Param param = record.get(i);
+                        for (int i = 0; i < recordParams.size(); i++) {
+                            Param param = recordParams.get(i);
                             baseTypeMethod = param.getMethod();
                             if (baseTypeMethod == null) {
                                 stmtInfo.getDbadapter().setObject(statement, null, param.getIndex(), param.getData());
@@ -239,7 +244,9 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                 int point = batchsize - 1;
                 int count = 0;
                 for(CommonRecord dbRecord:datas) {
-                    DBRecord record = (DBRecord)dbRecord;
+                    CommonRecord record = dbRecord;
+                    RecordOutpluginSpecialConfig recordOutpluginSpecialConfig = record.getRecordOutpluginSpecialConfig(this.getOutputPlugin());
+                    List<Param> recordParams = (List<Param>) recordOutpluginSpecialConfig.getSpecialConfig(SPECIALCONFIG_RECORDPARAMS_NAME);
                     sql = getSQL( record);
 
                     if(oldSql == null){
@@ -275,8 +282,8 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
                     if (dbOutputConfig.getStatementHandler() == null) {
                         BaseTypeMethod baseTypeMethod = null;
 
-                        for (int i = 0; i < record.size(); i++) {
-                            Param param = record.get(i);
+                        for (int i = 0; i < recordParams.size(); i++) {
+                            Param param = recordParams.get(i);
                             baseTypeMethod = param.getMethod();
                             if (baseTypeMethod == null) {
                                 stmtInfo.getDbadapter().setObject(statement, null, param.getIndex(), param.getData());
@@ -381,7 +388,7 @@ public class MultiSQLConf2DBTaskCommandImpl extends BaseTaskCommand< String> {
             String sql = null;
             List resources = null;
             for(CommonRecord dbRecord:datas){
-                DBRecord record = (DBRecord)dbRecord;
+                CommonRecord record = dbRecord;
                  try {
                      sql = getSQL( record);
                     statement = stmtInfo

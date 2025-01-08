@@ -17,8 +17,10 @@ package org.frameworkset.tran;
 
 import org.frameworkset.elasticsearch.scroll.BreakableScrollHandler;
 import org.frameworkset.soa.BBossStringWriter;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.status.LastValueWrapper;
 
 import java.util.List;
@@ -36,7 +38,13 @@ import java.util.concurrent.Future;
 public interface DataTran {
     public Object buildSerialDatas(Object data,CommonRecord record);
 	public void beforeOutputData(BBossStringWriter writer);
-	/**
+    public boolean isMultiOutputTran();
+
+    void setOutputPlugin(OutputPlugin outputPlugin);
+
+    public OutputPlugin getOutputPlugin();
+    public OutputConfig getOutputConfig();
+    /**
 	 * 并行批处理导入
 
 	 * @return
@@ -60,6 +68,6 @@ public interface DataTran {
                            final ExecutorService service, Throwable exception, LastValueWrapper lastValue, final ImportCount totalCount ,
                            final TranErrorWrapper tranErrorWrapper , WaitTasksCompleteCallBack waitTasksCompleteCallBack, boolean reachEOFClosed);
 	ImportContext getImportContext();
-
+    BaseDataTran getParent();
 
 }

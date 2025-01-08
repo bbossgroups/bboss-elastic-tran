@@ -1,6 +1,7 @@
 package org.frameworkset.tran.plugin.metrics.output;
 
 import org.frameworkset.tran.AbstraCommonRecordOutPutDataTran;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -11,10 +12,13 @@ import org.frameworkset.tran.task.TaskCommandContext;
 
 public class MetricsOutputDataTran extends AbstraCommonRecordOutPutDataTran {
 	private MetricsOutputConfig metricsOutputConfig;
+    public MetricsOutputDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
 	@Override
 	public void init(){
 		super.init();
-		metricsOutputConfig = (MetricsOutputConfig) importContext.getOutputConfig();
+		metricsOutputConfig = (MetricsOutputConfig) outputPlugin.getOutputConfig();
 		taskInfo = "Import data to metrics.";
 	}
 	public MetricsOutputDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, Status currentStatus, JobCountDownLatch countDownLatch) {
@@ -26,8 +30,12 @@ public class MetricsOutputDataTran extends AbstraCommonRecordOutPutDataTran {
 	}
 
 	@Override
-	protected TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext) {
-		return new MetricsTaskCommandImpl(   taskCommandContext);
+	public TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext) {
+        MetricsOutputConfig metricsOutputConfig = this.metricsOutputConfig;
+        if(metricsOutputConfig == null){
+            metricsOutputConfig = (MetricsOutputConfig) outputPlugin.getOutputConfig();            
+        }
+		return new MetricsTaskCommandImpl(   taskCommandContext,metricsOutputConfig);
 
 
 

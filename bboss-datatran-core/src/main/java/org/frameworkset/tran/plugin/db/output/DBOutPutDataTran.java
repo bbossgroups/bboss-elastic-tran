@@ -1,6 +1,7 @@
 package org.frameworkset.tran.plugin.db.output;
 
 import org.frameworkset.tran.BaseCommonRecordDataTran;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -12,9 +13,15 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 	protected DBOutputConfig dbOutputConfig ;
 
 
+    public DBOutPutDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
+
+
 	public void init(){
 		super.init();
-		dbOutputConfig = (DBOutputConfig) importContext.getOutputConfig();
+        if(dbOutputConfig == null)
+		    dbOutputConfig = (DBOutputConfig) getOutputPlugin().getOutputConfig();
 		StringBuilder builder = new StringBuilder();
 		DBConfig dbConfig = dbOutputConfig.getTargetDBConfig(taskContext) ;
 		if(dbConfig == null)
@@ -49,7 +56,23 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 	}
 
 
-	public DBOutPutDataTran(TaskContext taskContext,TranResultSet jdbcResultSet, ImportContext importContext,Status currentStatus) {
+    @Override
+    public TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext) {
+        TaskCommand taskCommand = null;
+        DBOutputConfig dbOutputConfig = this.dbOutputConfig;
+        if(dbOutputConfig == null){
+            dbOutputConfig = (DBOutputConfig) outputPlugin.getOutputConfig();
+        }
+        if(!dbOutputConfig.isMultiSQLConf()) {
+            taskCommand = new Base2DBTaskCommandImpl(taskCommandContext, false,dbOutputConfig);
+        }
+        else{
+            taskCommand = new MultiSQLConf2DBTaskCommandImpl(taskCommandContext, false,dbOutputConfig);
+        }
+        return taskCommand;
+    }
+
+    public DBOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, Status currentStatus) {
 		super(   taskContext,jdbcResultSet,importContext,   currentStatus);
 	}
 
@@ -64,14 +87,13 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 //				List<CommonRecord> records = convertDatas( datas);
 				if(taskCommandContext.containData())  {
 					taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
-                    TaskCommand taskCommand = null;
-                    if(!dbOutputConfig.isMultiSQLConf()) {
-                        taskCommand = new Base2DBTaskCommandImpl(taskCommandContext, false);
-                    }
-                    else{
-                        taskCommand = new MultiSQLConf2DBTaskCommandImpl(taskCommandContext, false);
-                    }
+                    TaskCommand taskCommand = _buildTaskCommand(  taskCommandContext);
+//                    if(!dbOutputConfig.isMultiSQLConf()) {
+//                        taskCommand = new Base2DBTaskCommandImpl(taskCommandContext, false);
+//                    }
+//                    else{
+//                        taskCommand = new MultiSQLConf2DBTaskCommandImpl(taskCommandContext, false);
+//                    }
                     taskCommandContext.addTask(taskCommand);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
 
@@ -86,14 +108,13 @@ public class DBOutPutDataTran extends BaseCommonRecordDataTran {
 //				List<CommonRecord> records = convertDatas( datas);
 				if(taskCommandContext.containData())  {
 					taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
-                    TaskCommand taskCommand = null;
-                    if(!dbOutputConfig.isMultiSQLConf()) {
-                        taskCommand = new Base2DBTaskCommandImpl(taskCommandContext, false);
-                    }
-                    else{
-                        taskCommand = new MultiSQLConf2DBTaskCommandImpl(taskCommandContext, false);
-                    }
+                    TaskCommand taskCommand = _buildTaskCommand(  taskCommandContext);
+//                    if(!dbOutputConfig.isMultiSQLConf()) {
+//                        taskCommand = new Base2DBTaskCommandImpl(taskCommandContext, false);
+//                    }
+//                    else{
+//                        taskCommand = new MultiSQLConf2DBTaskCommandImpl(taskCommandContext, false);
+//                    }
 					TaskCall.call(taskCommand);
 
 				}

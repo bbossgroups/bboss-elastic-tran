@@ -23,6 +23,7 @@ import org.bson.Document;
 import org.frameworkset.nosql.mongodb.MongoDB;
 import org.frameworkset.nosql.mongodb.MongoDBHelper;
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
@@ -45,9 +46,9 @@ public class MongoDBTaskCommandImpl extends BaseTaskCommand< Object> {
 	protected MongoDBOutputConfig dbOutputConfig;
 	protected String taskInfo;
 	private static final Logger logger = LoggerFactory.getLogger(MongoDBTaskCommandImpl.class);
-	public MongoDBTaskCommandImpl(TaskCommandContext taskCommandContext) {
-		super(  taskCommandContext);
-		dbOutputConfig = (MongoDBOutputConfig) importContext.getOutputConfig();
+	public MongoDBTaskCommandImpl(TaskCommandContext taskCommandContext, OutputConfig outputConfig) {
+		super(outputConfig,  taskCommandContext);
+		dbOutputConfig = (MongoDBOutputConfig) outputConfig;
 		this.taskInfo = taskCommandContext.getTaskInfo();
 
 	}

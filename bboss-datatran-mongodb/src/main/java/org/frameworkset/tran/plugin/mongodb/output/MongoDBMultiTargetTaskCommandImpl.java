@@ -22,6 +22,7 @@ import org.frameworkset.nosql.mongodb.MongoDB;
 import org.frameworkset.nosql.mongodb.MongoDBHelper;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.cdc.TableMapping;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.task.TaskCommandContext;
 import org.slf4j.Logger;
@@ -40,8 +41,8 @@ import java.util.*;
 public class MongoDBMultiTargetTaskCommandImpl extends MongoDBTaskCommandImpl {
 
 	private static final Logger logger = LoggerFactory.getLogger(MongoDBMultiTargetTaskCommandImpl.class);
-	public MongoDBMultiTargetTaskCommandImpl(TaskCommandContext taskCommandContext) {
-		super(    taskCommandContext);
+	public MongoDBMultiTargetTaskCommandImpl(TaskCommandContext taskCommandContext, OutputConfig outputConfig) {
+		super(    taskCommandContext,outputConfig);
 
 	}
 

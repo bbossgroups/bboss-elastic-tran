@@ -1,11 +1,9 @@
 package org.frameworkset.tran.kafka.output;
 
-import org.frameworkset.tran.BaseCommonRecordDataTran;
-import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.JobCountDownLatch;
-import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.plugin.http.output.HttpTaskCommandImpl;
 import org.frameworkset.tran.plugin.kafka.output.KafkaOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -20,6 +18,9 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 	protected String taskInfo;
 
 	private KafkaOutputConfig kafkaOutputConfig ;
+    public KafkaOutputDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
 	@Override
 	public void logTaskStart(Logger logger) {
 		logger.info(taskInfo);
@@ -43,9 +44,8 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
             public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
                 if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    KafkaBatchCommand kafkaCommand = new KafkaBatchCommand(  taskCommandContext);
+                    KafkaBatchCommand kafkaCommand = (KafkaBatchCommand) _buildTaskCommand(taskCommandContext);
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     taskCommandContext.addTask(kafkaCommand);
@@ -65,20 +65,15 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
                
             }
 
-			@Override
-			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return KafkaOutputDataTran.this.buildStringRecord(context,writer);
-			}
-
+ 
 
 		};
 		serialTranCommand = new BaseSerialTranCommand() {
             private int action(TaskCommandContext taskCommandContext){
                 if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    KafkaBatchCommand kafkaCommand = new KafkaBatchCommand(  taskCommandContext);
+                    KafkaBatchCommand kafkaCommand = (KafkaBatchCommand) _buildTaskCommand(taskCommandContext);
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     TaskCall.call(kafkaCommand);
@@ -121,17 +116,15 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
                 return action(    taskCommandContext);
 			}
 
-
-			@Override
-			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return KafkaOutputDataTran.this.buildStringRecord(context,writer);
-			}
+ 
 		};
 	}
 	@Override
 	public void init() {
 		super.init();
-
+        if(kafkaOutputConfig == null){
+            kafkaOutputConfig = (KafkaOutputConfig) outputPlugin.getOutputConfig();
+        }
 		//使用importContext.getLogsendTaskMetric()
 //		logsendTaskMetric = kafkaOutputContext.getLogsendTaskMetric();
 		taskInfo = new StringBuilder().append("Send data to kafka topic[")
@@ -155,7 +148,10 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
 
 	}
 
-
+    @Override
+    public TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext) {
+        return new KafkaBatchCommand(  taskCommandContext,outputPlugin.getOutputConfig());
+    }
 
     class SerialData{
         String data;
@@ -178,13 +174,13 @@ public class KafkaOutputDataTran extends BaseCommonRecordDataTran {
     }
  
 
-	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-
-
-		CommonRecord dataRecord = context.getCommonRecord();
-		kafkaOutputConfig.generateReocord(context.getTaskContext(),context.getTaskMetrics(),dataRecord, writer);
-		return dataRecord;
-	}
- 
+//	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
+//
+//
+//		CommonRecord dataRecord = context.getCommonRecord();
+//		kafkaOutputConfig.generateReocord(context.getTaskContext(),context.getTaskMetrics(),dataRecord, writer);
+//		return dataRecord;
+//	}
+// 
 
 }

@@ -13,7 +13,9 @@ public abstract class BaseCommonRecordDataTran extends BaseDataTran{
 		super(taskContext, jdbcResultSet, importContext,   currentStatus);
 	}
 
- 
+    public BaseCommonRecordDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
 
 	protected List<CommonRecord> convertDatas(Object datas){
 		if(datas == null)

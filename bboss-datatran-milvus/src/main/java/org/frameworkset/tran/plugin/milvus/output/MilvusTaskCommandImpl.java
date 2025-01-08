@@ -25,6 +25,7 @@ import io.milvus.v2.service.vector.response.UpsertResp;
 import org.frameworkset.nosql.milvus.MilvusFunction;
 import org.frameworkset.nosql.milvus.MilvusHelper;
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.task.CommonBaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
 import org.slf4j.Logger;
@@ -44,9 +45,9 @@ public class MilvusTaskCommandImpl  extends CommonBaseTaskCommand<Object>  {
 	protected MilvusOutputConfig milvusOutputConfig;
 	
 	private static final Logger logger = LoggerFactory.getLogger(MilvusTaskCommandImpl.class);
-	public MilvusTaskCommandImpl(TaskCommandContext taskCommandContext) {
-		super(  taskCommandContext);
-        milvusOutputConfig = (MilvusOutputConfig) importContext.getOutputConfig();
+	public MilvusTaskCommandImpl(TaskCommandContext taskCommandContext, OutputConfig outputConfig) {
+		super( taskCommandContext,outputConfig);
+        milvusOutputConfig = (MilvusOutputConfig) outputConfig;
 	}
 
 

@@ -29,9 +29,7 @@ import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>Description: </p>
@@ -54,10 +52,12 @@ public class TaskContext extends BaseMetricsLogReport {
 	private TranSQLInfo targetUpdateSqlInfo;
 	private TranSQLInfo targetDeleteSqlInfo;
 	private ImportContext importContext;
-    private TaskContextReinitCallback taskContextReinitCallback;
+    private List<TaskContextReinitCallback> taskContextReinitCallbacks;
 
     public void setTaskContextReinitCallback(TaskContextReinitCallback taskContextReinitCallback) {
-        this.taskContextReinitCallback = taskContextReinitCallback;
+        if(taskContextReinitCallbacks == null)
+            taskContextReinitCallbacks = new ArrayList<>();
+        taskContextReinitCallbacks.add(taskContextReinitCallback);
     }
 
     /**
@@ -84,16 +84,18 @@ public class TaskContext extends BaseMetricsLogReport {
             reInitAction.afterCall(taskContextCopy);
             initContext(false);
             reInitAction.preCall(this);
-            if(taskContextReinitCallback != null) {
-                try {
-                    taskContextReinitCallback.taskContextReinitCallback(this);
-                }
-                catch (Exception e){
-                    logger.warn("TaskContextReinitCallback.taskContextReinitCallback failed:",e);
-                }
-                catch (Throwable e){
-                    logger.warn("TaskContextReinitCallback.taskContextReinitCallback failed:",e);
-                }
+            if(taskContextReinitCallbacks != null) {               
+                for(TaskContextReinitCallback taskContextReinitCallback:taskContextReinitCallbacks) {
+                    try {
+                        taskContextReinitCallback.taskContextReinitCallback(this);
+                    }
+                    catch (Exception e){
+                        logger.warn("TaskContextReinitCallback.taskContextReinitCallback failed:",e);
+                    }
+                    catch (Throwable e){
+                        logger.warn("TaskContextReinitCallback.taskContextReinitCallback failed:",e);
+                    }
+                }                
             }
             
         }

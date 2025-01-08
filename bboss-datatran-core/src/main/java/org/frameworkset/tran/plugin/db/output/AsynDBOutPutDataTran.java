@@ -1,5 +1,6 @@
 package org.frameworkset.tran.plugin.db.output;
 
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -9,7 +10,9 @@ import org.frameworkset.tran.schedule.TaskContext;
 public class AsynDBOutPutDataTran extends DBOutPutDataTran {
 //	private JobCountDownLatch countDownLatch;
 
-
+    public AsynDBOutPutDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
 	public AsynDBOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, Status currentStatus) {
 		super( taskContext,jdbcResultSet,importContext,    currentStatus);
 	}

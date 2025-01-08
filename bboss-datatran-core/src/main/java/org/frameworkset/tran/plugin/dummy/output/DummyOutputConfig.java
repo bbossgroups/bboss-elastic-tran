@@ -81,7 +81,7 @@ public class DummyOutputConfig extends BaseConfig implements OutputConfig {
 	}
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return new DummyOutputDataTranPlugin(importContext);
+		return new DummyOutputDataTranPlugin(this,importContext);
 	}
 
     public RecordGeneratorV1 getRecordGeneratorV1() {

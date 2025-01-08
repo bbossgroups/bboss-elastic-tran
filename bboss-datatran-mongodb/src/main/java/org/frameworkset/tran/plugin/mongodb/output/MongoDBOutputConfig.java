@@ -49,7 +49,7 @@ public class MongoDBOutputConfig extends BaseMongoDBConfig implements OutputConf
 
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return new MongoDBOutputDataTranPlugin(importContext);
+		return new MongoDBOutputDataTranPlugin(importContext,this);
 	}
 
 

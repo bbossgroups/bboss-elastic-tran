@@ -31,6 +31,7 @@ import org.frameworkset.tran.metrics.MetricsLogReport;
 import org.frameworkset.tran.metrics.job.Metrics;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.plugin.metrics.output.MetricsOutputConfig;
+import org.frameworkset.tran.plugin.multi.output.MultiOutputConfig;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
@@ -158,14 +159,33 @@ public class ImportBuilder {
 		return importStartAction;
 	}
 
+    /**
+     * 输出配置
+     * @param outputConfig
+     * @return
+     */
 	public ImportBuilder setOutputConfig(OutputConfig outputConfig) {
 		this.outputConfig = outputConfig;
 		return this;
 	}
 
 
+    /**
+     * 多输出源时，添加每个输出源的配置
+     * @param outputConfig
+     * @return
+     */
+    public ImportBuilder addOutputConfig(OutputConfig outputConfig) {
+        if(this.outputConfig == null){
+            this.outputConfig = new MultiOutputConfig();
+        }
+        ((MultiOutputConfig)this.outputConfig).addOutputConfig(outputConfig);
+        return this;
+    }
 
-	public String getSplitFieldName() {
+
+
+    public String getSplitFieldName() {
 		return splitFieldName;
 	}
 

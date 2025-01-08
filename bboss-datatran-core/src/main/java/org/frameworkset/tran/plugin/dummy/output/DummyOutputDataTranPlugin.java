@@ -19,6 +19,7 @@ import org.frameworkset.tran.BaseCommonRecordDataTran;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
@@ -35,11 +36,16 @@ import org.frameworkset.tran.schedule.TaskContext;
  */
 public class DummyOutputDataTranPlugin extends BasePlugin implements OutputPlugin {
 
-	public DummyOutputDataTranPlugin(ImportContext importContext){
-		super(importContext);
+	public DummyOutputDataTranPlugin(OutputConfig pluginOutputConfig, ImportContext importContext){
+		super(  pluginOutputConfig,importContext);
 
 
 	}
+
+    @Override
+    public String getJobType(){
+        return "DummyOutputDataTranPlugin";
+    }
 
 	@Override
 	public void afterInit() {
@@ -70,7 +76,15 @@ public class DummyOutputDataTranPlugin extends BasePlugin implements OutputPlugi
 	}
 
 
-
+    /**
+     * 创建内部转换器
+     * @param baseDataTran
+     * @return
+     */
+    public BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) {
+        BaseCommonRecordDataTran dummyOutPutDataTran = new DummyOutPutDataTran(baseDataTran);
+        return dummyOutPutDataTran;
+    }
 
 
 

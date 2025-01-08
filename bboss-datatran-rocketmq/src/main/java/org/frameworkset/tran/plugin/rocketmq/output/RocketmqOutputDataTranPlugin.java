@@ -19,6 +19,7 @@ import org.frameworkset.rocketmq.RocketmqProductor;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.plugin.BasePlugin;
@@ -45,7 +46,10 @@ public class RocketmqOutputDataTranPlugin extends BasePlugin implements OutputPl
 	public void init(){
 
 	}
-
+    @Override
+    public String getJobType(){
+        return "RocketmqOutputDataTranPlugin";
+    }
 	@Override
 	public void destroy(boolean waitTranStop) {
 		if(rocketmqProductor != null){
@@ -54,15 +58,25 @@ public class RocketmqOutputDataTranPlugin extends BasePlugin implements OutputPl
 	}
 
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, JobCountDownLatch countDownLatch, Status currentStatus){
-        RocketmqOutputDataTran kafkaOutputDataTran = new RocketmqOutputDataTran(  taskContext,jdbcResultSet, importContext,countDownLatch,  currentStatus);
-		kafkaOutputDataTran.initTran();
-		return kafkaOutputDataTran;
+        RocketmqOutputDataTran rocketmqOutputDataTran = new RocketmqOutputDataTran(  taskContext,jdbcResultSet, importContext,countDownLatch,  currentStatus);
+        rocketmqOutputDataTran.initTran();
+		return rocketmqOutputDataTran;
 	}
+    /**
+     * 创建内部转换器
+     * @param baseDataTran
+     * @return
+     */
+    @Override
+    public BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) {
+        RocketmqOutputDataTran rocketmqOutputDataTran = new RocketmqOutputDataTran(  baseDataTran);
+        return rocketmqOutputDataTran;
+    }
 
 
-	public RocketmqOutputDataTranPlugin(ImportContext importContext){
-		super(importContext);
-        rocketmqOutputConfig = (RocketmqOutputConfig) importContext.getOutputConfig();
+	public RocketmqOutputDataTranPlugin(ImportContext importContext, OutputConfig outputConfig){
+		super(outputConfig,importContext);
+        rocketmqOutputConfig = (RocketmqOutputConfig) outputConfig;
 	}
 
 	@Override

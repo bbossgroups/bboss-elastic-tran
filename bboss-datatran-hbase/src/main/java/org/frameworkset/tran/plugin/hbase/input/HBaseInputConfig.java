@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin.hbase.input;
 
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
+import org.frameworkset.tran.DefaultEsIdGenerator;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
@@ -24,6 +25,8 @@ import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 import org.frameworkset.tran.plugin.hbase.HBasePluginConfig;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
+
+import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -162,11 +165,13 @@ public class HBaseInputConfig extends HBasePluginConfig implements InputConfig {
 	@Override
 	public void afterBuild(ImportBuilder importBuilder,ImportContext importContext){
 		if(importContext.getOutputConfig() instanceof ElasticsearchOutputConfig) {
-			ElasticsearchOutputConfig elasticsearchInputInputConfig = (ElasticsearchOutputConfig) importContext.getOutputConfig();
-
-			if (elasticsearchInputInputConfig.getEsIdGenerator() == null || elasticsearchInputInputConfig.getEsIdGenerator() == ElasticsearchOutputConfig.DEFAULT_EsIdGenerator) {
-				elasticsearchInputInputConfig.setEsIdGenerator(new HBaseEsIdGenerator());
-			}
+			 List<ElasticsearchOutputConfig> elasticsearchOutputConfigs =  importContext.getOutputConfigs(ElasticsearchOutputConfig.class);
+             for(ElasticsearchOutputConfig elasticsearchOutputConfig:elasticsearchOutputConfigs) {
+                 if (elasticsearchOutputConfig.getEsIdGenerator() == null 
+                         || elasticsearchOutputConfig.getEsIdGenerator() instanceof DefaultEsIdGenerator) {
+                     elasticsearchOutputConfig.setEsIdGenerator(new HBaseEsIdGenerator(elasticsearchOutputConfig));
+                 }
+             }
 		}
 	}
 

@@ -180,8 +180,7 @@ public abstract class TranUtil {
 
 	}
 
-	public static void initTaskContextSQLInfo(TaskContext taskContext,ImportContext importContext
-			 									){
+	public static void initTaskContextSQLInfo(TaskContext taskContext,ImportContext importContext){
 		if(taskContext != null && taskContext.getDbmportConfig() != null) {
 			String dbName = null;
 			if(taskContext.getTargetDBConfig() != null){
@@ -189,16 +188,17 @@ public abstract class TranUtil {
 				if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName()))
 					dbName = dbConfig.getDbName();
 			}
-			OutputConfig outputConfig = importContext.getOutputConfig();
+            DBOutputConfig outputConfig = importContext.getOutputConfig(DBOutputConfig.class);
 			if(dbName == null) {
-				if (outputConfig != null && outputConfig instanceof DBOutputConfig) {
-
-					dbName = ((DBOutputConfig) outputConfig).getTargetDBName(taskContext);
+                
+				if (outputConfig != null ) {
+					dbName = outputConfig.getTargetDBName(taskContext);
 				}
+                
 			}
 
 			if(dbName != null)
-				TranUtil.initTargetSQLInfo(taskContext, dbName);
+				TranUtil.initTargetSQLInfo(outputConfig,taskContext, dbName);
 		}
 	}
     public static void initSQLConf(DBOutputConfig dbOutputConfig, SQLConf sqlConf) throws DataImportException {
@@ -268,14 +268,14 @@ public abstract class TranUtil {
 
 
     }
-	public static void initTargetSQLInfo(TaskContext dbContext, String db) throws DataImportException {
+	public static void initTargetSQLInfo(DBOutputConfig outputConfig,TaskContext dbContext, String db) throws DataImportException {
 		if(dbContext == null)
 			return;
 		ImportContext importContext = dbContext.getImportContext();
-		OutputConfig outputConfig = importContext.getOutputConfig();
-		if(!(outputConfig instanceof DBOutputConfig)){
-			return ;
-		}
+//		OutputConfig outputConfig = importContext.getOutputConfig();
+//		if(!(outputConfig instanceof DBOutputConfig)){
+//			return ;
+//		}
 		TranSQLInfo sqlInfo = null;
 		SQLInfo sqlinfo = null;
 		String sqlName = dbContext.getInsertSqlName();

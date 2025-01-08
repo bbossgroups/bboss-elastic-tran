@@ -15,7 +15,7 @@ package org.frameworkset.tran.plugin.custom.output;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.exception.ImportExceptionUtil;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
@@ -35,9 +35,9 @@ public class CustomTaskCommandImpl extends BaseTaskCommand< String> {
 	
 	private TaskContext taskContext;
 	private CustomOutputConfig customOutputConfig;
-	public CustomTaskCommandImpl(TaskCommandContext taskCommandContext) {
-		super(  taskCommandContext);
-		customOutputConfig = (CustomOutputConfig) importContext.getOutputConfig();
+	public CustomTaskCommandImpl(TaskCommandContext taskCommandContext, OutputConfig customOutputConfig) {
+		super(  customOutputConfig,taskCommandContext);
+		this.customOutputConfig = (CustomOutputConfig) customOutputConfig;
 		if(this.taskContext == null) {
             this.taskContext = new TaskContext(importContext);
             taskCommandContext.setTaskContext(taskContext);

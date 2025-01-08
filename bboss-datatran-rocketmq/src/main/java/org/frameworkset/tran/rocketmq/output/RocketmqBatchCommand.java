@@ -17,6 +17,7 @@ package org.frameworkset.tran.rocketmq.output;
 
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.plugin.rocketmq.output.RocketmqOutputConfig;
 import org.frameworkset.tran.plugin.rocketmq.output.RocketmqOutputDataTranPlugin;
 import org.frameworkset.tran.task.BaseTaskCommand;
@@ -40,10 +41,10 @@ public class RocketmqBatchCommand extends BaseTaskCommand<  Object> {
     private static Logger logger = LoggerFactory.getLogger(RocketmqBatchCommand.class);
 	private RocketmqOutputConfig rocketmqOutputConfig;
     private RocketmqOutputDataTranPlugin rocketmqOutputDataTranPlugin;
-	public RocketmqBatchCommand(TaskCommandContext taskCommandContext) {
-		super(  taskCommandContext);
-        rocketmqOutputConfig = (RocketmqOutputConfig) importContext.getOutputConfig();
-        rocketmqOutputDataTranPlugin = (RocketmqOutputDataTranPlugin) importContext.getOutputPlugin();
+	public RocketmqBatchCommand(TaskCommandContext taskCommandContext, OutputConfig outputConfig) {
+		super( outputConfig, taskCommandContext);
+        rocketmqOutputConfig = (RocketmqOutputConfig) outputConfig;
+        rocketmqOutputDataTranPlugin = (RocketmqOutputDataTranPlugin) outputConfig.getOutputPlugin();
 	}
 
     @Override

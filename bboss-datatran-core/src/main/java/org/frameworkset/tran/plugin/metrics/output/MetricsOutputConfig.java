@@ -71,7 +71,7 @@ public class MetricsOutputConfig extends BaseConfig implements OutputConfig {
 
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return new MetricsOutputDataTranPlugin(importContext);
+		return new MetricsOutputDataTranPlugin(this,importContext);
 	}
 
 	public boolean isUseDefaultMapData() {

@@ -38,17 +38,23 @@ public abstract class BaseDBConfig extends BaseConfig {
 	protected DBConfig dbConfig;
 	protected Map<String,DBConfig> dbConfigMap = new LinkedHashMap<>();
 
+
     
 
     @JsonIgnore
     protected DataSource dataSource;
+
+
+    public static final String SPECIALCONFIG_JDBCGETVARIABLEVALUE_NAME = "jdbcGetVariableValue";
 	protected void _setJdbcFetchSize(Integer jdbcFetchSize) {
 		this.customDBConfigs.put(DBConfig.db_jdbcFetchSize_key,1);
 		checkDBConfig();
 		dbConfig.setJdbcFetchSize(jdbcFetchSize);
 
 	}
-	protected void checkDBConfig(){
+
+
+    protected void checkDBConfig(){
 		if(this.dbConfig == null){
 			this.dbConfig = new DBConfig();
 		}

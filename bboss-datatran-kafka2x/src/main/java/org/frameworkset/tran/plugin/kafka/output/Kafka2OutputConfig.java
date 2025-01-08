@@ -30,6 +30,6 @@ public class Kafka2OutputConfig extends KafkaOutputConfig{
 
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return new Kafka2OutputDataTranPlugin(importContext);
+		return new Kafka2OutputDataTranPlugin(importContext,this);
 	}
 }

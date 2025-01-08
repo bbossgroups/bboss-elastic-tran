@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.frameworkset.nosql.hbase.HBaseHelper;
 import org.frameworkset.nosql.hbase.HBaseHelperFactory;
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
@@ -47,12 +48,10 @@ public class HBaseTaskCommandImpl extends BaseTaskCommand<  String> {
 	private HBaseOutputConfig hBaseOutputConfig;
 	private String taskInfo;
 	private static final Logger logger = LoggerFactory.getLogger(HBaseTaskCommandImpl.class);
-	public HBaseTaskCommandImpl(TaskCommandContext taskCommandContext) {
-		super(  taskCommandContext);
-//		this.records = datas;
-		hBaseOutputConfig = (HBaseOutputConfig) importContext.getOutputConfig();
+	public HBaseTaskCommandImpl(TaskCommandContext taskCommandContext, OutputConfig outputConfig) {
+		super(outputConfig,  taskCommandContext);
+		hBaseOutputConfig = (HBaseOutputConfig) outputConfig;
 		this.taskInfo = taskCommandContext.getTaskInfo();
-
 	}
 
  

@@ -315,7 +315,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 
     @Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return new FileOutputDataTranPlugin(importContext);
+		return new FileOutputDataTranPlugin(this,importContext);
 	}
 
 	@Override

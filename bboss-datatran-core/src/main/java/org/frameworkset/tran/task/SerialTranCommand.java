@@ -35,6 +35,5 @@ public interface SerialTranCommand {
     public int endSerialActionTask(TaskCommandContext taskCommandContext);
 //	public int splitSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record);
 	public boolean splitCheck(long totalCount);
-	public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception;
 
 }

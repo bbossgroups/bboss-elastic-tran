@@ -17,6 +17,7 @@ package org.frameworkset.tran.output.fileftp;
 
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
@@ -37,10 +38,10 @@ import org.slf4j.LoggerFactory;
 public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
 	private FileTransfer fileTransfer;
     protected FileOutputConfig fileOutputConfig;
-	public FileFtpTaskCommandImpl(TaskCommandContext taskCommandContext, FileTransfer fileTransfer) {
-		super(taskCommandContext);
+	public FileFtpTaskCommandImpl(TaskCommandContext taskCommandContext, FileTransfer fileTransfer, OutputConfig outputConfig) {
+		super(outputConfig,taskCommandContext);
 		this.fileTransfer = fileTransfer;
-        fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
+        fileOutputConfig = (FileOutputConfig) outputConfig;
 	}
 
 

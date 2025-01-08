@@ -9,6 +9,7 @@ import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.input.file.GenFileInfo;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
+import org.frameworkset.tran.plugin.http.output.HttpTaskCommandImpl;
 import org.frameworkset.tran.schedule.JobExecuteMetric;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -26,16 +27,44 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 	protected FileTransfer fileTransfer;
 	protected String path;
 	protected int fileSeq = 1;
-
+    
 //	protected JobCountDownLatch countDownLatch;
-	@Override
-	public void logTaskStart(Logger logger) {
-		logger.info(taskInfo + " start.");
-	}
+
 	protected String taskInfo ;
 
 
-    private Object resetFileSeqLock = new Object(); 
+    private Object resetFileSeqLock = new Object();
+
+    private TaskContextReinitCallback getTaskContextReinitCallback(){
+        return new TaskContextReinitCallback() {
+            @Override
+            public void taskContextReinitCallback(TaskContext taskContext) {
+                resetFileSeq();
+            }
+        };
+    }
+    public FileFtpOutPutDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+        taskContext.setTaskContextReinitCallback(getTaskContextReinitCallback());
+    }
+    public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  JobCountDownLatch countDownLatch,Status currentStatus) {
+        super(taskContext,jdbcResultSet,importContext,   currentStatus);
+        taskContext.setTaskContextReinitCallback(getTaskContextReinitCallback());
+        this.countDownLatch = countDownLatch;
+        fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
+        taskInfo = "Import data to file";
+    }
+
+    public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,Status currentStatus) {
+        super(taskContext,jdbcResultSet,importContext,   currentStatus);
+        taskContext.setTaskContextReinitCallback(getTaskContextReinitCallback());
+        fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
+        taskInfo = "Import data to file";
+    }
+    @Override
+    public void logTaskStart(Logger logger) {
+        logger.info(taskInfo + " start.");
+    }
     public void resetFileSeq(){
         synchronized (resetFileSeqLock) {
             fileSeq = 1;
@@ -137,7 +166,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
                     taskCommandContext.increamentTaskNo();
                     initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(taskCommandContext, fileTransfer);
+                    FileFtpTaskCommandImpl taskCommand = (FileFtpTaskCommandImpl) _buildTaskCommand(taskCommandContext);
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     taskCommandContext.addTask(taskCommand);
@@ -148,10 +177,7 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 			}
 
-			@Override
-			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return FileFtpOutPutDataTran.this.buildStringRecord(context,writer);
-			}
+	 
 			@Override
 			public boolean splitCheck(long totalCount) {
 				return _splitCheck( totalCount);
@@ -167,9 +193,8 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
                 if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(taskCommandContext, fileTransfer);
+                    FileFtpTaskCommandImpl taskCommand = (FileFtpTaskCommandImpl) _buildTaskCommand(taskCommandContext);
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     TaskCall.call(taskCommand);
@@ -184,9 +209,8 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 			public int endSerialActionTask(TaskCommandContext taskCommandContext) {
                 if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    FileFtpTaskCommandImpl taskCommand = new FileFtpTaskCommandImpl(taskCommandContext, fileTransfer);
+                    FileFtpTaskCommandImpl taskCommand = (FileFtpTaskCommandImpl) _buildTaskCommand(taskCommandContext);
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     TaskCall.call(taskCommand);
@@ -202,22 +226,23 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 			public boolean splitCheck(long totalCount) {
 				return _splitCheck( totalCount);
 			}
-
-			@Override
-			public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-				return FileFtpOutPutDataTran.this.buildStringRecord(context,writer);
-			}
+ 
 		};
 	}
 	public void init(){
 		super.init();
 
-
+        if(fileOutputConfig == null){
+            fileOutputConfig = (FileOutputConfig) outputPlugin.getOutputConfig();
+        }
 		fileTransfer = initFileTransfer();
 
 
 	}
-
+    @Override
+    public TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext) {
+        return  new FileFtpTaskCommandImpl(taskCommandContext, fileTransfer,outputPlugin.getOutputConfig());
+    }
 	@Override
 	protected String commonTran() throws DataImportException {
         try {
@@ -230,31 +255,6 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
             fileTransfer = null;
         }
         
-	}
-	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,Status currentStatus) {
-		super(taskContext,jdbcResultSet,importContext,   currentStatus);
-        taskContext.setTaskContextReinitCallback(new TaskContextReinitCallback() {
-            @Override
-            public void taskContextReinitCallback(TaskContext taskContext) {
-                resetFileSeq();
-            }
-        });
-		fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
-		taskInfo = "Import data to file";
-	}
-
-
-	public FileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext,  JobCountDownLatch countDownLatch,Status currentStatus) {
-		super(taskContext,jdbcResultSet,importContext,   currentStatus);
-        taskContext.setTaskContextReinitCallback(new TaskContextReinitCallback() {
-            @Override
-            public void taskContextReinitCallback(TaskContext taskContext) {
-                resetFileSeq();
-            }
-        });
-		this.countDownLatch = countDownLatch;
-		fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
-		taskInfo = "Import data to file";
 	}
 
 	/**
@@ -271,12 +271,12 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 
 
-	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
-		CommonRecord record = context.getCommonRecord();
-		fileOutputConfig.generateReocord(context.getTaskContext(),context.getTaskMetrics(),record, writer);
-		writer.write(fileOutputConfig.getLineSeparator());
-		return record;
-	}
+//	protected CommonRecord buildStringRecord(Context context, Writer writer) throws Exception {
+//		CommonRecord record = context.getCommonRecord();
+//		fileOutputConfig.generateReocord(context.getTaskContext(),context.getTaskMetrics(),record, writer);
+//		writer.write(fileOutputConfig.getLineSeparator());
+//		return record;
+//	}
 
 
 	protected void sendFile(){

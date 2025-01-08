@@ -46,20 +46,22 @@ public class TaskCall implements Runnable {
 	private static Logger logger = LoggerFactory.getLogger(TaskCall.class);
 	private TranErrorWrapper errorWrapper;
 
-	private ImportContext db2ESImportContext;
+	private ImportContext importContext;
 	private TaskCommand taskCommand;
-
+    public TaskCall(){
+        
+    }
 
 	public TaskCall(TaskCommand taskCommand,
 					TranErrorWrapper errorWrapper){
 		this.taskCommand = taskCommand;
 		this.errorWrapper = errorWrapper;
-		this.db2ESImportContext = taskCommand.getImportContext();
+		this.importContext = taskCommand.getImportContext();
 	}
 
 
 	protected boolean isPrintTaskLog(){
-		return db2ESImportContext.isPrintTaskLog() && logger.isInfoEnabled();
+		return importContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
 
     public static void handleException(Throwable e,ImportCount importCount,TaskMetrics taskMetrics,TaskCommand taskCommand,ImportContext importContext){
@@ -145,7 +147,11 @@ public class TaskCall implements Runnable {
         }
         return taskCommand.getRecords();
     }
-	public static <RESULT> RESULT call(TaskCommand<RESULT> taskCommand){
+    public static <RESULT> RESULT call(TaskCommand<RESULT> taskCommand){
+        TaskCall taskCall = new TaskCall();
+        return taskCall.innerCall(taskCommand);
+    }
+	protected  <RESULT> RESULT innerCall(TaskCommand<RESULT> taskCommand){
 		ImportContext importContext = taskCommand.getImportContext();
 		ImportCount importCount = taskCommand.getImportCount();
 		TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
@@ -203,29 +209,33 @@ public class TaskCall implements Runnable {
 
 	@Override
 	public void run()   {
+        StringBuilder info = null;
 		if(!errorWrapper.assertCondition()) {
-			if(logger.isWarnEnabled())
-				logger.warn(new StringBuilder().append("Task[").append(taskCommand.getTaskNo()).append("] Assert Execute Condition Failed, Ignore").toString());
+			if(logger.isWarnEnabled()) {
+                info = new StringBuilder();
+                BaseTranJob.builderJobInfo(importContext.getInputPlugin(), taskCommand.getOutputPlugin(), info, importContext);
+                logger.warn(info.append("Task[").append(taskCommand.getTaskNo()).append("] Assert Execute Condition Failed, Ignore").toString());
+            }
 			return;
 		}
 		long start = System.currentTimeMillis();
-		StringBuilder info = null;
-		if(isPrintTaskLog()) {
-			info = new StringBuilder();
-		}
+        if(info == null && isPrintTaskLog()) {
+            info = new StringBuilder();
+        }
+		 
 		try {
 			if(isPrintTaskLog()) {
-                    BaseTranJob.builderJobInfo(info,db2ESImportContext);
+                    BaseTranJob.builderJobInfo(importContext.getInputPlugin(), taskCommand.getOutputPlugin(), info, importContext);
 					info.append("Task[").append(taskCommand.getTaskNo()).append("] starting ......");
 					logger.info(info.toString());
 
 			}
-            
-			call(taskCommand);
+
+            innerCall(taskCommand);
 			if(isPrintTaskLog()) {
 				long end = System.currentTimeMillis();
 				info.setLength(0);
-                BaseTranJob.builderJobInfo(info,db2ESImportContext);
+                BaseTranJob.builderJobInfo(importContext.getInputPlugin(), taskCommand.getOutputPlugin(), info, importContext);
 				info.append("Task[").append(taskCommand.getTaskNo()).append("] finish,import ")
 						.append(taskCommand.getDataSize())
 						.append(" records,Total import ")
@@ -236,17 +246,17 @@ public class TaskCall implements Runnable {
 		}
 		catch (Exception e){
 			errorWrapper.setError(e);
-			if(!db2ESImportContext.isContinueOnError()) {
+			if(!importContext.isContinueOnError()) {
 				if (isPrintTaskLog()) {
 					long end = System.currentTimeMillis();
 					info.setLength(0);
-                    BaseTranJob.builderJobInfo(info,db2ESImportContext);
+                    BaseTranJob.builderJobInfo(importContext.getInputPlugin(), taskCommand.getOutputPlugin(), info, importContext);
 					info.append("Task[").append(taskCommand.getTaskNo()).append("] failed: ")
 						.append(taskCommand.getDataSize())
 						.append(" records, Take time:").append((end - start)).append("ms");
 					logger.info(info.toString());
 				}
-                StringBuilder stringBuilder = BaseTranJob.builderJobInfo(new StringBuilder(),db2ESImportContext);
+                StringBuilder stringBuilder = BaseTranJob.builderJobInfo(importContext.getInputPlugin(), taskCommand.getOutputPlugin(), new StringBuilder(), importContext);
 				throw new TaskFailedException(stringBuilder.append("Task[").append(taskCommand.getTaskNo()).append("] Execute Failed: ")
 						.append(taskCommand.getDataSize())
 						.append(" records,").toString(), e);
@@ -260,7 +270,7 @@ public class TaskCall implements Runnable {
 				else {
 					info.setLength(0);
 				}
-                BaseTranJob.builderJobInfo(info,db2ESImportContext);
+                BaseTranJob.builderJobInfo(importContext.getInputPlugin(), taskCommand.getOutputPlugin(), info, importContext);
 				info.append("Task[").append(taskCommand.getTaskNo()).append("] failed: ")
 					.append(taskCommand.getDataSize())
 					.append(" records,but continue On Error! Take time:").append((end - start)).append("ms");

@@ -29,16 +29,40 @@ import org.frameworkset.tran.record.FieldMappingManager;
  * @version 1.0
  */
 public abstract class BaseConfig  extends FieldMappingManager {
+    protected String pluginNo;
+    protected OutputPlugin outputPlugin;
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext){
 		DataTranPlugin dataTranPlugin = new DataTranPluginImpl(importContext);
 		return dataTranPlugin;
 	}
+
+    /**
+     * 获取OutputConfig实际对应的OutputPlugin
+     * @return
+     */
+    public OutputPlugin getOutputPlugin(){
+        return outputPlugin;
+    }
+
+    public void setOutputPlugin(OutputPlugin outputPlugin) {
+        this.outputPlugin = outputPlugin;
+    }
+
     public boolean isSortedDefault(){
         return false;
     }
 	public void afterBuild(ImportBuilder importBuilder, ImportContext importContext){
 
 	}
+
+
+    public void setPluginNo(String pluginNo) {
+        this.pluginNo = pluginNo;
+    }
+
+    public String getPluginNo() {
+        return pluginNo;
+    }
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
 		DefualtExportResultHandler db2ESExportResultHandler = new DefualtExportResultHandler(exportResultHandler);
 		return db2ESExportResultHandler;

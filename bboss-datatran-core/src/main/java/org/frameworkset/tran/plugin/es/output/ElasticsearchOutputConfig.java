@@ -24,12 +24,16 @@ import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
+import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.context.RecordSpecialConfigsContext;
+import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.es.ESConfig;
 import org.frameworkset.tran.plugin.es.ESField;
 import org.frameworkset.tran.plugin.es.input.ESExportResultHandler;
+import org.frameworkset.tran.record.RecordOutpluginSpecialConfig;
 
 import java.util.List;
 
@@ -45,8 +49,7 @@ public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfi
 	private String index;
 	/**抽取数据的sql语句*/
 	private String indexType;
-	public static EsIdGenerator DEFAULT_EsIdGenerator = new DefaultEsIdGenerator();
-	private transient EsIdGenerator esIdGenerator = DEFAULT_EsIdGenerator;
+	private transient EsIdGenerator esIdGenerator ;
 
 	/**
 	 * 是否不需要返回响应，不需要的情况下，可以设置为true，默认为true
@@ -55,6 +58,21 @@ public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfi
 	private boolean discardBulkResponse = true;
 	/**是否调试bulk响应日志，true启用，false 不启用，*/
 	private boolean debugResponse;
+
+    public ElasticsearchOutputConfig(){
+        esIdGenerator = new DefaultEsIdGenerator(this);
+    }
+    @Override
+    public void initRecordSpecialConfigsContext(RecordSpecialConfigsContext recordSpecialConfigsContext, boolean fromMultiOutput){
+        RecordOutpluginSpecialConfig recordOutpluginSpecialConfig = new RecordOutpluginSpecialConfig(this);
+        if(!fromMultiOutput){
+            recordSpecialConfigsContext.setRecordOutpluginSpecialConfig(recordOutpluginSpecialConfig);
+        }
+        else{
+            recordSpecialConfigsContext.addRecordOutpluginSpecialConfig(outputPlugin,recordOutpluginSpecialConfig);
+        }
+        
+    }
 	public boolean isDiscardBulkResponse() {
 		return discardBulkResponse;
 	}
@@ -150,12 +168,12 @@ public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfi
 		return this;
 	}
 	private String targetElasticsearch = "default";
+ 
 	public String getTargetElasticsearch() {
 		return targetElasticsearch;
 	}
-
-
-	public ElasticsearchOutputConfig setEsConfig(ESConfig esConfig) {
+  
+    public ElasticsearchOutputConfig setEsConfig(ESConfig esConfig) {
 		this.esConfig = esConfig;
 		return this;
 	}
@@ -197,16 +215,23 @@ public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfi
 //			ElasticSearchPropertiesFilePlugin.init(importBuilder.getApplicationPropertiesFile());
 ////					propertiesContainer.addConfigPropertiesFile(applicationPropertiesFile);
 //		}
+         
+        if(targetElasticsearch == null)
+            targetElasticsearch = "default";
+        
 		if(index != null) {
 			ESIndexWrapper esIndexWrapper = new ESIndexWrapper(index, indexType);
 //			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);
 			setEsIndexWrapper(esIndexWrapper);
 		}
+        if(getEsIndexWrapper() == null){
+            throw ImportExceptionUtil.buildDataImportException(importContext,"Global Elasticsearch index must be setted, please check your import job builder config.");
+        }
 	}
 
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return new ElasticsearchOutputDataTranPlugin(importContext);
+		return new ElasticsearchOutputDataTranPlugin(this,importContext);
 	}
 
 	public String getIndex() {
@@ -359,4 +384,126 @@ public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfi
 
 		return this;
 	}
+
+    public static final String SPECIALCONFIG_INDEX_NAME = "index";
+    public static final String SPECIALCONFIG_INDEXTYPE_NAME = "indexType";
+    public static final String SPECIALCONFIG_ESINDEXWRAPPER_NAME = "esIndexWrapper";
+
+    public static final String SPECIALCONFIG_CLIENTOPTIONS_NAME = "clientOptions";
+    public static final String SPECIALCONFIG_ESID_NAME = "esId";
+    public static final String SPECIALCONFIG_PARENTID_NAME = "parentId";
+
+    public static final String SPECIALCONFIG_ROUTING_NAME = "routing";
+    public static final String SPECIALCONFIG_VERSION_NAME = "version";
+    public static final String SPECIALCONFIG_OPERATION_NAME = "operation";
+
+    public static final String SPECIALCONFIG_JDBCGETVARIABLEVALUE_NAME = "jdbcGetVariableValue";
+    
+
+    
+    @Override
+    public void afterRefactor(RecordOutpluginSpecialConfig recordOutpluginSpecialConfig, Context context) throws Exception {
+        String index = recordOutpluginSpecialConfig.getSpecialStringConfig(SPECIALCONFIG_INDEX_NAME);
+        String indexType = recordOutpluginSpecialConfig.getSpecialStringConfig(SPECIALCONFIG_INDEXTYPE_NAME);
+        ESIndexWrapper esIndexWrapper = null;
+        if (index != null && !index.equals("")) {
+            if (indexType == null) {
+                esIndexWrapper = new ESIndexWrapper(index, null);
+            }
+            else {
+                esIndexWrapper = new ESIndexWrapper(index, indexType);
+            }
+//			esIndexWrapper.setUseBatchContextIndexName(this.useBatchContextIndexName);
+        }
+        if(esIndexWrapper == null)
+        {
+            esIndexWrapper = this.esIndexWrapper;
+        }
+        if(esIndexWrapper != null){
+            recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_ESINDEXWRAPPER_NAME,esIndexWrapper);
+        }
+
+        recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_ESID_NAME,getEsIdGenerator().genId(context));
+        ClientOptions clientOptions = (ClientOptions)recordOutpluginSpecialConfig.getSpecialConfig(SPECIALCONFIG_CLIENTOPTIONS_NAME);
+        if(clientOptions == null){
+            clientOptions = this.clientOptions;
+            if(clientOptions != null)
+                recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_CLIENTOPTIONS_NAME,clientOptions);
+        }
+        ESField esField = clientOptions != null?clientOptions.getParentIdField():null;
+        Object parentId = null;
+        if(esField != null) {
+            if(!esField.isMeta())
+                parentId = context.getValue(esField.getField());
+            else{
+                parentId = context.getMetaValue(esField.getField());
+            }
+        }
+        else {
+            parentId = clientOptions != null ? clientOptions.getEsParentIdValue() : null;
+        }
+        if(parentId != null){
+            recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_PARENTID_NAME,parentId);
+        }
+
+
+        esField = clientOptions != null?clientOptions.getRoutingField():null;
+        Object routing = null;
+        if(esField != null) {
+            if(!esField.isMeta())
+                routing = context.getValue(esField.getField());
+
+            else{
+                routing = context.getMetaValue(esField.getField());
+            }
+        }
+        else {
+            routing = clientOptions != null? clientOptions.getRouting():null;
+        }
+
+        if(routing != null){
+            recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_ROUTING_NAME,routing);
+        }
+
+        esField = clientOptions != null ?clientOptions.getVersionField():null;
+        Object version = null;
+        if(esField != null) {
+            if(!esField.isMeta())
+                version = context.getValue(esField.getField());
+            else{
+                version = context.getMetaValue(esField.getField());
+            }
+        }
+        else {
+            version =  clientOptions != null?clientOptions.getVersion():null;
+        }
+        if(version != null){
+            recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_VERSION_NAME,version);
+        }
+
+        String operation = null;
+        if(context.isInsert() ){
+            operation = "index";
+        }
+        else if(context.isUpdate()){
+            operation = "update";
+        }
+        else if(context.isDelete()){
+            operation = "delete";
+        }
+        else{
+            operation = "index";
+        }
+        recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_OPERATION_NAME,operation);
+    }
+
+    public Object preHandleSpecialConfig(String name, Object value){
+        if(name.equals(SPECIALCONFIG_CLIENTOPTIONS_NAME)){
+            ClientOptions clientOptions = (ClientOptions) value;
+            if(getClientOptions() != null && clientOptions != null && clientOptions.getParentClientOptions() == null){
+                clientOptions.setParentClientOptions(getClientOptions());
+            }
+        }
+        return value;
+    }
 }

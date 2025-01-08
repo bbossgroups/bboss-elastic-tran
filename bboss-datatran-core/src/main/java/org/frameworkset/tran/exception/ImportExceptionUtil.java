@@ -19,6 +19,8 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.slf4j.Logger;
 
+import java.util.List;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -65,7 +67,30 @@ public class ImportExceptionUtil {
             }
         }
     }
-    
+
+    public static DataImportException buildDataImportException(ImportContext importContext, String error, List<Throwable> throwables){
+        DataImportException dataImportException = null;
+        if(importContext != null) {
+            StringBuilder builder = new StringBuilder();
+            String jobName = importContext.getJobName();
+            String jobId = importContext.getJobId();
+            String jobType = importContext.getJobType();
+            builder.append("jobName=").append(jobName)
+                    .append(",jobId=").append(jobId)
+                    .append(",jobType=").append(jobType)
+                    .append(",errorinfo=").append(error);
+            dataImportException = new DataImportException(builder.toString());
+           
+        }
+        else{
+            dataImportException = new DataImportException(error);
+        }
+        for(Throwable throwable :throwables) {
+            dataImportException.addSuppressed(throwable);
+        }
+        return dataImportException;
+
+    }
     public static DataImportException buildDataImportException(ImportContext importContext,String error,Throwable throwable){
         if(importContext != null) {
             StringBuilder builder = new StringBuilder();

@@ -23,6 +23,7 @@ import org.frameworkset.elasticsearch.template.TemplateMeta;
 import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.BasePlugin;

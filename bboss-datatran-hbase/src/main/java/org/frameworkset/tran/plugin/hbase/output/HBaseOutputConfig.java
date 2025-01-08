@@ -73,7 +73,7 @@ public class HBaseOutputConfig extends HBasePluginConfig implements OutputConfig
 
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return new HBaseOutputDataTranPlugin(importContext);
+		return new HBaseOutputDataTranPlugin(importContext,this);
 	}
 
 	/**

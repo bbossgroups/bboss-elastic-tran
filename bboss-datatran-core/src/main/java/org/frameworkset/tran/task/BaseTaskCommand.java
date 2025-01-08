@@ -16,11 +16,13 @@ package org.frameworkset.tran.task;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
@@ -49,6 +51,21 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
 	protected Status currentStatus;
     protected List<CommonRecord> records;
     protected TaskCommandContext taskCommandContext;
+    protected boolean multiOutputTran;
+    protected OutputConfig outputConfig;
+
+    protected OutputPlugin outputPlugin;
+    public boolean isMultiOutputTran(){
+        return multiOutputTran;
+    }
+    public void setMultiOutputTran(boolean multiOutputTran){
+        this.multiOutputTran = multiOutputTran;
+    }
+
+    public OutputPlugin getOutputPlugin() {
+        return outputPlugin;
+    }
+ 
 
     public void setRecords(List<CommonRecord> records) {
         this.records = records;
@@ -103,10 +120,10 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
 		return importContext;
 	}
 	public void finishTask(){
-
-        importContext.flushLastValue(lastValue, currentStatus);
-
-
+        //多输出插件创建的子输出任务无需更新增量采集状态
+        if(!this.isMultiOutputTran()){
+            importContext.flushLastValue(lastValue, currentStatus);
+        }
 	}
 
 	/**
@@ -124,16 +141,14 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
 		return totalSize;
 	}
 
-	public BaseTaskCommand(TaskCommandContext taskCommandContext){
+
+	public BaseTaskCommand(OutputConfig outputConfig, TaskCommandContext taskCommandContext){
+        this.outputConfig = outputConfig;
+        this.outputPlugin = outputConfig.getOutputPlugin();
         this.taskCommandContext = taskCommandContext;
 		this.importCount = taskCommandContext.getTotalCount();
 		this.importContext =  taskCommandContext.getImportContext();
 		totalSize = importCount.getTotalCount();
-//		this.taskMetrics = new TaskMetrics();
-//		taskMetrics.setTaskNo(taskCommandContext.getTaskNo());
-//		taskMetrics.setJobNo(taskCommandContext.getJobNo());
-//		taskMetrics.setJobId(importContext.getJobId());
-//		taskMetrics.setJobName(importContext.getJobName());
         taskMetrics = taskCommandContext.getTaskMetrics();
 		this.lastValue = taskCommandContext.getLastValue();
 		this.currentStatus = taskCommandContext.getCurrentStatus();

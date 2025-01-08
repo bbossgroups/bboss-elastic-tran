@@ -18,9 +18,11 @@ package org.frameworkset.tran.plugin;
 import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ContextImpl;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.context.RecordSpecialConfigsContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.record.RecordColumnInfo;
@@ -45,16 +47,24 @@ public abstract class BasePlugin {
     private static Logger logger = LoggerFactory.getLogger(BasePlugin.class);
 	protected DataTranPlugin dataTranPlugin;
 	protected ImportContext importContext;
+    protected OutputConfig pluginOutputConfig;
 	/**
 	 * 通知输入插件停止采集数据
 	 */
 	private volatile boolean stopCollectData;
-	public BasePlugin(ImportContext importContext){
+	public BasePlugin(OutputConfig pluginOutputConfig,ImportContext importContext){
 		this.importContext = importContext;
-//		init(importContext,targetImportContext);
-//		importContext.setDataTranPlugin(this);
-//		targetImportContext.setDataTranPlugin(this);
+        this.pluginOutputConfig = pluginOutputConfig;
+        pluginOutputConfig.setOutputPlugin((OutputPlugin) this);
 	}
+
+    public BasePlugin(ImportContext importContext){
+        this.importContext = importContext;
+    }
+
+    public OutputConfig getOutputConfig(){
+        return pluginOutputConfig;
+    }
 	public abstract void afterInit();
 	public abstract void beforeInit();
 	public abstract void init();
@@ -245,10 +255,10 @@ public abstract class BasePlugin {
                     logger.debug("字段值[目标列{},源列{}]的值为null！",varName,colName);
             }
             else if (temp instanceof Date){
-                recordColumnInfo = resolveRecordColumnInfo(  temp,  fieldMeta,  context);
-
+//                recordColumnInfo = resolveRecordColumnInfo(  temp,  fieldMeta,  context);
+                context.resolveRecordColumnInfo( varName, temp,  fieldMeta);
             }
-            dbRecord.addData(varName,temp,recordColumnInfo);
+            dbRecord.addData(varName,temp);
 
 
         }
@@ -262,7 +272,7 @@ public abstract class BasePlugin {
 
     }
 
-    protected RecordColumnInfo resolveRecordColumnInfo(Object value,FieldMeta fieldMeta,Context context){
+    public RecordColumnInfo resolveRecordColumnInfo(Object value,FieldMeta fieldMeta,Context context){
         return null;
     }
 
@@ -296,8 +306,9 @@ public abstract class BasePlugin {
 
     }
     private void addRecordValue(CommonRecord record,String fieldName,Object value,FieldMeta fieldMeta,Context context){
-        RecordColumnInfo recordColumnInfo = resolveRecordColumnInfo(  value,  fieldMeta,  context);
-        record.addData(fieldName, value,recordColumnInfo);
+//        RecordColumnInfo recordColumnInfo = resolveRecordColumnInfo(  value,  fieldMeta,  context);
+        context.resolveRecordColumnInfo( fieldName, value,  fieldMeta);
+        record.addData(fieldName, value);
     }
     private void appendFieldValues(CommonRecord record,
                                    String[] columns ,
@@ -341,9 +352,22 @@ public abstract class BasePlugin {
             }
         }
     }
+    public void buildRecordOutpluginSpecialConfig(CommonRecord dataRecord,Context context) throws Exception {
+    }
+
+    protected void buildRecordOutpluginSpecialConfigs(CommonRecord dataRecord, Context context) throws Exception {
+        buildRecordOutpluginSpecialConfig(  dataRecord,  context);
+        
+    }
     public CommonRecord buildRecord(Context context) throws Exception{
         CommonRecord dataRecord = new CommonRecord();
+       
         buildRecord(dataRecord,context);
+        buildRecordOutpluginSpecialConfigs( dataRecord,  context);
+        RecordSpecialConfigsContext recordSpecialConfigsContext = context.getRecordSpecialConfigsContext();
+        dataRecord.setRecordOutpluginSpecialConfigs(recordSpecialConfigsContext.getRecordOutpluginSpecialConfigs());
+
+        dataRecord.setRecordOutpluginSpecialConfig(recordSpecialConfigsContext.getRecordOutpluginSpecialConfig());
         return dataRecord;
     }
 }

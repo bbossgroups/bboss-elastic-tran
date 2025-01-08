@@ -23,10 +23,12 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.context.RecordSpecialConfigsContext;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.db.BaseDBConfig;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.input.StatementHandler;
+import org.frameworkset.tran.record.RecordOutpluginSpecialConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import javax.sql.DataSource;
@@ -75,6 +77,8 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
     private SQLConfResolver sqlConfResolver;
     private boolean ignoreDDLSynError;
     
+
+    public static final String SPECIALCONFIG_RECORDPARAMS_NAME = "recordParams";
 
     /**
      * mysql binlog输入插件对接时，默认使用表名称映射对应的sqlconf配置
@@ -474,7 +478,7 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
 	}
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return new DBOutputDataTranPlugin(  importContext);
+		return new DBOutputDataTranPlugin(  this,importContext);
 	}
 
 
@@ -707,5 +711,16 @@ public class DBOutputConfig extends BaseDBConfig implements OutputConfig {
     public DBOutputConfig setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         return this;
+    }
+
+    @Override
+    public void initRecordSpecialConfigsContext(RecordSpecialConfigsContext recordSpecialConfigsContext, boolean fromMultiOutput){
+        RecordOutpluginSpecialConfig recordOutpluginSpecialConfig = new RecordOutpluginSpecialConfig(this);
+        if(!fromMultiOutput){
+            recordSpecialConfigsContext.setRecordOutpluginSpecialConfig(recordOutpluginSpecialConfig);
+        }
+        else{
+            recordSpecialConfigsContext.addRecordOutpluginSpecialConfig(outputPlugin,recordOutpluginSpecialConfig);
+        }
     }
 }

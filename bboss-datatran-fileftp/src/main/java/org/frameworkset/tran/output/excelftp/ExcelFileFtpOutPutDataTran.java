@@ -1,5 +1,6 @@
 package org.frameworkset.tran.output.excelftp;
 
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -7,20 +8,17 @@ import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
 import org.frameworkset.tran.output.fileftp.FileTransfer;
 import org.frameworkset.tran.plugin.file.output.ExcelFileOutputConfig;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
+import org.frameworkset.tran.plugin.http.output.HttpTaskCommandImpl;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.*;
 
 public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 
-
-	@Override
-	protected FileTransfer buildFileTransfer(FileOutputConfig fileOutputConfig)  {
-		FileTransfer fileTransfer = new ExcelFileTransfer( (ExcelFileOutputConfig) fileOutputConfig,path,this);
-
-		return fileTransfer;
-
-	}
+    public ExcelFileFtpOutPutDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
+	
 
 	public ExcelFileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, Status currentStatus) {
 		super(taskContext,jdbcResultSet,importContext,  currentStatus);
@@ -28,6 +26,13 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 	public ExcelFileFtpOutPutDataTran(TaskContext taskContext, TranResultSet jdbcResultSet, ImportContext importContext, JobCountDownLatch countDownLatch, Status currentStatus) {
 		super(taskContext,jdbcResultSet,importContext,countDownLatch,  currentStatus);
 	}
+    @Override
+    protected FileTransfer buildFileTransfer(FileOutputConfig fileOutputConfig)  {
+        FileTransfer fileTransfer = new ExcelFileTransfer( (ExcelFileOutputConfig) fileOutputConfig,path,this);
+
+        return fileTransfer;
+
+    }
 	@Override
 	protected void initTranTaskCommand(){
 		parrelTranCommand = new BaseParrelTranCommand(){
@@ -36,10 +41,8 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 			public int hanBatchActionTask(TaskCommandContext taskCommandContext) {
                 if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(  taskCommandContext, (ExcelFileTransfer) fileTransfer
-                            );
+                    ExcelFileFtpTaskCommandImpl taskCommand = (ExcelFileFtpTaskCommandImpl) _buildTaskCommand(taskCommandContext);
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     taskCommandContext.addTask(taskCommand);
@@ -74,9 +77,8 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 			private int action(TaskCommandContext taskCommandContext){
                 if(taskCommandContext.containData() )  {
                     taskCommandContext.increamentTaskNo();
-                    initTaskCommandContext(taskCommandContext);
 //                    List<CommonRecord> records = convertDatas( datas);
-                    ExcelFileFtpTaskCommandImpl taskCommand = new ExcelFileFtpTaskCommandImpl(taskCommandContext, (ExcelFileTransfer) fileTransfer);
+                    ExcelFileFtpTaskCommandImpl taskCommand = (ExcelFileFtpTaskCommandImpl) _buildTaskCommand(taskCommandContext);
 //					taskCommand.setRecords(records);
 //					tasks.add(service.submit(new TaskCall(taskCommand, tranErrorWrapper)));
                     TaskCall.call(taskCommand);
@@ -134,7 +136,10 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 //	protected void initTranJob(){
 //		tranJob = new CommonRecordTranJob();
 //	}
-
+    @Override
+    public TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext) {
+        return new ExcelFileFtpTaskCommandImpl(taskCommandContext, (ExcelFileTransfer) fileTransfer,outputPlugin.getOutputConfig());
+    }
 
 
 

@@ -20,6 +20,7 @@ import org.frameworkset.tran.EsIdGenerator;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.plugin.es.ESField;
+import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 
 /**
  * <p>Description: 将hbase的id设置为es的文档_id</p>
@@ -31,9 +32,13 @@ import org.frameworkset.tran.plugin.es.ESField;
  * @Date 2018/12/4 11:35
  */
 public class HBaseEsIdGenerator implements EsIdGenerator {
+    private ElasticsearchOutputConfig elasticsearchOutputConfig;
+    public HBaseEsIdGenerator(ElasticsearchOutputConfig elasticsearchOutputConfig){
+        this.elasticsearchOutputConfig = elasticsearchOutputConfig;
+    }
 	@Override
 	public Object genId(Context context) throws Exception {
-		ClientOptions clientOptions = context.getClientOptions();
+		ClientOptions clientOptions = (ClientOptions) context.getSpecialConfig(elasticsearchOutputConfig,ElasticsearchOutputConfig.SPECIALCONFIG_CLIENTOPTIONS_NAME);
 		ESField esIdField = clientOptions != null?clientOptions.getIdField():null;
 		if (esIdField != null) {
 			Object id = null;

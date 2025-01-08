@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin.metrics.output;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
@@ -36,9 +37,9 @@ public class MetricsTaskCommandImpl extends BaseTaskCommand<  String> {
 	private Logger logger = LoggerFactory.getLogger(MetricsTaskCommandImpl.class);
 	private TaskContext taskContext;
 	private MetricsOutputConfig metricsOutputConfig;
-	public MetricsTaskCommandImpl(TaskCommandContext taskCommandContext) {
-		super(  taskCommandContext);
-		metricsOutputConfig = (MetricsOutputConfig) importContext.getOutputConfig();
+	public MetricsTaskCommandImpl(TaskCommandContext taskCommandContext, OutputConfig outputConfig) {
+		super( outputConfig, taskCommandContext);
+		metricsOutputConfig = (MetricsOutputConfig) outputConfig;
 		if(this.taskContext == null) {
             this.taskContext = new TaskContext(importContext);
             taskCommandContext.setTaskContext(taskContext);

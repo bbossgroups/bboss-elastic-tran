@@ -1,4 +1,4 @@
-package org.frameworkset.tran.task;
+package org.frameworkset.tran.plugin.es.output;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -27,12 +27,18 @@ import org.frameworkset.elasticsearch.serial.CharEscapeUtil;
 import org.frameworkset.elasticsearch.serial.SerialUtil;
 import org.frameworkset.elasticsearch.template.ConfigDSLUtil;
 import org.frameworkset.soa.BBossStringWriter;
+import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.db.output.JDBCGetVariableValue;
-import org.frameworkset.tran.plugin.es.output.ElasticsearchCommonRecord;
 import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
+import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputDataTranPlugin;
 import org.frameworkset.tran.record.RecordColumnInfo;
+import org.frameworkset.tran.record.RecordOutpluginSpecialConfig;
+import org.frameworkset.tran.task.BaseTaskCommand;
+import org.frameworkset.tran.task.TaskCommand;
+import org.frameworkset.tran.task.TaskCommandContext;
+import org.frameworkset.tran.task.TaskFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +50,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig.*;
 
 /**
  * <p>Description: </p>
@@ -57,8 +65,12 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
 	private ElasticsearchOutputConfig elasticsearchOutputConfig;
 	public TaskCommandImpl(TaskCommandContext taskCommandContext, ElasticsearchOutputConfig elasticsearchOutputConfig 
                            ) {
-		super(taskCommandContext);
+		super(  elasticsearchOutputConfig,taskCommandContext);
 		this.elasticsearchOutputConfig = elasticsearchOutputConfig;
+        ElasticsearchOutputDataTranPlugin elasticsearchOutputDataTranPlugin = (ElasticsearchOutputDataTranPlugin) elasticsearchOutputConfig.getOutputPlugin();
+        this.clientInterfaces = elasticsearchOutputDataTranPlugin.getClientInterfaces();
+        if(clientInterfaces != null && clientInterfaces.length > 0)
+            versionUpper7 = clientInterfaces[0].isVersionUpper7();
 	}
 
 
@@ -80,27 +92,24 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
     public Object getDatas(){
         return datas;
     }
-	public void setClientInterfaces(ClientInterface[] clientInterfaces) {
-		this.clientInterfaces = clientInterfaces;
-        if(clientInterfaces != null && clientInterfaces.length > 0)
-            versionUpper7 = clientInterfaces[0].isVersionUpper7();
-	}
+ 
 
  
 
 
 	private static Logger logger = LoggerFactory.getLogger(TaskCommand.class);
-    public  void buildMeta(ElasticsearchCommonRecord elasticsearchCommonRecord, Writer writer , boolean upper7) throws Exception {
-        Object id = elasticsearchCommonRecord.getEsId();
-        Object parentId = elasticsearchCommonRecord.getParentId();
-        Object routing = elasticsearchCommonRecord.getRouting();
-        ClientOptions clientOptions = elasticsearchCommonRecord.getClientOptions();
+    public  void buildMeta(CommonRecord elasticsearchCommonRecord, Writer writer , boolean upper7) throws Exception {
+        RecordOutpluginSpecialConfig recordOutpluginSpecialConfig = elasticsearchCommonRecord.getRecordOutpluginSpecialConfig(outputConfig);
+        Object id = recordOutpluginSpecialConfig.getSpecialConfig(ElasticsearchOutputConfig.SPECIALCONFIG_ESID_NAME);
+        Object parentId = recordOutpluginSpecialConfig.getSpecialConfig(ElasticsearchOutputConfig.SPECIALCONFIG_PARENTID_NAME);
+        Object routing = recordOutpluginSpecialConfig.getSpecialConfig(ElasticsearchOutputConfig.SPECIALCONFIG_ROUTING_NAME);
+        ClientOptions clientOptions = (ClientOptions) recordOutpluginSpecialConfig.getSpecialConfig(SPECIALCONFIG_CLIENTOPTIONS_NAME);
         Object esRetryOnConflict = clientOptions != null?clientOptions.getEsRetryOnConflict():null;
-        ESIndexWrapper esIndexWrapper = elasticsearchCommonRecord.getEsIndexWrapper();
+        ESIndexWrapper esIndexWrapper = (ESIndexWrapper) recordOutpluginSpecialConfig.getSpecialConfig(SPECIALCONFIG_ESINDEXWRAPPER_NAME);
 
-        JDBCGetVariableValue jdbcGetVariableValue = elasticsearchCommonRecord.getJdbcGetVariableValue();
+        JDBCGetVariableValue jdbcGetVariableValue = (JDBCGetVariableValue) recordOutpluginSpecialConfig.getSpecialConfig(SPECIALCONFIG_JDBCGETVARIABLEVALUE_NAME);
         writer.write("{ \"");
-        writer.write(elasticsearchCommonRecord.getOperation());
+        writer.write((String)recordOutpluginSpecialConfig.getSpecialConfig(SPECIALCONFIG_OPERATION_NAME));
         writer.write("\" : { \"_index\" : \"");
 
         if (esIndexWrapper == null ) {
@@ -150,7 +159,7 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
             }
             writer.write(String.valueOf(esRetryOnConflict));
         }
-        Object version = elasticsearchCommonRecord.getVersion();
+        Object version = recordOutpluginSpecialConfig.getSpecialConfig(SPECIALCONFIG_VERSION_NAME);
 
         if (version != null) {
             if(!upper7) {
@@ -230,9 +239,9 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
 
     }
 
-    public  void evalBuilk( Writer writer, ElasticsearchCommonRecord elasticsearchCommonRecord, boolean upper7) throws Exception {
+    public  void evalBuilk( Writer writer, CommonRecord elasticsearchCommonRecord, boolean upper7) throws Exception {
 
-
+        RecordOutpluginSpecialConfig recordOutpluginSpecialConfig = elasticsearchCommonRecord.getRecordOutpluginSpecialConfig(outputConfig);
         if(elasticsearchCommonRecord.isInsert()) {
 //				SerialUtil.object2json(param,writer);
             buildMeta( elasticsearchCommonRecord, writer ,       upper7);
@@ -244,7 +253,7 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
             buildMeta( elasticsearchCommonRecord, writer ,       upper7);
             writer.write("{\"doc\":");
             serialResult(  writer,elasticsearchCommonRecord);
-            ClientOptions clientOptions = elasticsearchCommonRecord.getClientOptions();
+            ClientOptions clientOptions = (ClientOptions) recordOutpluginSpecialConfig.getSpecialConfig(SPECIALCONFIG_CLIENTOPTIONS_NAME);
             Object esDocAsUpsert = clientOptions != null?clientOptions.getDocasupsert():null;
             if(esDocAsUpsert != null){
                 writer.write(",\"doc_as_upsert\":");
@@ -309,13 +318,13 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
 
     }
 
-    public void evalDeleteBuilk(Writer writer,  ElasticsearchCommonRecord elasticsearchCommonRecord,boolean isUpper7)  throws Exception{
+    public void evalDeleteBuilk(Writer writer,  CommonRecord elasticsearchCommonRecord,boolean isUpper7)  throws Exception{
 
         buildMeta(  elasticsearchCommonRecord,writer,isUpper7);
 
     }
 
-    private  void serialResult( Writer writer,  ElasticsearchCommonRecord dataRecord) throws Exception {
+    private  void serialResult( Writer writer,  CommonRecord dataRecord) throws Exception {
 
 
         writer.write("{");
@@ -325,6 +334,7 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
 //		CommonRecord dataRecord = context.getCommonRecord();
         Map<String,Object> datas = dataRecord.getDatas();
         Iterator<Map.Entry<String,Object>> iterator = datas.entrySet().iterator();
+        RecordOutpluginSpecialConfig recordOutpluginSpecialConfig = dataRecord.getRecordOutpluginSpecialConfig(outputConfig);
         while(iterator.hasNext())
         {
             Map.Entry<String,Object> entry = iterator.next();
@@ -360,7 +370,7 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
                     charEscapeUtil.writeString((String) value, true);
                     writer.write("\"");
                 } else if (value instanceof Date) {
-                    RecordColumnInfo recordColumnInfo = dataRecord.getRecordColumnInfo(colName);
+                    RecordColumnInfo recordColumnInfo = recordOutpluginSpecialConfig.getRecordColumnInfo(colName);
                     DateFormat dateFormat = recordColumnInfo.getDateFormat();
 
                     String dataStr = ConfigDSLUtil.getDate((Date) value,dateFormat);
@@ -402,12 +412,12 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
         }
         StringBuilder builder = new StringBuilder();
         BBossStringWriter writer = new BBossStringWriter(builder);
-        ElasticsearchCommonRecord elasticsearchCommonRecord = null;
+        CommonRecord elasticsearchCommonRecord = null;
 //        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for(int i = 0; i < records.size(); i ++){
-            elasticsearchCommonRecord = (ElasticsearchCommonRecord)records.get(i);
-//            Date c = (Date)elasticsearchCommonRecord.getData("collecttime");
-//            logger.error("collecttime:"+dateFormat.format(c)+",logId:"+elasticsearchCommonRecord.getData("logId"));
+            elasticsearchCommonRecord = records.get(i);
+//            Date c = (Date)recordOutpluginSpecialConfig.getSpecialConfig("Data("collecttime");
+//            logger.error("collecttime:"+dateFormat.format(c)+",logId:"+recordOutpluginSpecialConfig.getSpecialConfig("Data("logId"));
             evalBuilk(   writer, elasticsearchCommonRecord, this.versionUpper7);
         }
         this.datas = writer.toString();

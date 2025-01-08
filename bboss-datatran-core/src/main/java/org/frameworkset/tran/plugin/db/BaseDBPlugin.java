@@ -17,6 +17,7 @@ package org.frameworkset.tran.plugin.db;
 
 import com.frameworkset.common.poolman.util.DBStartResult;
 import org.frameworkset.tran.DataTranPluginImpl;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.slf4j.Logger;
@@ -37,11 +38,16 @@ public abstract class BaseDBPlugin extends BasePlugin {
 	 */
 	protected DBStartResult dbStartResult = new DBStartResult();
 
-	public BaseDBPlugin(ImportContext importContext) {
-		super(importContext);
+	public BaseDBPlugin(OutputConfig pluginOutputConfig, ImportContext importContext) {
+		super(  pluginOutputConfig,importContext);
 	}
 
-	public void destroy(boolean waitTranStop) {
+    public BaseDBPlugin(  ImportContext importContext) {
+        super(   importContext);
+    }
+
+
+    public void destroy(boolean waitTranStop) {
 		DataTranPluginImpl.stopDatasources(dbStartResult);
 	}
 

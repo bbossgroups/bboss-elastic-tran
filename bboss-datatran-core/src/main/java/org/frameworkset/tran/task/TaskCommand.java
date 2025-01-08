@@ -20,6 +20,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
 
@@ -39,7 +40,8 @@ public interface TaskCommand<RESULT> {
     TaskCommandContext getTaskCommandContext();
      void setRecords(List<CommonRecord> records);
      List<CommonRecord> getRecords();
- 
+     boolean isMultiOutputTran();
+     void setMultiOutputTran(boolean multiOutputTran);
 	 void init();
 	 TaskContext getTaskContext();
 	 TaskMetrics getTaskMetrics();
@@ -65,5 +67,6 @@ public interface TaskCommand<RESULT> {
 	 long getElapsed();
 	 void finished();
 
+    public OutputPlugin getOutputPlugin() ;
 
 }

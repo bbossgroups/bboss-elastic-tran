@@ -21,6 +21,7 @@ import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.config.DynamicParam;
 import org.frameworkset.tran.config.DynamicParamContext;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.http.DynamicHeaderContext;
 import org.frameworkset.tran.plugin.http.HttpConfigClientProxy;
@@ -44,9 +45,9 @@ import java.util.Map;
  */
 public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
 	private HttpOutputConfig httpOutputConfig ;
-	public HttpTaskCommandImpl(TaskCommandContext taskCommandContext) {
-		super(  taskCommandContext);
-		httpOutputConfig = (HttpOutputConfig) importContext.getOutputConfig();
+	public HttpTaskCommandImpl(TaskCommandContext taskCommandContext, OutputConfig outputConfig) {
+		super( outputConfig, taskCommandContext);
+		httpOutputConfig = (HttpOutputConfig) outputConfig;
 	}
 
 
@@ -117,7 +118,7 @@ public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
 	}
 	private String directSendData(){
 		String data = null;
-		HttpOutputDataTranPlugin httpOutputDataTranPlugin = (HttpOutputDataTranPlugin) importContext.getOutputPlugin();
+		HttpOutputDataTranPlugin httpOutputDataTranPlugin = (HttpOutputDataTranPlugin) outputPlugin;
 		DynamicHeaderContext dynamicHeaderContext = null;
 		if(httpOutputConfig.getDynamicHeaders() != null) {
 			dynamicHeaderContext = new DynamicHeaderContext();
@@ -137,7 +138,7 @@ public class HttpTaskCommandImpl extends BaseTaskCommand< String> {
 
 	private String unDirectSendData(){
 		String data = null;
-		HttpOutputDataTranPlugin httpOutputDataTranPlugin = (HttpOutputDataTranPlugin) importContext.getOutputPlugin();
+		HttpOutputDataTranPlugin httpOutputDataTranPlugin = (HttpOutputDataTranPlugin) outputPlugin;
 		HttpConfigClientProxy httpConfigClientProxy = httpOutputDataTranPlugin.getHttpConfigClientProxy();
 
 		DynamicHeaderContext dynamicHeaderContext = null;

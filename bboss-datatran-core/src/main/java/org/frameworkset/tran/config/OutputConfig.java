@@ -17,10 +17,12 @@ package org.frameworkset.tran.config;
 
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
-import org.frameworkset.tran.context.BaseImportContext;
+import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.context.RecordSpecialConfigsContext;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
+import org.frameworkset.tran.record.RecordOutpluginSpecialConfig;
 
 import java.util.List;
 
@@ -34,11 +36,39 @@ import java.util.List;
  */
 public interface OutputConfig {
 	public void build(ImportContext importContext,ImportBuilder importBuilder);
+    default void initRecordSpecialConfigsContext(RecordSpecialConfigsContext recordSpecialConfigsContext, boolean fromMultiOutput){
+    }
+
+    /**
+     * 根据上下文配置创建OutputPlugin
+     * @param importContext
+     * @return
+     */
 	OutputPlugin getOutputPlugin(ImportContext importContext);
+    /**
+     * 获取OutputConfig实际对应的OutputPlugin
+     * @return
+     */
+    OutputPlugin getOutputPlugin();
+
+    void setOutputPlugin(OutputPlugin outputPlugin);
+    
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler);
 	void afterBuild(ImportBuilder importBuilder,ImportContext importContext);
 	public int getMetricsAggWindow();
     default public List<ETLMetrics> getMetrics() {
         return null;
+    }
+    public void setPluginNo(String pluginNo) ;
+
+    public String getPluginNo();
+
+
+    default void afterRefactor(RecordOutpluginSpecialConfig recordOutpluginSpecialConfig, Context context) throws Exception {
+        
+    }
+
+    default Object preHandleSpecialConfig(String name, Object value){
+        return value;
     }
 }

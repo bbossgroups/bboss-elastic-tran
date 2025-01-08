@@ -18,6 +18,7 @@ package org.frameworkset.tran;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.plugin.es.ESField;
+import org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig;
 
 /**
  * <p>Description: </p>
@@ -29,10 +30,15 @@ import org.frameworkset.tran.plugin.es.ESField;
  * @Date 2018/12/4 11:35
  */
 public class DefaultEsIdGenerator implements EsIdGenerator {
-	@Override
+    private ElasticsearchOutputConfig elasticsearchOutputConfig;
+    public DefaultEsIdGenerator(ElasticsearchOutputConfig elasticsearchOutputConfig) {
+        this.elasticsearchOutputConfig = elasticsearchOutputConfig;
+    }
+
+    @Override
 	public Object genId(Context context) throws Exception {
-		ClientOptions clientOptions = context.getClientOptions();
-		ESField esIdField = clientOptions != null?clientOptions.getIdField():null;
+        ClientOptions clientOptions = (ClientOptions) context.getSpecialConfig(elasticsearchOutputConfig,ElasticsearchOutputConfig.SPECIALCONFIG_CLIENTOPTIONS_NAME);
+        ESField esIdField = clientOptions != null?clientOptions.getIdField():null;
 		if (esIdField != null) {
 			if(!esIdField.isMeta())
 				return context.getValue(esIdField.getField());

@@ -16,9 +16,12 @@ package org.frameworkset.tran.plugin;
  */
 
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
+import org.frameworkset.tran.record.RecordColumnInfo;
+import org.frameworkset.tran.record.RecordOutpluginSpecialConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -32,13 +35,15 @@ import org.frameworkset.tran.schedule.TaskContext;
  */
 public interface OutputPlugin {
 	ImportContext getImportContext() ;
+    RecordColumnInfo resolveRecordColumnInfo(Object value, FieldMeta fieldMeta, Context context);
 	BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus);
 	void afterInit();
 	void beforeInit();
 	void init();
 	void setDataTranPlugin(DataTranPlugin dataTranPlugin);
 	void destroy(boolean waitTranStop);
-
+    String getJobType();
+    OutputConfig getOutputConfig();
 	JobTaskMetrics createJobTaskMetrics();
 
     default void stopCollectData(){
@@ -46,4 +51,13 @@ public interface OutputPlugin {
 	}
 
     CommonRecord buildRecord(Context context) throws Exception;
+
+    /**
+     * 创建内部转换器
+     * @param baseDataTran
+     * @return
+     */
+    BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) ;
+
+    void buildRecordOutpluginSpecialConfig(CommonRecord dataRecord, Context context) throws Exception;
 }

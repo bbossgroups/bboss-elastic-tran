@@ -101,7 +101,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                             records = new ArrayList<>();
                             if (baseDataTran.isPrintTaskLog()) {
                                 end = System.currentTimeMillis();
-                                StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                                StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                                 logger.info(builder.append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
                                         .append(",import ").append(taskCommandContext.getDataSize()).append(" records.").append("Force FlushInterval[").append(importContext.getFlushInterval()).append("ms]").toString());
                                 istart = end;
@@ -183,7 +183,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 
                         if(baseDataTran.isPrintTaskLog())  {
                             end = System.currentTimeMillis();
-                            StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                            StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                             logger.info(builder.append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
                                     .append(",import ").append(batchsize).append(" records.").toString());
                             istart = end;
@@ -214,7 +214,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 			if(count > 0 ){
 				if(baseDataTran.isPrintTaskLog())  {
 					end = System.currentTimeMillis();
-                    StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                    StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                     logger.info(builder.append("Batch import Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
 							.append(",import ").append(count).append(" records,IgnoreTotalCount ")
 							.append(ignoreTotalCount).append(" records.").toString());
@@ -223,7 +223,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 			}
             importCount.setEndTime(System.currentTimeMillis());
 			if(baseDataTran.isPrintTaskLog()) {
-                StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                 logger.info(builder.append("Batch import Execute Tasks:").append(taskNo).append(",All Take time:").append((importCount.getElapsed())).append("ms")
 						.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
 						.append(ignoreTotalCount).append(" records.").toString());
@@ -329,7 +329,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                         taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
                         if (baseDataTran.isPrintTaskLog()) {
                             end = System.currentTimeMillis();
-                            StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                            StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                             logger.info(builder.append("Batch import Force flush datas Task[").append(taskNo).append("] complete,take time:").append((end - istart)).append("ms")
                                     .append(",import ").append(taskCommandContext.getDataSize()).append(" records.").append("Force FlushInterval[").append(importContext.getFlushInterval()).append("ms]").toString());
                             istart = end;
@@ -433,7 +433,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 
 			}
 			if(baseDataTran.isPrintTaskLog()){
-                StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                 logger.info(builder.append("Pararrel batch submit tasks:").append(taskNo).toString());
             }
 
@@ -591,7 +591,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					if(totalCount == Long.MAX_VALUE) {
 						if(baseDataTran.isPrintTaskLog()) {
 							long end = System.currentTimeMillis();
-                            StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                            StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                             logger.info(builder.append("Send datas  Take time:").append((end - importCount.getStartTime())).append("ms")
 									.append(",Send total").append(totalCount).append(" records,IgnoreTotalCount ")
 									.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
@@ -603,7 +603,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					else{
 						if(baseDataTran.isPrintTaskLog() && importContext.getLogsendTaskMetric() > 0l && (totalCount % importContext.getLogsendTaskMetric()) == 0l) {//每一万条记录打印一次日志
 							long end = System.currentTimeMillis();
-                            StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                            StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                             logger.info(builder.append("Send datas Take time:").append((end - importCount.getStartTime())).append("ms")
 									.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
 									.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
@@ -630,7 +630,7 @@ public class CommonRecordTranJob extends BaseTranJob{
             serialTranCommand.endSerialActionTask(taskCommandContext);
             importCount.setEndTime(System.currentTimeMillis());
 			if(baseDataTran.isPrintTaskLog()) {
-                StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                 logger.info(builder.append("Send datas Take time:").append(importCount.getElapsed()).append("ms")
 						.append(",Send total ").append(totalCount).append(" records,IgnoreTotalCount ")
 						.append(importCount.getIgnoreTotalCount()).append(" records,FailedTotalCount ")
@@ -717,7 +717,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 					if(baseDataTran.isPrintTaskLog()) {
 
 						long end = System.currentTimeMillis();
-                        StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                        StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                         logger.info(builder.append("Force flush datas Take time:").append((end - importCount.getStartTime())).append("ms")
 								.append(",Import total ").append(totalCount).append(" records,IgnoreTotalCount ")
 								.append(ignoreTotalCount).append(" records.").toString());
@@ -802,7 +802,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 			taskNo = serialTranCommand.endSerialActionTask(taskCommandContext);
             importCount.setEndTime(System.currentTimeMillis());
 			if(baseDataTran.isPrintTaskLog()) {
-                StringBuilder builder = builderJobInfo(new StringBuilder(),  importContext);
+                StringBuilder builder = builderJobInfo(importContext.getInputPlugin(), importContext.getOutputPlugin(), new StringBuilder(),  importContext);
                 logger.info(builder.append("Serial import Take time:").append(importCount.getElapsed()).append("ms")
 						.append(",Total Import  ").append(totalCount).append(" records,Total Ignore Count ")
 						.append(importCount.getIgnoreTotalCount()).append(" records,Total Failed Count ")

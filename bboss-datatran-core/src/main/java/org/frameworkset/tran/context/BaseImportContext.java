@@ -21,11 +21,11 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.*;
 import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.*;
-import org.frameworkset.tran.metrics.job.Metrics;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.plugin.metrics.output.MetricsOutputConfig;
+import org.frameworkset.tran.plugin.multi.output.MultiOutputConfig;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.status.LastValueWrapper;
@@ -33,6 +33,7 @@ import org.frameworkset.util.ResourceEnd;
 import org.frameworkset.util.ResourceStart;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -147,6 +148,42 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 		return outputConfig;
 	}
 
+    /**
+     * 搜索对应的类型输出配置类，如果是单输出源，直接判别单输出源配置类是否是对应类型，如果不是返回null；
+     * 如果是多输出源，则从多输出源配置中筛选出第一个符合类型的配置类
+     * @param outputConfigClass
+     * @return
+     */
+    @Override
+    public <T extends OutputConfig> T getOutputConfig(Class<T> outputConfigClass){
+        if(outputConfigClass.isInstance(this.outputConfig)){
+            return (T)outputConfig;
+        }
+        else if(outputConfig instanceof MultiOutputConfig){
+            return ((MultiOutputConfig)outputConfig).getOutputConfig(outputConfigClass);
+        }
+        return null;
+    }
+    /**
+     * 搜索对应的类型所有输出配置类，如果是单输出源，直接判别单输出源配置类是否是对应类型，如果不是返回null；
+     * 如果是多输出源，则从多输出源配置中筛选出第一个符合类型的配置类
+     * @param outputConfigClass
+     * @return
+     */
+    @Override
+    public <T extends OutputConfig> List<T> getOutputConfigs(Class<T> outputConfigClass){
+        
+        if(outputConfigClass.isInstance(this.outputConfig)){
+            List<T> ts = new ArrayList<>(1);
+            ts.add((T)outputConfig);
+            return ts;
+        }
+        else if(outputConfig instanceof MultiOutputConfig){
+            return ((MultiOutputConfig)outputConfig).getOutputConfigs(outputConfigClass);
+        }
+        return null;
+    }
+ 
 	@Override
 	public InputPlugin getInputPlugin() {
 		if(dataTranPlugin != null && dataTranPlugin.getInputPlugin() != null){
@@ -630,21 +667,8 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 		return blockedExecutor;
 	}
 
-    private ExecutorService recordHandlerExecutor;
-    private Object recordHandleExecutorLock = new Object();
-    public ExecutorService buildRecordHandlerExecutor(){
-        if(recordHandlerExecutor != null)
-            return recordHandlerExecutor;
-        synchronized (recordHandleExecutorLock) {
-            if(recordHandlerExecutor == null) {
-                recordHandlerExecutor = ThreadPoolFactory.buildThreadPool("DataTranRecordHandlerThread","DataTranRecordHandlerThread",
-                        getThreadCount(),getQueue(),
-                        -1l
-                        ,1000);
-            }
-        }
-        return blockedExecutor;
-    }
+   
+
 	public Integer getStoreBatchSize(){
 		if(baseImportConfig.getScheduleBatchSize() == null){
 			return baseImportConfig.getBatchSize();

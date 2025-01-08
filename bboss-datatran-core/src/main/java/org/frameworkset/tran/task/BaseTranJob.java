@@ -20,6 +20,8 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.metrics.entity.MapData;
 import org.frameworkset.tran.metrics.job.BuildMapDataContext;
+import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMapData;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.plugin.metrics.output.MetricsData;
@@ -36,8 +38,9 @@ import java.util.List;
  */
 public abstract class BaseTranJob implements TranJob {
  
-    public static StringBuilder builderJobInfo(StringBuilder builder,ImportContext importContext){
-        builder.append("JobType[").append(importContext.getInputPlugin().getJobType()).append("]");
+    public static StringBuilder builderJobInfo(InputPlugin inputPlugin, OutputPlugin outputPlugin,StringBuilder builder, ImportContext importContext){
+        builder.append("inputJobType[").append(inputPlugin.getJobType()).append("] ")
+                .append("outputJobType[").append(outputPlugin.getJobType()).append("]");
         if(importContext.getJobId() != null)
             builder.append(" jobID[").append(importContext.getJobId()).append("]");
         if(importContext.getJobName() != null)

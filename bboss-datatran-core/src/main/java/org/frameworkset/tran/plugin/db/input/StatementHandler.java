@@ -15,6 +15,8 @@ package org.frameworkset.tran.plugin.db.input;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.CommonRecord;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -27,5 +29,5 @@ import java.sql.SQLException;
  * @version 1.0
  */
 public interface StatementHandler {
-	public void handler(PreparedStatement stmt, DBRecord dbRecord) throws SQLException;
+	public void handler(PreparedStatement stmt, CommonRecord dbRecord) throws SQLException;
 }

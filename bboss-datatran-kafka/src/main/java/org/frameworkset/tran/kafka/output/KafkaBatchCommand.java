@@ -17,6 +17,7 @@ package org.frameworkset.tran.kafka.output;
 
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.plugin.kafka.output.KafkaOutputConfig;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
@@ -38,9 +39,9 @@ import static org.frameworkset.tran.context.Context.KAFKA_TOPIC_KEY;
 public class KafkaBatchCommand extends BaseTaskCommand<  Object> {
     private static Logger logger = LoggerFactory.getLogger(KafkaBatchCommand.class);
 	private KafkaOutputConfig kafkaOutputConfig;
-	public KafkaBatchCommand(TaskCommandContext taskCommandContext) {
-		super(  taskCommandContext);
-		kafkaOutputConfig = (KafkaOutputConfig) importContext.getOutputConfig();
+	public KafkaBatchCommand(TaskCommandContext taskCommandContext, OutputConfig outputConfig) {
+		super( outputConfig, taskCommandContext);
+		kafkaOutputConfig = (KafkaOutputConfig) outputConfig;
 	}
 
     @Override

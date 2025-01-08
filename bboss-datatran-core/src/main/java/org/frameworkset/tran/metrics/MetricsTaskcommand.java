@@ -18,6 +18,7 @@ package org.frameworkset.tran.metrics;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
+import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.task.TaskCommand;
@@ -38,7 +39,24 @@ public class MetricsTaskcommand implements TaskCommand {
 	protected JobContext jobContext;
 	protected ImportContext importContext;
 	protected TaskContext taskContext;
+    protected boolean multiOutputTran;
 
+
+    protected OutputPlugin outputPlugin;
+    public boolean isMultiOutputTran(){
+        return multiOutputTran;
+    }
+    public void setMultiOutputTran(boolean multiOutputTran){
+        this.multiOutputTran = multiOutputTran;
+    }
+
+    public OutputPlugin getOutputPlugin() {
+        return outputPlugin;
+    }
+
+    public void setOutputPlugin(OutputPlugin outputPlugin) {
+        this.outputPlugin = outputPlugin;
+    }
 	@Override
 	public JobContext getJobContext() {
 		return jobContext;
@@ -58,6 +76,8 @@ public class MetricsTaskcommand implements TaskCommand {
     public List<CommonRecord> getRecords() {
         return null;
     }
+
+ 
 
     @Override
     public void setRecords(List list) {
@@ -137,7 +157,9 @@ public class MetricsTaskcommand implements TaskCommand {
 
 	}
 
-	public void setTaskMetrics(TaskMetrics taskMetrics) {
+ 
+
+    public void setTaskMetrics(TaskMetrics taskMetrics) {
 		this.taskMetrics = taskMetrics;
 	}
 

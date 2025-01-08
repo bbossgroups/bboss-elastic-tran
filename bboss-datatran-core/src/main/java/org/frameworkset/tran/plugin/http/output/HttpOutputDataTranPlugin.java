@@ -24,6 +24,7 @@ import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
@@ -49,12 +50,15 @@ public class HttpOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 	private ResourceStartResult resourceStartResult ;
 
 	private HttpConfigClientProxy httpConfigClientProxy ;
-	public HttpOutputDataTranPlugin(ImportContext importContext){
-		super(importContext);
-		httpOutputConfig = (HttpOutputConfig) importContext.getOutputConfig();
+	public HttpOutputDataTranPlugin(OutputConfig pluginOutputConfig, ImportContext importContext){
+		super(  pluginOutputConfig,importContext);
+		httpOutputConfig = (HttpOutputConfig)   pluginOutputConfig;
 
 	}
-
+    @Override
+    public String getJobType(){
+        return "HttpOutputDataTranPlugin";
+    }
 	public HttpOutputConfig getHttpOutputConfig() {
 		return httpOutputConfig;
 	}
@@ -130,5 +134,14 @@ public class HttpOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 		return db2ESDataTran;
 	}
 
-
+    /**
+     * 创建内部转换器
+     * @param baseDataTran
+     * @return
+     */
+    @Override
+    public BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) {
+        BaseDataTran db2ESDataTran = new HttpOutPutDataTran(  baseDataTran);
+        return db2ESDataTran;
+    }
 }

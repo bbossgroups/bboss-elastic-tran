@@ -16,6 +16,7 @@ package org.frameworkset.tran.task;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
@@ -44,8 +45,8 @@ public abstract class CommonBaseTaskCommand<Object> extends BaseTaskCommand<Obje
     protected String taskInfo;
 
     private int tryCount;
-    public CommonBaseTaskCommand(TaskCommandContext taskCommandContext){
-        super(taskCommandContext);
+    public CommonBaseTaskCommand(TaskCommandContext taskCommandContext, OutputConfig outputConfig){
+        super(outputConfig,taskCommandContext);
         this.taskInfo = taskCommandContext.getTaskInfo();
     }
     public int getTryCount() {

@@ -1,6 +1,7 @@
 package org.frameworkset.tran.plugin.milvus.output;
 
 import org.frameworkset.tran.AbstraCommonRecordOutPutDataTran;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -12,11 +13,14 @@ import org.frameworkset.tran.task.TaskCommandContext;
 
 public class MilvusOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
     protected MilvusOutputConfig milvusOutputConfig;
-
+    public MilvusOutPutDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
 	@Override
 	public void init(){
 		super.init();
-        milvusOutputConfig = (MilvusOutputConfig) importContext.getOutputConfig();
+        if(milvusOutputConfig == null)
+            milvusOutputConfig = (MilvusOutputConfig) outputPlugin.getOutputConfig();
 		StringBuilder builder = new StringBuilder();
 
 		if(milvusOutputConfig != null){
@@ -36,8 +40,8 @@ public class MilvusOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
 		super(   taskContext,jdbcResultSet,importContext,   currentStatus);
 	}
     @Override
-	protected TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext){
-			return new MilvusTaskCommandImpl(taskCommandContext);
+    public TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext){
+			return new MilvusTaskCommandImpl(taskCommandContext,outputPlugin.getOutputConfig());
 	}
 
 

@@ -53,7 +53,7 @@ public class CustomOutputConfig extends BaseConfig implements OutputConfig {
 
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return new CustomOutputDataTranPlugin(importContext);
+		return new CustomOutputDataTranPlugin(this,importContext);
 	}
 
 	public CustomOutPut getCustomOutPut() {

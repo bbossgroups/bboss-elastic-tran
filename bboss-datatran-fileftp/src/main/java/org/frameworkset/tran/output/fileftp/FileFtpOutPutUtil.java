@@ -15,6 +15,7 @@ package org.frameworkset.tran.output.fileftp;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -48,15 +49,14 @@ public class FileFtpOutPutUtil {
 
 		return fileFtpOutPutDataTran;
 	}
-	public static FileFtpOutPutDataTran buildFileFtpOutPutDataTran(TaskContext taskContext, TranResultSet tranResultSet, ImportContext importContext,
-																    Status currentStatus){
-		FileOutputConfig fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
+	public static FileFtpOutPutDataTran buildFileFtpOutPutDataTran(BaseDataTran baseDataTran){
+		FileOutputConfig fileOutputConfig = (FileOutputConfig) baseDataTran.getOutputConfig();
 		FileFtpOutPutDataTran fileFtpOutPutDataTran = null;
 		if(fileOutputConfig instanceof ExcelFileOutputConfig){
-			fileFtpOutPutDataTran = new ExcelFileFtpOutPutDataTran(taskContext,tranResultSet,importContext,     currentStatus);
+			fileFtpOutPutDataTran = new ExcelFileFtpOutPutDataTran(baseDataTran);
 		}
 		else{
-			fileFtpOutPutDataTran = new FileFtpOutPutDataTran(taskContext,tranResultSet,importContext,    currentStatus);
+			fileFtpOutPutDataTran = new FileFtpOutPutDataTran(baseDataTran);
 		}
 
 		return fileFtpOutPutDataTran;

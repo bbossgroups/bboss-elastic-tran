@@ -1,6 +1,7 @@
 package org.frameworkset.tran.plugin.mongodb.output;
 
 import org.frameworkset.tran.AbstraCommonRecordOutPutDataTran;
+import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
 import org.frameworkset.tran.context.ImportContext;
@@ -12,11 +13,14 @@ import org.frameworkset.tran.task.TaskCommandContext;
 
 public class MongoDBOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
 	protected MongoDBOutputConfig mongoDBOutputConfig ;
-
+    public MongoDBOutPutDataTran(BaseDataTran baseDataTran) {
+        super(baseDataTran);
+    }
 	@Override
 	public void init(){
 		super.init();
-		mongoDBOutputConfig = (MongoDBOutputConfig) importContext.getOutputConfig();
+        if(mongoDBOutputConfig == null)
+		    mongoDBOutputConfig = (MongoDBOutputConfig) outputPlugin.getOutputConfig();
 		StringBuilder builder = new StringBuilder();
 
 		if(mongoDBOutputConfig != null){
@@ -35,12 +39,16 @@ public class MongoDBOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
 		super(   taskContext,jdbcResultSet,importContext,   currentStatus);
 	}
     @Override
-	protected TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext){
+    public TaskCommand buildTaskCommand(TaskCommandContext taskCommandContext){
+        MongoDBOutputConfig mongoDBOutputConfig = this.mongoDBOutputConfig;
+        if(mongoDBOutputConfig == null){
+            mongoDBOutputConfig = (MongoDBOutputConfig) outputConfig;
+        }
 		if(!mongoDBOutputConfig.isMultiCollections()) {
-			return new MongoDBTaskCommandImpl(taskCommandContext);
+			return new MongoDBTaskCommandImpl(taskCommandContext,mongoDBOutputConfig);
 		}
 		else{
-			return new MongoDBMultiTargetTaskCommandImpl(  taskCommandContext);
+			return new MongoDBMultiTargetTaskCommandImpl(  taskCommandContext,mongoDBOutputConfig);
 		}
 	}
 

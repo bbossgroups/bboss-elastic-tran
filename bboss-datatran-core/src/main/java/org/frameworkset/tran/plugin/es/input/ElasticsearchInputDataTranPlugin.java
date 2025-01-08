@@ -26,6 +26,7 @@ import org.frameworkset.tran.AsynBaseTranResultSet;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.JobCountDownLatch;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.InputPlugin;
@@ -173,17 +174,21 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 		ESDatas<MetaMap> response = null;
 		if(!elasticsearchInputConfig.isSliceQuery()) {
 
-			if(importContext.isParallel() && esExporterScrollHandler instanceof ESDirectExporterScrollHandler) {
-				response = clientUtil.scrollParallel(getQueryUrl(  taskContext,lastStartValue,lastEndValue),
-						dslName, elasticsearchInputConfig.getScrollLiveTime(),
-						params, MetaMap.class, esExporterScrollHandler);
-			}
-			else
-			{
-				response = clientUtil.scroll(getQueryUrl(  taskContext,lastStartValue,lastEndValue),
-						dslName, elasticsearchInputConfig.getScrollLiveTime(),
-						params, MetaMap.class, esExporterScrollHandler);
-			}
+//			if(importContext.isParallel() && esExporterScrollHandler instanceof ESDirectExporterScrollHandler) {
+//				response = clientUtil.scrollParallel(getQueryUrl(  taskContext,lastStartValue,lastEndValue),
+//						dslName, elasticsearchInputConfig.getScrollLiveTime(),
+//						params, MetaMap.class, esExporterScrollHandler);
+//			}
+//			else
+//			{
+//				response = clientUtil.scroll(getQueryUrl(  taskContext,lastStartValue,lastEndValue),
+//						dslName, elasticsearchInputConfig.getScrollLiveTime(),
+//						params, MetaMap.class, esExporterScrollHandler);
+//			}
+
+            response = clientUtil.scroll(getQueryUrl(  taskContext,lastStartValue,lastEndValue),
+                    dslName, elasticsearchInputConfig.getScrollLiveTime(),
+                    params, MetaMap.class, esExporterScrollHandler);
 		}
 		else{
 			response = clientUtil.scrollSliceParallel(getQueryUrl(  taskContext,lastStartValue,lastEndValue), dslName,

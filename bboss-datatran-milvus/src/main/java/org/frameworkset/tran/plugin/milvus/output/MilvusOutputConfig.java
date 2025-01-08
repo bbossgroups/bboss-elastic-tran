@@ -289,7 +289,7 @@ public class MilvusOutputConfig extends BaseConfig implements OutputConfig, Milv
 
     @Override
     public OutputPlugin getOutputPlugin(ImportContext importContext) {
-        return new MilvusOutputDataTranPlugin(importContext);
+        return new MilvusOutputDataTranPlugin(importContext,this);
     }
 
     public boolean isLoadCollectionSchema() {

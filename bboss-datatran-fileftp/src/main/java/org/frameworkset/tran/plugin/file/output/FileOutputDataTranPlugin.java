@@ -15,13 +15,16 @@ package org.frameworkset.tran.plugin.file.output;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.BaseCommonRecordDataTran;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.output.fileftp.*;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.plugin.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -38,14 +41,17 @@ public class FileOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 	private SuccessFilesClean successFilesClean;
 	private FileSend2Ftp fileSend2Ftp;
     private FileOutputConfig fileOutputConfig;
-	public FileOutputDataTranPlugin(ImportContext importContext){
-		super(importContext);
-        fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
+	public FileOutputDataTranPlugin(OutputConfig pluginOutputConfig, ImportContext importContext){
+		super(  pluginOutputConfig,importContext);
+        fileOutputConfig = (FileOutputConfig) pluginOutputConfig;
 	}
-
+    @Override
+    public String getJobType(){
+        return "FileOutputDataTranPlugin";
+    }
 	@Override
 	public void afterInit() {
-		FileOutputConfig fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
+//		FileOutputConfig fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
         boolean initSendFile = !fileOutputConfig.isDisableftp() && (fileOutputConfig.getFtpOutConfig() != null || fileOutputConfig.getMinioFileConfig() != null);
 		if(initSendFile) {
 
@@ -120,7 +126,16 @@ public class FileOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 		return fileFtpOutPutDataTran;
 	}
 
-
+    /**
+     * 创建内部转换器
+     * @param baseDataTran
+     * @return
+     */
+    @Override
+    public BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) {
+        FileFtpOutPutDataTran fileFtpOutPutDataTran = FileFtpOutPutUtil.buildFileFtpOutPutDataTran(baseDataTran);
+        return fileFtpOutPutDataTran;
+    }
 
 
 

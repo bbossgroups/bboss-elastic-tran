@@ -45,14 +45,7 @@ public interface ParrelTranCommand {
 //								  Object datas,  ExecutorService service, List<Future> tasks, TranErrorWrapper tranErrorWrapper);
     public int hanBatchActionTask(TaskCommandContext taskCommandContext);
 
-	/**
-	 * 构建数据记录对象
-	 * @param context
-	 * @param writer
-	 * @return
-	 * @throws Exception
-	 */
-	public CommonRecord buildStringRecord(Context context, Writer writer) throws Exception;
+ 
 
 	/**
 	 * 在作业执行的并行任务全部结束后执行

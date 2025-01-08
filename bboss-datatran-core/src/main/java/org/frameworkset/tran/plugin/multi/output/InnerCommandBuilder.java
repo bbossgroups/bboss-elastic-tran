@@ -1,6 +1,6 @@
-package org.frameworkset.tran.plugin.db.input;
+package org.frameworkset.tran.plugin.multi.output;
 /**
- * Copyright 2020 bboss
+ * Copyright 2025 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,36 +15,20 @@ package org.frameworkset.tran.plugin.db.input;
  * limitations under the License.
  */
 
-import com.frameworkset.common.poolman.Param;
 import org.frameworkset.tran.CommonRecord;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * <p>Description: </p>
  * <p></p>
- * <p>Copyright (c) 2020</p>
- * @Date 2021/1/13 22:41
+ *
  * @author biaoping.yin
- * @version 1.0
+ * @Date 2025/1/5
  */
-public class DBRecord extends CommonRecord {
-	private List<Param> params;
-
-	public List<Param> getParams() {
-		return params;
-	}
-	public void setParams(List<Param> params) {
-		this.params = params;
-	}
-
-	public int size(){
-		if(params != null)
-			return params.size();
-		return 0;
-	}
-	public Param get(int idx){
-		return params.get(idx);
-	}
+public interface InnerCommandBuilder {
+    List<Future> buildBaseTaskCommand(List<CommonRecord> records, ExecutorService executorService);
 
 }
