@@ -36,6 +36,6 @@ public class JsonRecordGenerator implements RecordGeneratorV1 {
         CommonRecord record = recordGeneratorContext.getRecord();
         Writer builder = recordGeneratorContext.getBuilder();
 		if(builder != null)
-			SerialUtil.normalObject2json(record.getDatas(),builder);
+			SerialUtil.object2jsonDisableCloseAndFlush(record.getDatas(),builder);
 	}
 }

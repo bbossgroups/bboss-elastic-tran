@@ -17,6 +17,7 @@ package org.frameworkset.tran.task;
 
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.TranErrorWrapper;
+import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.slf4j.Logger;
@@ -34,24 +35,16 @@ public class MultiOutputTaskCall extends TaskCall{
     public MultiOutputTaskCall(TaskCommand taskCommand, TranErrorWrapper errorWrapper) {
         super(taskCommand, errorWrapper);
     }
-    private void exportResultHandler(TaskCommand taskCommand,ImportContext importContext,Throwable e){
-        if (importContext.getExportResultHandler() != null) {
-            try {
-                importContext.getExportResultHandler().handleException(taskCommand, e);
-            }
-            catch (Exception ee){
-                log.warn("",e);
-            }
-        }
-    }
+
     @Override
     protected  <RESULT> RESULT innerCall(TaskCommand<RESULT> taskCommand){
         ImportContext importContext = taskCommand.getImportContext();
         try {
-            RESULT data = taskCommand.execute();            
-            if (importContext.getExportResultHandler() != null) {//处理返回值
+            RESULT data = taskCommand.execute();
+            WrapedExportResultHandler wrapedExportResultHandler = importContext.getExportResultHandler(taskCommand.getOutputConfig());
+            if (wrapedExportResultHandler != null) {//处理返回值
                 try {
-                    importContext.getExportResultHandler().handleResult(taskCommand, data);
+                    wrapedExportResultHandler.handleResult(taskCommand, data);
                 }
                 catch (Exception e){
                     StringBuilder stringBuilder = BaseTranJob.builderJobInfo(importContext.getInputPlugin(), taskCommand.getOutputPlugin(), new StringBuilder(),  importContext);

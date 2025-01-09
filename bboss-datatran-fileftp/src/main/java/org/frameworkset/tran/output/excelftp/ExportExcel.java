@@ -12,8 +12,10 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.output.fileftp.FileTransfer;
 import org.frameworkset.tran.plugin.file.output.ExcelFileOutputConfig;
 import org.frameworkset.tran.record.CellMapping;
+import org.frameworkset.util.concurrent.LongCount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -307,37 +309,73 @@ public class ExportExcel extends BaseExcelInf{
         return cell;
     }
 
-    public void writeData(List<CommonRecord> datas) throws IOException {
-        if(datas == null || datas.size() == 0)
-            return ;
-        for (CommonRecord e : datas) {
-            int column = 0;
-            Row row = this.addRow();
-            StringBuilder sb = new StringBuilder();
+//    public void writeData(List<CommonRecord> datas,SplitFunction splitFunction) throws IOException {
+//        if(datas == null || datas.size() == 0)
+//            return ;
+//        ExcelFileTransfer fileTransfer = splitFunction.getFileTransfer();
+//        long count = 0;
+//        for (CommonRecord e : datas) {
+//            fileTransfer.init();
+//            count = fileTransfer.increamentUnSynchronized();
+//            Row row = this.addRow();
+//            StringBuilder sb = new StringBuilder();
+//
+//            for (CellMapping cellMapping : cellMappingList) {
+//
+//                Object val = e.getData(cellMapping.getFieldName());
+//
+//
+//                if(val == null){
+//                    val = cellMapping.getDefaultValue();
+//                }
+//                if(val == null){
+//                    val = "";
+//                }
+//                this.addCell(cellMapping,row, cellMapping.getCell(), val, 1, val.getClass());
+//                if(log.isDebugEnabled())
+//                    sb.append(val + ", ");
+//            }
+//            fileTransfer.refreshLastWriteDataTime();
+//            if(log.isDebugEnabled())
+//                log.debug("Write success: [" + row.getRowNum() + "] " + sb.toString());
+//            boolean split = splitFunction.split(count);
+//            if(split ){
+//                count = 0;
+//            }
+//            
+//        }
+//    }
 
-            for (CellMapping cellMapping : cellMappingList) {
-
-                Object val = e.getData(cellMapping.getFieldName());
 
 
-                if(val == null){
-                    val = cellMapping.getDefaultValue();
-                }
-                if(val == null){
-                    val = "";
-                }
-                this.addCell(cellMapping,row, cellMapping.getCell(), val, 1, val.getClass());
-                if(log.isDebugEnabled())
-                    sb.append(val + ", ");
+    public void writeData(CommonRecord data ) throws IOException {
+        
+        
+        Row row = this.addRow();
+        StringBuilder sb = new StringBuilder();
+
+        for (CellMapping cellMapping : cellMappingList) {
+
+            Object val = data.getData(cellMapping.getFieldName());
+
+
+            if(val == null){
+                val = cellMapping.getDefaultValue();
             }
+            if(val == null){
+                val = "";
+            }
+            this.addCell(cellMapping,row, cellMapping.getCell(), val, 1, val.getClass());
             if(log.isDebugEnabled())
-                log.debug("Write success: [" + row.getRowNum() + "] " + sb.toString());
+                sb.append(val + ", ");
         }
+         
+        if(log.isDebugEnabled())
+            log.debug("Write success: [" + row.getRowNum() + "] " + sb.toString());
+           
+
+        
     }
-
-
-
-
 
 
 

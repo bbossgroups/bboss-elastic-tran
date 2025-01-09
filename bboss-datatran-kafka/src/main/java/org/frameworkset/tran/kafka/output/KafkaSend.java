@@ -27,6 +27,5 @@ import org.frameworkset.tran.task.BaseTaskCommand;
  * @version 1.0
  */
 public interface KafkaSend {
-	void send(BaseTaskCommand taskCommand, TaskContext taskContext,  String topic,Object key, Object data);
     public void batchSend(final BaseTaskCommand taskCommand, TaskContext taskContext, String topic,Object key, Object data);
 }

@@ -49,8 +49,8 @@ public class FileFtpOutPutUtil {
 
 		return fileFtpOutPutDataTran;
 	}
-	public static FileFtpOutPutDataTran buildFileFtpOutPutDataTran(BaseDataTran baseDataTran){
-		FileOutputConfig fileOutputConfig = (FileOutputConfig) baseDataTran.getOutputConfig();
+	public static FileFtpOutPutDataTran buildFileFtpOutPutDataTran(FileOutputConfig fileOutputConfig,BaseDataTran baseDataTran){
+//		FileOutputConfig fileOutputConfig = (FileOutputConfig) baseDataTran.getOutputConfig();
 		FileFtpOutPutDataTran fileFtpOutPutDataTran = null;
 		if(fileOutputConfig instanceof ExcelFileOutputConfig){
 			fileFtpOutPutDataTran = new ExcelFileFtpOutPutDataTran(baseDataTran);

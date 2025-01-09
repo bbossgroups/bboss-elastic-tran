@@ -47,8 +47,8 @@ public class RemoteFileChannel {
 				,warnMultsRejects,true,true);
 	}
 	public Future submitNewTask(Runnable runnable){
-		return executor.submit(runnable);
-
+		Future future = executor.submit(runnable);
+        return future;
 	}
 
 	public String getThreadName() {

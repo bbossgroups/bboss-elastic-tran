@@ -253,7 +253,7 @@ public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfi
 	}
 	@Override
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		ESExportResultHandler db2ESExportResultHandler = new ESExportResultHandler(exportResultHandler);
+		ESExportResultHandler db2ESExportResultHandler = new ESExportResultHandler(exportResultHandler,this);
 		return db2ESExportResultHandler;
 	}
 

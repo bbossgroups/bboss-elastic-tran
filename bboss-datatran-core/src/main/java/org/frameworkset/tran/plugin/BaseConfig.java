@@ -17,8 +17,11 @@ package org.frameworkset.tran.plugin;
 
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.ImportBuilder;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.FieldMappingManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Description: </p>
@@ -29,12 +32,26 @@ import org.frameworkset.tran.record.FieldMappingManager;
  * @version 1.0
  */
 public abstract class BaseConfig  extends FieldMappingManager {
+    private static final Logger log_ = LoggerFactory.getLogger(BaseConfig.class);
     protected String pluginNo;
     protected OutputPlugin outputPlugin;
+    protected WrapedExportResultHandler exportResultHandler;
+
+    protected boolean multiOutputTran;
+    public boolean isMultiOutputTran(){
+        return multiOutputTran;
+    }
+    public void setMultiOutputTran(boolean multiOutputTran){
+        this.multiOutputTran = multiOutputTran;
+    }
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext){
 		DataTranPlugin dataTranPlugin = new DataTranPluginImpl(importContext);
 		return dataTranPlugin;
 	}
+
+    public WrapedExportResultHandler getExportResultHandler() {
+        return exportResultHandler;
+    }
 
     /**
      * 获取OutputConfig实际对应的OutputPlugin
@@ -59,13 +76,22 @@ public abstract class BaseConfig  extends FieldMappingManager {
     public void setPluginNo(String pluginNo) {
         this.pluginNo = pluginNo;
     }
-
+    public void destroyExportResultHandler(){
+        try {
+            this.exportResultHandler.destroy();
+        }
+        catch (Throwable e){
+            log_.warn("Destroy WrapedExportResultHandler failed:",e);
+        }
+        
+    }
     public String getPluginNo() {
         return pluginNo;
     }
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		DefualtExportResultHandler db2ESExportResultHandler = new DefualtExportResultHandler(exportResultHandler);
-		return db2ESExportResultHandler;
+		DefualtExportResultHandler _exportResultHandler = new DefualtExportResultHandler(exportResultHandler,(OutputConfig) this);
+        this.exportResultHandler = _exportResultHandler;
+		return _exportResultHandler;
 	}
 	public int getMetricsAggWindow(){
 		return -1;

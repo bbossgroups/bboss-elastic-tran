@@ -28,7 +28,6 @@ import org.frameworkset.tran.listener.AsynJobClosedListenerImpl;
 import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.MetricsLogLevel;
 import org.frameworkset.tran.metrics.MetricsLogReport;
-import org.frameworkset.tran.metrics.job.Metrics;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.plugin.metrics.output.MetricsOutputConfig;
 import org.frameworkset.tran.plugin.multi.output.MultiOutputConfig;
@@ -1528,7 +1527,7 @@ public class ImportBuilder {
 		importContext.setInputConfig(inputConfig);
 		importContext.setOutputConfig(outputConfig);
 		if(this.exportResultHandler != null){
-
+            //设置全局结果回调处理器
 			baseImportConfig.setExportResultHandler(outputConfig.buildExportResultHandler( exportResultHandler));
 		}
 		importContext.afterBuild(this);

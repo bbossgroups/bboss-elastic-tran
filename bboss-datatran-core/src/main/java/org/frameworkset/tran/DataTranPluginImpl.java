@@ -1150,18 +1150,22 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			}
 		} while (true);
 	}
+    protected void destroyExportResultHandler(){
+        importContext.getOutputConfig().destroyExportResultHandler();
+    }
 	protected void _afterDestory(boolean onceTaskFinished,boolean waitTranStop,boolean fromScheduleEnd,Throwable throwable){
 		checkTranFinished(onceTaskFinished);
 
-		WrapedExportResultHandler wrapedExportResultHandler = importContext.getExportResultHandler();
-		if(wrapedExportResultHandler != null){
-			try {
-				wrapedExportResultHandler.destroy();
-			}
-			catch (Throwable e){
-				logger.warn("Destroy WrapedExportResultHandler failed:",e);
-			}
-		}
+//		WrapedExportResultHandler wrapedExportResultHandler = importContext.getExportResultHandler();
+//		if(wrapedExportResultHandler != null){
+//			try {
+//				wrapedExportResultHandler.destroy();
+//			}
+//			catch (Throwable e){
+//				logger.warn("Destroy WrapedExportResultHandler failed:",e);
+//			}
+//		}
+        destroyExportResultHandler();
         stopMetrics();
 		if(statusManager != null)
 			statusManager.stop();

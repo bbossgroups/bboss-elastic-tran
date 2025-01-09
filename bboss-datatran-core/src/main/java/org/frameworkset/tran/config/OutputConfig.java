@@ -38,7 +38,9 @@ public interface OutputConfig {
 	public void build(ImportContext importContext,ImportBuilder importBuilder);
     default void initRecordSpecialConfigsContext(RecordSpecialConfigsContext recordSpecialConfigsContext, boolean fromMultiOutput){
     }
-
+     
+    public boolean isMultiOutputTran();
+    public void setMultiOutputTran(boolean multiOutputTran);
     /**
      * 根据上下文配置创建OutputPlugin
      * @param importContext
@@ -54,6 +56,8 @@ public interface OutputConfig {
     void setOutputPlugin(OutputPlugin outputPlugin);
     
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler);
+
+    WrapedExportResultHandler getExportResultHandler();
 	void afterBuild(ImportBuilder importBuilder,ImportContext importContext);
 	public int getMetricsAggWindow();
     default public List<ETLMetrics> getMetrics() {
@@ -71,4 +75,6 @@ public interface OutputConfig {
     default Object preHandleSpecialConfig(String name, Object value){
         return value;
     }
+    
+    void destroyExportResultHandler();
 }

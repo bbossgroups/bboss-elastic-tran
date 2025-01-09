@@ -74,8 +74,12 @@ public class ExportExcelUtil extends BaseExcelInf{
     public ExportExcelUtil() {
 
     }
-    public void writeData(List<CommonRecord> datas) throws IOException {
-        currentExportExcel.writeData(datas);
+//    public void writeData(List<CommonRecord> datas,SplitFunction splitFunction) throws IOException {
+//        currentExportExcel.writeData(datas,  splitFunction);
+//    }
+
+    public void writeData(CommonRecord data ) throws IOException {
+        currentExportExcel.writeData(data);
     }
     /**
 

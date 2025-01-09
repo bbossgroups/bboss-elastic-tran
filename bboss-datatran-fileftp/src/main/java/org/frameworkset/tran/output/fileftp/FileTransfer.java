@@ -15,14 +15,16 @@ package org.frameworkset.tran.output.fileftp;
  * limitations under the License.
  */
 
-import com.fasterxml.jackson.databind.DatabindException;
 import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.soa.BBossStringWriter;
+import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.DataImportException;
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.TaskCommand;
 import org.frameworkset.tran.util.HeaderRecordGeneratorV1;
 import org.frameworkset.tran.util.RecordGeneratorContext;
@@ -35,6 +37,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -51,6 +54,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @version 1.0
  */
 public class FileTransfer {
+    private static Logger logger = LoggerFactory.getLogger(FileTransfer.class);
 	/**
 	 * 写入的记录数
 	 */
@@ -98,10 +102,15 @@ public class FileTransfer {
 		if(buffsize <= 0){
 			buffsize = 8192;
 		}
-
-
-
 	}
+
+    public LongCount getRecords() {
+        return records;
+    }
+
+    public void refreshLastWriteDataTime(){
+        lastWriteDataTime = System.currentTimeMillis();
+    }
 
     public long getMaxForceFileThresholdInterval() {
         return maxForceFileThresholdInterval;
@@ -237,45 +246,62 @@ public class FileTransfer {
 			bw.write(fileOutputConfig.getLineSeparator());
 		}
 	}
-	public void writeData(TaskCommand taskCommand,String data,long totalSize,long dataSize) throws IOException {
+	
+
+    public void writeData(TaskCommand taskCommand, List<CommonRecord> datas, TaskContext taskContext, TaskMetrics taskMetrics) throws Exception {
         transferLock.lock();
         try {
-            init();
-            if(records != null) {
-                if (dataSize <= 0L)
-                    dataSize = 1L;
-                records.increamentUnSynchronized(dataSize);
-            }
-            if(bw == null){
-                logger.error("bw is null");
-                throw new DataImportException("bw is null") ;
-            }
-            bw.write(data);
-            this.lastWriteDataTime = System.currentTimeMillis();
-            if (maxFileRecordSize > 0L) {
-                boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
-                if (reachMaxedSize) {
-                    try {
-                        sendFile();
+            
+//            if(records != null) {                
+//                records.increamentUnSynchronized(dataSize);
+//            }
+//            if(bw == null){
+//                logger.error("bw is null");
+//                throw new DataImportException("bw is null") ;
+//            }
+            CommonRecord record = null;
+            long count = 0;
+            
+            for(int i = 0; i < datas.size(); i ++){
+                record = datas.get(i);
+                init();
+                fileOutputConfig.generateReocord(taskContext,   taskMetrics,record, bw);
+                bw.write(fileOutputConfig.getLineSeparator());
+                refreshLastWriteDataTime();
+                count = records.increamentUnSynchronized();
+                if (maxFileRecordSize > 0L) {
+                    boolean reachMaxedSize = count >= maxFileRecordSize;
+                    if (reachMaxedSize) {  
+                        count = 0;
+                        try {
+                            sendFile();
+                        }
+                        finally {
+                            reset();                            
+                        }
                     }
-                    finally {
-                        reset();    
-                    }
-                    
                 }
             }
+            if(count > 0){
+                bw.flush();
+            }
+          
+
+
+
 
         }
         finally {
             transferLock.unlock();
         }
 
-	}
+    }
+    
 
-//	public boolean splitCheck(long totalCount) {
+//	protected boolean splitCheck(long totalCount) {
 //		return totalCount > 0 && (totalCount % maxFileRecordSize == 0);
 //	}
-	private static Logger logger = LoggerFactory.getLogger(FileTransfer.class);
+	
 
 	public boolean isSended() {
 		return sended;

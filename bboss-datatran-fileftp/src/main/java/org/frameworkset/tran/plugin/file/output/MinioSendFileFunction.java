@@ -72,13 +72,26 @@ public class MinioSendFileFunction implements SendFileFunction{
                 minioStartResult.addDBStartResult(minioFileConfig.getName());
             }
         }
+        
     }
-
+    private Object lock = new Object();
+    private void initMinio(){
+        if(minio != null){
+            return;
+        }
+        synchronized (lock){
+            if(minio == null){
+                minio = MinioHelper.getMinio(minioFileConfig.getName());
+            }
+        }
+    }
+    
     @Override
     public void sendFile(FileOutputConfig fileOutputConfig, String filePath, String remoteFilePath,boolean resend) {
         File file = new File(filePath);
         OSSFileInfo ossFileInfo = ossInfoBuilder.buildOSSFileInfo(minioFileConfig,file);
         try {
+            initMinio();            
             long s = System.currentTimeMillis();
             minio.createBucket(ossFileInfo.getBucket());
             minio.saveOssFile(file,ossFileInfo.getBucket(),ossFileInfo.getId());

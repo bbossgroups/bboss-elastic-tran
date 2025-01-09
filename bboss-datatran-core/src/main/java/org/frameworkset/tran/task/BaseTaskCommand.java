@@ -29,7 +29,6 @@ import org.frameworkset.tran.status.LastValueWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,11 +55,9 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
 
     protected OutputPlugin outputPlugin;
     public boolean isMultiOutputTran(){
-        return multiOutputTran;
+        return outputConfig.isMultiOutputTran();
     }
-    public void setMultiOutputTran(boolean multiOutputTran){
-        this.multiOutputTran = multiOutputTran;
-    }
+  
 
     public OutputPlugin getOutputPlugin() {
         return outputPlugin;
@@ -140,9 +137,12 @@ public abstract class BaseTaskCommand<RESULT> implements TaskCommand<RESULT> {
 	public long getTotalSize() {
 		return totalSize;
 	}
+    @Override
+    public OutputConfig getOutputConfig() {
+        return outputConfig;
+    }
 
-
-	public BaseTaskCommand(OutputConfig outputConfig, TaskCommandContext taskCommandContext){
+    public BaseTaskCommand(OutputConfig outputConfig, TaskCommandContext taskCommandContext){
         this.outputConfig = outputConfig;
         this.outputPlugin = outputConfig.getOutputPlugin();
         this.taskCommandContext = taskCommandContext;

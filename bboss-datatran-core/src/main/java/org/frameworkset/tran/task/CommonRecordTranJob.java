@@ -161,8 +161,8 @@ public class CommonRecordTranJob extends BaseTranJob{
                     records.add(record);
                     count++;
                     totalCount ++;
-                    if (count >= batchsize || serialTranCommand.splitCheck(totalCount)) {
-
+//                    if (count >= batchsize || serialTranCommand.splitCheck(totalCount)) {
+                    if (count >= batchsize) {
                         TaskCommandContext taskCommandContext = new TaskCommandContext();
                         taskCommandContext.setTotalCount(importCount);
                         taskCommandContext.setDataSize(count);
@@ -383,7 +383,8 @@ public class CommonRecordTranJob extends BaseTranJob{
 				records.add(record);
 				count++;
 				totalSize ++;
-				if(count >= batchsize || parrelTranCommand.splitCheck(totalSize)){
+//				if(count >= batchsize || parrelTranCommand.splitCheck(totalSize)){
+                if(count >= batchsize){
                     TaskCommandContext taskCommandContext = new TaskCommandContext();
                     taskCommandContext.setTotalCount(totalCount);
                     taskCommandContext.setDataSize(count);
@@ -769,6 +770,7 @@ public class CommonRecordTranJob extends BaseTranJob{
 //					//						evalBuilk(this.tranResultSet, batchContext, writer, context, "index", clientInterface.isVersionUpper7());
 					totalCount++;
 					count ++;
+                    /**
 					if(serialTranCommand.splitCheck(totalCount)){//reached max file record size
                         TaskCommandContext taskCommandContext = new TaskCommandContext();
                         taskCommandContext.setTotalCount(importCount);
@@ -785,6 +787,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                         taskMetrics = TaskMetricsUtil.createTaskMetrics(baseDataTran.getTaskContext(),taskNo);
 						records = new ArrayList<>();
 					}
+                     */
 
 				} catch (Exception e) {
 					throw ImportExceptionUtil.buildDataImportException(importContext,e);

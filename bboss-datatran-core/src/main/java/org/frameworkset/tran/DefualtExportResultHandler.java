@@ -15,6 +15,8 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.config.OutputConfig;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -25,8 +27,8 @@ package org.frameworkset.tran;
  */
 public class DefualtExportResultHandler<RESULT> extends BaseExportResultHandler<RESULT> {
 
-	public DefualtExportResultHandler(ExportResultHandler exportResultHandler){
-		super(exportResultHandler);
+	public DefualtExportResultHandler(ExportResultHandler exportResultHandler, OutputConfig outputConfig){
+		super(exportResultHandler,   outputConfig);
 	}
 
 

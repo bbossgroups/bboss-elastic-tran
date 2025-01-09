@@ -16,6 +16,7 @@ package org.frameworkset.tran.metrics;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.plugin.OutputPlugin;
@@ -40,7 +41,7 @@ public class MetricsTaskcommand implements TaskCommand {
 	protected ImportContext importContext;
 	protected TaskContext taskContext;
     protected boolean multiOutputTran;
-
+    protected OutputConfig outputConfig;
 
     protected OutputPlugin outputPlugin;
     public boolean isMultiOutputTran(){
@@ -127,7 +128,16 @@ public class MetricsTaskcommand implements TaskCommand {
 		return importContext;
 	}
 
-	@Override
+    @Override
+    public OutputConfig getOutputConfig() {
+        return outputConfig;
+    }
+
+    public void setOutputConfig(OutputConfig outputConfig) {
+        this.outputConfig = outputConfig;
+    }
+
+    @Override
 	public ImportCount getImportCount() {
 		return null;
 	}

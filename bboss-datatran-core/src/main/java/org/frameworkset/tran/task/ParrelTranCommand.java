@@ -52,5 +52,5 @@ public interface ParrelTranCommand {
 	 */
 	void parrelCompleteAction();
 
-	boolean splitCheck(long totalCount);
+//	boolean splitCheck(long totalCount);
 }

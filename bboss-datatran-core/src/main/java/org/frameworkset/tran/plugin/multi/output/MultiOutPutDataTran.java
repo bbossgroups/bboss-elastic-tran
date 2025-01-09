@@ -27,10 +27,10 @@ public class MultiOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
 
 
 
-
+    @Override
 	public void init(){
 		super.init();
-		taskInfo = new StringBuilder().append("Import data to MultiOutPut.").toString();
+		taskInfo = new StringBuilder().append("Import data to MultiOutPut").toString();
 	}
 
 
@@ -44,14 +44,16 @@ public class MultiOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
 	public MultiOutPutDataTran(BaseDataTran baseDataTran) {
 		super(baseDataTran);
 	}
+    @Override
     public void initTran(){
         super.initTran();
         MultiOutputDataTranPlugin multiOutputDataTranPlugin = (MultiOutputDataTranPlugin) outputPlugin;
         List<OutputPlugin> outputPlugins = multiOutputDataTranPlugin.getOutputPlugins();
         baseDataTrans = new ArrayList<>();
         for(OutputPlugin outputPlugin:outputPlugins) {
-            BaseDataTran baseDataTran = outputPlugin.createBaseDataTran(this);
+            BaseDataTran baseDataTran = outputPlugin.createBaseDataTran(this);            
             baseDataTran.setOutputPlugin(outputPlugin);
+            baseDataTran.init();
             baseDataTrans.add(baseDataTran);
         }
     }
@@ -61,7 +63,6 @@ public class MultiOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
             List<Future> tasks = new ArrayList<>();
             for(BaseDataTran baseDataTran:baseDataTrans){
                 TaskCommand taskCommand1 = baseDataTran.buildTaskCommand(taskCommandContext);
-                taskCommand1.setMultiOutputTran(true);
                 taskCommand1.setRecords(records);
                 taskCommandContext.addMultiOutputTask(executorService,tasks,taskCommand1);
             }
@@ -69,6 +70,24 @@ public class MultiOutPutDataTran extends AbstraCommonRecordOutPutDataTran {
         },outputPlugin.getOutputConfig());
         return taskCommand;
     }
+    @Override
+    public void stop(boolean fromException){
+        for(BaseDataTran baseDataTran:baseDataTrans){
+            baseDataTran.stop(fromException);
+        }
+        super.stop(fromException);
+//        if(dataTranStopped)
+//            return;
+//        sendFile();//串行执行时，sendFile将不起作用
+//        super.stop(fromException);
+    }
 
+    @Override
+    public void stop2ndClearResultsetQueue(boolean fromException){
+        for(BaseDataTran baseDataTran:baseDataTrans){
+            baseDataTran.stop2ndClearResultsetQueue(fromException);
+        }
+        super.stop2ndClearResultsetQueue(fromException);
+    }
 
 }

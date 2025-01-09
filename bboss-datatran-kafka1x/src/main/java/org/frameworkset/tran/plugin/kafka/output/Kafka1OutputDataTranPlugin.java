@@ -101,16 +101,4 @@ public class Kafka1OutputDataTranPlugin extends BasePlugin implements OutputPlug
     }
 
 
-	@Override
-	public void send(final BaseTaskCommand taskCommand, TaskContext taskContext, String topic, Object key, Object data) {
-		if(kafkaProductor == null){
-			synchronized (this) {
-				if(kafkaProductor == null) {
-					kafkaProductor = KafkaSendImpl.buildProducer( kafka1OutputConfig);
-
-				}
-			}
-		}
-		KafkaSendImpl.send(kafkaProductor,kafka1OutputConfig,taskCommand,taskContext,   topic,key,data);
-	}
 }

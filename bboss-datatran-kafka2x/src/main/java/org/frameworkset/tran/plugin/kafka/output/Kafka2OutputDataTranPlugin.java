@@ -101,18 +101,7 @@ public class Kafka2OutputDataTranPlugin extends BasePlugin implements OutputPlug
         KafkaSendImpl.batchSend(kafkaProductor,kafka2OutputConfig,taskCommand,taskContext,topic,key,data);
     }
 
-	@Override
-	public void send(final BaseTaskCommand taskCommand, TaskContext taskContext, String topic,Object key, Object data) {
-		if(kafkaProductor == null){
-			synchronized (this) {
-				if(kafkaProductor == null) {
-					kafkaProductor = KafkaSendImpl.buildProducer( kafka2OutputConfig);
-
-				}
-			}
-		}
-		KafkaSendImpl.send(kafkaProductor,kafka2OutputConfig,taskCommand,taskContext,topic,key,data);
-	}
+ 
 	@Override
 	public JobTaskMetrics createJobTaskMetrics(){
 //		return getOutputPlugin().createJobTaskMetrics();

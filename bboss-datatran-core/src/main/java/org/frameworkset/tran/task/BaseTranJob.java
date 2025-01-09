@@ -39,12 +39,12 @@ import java.util.List;
 public abstract class BaseTranJob implements TranJob {
  
     public static StringBuilder builderJobInfo(InputPlugin inputPlugin, OutputPlugin outputPlugin,StringBuilder builder, ImportContext importContext){
-        builder.append("inputJobType[").append(inputPlugin.getJobType()).append("] ")
+        builder.append("inputJobType[").append(inputPlugin.getJobType()).append("],")
                 .append("outputJobType[").append(outputPlugin.getJobType()).append("]");
         if(importContext.getJobId() != null)
-            builder.append(" jobID[").append(importContext.getJobId()).append("]");
+            builder.append(",jobID[").append(importContext.getJobId()).append("]");
         if(importContext.getJobName() != null)
-            builder.append(" jobName[").append(importContext.getJobName())
+            builder.append(",jobName[").append(importContext.getJobName())
                 .append("] ");
         return builder;
     }

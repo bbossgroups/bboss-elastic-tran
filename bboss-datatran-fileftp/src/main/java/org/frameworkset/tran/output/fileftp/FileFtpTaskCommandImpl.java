@@ -47,7 +47,7 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
 
      
 
-	private String datas;
+//	private String datas;
 	private int tryCount;
 
 
@@ -55,7 +55,7 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
 
 
     public Object getDatas(){
-        return datas;
+        return records;
     }
     private String buildDatas() throws Exception {
         StringBuilder builder = new StringBuilder();
@@ -81,10 +81,10 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
             this.tryCount++;
 
             try {
-                if (datas == null) {
-                    datas = buildDatas();
-                }
-                fileTransfer.writeData(this, datas, getTotalSize(), taskCommandContext.getDataSize());
+//                if (datas == null) {
+//                    datas = buildDatas();
+//                }
+                fileTransfer.writeData(this, records,  taskContext,taskMetrics);
                 
             } catch (Exception e) {
                 throw ImportExceptionUtil.buildDataImportException(outputPlugin,importContext, "发送数据失败", e);

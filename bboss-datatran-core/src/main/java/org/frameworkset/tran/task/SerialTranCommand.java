@@ -34,6 +34,6 @@ public interface SerialTranCommand {
 //	public int endSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, LastValueWrapper lastValue, Object datas);
     public int endSerialActionTask(TaskCommandContext taskCommandContext);
 //	public int splitSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record);
-	public boolean splitCheck(long totalCount);
+//	public boolean splitCheck(long totalCount);
 
 }

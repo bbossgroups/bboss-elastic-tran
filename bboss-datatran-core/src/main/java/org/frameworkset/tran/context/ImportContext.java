@@ -23,7 +23,6 @@ import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.DataTranPluginMetricsLogAPI;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.metrics.MetricsLogReport;
-import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
@@ -234,7 +233,9 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
 //
 //	boolean isDiscardBulkResponse();
 
-	WrapedExportResultHandler getExportResultHandler();
+    WrapedExportResultHandler getExportResultHandler(OutputConfig outputConfig);
+
+    WrapedExportResultHandler getExportResultHandler();
 
 	int getThreadCount();
 

@@ -22,7 +22,6 @@ import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
-import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpContext;
@@ -320,7 +319,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 
 	@Override
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		return new DefualtExportResultHandler<String>(exportResultHandler);
+		return new DefualtExportResultHandler<String>(exportResultHandler,this);
 	}
 
 

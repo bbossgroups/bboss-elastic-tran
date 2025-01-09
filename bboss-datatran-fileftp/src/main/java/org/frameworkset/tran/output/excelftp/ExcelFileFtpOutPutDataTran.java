@@ -8,7 +8,6 @@ import org.frameworkset.tran.output.fileftp.FileFtpOutPutDataTran;
 import org.frameworkset.tran.output.fileftp.FileTransfer;
 import org.frameworkset.tran.plugin.file.output.ExcelFileOutputConfig;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
-import org.frameworkset.tran.plugin.http.output.HttpTaskCommandImpl;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.*;
@@ -61,10 +60,10 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 //				}
 //				return taskNo;
 			}
-			@Override
-			public boolean splitCheck(long totalCount) {
-				return _splitCheck( totalCount);
-			}
+//			@Override
+//			public boolean splitCheck(long totalCount) {
+//				return _splitCheck( totalCount);
+//			}
 
 
 			@Override
@@ -125,10 +124,10 @@ public class ExcelFileFtpOutPutDataTran extends FileFtpOutPutDataTran {
 //				return taskNo;
 //			}
 //
-			@Override
-			public boolean splitCheck(long totalCount) {
-				return _splitCheck( totalCount);
-			}
+//			@Override
+//			public boolean splitCheck(long totalCount) {
+//				return _splitCheck( totalCount);
+//			}
 
 		};
 	}

@@ -47,7 +47,7 @@ public class TimeWindowExportResultHandler<RESULT> extends BaseExportResultHandl
 
 	private String metricKeyPrex;
 	public TimeWindowExportResultHandler(final String metricKeyPrex, ExportResultHandler exportResultHandler, OutputConfig outputConfig){
-		super(exportResultHandler);
+		super(exportResultHandler,   outputConfig);
 		this.metricKeyPrex = metricKeyPrex;
 		//指标key不会长期有效，所以不宜用其他指标类型，适合使用MetricsType_TimeMetircs
 		keyMetrics = new Metrics(Metrics.MetricsType_TimeMetircs) {
@@ -76,6 +76,8 @@ public class TimeWindowExportResultHandler<RESULT> extends BaseExportResultHandl
 				metrics.forEach(keyMetric->{
 					TimeTaskMetric timeTaskMetric = (TimeTaskMetric)keyMetric;
 					MetricsTaskcommand metricsTaskcommand = new MetricsTaskcommand();
+                    metricsTaskcommand.setOutputPlugin(outputConfig.getOutputPlugin());
+                    metricsTaskcommand.setOutputConfig(outputConfig);
 					metricsTaskcommand.setImportContext(timeTaskMetric.getImportContext());
 					metricsTaskcommand.setJobContext(timeTaskMetric.getJobContext());
 					TaskMetrics taskMetrics = new TaskMetrics();

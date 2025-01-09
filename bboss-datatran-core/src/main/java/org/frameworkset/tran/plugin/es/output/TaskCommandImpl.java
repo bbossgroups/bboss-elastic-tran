@@ -444,7 +444,7 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
                     logger.info(data);
 
             } else {
-                if (elasticsearchOutputConfig.isDiscardBulkResponse() && importContext.getExportResultHandler() == null) {
+                if (elasticsearchOutputConfig.isDiscardBulkResponse() && elasticsearchOutputConfig.getExportResultHandler() == null) {
                     for (ClientInterface clientInterface : clientInterfaces) {
                         ESVoidResponseHandler esVoidResponseHandler = new ESVoidResponseHandler();
                         clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST, esVoidResponseHandler);

@@ -16,10 +16,8 @@ package org.frameworkset.tran.task;
  */
 
 import com.frameworkset.orm.annotation.BatchContext;
-import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
-import org.frameworkset.tran.TranErrorWrapper;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
@@ -63,7 +61,17 @@ public class TaskCall implements Runnable {
 	protected boolean isPrintTaskLog(){
 		return importContext.isPrintTaskLog() && logger.isInfoEnabled();
 	}
-
+    public static void exportResultHandler(TaskCommand taskCommand,ImportContext importContext,Throwable e){
+        WrapedExportResultHandler wrapedExportResultHandler = importContext.getExportResultHandler(taskCommand.getOutputConfig());
+        if (wrapedExportResultHandler != null) {
+            try {
+                wrapedExportResultHandler.handleException(taskCommand, e);
+            }
+            catch (Exception ee){
+                logger.warn("",e);
+            }
+        }
+    }
     public static void handleException(Throwable e,ImportCount importCount,TaskMetrics taskMetrics,TaskCommand taskCommand,ImportContext importContext){
         long[] metrics = importCount.increamentFailedCount(taskCommand.getDataSize());
         taskMetrics.setFailedRecords(taskCommand.getDataSize());
@@ -75,9 +83,10 @@ public class TaskCall implements Runnable {
         taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
         taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
         taskMetrics.setTaskEndTime(new Date());
-        if (importContext.getExportResultHandler() != null) {
+        WrapedExportResultHandler wrapedExportResultHandler = importContext.getExportResultHandler(taskCommand.getOutputConfig());
+        if (wrapedExportResultHandler != null) {
             try {
-                importContext.getExportResultHandler().handleException(taskCommand, e);
+                wrapedExportResultHandler.handleException(taskCommand, e);
             }
             catch (Exception ee){
                 logger.warn("",e);
@@ -174,9 +183,10 @@ public class TaskCall implements Runnable {
 			taskMetrics.setIgnoreRecords(taskCommand.getTaskCommandContext().getIgnoreCount());
 			taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
 			taskMetrics.setTaskEndTime(endTime);
-			if (importContext.getExportResultHandler() != null) {//处理返回值
+            WrapedExportResultHandler wrapedExportResultHandler = importContext.getExportResultHandler(taskCommand.getOutputConfig());
+			if (wrapedExportResultHandler != null) {//处理返回值
 				try {
-					importContext.getExportResultHandler().handleResult(taskCommand, data);
+                    wrapedExportResultHandler.handleResult(taskCommand, data);
 				}
 				catch (Exception e){
 					logger.warn("",e);

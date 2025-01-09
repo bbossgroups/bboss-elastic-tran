@@ -168,7 +168,8 @@ public class CommonAsynRecordTranJob extends CommonRecordTranJob{
                  */
 				count++;
 				totalSize ++;
-				if(count >= batchsize || parrelTranCommand.splitCheck(totalSize)){
+//				if(count >= batchsize || parrelTranCommand.splitCheck(totalSize)){
+                if(count >= batchsize ){
                     TaskCommandContext taskCommandContext = new TaskCommandContext();
                     taskCommandContext.setTotalCount(totalCount);
                     taskCommandContext.setDataSize(count);

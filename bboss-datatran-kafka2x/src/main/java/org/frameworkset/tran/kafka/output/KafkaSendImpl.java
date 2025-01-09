@@ -19,6 +19,7 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.frameworkset.plugin.kafka.KafkaProductor;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.TaskMetrics;
@@ -51,62 +52,7 @@ public class KafkaSendImpl {
 		kafkaProductor.init();
 		return kafkaProductor;
 	}
-	public static void send(KafkaProductor kafkaProductor, KafkaOutputConfig kafkaOutputConfig, final BaseTaskCommand taskCommand, TaskContext taskContext,
-                            String topic, Object key, Object data) {
-
-		Callback callback = new Callback() {
-			@Override
-			public void onCompletion(RecordMetadata metadata, Exception exception) {
-				try {
-					Date endTime = new Date();
-					ImportContext importContext = taskCommand.getImportContext();
-					ImportCount importCount = taskCommand.getImportCount();
-					TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
-					if(exception == null) {
-						taskCommand.finishTask();
-						long[] metrics = importCount.increamentSuccessCount((long)taskCommand.getDataSize());
-						taskMetrics.setTotalSuccessRecords(metrics[0]);
-						taskMetrics.setTotalRecords(metrics[1]);
-						taskMetrics.setSuccessRecords((long)taskCommand.getDataSize());
-						taskMetrics.setRecords(taskMetrics.getSuccessRecords());
-						taskMetrics.setLastValue(taskCommand.getLastValue());
-						taskMetrics.setIgnoreRecords(importCount.getIgnoreTotalCount() - taskMetrics.getTotalIgnoreRecords());
-						long ignoreTotalCount = importCount.getIgnoreTotalCount();
-						taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
-						taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
-						taskMetrics.setTaskEndTime(endTime);
-						if (importContext.getExportResultHandler() != null) {//处理返回值
-							try {
-								importContext.getExportResultHandler().handleResult(taskCommand, metadata);
-							}
-							catch (Exception e){
-								logger.warn("",e);
-							}
-						}
-					}
-					else{
-                     
-                        TaskCall.handleException(new KafkaSendException(metadata,exception),importCount,taskMetrics,taskCommand,importContext);
-					}
-
-				}
-				finally {
-					taskCommand.finished();
-				}
-			}
-		};
-
-		Future<RecordMetadata> future = kafkaProductor.send(topic,key,data,callback);
-		if(!kafkaOutputConfig.isKafkaAsynSend()){
-			try {
-				future.get();
-			} catch (InterruptedException e) {
-				logger.warn("InterruptedException",e);
-			} catch (ExecutionException e) {
-				throw new DataImportException(e.getCause() != null?e.getCause():e);
-			}
-		}
-	}
+	 
 
     public static void batchSend(KafkaProductor kafkaProductor, KafkaOutputConfig kafkaOutputConfig, final BaseTaskCommand taskCommand, TaskContext taskContext,
                             String topic, Object key, Object data) {
@@ -115,10 +61,10 @@ public class KafkaSendImpl {
             @Override
             public void onCompletion(RecordMetadata metadata, Exception exception) {
                 ImportContext importContext = taskCommand.getImportContext();
-                ImportCount importCount = taskCommand.getImportCount();
-                TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
+//                ImportCount importCount = taskCommand.getImportCount();
+//                TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
                 if(exception != null) {
-                    TaskCall.handleException(new KafkaSendException(metadata,exception),importCount,taskMetrics,taskCommand,importContext);
+                    TaskCall.exportResultHandler( taskCommand,importContext,new KafkaSendException(metadata,exception));
                 }
 
             }

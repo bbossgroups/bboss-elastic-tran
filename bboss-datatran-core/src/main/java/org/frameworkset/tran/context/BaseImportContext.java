@@ -492,9 +492,17 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
         }
        
     }
-
+    @Override
+    public WrapedExportResultHandler getExportResultHandler(OutputConfig outputConfig){
+        WrapedExportResultHandler wrapedExportResultHandler = outputConfig.getExportResultHandler();
+        if(wrapedExportResultHandler == null){
+            wrapedExportResultHandler = this.getExportResultHandler();
+        }
+        return wrapedExportResultHandler;
+    }
+    @Override
 	public WrapedExportResultHandler getExportResultHandler(){
-		return baseImportConfig.getExportResultHandler();
+		return outputConfig.getExportResultHandler();
 	}
 //	@Override
 //	public void flushLastValue(Object lastValue,Status currentStatus){

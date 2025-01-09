@@ -16,6 +16,8 @@ package org.frameworkset.tran.plugin.multi.output;
  */
 
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.ExportResultHandler;
+import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
@@ -23,6 +25,8 @@ import org.frameworkset.tran.context.RecordSpecialConfigsContext;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,14 +39,23 @@ import java.util.List;
  * @Date 2025/1/3
  */
 public class MultiOutputConfig  extends BaseConfig implements OutputConfig {
+    private static final Logger logger = LoggerFactory.getLogger(MultiOutputConfig.class);
     private List<OutputConfig> outputConfigs;
+    private boolean enableMultiExportResultHandler = true;
     private int pluginNo;
     
     public MultiOutputConfig addOutputConfig(OutputConfig outputConfig){
+        if(outputConfig == null){
+            return this;
+        }
+        if(outputConfig instanceof MultiOutputConfig){
+            throw new DataImportException("MultiOutputConfig can't add to MultiOutputConfig!");
+        }
         if(outputConfigs == null){
             outputConfigs = new ArrayList<>();
         }
         outputConfig.setPluginNo(String.valueOf(pluginNo));
+        outputConfig.setMultiOutputTran(true);
         pluginNo ++;
         outputConfigs.add(outputConfig);
         return this;
@@ -109,5 +122,35 @@ public class MultiOutputConfig  extends BaseConfig implements OutputConfig {
             }
         }
         return ts;
+    }
+
+    @Override
+    public void destroyExportResultHandler(){
+        super.destroyExportResultHandler();
+        if(isEnableMultiExportResultHandler()){
+            for(OutputConfig outputConfig:outputConfigs){
+                outputConfig.destroyExportResultHandler();
+            }
+        }
+
+    }
+
+    public boolean isEnableMultiExportResultHandler() {
+        return enableMultiExportResultHandler;
+    }
+
+    public MultiOutputConfig setEnableMultiExportResultHandler(boolean enableMultiExportResultHandler) {
+        this.enableMultiExportResultHandler = enableMultiExportResultHandler;
+        return this;
+    }
+
+    public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
+        this.exportResultHandler = super.buildExportResultHandler(exportResultHandler);
+        if(isEnableMultiExportResultHandler()){
+            for(OutputConfig outputConfig:outputConfigs){
+                outputConfig.buildExportResultHandler(exportResultHandler);
+            }
+        }
+        return this.exportResultHandler;
     }
 }

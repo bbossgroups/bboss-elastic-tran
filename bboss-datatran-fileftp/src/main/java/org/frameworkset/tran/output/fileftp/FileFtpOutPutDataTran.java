@@ -2,14 +2,12 @@ package org.frameworkset.tran.output.fileftp;
 
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.*;
-import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.TaskContextReinitCallback;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.input.file.GenFileInfo;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
-import org.frameworkset.tran.plugin.http.output.HttpTaskCommandImpl;
 import org.frameworkset.tran.schedule.JobExecuteMetric;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -17,7 +15,6 @@ import org.frameworkset.tran.task.*;
 import org.slf4j.Logger;
 
 import java.io.File;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -152,10 +149,10 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 
 
-	protected boolean _splitCheck(long totalCount) {
-		return fileOutputConfig.getMaxFileRecordSize() > 0 && totalCount > 0
-				&& (totalCount % fileOutputConfig.getMaxFileRecordSize() == 0);
-	}
+//	protected boolean _splitCheck(long totalCount) {
+//		return fileOutputConfig.getMaxFileRecordSize() > 0 && totalCount > 0
+//				&& (totalCount % fileOutputConfig.getMaxFileRecordSize() == 0);
+//	}
 	@Override
 	protected void initTranTaskCommand(){
 		parrelTranCommand = new BaseParrelTranCommand(){
@@ -178,10 +175,10 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 			}
 
 	 
-			@Override
-			public boolean splitCheck(long totalCount) {
-				return _splitCheck( totalCount);
-			}
+//			@Override
+//			public boolean splitCheck(long totalCount) {
+//				return _splitCheck( totalCount);
+//			}
 			@Override
 			public void parrelCompleteAction() {
 //				fileTransfer.sendFile();//传输文件
@@ -222,10 +219,10 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 
 			}
 
-			@Override
-			public boolean splitCheck(long totalCount) {
-				return _splitCheck( totalCount);
-			}
+//			@Override
+//			public boolean splitCheck(long totalCount) {
+//				return _splitCheck( totalCount);
+//			}
  
 		};
 	}

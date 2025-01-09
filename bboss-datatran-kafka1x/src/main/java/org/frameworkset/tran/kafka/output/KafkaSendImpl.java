@@ -19,6 +19,7 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.frameworkset.plugin.kafka.KafkaProductor;
 import org.frameworkset.tran.DataImportException;
+import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.metrics.ImportCount;
 import org.frameworkset.tran.metrics.TaskMetrics;
@@ -97,9 +98,10 @@ public class KafkaSendImpl {
 					taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
 					taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
 					taskMetrics.setTaskEndTime(new Date());
-					if (importContext.getExportResultHandler() != null) {//处理返回值
+                    WrapedExportResultHandler wrapedExportResultHandler = importContext.getExportResultHandler(taskCommand.getOutputConfig());
+					if (wrapedExportResultHandler != null) {//处理返回值
 						try {
-							importContext.getExportResultHandler().handleResult(taskCommand, metadata);
+                            wrapedExportResultHandler.handleResult(taskCommand, metadata);
 						}
 						catch (Exception e){
 							logger.warn("",e);

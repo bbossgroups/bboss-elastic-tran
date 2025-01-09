@@ -133,7 +133,7 @@ public class FileOutputDataTranPlugin extends BasePlugin implements OutputPlugin
      */
     @Override
     public BaseDataTran createBaseDataTran(BaseDataTran baseDataTran) {
-        FileFtpOutPutDataTran fileFtpOutPutDataTran = FileFtpOutPutUtil.buildFileFtpOutPutDataTran(baseDataTran);
+        FileFtpOutPutDataTran fileFtpOutPutDataTran = FileFtpOutPutUtil.buildFileFtpOutPutDataTran(this.fileOutputConfig,baseDataTran);
         return fileFtpOutPutDataTran;
     }
 

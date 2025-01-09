@@ -41,8 +41,8 @@ public class BaseParrelTranCommand implements ParrelTranCommand{
 
 	}
 
-	@Override
-	public boolean splitCheck(long totalCount) {
-		return false;
-	}
+//	@Override
+//	public boolean splitCheck(long totalCount) {
+//		return false;
+//	}
 }

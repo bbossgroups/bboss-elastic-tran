@@ -15,6 +15,7 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.task.TaskCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +31,17 @@ import org.slf4j.LoggerFactory;
 public abstract class BaseExportResultHandler<RESULT> implements WrapedExportResultHandler<RESULT> {
 	protected   Logger logger = LoggerFactory.getLogger(this.getClass());
 	private ExportResultHandler exportResultHandler;
-	public BaseExportResultHandler(ExportResultHandler exportResultHandler){
+    protected OutputConfig outputConfig;
+	public BaseExportResultHandler(ExportResultHandler exportResultHandler, OutputConfig outputConfig){
 		this.exportResultHandler = exportResultHandler;
+        this.outputConfig = outputConfig;
 	}
-	public void success(TaskCommand<RESULT> taskCommand, RESULT result){
+
+    public OutputConfig getOutputConfig() {
+        return outputConfig;
+    }
+
+    public void success(TaskCommand<RESULT> taskCommand, RESULT result){
 		this.exportResultHandler.success(  taskCommand,   result);
 	}
 	public void error(TaskCommand<RESULT> taskCommand, RESULT result){

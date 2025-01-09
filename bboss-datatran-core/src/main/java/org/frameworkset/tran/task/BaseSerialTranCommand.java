@@ -40,10 +40,10 @@ public class BaseSerialTranCommand implements SerialTranCommand {
 		return 0;
 	}
 
-	@Override
-	public boolean splitCheck(long totalCount) {
-		return false;
-	}
+//	@Override
+//	public boolean splitCheck(long totalCount) {
+//		return false;
+//	}
 //
 //	@Override
 //	public int splitSerialActionTask(ImportCount totalCount, long dataSize, int taskNo, Object lastValue, Object datas, boolean reachEOFClosed, CommonRecord record) {

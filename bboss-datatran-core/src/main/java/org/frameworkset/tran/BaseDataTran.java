@@ -151,15 +151,13 @@ public abstract class BaseDataTran implements DataTran{
 		tranResultSet.setBaseDataTran(this);
 	}
     protected BaseDataTran parent;
-    private boolean multiOutputTran;
     public BaseDataTran(BaseDataTran parent) {
         this.parent = parent;
-        this.multiOutputTran = true;
         this.taskContext = parent.getTaskContext();
     }
 
     public boolean isMultiOutputTran() {
-        return multiOutputTran;
+        return outputConfig.isMultiOutputTran();
     }
 
     protected abstract void initTranTaskCommand();

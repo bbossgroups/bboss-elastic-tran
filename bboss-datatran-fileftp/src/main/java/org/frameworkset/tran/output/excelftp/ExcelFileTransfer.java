@@ -35,7 +35,7 @@ import java.util.List;
  * @version 1.0
  */
 public class ExcelFileTransfer extends FileTransfer {
-
+    private static Logger logger = LoggerFactory.getLogger(ExcelFileTransfer.class);
 	private ExportExcelUtil exportExcelUtil;
 	private ExcelFileOutputConfig excelFileOutputConfig;
 	public ExcelFileTransfer(ExcelFileOutputConfig excelFileOutputConfig, String dir, FileFtpOutPutDataTran fileFtpOutPutDataTran) {
@@ -60,13 +60,54 @@ public class ExcelFileTransfer extends FileTransfer {
         transferLock.lock();
         try {
             init();
-            if(records != null) {
-                long dataSize = datas != null ? datas.size():0L ;
-                if(dataSize < 0L)
-                    dataSize = 1L;
-                records.increamentUnSynchronized(dataSize);
+//            if(records != null) {
+//                long dataSize = datas != null ? datas.size():0L ;
+//                 
+//                records.increamentUnSynchronized(dataSize);
+//            }
+//            , new SplitFunction(this) {
+//
+//                @Override
+//                public boolean split(long count) {
+//                    boolean reachMaxedSize = false;
+//                    if (maxFileRecordSize > 0L) {
+//                        reachMaxedSize = count >= maxFileRecordSize;
+//                        if (reachMaxedSize) {
+//                            try {
+//                                sendFile();
+//                            } finally {
+//                                reset();
+//                            }
+//                        }
+//                    }
+//                    return reachMaxedSize;
+//                }
+//            }
+            long count = 0;
+            for(CommonRecord commonRecord:datas) {
+                init();
+                exportExcelUtil.writeData(commonRecord);
+                count = records.increamentUnSynchronized();
+                
+                refreshLastWriteDataTime();
+                boolean reachMaxedSize = false;
+                if (maxFileRecordSize > 0L) {
+                    reachMaxedSize = count >= maxFileRecordSize;
+                    if (reachMaxedSize) {
+                        count = 0;
+                        try {
+                            sendFile();
+                        } finally {
+                            reset();
+                        }
+                    }
+                }
             }
-            exportExcelUtil.writeData(datas);
+            if(count > 0){
+                
+            }
+            
+            /**
             this.lastWriteDataTime = System.currentTimeMillis();
             if (maxFileRecordSize > 0L) {
                 boolean reachMaxedSize = records.getCountUnSynchronized() >= maxFileRecordSize;
@@ -78,14 +119,14 @@ public class ExcelFileTransfer extends FileTransfer {
                         reset();
                     }
                 }
-            }
+            }*/
         }
         finally {
             transferLock.unlock();
         }
 
 	}
-	private static Logger logger = LoggerFactory.getLogger(ExcelFileTransfer.class);
+	
     @Override
 	protected void flush(boolean close) throws IOException {
 		exportExcelUtil.write(file);
@@ -95,8 +136,14 @@ public class ExcelFileTransfer extends FileTransfer {
 
 	@Override
 	public void close(){
-		if(exportExcelUtil != null)
-			exportExcelUtil.dispose();
+		if(exportExcelUtil != null) {
+            exportExcelUtil.dispose();
+            exportExcelUtil = null;
+        }
 
 	}
+
+    public long increamentUnSynchronized() {
+        return records.increamentUnSynchronized();
+    }
 }

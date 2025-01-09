@@ -176,6 +176,12 @@ public class TaskContext extends BaseMetricsLogReport {
 	public synchronized Object getTaskData(String name){
 		return taskDatas.get(name);
 	}
+    public synchronized String getTaskStringData(String name){
+        Object v = taskDatas.get(name);
+        if(v == null)
+            return null;
+        return String.valueOf(taskDatas.get(name));
+    }
 	public JobContext getJobContext(){
 		if(importContext != null) {
 			return importContext.getJobContext();

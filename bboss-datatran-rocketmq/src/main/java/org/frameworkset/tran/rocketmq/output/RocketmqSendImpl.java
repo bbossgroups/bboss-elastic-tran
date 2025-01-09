@@ -62,59 +62,7 @@ public class RocketmqSendImpl {
         rocketmqProductor.init();
 		return rocketmqProductor;
 	}
-    public static void send(RocketmqProductor rocketmqProductor, RocketmqOutputConfig rocketmqOutputConfig,  final BaseTaskCommand taskCommand, TaskContext taskContext,
-                            String topic, Object key, Object data) {
-        if(rocketmqOutputConfig.isRocketmqAsynSend()) {
-            SendCallback callback = new SendCallback() {
-                public void onException(final Throwable exception) {
-                    ImportContext importContext = taskCommand.getImportContext();
-                    ImportCount importCount = taskCommand.getImportCount();
-                    TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
-                    TaskCall.handleException(new RocketmqSendException(exception), importCount, taskMetrics, taskCommand, importContext);
-                }
-
-                @Override
-                public void onSuccess(final SendResult sendResult) {
-                    Date endTime = new Date();
-                    ImportContext importContext = taskCommand.getImportContext();
-                    ImportCount importCount = taskCommand.getImportCount();
-                    TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
-                    taskCommand.finishTask();
-                    long[] metrics = importCount.increamentSuccessCount((long) taskCommand.getDataSize());
-                    taskMetrics.setTotalSuccessRecords(metrics[0]);
-                    taskMetrics.setTotalRecords(metrics[1]);
-                    taskMetrics.setSuccessRecords((long) taskCommand.getDataSize());
-                    taskMetrics.setRecords(taskMetrics.getSuccessRecords());
-                    taskMetrics.setLastValue(taskCommand.getLastValue());
-                    taskMetrics.setIgnoreRecords(importCount.getIgnoreTotalCount() - taskMetrics.getTotalIgnoreRecords());
-                    long ignoreTotalCount = importCount.getIgnoreTotalCount();
-                    taskMetrics.setIgnoreRecords(ignoreTotalCount - taskMetrics.getTotalIgnoreRecords());
-                    taskMetrics.setTotalIgnoreRecords(ignoreTotalCount);
-                    taskMetrics.setTaskEndTime(endTime);
-                    if (importContext.getExportResultHandler() != null) {//处理返回值
-                        try {
-                            importContext.getExportResultHandler().handleResult(taskCommand, sendResult);
-                        } catch (Exception e) {
-                            logger.warn("", e);
-                        }
-                    }
-
-                }
-            };
-            rocketmqProductor.send(topic, key, data, rocketmqOutputConfig.getTag(), callback);
-        }
-        else{
-            try {
-                rocketmqProductor.send(topic,key,data,rocketmqOutputConfig.getTag());
-            }  catch (Exception e) {
-                throw new DataImportException(e.getCause() != null?e.getCause():e);
-            }
-        }
-       
-
-        
-    }  
-
+    
     public static void batchSend(RocketmqProductor rocketmqProductor, RocketmqOutputConfig rocketmqOutputConfig, final BaseTaskCommand taskCommand, TaskContext taskContext,
                             String topic, Object key, Object data) {
        
@@ -129,9 +77,9 @@ public class RocketmqSendImpl {
             SendCallback callback = new SendCallback() {
                 public void onException(final Throwable exception){
                     ImportContext importContext = taskCommand.getImportContext();
-                    ImportCount importCount = taskCommand.getImportCount();
-                    TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
-                    TaskCall.handleException(new RocketmqSendException(exception),importCount,taskMetrics,taskCommand,importContext);
+//                    ImportCount importCount = taskCommand.getImportCount();
+//                    TaskMetrics taskMetrics = taskCommand.getTaskMetrics();
+                    TaskCall.exportResultHandler( taskCommand,importContext,new RocketmqSendException(exception));
                 }
                 @Override
                 public void  onSuccess(final SendResult sendResult) {

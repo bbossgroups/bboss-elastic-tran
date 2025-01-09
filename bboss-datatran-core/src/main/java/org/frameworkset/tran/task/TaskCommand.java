@@ -16,6 +16,7 @@ package org.frameworkset.tran.task;
  */
 
 import org.frameworkset.tran.CommonRecord;
+import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.metrics.ImportCount;
@@ -41,7 +42,6 @@ public interface TaskCommand<RESULT> {
      void setRecords(List<CommonRecord> records);
      List<CommonRecord> getRecords();
      boolean isMultiOutputTran();
-     void setMultiOutputTran(boolean multiOutputTran);
 	 void init();
 	 TaskContext getTaskContext();
 	 TaskMetrics getTaskMetrics();
@@ -54,7 +54,10 @@ public interface TaskCommand<RESULT> {
 		return -1;
 	}
 	 ImportContext getImportContext();
-	 ImportCount getImportCount();
+
+    OutputConfig getOutputConfig();
+
+    ImportCount getImportCount();
 	 long getDataSize();
     
 	 int getTaskNo();

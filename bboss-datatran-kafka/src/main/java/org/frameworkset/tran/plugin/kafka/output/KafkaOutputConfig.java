@@ -84,19 +84,7 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 		this.recordGenerator = recordGenerator;
 		return this;
 	}
-	public void generateReocord(TaskContext taskContext, TaskMetrics taskMetrics, CommonRecord record, Writer builder) throws Exception{
-		if(builder == null){
-			builder = RecordGeneratorV1.tranDummyWriter;
-		}
-        RecordGeneratorContext recordGeneratorContext = new RecordGeneratorContext();
-        recordGeneratorContext.setRecord(record);
-        recordGeneratorContext.setTaskContext(taskContext);
-        recordGeneratorContext.setBuilder(builder);
-        recordGeneratorContext.setTaskMetrics(taskMetrics).setMetricsLogAPI(taskContext.getDataTranPlugin());
-
-        getRecordGeneratorV1().buildRecord(  recordGeneratorContext);
-//		getRecordGenerator().buildRecord(context,taskMetrics,record,builder);
-	}
+	 
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.util.ReocordGenerator
 	 */
