@@ -220,7 +220,7 @@ public class TaskCall implements Runnable {
 	@Override
 	public void run()   {
         StringBuilder info = null;
-		if(!errorWrapper.assertCondition()) {
+		if(errorWrapper != null && !errorWrapper.assertCondition()) {
 			if(logger.isWarnEnabled()) {
                 info = new StringBuilder();
                 BaseTranJob.builderJobInfo(importContext.getInputPlugin(), taskCommand.getOutputPlugin(), info, importContext);
@@ -255,7 +255,8 @@ public class TaskCall implements Runnable {
 			}
 		}
 		catch (Exception e){
-			errorWrapper.setError(e);
+            if(errorWrapper != null)
+			    errorWrapper.setError(e);
 			if(!importContext.isContinueOnError()) {
 				if (isPrintTaskLog()) {
 					long end = System.currentTimeMillis();

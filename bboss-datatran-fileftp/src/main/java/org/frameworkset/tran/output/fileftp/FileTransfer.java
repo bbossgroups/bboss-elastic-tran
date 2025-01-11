@@ -252,13 +252,6 @@ public class FileTransfer {
         transferLock.lock();
         try {
             
-//            if(records != null) {                
-//                records.increamentUnSynchronized(dataSize);
-//            }
-//            if(bw == null){
-//                logger.error("bw is null");
-//                throw new DataImportException("bw is null") ;
-//            }
             CommonRecord record = null;
             long count = 0;
             
@@ -368,22 +361,11 @@ public class FileTransfer {
 					try {
 						if (_file.length() <= 0) {
 							if (fileOutputConfig.transferEmptyFiles()) {
-                                /**
-								if (fileOutputConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
-									FtpTransfer.sendFile(fileOutputConfig, _filePath, _remoteFilePath);
-								} else {
-									SFTPTransfer.sendFile(fileOutputConfig, _filePath);
-								}
-                                 */
+                                 
                                 fileOutputConfig.getSendFileFunction().sendFile(fileOutputConfig,_filePath,_remoteFilePath,false);
 							}
 						} else {
-                            /**
-							if (fileOutputConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
-								FtpTransfer.sendFile(fileOutputConfig, _filePath, _remoteFilePath);
-							} else {
-								SFTPTransfer.sendFile(fileOutputConfig, _filePath);
-							}*/
+                             
                             fileOutputConfig.getSendFileFunction().sendFile(fileOutputConfig,_filePath,_remoteFilePath,false);
 						}
 						try {
@@ -397,7 +379,7 @@ public class FileTransfer {
 //                                TaskCall.handleException(e,taskCommand.getImportCount(),taskCommand.getTaskMetrics(),taskCommand,taskCommand.getImportContext());
 //                                logger.error("Backup Success File task[" + taskInfo + "],file[" + _file.getAbsolutePath() + "] failed:", e);
 
-                                String msg = "Backup Success File task[" + taskInfo + "],file[" + _file.getAbsolutePath() + "] failed:";
+                                String msg = "Backup success File task[" + taskInfo + "],file[" + _file.getAbsolutePath() + "] failed:";
                                 importContext.reportJobMetricErrorLog(msg,e);
                                 logger.error(msg, e);
 
@@ -436,7 +418,7 @@ public class FileTransfer {
 						try {
 							FileUtil.bakFile(_filePath,_transferFailedFile);//如果文件发送失败，将文件移除到失败目录，定时重发
 						} catch (IOException ioException) {
-							logger.error("backup failed send File task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",ioException);
+							logger.error("Backup failed when send File task["+taskInfo+"],file["+_file.getAbsolutePath()+"] failed:",ioException);
 						}
 //                        if(!fileOutputConfig.isSendFileAsyn() ) {
 //                            throw new DataImportException(msg, e);
