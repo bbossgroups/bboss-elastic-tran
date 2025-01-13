@@ -483,34 +483,37 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 	@Override
 	public void importData(ScheduleEndCall scheduleEndCall) throws DataImportException {
 //        this.scheduleEndCall = scheduleEndCall;
-
-            startHistoryTasks();
-            if (!fileInputConfig.isUseETLScheduleForScanNewFile()) {//采用内置新文件扫描调度机制
-                Exception e = null;
-                try {
-                    long importStartTime = System.currentTimeMillis();
-                    this.doImportData(null);
-                    long importEndTime = System.currentTimeMillis();
-                    if (importContext.isPrintTaskLog())
-                        logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
-                }
-                catch (DataImportException _e){
-                    e = _e;
-                    throw _e;
-                }
-                catch (Exception _e){
-                    e = ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,"",_e);
-                    throw (DataImportException)e;
-                }
-                finally {
-                    if(neadFinishJob()){//不扫码新文件
-                        importContext.finishAndWaitTran(e);
-                    }
-                }
-
-            } else {
-                super.importData(scheduleEndCall);
+        if(this.checkTranToStop())//任务处于停止状态，不再执行定时作业
+        {
+            return;
+        }
+        startHistoryTasks();
+        if (!fileInputConfig.isUseETLScheduleForScanNewFile()) {//采用内置新文件扫描调度机制
+            Exception e = null;
+            try {
+                long importStartTime = System.currentTimeMillis();
+                this.doImportData(null);
+                long importEndTime = System.currentTimeMillis();
+                if (importContext.isPrintTaskLog())
+                    logger.info(new StringBuilder().append("Execute job Take ").append((importEndTime - importStartTime)).append(" ms").toString());
             }
+            catch (DataImportException _e){
+                e = _e;
+                throw _e;
+            }
+            catch (Exception _e){
+                e = ImportExceptionUtil.buildDataImportException(importContext.getOutputPlugin(),importContext,"",_e);
+                throw (DataImportException)e;
+            }
+            finally {
+                if(neadFinishJob()){//不扫码新文件
+                    importContext.finishAndWaitTran(e);
+                }
+            }
+
+        } else {
+            super.importData(scheduleEndCall);
+        }
 
 
 

@@ -328,6 +328,10 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
 	@Override
 	public void doImportData(TaskContext taskContext) {
+        if(this.checkTranToStop())//任务处于停止状态，不再执行后续处理
+        {
+            return;
+        }
 		this.inputPlugin.doImportData(taskContext);
 	}
 
@@ -709,7 +713,10 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	}
 	@Override
 	public void importData(ScheduleEndCall scheduleEndCall) throws DataImportException {
-
+        if(this.checkTranToStop())//任务处于停止状态，不再执行定时作业
+        {
+            return;
+        }
 		if(this.scheduleService == null) {//一次性执行数据导入操作
 			delay();//针对一次性作业进行延迟处理
 //			if(status == TranConstant.PLUGIN_STOPPED || status == TranConstant.PLUGIN_STOPAPPENDING)

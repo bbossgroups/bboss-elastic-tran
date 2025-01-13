@@ -72,7 +72,10 @@ public class KafkaDataTranPluginImpl extends DataTranPluginImpl {
 	@Override
 	public void importData(ScheduleEndCall scheduleEndCall) throws DataImportException {
 
-
+        if(this.checkTranToStop())//任务处于停止状态，不再执行定时作业
+        {
+            return;
+        }
 		long importStartTime = System.currentTimeMillis();
 		TaskContext taskContext = inputPlugin.isEnablePluginTaskIntercept()?new TaskContext(importContext):null;
 		try {

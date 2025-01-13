@@ -284,6 +284,10 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 	}
 	@Override
 	public void doImportData( TaskContext taskContext)  throws DataImportException {
+        if(this.dataTranPlugin.checkTranToStop())//任务处于停止状态，不再检测新文件
+        {
+            return;
+        }
 		ResultSetHandler resultSetHandler = new DefaultResultSetHandler( taskContext, importContext,dataTranPlugin);
 
 		try {
