@@ -143,6 +143,7 @@ public abstract class KafkaOutputConfig extends BaseConfig implements OutputConf
 		if(enableMetricsAgg) {
 			TimeWindowExportResultHandler timeWindowExportResultHandler = new TimeWindowExportResultHandler(metricKey_kafkaoutputplutin,
 					exportResultHandler, this);
+            this.exportResultHandler = timeWindowExportResultHandler;
 			return timeWindowExportResultHandler;
 		}
 		else{

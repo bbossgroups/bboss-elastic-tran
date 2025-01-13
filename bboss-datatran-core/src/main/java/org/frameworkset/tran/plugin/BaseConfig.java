@@ -78,7 +78,8 @@ public abstract class BaseConfig  extends FieldMappingManager {
     }
     public void destroyExportResultHandler(){
         try {
-            this.exportResultHandler.destroy();
+            if(exportResultHandler != null)
+                this.exportResultHandler.destroy();
         }
         catch (Throwable e){
             log_.warn("Destroy WrapedExportResultHandler failed:",e);

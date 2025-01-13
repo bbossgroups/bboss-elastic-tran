@@ -222,8 +222,9 @@ public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 		return this;
 	}
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler) {
-		DefualtExportResultHandler<String> db2ESExportResultHandler = new DefualtExportResultHandler<String>(exportResultHandler,  this);
-		return db2ESExportResultHandler;
+		DefualtExportResultHandler<String> defualtExportResultHandler = new DefualtExportResultHandler<String>(exportResultHandler,  this);
+        this.exportResultHandler = defualtExportResultHandler;
+		return defualtExportResultHandler;
 	}
 
 	public void generateReocord(TaskContext taskContext,TaskMetrics taskMetrics, CommonRecord record, Writer builder) throws Exception{

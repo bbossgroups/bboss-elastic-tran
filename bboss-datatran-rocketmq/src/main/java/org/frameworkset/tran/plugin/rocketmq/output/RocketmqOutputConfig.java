@@ -155,6 +155,7 @@ public class RocketmqOutputConfig extends BaseConfig implements OutputConfig {
 		if(enableMetricsAgg) {
 			TimeWindowExportResultHandler timeWindowExportResultHandler = new TimeWindowExportResultHandler(metricKey_rocketmqoutputplugin,
 					exportResultHandler, this);
+            this.exportResultHandler = timeWindowExportResultHandler;
 			return timeWindowExportResultHandler;
 		}
 		else{
