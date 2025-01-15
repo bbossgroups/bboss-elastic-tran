@@ -248,6 +248,13 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 	public Map<String,FieldMeta> getFieldMetaMap(){
 		return this.fieldMetaMap;
 	}
+    public Object getJobContextData(String name) {
+        return getJobContext().getJobData(name);
+    }
+
+    public Object getTaskContextData(String name) {
+        return getTaskContext().getTaskData(name);
+    }
 	@Override
 	public Context addFieldValue(String fieldName, Object value) {
 		if(this.fieldValues == null) {

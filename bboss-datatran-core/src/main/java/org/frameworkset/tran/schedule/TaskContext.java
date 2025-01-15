@@ -60,6 +60,9 @@ public class TaskContext extends BaseMetricsLogReport {
         taskContextReinitCallbacks.add(taskContextReinitCallback);
     }
 
+    public Object getJobContextData(String name) {
+        return getJobContext().getJobData(name);
+    }
     /**
 	 * 获取任务级别数据库配置
 	 */

@@ -153,6 +153,10 @@ public interface Context extends DataTranPluginMetricsLogAPI {
      */
     Context addFieldValues( Object bean);
 
+    public Object getTaskContextData(String name) ;
+
+    public Object getJobContextData(String name) ;
+
     /**
      * 将对象中的所有字段和值作为字段添加到记录中
      * 根据参数ignoreNullField控制是否忽略空值字段 true 忽略  false 不忽略
