@@ -15,14 +15,12 @@ package org.frameworkset.tran.context;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.metrics.BaseMetricsLogReport;
-import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -39,7 +37,7 @@ public class JobContext extends BaseMetricsLogReport {
     private Date jobStartTime;
     private Date endStartTime;
 	public JobContext(){
-		jobDatas = new HashMap<String, Object>();
+		jobDatas = new LinkedHashMap<>();
         jobStartTime = new Date();
 	}
 
@@ -55,11 +53,30 @@ public class JobContext extends BaseMetricsLogReport {
         return endStartTime;
     }
 
+    /**
+     * 添加作业执行参数
+     * @param name
+     * @param value
+     * @return
+     */
     public JobContext addJobData(String name, Object value){
 		jobDatas.put(name,value);
 		return this;
 	}
-	public void release(){
+
+    /**
+     * 将params中的每个元素作为单个参数添加为作业执行参数
+     * @param params
+     * @return
+     */
+    public JobContext addJobDatas(Map params){
+        if(params != null){
+            jobDatas.putAll(params);
+        }
+        return this;
+    }
+
+    public void release(){
 		this.jobDatas.clear();
 		this.jobDatas = null;
 	}

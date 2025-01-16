@@ -638,6 +638,10 @@ public class FileConfig extends FieldManager{
         }
     }
 
+    public Object getJobData(String name){
+        return getJobContext().getJobData(name);
+    }
+
     public void build(){
 
     }
