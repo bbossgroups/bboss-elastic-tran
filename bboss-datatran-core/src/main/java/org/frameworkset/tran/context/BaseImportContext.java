@@ -60,6 +60,9 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
     public JobContext getJobContext() {
 		return jobContext;
 	}
+    public Object getJobContextData(String name){
+        return jobContext.getJobData(name);
+    }
  
     public boolean isSerial(){
         return getStoreBatchSize() <= 0;

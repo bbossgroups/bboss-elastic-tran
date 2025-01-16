@@ -70,6 +70,7 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
      */
     public List<JobInputParamGroup> getJobInputParamGroups();
 	public JobContext getJobContext();
+    public Object getJobContextData(String name);
 	/**
 	 * 对作业依赖的资源进行初始化处理
 	 * @return
