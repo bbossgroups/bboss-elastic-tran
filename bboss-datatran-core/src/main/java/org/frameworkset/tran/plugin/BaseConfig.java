@@ -16,6 +16,7 @@ package org.frameworkset.tran.plugin;
  */
 
 import org.frameworkset.tran.*;
+import org.frameworkset.tran.config.ConfigId;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
@@ -31,9 +32,13 @@ import org.slf4j.LoggerFactory;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class BaseConfig  extends FieldMappingManager {
+public abstract class BaseConfig  extends FieldMappingManager implements ConfigId {
     private static final Logger log_ = LoggerFactory.getLogger(BaseConfig.class);
     protected String pluginNo;
+    /**
+     * 插件配置唯一标识，用于区分不同的输出插件或者输入插件，一般在多输出插件过滤记录集时使用
+     */
+    protected String id;
     protected OutputPlugin outputPlugin;
     protected WrapedExportResultHandler exportResultHandler;
 
@@ -43,6 +48,15 @@ public abstract class BaseConfig  extends FieldMappingManager {
     }
     public void setMultiOutputTran(boolean multiOutputTran){
         this.multiOutputTran = multiOutputTran;
+    }
+
+    @Override
+    public void setId(String id){
+        this.id = id;
+    }
+    @Override
+    public String getId(){
+        return id;
     }
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext){
 		DataTranPlugin dataTranPlugin = new DataTranPluginImpl(importContext);

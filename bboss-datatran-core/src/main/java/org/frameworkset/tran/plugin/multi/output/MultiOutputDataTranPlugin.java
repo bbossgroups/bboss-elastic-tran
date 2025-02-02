@@ -101,10 +101,17 @@ public class MultiOutputDataTranPlugin extends BasePlugin implements OutputPlugi
             }
         }
 	}
-
+ 
 	@Override
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus){
-        BaseCommonRecordDataTran baseCommonRecordDataTran = new MultiOutPutDataTran(taskContext, tranResultSet, importContext,countDownLatch, currentStatus);
+        
+        BaseCommonRecordDataTran baseCommonRecordDataTran = null;
+        if(this.multiOutputConfig.getOutputRecordsFilter() == null) {
+            baseCommonRecordDataTran = new MultiOutPutDataTran(taskContext, tranResultSet, importContext, countDownLatch, currentStatus);
+        }
+        else{
+            baseCommonRecordDataTran = new FilterMultiOutPutDataTran(taskContext, tranResultSet, importContext, countDownLatch, currentStatus);
+        }
         baseCommonRecordDataTran.initTran();
         return baseCommonRecordDataTran;
 	}

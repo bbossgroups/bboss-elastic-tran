@@ -31,6 +31,7 @@ import org.frameworkset.tran.metrics.MetricsLogReport;
 import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.plugin.metrics.output.MetricsOutputConfig;
 import org.frameworkset.tran.plugin.multi.output.MultiOutputConfig;
+import org.frameworkset.tran.plugin.multi.output.OutputRecordsFilter;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
@@ -58,6 +59,9 @@ public class ImportBuilder {
 	private Map jobInputParams;
 
 	private Map jobOutputParams;
+
+
+    private OutputRecordsFilter outputRecordsFilter;
 
 
     private JobClosedListener jobClosedListener;
@@ -1105,7 +1109,7 @@ public class ImportBuilder {
 			return configString = ret.toString();
 		}
 		catch (Exception e){
-			e.printStackTrace();
+			logger.warn("",e);
 			configString = "";
 			return configString;
 		}
@@ -1501,12 +1505,13 @@ public class ImportBuilder {
 
 	protected DataStream innerBuilder(){
 		
+        if(outputRecordsFilter != null && outputConfig instanceof MultiOutputConfig){
+            ((MultiOutputConfig)this.outputConfig).setOutputRecordsFilter(outputRecordsFilter);
+        }
 		this.buildGeoipConfig();
 		buildDBConfig();
 		this.buildOtherDBConfigs();
 		this.buildStatusDBConfig();
-
-
 		try {
 			if(logger.isInfoEnabled()) {
 				logger.info("Import Configs:");
@@ -1523,7 +1528,7 @@ public class ImportBuilder {
 		buildImportConfig(baseImportConfig);
 		importContext.setBaseImportConfig(baseImportConfig);
 		inputConfig.build(importContext,this);
-		outputConfig.build(importContext,this);
+		outputConfig.build(importContext,this);  
 		importContext.setInputConfig(inputConfig);
 		importContext.setOutputConfig(outputConfig);
 		if(this.exportResultHandler != null){
@@ -1911,4 +1916,13 @@ public class ImportBuilder {
         this.numberTypeTimestamp = numberTypeTimestamp;
         return this;
     }
+
+    public OutputRecordsFilter getOutputRecordsFilter() {
+        return outputRecordsFilter;
+    }
+
+    public void setOutputRecordsFilter(OutputRecordsFilter outputRecordsFilter) {
+        this.outputRecordsFilter = outputRecordsFilter;
+    }
+
 }

@@ -34,8 +34,10 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface OutputConfig {
+public interface OutputConfig  extends ConfigId{
 	public void build(ImportContext importContext,ImportBuilder importBuilder);
+    
+
     default void initRecordSpecialConfigsContext(RecordSpecialConfigsContext recordSpecialConfigsContext, boolean fromMultiOutput){
     }
      

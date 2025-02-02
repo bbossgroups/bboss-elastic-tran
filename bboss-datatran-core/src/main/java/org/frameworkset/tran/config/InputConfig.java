@@ -30,7 +30,7 @@ import org.frameworkset.tran.record.RecordBuidler;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface InputConfig {
+public interface InputConfig extends ConfigId{
 	public void build(ImportContext importContext,ImportBuilder importBuilder);
 	public DataTranPlugin buildDataTranPlugin(ImportContext importContext);
 	InputPlugin getInputPlugin(ImportContext importContext);

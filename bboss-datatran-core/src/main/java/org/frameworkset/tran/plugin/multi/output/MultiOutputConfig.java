@@ -43,6 +43,8 @@ public class MultiOutputConfig  extends BaseConfig implements OutputConfig {
     private List<OutputConfig> outputConfigs;
     private boolean enableMultiExportResultHandler = true;
     private int pluginNo;
+
+    private OutputRecordsFilter outputRecordsFilter;
     
     public MultiOutputConfig addOutputConfig(OutputConfig outputConfig){
         if(outputConfig == null){
@@ -61,6 +63,14 @@ public class MultiOutputConfig  extends BaseConfig implements OutputConfig {
         return this;
     }
 
+    public OutputRecordsFilter getOutputRecordsFilter() {
+        return outputRecordsFilter;
+    }
+
+    public MultiOutputConfig setOutputRecordsFilter(OutputRecordsFilter outputRecordsFilter) {
+        this.outputRecordsFilter = outputRecordsFilter;
+        return this;
+    }
 
     public List<OutputConfig> getOutputConfigs() {
         return outputConfigs;
