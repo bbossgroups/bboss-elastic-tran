@@ -21,7 +21,6 @@ import org.frameworkset.rocketmq.RocketmqConsumer2ndStore;
 import org.frameworkset.rocketmq.codec.RocketmqMessage;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.Record;
-import org.frameworkset.tran.plugin.rocketmq.input.RocketmqInputConfig;
 import org.frameworkset.tran.rocketmq.RocketmqData;
 import org.frameworkset.tran.rocketmq.RocketmqMapRecord;
 import org.frameworkset.tran.rocketmq.RocketmqStringRecord;
