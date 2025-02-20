@@ -56,7 +56,7 @@ https://esdoc.bbossgroups.com/#/bboss-build
 
 # How to use Elasticsearch BBoss.
 
-First add the maven dependency of BBoss to your pom.xml:
+Add the maven dependency of BBoss to your pom.xml:
 
 ```xml
        <dependency>
@@ -68,7 +68,7 @@ First add the maven dependency of BBoss to your pom.xml:
 # 蓝图规划
 1. 增加oracle cdc、postgresql cdc、sql server cdc插件
 2. 增加redis插件
-3. 增加多输出源功能
+ 
 
 # 联系我们
 
