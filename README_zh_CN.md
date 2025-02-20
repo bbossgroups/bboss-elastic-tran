@@ -57,7 +57,7 @@ https://esdoc.bbossgroups.com/#/bboss-build
 
 # How to use Elasticsearch BBoss.
 
-First add the maven dependency of BBoss to your pom.xml:
+Add the maven dependency of BBoss to your pom.xml:
 
 ```xml
        <dependency>
