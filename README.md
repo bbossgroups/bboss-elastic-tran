@@ -68,7 +68,7 @@ Add the maven dependency of BBoss to your pom.xml:
 # 蓝图规划
 1. 增加oracle cdc、postgresql cdc、sql server cdc插件
 2. 增加redis插件
- 
+
 
 # 联系我们
 
@@ -112,3 +112,7 @@ QQ交流群：21220580,166471282,3625720,154752521,166471103,166470856
 The BBoss Framework is released under version 2.0 of the [Apache License][].
 
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0
+
+# Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=bbossgroups/bboss-elastic-tran&type=Date)](https://star-history.com/#bbossgroups/bboss-elastic-tran&Date)
