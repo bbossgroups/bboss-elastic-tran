@@ -103,7 +103,7 @@ public final class BBossGtidSet {
     }
 
     /**
-     * Obtain a copy of this {@link BBossGtidSet} except overwritten with all of the GTID ranges in the supplied {@link GtidSet}.
+     * Obtain a copy of this {@link BBossGtidSet} except overwritten with all of the GTID ranges in the supplied GtidSet.
      * @param other the other {@link BBossGtidSet} with ranges to add/overwrite on top of those in this set;
      * @return the new GtidSet, or this object if {@code other} is null or empty; never null
      */

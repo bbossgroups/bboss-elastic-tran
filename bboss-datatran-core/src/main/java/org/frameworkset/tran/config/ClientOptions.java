@@ -43,11 +43,11 @@ public class ClientOptions implements BulkActionConfig,Serializable {
 	public static final Object NULL_OBJECT_VALUE = new Object();
 	public static final String NULL_STRING_VALUE = new String();
 
-	public static final Integer NULL_INTEGER_VALUE = new Integer(0);
+	public static final Integer NULL_INTEGER_VALUE = 0;
 	public static final List<String> NULL_LIST_VALUE = new ArrayList<String>(0);
-	public static final Long NULL_LONG_VALUE = new Long(0l);
+	public static final Long NULL_LONG_VALUE = 0l;
 
-	public static final Boolean NULL_BOOLEAN_VALUE = new Boolean(true);
+	public static final Boolean NULL_BOOLEAN_VALUE = true;
 	public static final ESField NULL_ESFIELD_VALUE = new ESField("");
 	private ESField esRetryOnConflictField;
 	private ESField versionField;
