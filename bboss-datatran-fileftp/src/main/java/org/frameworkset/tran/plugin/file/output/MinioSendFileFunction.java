@@ -107,7 +107,7 @@ public class MinioSendFileFunction implements SendFileFunction{
             logger.info(msg);
             importContext.reportJobMetricLog(msg);
         } catch (Exception e) {
-            throw new FilelogPluginException("createBucket failed:"+ossFileInfo.toString(),e);
+            throw new FilelogPluginException("Send File failed:"+ossFileInfo.toString(),e);
         }
         
     }

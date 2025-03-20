@@ -393,17 +393,17 @@ public interface Context extends DataTranPluginMetricsLogAPI {
 	 */
 	void setIndexType(String indiceType);
 
-	/**
-	 * 获取记录对应的索引表名称
-	 * @return
-	 */
-	String getIndex();
-
-	/**
-	 * 获取记录对应的索引类型名称
-	 * @return
-	 */
-	String getIndexType();
+//	/**
+//	 * 获取记录对应的索引表名称
+//	 * @return
+//	 */
+//	String getIndex();
+//
+//	/**
+//	 * 获取记录对应的索引类型名称
+//	 * @return
+//	 */
+//	String getIndexType();
 
 //	String getOperation();
 

@@ -46,7 +46,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig.SPECIALCONFIG_CLIENTOPTIONS_NAME;
+import static org.frameworkset.tran.plugin.es.output.ElasticsearchOutputConfig.*;
 
 /**
  * <p>Description: </p>
@@ -70,8 +70,8 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 	protected BatchContext batchContext;
 	protected boolean drop;
 	protected int action = Record.RECORD_INSERT;
-	protected String index;
-	protected String indexType;
+//	protected String index;
+//	protected String indexType;
     protected TaskMetrics taskMetrics;
 	protected ESIndexWrapper esIndexWrapper;
 //	protected ClientOptions clientOptions;
@@ -91,6 +91,9 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 	 */
 	private Map<String,Object> tempDatas;
 
+    /**
+     * 用于设置针对特定输出插件的记录上下文配置和数据
+     */
     private RecordSpecialConfigsContext recordSpecialConfigsContext;
 	public ContextImpl(TaskContext taskContext, ImportContext importContext, Record record, BatchContext batchContext){
         super(importContext.getDataTranPlugin());
@@ -121,23 +124,25 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 
 	@Override
 	public void setIndex(String index) {
-		this.index = index;
+        recordSpecialConfigsContext.addRecordSpecialConfig(SPECIALCONFIG_INDEX_NAME,index);
+//		this.index = index;
 	}
 
 	@Override
 	public void setIndexType(String indexType) {
-		this.indexType = indexType;
+//		this.indexType = indexType;
+        recordSpecialConfigsContext.addRecordSpecialConfig(SPECIALCONFIG_INDEXTYPE_NAME,indexType);
 	}
 
-	@Override
-	public String getIndex() {
-		return index;
-	}
-
-	@Override
-	public String getIndexType() {
-		return indexType;
-	}
+//	@Override
+//	public String getIndex() {
+//		return index;
+//	}
+//
+//	@Override
+//	public String getIndexType() {
+//		return indexType;
+//	}
 	public Map<String,Object> getGeoipConfig(){
 		return baseImportConfig.getGeoipConfig();
 	}

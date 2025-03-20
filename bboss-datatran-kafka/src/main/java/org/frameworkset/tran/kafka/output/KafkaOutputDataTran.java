@@ -1,16 +1,13 @@
 package org.frameworkset.tran.kafka.output;
 
 import org.frameworkset.tran.*;
-import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.plugin.http.output.HttpTaskCommandImpl;
 import org.frameworkset.tran.plugin.kafka.output.KafkaOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.*;
 import org.slf4j.Logger;
 
-import java.io.Writer;
 
 import static org.frameworkset.tran.context.Context.KAFKA_TOPIC_KEY;
 

@@ -183,7 +183,7 @@ public abstract class BaseStatusManager implements StatusManager {
 			return null;
 		}
 		if(lastValue instanceof Date){
-			lastValue = new Long(((Date) lastValue).getTime());
+			lastValue = ((Date) lastValue).getTime();
 		}
 		return lastValue;
 	}

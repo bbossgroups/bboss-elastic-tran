@@ -52,7 +52,7 @@ dependencies {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
     api([group: 'com.bbossgroups', name: 'bboss-data', version: "${PROJ_BBOSS_DATA_VERSION}", transitive: true])
-    api (group: 'io.minio', name: 'minio', version: '8.5.14'){
+    api (group: 'io.minio', name: 'minio', version: '8.5.17'){
         exclude group: 'com.fasterxml.jackson.jaxrs', module: 'jackson-jaxrs-json-provider'
         exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-csv'
         exclude group: 'com.fasterxml.jackson.module', module: 'jackson-module-scala_2.12'
