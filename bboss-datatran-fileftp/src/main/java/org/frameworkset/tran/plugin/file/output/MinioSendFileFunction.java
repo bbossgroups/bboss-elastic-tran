@@ -94,7 +94,7 @@ public class MinioSendFileFunction implements SendFileFunction{
             initMinio();            
             long s = System.currentTimeMillis();
             minio.createBucket(ossFileInfo.getBucket());
-            minio.saveOssFile(file,ossFileInfo.getBucket(),ossFileInfo.getId());
+            minio.uploadObject(filePath,ossFileInfo.getBucket(),ossFileInfo.getId());
             long e = System.currentTimeMillis();
             String msg = null;
             if(!resend) {
