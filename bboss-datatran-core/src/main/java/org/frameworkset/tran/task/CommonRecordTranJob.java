@@ -585,6 +585,7 @@ public class CommonRecordTranJob extends BaseTranJob{
                     taskCommandContext.setCommonRecord(record);
                     taskCommandContext.setIgnoreCount(ignoreCount);
                     taskCommandContext.setImportContext(importContext);
+                    taskCommandContext.setTaskMetrics(taskMetrics);
                     ignoreCount = 0;
                     
 					serialTranCommand.hanBatchActionTask(taskCommandContext);
