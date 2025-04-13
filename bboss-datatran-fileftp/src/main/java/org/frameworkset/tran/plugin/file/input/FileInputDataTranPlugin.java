@@ -491,8 +491,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                                                     dataTranPlugin.throwException(  taskContext,   new DataImportException( msg,e));
                                                 }
                                                 else{
-                                                    dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,
-                                                            e);
+                                                    dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,e);
                                                 }
                                                 logger.error(msg, e);
                                             }

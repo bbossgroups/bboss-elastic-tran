@@ -784,6 +784,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
 							}
 						},"Datatran-ScheduledEndThread");
+                        scheduledEndThread.setDaemon(true);
 						scheduledEndThread.start();
 					}
 				} else { //外部定时任务引擎执行的方法，比如quartz之类的

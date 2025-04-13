@@ -32,10 +32,7 @@ import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>Description: </p>
@@ -81,7 +78,7 @@ public class BaseImportConfig {
 
 	private ImportStartAction importStartAction;
 
-	private ImportEndAction importEndAction;
+	private List<ImportEndAction> importEndActions;
 	/**
 	 * 任务开始时间
 	 */
@@ -900,12 +897,15 @@ public class BaseImportConfig {
 		this.scheduleDate = scheduleDate;
 	}
 
-	public ImportEndAction getImportEndAction() {
-		return importEndAction;
+	public List<ImportEndAction> getImportEndActions() {
+		return importEndActions;
 	}
 
 	public void setImportEndAction(ImportEndAction importEndAction) {
-		this.importEndAction = importEndAction;
+        if(this.importEndActions == null){
+            importEndActions = new ArrayList<>();
+        }
+		this.importEndActions.add( importEndAction);
 	}
 
 	public void setJobName(String jobName) {
@@ -1076,5 +1076,13 @@ public class BaseImportConfig {
 
     public void setNumberTypeTimestamp(boolean numberTypeTimestamp) {
         this.numberTypeTimestamp = numberTypeTimestamp;
+    }
+
+    public void setCallInterceptor(CallInterceptor callInterceptor) {
+        if(this.callInterceptors == null){
+            this.callInterceptors = new ArrayList<>();
+            
+        }
+        this.callInterceptors.add(callInterceptor);
     }
 }

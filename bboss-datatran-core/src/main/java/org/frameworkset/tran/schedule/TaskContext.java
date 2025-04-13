@@ -60,9 +60,24 @@ public class TaskContext extends BaseMetricsLogReport {
         taskContextReinitCallbacks.add(taskContextReinitCallback);
     }
 
+    /**
+     * 获取作业初始化参数数据
+     * @param name
+     * @return
+     */
     public Object getJobContextData(String name) {
         return getJobContext().getJobData(name);
     }
+
+    /**
+     * 是否需要触发工作流的节点完成处理，多转换处理任务（文件采集插件无需触发，每个文件完成时会执行任务完成拦截器，需要所有调度完成后触发节点完成操作）
+     * @return
+     */
+    public boolean neadTriggerJobFlowNodeComplete(){
+        return true;
+    }
+    
+    
     /**
 	 * 获取任务级别数据库配置
 	 */

@@ -293,15 +293,10 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
 	public String getLocale();
 	public String getTimeZone();
 	public int getTranDataBufferQueue();
-//	public Object getValue(String columnName) throws ESDataImportException;
-//	public Object getDateTimeValue(String columnName) throws ESDataImportException;
 	void setDataRefactor( DataRefactor dataRefactor);
 
-//	ClientOptions getClientOptions();
-//
-//	String getSourceElasticsearch();
 	public boolean isIncreamentImport();
-	public ImportEndAction getImportEndAction();
+	public List<ImportEndAction> getImportEndActions();
 
 	public Date getScheduleDate();
 

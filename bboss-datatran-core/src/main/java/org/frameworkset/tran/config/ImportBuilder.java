@@ -23,6 +23,7 @@ import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.InitJobContextCall;
 import org.frameworkset.tran.context.JobContext;
+import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.listener.AsynJobClosedListener;
 import org.frameworkset.tran.listener.AsynJobClosedListenerImpl;
 import org.frameworkset.tran.listener.JobClosedListener;
@@ -114,11 +115,26 @@ public class ImportBuilder {
 
 
     private boolean waitCompleteWhenflushMetricsOnScheduleTaskCompleted = true;
+    /**
+     * 作业隶属的流程节点
+     */
+    private JobFlowNode jobFlowNode;
 
     public String getDataTimeField() {
 		return dataTimeField;
 	}
-	/**
+
+    /**
+     * 设置作业隶属的流程节点
+     * @param jobFlowNode
+     * @return
+     */
+    public ImportBuilder setJobFlowNode(JobFlowNode jobFlowNode) {
+        this.jobFlowNode = jobFlowNode;
+        return this;
+    }
+
+    /**
 	 * 设置指标时间维度字段，不是设置默认采用当前时间，否则采用字段对应的时间值
 	 * @param dataTimeField
 	 * @return
@@ -1342,6 +1358,7 @@ public class ImportBuilder {
         baseImportConfig.setMetricsLogReport(this.metricsLogReport);
 		baseImportConfig.setImportStartAction(importStartAction);
 		baseImportConfig.setImportEndAction(importEndAction);
+        
 		baseImportConfig.setUseJavaName(false);
         baseImportConfig.setJobClosedListener(handleJobClosedListener());
         baseImportConfig.setStatusIdPolicy(this.statusIdPolicy);
@@ -1355,13 +1372,6 @@ public class ImportBuilder {
 		baseImportConfig.setJobDynamicInputParams(jobDynamicInputParams);
 		baseImportConfig.setJobDynamicOutputParams(jobDynamicOutputParams);
 		baseImportConfig.setLastValueColumnSetted(this.lastValueColumnSetted);
-//		if(getTargetElasticsearch() != null && !getTargetElasticsearch().equals(""))
-//			baseImportConfig.setTargetElasticsearch(this.getTargetElasticsearch());
-//		if(getSourceElasticsearch() != null && !getSourceElasticsearch().equals(""))
-//			baseImportConfig.setSourceElasticsearch(this.getSourceElasticsearch());
-//		if(this.esConfig != null){
-//			baseImportConfig.setEsConfig(esConfig);
-//		}
 		if(geoipConfig != null && geoipConfig.size() > 0){
 			baseImportConfig.setGeoipConfig(geoipConfig);
 		}
@@ -1371,20 +1381,13 @@ public class ImportBuilder {
 
 		baseImportConfig.setFetchSize(this.fetchSize);
 
-//		baseImportConfig.setClientOptions(clientOptions);
-//		baseImportConfig.setRoutingField(this.routingField);
 		baseImportConfig.setUseJavaName(this.useJavaName);
 		baseImportConfig.setFieldMetaMap(this.fieldMetaMap);
 		baseImportConfig.setFieldValues(fieldValues);
 		baseImportConfig.setValuesIdxByName(valuesIdxByName);
 		baseImportConfig.setDataRefactor(this.dataRefactor);
 		baseImportConfig.setSortLastValue(this.sortLastValue);
-//		baseImportConfig.setDbConfig(dbConfig);
 		baseImportConfig.setStatusDbConfig(statusDbConfig);
-//		baseImportConfig.setTargetDbname(targetDbname);
-//		baseImportConfig.setSourceDbname(sourceDbname);
-//		baseImportConfig.setEnableDBTransaction(enableDBTransaction);
-//		baseImportConfig.setJdbcFetchsize(jdbcFetchsize);
 		baseImportConfig.setConfigs(this.configs);
 		baseImportConfig.setBatchSize(this.batchSize);
 		baseImportConfig.setDefaultDBConfig(defaultDBConfig);
@@ -1412,11 +1415,11 @@ public class ImportBuilder {
 		else
 			baseImportConfig.setScheduleBatchSize(this.batchSize);
 		baseImportConfig.setCallInterceptors(this.callInterceptors);
+
+        
+        
 		baseImportConfig.setUseLowcase(this.useLowcase);
 		baseImportConfig.setPrintTaskLog(this.printTaskLog);
-//		baseImportConfig.setEsIdGenerator(esIdGenerator);
-
-//		baseImportConfig.setPagine(this.pagine);
 		baseImportConfig.setTranDataBufferQueue(this.tranDataBufferQueue);
 		baseImportConfig.setFlushInterval(this.flushInterval);
 		baseImportConfig.setIgnoreNullValueField(this.ignoreNullValueField);
@@ -1427,7 +1430,6 @@ public class ImportBuilder {
 		baseImportConfig.setLogsendTaskMetric(logsendTaskMetric);
 		baseImportConfig.setSplitHandler(this.getSplitHandler());
 		baseImportConfig.setSplitFieldName(getSplitFieldName());
-//		baseImportConfig.setEsDetectNoop(this.esDetectNoop);
 
 		baseImportConfig.setDeyLay(deyLay);
 		baseImportConfig.setScheduleDate(scheduleDate);
@@ -1435,9 +1437,6 @@ public class ImportBuilder {
 		if(jobId != null) {
 			baseImportConfig.setJobId(jobId);
 		}
-//		else{
-//			baseImportConfig.setJobId(SimpleStringUtil.getUUID());
-//		}
 		if(jobName != null)
 			baseImportConfig.setJobName(jobName);
 		else{
@@ -1536,7 +1535,7 @@ public class ImportBuilder {
 			baseImportConfig.setExportResultHandler(outputConfig.buildExportResultHandler( exportResultHandler));
 		}
 		importContext.afterBuild(this);
-
+        buildJobFlowConfig(baseImportConfig);
 
 		DataStream dataStream = this.createDataStream();
 		dataStream.setImportContext(importContext);
@@ -1551,6 +1550,42 @@ public class ImportBuilder {
 		importContext.setDataStream(dataStream);
 		return dataStream;
 	}
+
+    /**
+     * 
+     * @param baseImportConfig
+     */
+    private void buildJobFlowConfig(BaseImportConfig baseImportConfig){
+        if(jobFlowNode != null){
+            //构建作业调度流程任务结束拦截器
+            baseImportConfig.setImportEndAction(new ImportEndAction() {
+                @Override
+                public void endAction(ImportContext importContext, Exception e) {
+                    jobFlowNode.nodeComplete(  importContext,   e);
+                }
+            });
+
+            baseImportConfig.setCallInterceptor(new CallInterceptor(){
+
+                @Override
+                public void preCall(TaskContext taskContext) {
+
+                }
+
+                @Override
+                public void afterCall(TaskContext taskContext) {
+                    if(taskContext.neadTriggerJobFlowNodeComplete())
+                        jobFlowNode.nodeComplete(  taskContext,   null);
+                }
+
+                @Override
+                public void throwException(TaskContext taskContext, Throwable e) {
+                    if(taskContext.neadTriggerJobFlowNodeComplete())
+                        jobFlowNode.nodeComplete(  taskContext,   e);
+                }
+            });
+        }
+    }
 	public static ImportBuilder newInstance(){
 		return new ImportBuilder();
 	}
