@@ -902,6 +902,9 @@ public class BaseImportConfig {
 	}
 
 	public void setImportEndAction(ImportEndAction importEndAction) {
+        if(importEndAction == null){
+            return;
+        }
         if(this.importEndActions == null){
             importEndActions = new ArrayList<>();
         }
