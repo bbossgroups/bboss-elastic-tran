@@ -18,9 +18,6 @@ package org.frameworkset.tran.output.fileftp;
 import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.ftp.FtpConfig;
-import org.frameworkset.tran.ftp.FtpTransfer;
-import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.util.StoppedThread;
 import org.slf4j.Logger;
@@ -56,7 +53,7 @@ public class FailedResend extends StoppedThread{
 	}
 	public void run(){
 		File transferFailedFileDir_ = new File(transferFailedFileDir);
-        boolean isFtp = fileOutputConfig.getFtpOutConfig() != null && fileOutputConfig.getMinioFileConfig() == null;
+        boolean isFtp = fileOutputConfig.getFtpOutConfig() != null && fileOutputConfig.getOssFileConfig() == null;
 		logger.info("FailedFileResend-Thread started,transferFailedFileDir["+transferFailedFileDir+"],failedFileResendInterval:"+ fileOutputConfig.getFailedFileResendInterval()+"毫秒");
 		while(true){
 			if(transferFailedFileDir_.exists()){

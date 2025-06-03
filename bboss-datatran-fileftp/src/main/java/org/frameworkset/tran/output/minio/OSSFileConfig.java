@@ -25,7 +25,7 @@ import org.frameworkset.tran.output.BaseRemoteConfig;
  * @author biaoping.yin
  * @Date 2024/8/9
  */
-public class MinioFileConfig extends BaseRemoteConfig {
+public class OSSFileConfig extends BaseRemoteConfig {
 
     private String name;
     private String endpoint;
@@ -34,9 +34,17 @@ public class MinioFileConfig extends BaseRemoteConfig {
     private String region;
     private OkHttpClient httpClient;
     private long maxFilePartSize = 10485760L;
-    private int connectTimeout = 60000;
-    private int readTimeout = 60000;
-    private int writeTimeout = 60000;
+    private long connectTimeout = 60000L;
+    private long readTimeout = 60000L;
+    private long writeTimeout = 60000L;
+    private long socketTimeout = 60000L;
+    private Long connectionMaxIdleTime = 600000L;
+    private long poolKeepAliveDuration = 300000L;
+    private int poolMaxIdleConnections = 5;
+    private Boolean pathStyleAccess = true;
+
+    private long connectionAcquisitionTimeout = 10000L;
+    private Boolean tcpKeepAlive ;
     private String bucket;
 
 
@@ -52,7 +60,7 @@ public class MinioFileConfig extends BaseRemoteConfig {
         return name;
     }
 
-    public MinioFileConfig setName(String name) {
+    public OSSFileConfig setName(String name) {
         this.name = name;
         return this;
     }
@@ -61,7 +69,7 @@ public class MinioFileConfig extends BaseRemoteConfig {
         return endpoint;
     }
 
-    public MinioFileConfig setEndpoint(String endpoint) {
+    public OSSFileConfig setEndpoint(String endpoint) {
         this.endpoint = endpoint;
         return this;
     }
@@ -70,7 +78,7 @@ public class MinioFileConfig extends BaseRemoteConfig {
         return accessKeyId;
     }
 
-    public MinioFileConfig setAccessKeyId(String accessKeyId) {
+    public OSSFileConfig setAccessKeyId(String accessKeyId) {
         this.accessKeyId = accessKeyId;
         return this;
     }
@@ -79,7 +87,7 @@ public class MinioFileConfig extends BaseRemoteConfig {
         return secretAccesskey;
     }
 
-    public MinioFileConfig setSecretAccesskey(String secretAccesskey) {
+    public OSSFileConfig setSecretAccesskey(String secretAccesskey) {
         this.secretAccesskey = secretAccesskey;
         return this;
     }
@@ -88,7 +96,7 @@ public class MinioFileConfig extends BaseRemoteConfig {
         return region;
     }
 
-    public MinioFileConfig setRegion(String region) {
+    public OSSFileConfig setRegion(String region) {
         this.region = region;
         return this;
     }
@@ -97,7 +105,7 @@ public class MinioFileConfig extends BaseRemoteConfig {
         return httpClient;
     }
 
-    public MinioFileConfig setHttpClient(OkHttpClient httpClient) {
+    public OSSFileConfig setHttpClient(OkHttpClient httpClient) {
         this.httpClient = httpClient;
         return this;
     }
@@ -106,34 +114,34 @@ public class MinioFileConfig extends BaseRemoteConfig {
         return maxFilePartSize;
     }
 
-    public MinioFileConfig setMaxFilePartSize(long maxFilePartSize) {
+    public OSSFileConfig setMaxFilePartSize(long maxFilePartSize) {
         this.maxFilePartSize = maxFilePartSize;
         return this;
     }
 
-    public int getConnectTimeout() {
+    public long getConnectTimeout() {
         return connectTimeout;
     }
 
-    public MinioFileConfig setConnectTimeout(int connectTimeout) {
+    public OSSFileConfig setConnectTimeout(long connectTimeout) {
         this.connectTimeout = connectTimeout;
         return this;
     }
 
-    public int getReadTimeout() {
+    public long getReadTimeout() {
         return readTimeout;
     }
 
-    public MinioFileConfig setReadTimeout(int readTimeout) {
+    public OSSFileConfig setReadTimeout(long readTimeout) {
         this.readTimeout = readTimeout;
         return this;
     }
 
-    public int getWriteTimeout() {
+    public long getWriteTimeout() {
         return writeTimeout;
     }
 
-    public MinioFileConfig setWriteTimeout(int writeTimeout) {
+    public OSSFileConfig setWriteTimeout(long writeTimeout) {
         this.writeTimeout = writeTimeout;
         return this;
     }
@@ -141,7 +149,7 @@ public class MinioFileConfig extends BaseRemoteConfig {
         return ossInfoBuilder;
     }
 
-    public MinioFileConfig setOssInfoBuilder(OSSInfoBuilder ossInfoBuilder) {
+    public OSSFileConfig setOssInfoBuilder(OSSInfoBuilder ossInfoBuilder) {
         this.ossInfoBuilder = ossInfoBuilder;
         return this;        
     }
@@ -152,5 +160,61 @@ public class MinioFileConfig extends BaseRemoteConfig {
 
     public void setBucket(String bucket) {
         this.bucket = bucket;
+    }
+
+    public long getSocketTimeout() {
+        return socketTimeout;
+    }
+
+    public void setSocketTimeout(long socketTimeout) {
+        this.socketTimeout = socketTimeout;
+    }
+
+    public long getPoolKeepAliveDuration() {
+        return poolKeepAliveDuration;
+    }
+
+    public void setPoolKeepAliveDuration(long poolKeepAliveDuration) {
+        this.poolKeepAliveDuration = poolKeepAliveDuration;
+    }
+
+    public long getConnectionAcquisitionTimeout() {
+        return connectionAcquisitionTimeout;
+    }
+
+    public void setConnectionAcquisitionTimeout(long connectionAcquisitionTimeout) {
+        this.connectionAcquisitionTimeout = connectionAcquisitionTimeout;
+    }
+
+    public Boolean getTcpKeepAlive() {
+        return tcpKeepAlive;
+    }
+
+    public void setTcpKeepAlive(Boolean tcpKeepAlive) {
+        this.tcpKeepAlive = tcpKeepAlive;
+    }
+
+    public Long getConnectionMaxIdleTime() {
+        return connectionMaxIdleTime;
+    }
+
+    public void setConnectionMaxIdleTime(Long connectionMaxIdleTime) {
+        this.connectionMaxIdleTime = connectionMaxIdleTime;
+    }
+
+    public Boolean getPathStyleAccess() {
+        return pathStyleAccess;
+    }
+
+    public void setPathStyleAccess(Boolean pathStyleAccess) {
+        this.pathStyleAccess = pathStyleAccess;
+    }
+
+    public int getPoolMaxIdleConnections() {
+        return poolMaxIdleConnections;
+    }
+
+    public void setPoolMaxIdleConnections(int poolMaxIdleConnections) {
+        this.poolMaxIdleConnections = poolMaxIdleConnections;
     }
 }

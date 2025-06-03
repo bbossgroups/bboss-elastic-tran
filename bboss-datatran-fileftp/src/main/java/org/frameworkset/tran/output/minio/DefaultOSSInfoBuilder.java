@@ -27,10 +27,10 @@ import java.io.File;
 public class DefaultOSSInfoBuilder implements OSSInfoBuilder{
 
     @Override
-    public OSSFileInfo buildOSSFileInfo(MinioFileConfig minioFileConfig, File file) {
+    public OSSFileInfo buildOSSFileInfo(OSSFileConfig OSSFileConfig, File file) {
         OSSFileInfo ossFileInfo = new OSSFileInfo();
-        if(minioFileConfig.getBucket() != null)
-            ossFileInfo.setBucket(minioFileConfig.getBucket());
+        if(OSSFileConfig.getBucket() != null)
+            ossFileInfo.setBucket(OSSFileConfig.getBucket());
         else{
             ossFileInfo.setBucket(file.getParentFile().getName());
         }
