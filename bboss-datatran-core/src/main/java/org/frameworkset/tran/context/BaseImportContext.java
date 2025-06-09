@@ -707,8 +707,8 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 		return this.dataTranPlugin.isSchedulePaussed(  autoPause);
 	}
 
-	public ImportEndAction getImportEndAction(){
-		return this.baseImportConfig.getImportEndAction();
+	public List<ImportEndAction> getImportEndActions(){
+		return this.baseImportConfig.getImportEndActions();
 	}
 	public String getJobName() {
 		return baseImportConfig.getJobName();

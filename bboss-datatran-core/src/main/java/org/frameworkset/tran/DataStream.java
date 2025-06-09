@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -160,13 +161,15 @@ public class DataStream {
             
 			endActioned = true;
 		}
-		if(importContext != null && this.importContext.getImportEndAction() != null){
-			try {
-				this.importContext.getImportEndAction().endAction(importContext,e);
-			}
-			catch (Exception ee){
-				logger.warn("",ee);
-			}
+		if(importContext != null && this.importContext.getImportEndActions() != null){
+            List<ImportEndAction> importEndActions = importContext.getImportEndActions();
+            for (ImportEndAction importEndAction: importEndActions) {
+                try {
+                    importEndAction.endAction(importContext, e);
+                } catch (Exception ee) {
+                    logger.warn("", ee);
+                }
+            }
             importContext.getJobContext().setEndStartTime(new Date());
 		}
         

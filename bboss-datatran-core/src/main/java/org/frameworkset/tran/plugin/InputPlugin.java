@@ -49,6 +49,11 @@ public interface InputPlugin {
 	public void afterInit();
 	public void beforeInit();
 	public void init();
+
+    /**
+     * 标记作业是否是多子任务采集作业：比如多文件采集
+     * @return
+     */
 	public boolean isMultiTran();
     default public boolean isEventMsgTypePlugin(){
         return false;

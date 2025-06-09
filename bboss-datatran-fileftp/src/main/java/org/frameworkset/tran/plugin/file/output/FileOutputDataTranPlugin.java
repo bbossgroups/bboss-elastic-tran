@@ -15,7 +15,6 @@ package org.frameworkset.tran.plugin.file.output;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.BaseCommonRecordDataTran;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
@@ -24,7 +23,6 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.output.fileftp.*;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
-import org.frameworkset.tran.plugin.db.output.AsynDBOutPutDataTran;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 
@@ -52,7 +50,7 @@ public class FileOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 	@Override
 	public void afterInit() {
 //		FileOutputConfig fileOutputConfig = (FileOutputConfig) importContext.getOutputConfig();
-        boolean initSendFile = !fileOutputConfig.isDisableftp() && (fileOutputConfig.getFtpOutConfig() != null || fileOutputConfig.getMinioFileConfig() != null);
+        boolean initSendFile = !fileOutputConfig.isDisableftp() && (fileOutputConfig.getFtpOutConfig() != null || fileOutputConfig.getOssFileConfig() != null);
 		if(initSendFile) {
 
 			if(fileOutputConfig.getFailedFileResendInterval() > 0) {

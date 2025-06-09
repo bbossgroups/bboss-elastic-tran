@@ -1,6 +1,6 @@
-package org.frameworkset.tran.output.minio;
+package org.frameworkset.tran.jobflow.schedule;
 /**
- * Copyright 2024 bboss
+ * Copyright 2025 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,17 @@ package org.frameworkset.tran.output.minio;
  * limitations under the License.
  */
 
-import java.io.File;
+import org.frameworkset.tran.schedule.timer.ScheduleTimer;
+
+import java.util.Timer;
 
 /**
- * <p>Description: </p>
- * <p></p>
- *
  * @author biaoping.yin
- * @Date 2024/8/9
+ * @Date 2025/5/5
  */
-public interface OSSInfoBuilder {
-    OSSFileInfo buildOSSFileInfo(OSSFileConfig OSSFileConfig, File file);
+public class JobSchedule {
+    private Timer timer ;
+    private ScheduleTimer scheduleTimer;
+    
 
 }

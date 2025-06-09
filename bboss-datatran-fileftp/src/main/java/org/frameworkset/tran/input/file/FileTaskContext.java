@@ -40,4 +40,13 @@ public class FileTaskContext extends TaskContext {
 	public FileInfo getFileInfo() {
 		return fileInfo;
 	}
+
+    /**
+     * 是否需要触发工作流的节点完成处理，多转换处理任务（文件采集插件无需触发，每个文件完成时会执行任务完成拦截器，需要所有调度完成后触发节点完成操作）
+     * @return
+     */
+    @Override
+    public boolean neadTriggerJobFlowNodeComplete(){
+        return false;
+    }
 }

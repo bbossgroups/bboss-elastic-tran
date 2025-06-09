@@ -183,6 +183,9 @@ public class FileTransfer {
                 this.maxForceFileThresholdCheck.start();
             }
         }
+        if(records == null){
+            records = new LongCount();
+        }
 
 
 	}

@@ -17,7 +17,6 @@ package org.frameworkset.tran.plugin.file.output;
 
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.CommonRecord;
-import org.frameworkset.tran.DefualtExportResultHandler;
 import org.frameworkset.tran.ExportResultHandler;
 import org.frameworkset.tran.WrapedExportResultHandler;
 import org.frameworkset.tran.config.ImportBuilder;
@@ -32,7 +31,7 @@ import org.frameworkset.tran.input.file.FilelogPluginException;
 import org.frameworkset.tran.input.file.FtpFileFilter;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.output.BaseRemoteConfig;
-import org.frameworkset.tran.output.minio.MinioFileConfig;
+import org.frameworkset.tran.output.minio.OSSFileConfig;
 import org.frameworkset.tran.output.fileftp.FileSend2Ftp;
 import org.frameworkset.tran.output.fileftp.FilenameGenerator;
 import org.frameworkset.tran.output.ftp.FtpOutConfig;
@@ -58,7 +57,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
     private static Logger logger = LoggerFactory.getLogger(FileOutputConfig.class);
 	private FtpOutConfig ftpOutConfig;
 	private FileSend2Ftp fileSend2Ftp;
-    private MinioFileConfig minioFileConfig;
+    private OSSFileConfig ossFileConfig;
     private BaseRemoteConfig baseRemoteConfig;
     
 	public final static String JobExecutorDatas_genFileInfos = "jobExecutorDatas.fileFtpOutPut.genFileInfos";
@@ -116,8 +115,8 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 		return this;
 	}
 
-    public MinioFileConfig getMinioFileConfig() {
-        return minioFileConfig;
+    public OSSFileConfig getOssFileConfig() {
+        return ossFileConfig;
     }
 
     @Override
@@ -254,10 +253,10 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 
 	@Override
 	public void build(ImportContext importContext,ImportBuilder importBuilder) {
-		if(ftpOutConfig == null && minioFileConfig == null){
+		if(ftpOutConfig == null && ossFileConfig == null){
 			disableftp = true;
 		}
-        else if(ftpOutConfig != null && minioFileConfig != null){
+        else if(ftpOutConfig != null && ossFileConfig != null){
             throw new FilelogPluginException("不能同时进行ftp配置和minio配置。");
         }
         else if(ftpOutConfig != null){
@@ -265,9 +264,9 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
             sendFileFunction = new FtpSendFileFunction(importContext,this);
             sendFileFunction.init();
         }
-        else if(minioFileConfig != null){
-            baseRemoteConfig = minioFileConfig;
-            sendFileFunction = new MinioSendFileFunction(importContext,this);
+        else if(ossFileConfig != null){
+            baseRemoteConfig = ossFileConfig;
+            sendFileFunction = new OSSSendFileFunction(importContext,this);
             sendFileFunction.init();
         }
 
@@ -486,8 +485,8 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
         return this;
     }
 
-    public FileOutputConfig setMinioFileConfig(MinioFileConfig minioFileConfig) {
-        this.minioFileConfig = minioFileConfig;
+    public FileOutputConfig setOSSFileConfig(OSSFileConfig ossFileConfig) {
+        this.ossFileConfig = ossFileConfig;
         return this;
     }
 

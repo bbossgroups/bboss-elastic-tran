@@ -83,7 +83,8 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
             oldName = name;
 
 			String fileName = SimpleStringUtil.getPath(path, name);
-			String remoteFileName = fileOutputConfig.getSendFileFunction().getRemoteFilePath(name);//!fileOutputConfig.isDisableftp() ? SimpleStringUtil.getPath(fileOutputConfig.getRemoteFileDir(), name) : null;
+			String remoteFileName = fileOutputConfig.getSendFileFunction()!= null?
+                    fileOutputConfig.getSendFileFunction().getRemoteFilePath(name):null;//!fileOutputConfig.isDisableftp() ? SimpleStringUtil.getPath(fileOutputConfig.getRemoteFileDir(), name) : null;
             synchronized (resetFileSeqLock) {
                 fileSeq++;
             }

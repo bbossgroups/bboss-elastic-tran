@@ -109,7 +109,7 @@ public class ExcelFileReaderTask extends FileReaderTask {
 			if (pointer > sheet.getPhysicalNumberOfRows()) {
 				pointer = 0l;
 			}
-			int startRow = new Long(pointer).intValue();
+			int startRow = (int)pointer;
 			if (pointer == 0l) {
 				if (fileConfig.getSkipHeaderLines() > 0) {
 					startRow = fileConfig.getSkipHeaderLines();

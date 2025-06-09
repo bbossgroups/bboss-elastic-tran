@@ -1,6 +1,6 @@
-package org.frameworkset.tran.output.minio;
+package org.frameworkset.tran.jobflow;
 /**
- * Copyright 2024 bboss
+ * Copyright 2025 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,23 @@ package org.frameworkset.tran.output.minio;
  * limitations under the License.
  */
 
-import java.io.File;
+import org.frameworkset.util.concurrent.IntegerCount;
+
+import java.util.Map;
 
 /**
  * <p>Description: </p>
  * <p></p>
  *
  * @author biaoping.yin
- * @Date 2024/8/9
+ * @Date 2025/3/31
  */
-public class DefaultOSSInfoBuilder implements OSSInfoBuilder{
+public interface JobFlowExecuteContext {
+    Object getContextData(String name);
+    
+    int increamentNums();
 
-    @Override
-    public OSSFileInfo buildOSSFileInfo(OSSFileConfig OSSFileConfig, File file) {
-        OSSFileInfo ossFileInfo = new OSSFileInfo();
-        if(OSSFileConfig.getBucket() != null)
-            ossFileInfo.setBucket(OSSFileConfig.getBucket());
-        else{
-            ossFileInfo.setBucket(file.getParentFile().getName());
-        }
-        ossFileInfo.setId(file.getName());
-        return ossFileInfo;
-    }
+    void putAll(Map<String, Object> contextDatas);
+
+    void clear();
 }

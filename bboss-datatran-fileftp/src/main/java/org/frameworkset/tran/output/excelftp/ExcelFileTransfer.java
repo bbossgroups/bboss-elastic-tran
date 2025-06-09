@@ -87,7 +87,9 @@ public class ExcelFileTransfer extends FileTransfer {
             for(CommonRecord commonRecord:datas) {
                 init();
                 exportExcelUtil.writeData(commonRecord);
-                count = records.increamentUnSynchronized();
+                if(records != null ) {
+                    count = records.increamentUnSynchronized();
+                }
                 
                 refreshLastWriteDataTime();
                 boolean reachMaxedSize = false;
@@ -103,9 +105,7 @@ public class ExcelFileTransfer extends FileTransfer {
                     }
                 }
             }
-            if(count > 0){
-                
-            }
+             
             
             /**
             this.lastWriteDataTime = System.currentTimeMillis();
@@ -144,6 +144,9 @@ public class ExcelFileTransfer extends FileTransfer {
 	}
 
     public long increamentUnSynchronized() {
-        return records.increamentUnSynchronized();
+        if(records != null ) {
+            return records.increamentUnSynchronized();
+        }
+        return 0L;
     }
 }
