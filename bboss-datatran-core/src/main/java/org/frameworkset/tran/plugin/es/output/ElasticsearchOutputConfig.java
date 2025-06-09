@@ -423,14 +423,14 @@ public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfi
         if(esIndexWrapper != null){
             recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_ESINDEXWRAPPER_NAME,esIndexWrapper);
         }
-
-        recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_ESID_NAME,getEsIdGenerator().genId(context));
+        
         ClientOptions clientOptions = (ClientOptions)recordOutpluginSpecialConfig.getSpecialConfig(SPECIALCONFIG_CLIENTOPTIONS_NAME);
         if(clientOptions == null){
             clientOptions = this.clientOptions;
             if(clientOptions != null)
                 recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_CLIENTOPTIONS_NAME,clientOptions);
         }
+        recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_ESID_NAME,getEsIdGenerator().genId(context));
         ESField esField = clientOptions != null?clientOptions.getParentIdField():null;
         Object parentId = null;
         if(esField != null) {
