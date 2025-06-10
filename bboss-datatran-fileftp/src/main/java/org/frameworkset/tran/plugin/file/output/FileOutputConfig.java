@@ -31,7 +31,7 @@ import org.frameworkset.tran.input.file.FilelogPluginException;
 import org.frameworkset.tran.input.file.FtpFileFilter;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.output.BaseRemoteConfig;
-import org.frameworkset.tran.output.minio.OSSFileConfig;
+import org.frameworkset.tran.output.s3.OSSFileConfig;
 import org.frameworkset.tran.output.fileftp.FileSend2Ftp;
 import org.frameworkset.tran.output.fileftp.FilenameGenerator;
 import org.frameworkset.tran.output.ftp.FtpOutConfig;
@@ -257,7 +257,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 			disableftp = true;
 		}
         else if(ftpOutConfig != null && ossFileConfig != null){
-            throw new FilelogPluginException("不能同时进行ftp配置和minio配置。");
+            throw new FilelogPluginException("不能同时进行ftp配置和oss配置。");
         }
         else if(ftpOutConfig != null){
             baseRemoteConfig = ftpOutConfig;
@@ -499,7 +499,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
             return "FileSend2Ftp";
         }
         else {
-            return "FileSend2Minio";
+            return "FileSend2OSS";
         }
     }
 

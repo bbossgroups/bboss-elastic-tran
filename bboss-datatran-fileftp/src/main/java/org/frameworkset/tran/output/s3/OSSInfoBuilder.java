@@ -1,4 +1,4 @@
-package org.frameworkset.tran.output.minio;
+package org.frameworkset.tran.output.s3;
 /**
  * Copyright 2024 bboss
  * <p>
@@ -15,6 +15,8 @@ package org.frameworkset.tran.output.minio;
  * limitations under the License.
  */
 
+import java.io.File;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -22,30 +24,7 @@ package org.frameworkset.tran.output.minio;
  * @author biaoping.yin
  * @Date 2024/8/9
  */
-public class OSSFileInfo {
-    private String bucket;
-    private String id;
+public interface OSSInfoBuilder {
+    OSSFileInfo buildOSSFileInfo(OSSFileConfig OSSFileConfig, File file);
 
-    public String getBucket() {
-        return bucket;
-    }
-
-    public void setBucket(String bucket) {
-        this.bucket = bucket;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
- 
-    
-    public String toString(){
-        StringBuilder builder = new StringBuilder();
-        builder.append("bucket=").append(bucket).append(",id=").append(id);
-        return builder.toString();
-    }
 }

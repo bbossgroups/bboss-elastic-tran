@@ -1,4 +1,4 @@
-package org.frameworkset.tran.output.minio;
+package org.frameworkset.tran.output.s3;
 /**
  * Copyright 2024 bboss
  * <p>
@@ -19,7 +19,7 @@ import okhttp3.OkHttpClient;
 import org.frameworkset.tran.output.BaseRemoteConfig;
 
 /**
- * <p>Description: 文件写入minio oss数据库配置</p>
+ * <p>Description: 文件写入oss数据库配置</p>
  * <p></p>
  *
  * @author biaoping.yin

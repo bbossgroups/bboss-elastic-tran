@@ -1,4 +1,4 @@
-package org.frameworkset.tran.output.minio;
+package org.frameworkset.tran.output.s3;
 /**
  * Copyright 2024 bboss
  * <p>
@@ -24,7 +24,17 @@ import java.io.File;
  * @author biaoping.yin
  * @Date 2024/8/9
  */
-public interface OSSInfoBuilder {
-    OSSFileInfo buildOSSFileInfo(OSSFileConfig OSSFileConfig, File file);
+public class DefaultOSSInfoBuilder implements OSSInfoBuilder{
 
+    @Override
+    public OSSFileInfo buildOSSFileInfo(OSSFileConfig OSSFileConfig, File file) {
+        OSSFileInfo ossFileInfo = new OSSFileInfo();
+        if(OSSFileConfig.getBucket() != null)
+            ossFileInfo.setBucket(OSSFileConfig.getBucket());
+        else{
+            ossFileInfo.setBucket(file.getParentFile().getName());
+        }
+        ossFileInfo.setId(file.getName());
+        return ossFileInfo;
+    }
 }

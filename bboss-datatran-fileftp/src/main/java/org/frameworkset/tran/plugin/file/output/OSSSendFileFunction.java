@@ -22,9 +22,9 @@ import org.frameworkset.nosql.s3.OSSHelper;
 import org.frameworkset.nosql.s3.OSSStartResult;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.input.file.FilelogPluginException;
-import org.frameworkset.tran.output.minio.OSSFileConfig;
-import org.frameworkset.tran.output.minio.OSSFileInfo;
-import org.frameworkset.tran.output.minio.OSSInfoBuilder;
+import org.frameworkset.tran.output.s3.OSSFileConfig;
+import org.frameworkset.tran.output.s3.OSSFileInfo;
+import org.frameworkset.tran.output.s3.OSSInfoBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,10 +105,10 @@ public class OSSSendFileFunction implements SendFileFunction{
             long e = System.currentTimeMillis();
             String msg = null;
             if(!resend) {
-                msg = "Send file "+filePath+" to minio bucket "+ossFileInfo.getBucket()+" complete,耗时:"+(e-s)+"毫秒";
+                msg = "Send file "+filePath+" to oss bucket "+ossFileInfo.getBucket()+" complete,耗时:"+(e-s)+"毫秒";
             }
             else{
-                msg = "Resend file "+filePath+" to minio bucket "+ossFileInfo.getBucket()+" complete,耗时:"+(e-s)+"毫秒";
+                msg = "Resend file "+filePath+" to oss bucket "+ossFileInfo.getBucket()+" complete,耗时:"+(e-s)+"毫秒";
                
             }
             logger.info(msg);
