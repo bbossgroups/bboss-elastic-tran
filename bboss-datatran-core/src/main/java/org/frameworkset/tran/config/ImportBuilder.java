@@ -882,6 +882,14 @@ public class ImportBuilder {
 		return this;
 	}
 
+    public ImportBuilder setExecuteOneTime(Boolean executeOneTime) {
+        if(scheduleConfig == null){
+            scheduleConfig = new ScheduleConfig();
+        }        
+        this.scheduleConfig.setFixedRate(executeOneTime);
+        return this;
+    }
+
 	/**
 	 * 添加不扫码新文件的时间段
 	 * timeRange必须是以下三种类型格式
@@ -895,7 +903,7 @@ public class ImportBuilder {
 		if(scheduleConfig == null){
 			scheduleConfig = new TimerScheduleConfig();
 		}
-		else if(scheduleConfig instanceof  TimerScheduleConfig) {
+		if(scheduleConfig instanceof  TimerScheduleConfig) {
 			((TimerScheduleConfig) scheduleConfig).addSkipScanNewFileTimeRange(timeRange);
 		}
 		return this;
@@ -914,7 +922,7 @@ public class ImportBuilder {
 		if(scheduleConfig == null){
 			scheduleConfig = new TimerScheduleConfig();
 		}
-		else if(scheduleConfig instanceof  TimerScheduleConfig) {
+		if(scheduleConfig instanceof  TimerScheduleConfig) {
 			((TimerScheduleConfig) scheduleConfig).addScanNewFileTimeRange(timeRange);
 		}
 

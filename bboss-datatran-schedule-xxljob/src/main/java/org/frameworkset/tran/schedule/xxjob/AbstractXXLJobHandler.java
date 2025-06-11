@@ -23,9 +23,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * <p>Description: </p>
- * <p></p>
- * <p>Copyright (c) 2018</p>
+ * <p>Description: xxl-job 2.x,3.x作业调度抽象类</p>
  * @Date 2019/4/20 22:51
  * @author biaoping.yin
  * @version 1.0

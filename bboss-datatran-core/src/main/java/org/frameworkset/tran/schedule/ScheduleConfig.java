@@ -32,6 +32,13 @@ public class ScheduleConfig {
 	private Boolean fixedRate;
 
 
+
+    /**
+     * 一次性执行数据导入操作
+     */
+    private Boolean executeOneTime;
+
+
 	public boolean isExternalTimer() {
 		return externalTimer;
 	}
@@ -67,6 +74,12 @@ public class ScheduleConfig {
 	public String toString(){
 		return SimpleStringUtil.object2json(this);
 	}
+    public boolean isExecuteOneTime() {
+        return executeOneTime != null ? executeOneTime:false;
+    }
 
+    public void setExecuteOneTime(Boolean executeOneTime) {
+        this.executeOneTime = executeOneTime;
+    }
 	
 }

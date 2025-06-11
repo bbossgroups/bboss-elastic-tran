@@ -15,38 +15,41 @@ package org.frameworkset.tran.schedule.xxjob;
  * limitations under the License.
  */
 
-import com.xxl.job.core.biz.model.ReturnT;
+import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.IJobHandler;
-import org.frameworkset.tran.schedule.ExternalScheduler;
+import org.frameworkset.tran.jobflow.schedule.ExternalJobFlowScheduler;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * <p>Description:xxl-job 1.x作业调度抽象类 </p>
+ * <p>Description: xxl-job 2.x,3.x作业工作流调度抽象类</p>  
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class AbstractXXLJobHandler extends IJobHandler {
-	protected ExternalScheduler externalScheduler;
+public abstract class AbstractXXLJobFlowHandler extends IJobHandler {
+	protected ExternalJobFlowScheduler externalJobFlowScheduler;
 
 	private Lock lock = new ReentrantLock();
+	@Override
 	public abstract void init();
-	public ReturnT<String> execute(String param){
+	@Override
+	public void execute(){
 		lock.lock();
 		try {
 
-			externalScheduler.execute(  param);
-			return SUCCESS;
+			String param = XxlJobHelper.getJobParam();
+            externalJobFlowScheduler.execute(  param);
+
 		}
 		finally {
 			lock.unlock();
 		}
 	}
-
+	@Override
 	public void destroy(){
-		if(externalScheduler != null){
-			externalScheduler.destroy();
+		if(externalJobFlowScheduler != null){
+            externalJobFlowScheduler.destroy();
 		}
 	}
 

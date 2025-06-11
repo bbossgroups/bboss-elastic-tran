@@ -20,9 +20,10 @@ import org.frameworkset.tran.schedule.ScheduleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
+
 /**
- * <p>Description: </p>
- * <p></p>
+ * <p>Description: 作业调度执行器</p>
  * <p>Copyright (c) 2020</p>
  * @Date 2021/10/15 21:49
  * @author biaoping.yin
@@ -96,6 +97,16 @@ public class ScheduleTimer implements Runnable{
 		}
 		ImportContext importContext = scheduleService.getImportContext();
 		Long deyLay = importContext.getDeyLay();
+        if(deyLay == null) {
+            Date scheduleDate = importContext.getScheduleDate();
+            if (scheduleDate != null) {
+                Date now = new Date();
+                if (scheduleDate.after(now)) {
+                    deyLay = scheduleDate.getTime() - now.getTime();
+
+                }
+            }
+        }        
 		if(deyLay != null){
 			try {
 				Thread.sleep(deyLay.longValue());
@@ -121,7 +132,7 @@ public class ScheduleTimer implements Runnable{
 				}
 				else {
 					try {
-						Thread.sleep(30000l);
+						Thread.sleep(1000l);
 					} catch (final InterruptedException ignored) {
 						// ignore
 						break;

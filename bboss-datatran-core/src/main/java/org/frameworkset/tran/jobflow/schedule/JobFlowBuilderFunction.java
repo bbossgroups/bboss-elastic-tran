@@ -15,17 +15,12 @@ package org.frameworkset.tran.jobflow.schedule;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.schedule.timer.ScheduleTimer;
-
-import java.util.Timer;
+import org.frameworkset.tran.jobflow.JobFlowBuilder;
 
 /**
  * @author biaoping.yin
- * @Date 2025/5/5
+ * @Date 2025/6/11
  */
-public class JobSchedule {
-    private Timer timer ;
-    private ScheduleTimer scheduleTimer;
-    
-
+public interface JobFlowBuilderFunction {
+    JobFlowBuilder build(Object params);
 }

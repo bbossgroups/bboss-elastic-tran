@@ -22,8 +22,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * <p>Description: </p>
- * <p></p>
+ 
  * <p>Copyright (c) 2018</p>
  * @Date 2019/12/3 14:11
  * @author biaoping.yin

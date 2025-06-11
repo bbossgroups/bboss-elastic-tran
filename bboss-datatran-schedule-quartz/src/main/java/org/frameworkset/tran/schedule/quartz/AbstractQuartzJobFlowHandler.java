@@ -1,4 +1,4 @@
-package org.frameworkset.tran.schedule.xxjob;
+package org.frameworkset.tran.schedule.quartz;
 /**
  * Copyright 2008 biaoping.yin
  * <p>
@@ -15,29 +15,33 @@ package org.frameworkset.tran.schedule.xxjob;
  * limitations under the License.
  */
 
-import com.xxl.job.core.biz.model.ReturnT;
-import com.xxl.job.core.handler.IJobHandler;
-import org.frameworkset.tran.schedule.ExternalScheduler;
+import org.frameworkset.tran.jobflow.schedule.ExternalJobFlowScheduler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * <p>Description:xxl-job 1.x作业调度抽象类 </p>
+ * 工作流quartz调度任务基础类
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class AbstractXXLJobHandler extends IJobHandler {
-	protected ExternalScheduler externalScheduler;
-
+public abstract class AbstractQuartzJobFlowHandler {
+	protected Logger logger = LoggerFactory.getLogger(this.getClass());
+	protected ExternalJobFlowScheduler externalJobFlowScheduler;
 	private Lock lock = new ReentrantLock();
+
+    /**
+     * 通过init方法初始化一个作业工作流构建器
+     */
 	public abstract void init();
-	public ReturnT<String> execute(String param){
+	public void execute(){
 		lock.lock();
 		try {
 
-			externalScheduler.execute(  param);
-			return SUCCESS;
+            externalJobFlowScheduler.execute(null);
+
 		}
 		finally {
 			lock.unlock();
@@ -45,10 +49,8 @@ public abstract class AbstractXXLJobHandler extends IJobHandler {
 	}
 
 	public void destroy(){
-		if(externalScheduler != null){
-			externalScheduler.destroy();
+		if(externalJobFlowScheduler != null){
+            externalJobFlowScheduler.destroy();
 		}
 	}
-
-
 }

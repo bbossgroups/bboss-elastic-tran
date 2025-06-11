@@ -717,7 +717,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
         {
             return;
         }
-		if(this.scheduleService == null) {//一次性执行数据导入操作
+		if(this.scheduleService == null || importContext.isExecuteOneTime()) {//一次性执行数据导入操作
 			delay();//针对一次性作业进行延迟处理
 //			if(status == TranConstant.PLUGIN_STOPPED || status == TranConstant.PLUGIN_STOPAPPENDING)
             if(checkTranToStop())
@@ -787,7 +787,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
                         scheduledEndThread.setDaemon(true);
 						scheduledEndThread.start();
 					}
-				} else { //外部定时任务引擎执行的方法，比如quartz之类的
+				} else { //外部定时任务引擎执行的方法，比如quartz，xxl-job之类的
 					if(scheduleService.isSchedulePaused(isEnableAutoPauseScheduled())){
 						if(logger.isInfoEnabled()){
 							logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");

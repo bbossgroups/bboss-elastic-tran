@@ -15,6 +15,8 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
+
 /**
  * <p>Description: 作业调度流程编排构建器</p>
  * <p></p>
@@ -31,8 +33,10 @@ public class JobFlowBuilder {
      * 作业流程名称
      */
     private String jobFlowName;
+    private JobFlowScheduleConfig jobFlowScheduleConfig;
     private JobFlowNodeBuilder headerJobFlowNodeBuilder;
     private JobFlowNodeBuilder currentJobFlowNodeBuilder;
+    private boolean externalTimer;
     public JobFlowBuilder setJobFlowId(String jobFlowId){
         this.jobFlowId = jobFlowId;
         return this;
@@ -61,7 +65,15 @@ public class JobFlowBuilder {
         jobFlow.setJobFlowName(this.jobFlowName);
         jobFlow.setJobFlowId(this.jobFlowId);
         jobFlow.setStartJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));
+        jobFlow.setJobScheduleConfig(jobFlowScheduleConfig);
         return jobFlow;
     }
 
+    public boolean isExternalTimer() {
+        return externalTimer;
+    }
+
+    public void setExternalTimer(boolean externalTimer) {
+        this.externalTimer = externalTimer;
+    }
 }

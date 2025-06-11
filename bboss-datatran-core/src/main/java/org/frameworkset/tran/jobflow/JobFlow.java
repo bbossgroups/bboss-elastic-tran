@@ -17,7 +17,11 @@ package org.frameworkset.tran.jobflow;
 
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
+import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleTimer;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -29,6 +33,7 @@ import java.util.List;
  * @Date 2025/3/31
  */
 public class JobFlow {
+    private static final Logger logger = LoggerFactory.getLogger(JobFlow.class);
     /**
      * 作业流程id
      */
@@ -37,11 +42,15 @@ public class JobFlow {
      * 作业流程名称
      */
     private String jobFlowName;
+
+   
+
+    private JobFlowScheduleConfig jobFlowScheduleConfig;
     /**
      * 流程的首节点
      */
     private JobFlowNode startJobFlowNode;
-    
+    private JobFlowScheduleTimer jobFlowScheduleTimer;
     private List<ComJobFlowNode> jobFlowNodes;
 
     private JobFlowExecuteContext jobFlowExecuteContext;
@@ -50,13 +59,28 @@ public class JobFlow {
         this.startJobFlowNode = startJobFlowNode;
     }
 
+    public void execute(){
+        this.startJobFlowNode.start();
+    }
     /**
      * 启动工作流
      */
     public void start(){
         JobFlowExecuteContext jobFlowExecuteContext = new DefaultJobFlowExecuteContext() ;
         this.jobFlowExecuteContext = jobFlowExecuteContext;
-        this.startJobFlowNode.start();
+        //一次性执行，定时执行处理
+        if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTime() ){
+             this.execute();
+        }
+        else if(!jobFlowScheduleConfig.isExternalTimer()){
+            JobFlowScheduleTimer jobFlowScheduleTimer = new JobFlowScheduleTimer(jobFlowScheduleConfig,this);
+            jobFlowScheduleTimer.start();
+            this.jobFlowScheduleTimer = jobFlowScheduleTimer;
+        }
+        else{
+            logger.info("JobFlow is scheduled by externalTimer,ignore start.");
+        }
+        
     }
 
     /**
@@ -64,6 +88,11 @@ public class JobFlow {
      */
     public void stop(){
         this.startJobFlowNode.stop();
+        try {
+            this.jobFlowScheduleTimer.stop();
+        } catch (Exception e) {
+            ;
+        }
     }
 
     /**
@@ -118,5 +147,21 @@ public class JobFlow {
     public void complete(TaskContext taskContext, Throwable e) {
         this.jobFlowExecuteContext.increamentNums();
         this.jobFlowExecuteContext.clear();
+    }
+
+    public boolean isEnableAutoPauseScheduled() {
+        return false;
+    }
+
+    public boolean isSchedulePaused(boolean enableAutoPauseScheduled) {
+        return false;
+    }
+
+    public JobFlowScheduleConfig getJobScheduleConfig() {
+        return jobFlowScheduleConfig;
+    }
+
+    public void setJobScheduleConfig(JobFlowScheduleConfig jobFlowScheduleConfig) {
+        this.jobFlowScheduleConfig = jobFlowScheduleConfig;
     }
 }

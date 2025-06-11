@@ -16,13 +16,13 @@ package org.frameworkset.tran.schedule.xxjob;
  */
 
 /**
- * <p>Description: </p>
- * <p></p>
  * <p>Copyright (c) 2018</p>
  * @Date 2019/4/20 22:51
  * @author biaoping.yin
  * @version 1.0
+ * @see AbstractXXLJobHandler
  */
+@Deprecated
 public abstract class AbstractDB2ESXXJobHandler extends AbstractXXLJobHandler {
 
 }

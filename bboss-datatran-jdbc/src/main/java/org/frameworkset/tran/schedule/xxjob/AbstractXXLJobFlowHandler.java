@@ -17,7 +17,7 @@ package org.frameworkset.tran.schedule.xxjob;
 
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.IJobHandler;
-import org.frameworkset.tran.schedule.ExternalScheduler;
+import org.frameworkset.tran.jobflow.schedule.ExternalJobFlowScheduler;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,8 +27,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class AbstractXXLJobHandler extends IJobHandler {
-	protected ExternalScheduler externalScheduler;
+public abstract class AbstractXXLJobFlowHandler extends IJobHandler {
+    protected ExternalJobFlowScheduler externalJobFlowScheduler;
 
 	private Lock lock = new ReentrantLock();
 	public abstract void init();
@@ -36,7 +36,7 @@ public abstract class AbstractXXLJobHandler extends IJobHandler {
 		lock.lock();
 		try {
 
-			externalScheduler.execute(  param);
+            externalJobFlowScheduler.execute(  param);
 			return SUCCESS;
 		}
 		finally {
@@ -45,8 +45,8 @@ public abstract class AbstractXXLJobHandler extends IJobHandler {
 	}
 
 	public void destroy(){
-		if(externalScheduler != null){
-			externalScheduler.destroy();
+		if(externalJobFlowScheduler != null){
+            externalJobFlowScheduler.destroy();
 		}
 	}
 

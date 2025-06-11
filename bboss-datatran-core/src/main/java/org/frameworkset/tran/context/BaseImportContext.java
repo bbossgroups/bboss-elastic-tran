@@ -448,6 +448,15 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 	public ScheduleConfig getScheduleConfig(){
 		return baseImportConfig.getScheduleConfig();
 	}
+
+
+    public boolean isExecuteOneTime() {
+        ScheduleConfig scheduleConfig = this.getScheduleConfig();
+        if(scheduleConfig != null){
+            return scheduleConfig.isExecuteOneTime();
+        }
+        return false;
+    }
 	public Boolean getFixedRate(){
 		return baseImportConfig.getScheduleConfig().getFixedRate();
 	}
