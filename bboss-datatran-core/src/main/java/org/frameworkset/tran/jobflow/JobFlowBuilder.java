@@ -73,7 +73,12 @@ public class JobFlowBuilder {
         return externalTimer;
     }
 
-    public void setExternalTimer(boolean externalTimer) {
+    public JobFlowBuilder setExternalTimer(boolean externalTimer) {
         this.externalTimer = externalTimer;
+        return this;
+    }
+
+    public void setJobFlowScheduleConfig(JobFlowScheduleConfig jobFlowScheduleConfig) {
+        this.jobFlowScheduleConfig = jobFlowScheduleConfig;
     }
 }
