@@ -674,7 +674,6 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 	public String getTimeZone(){
 		return this.baseImportConfig.getTimeZone();
 	}
-//	private AtomicInteger rejectCounts = new AtomicInteger();
 	private ExecutorService blockedExecutor;
     private Object blockedExecutorLock = new Object();
 	public ExecutorService buildThreadPool(){

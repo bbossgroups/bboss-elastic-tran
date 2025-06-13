@@ -34,5 +34,35 @@ dependencies {
             [group: 'com.mysql', name: 'mysql-connector-j', version: "${mysqlconnectorversion}", transitive: false],
 	)
 
+    compileOnly  (
+            [group: 'org.apache.groovy', name: 'groovy-all', version: "${groovy_version}", transitive: true],
+
+    ){
+//            exclude group: 'org.apache.groovy', module: 'groovy-testng'
+        exclude group: 'org.apache.groovy', module: 'groovy-test'
+        exclude group: 'org.apache.groovy', module: 'groovy-test-junit5'
+
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-yaml'
+
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+        exclude group: 'com.github.javaparser', module: 'javaparser-core'
+
+    }
+
+    testImplementation  (
+            [group: 'org.apache.groovy', name: 'groovy-all', version: "${groovy_version}", transitive: true],
+
+    ){
+//            exclude group: 'org.apache.groovy', module: 'groovy-testng'
+        exclude group: 'org.apache.groovy', module: 'groovy-test'
+        exclude group: 'org.apache.groovy', module: 'groovy-test-junit5'
+
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-yaml'
+
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+        exclude group: 'com.github.javaparser', module: 'javaparser-core'
+
+    }
+
 }
 

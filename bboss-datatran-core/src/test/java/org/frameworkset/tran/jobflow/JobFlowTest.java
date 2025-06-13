@@ -32,7 +32,7 @@ public class JobFlowTest {
         /**
          * 1.构建第一个任务节点：单任务节点
          */
-        ComJobFlowNodeBuilder jobFlowNodeBuilder = new ComJobFlowNodeBuilder();
+        SimpleJobFlowNodeBuilder jobFlowNodeBuilder = new SimpleJobFlowNodeBuilder();
         /**
          * 1.1 为第一个任务节点添加一个带触发器的作业
          */
@@ -55,11 +55,11 @@ public class JobFlowTest {
         /**
          * 2.构建第二个任务节点：并行任务节点
          */
-        ParrelJobFlowNodeBuilder parrelJobFlowNodeBuilder = new ParrelJobFlowNodeBuilder();
+        CompositionJobFlowNodeBuilder compositionJobFlowNodeBuilder = new CompositionJobFlowNodeBuilder(JobFlowNodeType.PARREL);
         /**
          * 2.1 为第二个并行任务节点添加第一个带触发器的作业任务
          */
-        parrelJobFlowNodeBuilder.addImportBuilder(new ImportBuilderCreate() {
+        compositionJobFlowNodeBuilder.addImportBuilder(new ImportBuilderCreate() {
             @Override
             public ImportBuilder createImportBuilder(JobFlowNodeBuilder jobFlowNodeBuilder) {
                 return null;
@@ -73,7 +73,7 @@ public class JobFlowTest {
         /**
          * 2.2 为第二个并行任务节点添加第二个不带触发器的作业任务
          */
-        parrelJobFlowNodeBuilder.addImportBuilder(new ImportBuilderCreate() {
+        compositionJobFlowNodeBuilder.addImportBuilder(new ImportBuilderCreate() {
             @Override
             public ImportBuilder createImportBuilder(JobFlowNodeBuilder jobFlowNodeBuilder) {
                 return null;
@@ -82,17 +82,17 @@ public class JobFlowTest {
         /**
          * 2.3 为第二个并行任务节点添加第三个串行复杂流程子任务
          */
-        parrelJobFlowNodeBuilder.addJobFlowNodeBuilder(new ComJobFlowNodeBuilder());
+        compositionJobFlowNodeBuilder.addJobFlowNodeBuilder(new CompositionJobFlowNodeBuilder(JobFlowNodeType.PARREL));
 
         /**
          * 2.4 为第二个并行任务节点添加第三个并行行复杂流程子任务
          */
-        parrelJobFlowNodeBuilder.addJobFlowNodeBuilder(new ParrelJobFlowNodeBuilder());
+        compositionJobFlowNodeBuilder.addJobFlowNodeBuilder(new CompositionJobFlowNodeBuilder(JobFlowNodeType.PARREL));
 
         /**
          * 2.5 将第二个节点添加到工作流中
          */
-        jobFlowBuilder.addJobFlowNode(parrelJobFlowNodeBuilder);
+        jobFlowBuilder.addJobFlowNode(compositionJobFlowNodeBuilder);
         
         JobFlow jobFlow = jobFlowBuilder.build();
         jobFlow.start();

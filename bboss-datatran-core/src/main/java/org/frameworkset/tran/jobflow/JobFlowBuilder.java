@@ -19,7 +19,6 @@ import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
 
 /**
  * <p>Description: 作业调度流程编排构建器</p>
- * <p></p>
  *
  * @author biaoping.yin
  * @Date 2025/3/31
@@ -53,7 +52,8 @@ public class JobFlowBuilder {
             this.headerJobFlowNodeBuilder = jobFlowNodeBuilder;
            
         }
-        this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
+        if(currentJobFlowNodeBuilder != null)
+            this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
         this.currentJobFlowNodeBuilder = jobFlowNodeBuilder;
             
         
@@ -64,8 +64,8 @@ public class JobFlowBuilder {
         JobFlow jobFlow = new JobFlow();
         jobFlow.setJobFlowName(this.jobFlowName);
         jobFlow.setJobFlowId(this.jobFlowId);
-        jobFlow.setStartJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));
         jobFlow.setJobScheduleConfig(jobFlowScheduleConfig);
+        jobFlow.setStartJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));       
         return jobFlow;
     }
 

@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class ComJobFlowNode extends JobFlowNode{
-    private static Logger logger = LoggerFactory.getLogger(ComJobFlowNode.class);
+public class SimpleJobFlowNode extends JobFlowNode{
+    private static Logger logger = LoggerFactory.getLogger(SimpleJobFlowNode.class);
  
     /**
      * 串行节点作业配置
@@ -38,12 +38,12 @@ public class ComJobFlowNode extends JobFlowNode{
  
 
     private DataStream dataStream;
-    public ComJobFlowNode(ImportBuilder nodeBuilder,NodeTrigger nodeTrigger ){
+    public SimpleJobFlowNode(ImportBuilder nodeBuilder, NodeTrigger nodeTrigger ){
         this(nodeBuilder);
         this.nodeTrigger = nodeTrigger;
     }
 
-    public ComJobFlowNode(ImportBuilder nodeBuilder){
+    public SimpleJobFlowNode(ImportBuilder nodeBuilder){
         this.nodeBuilder = nodeBuilder;
         this.nodeBuilder.setJobFlowNode(this);
     }
@@ -78,6 +78,9 @@ public class ComJobFlowNode extends JobFlowNode{
     @Override
     public void stop(){
         JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
+        if(dataStream != null){
+            dataStream.destroy();
+        }
     }
 
     /**
@@ -86,6 +89,9 @@ public class ComJobFlowNode extends JobFlowNode{
     @Override
     public void pause(){
         JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
+        if(dataStream != null){
+            dataStream.pauseSchedule();
+        }
     }
 
     /**
@@ -94,6 +100,9 @@ public class ComJobFlowNode extends JobFlowNode{
     @Override
     public void consume() {
         JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
+        if(dataStream != null){
+            dataStream.resumeSchedule();
+        }
     }
 
  

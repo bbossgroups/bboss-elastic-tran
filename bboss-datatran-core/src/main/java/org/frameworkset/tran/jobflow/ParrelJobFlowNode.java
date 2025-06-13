@@ -15,38 +15,41 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.schedule.TaskContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.frameworkset.util.concurrent.IntegerCount;
+import org.frameworkset.util.concurrent.ThreadPoolFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
- * <p>Description: </p>
- * <p></p>
- *
+ * 并行任务流程节点
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class ParrelJobFlowNode extends JobFlowNode{
+public class ParrelJobFlowNode extends CompositionJobFlowNode{
     private static Logger logger = LoggerFactory.getLogger(ParrelJobFlowNode.class);
-    /**
-     * 并行节点作业配置
-     */
-    private List<JobFlowNode> jobFlowNodes;
-    private IntegerCount startNodes = null;
- 
- 
-    public void addJobFlowNode(JobFlowNode jobFlowNode){
-        if(this.jobFlowNodes == null){
-            jobFlowNodes = new ArrayList<>();
+    private ExecutorService blockedExecutor;
+    private Object blockedExecutorLock = new Object();
+    public ExecutorService buildThreadPool(){
+        if(blockedExecutor != null)
+            return blockedExecutor;
+        synchronized (blockedExecutorLock) {
+            if(blockedExecutor == null) {
+                blockedExecutor = ThreadPoolFactory.buildThreadPool("ParrelJobFlowNode["+this.nodeName+"]","ParrelJobFlowNode["+this.nodeName+"]",
+                        jobFlowNodes.size(),10,
+                        -1l
+                        ,1000);
+            }
         }
-        jobFlowNode.setParrelJobFlowNode(this);
-        this.jobFlowNodes.add(jobFlowNode);
+        return blockedExecutor;
     }
+   
 
     /**
      * 启动流程当前节点
@@ -54,19 +57,36 @@ public class ParrelJobFlowNode extends JobFlowNode{
     @Override
     public boolean start(){
         
-        JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
-//        if(parentJobFlowNode == null) {
-//           throw new JobFlowException("ParrelJobFlowNode must have a ParrelJobFlowNode,please set ParrelJobFlowNode first.");
-//        }
         startNodes = new IntegerCount();
         if(assertTrigger()) {
             if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
                 throw new JobFlowException("ParrelJobFlowNode must set jobFlowNodes,please set jobFlowNodes first.");
             } else {
+                ExecutorService blockedExecutor = buildThreadPool();
+                List<Future> futureList = new ArrayList<>();
                 for (int i = 0; i < jobFlowNodes.size(); i++) {
                     JobFlowNode jobFlowNode = jobFlowNodes.get(i);
-                    if(jobFlowNode.start())
-                        startNodes.increament();
+                    futureList.add(blockedExecutor.submit(() -> {
+                        if(jobFlowNode.start())
+                            startNodes.increament();
+                    }));
+                   
+                }
+                List<Throwable> exceptions = null;
+                for(Future future:futureList){
+                    try {
+                        future.get();
+                    } catch (InterruptedException e) {
+//                        throw new RuntimeException(e);
+                    } catch (ExecutionException e) {
+                        if(exceptions == null){
+                            exceptions = new ArrayList<>();
+                        }
+                        exceptions.add(e.getCause());
+                    }
+                }
+                if(CollectionUtils.isNotEmpty(exceptions)){
+                    throw new JobFlowException("ParrelJobFlowNode execute exception:",exceptions);
                 }
             }
             return true;
@@ -78,46 +98,19 @@ public class ParrelJobFlowNode extends JobFlowNode{
     /**
      * 停止流程当前节点
      */
-    @Override
-    public void stop(){
-        JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
-    }
-
     /**
-     * 暂停流程节点
+     * 停止流程当前节点
      */
     @Override
-    public void pause(){
-        JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
-    }
-
-    /**
-     * 唤醒暂停流程节点
-     */
-    @Override
-    public void consume() {
-        JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
-    }
-
-    /**
-     * 分支完成
-     * @param jobFlowNode
-     */
-    public void brachComplete(JobFlowNode jobFlowNode, ImportContext importContext, Throwable e) {
-        int liveNodes = this.startNodes.decreament();
-        if(liveNodes <= 0){
-            this.nodeComplete(  importContext,   e);
+    public void stop() {
+        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
+            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+            jobFlowNode.stop();
+        }
+        if(blockedExecutor != null){
+            blockedExecutor.shutdown();
         }
     }
 
-    /**
-     * 分支完成
-     * @param jobFlowNode
-     */
-    public void brachComplete(JobFlowNode jobFlowNode, TaskContext taskContext, Throwable e) {
-        int liveNodes = this.startNodes.decreament();
-        if(liveNodes <= 0){
-            this.nodeComplete(  taskContext,   e);
-        }
-    }
+    
 }

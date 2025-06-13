@@ -15,6 +15,10 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import org.apache.commons.lang3.StringUtils;
+import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;
+import org.frameworkset.tran.jobflow.script.TriggerScriptUtil;
+
 /**
  * <p>Description: 流程节点执行触发器</p>
  * <p></p>
@@ -25,6 +29,7 @@ package org.frameworkset.tran.jobflow;
 public class NodeTrigger {
     private JobFlowNode jobFlowNode;
     private String triggerScript;
+    private TriggerScriptAPI triggerScriptAPI;
     public String getTriggerScript() {
         return triggerScript;
     }
@@ -40,10 +45,24 @@ public class NodeTrigger {
     public void setJobFlowNode(JobFlowNode jobFlowNode) {
         this.jobFlowNode = jobFlowNode;
     }
-
-    public boolean assertTrigger(JobFlow jobFlow) {
-        JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
+    
+    private Object lock = new Object();
+    public boolean assertTrigger(JobFlow jobFlow) throws Exception {
         //todo 计算条件触发器
+        if(triggerScriptAPI == null && StringUtils.isNotEmpty(triggerScript)){
+            synchronized (lock) {
+                if(triggerScriptAPI == null) {
+                    triggerScript = triggerScript.trim();
+                    if (triggerScript.length() > 0) {
+                        triggerScriptAPI = TriggerScriptUtil.evalTriggerScript(jobFlow,this);
+
+                    }
+                }
+            }
+        }
+        if(triggerScriptAPI != null){
+            return triggerScriptAPI.evalTriggerScript(jobFlow,jobFlow.getJobFlowExecuteContext());
+        }
         return true;
     }
 }

@@ -17,6 +17,8 @@ package org.frameworkset.tran.jobflow;
 
 import org.frameworkset.tran.DataImportException;
 
+import java.util.List;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -61,6 +63,13 @@ public class JobFlowException extends DataImportException {
      */
     public JobFlowException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public JobFlowException(String message, List<Throwable> causes) {
+        
+        super(message);
+        for(Throwable throwable:causes)
+            this.addSuppressed(throwable);
     }
 
     /**

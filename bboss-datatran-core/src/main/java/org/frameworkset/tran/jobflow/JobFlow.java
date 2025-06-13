@@ -16,6 +16,8 @@ package org.frameworkset.tran.jobflow;
  */
 
 
+import groovy.lang.GroovyClassLoader;
+import org.codehaus.groovy.control.CompilerConfiguration;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleTimer;
@@ -23,6 +25,7 @@ import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -51,9 +54,25 @@ public class JobFlow {
      */
     private JobFlowNode startJobFlowNode;
     private JobFlowScheduleTimer jobFlowScheduleTimer;
-    private List<ComJobFlowNode> jobFlowNodes;
+    private List<SimpleJobFlowNode> jobFlowNodes;
 
     private JobFlowExecuteContext jobFlowExecuteContext;
+
+    private GroovyClassLoader groovyClassLoader ;
+
+    public GroovyClassLoader getGroovyClassLoader() {
+        return groovyClassLoader;
+    }
+
+    private  void initGroovyClassLoader() {
+        if(groovyClassLoader != null){
+            return;
+        }
+        CompilerConfiguration config = new CompilerConfiguration();
+        config.setSourceEncoding("UTF-8");
+        // 设置该GroovyClassLoader的父ClassLoader为当前线程的加载器(默认)
+        groovyClassLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), config);
+    }
 
     public void setStartJobFlowNode(JobFlowNode startJobFlowNode) {
         this.startJobFlowNode = startJobFlowNode;
@@ -66,6 +85,7 @@ public class JobFlow {
      * 启动工作流
      */
     public void start(){
+        initGroovyClassLoader();
         JobFlowExecuteContext jobFlowExecuteContext = new DefaultJobFlowExecuteContext() ;
         this.jobFlowExecuteContext = jobFlowExecuteContext;
         //一次性执行，定时执行处理
@@ -82,7 +102,14 @@ public class JobFlow {
         }
         
     }
+    
+    
 
+    private void release(){
+        if(groovyClassLoader != null) {
+            groovyClassLoader.clearCache();
+        }
+    }
     /**
      * 停止工作流
      */
@@ -91,8 +118,11 @@ public class JobFlow {
         try {
             this.jobFlowScheduleTimer.stop();
         } catch (Exception e) {
-            ;
         }
+        if(groovyClassLoader != null) {
+            groovyClassLoader.clearCache();
+        }
+            
     }
 
     /**

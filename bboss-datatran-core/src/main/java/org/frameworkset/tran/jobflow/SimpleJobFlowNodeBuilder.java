@@ -22,45 +22,45 @@ package org.frameworkset.tran.jobflow;
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class ComJobFlowNodeBuilder extends JobFlowNodeBuilder{ 
+public class SimpleJobFlowNodeBuilder extends JobFlowNodeBuilder{ 
     
     
     
     
-    public ComJobFlowNodeBuilder buildImportBuilder(ImportBuilderCreate importBuilderCreate,NodeTriggerCreate nodeTriggerCreate){
+    public SimpleJobFlowNodeBuilder buildImportBuilder(ImportBuilderCreate importBuilderCreate, NodeTriggerCreate nodeTriggerCreate){
         this.importBuilderCreate = importBuilderCreate;
         this.nodeTriggerCreate = nodeTriggerCreate;
         return this;
     }
 
-    public ComJobFlowNodeBuilder buildImportBuilder(ImportBuilderCreate importBuilderCreate){
+    public SimpleJobFlowNodeBuilder buildImportBuilder(ImportBuilderCreate importBuilderCreate){
         this.importBuilderCreate = importBuilderCreate;
         return this;
     }
 
     @Override
     public JobFlowNode build(JobFlow jobFlow){
-        ComJobFlowNode comJobFlowNode = null;
+        SimpleJobFlowNode simpleJobFlowNode = null;
         if(nodeTriggerCreate != null) {
-            comJobFlowNode = new ComJobFlowNode(this.importBuilderCreate.createImportBuilder(this),
+            simpleJobFlowNode = new SimpleJobFlowNode(this.importBuilderCreate.createImportBuilder(this),
                     this.nodeTriggerCreate.createNodeTrigger(this));
         }
         else{
-            comJobFlowNode = new ComJobFlowNode(this.importBuilderCreate.createImportBuilder(this));
+            simpleJobFlowNode = new SimpleJobFlowNode(this.importBuilderCreate.createImportBuilder(this));
         }
-        comJobFlowNode.setNodeId(this.getNodeId());
-        comJobFlowNode.setNodeName(this.getNodeName());
-        comJobFlowNode.setJobFlow(jobFlow);
+        simpleJobFlowNode.setNodeId(this.getNodeId());
+        simpleJobFlowNode.setNodeName(this.getNodeName());
+        simpleJobFlowNode.setJobFlow(jobFlow);
         if(this.parentJobFlowNodeBuilder != null) {
-            comJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
+            simpleJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
         }
        
-        this.jobFlowNode = comJobFlowNode;
+        this.jobFlowNode = simpleJobFlowNode;
         if(this.nextJobFlowNodeBuilder != null){
             JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.build(jobFlow);
             this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
         }
-        return comJobFlowNode;
+        return simpleJobFlowNode;
         
     }
  

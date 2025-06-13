@@ -19,17 +19,17 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
 
 /**
- * <p>Description: </p>
- * <p></p>
  *
  * @author biaoping.yin
  * @Date 2025/3/31
  */
 public abstract class JobFlowNode {
+    
+    private JobFlowNodeType jobFlowNodeType = JobFlowNodeType.SIMPLE;
     protected String nodeId;
     protected String nodeName;
     protected JobFlow jobFlow;
-    protected ParrelJobFlowNode parrelJobFlowNode;
+    protected CompositionJobFlowNode compositionJobFlowNode;
     /**
      * 串行节点触发条件
      */
@@ -46,12 +46,12 @@ public abstract class JobFlowNode {
      */
     protected JobFlowNode nextJobFlowNode;
 
-    public void setParrelJobFlowNode(ParrelJobFlowNode parrelJobFlowNode) {
-        this.parrelJobFlowNode = parrelJobFlowNode;
+    public void setCompositionJobFlowNode(CompositionJobFlowNode compositionJobFlowNode) {
+        this.compositionJobFlowNode = compositionJobFlowNode;
     }
 
-    public ParrelJobFlowNode getParrelJobFlowNode() {
-        return parrelJobFlowNode;
+    public CompositionJobFlowNode getCompositionJobFlowNode() {
+        return compositionJobFlowNode;
     }
 
     public void setParentJobFlowNode(JobFlowNode parentJobFlowNode) {
@@ -62,11 +62,15 @@ public abstract class JobFlowNode {
         if(nodeTrigger == null){
             return true;
         }
-        if(this.nodeTrigger.assertTrigger(jobFlow)){
-            return true;
-        }
-        else{
-            return false;
+        try {
+            if(this.nodeTrigger.assertTrigger(jobFlow)){
+                return true;
+            }
+            else{
+                return false;
+            }
+        } catch (Exception e) {
+            throw new JobFlowException("AassertTrigger failed:",e);
         }
     }
     
@@ -150,8 +154,8 @@ public abstract class JobFlowNode {
                 parentJobFlowNode.nextNodeComplete(  importContext,   e);
             }
             else{
-                if(this.parrelJobFlowNode != null){
-                    parrelJobFlowNode.brachComplete(this,  importContext,   e);
+                if(this.compositionJobFlowNode != null){
+                    compositionJobFlowNode.brachComplete(this,  importContext,   e);
                 }
                 else{
                     this.jobFlow.complete(  importContext,   e);
@@ -168,8 +172,8 @@ public abstract class JobFlowNode {
             parentJobFlowNode.nextNodeComplete(  importContext,   e);
         }
         else{
-            if(this.parrelJobFlowNode != null){
-                this.parrelJobFlowNode.brachComplete(this,  importContext,   e);
+            if(this.compositionJobFlowNode != null){
+                this.compositionJobFlowNode.brachComplete(this,  importContext,   e);
             }
             else{
                 this.jobFlow.complete(  importContext,   e);
@@ -194,8 +198,8 @@ public abstract class JobFlowNode {
                 parentJobFlowNode.nextNodeComplete(  taskContext,   e);
             }
             else{
-                if(this.parrelJobFlowNode != null){
-                    parrelJobFlowNode.brachComplete(this,  taskContext,   e);
+                if(this.compositionJobFlowNode != null){
+                    compositionJobFlowNode.brachComplete(this,  taskContext,   e);
                 }
                 else{
                     this.jobFlow.complete(  taskContext,   e);
@@ -212,13 +216,21 @@ public abstract class JobFlowNode {
             parentJobFlowNode.nextNodeComplete(  taskContext,   e);
         }
         else{
-            if(this.parrelJobFlowNode != null){
-                this.parrelJobFlowNode.brachComplete(this,  taskContext,   e);
+            if(this.compositionJobFlowNode != null){
+                this.compositionJobFlowNode.brachComplete(this,  taskContext,   e);
             }
             else{
                 this.jobFlow.complete(  taskContext,   e);
             }
         }
 
+    }
+
+    public void setJobFlowNodeType(JobFlowNodeType jobFlowNodeType) {
+        this.jobFlowNodeType = jobFlowNodeType;
+    }
+
+    public JobFlowNodeType getJobFlowNodeType() {
+        return jobFlowNodeType;
     }
 }
