@@ -1643,6 +1643,7 @@ public class ImportBuilder {
 		}
 
 		DataStream dataStream = innerBuilder();
+        dataStream.setJobFlowNode(this.jobFlowNode);
 		if(scheduleAssert != null){
 			if(scheduleAssert instanceof WrappedScheduleAssert)
 				dataStream.setScheduleAssert(scheduleAssert);

@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow.schedule;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 
 import java.util.Date;
@@ -32,10 +33,12 @@ public class JobFlowScheduleConfig extends TimerScheduleConfig {
     /**
      * 任务开始时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date scheduleDate;
     /**
      * 任务结束时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date scheduleEndDate;
 
     public Long getDelay() {
@@ -61,4 +64,5 @@ public class JobFlowScheduleConfig extends TimerScheduleConfig {
     public void setScheduleEndDate(Date scheduleEndDate) {
         this.scheduleEndDate = scheduleEndDate;
     }
+    
 }

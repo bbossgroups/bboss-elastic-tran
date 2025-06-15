@@ -86,8 +86,7 @@ public class BufferFileReaderTask extends FileReaderTask{
      * return and the byte following it are read (to see if it is a newline),
      * the end of the file is reached, or an exception is thrown.
      *
-     * @return     the next line of text from this file, or null if end
-     *             of file is encountered before even one byte is read.
+     * 
      * @exception IOException  if an I/O error occurs.
      */
 //    @Override

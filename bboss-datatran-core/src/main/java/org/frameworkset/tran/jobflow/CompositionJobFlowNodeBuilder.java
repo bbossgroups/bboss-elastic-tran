@@ -15,6 +15,8 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.config.ImportBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +73,13 @@ public class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder{
         return this;
     }
 
+    public CompositionJobFlowNodeBuilder addImportBuilder(ImportBuilder importBuilder, NodeTrigger nodeTrigger){
+//        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
+        init();
+        nodeBuilders.add(new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder).setNodeTrigger(nodeTrigger));
+        return this;
+    }
+
     /**
      * 添加一个简单的子任务
      * @param importBuilderCreate
@@ -80,6 +89,18 @@ public class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder{
 //        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
         init();
         nodeBuilders.add(new SimpleJobFlowNodeBuilder().buildImportBuilder(importBuilderCreate));
+        return this;
+    }
+
+    /**
+     * 添加一个简单的子任务
+     * @param importBuilder
+     * @return
+     */
+    public CompositionJobFlowNodeBuilder addImportBuilder(ImportBuilder importBuilder){
+//        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
+        init();
+        nodeBuilders.add(new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder));
         return this;
     }
 

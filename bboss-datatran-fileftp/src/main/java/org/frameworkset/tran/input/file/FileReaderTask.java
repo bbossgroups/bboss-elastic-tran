@@ -759,7 +759,7 @@ public class FileReaderTask extends FieldManager{
     }
 
     /**
-    public final String readLine0() throws IOException {
+     {@code public final String readLine0() throws IOException {
         StringBuilder input = new StringBuilder();
         int c = -1;
         boolean eol = false;
@@ -788,6 +788,7 @@ public class FileReaderTask extends FieldManager{
         }
         return input.toString();
     }
+     }
 */
     protected boolean reachEOFClosed(Line line){
 //        if(fileConfig.isCloseEOF() && line.isEof()){

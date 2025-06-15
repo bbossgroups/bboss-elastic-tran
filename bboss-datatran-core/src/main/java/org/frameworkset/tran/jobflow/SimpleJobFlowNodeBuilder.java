@@ -41,13 +41,17 @@ public class SimpleJobFlowNodeBuilder extends JobFlowNodeBuilder{
     @Override
     public JobFlowNode build(JobFlow jobFlow){
         SimpleJobFlowNode simpleJobFlowNode = null;
-        if(nodeTriggerCreate != null) {
-            simpleJobFlowNode = new SimpleJobFlowNode(this.importBuilderCreate.createImportBuilder(this),
-                    this.nodeTriggerCreate.createNodeTrigger(this));
+        if(importBuilder == null){
+            if(importBuilderCreate != null)
+                importBuilder = importBuilderCreate.createImportBuilder(this);
         }
-        else{
-            simpleJobFlowNode = new SimpleJobFlowNode(this.importBuilderCreate.createImportBuilder(this));
+        if(nodeTrigger == null) {
+            if (nodeTriggerCreate != null) {
+                nodeTrigger = this.nodeTriggerCreate.createNodeTrigger(this);
+                
+            }
         }
+        simpleJobFlowNode = new SimpleJobFlowNode(importBuilder,nodeTrigger); 
         simpleJobFlowNode.setNodeId(this.getNodeId());
         simpleJobFlowNode.setNodeName(this.getNodeName());
         simpleJobFlowNode.setJobFlow(jobFlow);

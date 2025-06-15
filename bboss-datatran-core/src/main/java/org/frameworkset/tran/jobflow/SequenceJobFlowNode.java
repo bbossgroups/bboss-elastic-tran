@@ -47,6 +47,9 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
             }
             return true;
         }
+        else{
+            logger.info("AssertTrigger: false,ignore execute this SequenceJobFlowNode.");
+        }
         return false;
         
     }
@@ -56,9 +59,26 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void stop() {
-        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
-            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
-            jobFlowNode.stop();
+
+        try {
+            for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
+                JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+                jobFlowNode.stop();
+            }
+        }
+        catch (Exception e){
+            logger.warn("Stop SequenceJobFlowNode["+this.getNodeName()+"] failed:",e);
+        }
+
+        logger.info("Stop SequenceJobFlowNode["+this.getNodeName()+"] complete.");
+        if(this.nextJobFlowNode != null){
+            try {
+                this.nextJobFlowNode.stop();
+                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
+            }
+            catch (Exception e){
+                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] failed:",e);
+            }
         }
     }
 

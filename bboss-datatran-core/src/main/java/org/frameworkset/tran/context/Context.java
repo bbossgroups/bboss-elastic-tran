@@ -127,7 +127,7 @@ public interface Context extends DataTranPluginMetricsLogAPI {
     /**
      * 获取处理后的记录数据封装对象CommonRecord，包含以下数据
      * 来源数据   Object getOringeData()
-     *  加工后的数据 Map<String,Object> getDatas()
+     *  {@code 加工后的数据 Map<String,Object> getDatas()}
      * @return
      */
 	public CommonRecord getCommonRecord();

@@ -37,7 +37,7 @@ public interface SplitHandler {
 	 * @param record
 	 * @param fieldValue
 	 * @return KeyMap为LinkedHashMap的子类，添加key字段，用于设置用于kafka之类的消息key，如果是往kafka推送数据，可以设置推送的key，
-	 * public class KeyMap<K,V> extends LinkedHashMap<K,V> {
+	 * {@code public class KeyMap<K,V> extends LinkedHashMap<K,V> {}
 	 *
 	 * 	  标识记录key信息
 	 *

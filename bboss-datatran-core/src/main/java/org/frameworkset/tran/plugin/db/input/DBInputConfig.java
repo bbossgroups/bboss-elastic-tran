@@ -65,7 +65,7 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 
     /**
      * 并行Datarefactor处理需要设置RecordBuidler，默认为DBRecordBuilder，如果需要自定义resultset record，从DBRecordBuilder继承实现方法即可：
-     * public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException
+     * {@code public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException}
      * @param parallelDatarefactor
      * @return
      */
@@ -349,7 +349,7 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
     /**
      * 1. 为Clickhouse数据源增加负载均衡机制，解决Clickhouse-native-jdbc驱动只有容灾功能而没有负载均衡功能的缺陷，使用方法如下：
      * 在jdbc url地址后面增加b.balance和b.enableBalance参数
-     * jdbc:clickhouse://101.13.6.4:29000,101.13.6.7:29000,101.13.6.6:29000/visualops?b.balance=roundbin&b.enableBalance=true
+     * {@code jdbc:clickhouse://101.13.6.4:29000,101.13.6.7:29000,101.13.6.6:29000/visualops?b.balance=roundbin&b.enableBalance=true}
      * <p>
      * b.enableBalance为true时启用负载均衡机制，并具备原有容灾功能，否则只具备容灾功能
      * b.balance 指定负载均衡算法，目前支持random（随机算法，不公平机制）和roundbin(轮询算法，公平机制)两种算法，默认random算法
@@ -394,7 +394,7 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
     /**
      * 1. 为Clickhouse数据源增加负载均衡机制，解决Clickhouse-native-jdbc驱动只有容灾功能而没有负载均衡功能的缺陷，使用方法如下：
      * 在jdbc url地址后面增加b.balance和b.enableBalance参数
-     * jdbc:clickhouse://101.13.6.4:29000,101.13.6.7:29000,101.13.6.6:29000/visualops?b.balance=roundbin&b.enableBalance=true
+     * {@code jdbc:clickhouse://101.13.6.4:29000,101.13.6.7:29000,101.13.6.6:29000/visualops?b.balance=roundbin&b.enableBalance=true}
      * <p>
      * b.enableBalance为true时启用负载均衡机制，并具备原有容灾功能，否则只具备容灾功能
      * b.balance 指定负载均衡算法，目前支持random（随机算法，不公平机制）和roundbin(轮询算法，公平机制)两种算法，默认random算法
@@ -438,7 +438,7 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
     }
     /**
      * 并行Datarefactor处理标记为parallelDatarefactor=true时，需要设置RecordBuidler，默认为DBRecordBuilder，如果需要自定义resultset record，从DBRecordBuilder继承实现方法即可：
-     * public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException
+     * {@code public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException}
      * @param recordBuidler
      * @return
      */

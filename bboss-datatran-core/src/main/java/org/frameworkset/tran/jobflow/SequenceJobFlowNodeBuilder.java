@@ -1,6 +1,6 @@
-package org.frameworkset.tran;
+package org.frameworkset.tran.jobflow;
 /**
- * Copyright 2008 biaoping.yin
+ * Copyright 2025 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,20 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.context.Context;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * <p>Description: 记录级别数据加工、转换、过滤处理接口</p>
- * <p></p>
- * <p>Copyright (c) 2018</p>
- * @Date 2018/9/4 9:19
+ * 
  * @author biaoping.yin
- * @version 1.0
+ * @Date 2025/3/31
  */
-public interface DataRefactor {
-	/**
-	 * 数据处理:加工处理数据方法,自定义数据处理逻辑，包括数据转换处理，添加、删除、修改字段，过滤记录，ip地址转换等
-	 * @param context 包含需要加工数据记录的上下文对象
-	 */
-	public void refactor(Context context) throws Exception;
-
+public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder{
     
+    
+    
+    public SequenceJobFlowNodeBuilder( ){
+        super(JobFlowNodeType.SEQUENCE);
+    }
+
 }

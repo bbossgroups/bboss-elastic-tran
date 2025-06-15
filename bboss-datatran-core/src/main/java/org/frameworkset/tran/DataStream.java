@@ -17,6 +17,7 @@ package org.frameworkset.tran;/*
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
+import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.schedule.ScheduleAssert;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ public class DataStream {
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	protected ScheduleAssert scheduleAssert;
+    protected JobFlowNode jobFlowNode;
 
 	public ImportContext getImportContext() {
 		return importContext;
@@ -345,5 +347,13 @@ public class DataStream {
      */
     public void resetMetricsLogLevel(int metricsLogLevel){
         this.importContext.resetMetricsLogLevel(  metricsLogLevel);
+    }
+
+    public void setJobFlowNode(JobFlowNode jobFlowNode) {
+        this.jobFlowNode = jobFlowNode;
+    }
+
+    public JobFlowNode getJobFlowNode() {
+        return jobFlowNode;
     }
 }

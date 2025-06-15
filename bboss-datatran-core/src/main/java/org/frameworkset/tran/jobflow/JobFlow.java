@@ -21,12 +21,15 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleTimer;
+import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.util.Date;
 import java.util.List;
+
+import static java.lang.Thread.sleep;
 
 /**
  * <p>Description: 作业任务编排流程</p>
@@ -41,6 +44,7 @@ public class JobFlow {
      * 作业流程id
      */
     private String jobFlowId;
+    private JobFlowStatus jobFlowStatus = JobFlowStatus.INIT;
     /**
      * 作业流程名称
      */
@@ -72,27 +76,94 @@ public class JobFlow {
         config.setSourceEncoding("UTF-8");
         // 设置该GroovyClassLoader的父ClassLoader为当前线程的加载器(默认)
         groovyClassLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), config);
+
+        logger.info("initGroovyClassLoader with SourceEncoding UTF-8,"+jobInfo );
     }
 
     public void setStartJobFlowNode(JobFlowNode startJobFlowNode) {
         this.startJobFlowNode = startJobFlowNode;
     }
 
+    private String jobInfo ;
+    public void initJobInfo(){
+        StringBuilder info = new StringBuilder();
+        info.append("JobFlow[jobFlowId=").append(this.getJobFlowId()).append("],[jobFlowName=").append(this.getJobFlowName()).append("]");
+        jobInfo = info.toString();
+    }
     public void execute(){
+        logger.info("Execute "+jobInfo );
+        
+        startEndScheduleThread(new ScheduleEndCall() {
+            @Override
+            public void call(boolean scheduled) {
+                stop(true);
+            }
+        });
         this.startJobFlowNode.start();
+    }
+
+    private Object startEndScheduleThreadLock = new Object();
+    private Thread scheduledEndThread;
+    /**
+     * 启动作业自动结束线程
+     * @param scheduleEndCall
+     */
+    protected void startEndScheduleThread( ScheduleEndCall scheduleEndCall){
+        Date scheduleEndDate = jobFlowScheduleConfig.getScheduleEndDate();
+        if(scheduleEndDate != null){
+
+            synchronized (startEndScheduleThreadLock) {
+                if(scheduledEndThread == null) {
+                    final long waitTime = scheduleEndDate.getTime() - System.currentTimeMillis();
+
+                    scheduledEndThread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (waitTime > 0) {
+                                try {
+                                    sleep(waitTime);
+                                    scheduleEndCall.call(true);
+                                } catch (InterruptedException e) {
+
+                                }
+                            } else {
+                                scheduleEndCall.call(true);
+                            }
+
+                        }
+                    }, "Datatran-JobFlowScheduledEndThread");
+                    scheduledEndThread.setDaemon(true);
+                    scheduledEndThread.start();
+                }
+            }
+        }
+    }
+    private Object statusChangeLock = new Object();
+    
+    public void initJob(){
+        synchronized (statusChangeLock) {
+            if(jobFlowStatus == JobFlowStatus.STARTED){
+                return;
+            }
+            jobFlowStatus = JobFlowStatus.STARTED;
+            initGroovyClassLoader();
+            JobFlowExecuteContext jobFlowExecuteContext = new DefaultJobFlowExecuteContext();
+            this.jobFlowExecuteContext = jobFlowExecuteContext;
+        }
     }
     /**
      * 启动工作流
      */
     public void start(){
-        initGroovyClassLoader();
-        JobFlowExecuteContext jobFlowExecuteContext = new DefaultJobFlowExecuteContext() ;
-        this.jobFlowExecuteContext = jobFlowExecuteContext;
+        
+       
         //一次性执行，定时执行处理
         if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTime() ){
-             this.execute();
+            initJob();
+            this.execute();
         }
         else if(!jobFlowScheduleConfig.isExternalTimer()){
+            initJob();         
             JobFlowScheduleTimer jobFlowScheduleTimer = new JobFlowScheduleTimer(jobFlowScheduleConfig,this);
             jobFlowScheduleTimer.start();
             this.jobFlowScheduleTimer = jobFlowScheduleTimer;
@@ -102,25 +173,72 @@ public class JobFlow {
         }
         
     }
-    
-    
+
+    public String getJobInfo() {
+        return jobInfo;
+    }
 
     private void release(){
         if(groovyClassLoader != null) {
             groovyClassLoader.clearCache();
         }
     }
+
     /**
      * 停止工作流
      */
     public void stop(){
-        this.startJobFlowNode.stop();
-        try {
-            this.jobFlowScheduleTimer.stop();
-        } catch (Exception e) {
-        }
-        if(groovyClassLoader != null) {
-            groovyClassLoader.clearCache();
+        stop(false);
+
+    }
+    /**
+     * 停止工作流
+     * @param fromScheduled 标记工作流停止操作是否是因为结束日期到达后触发 true 是 false 否
+     */
+    protected void stop(boolean fromScheduled){
+        synchronized (statusChangeLock) {
+            //作业未启动
+            if(jobFlowStatus == JobFlowStatus.INIT){
+                jobFlowStatus = JobFlowStatus.STOPED;
+                logger.info("Stop unstarted jobflow {} [fromScheduled={}] complete.", this.jobInfo, fromScheduled);
+                return;
+            }
+            if (jobFlowStatus == JobFlowStatus.STARTED && jobFlowStatus != JobFlowStatus.STOPPING) {
+
+                jobFlowStatus = JobFlowStatus.STOPPING;
+                logger.info("Stop {} [fromScheduled={}] start.", this.jobInfo, fromScheduled);
+                this.startJobFlowNode.stop();
+                try {
+                    this.jobFlowScheduleTimer.stop();
+                } catch (Exception e) {
+                }
+                try {
+                    if (groovyClassLoader != null) {
+                        groovyClassLoader.clearCache();
+                    }
+                } catch (Exception e) {
+                }
+                if (!fromScheduled) {
+                    if (this.scheduledEndThread != null) {
+                        try {
+                            this.scheduledEndThread.interrupt();
+                            this.scheduledEndThread.join();
+                        } catch (Exception e) {
+
+                        }
+                    }
+                }
+                jobFlowStatus = JobFlowStatus.STOPED;
+                logger.info("Stop {} [fromScheduled={}] complete.", this.jobInfo, fromScheduled);
+            }
+            else{
+                if(jobFlowStatus == JobFlowStatus.STOPPING){
+                    logger.info("Jobflow {} [fromScheduled={}] STOPPING.", this.jobInfo, fromScheduled);
+                }
+                else{
+                    logger.info("Jobflow {} [fromScheduled={}] stoped,ignore stop operation.", this.jobInfo, fromScheduled);
+                }
+            }
         }
             
     }

@@ -17,7 +17,6 @@ package org.frameworkset.tran.jobflow.schedule;
 
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.JobFlowExecuteContext;
-import org.frameworkset.tran.schedule.timer.ScheduleTimer;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +52,7 @@ public class JobFlowScheduleTimer implements Runnable{
         }
 
         running = true;
-
+        logger.info("Start JobFlow BBossJobScheduleTimer,JobFlowScheduleConfig[{}].",jobFlowScheduleConfig.toString());
         thread = new Thread(this,"BBossJobScheduleTimer-"+jobFlow.getJobFlowName());
         thread.setDaemon(false);
         thread.start();
@@ -88,6 +87,7 @@ public class JobFlowScheduleTimer implements Runnable{
             Thread.currentThread().interrupt();
         }
     }
+    private Object runLock = new Object();
     /**
      * Runs this monitor.
      */
@@ -135,7 +135,9 @@ public class JobFlowScheduleTimer implements Runnable{
                         }
                         break;
                     }
-                    jobFlow.execute();
+                    synchronized (runLock) {
+                        jobFlow.execute();
+                    }
                     break;
                 }
                 else {

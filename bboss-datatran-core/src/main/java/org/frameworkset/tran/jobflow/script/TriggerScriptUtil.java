@@ -18,13 +18,13 @@ package org.frameworkset.tran.jobflow.script;
 import com.frameworkset.util.SimpleStringUtil;
 import groovy.lang.GroovyClassLoader;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.groovy.control.CompilerConfiguration;
 import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowExecuteContext;
 import org.frameworkset.tran.jobflow.NodeTrigger;
 import org.frameworkset.tran.script.CodeStruction;
 import org.frameworkset.tran.script.GroovyScriptException;
 import org.frameworkset.tran.script.GroovyUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 根据工作流节点触发器脚本
@@ -32,6 +32,7 @@ import org.frameworkset.tran.script.GroovyUtil;
  * @Date 2025/6/13
  */
 public class TriggerScriptUtil {
+    private static Logger logger = LoggerFactory.getLogger(TriggerScriptUtil.class);
    
     public static TriggerScriptAPI evalTriggerScript(JobFlow jobFlow,NodeTrigger nodeTrigger) throws Exception{
         String script = null;
@@ -46,13 +47,14 @@ public class TriggerScriptUtil {
             code.append("import org.frameworkset.tran.jobflow.JobFlowExecuteContext;\n");
             code.append("import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;\n");
             code.append("\n");
-            String apiName = SimpleStringUtil.getUUID() + "TriggerScriptAPIImpl";
+            String apiName = "TriggerScriptAPIImpl_" +SimpleStringUtil.getUUID32() ;
 
             code.append("public class " + apiName + " implements TriggerScriptAPI {\r\n");
             code.append("boolean evalTriggerScript(JobFlow jobFlow, JobFlowExecuteContext jobFlowExecuteContext) throws Exception {\r\n")
                     .append(codeStruction.getCode()).append("\r\n}\r\n}");
             script = code.toString();
             Class clazz = groovyClassLoader.parseClass(script);
+            logger.info("apiName {},evalTriggerScript: {} ",apiName,nodeTrigger.getTriggerScript());
             return (TriggerScriptAPI) clazz.getDeclaredConstructor().newInstance();
         }
         catch (Exception e){

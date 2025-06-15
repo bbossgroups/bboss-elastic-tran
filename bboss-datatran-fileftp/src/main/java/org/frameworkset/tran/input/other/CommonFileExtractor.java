@@ -31,7 +31,6 @@ public interface CommonFileExtractor {
     /**
      *
      * @param recordExtractor
-     * @return
      * @throws Exception
      */
     public void extractor(RecordExtractor<File> recordExtractor) throws Exception;

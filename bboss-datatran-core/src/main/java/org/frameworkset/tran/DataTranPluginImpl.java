@@ -711,6 +711,44 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			delayThread = null;
 		}
 	}
+    
+    private Object startEndScheduleThreadLock = new Object();
+
+    /**
+     * 启动作业自动结束线程
+     * @param scheduled
+     * @param scheduleEndCall
+     */
+    protected void startEndScheduleThread(boolean scheduled,ScheduleEndCall scheduleEndCall){
+        Date scheduleEndDate = importContext.getScheduleEndDate();
+        if(scheduled && scheduleEndDate != null){
+
+            synchronized (startEndScheduleThreadLock) {
+                if(scheduledEndThread == null) {
+                    final long waitTime = scheduleEndDate.getTime() - System.currentTimeMillis();
+
+                    scheduledEndThread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (waitTime > 0) {
+                                try {
+                                    sleep(waitTime);
+                                    scheduleEndCall.call(true);
+                                } catch (InterruptedException e) {
+
+                                }
+                            } else {
+                                scheduleEndCall.call(true);
+                            }
+
+                        }
+                    }, "Datatran-ScheduledEndThread");
+                    scheduledEndThread.setDaemon(true);
+                    scheduledEndThread.start();
+                }
+            }
+        }
+    }
 	@Override
 	public void importData(ScheduleEndCall scheduleEndCall) throws DataImportException {
         if(this.checkTranToStop())//任务处于停止状态，不再执行定时作业
@@ -763,31 +801,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
 					}
 					boolean scheduled = scheduleService.timeSchedule(   );
-					if(scheduled && scheduleEndDate != null){
-
-						final long waitTime = scheduleEndDate.getTime() - System.currentTimeMillis();
-
-						scheduledEndThread = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								if(waitTime > 0 ) {
-									try {
-										sleep(waitTime);
-										scheduleEndCall.call(true);
-									} catch (InterruptedException e) {
-
-									}
-								}
-								else{
-									scheduleEndCall.call(true);
-								}
-
-							}
-						},"Datatran-ScheduledEndThread");
-                        scheduledEndThread.setDaemon(true);
-						scheduledEndThread.start();
-					}
+                    startEndScheduleThread(   scheduled,  scheduleEndCall);
 				} else { //外部定时任务引擎执行的方法，比如quartz，xxl-job之类的
+                    startEndScheduleThread(  true,  scheduleEndCall);
 					if(scheduleService.isSchedulePaused(isEnableAutoPauseScheduled())){
 						if(logger.isInfoEnabled()){
 							logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
@@ -900,7 +916,21 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 	}
 
+    
 	public static void initDS(DBStartResult dbStartResult,DBConfig dbConfig){
+        
+        if(dbConfig != null){
+            if(SimpleStringUtil.isEmpty(dbConfig.getDbName())){
+                throw new DataImportException("dbname can not be empty in DBConfig "+SimpleStringUtil.object2json(dbConfig));
+            }
+            if(!dbStartResult.contain(dbConfig.getDbName())){
+                if(SimpleStringUtil.isNotEmpty(dbConfig.getDbDriver()) && SimpleStringUtil.isEmpty(dbConfig.getDbUrl()))
+                    throw new DataImportException("DbUrl can not be empty in DBConfig "+SimpleStringUtil.object2json(dbConfig));
+
+                if(SimpleStringUtil.isEmpty(dbConfig.getDbDriver()) && SimpleStringUtil.isNotEmpty(dbConfig.getDbUrl()))
+                    throw new DataImportException("DbDriver can not be empty in DBConfig "+SimpleStringUtil.object2json(dbConfig));
+            }
+        }
 		if(dbConfig != null && SimpleStringUtil.isNotEmpty(dbConfig.getDbName())
 				&& SimpleStringUtil.isNotEmpty(dbConfig.getDbDriver())
 				&& SimpleStringUtil.isNotEmpty(dbConfig.getDbUrl()) && !dbStartResult.contain(dbConfig.getDbName())) {

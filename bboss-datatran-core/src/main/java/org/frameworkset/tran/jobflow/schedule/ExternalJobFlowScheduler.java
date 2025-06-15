@@ -81,7 +81,7 @@ public class ExternalJobFlowScheduler {
             {
                 throw new DataImportException("ExternalJobScheduler failed: jobFlow build failed");
             }
-
+            jobFlow.initJob();
 
 //			dataStream.init();
 

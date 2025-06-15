@@ -42,7 +42,7 @@ public interface InputConfig extends ConfigId{
     }
     /**
      * 并行Datarefactor处理需要设置RecordBuidler，默认为DBRecordBuilder，如果需要自定义resultset record，从DBRecordBuilder继承实现方法即可：
-     * public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException
+     * {@code public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException}
      * @param parallelDatarefactor
      * @return
      */
@@ -54,7 +54,7 @@ public interface InputConfig extends ConfigId{
     }
     /**
      * 并行Datarefactor处理标记为parallelDatarefactor=true时，需要设置RecordBuidler，默认为DBRecordBuilder，如果需要自定义resultset record，从DBRecordBuilder继承实现方法即可：
-     * public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException
+     * {@code public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException}
      * @param recordBuidler
      * @return
      */

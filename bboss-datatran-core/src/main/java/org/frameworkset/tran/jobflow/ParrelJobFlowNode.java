@@ -91,6 +91,9 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             }
             return true;
         }
+        else{
+            logger.info("AssertTrigger: false,ignore execute this ParrelJobFlowNode.");
+        }
         return false;
         
     }
@@ -103,12 +106,24 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void stop() {
+         
         for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
             JobFlowNode jobFlowNode = jobFlowNodes.get(i);
             jobFlowNode.stop();
         }
         if(blockedExecutor != null){
             blockedExecutor.shutdown();
+        }
+
+        logger.info("Stop ParrelJobFlowNode["+this.getNodeName()+"] complete.");
+        if(this.nextJobFlowNode != null){
+            try {
+                this.nextJobFlowNode.stop();
+                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
+            }
+            catch (Exception e){
+                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] failed:",e);
+            }
         }
     }
 

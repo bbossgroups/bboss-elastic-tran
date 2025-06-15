@@ -70,7 +70,6 @@ public class PDFFileReaderTask extends FileReaderTask {
 	}
     /**
      * 读取文件
-     * @return XWPFDocument
      */
 
 	@Override

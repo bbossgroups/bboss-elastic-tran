@@ -33,19 +33,22 @@ public class SimpleJobFlowNode extends JobFlowNode{
     /**
      * 串行节点作业配置
      */
-    private ImportBuilder nodeBuilder;
+    private ImportBuilder importBuilder;
  
  
 
     private DataStream dataStream;
-    public SimpleJobFlowNode(ImportBuilder nodeBuilder, NodeTrigger nodeTrigger ){
-        this(nodeBuilder);
+    public SimpleJobFlowNode(ImportBuilder importBuilder, NodeTrigger nodeTrigger ){
+        this(importBuilder);
         this.nodeTrigger = nodeTrigger;
     }
 
-    public SimpleJobFlowNode(ImportBuilder nodeBuilder){
-        this.nodeBuilder = nodeBuilder;
-        this.nodeBuilder.setJobFlowNode(this);
+    public SimpleJobFlowNode(ImportBuilder importBuilder){
+        this.importBuilder = importBuilder;
+        if(importBuilder == null){
+            throw new JobFlowException("ImportBuilder is null.");
+        }
+        this.importBuilder.setJobFlowNode(this);
     }
 
 
@@ -62,12 +65,15 @@ public class SimpleJobFlowNode extends JobFlowNode{
         JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
         if(this.assertTrigger()) {
             if (parentJobFlowNode == null)
-                dataStream = nodeBuilder.builder();
+                dataStream = importBuilder.builder();
             else {
-                dataStream = nodeBuilder.builder(true);
+                dataStream = importBuilder.builder(true);
             }
             dataStream.execute();
             return true;
+        }
+        else{
+            logger.info("AssertTrigger: false,ignore execute this SimpleJobFlowNode.");
         }
         return false;
     }
@@ -78,8 +84,20 @@ public class SimpleJobFlowNode extends JobFlowNode{
     @Override
     public void stop(){
         JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
+        
+       
         if(dataStream != null){
-            dataStream.destroy();
+            dataStream.destroy(true);
+        }
+        logger.info("Stop SimpleJobFlowNode["+this.getNodeName()+"] complete.");
+        if(this.nextJobFlowNode != null){
+            try {
+                this.nextJobFlowNode.stop();
+                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
+            }
+            catch (Exception e){
+                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] failed:",e);
+            }
         }
     }
 

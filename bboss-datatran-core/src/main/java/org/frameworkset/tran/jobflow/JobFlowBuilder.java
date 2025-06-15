@@ -65,7 +65,9 @@ public class JobFlowBuilder {
         jobFlow.setJobFlowName(this.jobFlowName);
         jobFlow.setJobFlowId(this.jobFlowId);
         jobFlow.setJobScheduleConfig(jobFlowScheduleConfig);
-        jobFlow.setStartJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));       
+        jobFlow.initJobInfo();
+        jobFlow.setStartJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));    
+        
         return jobFlow;
     }
 

@@ -15,10 +15,7 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.config.ImportBuilder;
-
-import java.util.List;
 
 /**
  * <p>Description: </p>
@@ -35,17 +32,30 @@ public abstract class JobFlowNodeBuilder {
     protected String nodeId;
     protected String nodeName;
     /**
-     * 串行节点作业配置
+     * 串行节点作业配置生成接口
      */
     protected ImportBuilderCreate importBuilderCreate;
 
     /**
+     * 串行节点作业配置
+     */
+    protected ImportBuilder importBuilder;
+
+
+
+    /**
+     * 节点执行触发器构建器
      * 1.串行节点触发条件
      * 2.并行节点类型亦可以设置一个整体的节点触发器
      */
     protected NodeTriggerCreate nodeTriggerCreate;
-    
-    
+
+    /**
+     * 节点执行触发器构建器
+     * 1.串行节点触发条件
+     * 2.并行节点类型亦可以设置一个整体的节点触发器
+     */
+    protected NodeTrigger nodeTrigger;
     /**
      *  创建的流程作业节点
      */
@@ -69,7 +79,6 @@ public abstract class JobFlowNodeBuilder {
     /**
      * 添加后续节点构建器，如果存在则添加
      * @param nextJobFlowNodeBuilder
-     * @return
      */
     public void setNextJobFlowNodeBuilder(JobFlowNodeBuilder nextJobFlowNodeBuilder){
         this.nextJobFlowNodeBuilder = nextJobFlowNodeBuilder;
@@ -82,16 +91,36 @@ public abstract class JobFlowNodeBuilder {
         return nodeId;
     }
 
-    public void setNodeId(String nodeId) {
+    public JobFlowNodeBuilder setNodeId(String nodeId) {
         this.nodeId = nodeId;
+        return this;
     }
 
     public String getNodeName() {
         return nodeName;
     }
 
-    public void setNodeName(String nodeName) {
+    public JobFlowNodeBuilder setNodeName(String nodeName) {
         this.nodeName = nodeName;
+        return this;
+    }
+
+    public JobFlowNodeBuilder setImportBuilder(ImportBuilder importBuilder) {
+        this.importBuilder = importBuilder;
+        return this;
+    }
+
+    public ImportBuilder getImportBuilder() {
+        return importBuilder;
+    }
+
+    public JobFlowNodeBuilder setNodeTrigger(NodeTrigger nodeTrigger) {
+        this.nodeTrigger = nodeTrigger;
+        return this;
+    }
+
+    public NodeTrigger getNodeTrigger() {
+        return nodeTrigger;
     }
 }
 

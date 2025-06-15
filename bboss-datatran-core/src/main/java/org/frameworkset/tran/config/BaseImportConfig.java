@@ -965,7 +965,6 @@ public class BaseImportConfig {
      * 在不需要时间窗口的场景下，控制采集和指标计算混合作业定时调度时，是否在任务结束时强制flush metric进行持久化处理
      * true 强制flush
      * false 不强制刷新 默认值
-     * @return
      */
     public void setFlushMetricsOnScheduleTaskCompleted(boolean flushMetricsOnScheduleTaskCompleted) {
         this.flushMetricsOnScheduleTaskCompleted = flushMetricsOnScheduleTaskCompleted;
@@ -984,7 +983,6 @@ public class BaseImportConfig {
      * 控制flush metrics时是否清空指标key内存缓存区
      * true 清空
      * false 不清空，默认值
-     * @return
      */
     public void setCleanKeysWhenflushMetricsOnScheduleTaskCompleted(boolean cleanKeysWhenflushMetricsOnScheduleTaskCompleted) {
         this.cleanKeysWhenflushMetricsOnScheduleTaskCompleted = cleanKeysWhenflushMetricsOnScheduleTaskCompleted;
@@ -1000,7 +998,6 @@ public class BaseImportConfig {
      * true 等待，默认值
      * false 不等待
      * @param waitCompleteWhenflushMetricsOnScheduleTaskCompleted
-     * @return
      */
     public void setWaitCompleteWhenflushMetricsOnScheduleTaskCompleted(boolean waitCompleteWhenflushMetricsOnScheduleTaskCompleted) {
         this.waitCompleteWhenflushMetricsOnScheduleTaskCompleted = waitCompleteWhenflushMetricsOnScheduleTaskCompleted;
