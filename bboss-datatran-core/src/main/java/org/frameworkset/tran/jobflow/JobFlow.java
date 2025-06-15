@@ -144,11 +144,11 @@ public class JobFlow {
         synchronized (statusChangeLock) {
             if(jobFlowStatus == JobFlowStatus.STARTED){
                 return;
-            }
-            jobFlowStatus = JobFlowStatus.STARTED;
+            }           
             initGroovyClassLoader();
             JobFlowExecuteContext jobFlowExecuteContext = new DefaultJobFlowExecuteContext();
             this.jobFlowExecuteContext = jobFlowExecuteContext;
+            jobFlowStatus = JobFlowStatus.STARTED;
         }
     }
     /**
