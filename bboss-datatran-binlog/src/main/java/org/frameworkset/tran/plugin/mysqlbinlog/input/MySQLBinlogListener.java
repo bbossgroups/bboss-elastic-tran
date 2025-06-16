@@ -408,7 +408,7 @@ public class MySQLBinlogListener {
                         sendDropedEvent();
                     }
                 } catch (InterruptedException e) {
-                    logger.warn("Shutdown MySQLBinlogListener[] on InterruptedException");
+                    logger.warn("Shutdown MySQLBinlogListener[] on InterruptedException",e);
                     shutdown();
                 }
                 catch (Exception e) {
