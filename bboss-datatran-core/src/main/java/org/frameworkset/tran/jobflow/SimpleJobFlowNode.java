@@ -21,8 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>Description: </p>
- * <p></p>
  *
  * @author biaoping.yin
  * @Date 2025/3/31
@@ -51,11 +49,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
         this.importBuilder.setJobFlowNode(this);
     }
 
-
-    @Override
-    public void setParentJobFlowNode(JobFlowNode parentJobFlowNode) {
-        super.setParentJobFlowNode(parentJobFlowNode);
-    }
+ 
 
     /**
      * 启动流程当前节点
@@ -64,16 +58,17 @@ public class SimpleJobFlowNode extends JobFlowNode{
     public boolean start(){
         JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
         if(this.assertTrigger()) {
-            if (parentJobFlowNode == null)
-                dataStream = importBuilder.builder();
-            else {
-                dataStream = importBuilder.builder(true);
-            }
+            logger.info("Start SimpleJobFlowNode[id={},name={}] begin.",this.getNodeId(),this.getNodeName());
+            dataStream = importBuilder.builder(true);
             dataStream.execute();
+            
+            logger.info("Execute SimpleJobFlowNode[id={},name={}] complete.",this.getNodeId(),this.getNodeName());
+//            this.nodeComplete(null);
             return true;
         }
         else{
-            logger.info("AssertTrigger: false,ignore execute this SimpleJobFlowNode.");
+            logger.info("AssertTrigger: false,ignore execute this SimpleJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
+            nodeComplete(null);
         }
         return false;
     }
@@ -89,14 +84,14 @@ public class SimpleJobFlowNode extends JobFlowNode{
         if(dataStream != null){
             dataStream.destroy(true);
         }
-        logger.info("Stop SimpleJobFlowNode["+this.getNodeName()+"] complete.");
+        logger.info("Stop SimpleJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] complete.");
         if(this.nextJobFlowNode != null){
             try {
                 this.nextJobFlowNode.stop();
-                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
+//                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
             }
             catch (Exception e){
-                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] failed:",e);
+                logger.warn("Stop nextJobFlowNode[id="+nextJobFlowNode.getNodeId()+",name="+nextJobFlowNode.getNodeName()+"] failed:",e);
             }
         }
     }

@@ -66,7 +66,7 @@ public class BaseImportConfig {
     private Integer timeWindowType;
 
 
-    private JobClosedListener jobClosedListener;
+    private List<JobClosedListener> jobClosedListeners;
 
     private boolean flushMetricsOnScheduleTaskCompleted;
 
@@ -1014,12 +1014,15 @@ public class BaseImportConfig {
         this.jobInputParamGroups = jobInputParamGroups;
     }
 
-    public JobClosedListener getJobClosedListener() {
-        return jobClosedListener;
+    public List<JobClosedListener> getJobClosedListeners() {
+        return jobClosedListeners;
     }
 
     public void setJobClosedListener(JobClosedListener jobClosedListener) {
-        this.jobClosedListener = jobClosedListener;
+        if(jobClosedListeners == null){
+            jobClosedListeners = new ArrayList<>();
+        }
+        this.jobClosedListeners.add( jobClosedListener);
     }
 
     public Integer getTimeWindowType() {

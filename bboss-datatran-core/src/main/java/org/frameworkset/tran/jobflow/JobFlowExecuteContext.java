@@ -33,5 +33,7 @@ public interface JobFlowExecuteContext {
 
     void putAll(Map<String, Object> contextDatas);
 
+    void addContextData(String name,Object data);
+
     void clear();
 }

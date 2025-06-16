@@ -15,8 +15,7 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
-import java.util.ArrayList;
-import java.util.List;
+import org.frameworkset.tran.config.ImportBuilder;
 
 /**
  * 
@@ -24,11 +23,115 @@ import java.util.List;
  * @Date 2025/3/31
  */
 public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder{
-    
-    
-    
+
+    private JobFlowNodeBuilder headerJobFlowNodeBuilder;
+    private JobFlowNodeBuilder currentJobFlowNodeBuilder;
+
+   
     public SequenceJobFlowNodeBuilder( ){
         super(JobFlowNodeType.SEQUENCE);
     }
+
+    /**
+     *
+     * @param nodeId
+     * @param nodeName
+     * @param importBuilder
+     * @param nodeTrigger
+     * @return
+     */
+    public SequenceJobFlowNodeBuilder addImportBuilder(String nodeId, String nodeName, ImportBuilder importBuilder, NodeTrigger nodeTrigger){
+        JobFlowNodeBuilder jobFlowNodeBuilder = new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder).setNodeTrigger(nodeTrigger)
+                .setNodeId(nodeId).setNodeName(nodeName);
+        _addJobFlowNodeBuilder(  jobFlowNodeBuilder);
+        
+        
+        return this;
+    }
+
+    /**
+     * 添加一个简单的子任务
+     * @param nodeId
+     * @param nodeName
+     * @param importBuilderCreate
+     * @return
+     */
+    public SequenceJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilderCreate importBuilderCreate){
+        JobFlowNodeBuilder jobFlowNodeBuilder = new SimpleJobFlowNodeBuilder().buildImportBuilder(importBuilderCreate)
+                .setNodeId(nodeId).setNodeName(nodeName);
+        _addJobFlowNodeBuilder(  jobFlowNodeBuilder);
+        return this;
+    }
+
+    /**
+     * 添加一个简单的子任务
+     * @param nodeId
+     * @param nodeName
+     * @param importBuilder
+     * @return
+     */
+    public SequenceJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilder importBuilder){
+        JobFlowNodeBuilder jobFlowNodeBuilder = new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder)
+                .setNodeId(nodeId).setNodeName(nodeName);
+        _addJobFlowNodeBuilder(  jobFlowNodeBuilder);
+        return this;
+    }
+
+    /**
+     * 添加复杂串行子任务，存在串行多个子任务或者串行任务
+     * @param jobFlowNodeBuilder
+     * @return
+     */
+    private SequenceJobFlowNodeBuilder _addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
+        init();
+
+        if(this.headerJobFlowNodeBuilder == null) {
+            this.headerJobFlowNodeBuilder = jobFlowNodeBuilder;
+
+        }
+        if(currentJobFlowNodeBuilder != null)
+            this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
+        this.currentJobFlowNodeBuilder = jobFlowNodeBuilder;
+        nodeBuilders.add(jobFlowNodeBuilder);
+        return this;
+    }
+
+    /**
+     * 添加复杂并行子任务，存在串行多个子任务或者串行任务
+     * @param jobFlowNodeBuilder
+     * @return
+     */
+    public SequenceJobFlowNodeBuilder addJobFlowNodeBuilder(CompositionJobFlowNodeBuilder jobFlowNodeBuilder){
+        _addJobFlowNodeBuilder(  jobFlowNodeBuilder);
+        return this;
+    }
+
+
+    @Override
+    public JobFlowNode build(JobFlow jobFlow){
+        SequenceJobFlowNode compositionJobFlowNode = new SequenceJobFlowNode();
+         
+        compositionJobFlowNode.setNodeId(this.getNodeId());
+        compositionJobFlowNode.setNodeName(this.getNodeName());
+        compositionJobFlowNode.setJobFlow(jobFlow);
+        if(this.parentJobFlowNodeBuilder != null) {
+            compositionJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
+        }
+        if(this.nodeTriggerCreate != null){
+            compositionJobFlowNode.setNodeTrigger(this.nodeTriggerCreate.createNodeTrigger(this));
+        }
+        compositionJobFlowNode.setHeaderJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));
+//        for(JobFlowNodeBuilder jobFlowNodeBuilder:nodeBuilders){
+//            compositionJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.build(jobFlow));
+//        }
+        this.jobFlowNode = compositionJobFlowNode;
+        if(this.nextJobFlowNodeBuilder != null){
+            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.build(jobFlow);
+            this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
+        }
+        return compositionJobFlowNode;
+
+    }
+
 
 }

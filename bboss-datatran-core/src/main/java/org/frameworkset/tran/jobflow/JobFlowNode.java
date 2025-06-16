@@ -17,6 +17,9 @@ package org.frameworkset.tran.jobflow;
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  *
@@ -24,8 +27,8 @@ import org.frameworkset.tran.schedule.TaskContext;
  * @Date 2025/3/31
  */
 public abstract class JobFlowNode {
-    
-    private JobFlowNodeType jobFlowNodeType = JobFlowNodeType.SIMPLE;
+    private static Logger logger_ = LoggerFactory.getLogger(JobFlowNode.class);
+    protected JobFlowNodeType jobFlowNodeType = JobFlowNodeType.SIMPLE;
     protected String nodeId;
     protected String nodeName;
     protected JobFlow jobFlow;
@@ -60,13 +63,16 @@ public abstract class JobFlowNode {
     
     public boolean assertTrigger(){
         if(nodeTrigger == null){
+            logger_.info("AssertTrigger: null AssertTrigger and return true,flowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
             return true;
         }
         try {
-            if(this.nodeTrigger.assertTrigger(jobFlow)){
+            if(this.nodeTrigger.assertTrigger(jobFlow,this)){
+                logger_.info("AssertTrigger: true,flowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
                 return true;
             }
             else{
+                logger_.info("AssertTrigger: false,flowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
                 return false;
             }
         } catch (Exception e) {
@@ -145,12 +151,42 @@ public abstract class JobFlowNode {
      * 如果有父节点则反向通知父节点，当前节点已经完成任务,可以采取下一步的措施
      * 如果没有父节点，则可能已经到达工作流的第一个节点，也可能到达并行节点的分支起点
      */
-    public void nodeComplete(ImportContext importContext, Throwable e){
+    public void nodeComplete(Throwable throwable){
+
         if(this.nextJobFlowNode != null){
             this.nextJobFlowNode.start();
         }
         else{
             if(parentJobFlowNode != null){
+                logger_.info(this.toString() +" execute complete and call parentJobFlowNode["+parentJobFlowNode.toString()+"]‘s nextNodeComplete" );
+                parentJobFlowNode.nextNodeComplete(     throwable);
+            }
+            else{
+                if(this.compositionJobFlowNode != null){
+                    compositionJobFlowNode.brachComplete(this,     throwable);
+                }
+                else{
+                    this.jobFlow.complete(    throwable);
+                }
+            }
+        }
+    }
+    
+    /**
+     * 作业结束时，节点任务结束,可以唤醒下一个任务
+     * 如果没有下一个任务，则检查是否有父节点：
+     * 如果有父节点则反向通知父节点，当前节点已经完成任务,可以采取下一步的措施
+     * 如果没有父节点，则可能已经到达工作流的第一个节点，也可能到达并行节点的分支起点
+     */
+    public void nodeComplete(ImportContext importContext, Throwable e){
+       
+        if(this.nextJobFlowNode != null){
+            logger_.info(this.toString() +" execute complete and start nextJobFlowNode["+nextJobFlowNode.toString()+"]" );
+            this.nextJobFlowNode.start();
+        }
+        else{
+            if(parentJobFlowNode != null){
+                logger_.info(this.toString() +" execute complete and call parentJobFlowNode["+parentJobFlowNode.toString()+"]‘s nextNodeComplete" );
                 parentJobFlowNode.nextNodeComplete(  importContext,   e);
             }
             else{
@@ -167,7 +203,7 @@ public abstract class JobFlowNode {
     /**
      * 作业结束时，通知父节点，当前节点任务执行结束
      */
-    public void nextNodeComplete(ImportContext importContext, Throwable e){
+    public void nextNodeComplete(ImportContext importContext, Throwable e){        
         if(this.parentJobFlowNode != null){
             parentJobFlowNode.nextNodeComplete(  importContext,   e);
         }
@@ -182,6 +218,24 @@ public abstract class JobFlowNode {
         
     }
 
+    /**
+     * 作业结束时，通知父节点，当前节点任务执行结束
+     */
+    public void nextNodeComplete( Throwable e){
+        if(this.parentJobFlowNode != null){
+            parentJobFlowNode.nextNodeComplete(   e);
+        }
+        else{
+            if(this.compositionJobFlowNode != null){
+                this.compositionJobFlowNode.brachComplete(this,    e);
+            }
+            else{
+                this.jobFlow.complete(     e);
+            }
+        }
+
+    }
+
 
     /**
      * 每次作业调度任务迭代结束时触发，节点任务结束,可以唤醒下一个任务
@@ -191,7 +245,7 @@ public abstract class JobFlowNode {
      */
     public void nodeComplete(TaskContext taskContext, Throwable e){
         if(this.nextJobFlowNode != null){
-            this.nextJobFlowNode.start();
+//            this.nextJobFlowNode.start();
         }
         else{
             if(parentJobFlowNode != null){
@@ -232,5 +286,10 @@ public abstract class JobFlowNode {
 
     public JobFlowNodeType getJobFlowNodeType() {
         return jobFlowNodeType;
+    }
+    public String toString(){
+        StringBuilder b = new StringBuilder();
+        b.append("{id=").append(this.getNodeId()).append(",nodeName=").append(this.getNodeName()).append(",nodeType=").append(this.getJobFlowNodeType().name()).append("}");
+        return b.toString();
     }
 }

@@ -36,6 +36,9 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
     private static Logger logger = LoggerFactory.getLogger(ParrelJobFlowNode.class);
     private ExecutorService blockedExecutor;
     private Object blockedExecutorLock = new Object();
+    public ParrelJobFlowNode(){
+        this.jobFlowNodeType = JobFlowNodeType.PARREL;
+    }
     public ExecutorService buildThreadPool(){
         if(blockedExecutor != null)
             return blockedExecutor;
@@ -62,6 +65,8 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
                 throw new JobFlowException("ParrelJobFlowNode must set jobFlowNodes,please set jobFlowNodes first.");
             } else {
+
+                logger.info("Start parrelJobFlowNode[id={},name={}] begin.",this.getNodeId(),this.getNodeName());
                 ExecutorService blockedExecutor = buildThreadPool();
                 List<Future> futureList = new ArrayList<>();
                 for (int i = 0; i < jobFlowNodes.size(); i++) {
@@ -85,14 +90,21 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                         exceptions.add(e.getCause());
                     }
                 }
+                
                 if(CollectionUtils.isNotEmpty(exceptions)){
+                    logger.warn("Execute parrelJobFlowNode[id={},name={}] complete with exceptions.",this.getNodeId(),this.getNodeName());
                     throw new JobFlowException("ParrelJobFlowNode execute exception:",exceptions);
                 }
+                else{
+                    logger.info("Execute parrelJobFlowNode[id={},name={}] complete.",this.getNodeId(),this.getNodeName());
+                }
+                nodeComplete(null);
             }
             return true;
         }
         else{
             logger.info("AssertTrigger: false,ignore execute this ParrelJobFlowNode.");
+            nodeComplete(null);
         }
         return false;
         
@@ -115,14 +127,14 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             blockedExecutor.shutdown();
         }
 
-        logger.info("Stop ParrelJobFlowNode["+this.getNodeName()+"] complete.");
+        logger.info("Stop ParrelJobFlowNode[id={},nodeName={}] complete.",this.getNodeId(),this.getNodeName());
         if(this.nextJobFlowNode != null){
             try {
                 this.nextJobFlowNode.stop();
-                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
+//                logger.warn("Stop nextJobFlowNode[id={},nodeName={}] complete.",this.getNodeId(),this.getNodeName());
             }
             catch (Exception e){
-                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] failed:",e);
+                logger.warn("Stop nextJobFlowNode[id="+nextJobFlowNode.getNodeId()+",nodeName="+nextJobFlowNode.getNodeName()+"] failed:",e);
             }
         }
     }

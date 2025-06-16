@@ -31,7 +31,7 @@ public class DefaultJobFlowExecuteContext implements JobFlowExecuteContext{
     private Map<String,Object> contextDatas = new LinkedHashMap<>();
     private IntegerCount integerCount = new IntegerCount();
     @Override
-    public Object getContextData(String name) {
+    public synchronized Object getContextData(String name) {
         return contextDatas.get(name);
     }
 
@@ -40,11 +40,17 @@ public class DefaultJobFlowExecuteContext implements JobFlowExecuteContext{
         return integerCount.increament();
     }
     @Override
-    public void putAll(Map<String,Object> contextDatas){
+    public synchronized void putAll(Map<String,Object> contextDatas){
         this.contextDatas.putAll(contextDatas);
     }
+
     @Override
-    public void clear(){
+    public synchronized void addContextData(String name, Object data) {
+        this.contextDatas.put(name,data);
+    }
+
+    @Override
+    public synchronized void clear(){
         this.contextDatas.clear();
     }
 }

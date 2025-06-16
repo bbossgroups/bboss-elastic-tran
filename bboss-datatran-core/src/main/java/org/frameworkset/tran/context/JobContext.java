@@ -15,6 +15,9 @@ package org.frameworkset.tran.context;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.JobFlow;
+import org.frameworkset.tran.jobflow.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.metrics.BaseMetricsLogReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,9 @@ public class JobContext extends BaseMetricsLogReport {
 	private Map<String,Object> jobDatas;
     private Date jobStartTime;
     private Date endStartTime;
+    private JobFlowNode jobFlowNode;
+    private JobFlow jobFlow;
+    private JobFlowExecuteContext jobFlowExecuteContext;
 	public JobContext(){
 		jobDatas = new LinkedHashMap<>();
         jobStartTime = new Date();
@@ -119,5 +125,23 @@ public class JobContext extends BaseMetricsLogReport {
      */
     public void reportJobMetricDebug( String msg) {
         super.reportJobMetricDebug(null,msg);
+    }
+
+    public JobFlowNode getJobFlowNode() {
+        return jobFlowNode;
+    }
+
+    public void setJobFlowNode(JobFlowNode jobFlowNode) {
+        this.jobFlowNode = jobFlowNode;
+        this.jobFlow = jobFlowNode.getJobFlow();
+        this.jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
+    }
+
+    public JobFlow getJobFlow() {
+        return jobFlow;
+    }
+
+    public JobFlowExecuteContext getJobFlowExecuteContext() {
+        return jobFlowExecuteContext;
     }
 }

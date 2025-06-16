@@ -20,9 +20,9 @@ import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;
 import org.frameworkset.tran.jobflow.script.TriggerScriptUtil;
 
 /**
- * <p>Description: 流程节点执行触发器</p>
- * <p></p>
- *
+ * 流程节点执行触发器
+ * 可以通过设置动态脚本来计算节点触发条件，返回boolean类型值
+ * 亦可以直接设置TriggerScriptAPI来计算节点触发条件，返回boolean类型值
  * @author biaoping.yin
  * @Date 2025/3/31
  */
@@ -30,6 +30,11 @@ public class NodeTrigger {
     private JobFlowNode jobFlowNode;
     private String triggerScript;
     private TriggerScriptAPI triggerScriptAPI;
+
+    public void setTriggerScriptAPI(TriggerScriptAPI triggerScriptAPI) {
+        this.triggerScriptAPI = triggerScriptAPI;
+    }
+
     public String getTriggerScript() {
         return triggerScript;
     }
@@ -47,7 +52,7 @@ public class NodeTrigger {
     }
     
     private Object lock = new Object();
-    public boolean assertTrigger(JobFlow jobFlow) throws Exception {
+    public boolean assertTrigger(JobFlow jobFlow, JobFlowNode jobFlowNode) throws Exception {
         //todo 计算条件触发器
         if(triggerScriptAPI == null && StringUtils.isNotEmpty(triggerScript)){
             synchronized (lock) {
@@ -61,8 +66,10 @@ public class NodeTrigger {
             }
         }
         if(triggerScriptAPI != null){
-            return triggerScriptAPI.evalTriggerScript(jobFlow,jobFlow.getJobFlowExecuteContext());
+            return triggerScriptAPI.evalTriggerScript(jobFlow,   jobFlowNode,jobFlow.getJobFlowExecuteContext());
         }
         return true;
     }
+    
+    
 }

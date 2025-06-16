@@ -40,6 +40,8 @@ public class JobFlowScheduleConfig extends TimerScheduleConfig {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date scheduleEndDate;
+    
+    private boolean continueOnError = true;
 
     public Long getDelay() {
         return delay;
@@ -64,5 +66,12 @@ public class JobFlowScheduleConfig extends TimerScheduleConfig {
     public void setScheduleEndDate(Date scheduleEndDate) {
         this.scheduleEndDate = scheduleEndDate;
     }
-    
+
+    public void setContinueOnError(boolean continueOnError) {
+        this.continueOnError = continueOnError;
+    }
+
+    public boolean isContinueOnError() {
+        return continueOnError;
+    }
 }

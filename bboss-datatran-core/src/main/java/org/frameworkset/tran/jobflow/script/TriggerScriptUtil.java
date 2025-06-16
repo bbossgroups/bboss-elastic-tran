@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class TriggerScriptUtil {
     private static Logger logger = LoggerFactory.getLogger(TriggerScriptUtil.class);
    
-    public static TriggerScriptAPI evalTriggerScript(JobFlow jobFlow,NodeTrigger nodeTrigger) throws Exception{
+    public static TriggerScriptAPI evalTriggerScript(JobFlow jobFlow,NodeTrigger nodeTrigger) {
         String script = null;
         try {
             GroovyClassLoader groovyClassLoader = jobFlow.getGroovyClassLoader();
@@ -44,13 +44,14 @@ public class TriggerScriptUtil {
                 code.append(codeStruction.getImports());
             }
             code.append("import org.frameworkset.tran.jobflow.JobFlow;\n");
+            code.append("import org.frameworkset.tran.jobflow.JobFlowNode;\n");
             code.append("import org.frameworkset.tran.jobflow.JobFlowExecuteContext;\n");
             code.append("import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;\n");
             code.append("\n");
             String apiName = "TriggerScriptAPIImpl_" +SimpleStringUtil.getUUID32() ;
 
             code.append("public class " + apiName + " implements TriggerScriptAPI {\r\n");
-            code.append("boolean evalTriggerScript(JobFlow jobFlow, JobFlowExecuteContext jobFlowExecuteContext) throws Exception {\r\n")
+            code.append("boolean evalTriggerScript(JobFlow jobFlow, JobFlowNode jobFlowNode, JobFlowExecuteContext jobFlowExecuteContext) throws Exception {\r\n")
                     .append(codeStruction.getCode()).append("\r\n}\r\n}");
             script = code.toString();
             Class clazz = groovyClassLoader.parseClass(script);

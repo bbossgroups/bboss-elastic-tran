@@ -126,6 +126,7 @@ public class JobFlowScheduleTimer implements Runnable{
             /**
              * 如果没有到达执行时间点，则定时检查直到命中扫描时间点
              */
+            Exception exception = null;
             do {
 
                 if (TimeUtil.evalateNeedScan(jobFlowScheduleConfig)) {
@@ -136,7 +137,12 @@ public class JobFlowScheduleTimer implements Runnable{
                         break;
                     }
                     synchronized (runLock) {
-                        jobFlow.execute();
+                        try {
+                            jobFlow.execute();
+                        }
+                        catch (Exception e){
+                            exception = e;
+                        }
                     }
                     break;
                 }
@@ -150,7 +156,17 @@ public class JobFlowScheduleTimer implements Runnable{
                 }
             }while(true);
             if (!running) {
+                logger.warn("running=false and end JobFlowScheduleTimer.");
                 break;
+            }
+            if(exception != null ){
+                if(!jobFlowScheduleConfig.isContinueOnError()) {
+                    logger.warn("Exception occur and continueOnError is false,so end JobFlowScheduleTimer.", exception);
+                    break;
+                }
+                else{
+                    logger.warn("Exception occur and continueOnError is true,so continue JobFlowScheduleTimer.", exception);
+                }
             }
             try {
                 Thread.sleep(interval);

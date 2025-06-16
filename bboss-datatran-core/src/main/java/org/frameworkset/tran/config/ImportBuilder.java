@@ -65,7 +65,7 @@ public class ImportBuilder {
     private OutputRecordsFilter outputRecordsFilter;
 
 
-    private JobClosedListener jobClosedListener;
+    private List<JobClosedListener> jobClosedListeners;
     private int metricsLogLevel = MetricsLogLevel.INFO;
 
     private boolean numberTypeTimestamp;
@@ -1342,12 +1342,15 @@ public class ImportBuilder {
         }
 
 	}
-    private JobClosedListener handleJobClosedListener(){
-        if(jobClosedListener != null && jobClosedListener instanceof AsynJobClosedListener){
-            return new AsynJobClosedListenerImpl(jobClosedListener);
-        }
-        else {
-            return jobClosedListener;
+    private void handleJobClosedListener(BaseImportConfig baseImportConfig){
+        if(jobClosedListeners != null && jobClosedListeners.size() > 0) {
+            for (JobClosedListener jobClosedListener:jobClosedListeners) {
+                if (jobClosedListener != null && jobClosedListener instanceof AsynJobClosedListener) {
+                    baseImportConfig.setJobClosedListener( new AsynJobClosedListenerImpl(jobClosedListener));
+                } else {
+                    baseImportConfig.setJobClosedListener( jobClosedListener);
+                }
+            }
         }
     }
 
@@ -1368,7 +1371,7 @@ public class ImportBuilder {
 		baseImportConfig.setImportEndAction(importEndAction);
         
 		baseImportConfig.setUseJavaName(false);
-        baseImportConfig.setJobClosedListener(handleJobClosedListener());
+        handleJobClosedListener(baseImportConfig);
         baseImportConfig.setStatusIdPolicy(this.statusIdPolicy);
         baseImportConfig.setIncreamentImport(increamentImport);
 		initMetrics(  baseImportConfig);
@@ -1530,6 +1533,7 @@ public class ImportBuilder {
 		}
 		BaseImportContext importContext = new BaseImportContext();
         JobContext jobContext = new JobContext();
+        jobContext.setJobFlowNode(this.jobFlowNode);
 		importContext.setJobContext(jobContext);
 		BaseImportConfig baseImportConfig = new BaseImportConfig() ;
 		buildImportConfig(baseImportConfig);
@@ -1566,13 +1570,15 @@ public class ImportBuilder {
     private void buildJobFlowConfig(BaseImportConfig baseImportConfig){
         if(jobFlowNode != null){
             //构建作业调度流程任务结束拦截器
-            baseImportConfig.setImportEndAction(new ImportEndAction() {
+            baseImportConfig.setJobClosedListener(new JobClosedListener() {
                 @Override
-                public void endAction(ImportContext importContext, Exception e) {
-                    jobFlowNode.nodeComplete(  importContext,   e);
+                public void jobClosed(ImportContext importContext, Throwable throwable) {
+                    jobFlowNode.nodeComplete(  importContext,   throwable);
                 }
             });
-
+            
+            //todo check 是否需要再任务结束时触发流程当前作业对应的工作流节点的complete回调接口方法
+            /** 
             baseImportConfig.setCallInterceptor(new CallInterceptor(){
 
                 @Override
@@ -1592,6 +1598,7 @@ public class ImportBuilder {
                         jobFlowNode.nodeComplete(  taskContext,   e);
                 }
             });
+             */
         }
     }
 	public static ImportBuilder newInstance(){
@@ -1912,12 +1919,20 @@ public class ImportBuilder {
         return this;
     }
 
-    public JobClosedListener getJobClosedListener() {
-        return jobClosedListener;
+    public List<JobClosedListener> getJobClosedListeners() {
+        return jobClosedListeners;
     }
 
+    /**
+     * 添加作业关闭监听器到列表
+     * @param jobClosedListener
+     * @return
+     */
     public ImportBuilder setJobClosedListener(JobClosedListener jobClosedListener) {
-        this.jobClosedListener = jobClosedListener;
+        if(this.jobClosedListeners == null){
+            jobClosedListeners = new ArrayList<>();
+        }
+        jobClosedListeners.add(jobClosedListener);
         return this;
     }
     public Integer getTimeWindowType() {

@@ -87,7 +87,18 @@ public abstract class CompositionJobFlowNode extends JobFlowNode{
     public void brachComplete(JobFlowNode jobFlowNode, ImportContext importContext, Throwable e) {
         int liveNodes = this.startNodes.decreament();
         if(liveNodes <= 0){
-            this.nodeComplete(  importContext,   e);
+//            this.nodeComplete(  importContext,   e);
+        }
+    }
+
+    /**
+     * 分支完成
+     * @param jobFlowNode
+     */
+    public void brachComplete(JobFlowNode jobFlowNode,  Throwable e) {
+        int liveNodes = this.startNodes.decreament();
+        if(liveNodes <= 0){
+//            this.nodeComplete( e);
         }
     }
 

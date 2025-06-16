@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.util.concurrent.IntegerCount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,29 +27,42 @@ import org.slf4j.LoggerFactory;
  */
 public class SequenceJobFlowNode extends CompositionJobFlowNode{
     private static Logger logger = LoggerFactory.getLogger(SequenceJobFlowNode.class);
-   
 
+    private JobFlowNode headerJobFlowNode;
+    public SequenceJobFlowNode(){
+        this.jobFlowNodeType = JobFlowNodeType.SEQUENCE;
+    }
+
+    public void setHeaderJobFlowNode(JobFlowNode headerJobFlowNode) {
+        this.headerJobFlowNode = headerJobFlowNode;
+        headerJobFlowNode.setCompositionJobFlowNode(this);
+    }
     /**
      * 启动流程当前节点
      */
     @Override
     public boolean start(){
         
-        startNodes = new IntegerCount();
+//        startNodes = new IntegerCount();
         if(assertTrigger()) {
-            if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
-                throw new JobFlowException("ParrelJobFlowNode must set jobFlowNodes,please set jobFlowNodes first.");
+            if (headerJobFlowNode == null) {
+                throw new JobFlowException("SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"]:headerJobFlowNode is null.");
             } else {
-                for (int i = 0; i < jobFlowNodes.size(); i++) {
-                    JobFlowNode jobFlowNode = jobFlowNodes.get(i);
-                    if(jobFlowNode.start())
-                        startNodes.increament();
-                }
+                logger.info("Start SequenceJobFlowNode[id={},name={}] begin.",this.getNodeId(),this.getNodeName());
+//                for (int i = 0; i < jobFlowNodes.size(); i++) {
+//                    JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+//                    if(jobFlowNode.start())
+//                        startNodes.increament();
+//                }                
+                headerJobFlowNode.start();
+                logger.info("Execute SequenceJobFlowNode[id={},name={}] complete.",this.getNodeId(),this.getNodeName());
+//                this.nodeComplete( null);
             }
             return true;
         }
         else{
-            logger.info("AssertTrigger: false,ignore execute this SequenceJobFlowNode.");
+            logger.info("AssertTrigger: false,ignore execute this SequenceJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
+            nodeComplete(null);
         }
         return false;
         
@@ -67,20 +81,31 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
             }
         }
         catch (Exception e){
-            logger.warn("Stop SequenceJobFlowNode["+this.getNodeName()+"] failed:",e);
+            logger.warn("Stop SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] failed:",e);
         }
 
-        logger.info("Stop SequenceJobFlowNode["+this.getNodeName()+"] complete.");
+        logger.info("Stop SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] complete.");
         if(this.nextJobFlowNode != null){
             try {
                 this.nextJobFlowNode.stop();
-                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
+//                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
             }
             catch (Exception e){
-                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] failed:",e);
+                logger.warn("Stop nextJobFlowNode[id="+nextJobFlowNode.getNodeId()+",name="+nextJobFlowNode.getNodeName()+"] failed:",e);
             }
         }
     }
 
-   
+    /**
+     * 串行分支完成
+     * @param jobFlowNode
+     */
+    @Override
+    public void brachComplete(JobFlowNode jobFlowNode, ImportContext importContext, Throwable e) {
+//        int liveNodes = this.startNodes.decreament();
+//        if(liveNodes <= 0){
+//            this.nodeComplete(  importContext,   e);
+//        }
+        this.nodeComplete(importContext,e);
+    }
 }

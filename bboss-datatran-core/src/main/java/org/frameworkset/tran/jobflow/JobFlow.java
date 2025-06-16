@@ -87,7 +87,7 @@ public class JobFlow {
     private String jobInfo ;
     public void initJobInfo(){
         StringBuilder info = new StringBuilder();
-        info.append("JobFlow[jobFlowId=").append(this.getJobFlowId()).append("],[jobFlowName=").append(this.getJobFlowName()).append("]");
+        info.append("JobFlow[jobFlowId=").append(this.getJobFlowId()).append(",jobFlowName=").append(this.getJobFlowName()).append("]");
         jobInfo = info.toString();
     }
     public void execute(){
@@ -290,6 +290,14 @@ public class JobFlow {
     }
 
     /**
+     * 作业结束时触发工作流任务结束回调方法，等待下一次任务的调度，如果是一次性任务，则直接结束流程任务
+     */
+    public void complete(Throwable e) {
+        this.jobFlowExecuteContext.increamentNums();
+        this.jobFlowExecuteContext.clear();
+    }
+
+    /**
      * 每次作业调度任务迭代结束时触发流程结束回调方法：等待下一次任务的调度，如果是一次性任务，则直接结束流程任务
      */
     public void complete(TaskContext taskContext, Throwable e) {
@@ -311,5 +319,9 @@ public class JobFlow {
 
     public void setJobScheduleConfig(JobFlowScheduleConfig jobFlowScheduleConfig) {
         this.jobFlowScheduleConfig = jobFlowScheduleConfig;
+    }
+    
+    public String toString(){
+        return this.jobInfo;
     }
 }

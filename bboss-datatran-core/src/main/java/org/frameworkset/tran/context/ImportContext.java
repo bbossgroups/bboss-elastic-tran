@@ -57,7 +57,7 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
 	 Map<String, DynamicParam> getJobDynamicOutputParams();
 	 Map getJobOutputParams();
      Integer getStatusIdPolicy() ;
-     JobClosedListener getJobClosedListener();
+     List<JobClosedListener> getJobClosedListeners();
 
      boolean isSerial();
 

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ * 复合类型流程节点：构成并行分支的串行分支节点和并行分支节点
  * @author biaoping.yin
  * @Date 2025/3/31
  */
@@ -32,7 +32,7 @@ public class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder{
     /**
      * 并行节点作业配置
      */
-    private List<JobFlowNodeBuilder> nodeBuilders;
+    protected List<JobFlowNodeBuilder> nodeBuilders;
     
     public CompositionJobFlowNodeBuilder(JobFlowNodeType jobFlowNodeType){
         this.jobFlowNodeType = jobFlowNodeType;
@@ -44,7 +44,7 @@ public class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder{
 
 
 
-    private void init(){
+    protected void init(){
         if(nodeBuilders == null){
             nodeBuilders = new ArrayList<>();
         }
@@ -62,45 +62,63 @@ public class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder{
     }
     /**
      * 添加一个简单的子任务,并设置任务触发器
+     * @param nodeId 
+     * @param nodeName 
      * @param importBuilderCreate
      * @param nodeTriggerCreate
      * @return
      */
-    public CompositionJobFlowNodeBuilder addImportBuilder(ImportBuilderCreate importBuilderCreate, NodeTriggerCreate nodeTriggerCreate){
+    public CompositionJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilderCreate importBuilderCreate, NodeTriggerCreate nodeTriggerCreate){
 //        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
         init();
-        nodeBuilders.add(new SimpleJobFlowNodeBuilder().buildImportBuilder(importBuilderCreate,nodeTriggerCreate));
+        nodeBuilders.add(new SimpleJobFlowNodeBuilder().buildImportBuilder(importBuilderCreate,nodeTriggerCreate)
+                .setNodeId(nodeId).setNodeName(nodeName));
         return this;
     }
 
-    public CompositionJobFlowNodeBuilder addImportBuilder(ImportBuilder importBuilder, NodeTrigger nodeTrigger){
+    /**
+     * 
+     * @param nodeId
+     * @param nodeName
+     * @param importBuilder
+     * @param nodeTrigger
+     * @return
+     */
+    public CompositionJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilder importBuilder, NodeTrigger nodeTrigger){
 //        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
         init();
-        nodeBuilders.add(new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder).setNodeTrigger(nodeTrigger));
+        nodeBuilders.add(new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder).setNodeTrigger(nodeTrigger)
+                .setNodeId(nodeId).setNodeName(nodeName));
         return this;
     }
 
     /**
      * 添加一个简单的子任务
+     * @param nodeId
+     * @param nodeName
      * @param importBuilderCreate
      * @return
      */
-    public CompositionJobFlowNodeBuilder addImportBuilder(ImportBuilderCreate importBuilderCreate){
+    public CompositionJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilderCreate importBuilderCreate){
 //        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
         init();
-        nodeBuilders.add(new SimpleJobFlowNodeBuilder().buildImportBuilder(importBuilderCreate));
+        nodeBuilders.add(new SimpleJobFlowNodeBuilder().buildImportBuilder(importBuilderCreate)
+                .setNodeId(nodeId).setNodeName(nodeName));
         return this;
     }
 
     /**
      * 添加一个简单的子任务
+     * @param nodeId
+     * @param nodeName
      * @param importBuilder
      * @return
      */
-    public CompositionJobFlowNodeBuilder addImportBuilder(ImportBuilder importBuilder){
+    public CompositionJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilder importBuilder){
 //        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
         init();
-        nodeBuilders.add(new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder));
+        nodeBuilders.add(new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder)
+                .setNodeId(nodeId).setNodeName(nodeName));
         return this;
     }
 
@@ -121,6 +139,7 @@ public class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder{
         CompositionJobFlowNode compositionJobFlowNode = null;
         if(jobFlowNodeType == JobFlowNodeType.SEQUENCE) {
             compositionJobFlowNode = new SequenceJobFlowNode();
+            
         }
         else {
             compositionJobFlowNode = new ParrelJobFlowNode();

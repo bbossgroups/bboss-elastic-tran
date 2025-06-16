@@ -27,6 +27,7 @@ import org.frameworkset.tran.config.JobInputParamGroup;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
+import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.MetricsLogLevel;
 import org.frameworkset.tran.metrics.MetricsLogReport;
 import org.frameworkset.tran.metrics.TaskMetrics;
@@ -1216,8 +1217,17 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		//释放资源结束
 		status = TranConstant.PLUGIN_STOPPED;
 		importContext.cleanResource();
-        if(importContext.getJobClosedListener() != null){
-            importContext.getJobClosedListener().jobClosed(importContext,throwable);
+        List<JobClosedListener> jobClosedListeners = importContext.getJobClosedListeners();
+        if(jobClosedListeners != null && jobClosedListeners.size() > 0){
+            for(JobClosedListener jobClosedListener:jobClosedListeners){
+                try {
+                    jobClosedListener.jobClosed(importContext, throwable);
+                }
+                catch (Exception e){
+                    logger.warn("Execute jobclose callback failed: ",e);
+                }
+            }
+//            importContext.getJobClosedListeners().jobClosed(importContext,throwable);
         }
 	}
     private void endAction(){

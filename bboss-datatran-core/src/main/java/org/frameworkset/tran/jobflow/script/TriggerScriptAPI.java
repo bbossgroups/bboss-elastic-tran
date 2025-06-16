@@ -17,11 +17,12 @@ package org.frameworkset.tran.jobflow.script;
 
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.JobFlowNode;
 
 /**
  * @author biaoping.yin
  * @Date 2025/6/13
  */
 public interface TriggerScriptAPI {
-    boolean evalTriggerScript(JobFlow jobFlow, JobFlowExecuteContext jobFlowExecuteContext) throws Exception;
+    boolean evalTriggerScript(JobFlow jobFlow, JobFlowNode jobFlowNode, JobFlowExecuteContext jobFlowExecuteContext) throws Exception;
 }

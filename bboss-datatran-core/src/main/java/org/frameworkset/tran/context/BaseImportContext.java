@@ -219,8 +219,8 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 		return baseImportConfig.getJobOutputParams();
 	}
 
-    public JobClosedListener getJobClosedListener(){
-        return baseImportConfig.getJobClosedListener();
+    public List<JobClosedListener> getJobClosedListeners(){
+        return baseImportConfig.getJobClosedListeners();
     }
 	public Map getJobInputParams(){
 		return baseImportConfig.getJobInputParams();
