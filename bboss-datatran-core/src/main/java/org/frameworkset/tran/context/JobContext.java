@@ -132,9 +132,11 @@ public class JobContext extends BaseMetricsLogReport {
     }
 
     public void setJobFlowNode(JobFlowNode jobFlowNode) {
-        this.jobFlowNode = jobFlowNode;
-        this.jobFlow = jobFlowNode.getJobFlow();
-        this.jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
+        if (jobFlowNode != null){
+            this.jobFlowNode = jobFlowNode;
+            this.jobFlow = jobFlowNode.getJobFlow();
+            this.jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
+        }
     }
 
     public JobFlow getJobFlow() {
