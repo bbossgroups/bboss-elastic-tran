@@ -18,6 +18,7 @@ package org.frameworkset.tran.schedule.xxjob;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.IJobHandler;
 import org.frameworkset.tran.jobflow.schedule.ExternalJobFlowScheduler;
+import org.frameworkset.tran.jobflow.schedule.JobFlowBuilderFunction;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -31,7 +32,11 @@ public abstract class AbstractXXLJobFlowHandler extends IJobHandler {
     protected ExternalJobFlowScheduler externalJobFlowScheduler;
 
 	private Lock lock = new ReentrantLock();
-	public abstract void init();
+	public void init(){
+        externalJobFlowScheduler = new ExternalJobFlowScheduler();
+        externalJobFlowScheduler.setJobFlowBuilderFunction(buildJobFlowBuilderFunction());
+    }
+    protected abstract JobFlowBuilderFunction buildJobFlowBuilderFunction();
 	public ReturnT<String> execute(String param){
 		lock.lock();
 		try {

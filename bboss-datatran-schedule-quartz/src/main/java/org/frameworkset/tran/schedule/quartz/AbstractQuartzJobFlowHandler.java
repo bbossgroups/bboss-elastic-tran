@@ -16,6 +16,7 @@ package org.frameworkset.tran.schedule.quartz;
  */
 
 import org.frameworkset.tran.jobflow.schedule.ExternalJobFlowScheduler;
+import org.frameworkset.tran.jobflow.schedule.JobFlowBuilderFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,11 @@ public abstract class AbstractQuartzJobFlowHandler {
     /**
      * 通过init方法初始化一个作业工作流构建器
      */
-	public abstract void init();
+    public void init(){
+        externalJobFlowScheduler = new ExternalJobFlowScheduler();
+        externalJobFlowScheduler.setJobFlowBuilderFunction(buildJobFlowBuilderFunction());
+    }
+    protected abstract JobFlowBuilderFunction buildJobFlowBuilderFunction();
 	public void execute(){
 		lock.lock();
 		try {
