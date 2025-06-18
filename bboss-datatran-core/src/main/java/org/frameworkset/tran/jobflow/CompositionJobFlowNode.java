@@ -16,6 +16,7 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.jobflow.context.StaticContext;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.concurrent.IntegerCount;
 import org.slf4j.Logger;
@@ -35,16 +36,8 @@ public abstract class CompositionJobFlowNode extends JobFlowNode{
      * 并行节点作业配置
      */
     protected List<JobFlowNode> jobFlowNodes;
-    protected IntegerCount startNodes = null;
  
  
-    public void addJobFlowNode(JobFlowNode jobFlowNode){
-        if(this.jobFlowNodes == null){
-            jobFlowNodes = new ArrayList<>();
-        }
-        jobFlowNode.setCompositionJobFlowNode(this);
-        this.jobFlowNodes.add(jobFlowNode);
-    }
 
     /**
      * 启动流程当前节点
@@ -84,32 +77,35 @@ public abstract class CompositionJobFlowNode extends JobFlowNode{
      * 分支完成
      * @param jobFlowNode
      */
-    public void brachComplete(JobFlowNode jobFlowNode, ImportContext importContext, Throwable e) {
-        int liveNodes = this.startNodes.decreament();
-        if(liveNodes <= 0){
-//            this.nodeComplete(  importContext,   e);
-        }
-    }
+    public abstract void brachComplete(JobFlowNode jobFlowNode, ImportContext importContext, Throwable e) ;
+//    {
+//        int liveNodes = this.staticContext.decreament();
+//        if(liveNodes <= 0){
+////            this.nodeComplete(  importContext,   e);
+//        }
+//    }
 
     /**
      * 分支完成
      * @param jobFlowNode
      */
-    public void brachComplete(JobFlowNode jobFlowNode,  Throwable e) {
-        int liveNodes = this.startNodes.decreament();
-        if(liveNodes <= 0){
-//            this.nodeComplete( e);
-        }
-    }
+    public abstract void brachComplete(JobFlowNode jobFlowNode,  Throwable e) ;
+//    {
+//        int liveNodes = this.staticContext.decreament();
+//        if(liveNodes <= 0){
+////            this.nodeComplete( e);
+//        }
+//    }
 
     /**
      * 分支完成
      * @param jobFlowNode
      */
-    public void brachComplete(JobFlowNode jobFlowNode, TaskContext taskContext, Throwable e) {
-        int liveNodes = this.startNodes.decreament();
-        if(liveNodes <= 0){
-            this.nodeComplete(  taskContext,   e);
-        }
-    }
+    public abstract void brachComplete(JobFlowNode jobFlowNode, TaskContext taskContext, Throwable e) ;
+//    {
+//        int liveNodes = this.staticContext.decreament();
+//        if(liveNodes <= 0){
+//            this.nodeComplete(  taskContext,   e);
+//        }
+//    }
 }

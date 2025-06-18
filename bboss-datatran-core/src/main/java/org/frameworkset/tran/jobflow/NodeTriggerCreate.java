@@ -15,6 +15,8 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.builder.JobFlowNodeBuilder;
+
 /**
  * <p>Description: </p>
  * <p></p>

@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow;
+package org.frameworkset.tran.jobflow.builder;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -16,6 +16,7 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.frameworkset.tran.config.ImportBuilder;
+import org.frameworkset.tran.jobflow.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.List;
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder{
+public abstract class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder {
     
      
     private JobFlowNodeType jobFlowNodeType ; 
@@ -68,7 +69,7 @@ public class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder{
      * @param nodeTriggerCreate
      * @return
      */
-    public CompositionJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilderCreate importBuilderCreate, NodeTriggerCreate nodeTriggerCreate){
+    public CompositionJobFlowNodeBuilder addImportBuilder(String nodeId, String nodeName, ImportBuilderCreate importBuilderCreate, NodeTriggerCreate nodeTriggerCreate){
 //        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
         init();
         nodeBuilders.add(new SimpleJobFlowNodeBuilder().buildImportBuilder(importBuilderCreate,nodeTriggerCreate)
@@ -134,36 +135,6 @@ public class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder{
         return this;
     }
 
-    @Override
-    public JobFlowNode build(JobFlow jobFlow){
-        CompositionJobFlowNode compositionJobFlowNode = null;
-        if(jobFlowNodeType == JobFlowNodeType.SEQUENCE) {
-            compositionJobFlowNode = new SequenceJobFlowNode();
-            
-        }
-        else {
-            compositionJobFlowNode = new ParrelJobFlowNode();
-        }
-        compositionJobFlowNode.setNodeId(this.getNodeId());
-        compositionJobFlowNode.setNodeName(this.getNodeName());
-        compositionJobFlowNode.setJobFlow(jobFlow);
-        if(this.parentJobFlowNodeBuilder != null) {
-            compositionJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
-        }
-        if(this.nodeTriggerCreate != null){
-            compositionJobFlowNode.setNodeTrigger(this.nodeTriggerCreate.createNodeTrigger(this));
-        }
-        for(JobFlowNodeBuilder jobFlowNodeBuilder:nodeBuilders){
-            compositionJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.build(jobFlow));
-        }
-        this.jobFlowNode = compositionJobFlowNode;
-        if(this.nextJobFlowNodeBuilder != null){
-            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.build(jobFlow);
-            this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
-        }
-        return compositionJobFlowNode;
-
-    }
 
     public CompositionJobFlowNodeBuilder setJobFlowNodeType(JobFlowNodeType jobFlowNodeType) {
         if(jobFlowNodeType == JobFlowNodeType.SIMPLE){

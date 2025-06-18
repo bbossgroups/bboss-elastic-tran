@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow;
+package org.frameworkset.tran.jobflow.builder;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -16,6 +16,10 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.frameworkset.tran.config.ImportBuilder;
+import org.frameworkset.tran.jobflow.JobFlow;
+import org.frameworkset.tran.jobflow.JobFlowNode;
+import org.frameworkset.tran.jobflow.NodeTrigger;
+import org.frameworkset.tran.jobflow.NodeTriggerCreate;
 
 /**
  * <p>Description: </p>

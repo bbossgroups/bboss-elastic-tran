@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow.schedule;
+package org.frameworkset.tran.jobflow.context;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -15,12 +15,25 @@ package org.frameworkset.tran.jobflow.schedule;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.builder.JobFlowBuilder;
+import org.frameworkset.tran.jobflow.SequenceJobFlowNode;
+import org.frameworkset.util.concurrent.IntegerCount;
 
 /**
+ * 用于跟踪串行分支节点执行情况
  * @author biaoping.yin
- * @Date 2025/6/11
+ * @Date 2025/6/18
  */
-public interface JobFlowBuilderFunction {
-    JobFlowBuilder build(Object params);
+public class SequenceJobFlowNodeContext extends StaticContext{
+    private SequenceJobFlowNode sequenceJobFlowNode;
+   
+    public SequenceJobFlowNodeContext(SequenceJobFlowNode sequenceJobFlowNode){
+        super();
+        this.sequenceJobFlowNode = sequenceJobFlowNode;
+       
+    }
+   
+
+    public SequenceJobFlowNode getSequenceJobFlowNode() {
+        return sequenceJobFlowNode;
+    }
 }

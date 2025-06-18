@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow;
+package org.frameworkset.tran.jobflow.builder;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -15,6 +15,11 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.JobFlow;
+import org.frameworkset.tran.jobflow.JobFlowNode;
+import org.frameworkset.tran.jobflow.NodeTriggerCreate;
+import org.frameworkset.tran.jobflow.SimpleJobFlowNode;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -22,7 +27,7 @@ package org.frameworkset.tran.jobflow;
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class SimpleJobFlowNodeBuilder extends JobFlowNodeBuilder{ 
+public class SimpleJobFlowNodeBuilder extends JobFlowNodeBuilder { 
     
     
     

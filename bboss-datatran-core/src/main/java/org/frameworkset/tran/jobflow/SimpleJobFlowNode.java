@@ -17,6 +17,7 @@ package org.frameworkset.tran.jobflow;
 
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.config.ImportBuilder;
+import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,13 +51,13 @@ public class SimpleJobFlowNode extends JobFlowNode{
     }
 
  
-
+    
     /**
      * 启动流程当前节点
      */
     @Override
     public boolean start(){
-        JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
+        increament();
         if(this.assertTrigger()) {
             logger.info("Start SimpleJobFlowNode[id={},name={}] begin.",this.getNodeId(),this.getNodeName());
             dataStream = importBuilder.builder(true);

@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow;
+package org.frameworkset.tran.jobflow.builder;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -16,13 +16,14 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.frameworkset.tran.config.ImportBuilder;
+import org.frameworkset.tran.jobflow.*;
 
 /**
  * 
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder{
+public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder {
 
     private JobFlowNodeBuilder headerJobFlowNodeBuilder;
     private JobFlowNodeBuilder currentJobFlowNodeBuilder;
@@ -56,7 +57,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder{
      * @param importBuilderCreate
      * @return
      */
-    public SequenceJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilderCreate importBuilderCreate){
+    public SequenceJobFlowNodeBuilder addImportBuilder(String nodeId, String nodeName, ImportBuilderCreate importBuilderCreate){
         JobFlowNodeBuilder jobFlowNodeBuilder = new SimpleJobFlowNodeBuilder().buildImportBuilder(importBuilderCreate)
                 .setNodeId(nodeId).setNodeName(nodeName);
         _addJobFlowNodeBuilder(  jobFlowNodeBuilder);
@@ -109,27 +110,28 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder{
 
     @Override
     public JobFlowNode build(JobFlow jobFlow){
-        SequenceJobFlowNode compositionJobFlowNode = new SequenceJobFlowNode();
+        SequenceJobFlowNode sequenceJobFlowNode = new SequenceJobFlowNode();
          
-        compositionJobFlowNode.setNodeId(this.getNodeId());
-        compositionJobFlowNode.setNodeName(this.getNodeName());
-        compositionJobFlowNode.setJobFlow(jobFlow);
+        sequenceJobFlowNode.setNodeId(this.getNodeId());
+        sequenceJobFlowNode.setNodeName(this.getNodeName());
+        sequenceJobFlowNode.setJobFlow(jobFlow);
         if(this.parentJobFlowNodeBuilder != null) {
-            compositionJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
+            sequenceJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
         }
         if(this.nodeTriggerCreate != null){
-            compositionJobFlowNode.setNodeTrigger(this.nodeTriggerCreate.createNodeTrigger(this));
+            sequenceJobFlowNode.setNodeTrigger(this.nodeTriggerCreate.createNodeTrigger(this));
         }
-        compositionJobFlowNode.setHeaderJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));
+        //构建顺序节点链路
+        sequenceJobFlowNode.setHeaderJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));
 //        for(JobFlowNodeBuilder jobFlowNodeBuilder:nodeBuilders){
 //            compositionJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.build(jobFlow));
 //        }
-        this.jobFlowNode = compositionJobFlowNode;
+        this.jobFlowNode = sequenceJobFlowNode;
         if(this.nextJobFlowNodeBuilder != null){
             JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.build(jobFlow);
             this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
         }
-        return compositionJobFlowNode;
+        return sequenceJobFlowNode;
 
     }
 

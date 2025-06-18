@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow.schedule;
+package org.frameworkset.tran.jobflow.context;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -15,12 +15,24 @@ package org.frameworkset.tran.jobflow.schedule;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.builder.JobFlowBuilder;
+import org.frameworkset.tran.jobflow.ParrelJobFlowNode;
 
 /**
+ * 用于跟踪和记录并行分支节点执行情况
  * @author biaoping.yin
- * @Date 2025/6/11
+ * @Date 2025/6/18
  */
-public interface JobFlowBuilderFunction {
-    JobFlowBuilder build(Object params);
+public class ParrelJobFlowNodeContext extends StaticContext{
+    private ParrelJobFlowNode parrelJobFlowNode;
+   
+    public ParrelJobFlowNodeContext(ParrelJobFlowNode parrelJobFlowNode){
+        super();
+        this.parrelJobFlowNode = parrelJobFlowNode;
+       
+    }
+
+
+    public ParrelJobFlowNode getParrelJobFlowNode() {
+        return parrelJobFlowNode;
+    }
 }

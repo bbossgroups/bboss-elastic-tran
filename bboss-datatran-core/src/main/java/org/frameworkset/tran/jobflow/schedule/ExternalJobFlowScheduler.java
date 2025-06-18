@@ -17,7 +17,7 @@ package org.frameworkset.tran.jobflow.schedule;
 
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowBuilder;
+import org.frameworkset.tran.jobflow.builder.JobFlowBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

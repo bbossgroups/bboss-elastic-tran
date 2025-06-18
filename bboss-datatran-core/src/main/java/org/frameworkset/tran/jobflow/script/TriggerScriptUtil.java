@@ -45,7 +45,7 @@ public class TriggerScriptUtil {
             }
             code.append("import org.frameworkset.tran.jobflow.JobFlow;\n");
             code.append("import org.frameworkset.tran.jobflow.JobFlowNode;\n");
-            code.append("import org.frameworkset.tran.jobflow.JobFlowExecuteContext;\n");
+            code.append("import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;\n");
             code.append("import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;\n");
             code.append("\n");
             String apiName = "TriggerScriptAPIImpl_" +SimpleStringUtil.getUUID32() ;

@@ -16,7 +16,8 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.util.concurrent.IntegerCount;
+import org.frameworkset.tran.jobflow.context.SequenceJobFlowNodeContext;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,21 +30,29 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
     private static Logger logger = LoggerFactory.getLogger(SequenceJobFlowNode.class);
 
     private JobFlowNode headerJobFlowNode;
+    private SequenceJobFlowNodeContext sequenceJobFlowNodeContext;
     public SequenceJobFlowNode(){
         this.jobFlowNodeType = JobFlowNodeType.SEQUENCE;
+        
+        sequenceJobFlowNodeContext = new SequenceJobFlowNodeContext(this);
+    }
+
+    public SequenceJobFlowNodeContext getSequenceJobFlowNodeContext() {
+        return sequenceJobFlowNodeContext;
     }
 
     public void setHeaderJobFlowNode(JobFlowNode headerJobFlowNode) {
         this.headerJobFlowNode = headerJobFlowNode;
         headerJobFlowNode.setCompositionJobFlowNode(this);
+        headerJobFlowNode.setContainerSequenceJobFlowNodeContext(this.sequenceJobFlowNodeContext);
     }
     /**
      * 启动流程当前节点
      */
     @Override
     public boolean start(){
-        
-//        startNodes = new IntegerCount();
+
+        increament();
         if(assertTrigger()) {
             if (headerJobFlowNode == null) {
                 throw new JobFlowException("SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"]:headerJobFlowNode is null.");
@@ -97,15 +106,37 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
     }
 
     /**
-     * 串行分支完成
+     * 串行分支全部完成是回调
      * @param jobFlowNode
      */
     @Override
     public void brachComplete(JobFlowNode jobFlowNode, ImportContext importContext, Throwable e) {
-//        int liveNodes = this.startNodes.decreament();
 //        if(liveNodes <= 0){
 //            this.nodeComplete(  importContext,   e);
 //        }
         this.nodeComplete(importContext,e);
+    }
+
+    /**
+     * 串行分支全部完成是回调
+     *
+     * @param jobFlowNode
+     * @param e
+     */
+    @Override
+    public void brachComplete(JobFlowNode jobFlowNode, Throwable e) {
+        this.nodeComplete(e);
+    }
+
+    /**
+     * 串行分支全部完成是回调
+     *
+     * @param jobFlowNode
+     * @param taskContext
+     * @param e
+     */
+    @Override
+    public void brachComplete(JobFlowNode jobFlowNode, TaskContext taskContext, Throwable e) {
+        this.nodeComplete(e);
     }
 }

@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow;
+package org.frameworkset.tran.jobflow.context;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -17,23 +17,35 @@ package org.frameworkset.tran.jobflow;
 
 import org.frameworkset.util.concurrent.IntegerCount;
 
-import java.util.Map;
-
 /**
- * <p>Description: </p>
- * <p></p>
- *
+ * 节点运行情况统计上下文
  * @author biaoping.yin
- * @Date 2025/3/31
+ * @Date 2025/6/18
  */
-public interface JobFlowExecuteContext {
-    Object getContextData(String name);
-    
-    int increamentNums();
+public abstract class StaticContext {
+    private IntegerCount startNodes ;
+    public StaticContext(){
+        this.startNodes = new IntegerCount();
+    }
 
-    void putAll(Map<String, Object> contextDatas);
+    public int getStartNodes() {
+        return startNodes.getCount();
+    }
 
-    void addContextData(String name,Object data);
+    /**
+     * 节点启动时，增加启动节点计数
+     * @return
+     */
+    public  int increament() {
 
-    void clear();
+        return startNodes.increament() ;
+    }
+
+    /**
+     * 节点完成时，减少启动节点计数
+     * @return
+     */
+    public int decreament() {
+        return startNodes.decreament() ;
+    }
 }

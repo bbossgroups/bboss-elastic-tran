@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow;
+package org.frameworkset.tran.jobflow.builder;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
 
 /**

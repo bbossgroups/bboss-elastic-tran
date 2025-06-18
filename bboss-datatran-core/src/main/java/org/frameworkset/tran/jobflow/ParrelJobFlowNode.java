@@ -16,6 +16,9 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.apache.commons.collections.CollectionUtils;
+import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.jobflow.context.ParrelJobFlowNodeContext;
+import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.concurrent.IntegerCount;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
 import org.slf4j.Logger;
@@ -36,8 +39,10 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
     private static Logger logger = LoggerFactory.getLogger(ParrelJobFlowNode.class);
     private ExecutorService blockedExecutor;
     private Object blockedExecutorLock = new Object();
+    private ParrelJobFlowNodeContext parrelJobFlowNodeContext;
     public ParrelJobFlowNode(){
         this.jobFlowNodeType = JobFlowNodeType.PARREL;
+        this.parrelJobFlowNodeContext = new ParrelJobFlowNodeContext(this);
     }
     public ExecutorService buildThreadPool(){
         if(blockedExecutor != null)
@@ -52,15 +57,22 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         }
         return blockedExecutor;
     }
-   
+
+    public void addJobFlowNode(JobFlowNode jobFlowNode){
+        if(this.jobFlowNodes == null){
+            jobFlowNodes = new ArrayList<>();
+        }
+        jobFlowNode.setCompositionJobFlowNode(this);
+        jobFlowNode.setContainerParrelJobFlowNodeContext(this.containerParrelJobFlowNodeContext);
+        this.jobFlowNodes.add(jobFlowNode);
+    }
 
     /**
      * 启动流程当前节点
      */
     @Override
     public boolean start(){
-        
-        startNodes = new IntegerCount();
+        increament();
         if(assertTrigger()) {
             if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
                 throw new JobFlowException("ParrelJobFlowNode must set jobFlowNodes,please set jobFlowNodes first.");
@@ -72,8 +84,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                 for (int i = 0; i < jobFlowNodes.size(); i++) {
                     JobFlowNode jobFlowNode = jobFlowNodes.get(i);
                     futureList.add(blockedExecutor.submit(() -> {
-                        if(jobFlowNode.start())
-                            startNodes.increament();
+                        jobFlowNode.start();
                     }));
                    
                 }
@@ -98,7 +109,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                 else{
                     logger.info("Execute parrelJobFlowNode[id={},name={}] complete.",this.getNodeId(),this.getNodeName());
                 }
-                nodeComplete(null);
+//                nodeComplete(null);
             }
             return true;
         }
@@ -139,5 +150,46 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         }
     }
 
+
+    /**
+     * 某个并行分支完成时回调
+     * @param jobFlowNode
+     */
+    @Override
+    public void brachComplete(JobFlowNode jobFlowNode, ImportContext importContext, Throwable e) {
+//        if(liveNodes <= 0){
+//            this.nodeComplete(  importContext,   e);
+//        }
+        if(this.parrelJobFlowNodeContext.getStartNodes() <= 0 ) {
+            this.nodeComplete(importContext, e);
+        }
+    }
+
+    /**
+     * 某个并行分支完成时回调
+     *
+     * @param jobFlowNode
+     * @param e
+     */
+    @Override
+    public void brachComplete(JobFlowNode jobFlowNode, Throwable e) {
+        if(this.parrelJobFlowNodeContext.getStartNodes() <= 0 ) {
+            this.nodeComplete(e);
+        }
+    }
+
+    /**
+     * 某个并行分支完成时回调
+     *
+     * @param jobFlowNode
+     * @param taskContext
+     * @param e
+     */
+    @Override
+    public void brachComplete(JobFlowNode jobFlowNode, TaskContext taskContext, Throwable e) {
+        if(this.parrelJobFlowNodeContext.getStartNodes() <= 0 ) {
+            this.nodeComplete(e);
+        }
+    }
     
 }

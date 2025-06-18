@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow;
+package org.frameworkset.tran.jobflow.context;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -15,17 +15,25 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import org.frameworkset.util.concurrent.IntegerCount;
+
+import java.util.Map;
+
 /**
- * 
+ * <p>Description: </p>
+ * <p></p>
+ *
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class ParrelJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder{
+public interface JobFlowExecuteContext {
+    Object getContextData(String name);
     
-    
-    
-    public ParrelJobFlowNodeBuilder( ){
-        super(JobFlowNodeType.PARREL);
-    }
+    int increamentNums();
 
+    void putAll(Map<String, Object> contextDatas);
+
+    void addContextData(String name,Object data);
+
+    void clear();
 }

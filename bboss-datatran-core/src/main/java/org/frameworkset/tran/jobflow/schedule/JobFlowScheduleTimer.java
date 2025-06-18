@@ -16,7 +16,7 @@ package org.frameworkset.tran.jobflow.schedule;
  */
 
 import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -19,10 +19,14 @@ package org.frameworkset.tran.jobflow;
 import groovy.lang.GroovyClassLoader;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.jobflow.context.DefaultJobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.context.JobFlowContext;
+import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleTimer;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.frameworkset.tran.schedule.TaskContext;
+import org.frameworkset.util.concurrent.IntegerCount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +44,7 @@ import static java.lang.Thread.sleep;
  */
 public class JobFlow {
     private static final Logger logger = LoggerFactory.getLogger(JobFlow.class);
+ 
     /**
      * 作业流程id
      */
@@ -61,9 +66,15 @@ public class JobFlow {
     private List<SimpleJobFlowNode> jobFlowNodes;
 
     private JobFlowExecuteContext jobFlowExecuteContext;
+    private JobFlowContext jobFlowContext;
 
     private GroovyClassLoader groovyClassLoader ;
 
+    public JobFlow(){
+        jobFlowContext = new JobFlowContext(this);
+        initGroovyClassLoader();
+        this.jobFlowExecuteContext = new DefaultJobFlowExecuteContext();
+    }
     public GroovyClassLoader getGroovyClassLoader() {
         return groovyClassLoader;
     }
@@ -82,6 +93,7 @@ public class JobFlow {
 
     public void setStartJobFlowNode(JobFlowNode startJobFlowNode) {
         this.startJobFlowNode = startJobFlowNode;
+        this.startJobFlowNode.setJobFlowContext(this.jobFlowContext);
     }
 
     private String jobInfo ;
@@ -145,9 +157,7 @@ public class JobFlow {
             if(jobFlowStatus == JobFlowStatus.STARTED){
                 return;
             }           
-            initGroovyClassLoader();
-            JobFlowExecuteContext jobFlowExecuteContext = new DefaultJobFlowExecuteContext();
-            this.jobFlowExecuteContext = jobFlowExecuteContext;
+            
             jobFlowStatus = JobFlowStatus.STARTED;
         }
     }

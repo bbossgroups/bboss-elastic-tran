@@ -16,6 +16,9 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.jobflow.context.JobFlowContext;
+import org.frameworkset.tran.jobflow.context.ParrelJobFlowNodeContext;
+import org.frameworkset.tran.jobflow.context.SequenceJobFlowNodeContext;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +52,42 @@ public abstract class JobFlowNode {
      */
     protected JobFlowNode nextJobFlowNode;
 
+    /**
+     * 用于跟踪串行分支节点执行情况
+     */
+    protected SequenceJobFlowNodeContext containerSequenceJobFlowNodeContext;
+
+    /**
+     * 用于跟踪和记录并行分支节点执行情况
+     */
+    protected ParrelJobFlowNodeContext containerParrelJobFlowNodeContext;
+
+    /**
+     * 跟踪和记录工作流节点执行情况
+     */
+    protected JobFlowContext jobFlowContext;
+
     public void setCompositionJobFlowNode(CompositionJobFlowNode compositionJobFlowNode) {
         this.compositionJobFlowNode = compositionJobFlowNode;
+    }
+
+    public void setContainerSequenceJobFlowNodeContext(SequenceJobFlowNodeContext containerSequenceJobFlowNodeContext) {
+        this.containerSequenceJobFlowNodeContext = containerSequenceJobFlowNodeContext;
+        if(this.nextJobFlowNode != null){
+            this.nextJobFlowNode.setContainerSequenceJobFlowNodeContext(containerSequenceJobFlowNodeContext);
+        }
+    }
+
+    public void setJobFlowContext(JobFlowContext jobFlowContext) {
+        this.jobFlowContext = jobFlowContext;
+        if(this.nextJobFlowNode != null){
+            this.nextJobFlowNode.setJobFlowContext(jobFlowContext);
+        }
+    }
+
+    public void setContainerParrelJobFlowNodeContext(ParrelJobFlowNodeContext containerParrelJobFlowNodeContext) {
+        this.containerParrelJobFlowNodeContext = containerParrelJobFlowNodeContext;
+
     }
 
     public CompositionJobFlowNode getCompositionJobFlowNode() {
@@ -153,6 +190,7 @@ public abstract class JobFlowNode {
      */
     public void nodeComplete(Throwable throwable){
 
+        decreament();
         if(this.nextJobFlowNode != null){
             this.nextJobFlowNode.start();
         }
@@ -179,7 +217,7 @@ public abstract class JobFlowNode {
      * 如果没有父节点，则可能已经到达工作流的第一个节点，也可能到达并行节点的分支起点
      */
     public void nodeComplete(ImportContext importContext, Throwable e){
-       
+        decreament();
         if(this.nextJobFlowNode != null){
             logger_.info(this.toString() +" execute complete and start nextJobFlowNode["+nextJobFlowNode.toString()+"]" );
             this.nextJobFlowNode.start();
@@ -243,9 +281,11 @@ public abstract class JobFlowNode {
      * 如果有父节点则反向通知父节点，当前节点已经完成任务,可以采取下一步的措施
      * 如果没有父节点，则可能已经到达工作流的第一个节点，也可能到达并行节点的分支起点
      */
+    @Deprecated
     public void nodeComplete(TaskContext taskContext, Throwable e){
+        decreament();
         if(this.nextJobFlowNode != null){
-//            this.nextJobFlowNode.start();
+            this.nextJobFlowNode.start();
         }
         else{
             if(parentJobFlowNode != null){
@@ -265,6 +305,7 @@ public abstract class JobFlowNode {
     /**
      * 每次作业调度任务迭代结束时触发，通知父节点，当前节点任务执行结束
      */
+    @Deprecated
     public void nextNodeComplete(TaskContext taskContext, Throwable e){
         if(this.parentJobFlowNode != null){
             parentJobFlowNode.nextNodeComplete(  taskContext,   e);
@@ -291,5 +332,34 @@ public abstract class JobFlowNode {
         StringBuilder b = new StringBuilder();
         b.append("{id=").append(this.getNodeId()).append(",nodeName=").append(this.getNodeName()).append(",nodeType=").append(this.getJobFlowNodeType().name()).append("}");
         return b.toString();
+    }
+
+    /**
+     * 节点启动时，更新工作流、分支（串行/并行)节点运行数量
+     */
+    protected void increament(){
+        if(this.jobFlowContext != null){
+            jobFlowContext.increament();
+        }
+        if(this.containerSequenceJobFlowNodeContext != null){
+            this.containerSequenceJobFlowNodeContext.increament();
+        }
+        if(this.containerParrelJobFlowNodeContext != null){
+            this.containerParrelJobFlowNodeContext.increament();
+        }
+    }
+    /**
+     * 节点完成时，更新工作流、分支（串行/并行)节点运行数量
+     */
+    protected void decreament(){
+        if(this.containerSequenceJobFlowNodeContext != null){
+            containerSequenceJobFlowNodeContext.decreament();
+        }
+        if(this.jobFlowContext != null){
+            this.jobFlowContext.decreament();
+        }
+        if(this.containerParrelJobFlowNodeContext != null){
+            this.containerParrelJobFlowNodeContext.decreament();
+        }
     }
 }

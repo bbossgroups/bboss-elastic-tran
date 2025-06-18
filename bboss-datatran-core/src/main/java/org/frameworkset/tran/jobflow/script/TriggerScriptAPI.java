@@ -16,7 +16,7 @@ package org.frameworkset.tran.jobflow.script;
  */
 
 import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.frameworkset.tran.jobflow.JobFlowNode;
 
 /**
