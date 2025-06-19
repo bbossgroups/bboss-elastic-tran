@@ -15,39 +15,106 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
-import org.frameworkset.util.concurrent.IntegerCount;
-
 /**
  * 节点运行情况统计上下文
  * @author biaoping.yin
  * @Date 2025/6/18
  */
-public abstract class StaticContext {
-    private IntegerCount startNodes ;
+public class StaticContext {
+    private int runningNodes;
+    private int startNodes ;
+    private int completeNodes;
+    private Object updateLock = new Object();
     public StaticContext(){
-        this.startNodes = new IntegerCount();
+        
     }
+
+    /**
+     * 拷贝节点状态信息
+     * @return
+     */
+    public StaticContext copy(){
+        synchronized (updateLock) {
+            StaticContext staticContext = new StaticContext();
+            staticContext.startNodes = this.startNodes;
+            staticContext.completeNodes = this.completeNodes;
+            staticContext.runningNodes = this.runningNodes;
+            return staticContext;
+        }
+    }
+
+    /**
+     * 重置计数器
+     */
     public void reset() {
-        startNodes.reset();
+        synchronized (updateLock) {
+            startNodes = 0;
+            completeNodes = 0;
+            runningNodes = 0;
+        }
     }
+
+    /**
+     * 获取所有已经启动的节点
+     * @return
+     */
     public int getStartNodes() {
-        return startNodes.getCount();
+        synchronized (updateLock) {
+            return startNodes;
+        }
     }
 
     /**
      * 节点启动时，增加启动节点计数
      * @return
      */
-    public  int increament() {
-
-        return startNodes.increament() ;
+    public  int nodeStart() {
+        synchronized (updateLock) {
+            startNodes ++;
+            runningNodes ++;
+            return startNodes;
+        }
     }
 
     /**
-     * 节点完成时，减少启动节点计数
+     * 节点完成时，减少启动节点计数,完成计数器加1
      * @return
      */
-    public int decreament() {
-        return startNodes.decreament() ;
+    public int nodeComplete() {
+        synchronized (updateLock) {
+            runningNodes --;//正在运行节点数量递减
+            completeNodes++;
+            return completeNodes;
+        }
+    }
+
+    /**
+     * 获取运行中的节点
+     * @return
+     */
+    public int getRunningNodes(){
+        synchronized (updateLock) {
+            return runningNodes;
+        }
+    }
+
+    /**
+     * 获取已经执行完成的节点
+     * @return
+     */
+    public int getCompleteNodes(){
+        synchronized (updateLock) {
+            return completeNodes;
+        }
+    }
+
+    /**
+     * 判断所有启动的节点是否都已经执行完成
+     * @return
+     */
+    public boolean allNodeComplete(){
+        synchronized (updateLock) {
+            return completeNodes == startNodes;
+        }
     }
 }

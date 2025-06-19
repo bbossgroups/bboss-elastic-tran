@@ -35,4 +35,12 @@ public class ParrelJobFlowNodeContext extends StaticContext{
     public ParrelJobFlowNode getParrelJobFlowNode() {
         return parrelJobFlowNode;
     }
+
+    /**
+     * 节点完成时，减少启动节点计数,完成计数器加1
+     * @return
+     */
+    public int nodeComplete() {
+        return super.nodeComplete();
+    }
 }

@@ -21,6 +21,9 @@ import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
 /**
  *
  * @author biaoping.yin
@@ -56,8 +59,15 @@ public class SimpleJobFlowNode extends JobFlowNode{
      * 启动流程当前节点
      */
     @Override
-    public boolean start(){
-        increament();
+    public boolean start(CyclicBarrier barrier){
+        nodeStart();
+        if(barrier != null) {
+            try {
+                barrier.await();
+            } catch (InterruptedException e) {
+            } catch (BrokenBarrierException e) {
+            }
+        }
         if(this.assertTrigger()) {
             logger.info("Start SimpleJobFlowNode[id={},name={}] begin.",this.getNodeId(),this.getNodeName());
             dataStream = importBuilder.builder(true);

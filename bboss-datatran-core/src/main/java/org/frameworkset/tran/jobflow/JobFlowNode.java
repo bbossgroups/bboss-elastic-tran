@@ -23,6 +23,8 @@ import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CyclicBarrier;
+
 
 /**
  *
@@ -168,7 +170,14 @@ public abstract class JobFlowNode {
     /**
      * 启动流程当前节点
      */
-    public abstract boolean start();
+    public abstract boolean start(CyclicBarrier barrier);
+    public void start(){
+        start(null);
+    }
+//    /**
+//     * 启动流程当前节点
+//     */
+//    public abstract boolean start();
     /**
      * 停止流程当前节点
      */
@@ -192,13 +201,14 @@ public abstract class JobFlowNode {
      */
     public void nodeComplete(Throwable throwable){
 
-        decreament();
+        complete();
+        release();
         if(this.nextJobFlowNode != null){
             this.nextJobFlowNode.start();
         }
         else{
             if(parentJobFlowNode != null){
-                logger_.info(this.toString() +" execute complete and call parentJobFlowNode["+parentJobFlowNode.toString()+"]‘s nextNodeComplete" );
+                logger_.info(this +" execute complete and call parentJobFlowNode["+parentJobFlowNode.toString()+"]‘s nextNodeComplete" );
                 parentJobFlowNode.nextNodeComplete(     throwable);
             }
             else{
@@ -219,7 +229,7 @@ public abstract class JobFlowNode {
      * 如果没有父节点，则可能已经到达工作流的第一个节点，也可能到达并行节点的分支起点
      */
     public void nodeComplete(ImportContext importContext, Throwable e){
-        decreament();
+        complete();
         release();
         if(this.nextJobFlowNode != null){
             logger_.info(this +" execute complete and start nextJobFlowNode["+nextJobFlowNode.toString()+"]" );
@@ -286,7 +296,8 @@ public abstract class JobFlowNode {
      */
     @Deprecated
     public void nodeComplete(TaskContext taskContext, Throwable e){
-        decreament();
+        complete();
+        release();
         if(this.nextJobFlowNode != null){
             this.nextJobFlowNode.start();
         }
@@ -340,32 +351,32 @@ public abstract class JobFlowNode {
     /**
      * 节点启动时，更新工作流、分支（串行/并行)节点运行数量
      */
-    protected void increament(){
+    protected void nodeStart(){
         if(this.jobFlowContext != null){
             jobFlowContext.setRunningJobFlowNode(this);
-            jobFlowContext.increament();
+            jobFlowContext.nodeStart();
             
         }
         if(this.containerSequenceJobFlowNodeContext != null){
             this.containerSequenceJobFlowNodeContext.setRunningJobFlowNode(this);
-            this.containerSequenceJobFlowNodeContext.increament();
+            this.containerSequenceJobFlowNodeContext.nodeStart();
         }
         if(this.containerParrelJobFlowNodeContext != null){
-            this.containerParrelJobFlowNodeContext.increament();
+            this.containerParrelJobFlowNodeContext.nodeStart();
         }
     }
     /**
-     * 节点完成时，更新工作流、分支（串行/并行)节点运行数量
+     * 节点完成时，更新工作流、分支（串行/并行)节点完成节点数量
      */
-    protected void decreament(){
+    protected void complete(){
         if(this.containerSequenceJobFlowNodeContext != null){
-            containerSequenceJobFlowNodeContext.decreament();
+            containerSequenceJobFlowNodeContext.nodeComplete();
         }
         if(this.jobFlowContext != null){
-            this.jobFlowContext.decreament();
+            this.jobFlowContext.nodeComplete();
         }
         if(this.containerParrelJobFlowNodeContext != null){
-            this.containerParrelJobFlowNodeContext.decreament();
+            this.containerParrelJobFlowNodeContext.nodeComplete();
         }
     }
 }

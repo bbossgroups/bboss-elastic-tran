@@ -25,9 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * 并行任务流程节点
@@ -62,7 +60,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             jobFlowNodes = new ArrayList<>();
         }
         jobFlowNode.setCompositionJobFlowNode(this);
-        jobFlowNode.setContainerParrelJobFlowNodeContext(this.containerParrelJobFlowNodeContext);
+        jobFlowNode.setContainerParrelJobFlowNodeContext(this.parrelJobFlowNodeContext);
         this.jobFlowNodes.add(jobFlowNode);
     }
     /**
@@ -75,9 +73,16 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      * 启动流程当前节点
      */
     @Override
-    public boolean start(){
+    public boolean start(CyclicBarrier barrier){
         reset();
-        increament();
+        nodeStart();
+        if(barrier != null) {
+            try {
+                barrier.await();
+            } catch (InterruptedException e) {                
+            } catch (BrokenBarrierException e) {
+            }
+        }
         if(assertTrigger()) {
             if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
                 throw new JobFlowException("ParrelJobFlowNode must set jobFlowNodes,please set jobFlowNodes first.");
@@ -86,11 +91,15 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                 logger.info("Start parrelJobFlowNode[id={},name={}] begin.",this.getNodeId(),this.getNodeName());
                 ExecutorService blockedExecutor = buildThreadPool();
                 List<Future> futureList = new ArrayList<>();
+                CyclicBarrier thisBarrier = new CyclicBarrier(jobFlowNodes.size(), () -> {
+                    logger.info("All Parrel jobFlowNodes[{}] ready to running.",jobFlowNodes.size());
+                });
                 for (int i = 0; i < jobFlowNodes.size(); i++) {
                     JobFlowNode jobFlowNode = jobFlowNodes.get(i);
                     futureList.add(blockedExecutor.submit(() -> {
-                        jobFlowNode.start();
+                        jobFlowNode.start(thisBarrier);
                     }));
+                    
                    
                 }
                 List<Throwable> exceptions = null;
@@ -164,11 +173,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void brachComplete(JobFlowNode jobFlowNode, ImportContext importContext, Throwable e) {
-//        if(liveNodes <= 0){
-//            this.nodeComplete(  importContext,   e);
-//        }
-        if(this.parrelJobFlowNodeContext.getStartNodes() <= 0 ) {
-            
+        if(this.parrelJobFlowNodeContext.allNodeComplete() ) {            
             this.nodeComplete(importContext, e);
         }
     }

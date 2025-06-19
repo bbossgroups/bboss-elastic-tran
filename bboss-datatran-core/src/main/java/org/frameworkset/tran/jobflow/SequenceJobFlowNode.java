@@ -21,6 +21,9 @@ import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
 /**
  * 顺序执行的复合流程节点
  * @author biaoping.yin
@@ -57,10 +60,17 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      * 启动流程当前节点
      */
     @Override
-    public boolean start(){
+    public boolean start(CyclicBarrier barrier){
 
         reset();
-        increament();
+        nodeStart();
+        if(barrier != null) {
+            try {
+                barrier.await();
+            } catch (InterruptedException e) {
+            } catch (BrokenBarrierException e) {
+            }
+        }
         if(assertTrigger()) {
             if (headerJobFlowNode == null) {
                 throw new JobFlowException("SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"]:headerJobFlowNode is null.");
