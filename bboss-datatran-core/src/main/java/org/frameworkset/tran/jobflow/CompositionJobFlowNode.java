@@ -16,13 +16,10 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.jobflow.context.StaticContext;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.util.concurrent.IntegerCount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,42 +33,8 @@ public abstract class CompositionJobFlowNode extends JobFlowNode{
      * 并行节点作业配置
      */
     protected List<JobFlowNode> jobFlowNodes;
- 
- 
 
-    /**
-     * 启动流程当前节点
-     */
-    @Override
-    public abstract boolean start();
-
-    /**
-     * 停止流程当前节点
-     */
-    @Override
-    public abstract void stop();
-
-    /**
-     * 暂停流程节点
-     */
-    @Override
-    public void pause() {
-        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
-            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
-            jobFlowNode.pause();
-        }
-    }
-
-    /**
-     * 唤醒暂停流程节点
-     */
-    @Override
-    public void consume() {
-        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
-            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
-            jobFlowNode.consume();
-        }
-    }
+   
 
     /**
      * 分支完成

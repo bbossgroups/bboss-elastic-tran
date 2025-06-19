@@ -80,21 +80,21 @@ public class SimpleJobFlowNode extends JobFlowNode{
     @Override
     public void stop(){
         JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
-        
+        logger.info("Stop SimpleJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] begin.");
        
         if(dataStream != null){
             dataStream.destroy(true);
         }
         logger.info("Stop SimpleJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] complete.");
-        if(this.nextJobFlowNode != null){
-            try {
-                this.nextJobFlowNode.stop();
-//                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
-            }
-            catch (Exception e){
-                logger.warn("Stop nextJobFlowNode[id="+nextJobFlowNode.getNodeId()+",name="+nextJobFlowNode.getNodeName()+"] failed:",e);
-            }
-        }
+//        if(this.nextJobFlowNode != null){
+//            try {
+//                this.nextJobFlowNode.stop();
+////                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
+//            }
+//            catch (Exception e){
+//                logger.warn("Stop nextJobFlowNode[id="+nextJobFlowNode.getNodeId()+",name="+nextJobFlowNode.getNodeName()+"] failed:",e);
+//            }
+//        }
     }
 
     /**

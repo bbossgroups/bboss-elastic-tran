@@ -35,6 +35,20 @@ public enum JobFlowStatus {
     /**
      * 已停止状态
      */
-    STOPED
+    STOPED,
+
+    /**
+     * 暂停状态
+     */
+    PAUSE,
+    /**
+     * 从暂停恢复到运行状态
+     */
+    RUNNING,
+
+    /**
+     * 已完成
+     */
+    COMPLETE
 
 }

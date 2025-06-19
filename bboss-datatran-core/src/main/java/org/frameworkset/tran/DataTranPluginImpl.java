@@ -21,6 +21,7 @@ import com.frameworkset.common.poolman.util.SQLManager;
 import com.frameworkset.common.poolman.util.SQLUtil;
 import com.frameworkset.orm.annotation.BatchContext;
 import com.frameworkset.util.SimpleStringUtil;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.frameworkset.tran.config.DynamicParam;
 import org.frameworkset.tran.config.DynamicParamContext;
 import org.frameworkset.tran.config.JobInputParamGroup;
@@ -37,7 +38,6 @@ import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.schedule.*;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.frameworkset.tran.status.*;
-import org.frameworkset.tran.task.TaskCommand;
 import org.frameworkset.tran.util.TranConstant;
 import org.frameworkset.tran.util.TranUtil;
 import org.frameworkset.util.ResourceEnd;
@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -724,6 +725,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
         Date scheduleEndDate = importContext.getScheduleEndDate();
         if(scheduled && scheduleEndDate != null){
 
+            if(importContext.isExecuteOneTime()){
+                logger.info("一次性执行作业，忽略Start EndSchedule Thread：scheduleEndDate[{}]", DateFormatUtils.format(scheduleEndDate,"yyyy-MM-dd HH:mm:ss.SSS"));
+            }
             synchronized (startEndScheduleThreadLock) {
                 if(scheduledEndThread == null) {
                     final long waitTime = scheduleEndDate.getTime() - System.currentTimeMillis();
@@ -1030,6 +1034,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	 * 插件运行状态
 	 */
 	protected volatile int status = TranConstant.PLUGIN_INIT;
+    protected volatile CountDownLatch latch = new CountDownLatch(1);
 	protected volatile boolean hasTran = false;
     protected ReentrantLock lock = new ReentrantLock();
 	/**
@@ -1058,6 +1063,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
                     this.status = TranConstant.PLUGIN_STOPREADY;
                 else
                     this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+                latch.countDown();
             }
         }
         finally {
@@ -1111,6 +1117,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
                         this.status = TranConstant.PLUGIN_STOPREADY;
                     else
                         this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+                    latch.countDown();
                 }
             }
         }
@@ -1163,11 +1170,12 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 	}
 
-    protected boolean canFinishTran(boolean onceTaskFinish){
+    protected void canFinishTran(boolean onceTaskFinish){
         lock.lock();
         try{
 //            if(!onceTaskFinish) //如果是一次性任务结束，不需要检查TranConstant.PLUGIN_INIT状态，如果是通过destroy结束任务，则需要判断TranConstant.PLUGIN_INIT
-                return status == TranConstant.PLUGIN_INIT || status == TranConstant.PLUGIN_STOPREADY  || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+            if( status == TranConstant.PLUGIN_INIT )
+                return ;
 //            else{
 //                return status == TranConstant.PLUGIN_STOPREADY  || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
 //            }
@@ -1175,19 +1183,38 @@ public class DataTranPluginImpl implements DataTranPlugin {
         finally {
             lock.unlock();
         }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+        }
+//        lock.lock();
+//        try{
+////            if(!onceTaskFinish) //如果是一次性任务结束，不需要检查TranConstant.PLUGIN_INIT状态，如果是通过destroy结束任务，则需要判断TranConstant.PLUGIN_INIT
+//                return status == TranConstant.PLUGIN_INIT || status == TranConstant.PLUGIN_STOPREADY  || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+////            else{
+////                return status == TranConstant.PLUGIN_STOPREADY  || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+////            }
+//        }
+//        finally {
+//            lock.unlock();
+//        }
     }
 
 	protected void checkTranFinished(boolean onceTaskFinished){
-		do {
-			if (canFinishTran( onceTaskFinished)) {
-				break;
-			}
-			try {
-				sleep(1000l);
-			} catch (InterruptedException e) {
-
-			}
-		} while (true);
+        canFinishTran( onceTaskFinished);
+//		do {
+//			if (canFinishTran( onceTaskFinished)) {
+//				break;
+//			}
+//			try {
+//				sleep(1000l);
+//			} catch (InterruptedException e) {
+//                Thread.currentThread().interrupt();
+//                
+//			}
+//		} while (true);
 	}
     protected void destroyExportResultHandler(){
         importContext.getOutputConfig().destroyExportResultHandler();
@@ -1326,10 +1353,12 @@ public class DataTranPluginImpl implements DataTranPlugin {
                 }
                 else{
                     this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+                    latch.countDown();
                 }
             }
             else {
                 this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+                latch.countDown();
             }
         }
         finally {

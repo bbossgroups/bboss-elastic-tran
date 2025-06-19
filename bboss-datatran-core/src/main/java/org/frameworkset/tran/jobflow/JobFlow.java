@@ -17,8 +17,10 @@ package org.frameworkset.tran.jobflow;
 
 
 import groovy.lang.GroovyClassLoader;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.jobflow.context.AssertResult;
 import org.frameworkset.tran.jobflow.context.DefaultJobFlowExecuteContext;
 import org.frameworkset.tran.jobflow.context.JobFlowContext;
 import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
@@ -32,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
 
 import static java.lang.Thread.sleep;
 
@@ -49,7 +52,7 @@ public class JobFlow {
      * 作业流程id
      */
     private String jobFlowId;
-    private JobFlowStatus jobFlowStatus = JobFlowStatus.INIT;
+//    private JobFlowStatus jobFlowStatus = JobFlowStatus.INIT;
     /**
      * 作业流程名称
      */
@@ -63,7 +66,6 @@ public class JobFlow {
      */
     private JobFlowNode startJobFlowNode;
     private JobFlowScheduleTimer jobFlowScheduleTimer;
-    private List<SimpleJobFlowNode> jobFlowNodes;
 
     private JobFlowExecuteContext jobFlowExecuteContext;
     private JobFlowContext jobFlowContext;
@@ -111,8 +113,10 @@ public class JobFlow {
                 stop(true);
             }
         });
+        reset();
         this.startJobFlowNode.start();
     }
+
 
     private Object startEndScheduleThreadLock = new Object();
     private Thread scheduledEndThread;
@@ -121,9 +125,13 @@ public class JobFlow {
      * @param scheduleEndCall
      */
     protected void startEndScheduleThread( ScheduleEndCall scheduleEndCall){
+     
         Date scheduleEndDate = jobFlowScheduleConfig.getScheduleEndDate();
         if(scheduleEndDate != null){
-
+            if(jobFlowScheduleConfig.isExecuteOneTime()){
+                logger.info("一次性执行工作流，忽略Start EndSchedule Thread：scheduleEndDate[{}]",DateFormatUtils.format(scheduleEndDate,"yyyy-MM-dd HH:mm:ss.SSS"));
+                return;
+            }
             synchronized (startEndScheduleThreadLock) {
                 if(scheduledEndThread == null) {
                     final long waitTime = scheduleEndDate.getTime() - System.currentTimeMillis();
@@ -150,16 +158,15 @@ public class JobFlow {
             }
         }
     }
-    private Object statusChangeLock = new Object();
-    
+    /**
+     * 作业工作流每次调度执行时，重置工作流执行状态
+     */
+    private void reset(){
+        this.jobFlowContext.reset();
+    }
+
     public void initJob(){
-        synchronized (statusChangeLock) {
-            if(jobFlowStatus == JobFlowStatus.STARTED){
-                return;
-            }           
-            
-            jobFlowStatus = JobFlowStatus.STARTED;
-        }
+        jobFlowContext.initJob();            
     }
     /**
      * 启动工作流
@@ -167,6 +174,13 @@ public class JobFlow {
     public void start(){
         
        
+        //判断作业是否已经启动
+        AssertResult assertResult = jobFlowContext.assertStarted();
+        if(assertResult.isTrue()){
+            logger.warn("{} 已经启动：{}",jobInfo,assertResult.getJobFlowStatus().name());
+            return;
+        }
+        
         //一次性执行，定时执行处理
         if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTime() ){
             initJob();
@@ -201,25 +215,21 @@ public class JobFlow {
         stop(false);
 
     }
+    
+    
     /**
      * 停止工作流
      * @param fromScheduled 标记工作流停止操作是否是因为结束日期到达后触发 true 是 false 否
      */
     protected void stop(boolean fromScheduled){
-        synchronized (statusChangeLock) {
-            //作业未启动
-            if(jobFlowStatus == JobFlowStatus.INIT){
-                jobFlowStatus = JobFlowStatus.STOPED;
-                logger.info("Stop unstarted jobflow {} [fromScheduled={}] complete.", this.jobInfo, fromScheduled);
-                return;
-            }
-            if (jobFlowStatus == JobFlowStatus.STARTED && jobFlowStatus != JobFlowStatus.STOPPING) {
-
-                jobFlowStatus = JobFlowStatus.STOPPING;
-                logger.info("Stop {} [fromScheduled={}] start.", this.jobInfo, fromScheduled);
-                this.startJobFlowNode.stop();
+        
+        
+//                this.startJobFlowNode.stop();
+        boolean stopResult = this.jobFlowContext.stop(new Function() {
+            @Override
+            public Object apply(Object o) {
                 try {
-                    this.jobFlowScheduleTimer.stop();
+                    jobFlowScheduleTimer.stop();
                 } catch (Exception e) {
                 }
                 try {
@@ -229,27 +239,22 @@ public class JobFlow {
                 } catch (Exception e) {
                 }
                 if (!fromScheduled) {
-                    if (this.scheduledEndThread != null) {
+                    if (scheduledEndThread != null) {
                         try {
-                            this.scheduledEndThread.interrupt();
-                            this.scheduledEndThread.join();
+                            scheduledEndThread.interrupt();
+                            scheduledEndThread.join();
                         } catch (Exception e) {
 
                         }
                     }
                 }
-                jobFlowStatus = JobFlowStatus.STOPED;
-                logger.info("Stop {} [fromScheduled={}] complete.", this.jobInfo, fromScheduled);
+                return null;
             }
-            else{
-                if(jobFlowStatus == JobFlowStatus.STOPPING){
-                    logger.info("Jobflow {} [fromScheduled={}] STOPPING.", this.jobInfo, fromScheduled);
-                }
-                else{
-                    logger.info("Jobflow {} [fromScheduled={}] stoped,ignore stop operation.", this.jobInfo, fromScheduled);
-                }
-            }
-        }
+        }, fromScheduled);
+        
+         
+             
+        
             
     }
 
@@ -257,14 +262,15 @@ public class JobFlow {
      * 暂停工作流
      */
     public void pause(){
-        this.startJobFlowNode.pause();
+//        this.startJobFlowNode.pause();
+        this.jobFlowContext.pause();
     }
 
     /**
      * 唤醒工作流
      */
     public void consume(){
-        this.startJobFlowNode.consume();
+        this.jobFlowContext.consume();
     }
 
     public JobFlowExecuteContext getJobFlowExecuteContext() {
@@ -297,6 +303,7 @@ public class JobFlow {
     public void complete(ImportContext importContext, Throwable e) {
         this.jobFlowExecuteContext.increamentNums();
         this.jobFlowExecuteContext.clear();
+        this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
     }
 
     /**
@@ -305,6 +312,7 @@ public class JobFlow {
     public void complete(Throwable e) {
         this.jobFlowExecuteContext.increamentNums();
         this.jobFlowExecuteContext.clear();
+        this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
     }
 
     /**
@@ -313,6 +321,20 @@ public class JobFlow {
     public void complete(TaskContext taskContext, Throwable e) {
         this.jobFlowExecuteContext.increamentNums();
         this.jobFlowExecuteContext.clear();
+        this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
+    }
+    
+    private void complete(){
+        this.jobFlowExecuteContext.increamentNums();
+        this.jobFlowExecuteContext.clear();
+        if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTime()){
+            //一次性执行，更新状态为停止
+            this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.STOPED);
+        }
+        else {
+            //周期性执行，更新状态为调度一次完成
+            this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
+        }
     }
 
     public boolean isEnableAutoPauseScheduled() {

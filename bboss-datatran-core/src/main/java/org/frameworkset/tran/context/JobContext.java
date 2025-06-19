@@ -16,7 +16,7 @@ package org.frameworkset.tran.context;
  */
 
 import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.metrics.BaseMetricsLogReport;
 import org.slf4j.Logger;

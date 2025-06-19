@@ -29,7 +29,8 @@ import org.slf4j.LoggerFactory;
 public class SequenceJobFlowNode extends CompositionJobFlowNode{
     private static Logger logger = LoggerFactory.getLogger(SequenceJobFlowNode.class);
 
-    private JobFlowNode headerJobFlowNode;
+    private JobFlowNode headerJobFlowNode;    
+    
     private SequenceJobFlowNodeContext sequenceJobFlowNodeContext;
     public SequenceJobFlowNode(){
         this.jobFlowNodeType = JobFlowNodeType.SEQUENCE;
@@ -47,11 +48,18 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
         headerJobFlowNode.setContainerSequenceJobFlowNodeContext(this.sequenceJobFlowNodeContext);
     }
     /**
+     * 作业工作流每次调度执行串行分支节点时，重置串行分支节点执行状态
+     */
+    private void reset(){
+        this.sequenceJobFlowNodeContext.reset();
+    }
+    /**
      * 启动流程当前节点
      */
     @Override
     public boolean start(){
 
+        reset();
         increament();
         if(assertTrigger()) {
             if (headerJobFlowNode == null) {
@@ -82,27 +90,28 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void stop() {
-
+        logger.info("Stop SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] begin.");
         try {
-            for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
-                JobFlowNode jobFlowNode = jobFlowNodes.get(i);
-                jobFlowNode.stop();
-            }
+//            for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
+//                JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+//                jobFlowNode.stop();
+//            }
+            this.sequenceJobFlowNodeContext.stop();
         }
         catch (Exception e){
             logger.warn("Stop SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] failed:",e);
         }
 
         logger.info("Stop SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] complete.");
-        if(this.nextJobFlowNode != null){
-            try {
-                this.nextJobFlowNode.stop();
-//                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
-            }
-            catch (Exception e){
-                logger.warn("Stop nextJobFlowNode[id="+nextJobFlowNode.getNodeId()+",name="+nextJobFlowNode.getNodeName()+"] failed:",e);
-            }
-        }
+//        if(this.nextJobFlowNode != null){
+//            try {
+//                this.nextJobFlowNode.stop();
+////                logger.warn("Stop nextJobFlowNode of["+this.getNodeName()+"] complete.");
+//            }
+//            catch (Exception e){
+//                logger.warn("Stop nextJobFlowNode[id="+nextJobFlowNode.getNodeId()+",name="+nextJobFlowNode.getNodeName()+"] failed:",e);
+//            }
+//        }
     }
 
     /**
@@ -138,5 +147,27 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
     @Override
     public void brachComplete(JobFlowNode jobFlowNode, TaskContext taskContext, Throwable e) {
         this.nodeComplete(e);
+    }
+
+    /**
+     * 暂停流程节点
+     */
+    @Override
+    public void pause() {
+        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
+            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+            jobFlowNode.pause();
+        }
+    }
+
+    /**
+     * 唤醒暂停流程节点
+     */
+    @Override
+    public void consume() {
+        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
+            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+            jobFlowNode.consume();
+        }
     }
 }

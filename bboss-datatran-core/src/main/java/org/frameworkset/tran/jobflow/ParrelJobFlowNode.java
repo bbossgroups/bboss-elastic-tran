@@ -19,7 +19,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.jobflow.context.ParrelJobFlowNodeContext;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.util.concurrent.IntegerCount;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +65,18 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         jobFlowNode.setContainerParrelJobFlowNodeContext(this.containerParrelJobFlowNodeContext);
         this.jobFlowNodes.add(jobFlowNode);
     }
-
+    /**
+     * 作业工作流每次调度执行并行分支节点时，重置并行分支节点执行状态
+     */
+    private void reset(){
+        this.parrelJobFlowNodeContext.reset();
+    }
     /**
      * 启动流程当前节点
      */
     @Override
     public boolean start(){
+        reset();
         increament();
         if(assertTrigger()) {
             if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
@@ -121,9 +126,13 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         
     }
 
-    /**
-     * 停止流程当前节点
-     */
+    @Override
+    protected void release(){
+        if(blockedExecutor != null){
+            blockedExecutor.shutdown();
+        }
+    }
+    
     /**
      * 停止流程当前节点
      */
@@ -134,9 +143,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             JobFlowNode jobFlowNode = jobFlowNodes.get(i);
             jobFlowNode.stop();
         }
-        if(blockedExecutor != null){
-            blockedExecutor.shutdown();
-        }
+        release();
 
         logger.info("Stop ParrelJobFlowNode[id={},nodeName={}] complete.",this.getNodeId(),this.getNodeName());
         if(this.nextJobFlowNode != null){
@@ -161,6 +168,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
 //            this.nodeComplete(  importContext,   e);
 //        }
         if(this.parrelJobFlowNodeContext.getStartNodes() <= 0 ) {
+            
             this.nodeComplete(importContext, e);
         }
     }
@@ -191,5 +199,25 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             this.nodeComplete(e);
         }
     }
-    
+    /**
+     * 暂停流程节点
+     */
+    @Override
+    public void pause() {
+        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
+            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+            jobFlowNode.pause();
+        }
+    }
+
+    /**
+     * 唤醒暂停流程节点
+     */
+    @Override
+    public void consume() {
+        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
+            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+            jobFlowNode.consume();
+        }
+    }
 }

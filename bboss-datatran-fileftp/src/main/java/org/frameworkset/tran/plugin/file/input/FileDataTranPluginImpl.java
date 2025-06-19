@@ -159,20 +159,20 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
 
     }
 
-    protected boolean canFinishTran(boolean onceTaskFinish){
-        lock.lock();
-        try{
-            if(!onceTaskFinish) { //如果是一次性任务结束，不需要检查TranConstant.PLUGIN_INIT状态，如果是通过destroy结束任务，则需要判断TranConstant.PLUGIN_INIT
-                return status == TranConstant.PLUGIN_INIT || status == TranConstant.PLUGIN_STOPREADY || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-            }
-            else{
-                return status == TranConstant.PLUGIN_STOPREADY  || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-            }
-        }
-        finally {
-            lock.unlock();
-        }
-    }
+//    protected boolean canFinishTran(boolean onceTaskFinish){
+//        lock.lock();
+//        try{
+//            if(!onceTaskFinish) { //如果是一次性任务结束，不需要检查TranConstant.PLUGIN_INIT状态，如果是通过destroy结束任务，则需要判断TranConstant.PLUGIN_INIT
+//                return status == TranConstant.PLUGIN_INIT || status == TranConstant.PLUGIN_STOPREADY || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+//            }
+//            else{
+//                return status == TranConstant.PLUGIN_STOPREADY  || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+//            }
+//        }
+//        finally {
+//            lock.unlock();
+//        }
+//    }
 	public boolean runFileReadTask(FileConfig fileConfig,Status status,long pointer,boolean resetFileInfo){
 		//创建一个文件对应的交换通道
         FileTaskContext taskContext = null;
@@ -537,14 +537,17 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                             //三种扫描状态：未开始扫描，扫描开始，扫描结束
                             if(isScanInitOrFinish) {//如果还未开始扫描或者扫描结束
                                 status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+                                latch.countDown();
                             }
                             else{//如果正在扫描
                                 status = TranConstant.PLUGIN_STOPAPPENDING;
                             }
+                            
                         }
                     }
                     else {
                         status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+                        latch.countDown();
                     }
                 }
                 finally {

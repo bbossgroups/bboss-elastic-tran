@@ -15,39 +15,29 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
-import org.frameworkset.util.concurrent.IntegerCount;
+import org.frameworkset.tran.jobflow.JobFlowStatus;
 
 /**
- * 节点运行情况统计上下文
  * @author biaoping.yin
- * @Date 2025/6/18
+ * @Date 2025/6/19
  */
-public abstract class StaticContext {
-    private IntegerCount startNodes ;
-    public StaticContext(){
-        this.startNodes = new IntegerCount();
-    }
-    public void reset() {
-        startNodes.reset();
-    }
-    public int getStartNodes() {
-        return startNodes.getCount();
+public class AssertResult {
+    private JobFlowStatus jobFlowStatus;
+    private boolean result;
+    public AssertResult(JobFlowStatus jobFlowStatus,boolean result){
+        this.jobFlowStatus = jobFlowStatus;
+        this.result = result;
     }
 
-    /**
-     * 节点启动时，增加启动节点计数
-     * @return
-     */
-    public  int increament() {
-
-        return startNodes.increament() ;
+    public JobFlowStatus getJobFlowStatus() {
+        return jobFlowStatus;
     }
 
-    /**
-     * 节点完成时，减少启动节点计数
-     * @return
-     */
-    public int decreament() {
-        return startNodes.decreament() ;
+    public boolean isTrue() {
+        return result == true;
+    }
+
+    public boolean isFalse() {
+        return result == false;
     }
 }

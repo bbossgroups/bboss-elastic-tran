@@ -66,7 +66,9 @@ public abstract class JobFlowNode {
      * 跟踪和记录工作流节点执行情况
      */
     protected JobFlowContext jobFlowContext;
-
+    protected void release(){
+        
+    }
     public void setCompositionJobFlowNode(CompositionJobFlowNode compositionJobFlowNode) {
         this.compositionJobFlowNode = compositionJobFlowNode;
     }
@@ -218,13 +220,14 @@ public abstract class JobFlowNode {
      */
     public void nodeComplete(ImportContext importContext, Throwable e){
         decreament();
+        release();
         if(this.nextJobFlowNode != null){
-            logger_.info(this.toString() +" execute complete and start nextJobFlowNode["+nextJobFlowNode.toString()+"]" );
+            logger_.info(this +" execute complete and start nextJobFlowNode["+nextJobFlowNode.toString()+"]" );
             this.nextJobFlowNode.start();
         }
         else{
             if(parentJobFlowNode != null){
-                logger_.info(this.toString() +" execute complete and call parentJobFlowNode["+parentJobFlowNode.toString()+"]‘s nextNodeComplete" );
+                logger_.info(this +" execute complete and call parentJobFlowNode["+parentJobFlowNode.toString()+"]‘s nextNodeComplete" );
                 parentJobFlowNode.nextNodeComplete(  importContext,   e);
             }
             else{
@@ -339,9 +342,12 @@ public abstract class JobFlowNode {
      */
     protected void increament(){
         if(this.jobFlowContext != null){
+            jobFlowContext.setRunningJobFlowNode(this);
             jobFlowContext.increament();
+            
         }
         if(this.containerSequenceJobFlowNodeContext != null){
+            this.containerSequenceJobFlowNodeContext.setRunningJobFlowNode(this);
             this.containerSequenceJobFlowNodeContext.increament();
         }
         if(this.containerParrelJobFlowNodeContext != null){

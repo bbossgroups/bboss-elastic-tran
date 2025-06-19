@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.jobflow.SequenceJobFlowNode;
 import org.frameworkset.util.concurrent.IntegerCount;
 
@@ -25,7 +26,14 @@ import org.frameworkset.util.concurrent.IntegerCount;
  */
 public class SequenceJobFlowNodeContext extends StaticContext{
     private SequenceJobFlowNode sequenceJobFlowNode;
-   
+
+    /**
+     * 当前正在执行的作业节点
+     */
+    private JobFlowNode runningJobFlowNode;
+
+    private Object runningJobFlowNodeLock = new Object();
+
     public SequenceJobFlowNodeContext(SequenceJobFlowNode sequenceJobFlowNode){
         super();
         this.sequenceJobFlowNode = sequenceJobFlowNode;
@@ -35,5 +43,25 @@ public class SequenceJobFlowNodeContext extends StaticContext{
 
     public SequenceJobFlowNode getSequenceJobFlowNode() {
         return sequenceJobFlowNode;
+    }
+
+    public void setRunningJobFlowNode(JobFlowNode runningJobFlowNode) {
+        synchronized (runningJobFlowNodeLock) {
+            this.runningJobFlowNode = runningJobFlowNode;
+        }
+    }
+
+    public JobFlowNode getRunningJobFlowNode() {
+        synchronized (runningJobFlowNodeLock) {
+            return runningJobFlowNode;
+        }
+    }
+
+    public void stop() {
+        synchronized (runningJobFlowNodeLock) {
+            if(runningJobFlowNode != null){
+                this.runningJobFlowNode.stop();
+            }
+        }
     }
 }
