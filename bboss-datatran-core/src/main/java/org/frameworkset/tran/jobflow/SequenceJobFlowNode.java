@@ -16,6 +16,8 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.jobflow.context.AssertResult;
+import org.frameworkset.tran.jobflow.context.JobFlowContext;
 import org.frameworkset.tran.jobflow.context.SequenceJobFlowNodeContext;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
@@ -71,7 +73,14 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
             } catch (BrokenBarrierException e) {
             }
         }
-        if(assertTrigger()) {
+        JobFlowContext jobFlowContext = this.jobFlow.getJobFlowContext();
+        AssertResult assertResult = jobFlowContext.assertStopped();
+        if(assertResult.isTrue())
+        {
+            logger.info("AssertStopped: true,ignore execute this SequenceJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
+            nodeComplete(null);
+        }
+        else if(assertTrigger()) {
             if (headerJobFlowNode == null) {
                 throw new JobFlowException("SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"]:headerJobFlowNode is null.");
             } else {

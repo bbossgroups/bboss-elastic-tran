@@ -17,6 +17,8 @@ package org.frameworkset.tran.jobflow;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.jobflow.context.AssertResult;
+import org.frameworkset.tran.jobflow.context.JobFlowContext;
 import org.frameworkset.tran.jobflow.context.ParrelJobFlowNodeContext;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
@@ -83,7 +85,14 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             } catch (BrokenBarrierException e) {
             }
         }
-        if(assertTrigger()) {
+        JobFlowContext jobFlowContext = this.jobFlow.getJobFlowContext();
+        AssertResult assertResult = jobFlowContext.assertStopped();
+        if(assertResult.isTrue())
+        {
+            logger.info("AssertStopped: true,ignore execute this ParrelJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
+            nodeComplete(null);
+        }
+        else if(assertTrigger()) {
             if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
                 throw new JobFlowException("ParrelJobFlowNode must set jobFlowNodes,please set jobFlowNodes first.");
             } else {

@@ -17,6 +17,8 @@ package org.frameworkset.tran.jobflow;
 
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.config.ImportBuilder;
+import org.frameworkset.tran.jobflow.context.AssertResult;
+import org.frameworkset.tran.jobflow.context.JobFlowContext;
 import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +70,14 @@ public class SimpleJobFlowNode extends JobFlowNode{
             } catch (BrokenBarrierException e) {
             }
         }
-        if(this.assertTrigger()) {
+        JobFlowContext jobFlowContext = this.jobFlow.getJobFlowContext();
+        AssertResult assertResult = jobFlowContext.assertStopped();
+        if(assertResult.isTrue())
+        {
+            logger.info("AssertStopped: true,ignore execute this SimpleJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
+            nodeComplete(null);
+        }        
+        else if(this.assertTrigger()) {
             logger.info("Start SimpleJobFlowNode[id={},name={}] begin.",this.getNodeId(),this.getNodeName());
             dataStream = importBuilder.builder(true);
             dataStream.execute();

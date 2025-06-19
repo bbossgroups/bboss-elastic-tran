@@ -81,6 +81,10 @@ public class JobFlow {
         return groovyClassLoader;
     }
 
+    public JobFlowContext getJobFlowContext() {
+        return jobFlowContext;
+    }
+
     private  void initGroovyClassLoader() {
         if(groovyClassLoader != null){
             return;
@@ -301,39 +305,39 @@ public class JobFlow {
      * 作业结束时触发工作流任务结束回调方法，等待下一次任务的调度，如果是一次性任务，则直接结束流程任务
      */
     public void complete(ImportContext importContext, Throwable e) {
-        this.jobFlowExecuteContext.increamentNums();
-        this.jobFlowExecuteContext.clear();
-        this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
+//        this.jobFlowExecuteContext.increamentNums();
+//        this.jobFlowExecuteContext.clear();
+//        this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
+        complete(e);
     }
 
-    /**
-     * 作业结束时触发工作流任务结束回调方法，等待下一次任务的调度，如果是一次性任务，则直接结束流程任务
-     */
-    public void complete(Throwable e) {
-        this.jobFlowExecuteContext.increamentNums();
-        this.jobFlowExecuteContext.clear();
-        this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
-    }
+ 
 
     /**
      * 每次作业调度任务迭代结束时触发流程结束回调方法：等待下一次任务的调度，如果是一次性任务，则直接结束流程任务
      */
     public void complete(TaskContext taskContext, Throwable e) {
-        this.jobFlowExecuteContext.increamentNums();
-        this.jobFlowExecuteContext.clear();
-        this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
+//        this.jobFlowExecuteContext.increamentNums();
+//        this.jobFlowExecuteContext.clear();
+//        this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
+        complete(e);
     }
-    
-    private void complete(){
+
+    /**
+     * 作业结束时触发工作流任务结束回调方法，等待下一次任务的调度，如果是一次性任务，则直接结束流程任务
+     */
+    public void complete(Throwable e){
         this.jobFlowExecuteContext.increamentNums();
         this.jobFlowExecuteContext.clear();
         if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTime()){
             //一次性执行，更新状态为停止
             this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.STOPED);
+            logger.info("{} 一次性执行完成，更新工作流状态为停止",jobInfo);
         }
         else {
             //周期性执行，更新状态为调度一次完成
             this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
+            logger.info("{} 调度执行完成，更新工作流状态为调度完成",jobInfo);
         }
     }
 

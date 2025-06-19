@@ -208,7 +208,7 @@ public abstract class JobFlowNode {
         }
         else{
             if(parentJobFlowNode != null){
-                logger_.info(this +" execute complete and call parentJobFlowNode["+parentJobFlowNode.toString()+"]‘s nextNodeComplete" );
+                logger_.info(this +" execute complete and call parentJobFlowNode["+parentJobFlowNode+"]‘s nextNodeComplete" );
                 parentJobFlowNode.nextNodeComplete(     throwable);
             }
             else{
@@ -232,12 +232,12 @@ public abstract class JobFlowNode {
         complete();
         release();
         if(this.nextJobFlowNode != null){
-            logger_.info(this +" execute complete and start nextJobFlowNode["+nextJobFlowNode.toString()+"]" );
+            logger_.info(this +" execute complete and start nextJobFlowNode["+nextJobFlowNode+"]" );
             this.nextJobFlowNode.start();
         }
         else{
             if(parentJobFlowNode != null){
-                logger_.info(this +" execute complete and call parentJobFlowNode["+parentJobFlowNode.toString()+"]‘s nextNodeComplete" );
+                logger_.info(this +" execute complete and call parentJobFlowNode["+parentJobFlowNode+"]‘s nextNodeComplete" );
                 parentJobFlowNode.nextNodeComplete(  importContext,   e);
             }
             else{

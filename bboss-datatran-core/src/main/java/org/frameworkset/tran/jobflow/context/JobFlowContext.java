@@ -69,6 +69,17 @@ public class JobFlowContext  extends StaticContext{
     }
 
     /**
+     * 判断作业是否已经启动
+     * @return
+     */
+    public AssertResult assertStopped(){
+        synchronized (updateJobFlowStatusLock){
+            return new AssertResult(jobFlowStatus,jobFlowStatus == JobFlowStatus.STOPED
+                    || jobFlowStatus == JobFlowStatus.STOPPING )    ;
+        }
+    }
+
+    /**
      * 判断作业当前状态是否与输入状态一至
      * @return
      */
@@ -118,20 +129,21 @@ public class JobFlowContext  extends StaticContext{
             AssertResult assertResult = this.assertStatus(JobFlowStatus.COMPLETE,JobFlowStatus.RUNNING,
                                                     JobFlowStatus.STARTED,JobFlowStatus.PAUSE);
             if(assertResult.isFalse()){
-                logger.info("Stop {} [fromScheduled={}] ignore：作业未处于运行状态:{}", jobFlow.getJobInfo(), fromScheduled,assertResult.getJobFlowStatus().name());
+                logger.info("Stop {} [fromScheduled={}] ignore，作业未处于运行状态:{}", jobFlow.getJobInfo(), fromScheduled,assertResult.getJobFlowStatus().name());
+                return result;
             }
             logger.info("Stop {} [fromScheduled={}] start.", jobFlow.getJobInfo(), fromScheduled);
             updateJobFlowStatus(JobFlowStatus.STOPPING);
-            if(runningJobFlowNode != null) {
-                runningJobFlowNode.stop();
-                callback.apply(null);
-                updateJobFlowStatus(JobFlowStatus.STOPED);
-                result = true;
-                logger.info("Stop {} [fromScheduled={}] complete.", jobFlow.getJobInfo(), fromScheduled);
+            if(runningJobFlowNode != null) {               
+                runningJobFlowNode.stop();                
             }
             else{
-                logger.info("Stop {} [fromScheduled={}] ignore：作业未处于运行状态:{}", jobFlow.getJobInfo(), fromScheduled,assertResult.getJobFlowStatus().name());
+                logger.info("Stop {} [fromScheduled={}] :ignore stop runningJobFlowNode,runningJobFlowNode is null,", jobFlow.getJobInfo(), fromScheduled);
             }
+            callback.apply(null);
+            updateJobFlowStatus(JobFlowStatus.STOPED);
+            result = true;
+            logger.info("Stop {} [fromScheduled={}] complete.", jobFlow.getJobInfo(), fromScheduled);
         }
         return result;
         
@@ -143,16 +155,21 @@ public class JobFlowContext  extends StaticContext{
             AssertResult assertResult = this.assertStatus(JobFlowStatus.COMPLETE,JobFlowStatus.RUNNING,JobFlowStatus.STARTED);
             if(assertResult.isFalse()){
                 logger.warn("{} 处于状态:{},不能暂停.",jobFlow.getJobInfo(),assertResult.getJobFlowStatus().name());
-            }
-            logger.warn("Pause {} start.",jobFlow.getJobInfo(),assertResult.getJobFlowStatus().name());
-            if(runningJobFlowNode != null) {
                 
-                runningJobFlowNode.pause();
+            }
+            else {
+                logger.warn("Pause {} start.", jobFlow.getJobInfo(), assertResult.getJobFlowStatus().name());
+                if (runningJobFlowNode != null) {
+                    runningJobFlowNode.pause();  
+                }
+                else{
+                    logger.info("Pause {} :ignore pause runningJobFlowNode,runningJobFlowNode is null,", jobFlow.getJobInfo());
+                }
                 updateJobFlowStatus(JobFlowStatus.PAUSE);
                 result = true;
-                
+                logger.warn("Pause {} complete.",jobFlow.getJobInfo(),assertResult.getJobFlowStatus().name());
             }
-            logger.warn("Pause {} complete.",jobFlow.getJobInfo(),assertResult.getJobFlowStatus().name());
+            
             
         }
         return result;
@@ -165,12 +182,16 @@ public class JobFlowContext  extends StaticContext{
         synchronized (runningJobFlowNodeLock) {
             AssertResult assertResult = this.assertStatus(JobFlowStatus.PAUSE);
             if(assertResult.isFalse()){
-                logger.warn("{} 工作流不处于暂停状态，忽略Consume操作:{}",jobFlow.getJobInfo(),assertResult.getJobFlowStatus().name());
+                logger.warn("{} 工作流处于非暂停状态：{}，忽略Consume操作",jobFlow.getJobInfo(),assertResult.getJobFlowStatus().name());
                 
             }
-            if(runningJobFlowNode != null) {
-                
-                runningJobFlowNode.consume();
+            else {
+                if (runningJobFlowNode != null) {
+                    runningJobFlowNode.consume();                    
+                }
+                else{
+                    logger.info("Consume {} :ignore consume runningJobFlowNode,runningJobFlowNode is null,", jobFlow.getJobInfo());
+                }
                 updateJobFlowStatus(JobFlowStatus.RUNNING);
                 result = true;
             }
