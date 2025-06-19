@@ -727,6 +727,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
             if(importContext.isExecuteOneTime()){
                 logger.info("一次性执行作业，忽略Start EndSchedule Thread：scheduleEndDate[{}]", DateFormatUtils.format(scheduleEndDate,"yyyy-MM-dd HH:mm:ss.SSS"));
+                return;
             }
             synchronized (startEndScheduleThreadLock) {
                 if(scheduledEndThread == null) {
