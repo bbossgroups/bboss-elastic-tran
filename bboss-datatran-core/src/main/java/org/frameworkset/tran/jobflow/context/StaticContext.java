@@ -24,11 +24,19 @@ public class StaticContext {
     private int runningNodes;
     private int startNodes ;
     private int completeNodes;
+    protected Throwable executeException;
     private Object updateLock = new Object();
     public StaticContext(){
         
     }
+    public void setExecuteException(Throwable executeException) {
+        this.executeException = executeException;
+    }
 
+    public Throwable getExecuteException() {
+        return executeException;
+    }
+     
     /**
      * 拷贝节点状态信息
      * @return
@@ -39,6 +47,7 @@ public class StaticContext {
             staticContext.startNodes = this.startNodes;
             staticContext.completeNodes = this.completeNodes;
             staticContext.runningNodes = this.runningNodes;
+            staticContext.executeException = this.executeException;
             return staticContext;
         }
     }
@@ -52,6 +61,7 @@ public class StaticContext {
             completeNodes = 0;
             runningNodes = 0;
         }
+        executeException = null;
     }
 
     /**

@@ -118,7 +118,10 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder {
         if(this.parentJobFlowNodeBuilder != null) {
             sequenceJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
         }
-        if(this.nodeTriggerCreate != null){
+        if(this.nodeTrigger != null){
+            sequenceJobFlowNode.setNodeTrigger(nodeTrigger);
+        }
+        else if(this.nodeTriggerCreate != null){
             sequenceJobFlowNode.setNodeTrigger(this.nodeTriggerCreate.createNodeTrigger(this));
         }
         //构建顺序节点链路

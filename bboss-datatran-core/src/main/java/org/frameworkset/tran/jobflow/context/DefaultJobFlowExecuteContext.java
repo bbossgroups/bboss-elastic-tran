@@ -15,9 +15,6 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
-import org.frameworkset.util.concurrent.IntegerCount;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -30,16 +27,12 @@ import java.util.Map;
  */
 public class DefaultJobFlowExecuteContext implements JobFlowExecuteContext {
     private Map<String,Object> contextDatas = new LinkedHashMap<>();
-    private IntegerCount integerCount = new IntegerCount();
     @Override
     public synchronized Object getContextData(String name) {
         return contextDatas.get(name);
     }
 
-    @Override
-    public int increamentNums() {
-        return integerCount.increament();
-    }
+ 
     @Override
     public synchronized void putAll(Map<String,Object> contextDatas){
         this.contextDatas.putAll(contextDatas);

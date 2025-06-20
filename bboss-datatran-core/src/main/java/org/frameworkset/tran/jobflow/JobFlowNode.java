@@ -17,6 +17,7 @@ package org.frameworkset.tran.jobflow;
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.jobflow.context.JobFlowContext;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeContext;
 import org.frameworkset.tran.jobflow.context.ParrelJobFlowNodeContext;
 import org.frameworkset.tran.jobflow.context.SequenceJobFlowNodeContext;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -63,16 +64,24 @@ public abstract class JobFlowNode {
      * 用于跟踪和记录并行分支节点执行情况
      */
     protected ParrelJobFlowNodeContext containerParrelJobFlowNodeContext;
+       
 
     /**
      * 跟踪和记录工作流节点执行情况
      */
-    protected JobFlowContext jobFlowContext;
+    protected JobFlowContext containerJobFlowContext;
+    
+    protected JobFlowNodeContext jobFlowNodeContext;
+    
     protected void release(){
         
     }
     public void setCompositionJobFlowNode(CompositionJobFlowNode compositionJobFlowNode) {
         this.compositionJobFlowNode = compositionJobFlowNode;
+    }
+
+    public JobFlowNodeContext getJobFlowNodeContext() {
+        return jobFlowNodeContext;
     }
 
     public void setContainerSequenceJobFlowNodeContext(SequenceJobFlowNodeContext containerSequenceJobFlowNodeContext) {
@@ -82,10 +91,10 @@ public abstract class JobFlowNode {
         }
     }
 
-    public void setJobFlowContext(JobFlowContext jobFlowContext) {
-        this.jobFlowContext = jobFlowContext;
+    public void setContainerJobFlowContext(JobFlowContext containerJobFlowContext) {
+        this.containerJobFlowContext = containerJobFlowContext;
         if(this.nextJobFlowNode != null){
-            this.nextJobFlowNode.setJobFlowContext(jobFlowContext);
+            this.nextJobFlowNode.setContainerJobFlowContext(containerJobFlowContext);
         }
     }
 
@@ -100,6 +109,13 @@ public abstract class JobFlowNode {
 
     public void setParentJobFlowNode(JobFlowNode parentJobFlowNode) {
         this.parentJobFlowNode = parentJobFlowNode;
+    }
+    
+    public void reset(){
+        jobFlowNodeContext.reset();
+        if(nextJobFlowNode != null){
+            nextJobFlowNode.reset();
+        }
     }
     
     public boolean assertTrigger(){
@@ -200,7 +216,7 @@ public abstract class JobFlowNode {
      * 如果没有父节点，则可能已经到达工作流的第一个节点，也可能到达并行节点的分支起点
      */
     public void nodeComplete(Throwable throwable){
-
+        jobFlowNodeContext.setExecuteException(throwable);
         complete();
         release();
         if(this.nextJobFlowNode != null){
@@ -229,6 +245,7 @@ public abstract class JobFlowNode {
      * 如果没有父节点，则可能已经到达工作流的第一个节点，也可能到达并行节点的分支起点
      */
     public void nodeComplete(ImportContext importContext, Throwable e){
+        jobFlowNodeContext.setExecuteException(e);
         complete();
         release();
         if(this.nextJobFlowNode != null){
@@ -296,6 +313,7 @@ public abstract class JobFlowNode {
      */
     @Deprecated
     public void nodeComplete(TaskContext taskContext, Throwable e){
+        jobFlowNodeContext.setExecuteException(e);
         complete();
         release();
         if(this.nextJobFlowNode != null){
@@ -352,9 +370,9 @@ public abstract class JobFlowNode {
      * 节点启动时，更新工作流、分支（串行/并行)节点运行数量
      */
     protected void nodeStart(){
-        if(this.jobFlowContext != null){
-            jobFlowContext.setRunningJobFlowNode(this);
-            jobFlowContext.nodeStart();
+        if(this.containerJobFlowContext != null){
+            containerJobFlowContext.setRunningJobFlowNode(this);
+            containerJobFlowContext.nodeStart();
             
         }
         if(this.containerSequenceJobFlowNodeContext != null){
@@ -372,8 +390,8 @@ public abstract class JobFlowNode {
         if(this.containerSequenceJobFlowNodeContext != null){
             containerSequenceJobFlowNodeContext.nodeComplete();
         }
-        if(this.jobFlowContext != null){
-            this.jobFlowContext.nodeComplete();
+        if(this.containerJobFlowContext != null){
+            this.containerJobFlowContext.nodeComplete();
         }
         if(this.containerParrelJobFlowNodeContext != null){
             this.containerParrelJobFlowNodeContext.nodeComplete();

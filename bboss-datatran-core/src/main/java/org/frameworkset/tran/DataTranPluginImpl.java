@@ -1035,7 +1035,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	 * 插件运行状态
 	 */
 	protected volatile int status = TranConstant.PLUGIN_INIT;
-    protected volatile CountDownLatch latch = new CountDownLatch(1);
+    protected volatile CountDownLatch latch = null;
 	protected volatile boolean hasTran = false;
     protected ReentrantLock lock = new ReentrantLock();
 	/**
@@ -1045,7 +1045,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	public void setHasTran(){
 		lock.lock();
 		try {
-
+            latch = new CountDownLatch(1);
 			tranCounts.incrementAndGet();
 			this.hasTran = true;
             if(status == TranConstant.PLUGIN_STOPREADY || status == TranConstant.PLUGIN_INIT)
@@ -1064,7 +1064,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
                     this.status = TranConstant.PLUGIN_STOPREADY;
                 else
                     this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-                latch.countDown();
+                if(latch != null)
+                    latch.countDown();
             }
         }
         finally {
@@ -1118,7 +1119,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
                         this.status = TranConstant.PLUGIN_STOPREADY;
                     else
                         this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-                    latch.countDown();
+                    if(latch != null)
+                        latch.countDown();
                 }
             }
         }
@@ -1172,21 +1174,22 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	}
 
     protected void canFinishTran(boolean onceTaskFinish){
-        lock.lock();
-        try{
-//            if(!onceTaskFinish) //如果是一次性任务结束，不需要检查TranConstant.PLUGIN_INIT状态，如果是通过destroy结束任务，则需要判断TranConstant.PLUGIN_INIT
-            if( status == TranConstant.PLUGIN_INIT )
-                return ;
-//            else{
-//                return status == TranConstant.PLUGIN_STOPREADY  || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-//            }
-        }
-        finally {
-            lock.unlock();
-        }
+//        lock.lock();
+//        try{
+////            if(!onceTaskFinish) //如果是一次性任务结束，不需要检查TranConstant.PLUGIN_INIT状态，如果是通过destroy结束任务，则需要判断TranConstant.PLUGIN_INIT
+//            if( status == TranConstant.PLUGIN_INIT )
+//                return ;
+////            else{
+////                return status == TranConstant.PLUGIN_STOPREADY  || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
+////            }
+//        }
+//        finally {
+//            lock.unlock();
+//        }
 
         try {
-            latch.await();
+            if(latch != null)
+                latch.await();
         } catch (InterruptedException e) {
 //            throw new RuntimeException(e);
         }
@@ -1354,12 +1357,14 @@ public class DataTranPluginImpl implements DataTranPlugin {
                 }
                 else{
                     this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-                    latch.countDown();
+                    if(latch != null)
+                        latch.countDown();
                 }
             }
             else {
                 this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-                latch.countDown();
+                if(latch != null)
+                    latch.countDown();
             }
         }
         finally {

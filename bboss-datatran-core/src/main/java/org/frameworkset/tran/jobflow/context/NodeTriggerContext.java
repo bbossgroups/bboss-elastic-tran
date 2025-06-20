@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow.script;
+package org.frameworkset.tran.jobflow.context;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -15,12 +15,21 @@ package org.frameworkset.tran.jobflow.script;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.context.NodeTriggerContext;
+import org.frameworkset.tran.jobflow.JobFlowNode;
+import org.frameworkset.tran.jobflow.JobFlowNodeStatus;
+import org.frameworkset.tran.jobflow.JobFlowStatus;
 
 /**
  * @author biaoping.yin
- * @Date 2025/6/13
+ * @Date 2025/6/20
  */
-public interface TriggerScriptAPI {
-    boolean evalTriggerScript(NodeTriggerContext nodeTriggerContext) throws Exception;
+public interface NodeTriggerContext {
+    StaticContext getJobFlowStaticContext();
+    JobFlowExecuteContext getJobFlowExecuteContext();
+    JobFlowStatus getJobFlowStatus();
+    JobFlowNode getRunningJobFlowNode();
+    StaticContext getPreJobFlowStaticContext();
+    JobFlowNode getJobFlowNode();
+    JobFlowNodeStatus getPreJobFlowNodeStatus();
+
 }

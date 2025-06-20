@@ -42,6 +42,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
     public ParrelJobFlowNode(){
         this.jobFlowNodeType = JobFlowNodeType.PARREL;
         this.parrelJobFlowNodeContext = new ParrelJobFlowNodeContext(this);
+        this.jobFlowNodeContext = parrelJobFlowNodeContext;
     }
     public ExecutorService buildThreadPool(){
         if(blockedExecutor != null)
@@ -68,15 +69,20 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
     /**
      * 作业工作流每次调度执行并行分支节点时，重置并行分支节点执行状态
      */
-    private void reset(){
-        this.parrelJobFlowNodeContext.reset();
+    public void reset(){
+        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
+            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+            jobFlowNode.reset();
+        }
+        super.reset();
+        
     }
     /**
      * 启动流程当前节点
      */
     @Override
     public boolean start(CyclicBarrier barrier){
-        reset();
+        parrelJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
         nodeStart();
         if(barrier != null) {
             try {
@@ -162,17 +168,17 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             jobFlowNode.stop();
         }
         release();
-
+        parrelJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
         logger.info("Stop ParrelJobFlowNode[id={},nodeName={}] complete.",this.getNodeId(),this.getNodeName());
-        if(this.nextJobFlowNode != null){
-            try {
-                this.nextJobFlowNode.stop();
-//                logger.warn("Stop nextJobFlowNode[id={},nodeName={}] complete.",this.getNodeId(),this.getNodeName());
-            }
-            catch (Exception e){
-                logger.warn("Stop nextJobFlowNode[id="+nextJobFlowNode.getNodeId()+",nodeName="+nextJobFlowNode.getNodeName()+"] failed:",e);
-            }
-        }
+//        if(this.nextJobFlowNode != null){
+//            try {
+//                this.nextJobFlowNode.stop();
+////                logger.warn("Stop nextJobFlowNode[id={},nodeName={}] complete.",this.getNodeId(),this.getNodeName());
+//            }
+//            catch (Exception e){
+//                logger.warn("Stop nextJobFlowNode[id="+nextJobFlowNode.getNodeId()+",nodeName="+nextJobFlowNode.getNodeName()+"] failed:",e);
+//            }
+//        }
     }
 
 
@@ -222,6 +228,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             JobFlowNode jobFlowNode = jobFlowNodes.get(i);
             jobFlowNode.pause();
         }
+        parrelJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.PAUSE);
     }
 
     /**
@@ -229,6 +236,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void consume() {
+        parrelJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.RUNNING);
         for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
             JobFlowNode jobFlowNode = jobFlowNodes.get(i);
             jobFlowNode.consume();

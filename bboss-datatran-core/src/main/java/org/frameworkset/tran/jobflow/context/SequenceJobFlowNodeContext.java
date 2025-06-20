@@ -17,14 +17,13 @@ package org.frameworkset.tran.jobflow.context;
 
 import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.jobflow.SequenceJobFlowNode;
-import org.frameworkset.util.concurrent.IntegerCount;
 
 /**
  * 用于跟踪串行分支节点执行情况
  * @author biaoping.yin
  * @Date 2025/6/18
  */
-public class SequenceJobFlowNodeContext extends StaticContext{
+public class SequenceJobFlowNodeContext extends JobFlowNodeContext {
     private SequenceJobFlowNode sequenceJobFlowNode;
 
     /**
@@ -37,7 +36,14 @@ public class SequenceJobFlowNodeContext extends StaticContext{
     public SequenceJobFlowNodeContext(SequenceJobFlowNode sequenceJobFlowNode){
         super();
         this.sequenceJobFlowNode = sequenceJobFlowNode;
-       
+        this.jobFlowNode = sequenceJobFlowNode;
+    }
+    
+    public void reset(){
+        synchronized (runningJobFlowNodeLock) {
+            this.runningJobFlowNode = null;
+        }
+        super.reset();
     }
    
 
@@ -61,6 +67,21 @@ public class SequenceJobFlowNodeContext extends StaticContext{
         synchronized (runningJobFlowNodeLock) {
             if(runningJobFlowNode != null){
                 this.runningJobFlowNode.stop();
+            }
+        }
+    }
+
+    public void pause() {
+        synchronized (runningJobFlowNodeLock) {
+            if(runningJobFlowNode != null){
+                this.runningJobFlowNode.pause();
+            }
+        }
+    }
+    public void consume() {
+        synchronized (runningJobFlowNodeLock) {
+            if(runningJobFlowNode != null){
+                this.runningJobFlowNode.consume();
             }
         }
     }

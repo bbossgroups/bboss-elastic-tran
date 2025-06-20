@@ -20,6 +20,7 @@ import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.jobflow.context.AssertResult;
 import org.frameworkset.tran.jobflow.context.JobFlowContext;
 import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.context.SimpleJobFlowNodeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,30 +39,39 @@ public class SimpleJobFlowNode extends JobFlowNode{
      * 串行节点作业配置
      */
     private ImportBuilder importBuilder;
- 
+    private SimpleJobFlowNodeContext simpleJobFlowNodeContext;
  
 
     private DataStream dataStream;
     public SimpleJobFlowNode(ImportBuilder importBuilder, NodeTrigger nodeTrigger ){
-        this(importBuilder);
-        this.nodeTrigger = nodeTrigger;
-    }
-
-    public SimpleJobFlowNode(ImportBuilder importBuilder){
         this.importBuilder = importBuilder;
         if(importBuilder == null){
             throw new JobFlowException("ImportBuilder is null.");
         }
         this.importBuilder.setJobFlowNode(this);
+        this.nodeTrigger = nodeTrigger;
+        simpleJobFlowNodeContext = new SimpleJobFlowNodeContext(this);
+        this.jobFlowNodeContext = simpleJobFlowNodeContext;
     }
 
- 
-    
+    public SimpleJobFlowNode(ImportBuilder importBuilder){
+        this(importBuilder,null);
+    }
+
+
+    /**
+     * 作业工作流每次调度执行串行分支节点时，重置串行分支节点执行状态
+     */
+    public void reset(){
+        dataStream = null;
+        super.reset();
+    }
     /**
      * 启动流程当前节点
      */
     @Override
     public boolean start(CyclicBarrier barrier){
+        simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
         nodeStart();
         if(barrier != null) {
             try {
@@ -104,6 +114,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
         if(dataStream != null){
             dataStream.destroy(true);
         }
+        simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
         logger.info("Stop SimpleJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] complete.");
 //        if(this.nextJobFlowNode != null){
 //            try {
@@ -121,9 +132,10 @@ public class SimpleJobFlowNode extends JobFlowNode{
      */
     @Override
     public void pause(){
-        JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
+        
         if(dataStream != null){
             dataStream.pauseSchedule();
+            simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.PAUSE);
         }
     }
 
@@ -132,7 +144,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
      */
     @Override
     public void consume() {
-        JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
+        simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.RUNNING);
         if(dataStream != null){
             dataStream.resumeSchedule();
         }

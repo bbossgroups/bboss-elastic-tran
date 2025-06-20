@@ -45,17 +45,20 @@ public class TriggerScriptUtil {
             }
             code.append("import org.frameworkset.tran.jobflow.JobFlow;\n");
             code.append("import org.frameworkset.tran.jobflow.JobFlowNode;\n");
+            code.append("import org.frameworkset.tran.jobflow.context.NodeTriggerContext;\n");
+            
             code.append("import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;\n");
             code.append("import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;\n");
             code.append("\n");
             String apiName = "TriggerScriptAPIImpl_" +SimpleStringUtil.getUUID32() ;
 
             code.append("public class " + apiName + " implements TriggerScriptAPI {\r\n");
-            code.append("boolean evalTriggerScript(JobFlow jobFlow, JobFlowNode jobFlowNode, JobFlowExecuteContext jobFlowExecuteContext) throws Exception {\r\n")
+            code.append("boolean evalTriggerScript(NodeTriggerContext nodeTriggerContext) throws Exception {\r\n")
                     .append(codeStruction.getCode()).append("\r\n}\r\n}");
             script = code.toString();
             Class clazz = groovyClassLoader.parseClass(script);
-            logger.info("apiName {},evalTriggerScript: {} ",apiName,nodeTrigger.getTriggerScript());
+            if(logger.isDebugEnabled())
+                logger.debug("apiName {},evalTriggerScript: {} ",apiName,nodeTrigger.getTriggerScript());
             return (TriggerScriptAPI) clazz.getDeclaredConstructor().newInstance();
         }
         catch (Exception e){

@@ -16,6 +16,8 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.apache.commons.lang3.StringUtils;
+import org.frameworkset.tran.jobflow.context.NodeTriggerContext;
+import org.frameworkset.tran.jobflow.context.NodeTriggerContextImpl;
 import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;
 import org.frameworkset.tran.jobflow.script.TriggerScriptUtil;
 
@@ -66,7 +68,8 @@ public class NodeTrigger {
             }
         }
         if(triggerScriptAPI != null){
-            return triggerScriptAPI.evalTriggerScript(jobFlow,   jobFlowNode,jobFlow.getJobFlowExecuteContext());
+            NodeTriggerContext nodeTriggerContext = new NodeTriggerContextImpl(jobFlowNode,jobFlow); 
+            return triggerScriptAPI.evalTriggerScript(nodeTriggerContext);
         }
         return true;
     }

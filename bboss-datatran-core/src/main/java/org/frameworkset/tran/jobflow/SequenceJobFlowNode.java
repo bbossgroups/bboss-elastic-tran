@@ -41,6 +41,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
         this.jobFlowNodeType = JobFlowNodeType.SEQUENCE;
         
         sequenceJobFlowNodeContext = new SequenceJobFlowNodeContext(this);
+        this.jobFlowNodeContext = sequenceJobFlowNodeContext;
     }
 
     public SequenceJobFlowNodeContext getSequenceJobFlowNodeContext() {
@@ -55,16 +56,17 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
     /**
      * 作业工作流每次调度执行串行分支节点时，重置串行分支节点执行状态
      */
-    private void reset(){
-        this.sequenceJobFlowNodeContext.reset();
+    public void reset(){
+        this.headerJobFlowNode.reset();
+        super.reset();
     }
     /**
      * 启动流程当前节点
      */
     @Override
     public boolean start(CyclicBarrier barrier){
-
-        reset();
+        sequenceJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
+        
         nodeStart();
         if(barrier != null) {
             try {
@@ -120,7 +122,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
         catch (Exception e){
             logger.warn("Stop SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] failed:",e);
         }
-
+        sequenceJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
         logger.info("Stop SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] complete.");
 //        if(this.nextJobFlowNode != null){
 //            try {
@@ -173,10 +175,12 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void pause() {
-        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
-            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
-            jobFlowNode.pause();
-        }
+        sequenceJobFlowNodeContext.pause();
+        sequenceJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.PAUSE);
+//        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
+//            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+//            jobFlowNode.pause();
+//        }
     }
 
     /**
@@ -184,9 +188,11 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void consume() {
-        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
-            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
-            jobFlowNode.consume();
-        }
+//        for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
+//            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+//            jobFlowNode.consume();
+//        }
+        sequenceJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.RUNNING);
+        sequenceJobFlowNodeContext.consume();
     }
 }

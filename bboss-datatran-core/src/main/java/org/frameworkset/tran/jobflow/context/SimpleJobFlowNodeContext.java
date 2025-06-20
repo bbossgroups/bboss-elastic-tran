@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow.script;
+package org.frameworkset.tran.jobflow.context;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -15,12 +15,26 @@ package org.frameworkset.tran.jobflow.script;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.context.NodeTriggerContext;
+import org.frameworkset.tran.jobflow.SimpleJobFlowNode;
 
 /**
+ * 用于跟踪串行分支节点执行情况
  * @author biaoping.yin
- * @Date 2025/6/13
+ * @Date 2025/6/18
  */
-public interface TriggerScriptAPI {
-    boolean evalTriggerScript(NodeTriggerContext nodeTriggerContext) throws Exception;
+public class SimpleJobFlowNodeContext extends JobFlowNodeContext {
+    private SimpleJobFlowNode simpleJobFlowNode;
+
+ 
+
+
+    public SimpleJobFlowNodeContext(SimpleJobFlowNode simpleJobFlowNode){
+        super();
+        this.simpleJobFlowNode = simpleJobFlowNode;
+        this.jobFlowNode = simpleJobFlowNode;
+    }
+
+    public SimpleJobFlowNode getSimpleJobFlowNode() {
+        return simpleJobFlowNode;
+    }
 }

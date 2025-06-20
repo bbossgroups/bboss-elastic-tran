@@ -16,6 +16,7 @@ package org.frameworkset.tran.jobflow;
  */
 
 /**
+ * 工作流运行状态
  * @author biaoping.yin
  * @Date 2025/6/15
  */

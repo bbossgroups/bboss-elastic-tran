@@ -41,9 +41,14 @@ public class ParrelJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder {
         if(this.parentJobFlowNodeBuilder != null) {
             parrelJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
         }
-        if(this.nodeTriggerCreate != null){
+
+        if(this.nodeTrigger != null){
+            parrelJobFlowNode.setNodeTrigger(nodeTrigger);
+        }
+        else if(this.nodeTriggerCreate != null){
             parrelJobFlowNode.setNodeTrigger(this.nodeTriggerCreate.createNodeTrigger(this));
         }
+        
         for(JobFlowNodeBuilder jobFlowNodeBuilder:nodeBuilders){
             parrelJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.build(jobFlow));
         }

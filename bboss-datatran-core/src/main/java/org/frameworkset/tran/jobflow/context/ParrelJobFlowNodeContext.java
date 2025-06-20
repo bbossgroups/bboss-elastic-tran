@@ -22,13 +22,13 @@ import org.frameworkset.tran.jobflow.ParrelJobFlowNode;
  * @author biaoping.yin
  * @Date 2025/6/18
  */
-public class ParrelJobFlowNodeContext extends StaticContext{
+public class ParrelJobFlowNodeContext extends JobFlowNodeContext {
     private ParrelJobFlowNode parrelJobFlowNode;
    
     public ParrelJobFlowNodeContext(ParrelJobFlowNode parrelJobFlowNode){
         super();
         this.parrelJobFlowNode = parrelJobFlowNode;
-       
+        this.jobFlowNode = parrelJobFlowNode;
     }
 
 

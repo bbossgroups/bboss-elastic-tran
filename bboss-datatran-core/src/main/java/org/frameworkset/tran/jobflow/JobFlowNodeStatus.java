@@ -1,4 +1,4 @@
-package org.frameworkset.tran.jobflow.script;
+package org.frameworkset.tran.jobflow;
 /**
  * Copyright 2025 bboss
  * <p>
@@ -15,12 +15,41 @@ package org.frameworkset.tran.jobflow.script;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.context.NodeTriggerContext;
-
 /**
+ * 工作流节点运行状态
  * @author biaoping.yin
- * @Date 2025/6/13
+ * @Date 2025/6/15
  */
-public interface TriggerScriptAPI {
-    boolean evalTriggerScript(NodeTriggerContext nodeTriggerContext) throws Exception;
+public enum JobFlowNodeStatus {
+    /**
+     * 初始状态
+     */
+    INIT,
+    /**
+     * 启动状态
+     */
+    STARTED,
+    /**
+     * 停止中状态
+     */
+    STOPPING,
+    /**
+     * 已停止状态
+     */
+    STOPED,
+
+    /**
+     * 暂停状态
+     */
+    PAUSE,
+    /**
+     * 从暂停恢复到运行状态
+     */
+    RUNNING,
+
+    /**
+     * 已完成
+     */
+    COMPLETE
+
 }

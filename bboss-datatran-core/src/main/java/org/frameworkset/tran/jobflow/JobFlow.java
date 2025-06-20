@@ -24,16 +24,15 @@ import org.frameworkset.tran.jobflow.context.AssertResult;
 import org.frameworkset.tran.jobflow.context.DefaultJobFlowExecuteContext;
 import org.frameworkset.tran.jobflow.context.JobFlowContext;
 import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.metrics.JobFlowMetrics;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleTimer;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.util.concurrent.IntegerCount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
-import java.util.List;
 import java.util.function.Function;
 
 import static java.lang.Thread.sleep;
@@ -69,13 +68,14 @@ public class JobFlow {
 
     private JobFlowExecuteContext jobFlowExecuteContext;
     private JobFlowContext jobFlowContext;
-
+    private JobFlowMetrics jobFlowMetrics;
     private GroovyClassLoader groovyClassLoader ;
 
     public JobFlow(){
         jobFlowContext = new JobFlowContext(this);
         initGroovyClassLoader();
-        this.jobFlowExecuteContext = new DefaultJobFlowExecuteContext();
+        
+        jobFlowMetrics = new JobFlowMetrics();
     }
     public GroovyClassLoader getGroovyClassLoader() {
         return groovyClassLoader;
@@ -99,7 +99,7 @@ public class JobFlow {
 
     public void setStartJobFlowNode(JobFlowNode startJobFlowNode) {
         this.startJobFlowNode = startJobFlowNode;
-        this.startJobFlowNode.setJobFlowContext(this.jobFlowContext);
+        this.startJobFlowNode.setContainerJobFlowContext(this.jobFlowContext);
     }
 
     private String jobInfo ;
@@ -110,14 +110,16 @@ public class JobFlow {
     }
     public void execute(){
         logger.info("Execute "+jobInfo );
-        
+       
         startEndScheduleThread(new ScheduleEndCall() {
             @Override
             public void call(boolean scheduled) {
                 stop(true);
             }
         });
+        this.jobFlowExecuteContext = new DefaultJobFlowExecuteContext();
         reset();
+        jobFlowMetrics.addTotalCount();
         this.startJobFlowNode.start();
     }
 
@@ -167,6 +169,7 @@ public class JobFlow {
      */
     private void reset(){
         this.jobFlowContext.reset();
+        this.startJobFlowNode.reset();
     }
 
     public void initJob(){
@@ -327,8 +330,9 @@ public class JobFlow {
      * 作业结束时触发工作流任务结束回调方法，等待下一次任务的调度，如果是一次性任务，则直接结束流程任务
      */
     public void complete(Throwable e){
-        this.jobFlowExecuteContext.increamentNums();
-        this.jobFlowExecuteContext.clear();
+        jobFlowMetrics.complete(e);
+        
+        
         if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTime()){
             //一次性执行，更新状态为停止
             this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.STOPED);
@@ -339,6 +343,8 @@ public class JobFlow {
             this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
             logger.info("{} 调度执行完成，更新工作流状态为调度完成",jobInfo);
         }
+        this.jobFlowExecuteContext = null;
+        this.reset();
     }
 
     public boolean isEnableAutoPauseScheduled() {

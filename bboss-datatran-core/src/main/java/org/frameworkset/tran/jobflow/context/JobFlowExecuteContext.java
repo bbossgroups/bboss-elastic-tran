@@ -29,7 +29,6 @@ import java.util.Map;
 public interface JobFlowExecuteContext {
     Object getContextData(String name);
     
-    int increamentNums();
 
     void putAll(Map<String, Object> contextDatas);
 

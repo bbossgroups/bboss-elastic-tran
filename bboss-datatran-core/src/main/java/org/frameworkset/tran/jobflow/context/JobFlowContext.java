@@ -31,7 +31,7 @@ import java.util.function.Function;
 public class JobFlowContext  extends StaticContext{
     private static Logger logger = LoggerFactory.getLogger(JobFlowContext.class);
     private JobFlow jobFlow;
-    private JobFlowStatus jobFlowStatus = JobFlowStatus.INIT;
+    protected JobFlowStatus jobFlowStatus = JobFlowStatus.INIT;
     /**
      * 当前正在执行的作业节点
      */
@@ -49,8 +49,9 @@ public class JobFlowContext  extends StaticContext{
     public JobFlowStatus updateJobFlowStatus(JobFlowStatus jobFlowStatus){
         synchronized (updateJobFlowStatusLock){
             this.jobFlowStatus = jobFlowStatus;
+            return jobFlowStatus;
         }
-        return jobFlowStatus;
+       
     }
     
     public Object getUpdateJobFlowStatusLock(){
@@ -100,8 +101,9 @@ public class JobFlowContext  extends StaticContext{
             if(jobFlowStatus == JobFlowStatus.INIT  ){
                 jobFlowStatus = JobFlowStatus.STARTED;
             }
+            return jobFlowStatus;
         }
-        return jobFlowStatus;
+        
     }
 
     public JobFlowStatus getJobFlowStatus() {
@@ -129,7 +131,7 @@ public class JobFlowContext  extends StaticContext{
             AssertResult assertResult = this.assertStatus(JobFlowStatus.COMPLETE,JobFlowStatus.RUNNING,
                                                     JobFlowStatus.STARTED,JobFlowStatus.PAUSE);
             if(assertResult.isFalse()){
-                logger.info("Stop {} [fromScheduled={}] ignore，作业未处于运行状态:{}", jobFlow.getJobInfo(), fromScheduled,assertResult.getJobFlowStatus().name());
+                logger.info("Stop {} [fromScheduled={}] 处于非运行状态:{}，忽略停止操作.", jobFlow.getJobInfo(), fromScheduled,assertResult.getJobFlowStatus().name());
                 return result;
             }
             logger.info("Stop {} [fromScheduled={}] start.", jobFlow.getJobInfo(), fromScheduled);
@@ -138,7 +140,7 @@ public class JobFlowContext  extends StaticContext{
                 runningJobFlowNode.stop();                
             }
             else{
-                logger.info("Stop {} [fromScheduled={}] :ignore stop runningJobFlowNode,runningJobFlowNode is null,", jobFlow.getJobInfo(), fromScheduled);
+                logger.info("Stop {} [fromScheduled={}] :ignore stop runningJobFlowNode,runningJobFlowNode is null.", jobFlow.getJobInfo(), fromScheduled);
             }
             callback.apply(null);
             updateJobFlowStatus(JobFlowStatus.STOPED);
