@@ -85,7 +85,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
         if(assertResult.isTrue())
         {
             logger.info("AssertStopped: true,ignore execute this SimpleJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
-            nodeComplete(null);
+            nodeComplete(null,true);
         }        
         else if(this.assertTrigger()) {
             logger.info("Start SimpleJobFlowNode[id={},name={}] begin.",this.getNodeId(),this.getNodeName());
@@ -98,7 +98,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
         }
         else{
             logger.info("AssertTrigger: false,ignore execute this SimpleJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
-            nodeComplete(null);
+            nodeComplete(null,true);
         }
         return false;
     }

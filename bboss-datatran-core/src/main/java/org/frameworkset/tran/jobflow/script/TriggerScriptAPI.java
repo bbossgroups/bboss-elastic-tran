@@ -22,5 +22,5 @@ import org.frameworkset.tran.jobflow.context.NodeTriggerContext;
  * @Date 2025/6/13
  */
 public interface TriggerScriptAPI {
-    boolean evalTriggerScript(NodeTriggerContext nodeTriggerContext) throws Exception;
+    boolean needTrigger(NodeTriggerContext nodeTriggerContext) throws Exception;
 }

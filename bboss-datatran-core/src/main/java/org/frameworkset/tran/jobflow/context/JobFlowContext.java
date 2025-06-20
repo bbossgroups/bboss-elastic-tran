@@ -156,7 +156,7 @@ public class JobFlowContext  extends StaticContext{
         synchronized (runningJobFlowNodeLock) {
             AssertResult assertResult = this.assertStatus(JobFlowStatus.COMPLETE,JobFlowStatus.RUNNING,JobFlowStatus.STARTED);
             if(assertResult.isFalse()){
-                logger.warn("{} 处于状态:{},不能暂停.",jobFlow.getJobInfo(),assertResult.getJobFlowStatus().name());
+                logger.warn("{} 处于状态:{},忽略暂停操作.",jobFlow.getJobInfo(),assertResult.getJobFlowStatus().name());
                 
             }
             else {

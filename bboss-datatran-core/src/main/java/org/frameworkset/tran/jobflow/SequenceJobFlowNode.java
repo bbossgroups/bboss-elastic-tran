@@ -80,7 +80,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
         if(assertResult.isTrue())
         {
             logger.info("AssertStopped: true,ignore execute this SequenceJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
-            nodeComplete(null);
+            nodeComplete(null,true);
         }
         else if(assertTrigger()) {
             if (headerJobFlowNode == null) {
@@ -100,7 +100,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
         }
         else{
             logger.info("AssertTrigger: false,ignore execute this SequenceJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
-            nodeComplete(null);
+            nodeComplete(null,true);
         }
         return false;
         
@@ -155,7 +155,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void brachComplete(JobFlowNode jobFlowNode, Throwable e) {
-        this.nodeComplete(e);
+        this.nodeComplete(e,false);
     }
 
     /**
@@ -167,7 +167,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void brachComplete(JobFlowNode jobFlowNode, TaskContext taskContext, Throwable e) {
-        this.nodeComplete(e);
+        this.nodeComplete(e,false);
     }
 
     /**

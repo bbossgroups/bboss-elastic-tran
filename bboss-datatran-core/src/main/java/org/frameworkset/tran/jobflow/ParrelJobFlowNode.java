@@ -96,7 +96,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         if(assertResult.isTrue())
         {
             logger.info("AssertStopped: true,ignore execute this ParrelJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
-            nodeComplete(null);
+            nodeComplete(null,true);
         }
         else if(assertTrigger()) {
             if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
@@ -144,7 +144,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         }
         else{
             logger.info("AssertTrigger: false,ignore execute this ParrelJobFlowNode.");
-            nodeComplete(null);
+            nodeComplete(null,true);
         }
         return false;
         
@@ -202,7 +202,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
     @Override
     public void brachComplete(JobFlowNode jobFlowNode, Throwable e) {
         if(this.parrelJobFlowNodeContext.getStartNodes() <= 0 ) {
-            this.nodeComplete(e);
+            this.nodeComplete(e,false);
         }
     }
 
@@ -216,7 +216,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
     @Override
     public void brachComplete(JobFlowNode jobFlowNode, TaskContext taskContext, Throwable e) {
         if(this.parrelJobFlowNodeContext.getStartNodes() <= 0 ) {
-            this.nodeComplete(e);
+            this.nodeComplete(e,false);
         }
     }
     /**

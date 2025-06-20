@@ -69,7 +69,7 @@ public class NodeTrigger {
         }
         if(triggerScriptAPI != null){
             NodeTriggerContext nodeTriggerContext = new NodeTriggerContextImpl(jobFlowNode,jobFlow); 
-            return triggerScriptAPI.evalTriggerScript(nodeTriggerContext);
+            return triggerScriptAPI.needTrigger(nodeTriggerContext);
         }
         return true;
     }

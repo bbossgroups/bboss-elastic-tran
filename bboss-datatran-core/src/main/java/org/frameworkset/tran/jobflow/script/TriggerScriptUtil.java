@@ -53,7 +53,7 @@ public class TriggerScriptUtil {
             String apiName = "TriggerScriptAPIImpl_" +SimpleStringUtil.getUUID32() ;
 
             code.append("public class " + apiName + " implements TriggerScriptAPI {\r\n");
-            code.append("boolean evalTriggerScript(NodeTriggerContext nodeTriggerContext) throws Exception {\r\n")
+            code.append("boolean needTrigger(NodeTriggerContext nodeTriggerContext) throws Exception {\r\n")
                     .append(codeStruction.getCode()).append("\r\n}\r\n}");
             script = code.toString();
             Class clazz = groovyClassLoader.parseClass(script);

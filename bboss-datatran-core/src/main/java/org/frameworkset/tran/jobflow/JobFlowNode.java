@@ -214,12 +214,14 @@ public abstract class JobFlowNode {
      * 如果没有下一个任务，则检查是否有父节点：
      * 如果有父节点则反向通知父节点，当前节点已经完成任务,可以采取下一步的措施
      * 如果没有父节点，则可能已经到达工作流的第一个节点，也可能到达并行节点的分支起点
+     * @param ignoreExecute By NodeTrigger or By Stop 
      */
-    public void nodeComplete(Throwable throwable){
+    
+    public void nodeComplete(Throwable throwable,boolean ignoreExecute){
         jobFlowNodeContext.setExecuteException(throwable);
         complete();
         release();
-        if(this.nextJobFlowNode != null){
+        if(this.nextJobFlowNode != null && !ignoreExecute){
             this.nextJobFlowNode.start();
         }
         else{
