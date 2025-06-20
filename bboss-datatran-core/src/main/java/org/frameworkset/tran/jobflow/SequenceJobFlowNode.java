@@ -93,7 +93,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
 //                        startNodes.increament();
 //                }                
                 headerJobFlowNode.start();
-                logger.info("Execute SequenceJobFlowNode[id={},name={}] complete.",this.getNodeId(),this.getNodeName());
+//                logger.info("Execute SequenceJobFlowNode[id={},name={}] complete.",this.getNodeId(),this.getNodeName());
 //                this.nodeComplete( null);
             }
             return true;

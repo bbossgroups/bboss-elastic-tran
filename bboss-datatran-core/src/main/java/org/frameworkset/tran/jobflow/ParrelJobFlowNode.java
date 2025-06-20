@@ -131,13 +131,13 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                     }
                 }
                 
-                if(CollectionUtils.isNotEmpty(exceptions)){
-                    logger.warn("Execute parrelJobFlowNode[id={},name={}] complete with exceptions.",this.getNodeId(),this.getNodeName());
-                    throw new JobFlowException("ParrelJobFlowNode execute exception:",exceptions);
-                }
-                else{
-                    logger.info("Execute parrelJobFlowNode[id={},name={}] complete.",this.getNodeId(),this.getNodeName());
-                }
+//                if(CollectionUtils.isNotEmpty(exceptions)){
+//                    logger.warn("Execute parrelJobFlowNode[id={},name={}] complete with exceptions.",this.getNodeId(),this.getNodeName());
+//                    throw new JobFlowException("ParrelJobFlowNode execute exception:",exceptions);
+//                }
+//                else{
+//                    logger.info("Execute parrelJobFlowNode[id={},name={}] complete.",this.getNodeId(),this.getNodeName());
+//                }
 //                nodeComplete(null);
             }
             return true;

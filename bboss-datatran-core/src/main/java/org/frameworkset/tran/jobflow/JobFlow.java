@@ -60,6 +60,7 @@ public class JobFlow {
    
 
     private JobFlowScheduleConfig jobFlowScheduleConfig;
+    private boolean externalTimer;
     /**
      * 流程的首节点
      */
@@ -109,7 +110,7 @@ public class JobFlow {
         jobInfo = info.toString();
     }
     public void execute(){
-        logger.info("Execute "+jobInfo );
+        logger.info("Execute {} begin.",jobInfo );
        
         startEndScheduleThread(new ScheduleEndCall() {
             @Override
@@ -131,7 +132,8 @@ public class JobFlow {
      * @param scheduleEndCall
      */
     protected void startEndScheduleThread( ScheduleEndCall scheduleEndCall){
-     
+        if(jobFlowScheduleConfig == null)
+            return;
         Date scheduleEndDate = jobFlowScheduleConfig.getScheduleEndDate();
         if(scheduleEndDate != null){
             if(jobFlowScheduleConfig.isExecuteOneTime()){
@@ -332,8 +334,12 @@ public class JobFlow {
     public void complete(Throwable e){
         jobFlowMetrics.complete(e);
         
-        
-        if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTime()){
+        if(isExternalTimer()){
+            //周期性执行，更新状态为调度一次完成
+            this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
+            logger.info("{} 调度执行完成，更新工作流状态为调度完成",jobInfo);
+        }
+        else if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTime()){
             //一次性执行，更新状态为停止
             this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.STOPED);
             logger.info("{} 一次性执行完成，更新工作流状态为停止",jobInfo);
@@ -365,5 +371,13 @@ public class JobFlow {
     
     public String toString(){
         return this.jobInfo;
+    }
+
+    public boolean isExternalTimer() {
+        return externalTimer;
+    }
+
+    public void setExternalTimer(boolean externalTimer) {
+        this.externalTimer = externalTimer;
     }
 }

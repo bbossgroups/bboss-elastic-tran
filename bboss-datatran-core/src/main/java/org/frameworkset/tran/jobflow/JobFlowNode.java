@@ -218,10 +218,12 @@ public abstract class JobFlowNode {
      */
     
     public void nodeComplete(Throwable throwable,boolean ignoreExecute){
+//        logger_.info("Execute {}[id={},name={}] complete.",this.getClass().getName(),this.getNodeId(),this.getNodeName());
         jobFlowNodeContext.setExecuteException(throwable);
         complete();
         release();
         if(this.nextJobFlowNode != null && !ignoreExecute){
+            logger_.info(this +" execute complete and start nextJobFlowNode["+nextJobFlowNode+"]" );
             this.nextJobFlowNode.start();
         }
         else{
@@ -231,9 +233,11 @@ public abstract class JobFlowNode {
             }
             else{
                 if(this.compositionJobFlowNode != null){
+                    logger_.info("Execute {}[id={},name={}] complete and call compositionJobFlowNode[{}]'s brachComplete.",this.getClass().getName(),this.getNodeId(),this.getNodeName(),compositionJobFlowNode.toString());
                     compositionJobFlowNode.brachComplete(this,     throwable);
                 }
                 else{
+                    logger_.info("Execute {}[id={},name={}] complete and call {}'s complete.",this.getClass().getName(),this.getNodeId(),this.getNodeName(),jobFlow.getJobInfo());
                     this.jobFlow.complete(    throwable);
                 }
             }
@@ -261,9 +265,11 @@ public abstract class JobFlowNode {
             }
             else{
                 if(this.compositionJobFlowNode != null){
+                    logger_.info("Execute {}[id={},name={}] complete and call compositionJobFlowNode[{}]'s brachComplete.",this.getClass().getName(),this.getNodeId(),this.getNodeName(),compositionJobFlowNode.toString());
                     compositionJobFlowNode.brachComplete(this,  importContext,   e);
                 }
                 else{
+                    logger_.info("Execute {}[id={},name={}] complete and call {}'s complete.",this.getClass().getName(),this.getNodeId(),this.getNodeName(),jobFlow.getJobInfo());
                     this.jobFlow.complete(  importContext,   e);
                 }
             }

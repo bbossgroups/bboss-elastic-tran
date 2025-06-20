@@ -92,7 +92,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
             dataStream = importBuilder.builder(true);
             dataStream.execute();
             
-            logger.info("Execute SimpleJobFlowNode[id={},name={}] complete.",this.getNodeId(),this.getNodeName());
+            
 //            this.nodeComplete(null);
             return true;
         }
