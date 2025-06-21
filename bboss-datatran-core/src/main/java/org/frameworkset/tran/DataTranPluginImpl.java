@@ -299,9 +299,19 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 		return params;
 	}
+
+    /**
+     * 如果作业处于暂停状态，回阻塞等待，直到consume使作业恢复执行，并返回true
+     * @param autoPause
+     * @return
+     */
 	public boolean isSchedulePaussed(boolean autoPause){
-		if(this.scheduleAssert != null)
-			return !this.scheduleAssert.assertSchedule(  autoPause);
+		if(this.scheduleAssert != null) {
+            boolean paused = !this.scheduleAssert.assertSchedule(autoPause);
+            if(paused){
+                scheduleAssert.pausedAwait();
+            }
+        }
 		return false;
 	}
 	public BaseDataTran createBaseDataTran(TaskContext taskContext, TranResultSet tranResultSet, JobCountDownLatch countDownLatch, Status currentStatus){
@@ -810,11 +820,16 @@ public class DataTranPluginImpl implements DataTranPlugin {
                     startEndScheduleThread(   scheduled,  scheduleEndCall);
 				} else { //外部定时任务引擎执行的方法，比如quartz，xxl-job之类的
                     startEndScheduleThread(  true,  scheduleEndCall);
-					if(scheduleService.isSchedulePaused(isEnableAutoPauseScheduled())){
-						if(logger.isInfoEnabled()){
-							logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
-						}
-						return;
+					if(scheduleService.isSchedulePaused(isEnableAutoPauseScheduled())){ //如果作业处于暂停状态，回阻塞等待，直到consume使作业恢复执行，并返回true
+						
+                        if(this.checkTranToStop())//任务处于停止状态，不再执行定时作业
+                        {
+                            if(logger.isInfoEnabled()){
+                                logger.info("Schedule Task has stopped,stop resume schedule.");
+                            } 
+                            return;
+                        }
+//						return;
 					}
 					scheduleService.externalTimeSchedule();
 
@@ -1042,10 +1057,17 @@ public class DataTranPluginImpl implements DataTranPlugin {
 	 *
 	 */
 	private AtomicInteger tranCounts = new AtomicInteger(0);
+    protected void initLatch(){
+        synchronized (latchLock) {
+            if(latch == null || latch.getCount() == 0) {
+                latch = new CountDownLatch(1);
+            }
+        }
+    }
 	public void setHasTran(){
 		lock.lock();
 		try {
-            latch = new CountDownLatch(1);
+            initLatch();
 			tranCounts.incrementAndGet();
 			this.hasTran = true;
             if(status == TranConstant.PLUGIN_STOPREADY || status == TranConstant.PLUGIN_INIT)
@@ -1056,6 +1078,12 @@ public class DataTranPluginImpl implements DataTranPlugin {
 		}
 
 	}
+    protected void latchCountDown(){
+        synchronized (latchLock) {
+            if (latch != null)
+                latch.countDown();
+        }
+    }
     public void checkHasTranAndSetPLUGIN_STOPREADY() {
         lock.lock();
         try {
@@ -1064,8 +1092,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
                     this.status = TranConstant.PLUGIN_STOPREADY;
                 else
                     this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-                if(latch != null)
-                    latch.countDown();
+                latchCountDown();
             }
         }
         finally {
@@ -1119,8 +1146,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
                         this.status = TranConstant.PLUGIN_STOPREADY;
                     else
                         this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-                    if(latch != null)
-                        latch.countDown();
+                    latchCountDown();
                 }
             }
         }
@@ -1172,7 +1198,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
 			lock.unlock();
 		}
 	}
-
+    protected Object latchLock = new Object();
     protected void canFinishTran(boolean onceTaskFinish){
 //        lock.lock();
 //        try{
@@ -1188,8 +1214,13 @@ public class DataTranPluginImpl implements DataTranPlugin {
 //        }
 
         try {
-            if(latch != null)
-                latch.await();
+            CountDownLatch countDownLatch = null;
+            synchronized (latchLock){
+                countDownLatch = this.latch;
+            }
+            if (countDownLatch != null) {
+                countDownLatch.await();
+            }
         } catch (InterruptedException e) {
 //            throw new RuntimeException(e);
         }
@@ -1357,14 +1388,12 @@ public class DataTranPluginImpl implements DataTranPlugin {
                 }
                 else{
                     this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-                    if(latch != null)
-                        latch.countDown();
+                    latchCountDown();
                 }
             }
             else {
                 this.status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-                if(latch != null)
-                    latch.countDown();
+                latchCountDown();
             }
         }
         finally {
@@ -1389,6 +1418,9 @@ public class DataTranPluginImpl implements DataTranPlugin {
         if(logger.isInfoEnabled())
             logger.info("Destroy datatran job begin with waitTranStop {} fromScheduleEnd {}",waitTranStop,fromScheduleEnd);
         PLUGIN_STOPAPPENDING();
+        if(scheduleAssert != null){
+            this.scheduleAssert.stopAndInteruptPause();
+        }
 		if(scheduleService != null){
 			scheduleService.stop();
 		}

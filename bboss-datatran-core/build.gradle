@@ -35,7 +35,7 @@ dependencies {
 	)
 
     compileOnly  (
-            [group: 'org.apache.groovy', name: 'groovy-all', version: "${groovy_version}", transitive: true],
+            [group: 'org.apache.groovy', name: 'groovy', version: "${groovy_version}", transitive: true],
 
     ){
 //            exclude group: 'org.apache.groovy', module: 'groovy-testng'
@@ -50,7 +50,7 @@ dependencies {
     }
 
     testImplementation  (
-            [group: 'org.apache.groovy', name: 'groovy-all', version: "${groovy_version}", transitive: true],
+            [group: 'org.apache.groovy', name: 'groovy', version: "${groovy_version}", transitive: true],
 
     ){
 //            exclude group: 'org.apache.groovy', module: 'groovy-testng'

@@ -120,6 +120,12 @@ public class ScheduleService {
 			}
 		}
 	}
+
+    /**
+     * 如果作业处于暂停状态，回阻塞等待，直到consume使作业恢复执行，并返回true
+     * @param autoSchedulePaused
+     * @return
+     */
 	public boolean isSchedulePaused(boolean autoSchedulePaused){
 		return this.importContext.isSchedulePaused(autoSchedulePaused);
 	}
@@ -153,10 +159,17 @@ public class ScheduleService {
 			@Override
 			public void run() {
 				if(isSchedulePaused(isEnableAutoPauseScheduled())){
-					if(logger.isInfoEnabled()){
-						logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
-					}
-					return;
+//					if(logger.isInfoEnabled()){
+//						logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+//					}
+                    if(importContext.getDataTranPlugin().checkTranToStop())//任务处于停止状态，不再执行定时作业
+                    {
+                        if(logger.isInfoEnabled()){
+                            logger.info("Schedule Task has stopped,stop resume schedule.");
+                        }
+                        return;
+                    }
+//					return;
 				}
 				externalTimeSchedule();
 

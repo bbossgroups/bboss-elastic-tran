@@ -452,21 +452,28 @@ public class FileReaderTask extends FieldManager{
                             continue;
                         } else {
                             boolean pauseSchedule = fileListenerService.isSchedulePaussed(false);//这里需要关闭采集自动暂停机制，不能影响其他并行采集的文件调度
-                            if (pauseSchedule) {
-                                pauseScheduleTimeStamp = System.currentTimeMillis();
-                                if (logger.isInfoEnabled())
-                                    logger.info("Ignore Paused FileReader[{}] Task,waiting for next resume schedule sign to continue.", fileInfo.getFilePath());
-                                try {
-                                    sleep(checkFileModifyInterval);
-                                } catch (InterruptedException e) {
-                                    if(logger.isDebugEnabled())
-                                        logger.debug("文件内容采集线程checkFileModifyInterval休眠期中断异常："+fileInfo.getFilePath(),e);
+                            if(pauseSchedule){
+                                //如果作业已经停止
+                                if(taskEnded || dataTranPlugin.checkTranToStop() || inputPlugin.isStopCollectData()){
+                                    logger.info("Ignore Scan new files for Stopped Schedule Task.");
                                     break;
                                 }
-                                continue;
-                            } else {
-                                pauseScheduleTimeStamp = 0L;
                             }
+//                            if (pauseSchedule) {
+//                                pauseScheduleTimeStamp = System.currentTimeMillis();
+//                                if (logger.isInfoEnabled())
+//                                    logger.info("Ignore Paused FileReader[{}] Task,waiting for next resume schedule sign to continue.", fileInfo.getFilePath());
+//                                try {
+//                                    sleep(checkFileModifyInterval);
+//                                } catch (InterruptedException e) {
+//                                    if(logger.isDebugEnabled())
+//                                        logger.debug("文件内容采集线程checkFileModifyInterval休眠期中断异常："+fileInfo.getFilePath(),e);
+//                                    break;
+//                                }
+//                                continue;
+//                            } else {
+//                                pauseScheduleTimeStamp = 0L;
+//                            }
                             if (fileRenamed(file)) //文件重命名，等待文件被清理重新更新新的File对象
                             {
                                 File fileIdFile = FileInodeHandler.getFileByInode(fileConfig, fileId);//查找重命名后的文件

@@ -186,7 +186,7 @@ public class JobFlow {
         //判断作业是否已经启动
         AssertResult assertResult = jobFlowContext.assertStarted();
         if(assertResult.isTrue()){
-            logger.warn("{} 已经启动：{}",jobInfo,assertResult.getJobFlowStatus().name());
+            logger.warn("{} 状态为：{}，已经启动过，忽略启动操作。",jobInfo,assertResult.getJobFlowStatus().name());
             return;
         }
         
@@ -237,6 +237,7 @@ public class JobFlow {
         boolean stopResult = this.jobFlowContext.stop(new Function() {
             @Override
             public Object apply(Object o) {
+                startJobFlowNode.stop();
                 try {
                     jobFlowScheduleTimer.stop();
                 } catch (Exception e) {

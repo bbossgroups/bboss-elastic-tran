@@ -27,9 +27,13 @@ public interface ScheduleAssert {
 	/**
 	 * 定时调度执行作业时，检查是否需要执行本次作业,如果返回true，
 	 * 则继续执行本次调度作业，false，则忽略本次作业，等待下一作业调度周期
+     * 
+     * 如果作业处于暂停状态，回阻塞等待，直到consume使作业恢复执行，并返回true
 	 * @return
 	 */
 	boolean assertSchedule(boolean autoPause);
+
+    void pausedAwait();
 	/**
 	 * 暂停调度
 	 * 如果暂停成功则返回true，否则返回false
@@ -41,4 +45,6 @@ public interface ScheduleAssert {
 	 * 如果调度成功，则返回true，否则返回false
 	 */
 	public  boolean resumeSchedule();
+
+    boolean stopAndInteruptPause();
 }

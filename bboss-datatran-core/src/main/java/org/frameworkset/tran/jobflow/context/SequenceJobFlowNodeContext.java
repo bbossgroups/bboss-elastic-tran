@@ -85,4 +85,15 @@ public class SequenceJobFlowNodeContext extends JobFlowNodeContext {
             }
         }
     }
+
+    /**
+     * 节点完成时，减少启动节点计数,完成计数器加1
+     * @return
+     */
+    @Override
+    public int nodeComplete() {
+        this.runningJobFlowNode = null;
+        return super.nodeComplete();
+
+    }
 }

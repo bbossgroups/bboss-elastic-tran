@@ -21,6 +21,7 @@ import org.frameworkset.tran.jobflow.JobFlowStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
 /**
@@ -59,18 +60,17 @@ public class JobFlowContext  extends StaticContext{
     }
 
     /**
-     * 判断作业是否已经启动
+     * 判断作业是否已经启动过
      * @return
      */
     public AssertResult assertStarted(){
         synchronized (updateJobFlowStatusLock){
-            return new AssertResult(jobFlowStatus,jobFlowStatus != JobFlowStatus.INIT 
-                    && jobFlowStatus != JobFlowStatus.STOPED )    ;
+            return new AssertResult(jobFlowStatus,jobFlowStatus != JobFlowStatus.INIT )    ;
         }
     }
 
     /**
-     * 判断作业是否已经启动
+     * 判断作业是否已经停止或者正在停止中
      * @return
      */
     public AssertResult assertStopped(){
@@ -136,12 +136,17 @@ public class JobFlowContext  extends StaticContext{
             }
             logger.info("Stop {} [fromScheduled={}] start.", jobFlow.getJobInfo(), fromScheduled);
             updateJobFlowStatus(JobFlowStatus.STOPPING);
+            /**
+             * 工作流停止，并且中断暂停状态
+             */
+            stopAndInteruptPause();
             if(runningJobFlowNode != null) {               
                 runningJobFlowNode.stop();                
             }
             else{
                 logger.info("Stop {} [fromScheduled={}] :ignore stop runningJobFlowNode,runningJobFlowNode is null.", jobFlow.getJobInfo(), fromScheduled);
             }
+            
             callback.apply(null);
             updateJobFlowStatus(JobFlowStatus.STOPED);
             result = true;
@@ -151,6 +156,7 @@ public class JobFlowContext  extends StaticContext{
         
     }
 
+    private CountDownLatch pauseCountDownLatch = null;
     public boolean pause() {
         boolean result = false;
         synchronized (runningJobFlowNodeLock) {
@@ -160,12 +166,16 @@ public class JobFlowContext  extends StaticContext{
                 
             }
             else {
+                
                 logger.warn("Pause {} start.", jobFlow.getJobInfo(), assertResult.getJobFlowStatus().name());
                 if (runningJobFlowNode != null) {
                     runningJobFlowNode.pause();  
                 }
                 else{
                     logger.info("Pause {} :ignore pause runningJobFlowNode,runningJobFlowNode is null,", jobFlow.getJobInfo());
+                }
+                synchronized (pauseCountDownLatchLock) {
+                    pauseCountDownLatch = new CountDownLatch(1);
                 }
                 updateJobFlowStatus(JobFlowStatus.PAUSE);
                 result = true;
@@ -177,7 +187,39 @@ public class JobFlowContext  extends StaticContext{
         return result;
         
     }
+    
+    private Object pauseCountDownLatchLock = new Object();
+    public void pauseAwait(JobFlowNode jobFlowNode){
+        if(assertStatus(JobFlowStatus.PAUSE).isTrue() ){
+            try {
+                CountDownLatch countDownLatch = null;
+                synchronized (pauseCountDownLatchLock){
+                    countDownLatch = this.pauseCountDownLatch;
+                }
+                if(countDownLatch != null) {
+                    logger.info("Pause {} begin.",jobFlowNode.getJobFlowNodeInfo());
+                    countDownLatch.await();
+                    logger.info("Consume {} complete.",jobFlowNode.getJobFlowNodeInfo());
+                }
+            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+            }
+        }
+    }
 
+    /**
+     * 工作流停止，并且中断暂停状态
+     */
+    public void stopAndInteruptPause(){
+        pauseLatchCountDown();
+    }
+    protected void pauseLatchCountDown(){
+        synchronized (pauseCountDownLatchLock) {
+            if(pauseCountDownLatch != null) {
+                pauseCountDownLatch.countDown();
+            }
+        }
+    }
     public boolean consume() {
 
         boolean result = false;
@@ -188,6 +230,7 @@ public class JobFlowContext  extends StaticContext{
                 
             }
             else {
+                pauseLatchCountDown();
                 if (runningJobFlowNode != null) {
                     runningJobFlowNode.consume();                    
                 }
@@ -204,6 +247,15 @@ public class JobFlowContext  extends StaticContext{
         return result;
         
     }
-
+    /**
+     * 节点完成时，减少启动节点计数,完成计数器加1
+     * @return
+     */
+    @Override
+    public int nodeComplete() {
+        this.runningJobFlowNode = null;
+        return super.nodeComplete();
+        
+    }
 
 }

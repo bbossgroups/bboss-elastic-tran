@@ -206,6 +206,7 @@ public class DataStream {
             }
             destoried = true;
         }
+        
         if(importContext != null) {
             logger.info("Destroy DataStream begin,waitTranStopped[{}].",destroyPolicy.isWaitTranStopped());
             this.importContext.destroy(  destroyPolicy);

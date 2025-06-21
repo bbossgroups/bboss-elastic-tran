@@ -469,7 +469,14 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                                 markscanStart();
                                 try {
                                     boolean schedulePaused = fileListenerService.isSchedulePaussed(fileInputConfig.isEnableAutoPauseScheduled());
-                                    if (!schedulePaused) {
+                                    if(schedulePaused){
+                                        //如果作业已经停止
+                                        if(importContext.getDataTranPlugin().checkTranToStop()){
+                                            logger.info("Ignore Scan new files for Stopped Schedule Task.");
+                                            return false;
+                                        }
+                                    }
+//                                    if (!schedulePaused) {
                                         for (LogDirScan logDirScan : logDirScans) {
                                             try {
                                                 logDirScan.scanNewFile(taskContext);
@@ -496,13 +503,13 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                                                 logger.error(msg, e);
                                             }
                                         }
-                                    } else {
-                                        //todo here,markscanFinished
-                                        if (logger.isInfoEnabled()) {
-                                            logger.info("Ignore Scan new files for Paussed Schedule Task,waiting for next resume schedule sign to continue.");
-                                        }
-                                    }
-                                    return schedulePaused;
+//                                    } else {
+//                                        //todo here,markscanFinished
+//                                        if (logger.isInfoEnabled()) {
+//                                            logger.info("Ignore Scan new files for Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+//                                        }
+//                                    }
+                                    return true;
                                 }
                                 finally {
                                     markscanFinished();

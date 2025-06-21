@@ -19,7 +19,6 @@ import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.jobflow.context.AssertResult;
 import org.frameworkset.tran.jobflow.context.JobFlowContext;
-import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.frameworkset.tran.jobflow.context.SimpleJobFlowNodeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,15 +79,17 @@ public class SimpleJobFlowNode extends JobFlowNode{
             } catch (BrokenBarrierException e) {
             }
         }
+        jobFlow.getJobFlowContext().pauseAwait(this);
         JobFlowContext jobFlowContext = this.jobFlow.getJobFlowContext();
         AssertResult assertResult = jobFlowContext.assertStopped();
         if(assertResult.isTrue())
         {
-            logger.info("AssertStopped: true,ignore execute this SimpleJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
-            nodeComplete(null,true);
+            logger.info("AssertStopped: true,ignore execute {}.",this.getJobFlowNodeInfo());
+            return false;
+//            nodeComplete(null,true);
         }        
         else if(this.assertTrigger()) {
-            logger.info("Start SimpleJobFlowNode[id={},name={}] begin.",this.getNodeId(),this.getNodeName());
+            logger.info("Start {} begin.",this.getJobFlowNodeInfo());
             dataStream = importBuilder.builder(true);
             dataStream.execute();
             
@@ -97,25 +98,34 @@ public class SimpleJobFlowNode extends JobFlowNode{
             return true;
         }
         else{
-            logger.info("AssertTrigger: false,ignore execute this SimpleJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
+            logger.info("AssertTrigger: false,ignore execute {}.",this.getJobFlowNodeInfo());
             nodeComplete(null,true);
         }
         return false;
     }
-
+    protected void release(){
+        if(dataStream != null){
+            dataStream = null;
+        }
+    }
     /**
      * 停止流程当前节点
      */
     @Override
     public void stop(){
-        JobFlowExecuteContext jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
-        logger.info("Stop SimpleJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] begin.");
-       
+        if(simpleJobFlowNodeContext.assertStoped())
+            return;
+        logger.info("Stop {} begin.",this.getJobFlowNodeInfo());
+        simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPPING);
         if(dataStream != null){
             dataStream.destroy(true);
         }
+        
         simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
-        logger.info("Stop SimpleJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] complete.");
+        logger.info("Stop {} complete.",this.getJobFlowNodeInfo());
+        if(this.nextJobFlowNode != null){
+            this.nextJobFlowNode.stop();
+        }
 //        if(this.nextJobFlowNode != null){
 //            try {
 //                this.nextJobFlowNode.stop();

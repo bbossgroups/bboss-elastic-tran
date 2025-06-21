@@ -15,6 +15,8 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * <p>Description: 调度执行后将作业自动标记为暂停状态，等待下一个resumeShedule指令才继续允许作业调度执行，执行后再次自动暂停，等待下一个resumeShedule指令才继续允许作业调度执行，执行后再次自动暂停
 
@@ -39,8 +41,10 @@ public class AutopauseScheduleAssert extends DefaultScheduleAssert {
 			return true;
 		}
 		else{
-			if(autoPause)
-				paused = true;
+			if(autoPause) {
+                pauseCountDownLatch = new CountDownLatch(1);
+                paused = true;
+            }
 			return false;
 		}
 	}

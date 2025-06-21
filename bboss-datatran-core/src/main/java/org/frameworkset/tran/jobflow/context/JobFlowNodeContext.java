@@ -34,6 +34,13 @@ public class JobFlowNodeContext extends StaticContext{
         }
        
     }
+    
+    public boolean assertStoped(){
+        synchronized (updateJobFlowNodeStatusLock){
+            return jobFlowNodeStatus == JobFlowNodeStatus.STOPED || jobFlowNodeStatus == JobFlowNodeStatus.STOPPING;
+        }
+        
+    }
 
     public JobFlowNode getJobFlowNode() {
         return jobFlowNode;

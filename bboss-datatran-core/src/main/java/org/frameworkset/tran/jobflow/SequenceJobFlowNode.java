@@ -75,18 +75,20 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
             } catch (BrokenBarrierException e) {
             }
         }
+        jobFlow.getJobFlowContext().pauseAwait(this);
         JobFlowContext jobFlowContext = this.jobFlow.getJobFlowContext();
         AssertResult assertResult = jobFlowContext.assertStopped();
         if(assertResult.isTrue())
         {
-            logger.info("AssertStopped: true,ignore execute this SequenceJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
-            nodeComplete(null,true);
+            logger.info("AssertStopped: true,ignore execute {}.",this.getJobFlowNodeInfo());
+            return false;
+//            nodeComplete(null,true);
         }
         else if(assertTrigger()) {
             if (headerJobFlowNode == null) {
-                throw new JobFlowException("SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"]:headerJobFlowNode is null.");
+                throw new JobFlowException(this.getJobFlowNodeInfo()+":headerJobFlowNode is null.");
             } else {
-                logger.info("Start SequenceJobFlowNode[id={},name={}] begin.",this.getNodeId(),this.getNodeName());
+                logger.info("Start {} begin.",this.getJobFlowNodeInfo());
 //                for (int i = 0; i < jobFlowNodes.size(); i++) {
 //                    JobFlowNode jobFlowNode = jobFlowNodes.get(i);
 //                    if(jobFlowNode.start())
@@ -99,7 +101,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
             return true;
         }
         else{
-            logger.info("AssertTrigger: false,ignore execute this SequenceJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
+            logger.info("AssertTrigger: false,ignore execute {}.",this.getJobFlowNodeInfo());
             nodeComplete(null,true);
         }
         return false;
@@ -111,19 +113,29 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void stop() {
-        logger.info("Stop SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] begin.");
+        if(sequenceJobFlowNodeContext.assertStoped()){
+            return;
+        }        
+        logger.info("Stop {} begin.",this.getJobFlowNodeInfo());
+        sequenceJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPPING);
         try {
 //            for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
 //                JobFlowNode jobFlowNode = jobFlowNodes.get(i);
 //                jobFlowNode.stop();
 //            }
             this.sequenceJobFlowNodeContext.stop();
+            if(headerJobFlowNode != null) {
+                this.headerJobFlowNode.stop();
+            }
         }
         catch (Exception e){
-            logger.warn("Stop SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] failed:",e);
+            logger.warn("Stop "+this.getJobFlowNodeInfo()+" failed:",e);
         }
         sequenceJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
-        logger.info("Stop SequenceJobFlowNode[id="+this.getNodeId()+",name="+this.getNodeName()+"] complete.");
+        logger.info("Stop {} complete.",this.getJobFlowNodeInfo());
+        if(this.nextJobFlowNode != null){
+            this.nextJobFlowNode.stop();
+        }
 //        if(this.nextJobFlowNode != null){
 //            try {
 //                this.nextJobFlowNode.stop();

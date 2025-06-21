@@ -125,6 +125,7 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
 	Map getJobInputParams();
 	/**
 	 * 判断调度任务是否被暂停
+     * 如果作业处于暂停状态，回阻塞等待，直到consume使作业恢复执行，并返回true
 	 * @return
 	 */
 	 boolean isSchedulePaused(boolean autoPause);

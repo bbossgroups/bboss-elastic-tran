@@ -122,10 +122,17 @@ public class ScheduleTimer implements Runnable{
 
 				if (TimeUtil.evalateNeedScan(timerScheduleConfig)) {
 					if(scheduleService.isSchedulePaused(scheduleService.isEnableAutoPauseScheduled())){
-						if(logger.isInfoEnabled()){
-							logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
-						}
-						break;
+//						if(logger.isInfoEnabled()){
+//							logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
+//						}
+                        if(!running)//任务处于停止状态，不再执行定时作业
+                        {
+                            if(logger.isInfoEnabled()){
+                                logger.info("Schedule Task has stopped,stop resume schedule.");
+                            }
+                            break;
+                        }
+//						break;
 					}
 					scheduleService.externalTimeSchedule();
 					break;

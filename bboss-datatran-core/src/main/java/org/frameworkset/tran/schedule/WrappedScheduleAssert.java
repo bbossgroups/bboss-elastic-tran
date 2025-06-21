@@ -40,7 +40,12 @@ public class WrappedScheduleAssert implements ScheduleAssert {
 			return scheduleAssert.assertSchedule(autoPause);
 	}
 
-	/**
+    @Override
+    public void pausedAwait() {
+        scheduleAssert.pausedAwait();
+    }
+
+    /**
 	 * 暂停调度
 	 */
 	public synchronized boolean pauseSchedule(){
@@ -54,4 +59,9 @@ public class WrappedScheduleAssert implements ScheduleAssert {
 	public synchronized boolean resumeSchedule(){
 		return scheduleAssert.resumeSchedule();
 	}
+
+    @Override
+    public synchronized boolean stopAndInteruptPause() {
+        return scheduleAssert.stopAndInteruptPause();
+    }
 }

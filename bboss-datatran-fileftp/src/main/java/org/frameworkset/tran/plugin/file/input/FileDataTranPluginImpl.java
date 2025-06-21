@@ -537,8 +537,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                             //三种扫描状态：未开始扫描，扫描开始，扫描结束
                             if(isScanInitOrFinish) {//如果还未开始扫描或者扫描结束
                                 status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-                                if(latch != null)
-                                    latch.countDown();
+                                latchCountDown();
                             }
                             else{//如果正在扫描
                                 status = TranConstant.PLUGIN_STOPAPPENDING;
@@ -548,8 +547,7 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                     }
                     else {
                         status = TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-                        if(latch != null)
-                            latch.countDown();
+                        latchCountDown();
                     }
                 }
                 finally {

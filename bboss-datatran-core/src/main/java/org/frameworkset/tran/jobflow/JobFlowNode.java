@@ -38,6 +38,7 @@ public abstract class JobFlowNode {
     protected String nodeId;
     protected String nodeName;
     protected JobFlow jobFlow;
+    protected String jobFlowNodeInfo;
     protected CompositionJobFlowNode compositionJobFlowNode;
     /**
      * 串行节点触发条件
@@ -76,6 +77,23 @@ public abstract class JobFlowNode {
     protected void release(){
         
     }
+
+    protected String buildJobFlowNodeInfo(){
+        if(this.jobFlowNodeInfo == null) {
+            StringBuilder info = new StringBuilder();
+            info.append(this.getClass().getSimpleName())
+                    .append("[id=").append(this.getNodeId())
+                    .append(",nodeName=").append(this.getNodeName())
+                    .append(",nodeType=").append(this.jobFlowNodeType.name())
+                    .append("]");
+            return jobFlowNodeInfo = info.toString();
+        }
+        return jobFlowNodeInfo;
+    }
+    public String getJobFlowNodeInfo() {
+        return buildJobFlowNodeInfo();
+    }
+
     public void setCompositionJobFlowNode(CompositionJobFlowNode compositionJobFlowNode) {
         this.compositionJobFlowNode = compositionJobFlowNode;
     }
@@ -218,26 +236,26 @@ public abstract class JobFlowNode {
      */
     
     public void nodeComplete(Throwable throwable,boolean ignoreExecute){
-//        logger_.info("Execute {}[id={},name={}] complete.",this.getClass().getName(),this.getNodeId(),this.getNodeName());
         jobFlowNodeContext.setExecuteException(throwable);
         complete();
         release();
+        
         if(this.nextJobFlowNode != null && !ignoreExecute){
-            logger_.info(this +" execute complete and start nextJobFlowNode["+nextJobFlowNode+"]" );
+            logger_.info("{} execute complete and start nextJobFlowNode[{}]",getJobFlowNodeInfo() ,nextJobFlowNode.getJobFlowNodeInfo());
             this.nextJobFlowNode.start();
         }
         else{
             if(parentJobFlowNode != null){
-                logger_.info(this +" execute complete and call parentJobFlowNode["+parentJobFlowNode+"]‘s nextNodeComplete" );
+                logger_.info("{} execute complete and call parentJobFlowNode[{}]‘s nextNodeComplete" ,getJobFlowNodeInfo() ,nextJobFlowNode.getJobFlowNodeInfo());
                 parentJobFlowNode.nextNodeComplete(     throwable);
             }
             else{
                 if(this.compositionJobFlowNode != null){
-                    logger_.info("Execute {}[id={},name={}] complete and call compositionJobFlowNode[{}]'s brachComplete.",this.getClass().getName(),this.getNodeId(),this.getNodeName(),compositionJobFlowNode.toString());
+                    logger_.info("Execute {} complete and call compositionJobFlowNode[{}]'s brachComplete.",this.getJobFlowNodeInfo(),compositionJobFlowNode.getJobFlowNodeInfo());
                     compositionJobFlowNode.brachComplete(this,     throwable);
                 }
                 else{
-                    logger_.info("Execute {}[id={},name={}] complete and call {}'s complete.",this.getClass().getName(),this.getNodeId(),this.getNodeName(),jobFlow.getJobInfo());
+                    logger_.info("Execute {} complete and call {}'s complete.",this.getJobFlowNodeInfo(),jobFlow.getJobInfo());
                     this.jobFlow.complete(    throwable);
                 }
             }
@@ -250,27 +268,27 @@ public abstract class JobFlowNode {
      * 如果有父节点则反向通知父节点，当前节点已经完成任务,可以采取下一步的措施
      * 如果没有父节点，则可能已经到达工作流的第一个节点，也可能到达并行节点的分支起点
      */
-    public void nodeComplete(ImportContext importContext, Throwable e){
-        jobFlowNodeContext.setExecuteException(e);
+    public void nodeComplete(ImportContext importContext, Throwable throwable){
+        jobFlowNodeContext.setExecuteException(throwable);
         complete();
         release();
-        if(this.nextJobFlowNode != null){
-            logger_.info(this +" execute complete and start nextJobFlowNode["+nextJobFlowNode+"]" );
+        if(this.nextJobFlowNode != null ){
+            logger_.info("{} execute complete and start nextJobFlowNode[{}]",getJobFlowNodeInfo() ,nextJobFlowNode.getJobFlowNodeInfo());
             this.nextJobFlowNode.start();
         }
         else{
             if(parentJobFlowNode != null){
-                logger_.info(this +" execute complete and call parentJobFlowNode["+parentJobFlowNode+"]‘s nextNodeComplete" );
-                parentJobFlowNode.nextNodeComplete(  importContext,   e);
+                logger_.info("{} execute complete and call parentJobFlowNode[{}]‘s nextNodeComplete" ,getJobFlowNodeInfo() ,nextJobFlowNode.getJobFlowNodeInfo());
+                parentJobFlowNode.nextNodeComplete(  importContext,   throwable);
             }
             else{
                 if(this.compositionJobFlowNode != null){
-                    logger_.info("Execute {}[id={},name={}] complete and call compositionJobFlowNode[{}]'s brachComplete.",this.getClass().getName(),this.getNodeId(),this.getNodeName(),compositionJobFlowNode.toString());
-                    compositionJobFlowNode.brachComplete(this,  importContext,   e);
+                    logger_.info("Execute {} complete and call compositionJobFlowNode[{}]'s brachComplete.",this.getJobFlowNodeInfo(),compositionJobFlowNode.getJobFlowNodeInfo());
+                    compositionJobFlowNode.brachComplete(this,    importContext, throwable);
                 }
                 else{
-                    logger_.info("Execute {}[id={},name={}] complete and call {}'s complete.",this.getClass().getName(),this.getNodeId(),this.getNodeName(),jobFlow.getJobInfo());
-                    this.jobFlow.complete(  importContext,   e);
+                    logger_.info("Execute {} complete and call {}'s complete.",this.getJobFlowNodeInfo(),jobFlow.getJobInfo());
+                    this.jobFlow.complete(  importContext,  throwable);
                 }
             }
         }
@@ -320,23 +338,27 @@ public abstract class JobFlowNode {
      * 如果没有父节点，则可能已经到达工作流的第一个节点，也可能到达并行节点的分支起点
      */
     @Deprecated
-    public void nodeComplete(TaskContext taskContext, Throwable e){
-        jobFlowNodeContext.setExecuteException(e);
+    public void nodeComplete(TaskContext taskContext, Throwable throwable){
+        jobFlowNodeContext.setExecuteException(throwable);
         complete();
         release();
-        if(this.nextJobFlowNode != null){
+        if(this.nextJobFlowNode != null ){
+            logger_.info("{} execute complete and start nextJobFlowNode[{}]",getJobFlowNodeInfo() ,nextJobFlowNode.getJobFlowNodeInfo());
             this.nextJobFlowNode.start();
         }
         else{
             if(parentJobFlowNode != null){
-                parentJobFlowNode.nextNodeComplete(  taskContext,   e);
+                logger_.info("{} execute complete and call parentJobFlowNode[{}]‘s nextNodeComplete" ,getJobFlowNodeInfo() ,nextJobFlowNode.getJobFlowNodeInfo());
+                parentJobFlowNode.nextNodeComplete(  taskContext,   throwable);
             }
             else{
                 if(this.compositionJobFlowNode != null){
-                    compositionJobFlowNode.brachComplete(this,  taskContext,   e);
+                    logger_.info("Execute {} complete and call compositionJobFlowNode[{}]'s brachComplete.",this.getJobFlowNodeInfo(),compositionJobFlowNode.getJobFlowNodeInfo());
+                    compositionJobFlowNode.brachComplete(this,    taskContext, throwable);
                 }
                 else{
-                    this.jobFlow.complete(  taskContext,   e);
+                    logger_.info("Execute {} complete and call {}'s complete.",this.getJobFlowNodeInfo(),jobFlow.getJobInfo());
+                    this.jobFlow.complete(  taskContext,  throwable);
                 }
             }
         }
@@ -369,9 +391,7 @@ public abstract class JobFlowNode {
         return jobFlowNodeType;
     }
     public String toString(){
-        StringBuilder b = new StringBuilder();
-        b.append("{id=").append(this.getNodeId()).append(",nodeName=").append(this.getNodeName()).append(",nodeType=").append(this.getJobFlowNodeType().name()).append("}");
-        return b.toString();
+        return getJobFlowNodeInfo();
     }
 
     /**

@@ -711,6 +711,9 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 		baseImportConfig.setBatchSize(batchSize);
 	}
 	@Override
+    /**
+     * 如果作业处于暂停状态，回阻塞等待，直到consume使作业恢复执行，并返回true
+     */
 	public boolean isSchedulePaused(boolean autoPause){
 		return this.dataTranPlugin.isSchedulePaussed(  autoPause);
 	}

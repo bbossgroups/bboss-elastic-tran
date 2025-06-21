@@ -15,7 +15,6 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
-import org.apache.commons.collections.CollectionUtils;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.jobflow.context.AssertResult;
 import org.frameworkset.tran.jobflow.context.JobFlowContext;
@@ -91,23 +90,25 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             } catch (BrokenBarrierException e) {
             }
         }
+        jobFlow.getJobFlowContext().pauseAwait(this);
         JobFlowContext jobFlowContext = this.jobFlow.getJobFlowContext();
         AssertResult assertResult = jobFlowContext.assertStopped();
         if(assertResult.isTrue())
         {
-            logger.info("AssertStopped: true,ignore execute this ParrelJobFlowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
-            nodeComplete(null,true);
+            logger.info("AssertStopped: true,ignore execute {}.",this.getJobFlowNodeInfo());
+//            nodeComplete(null,true);
+            return false;
         }
         else if(assertTrigger()) {
             if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
-                throw new JobFlowException("ParrelJobFlowNode must set jobFlowNodes,please set jobFlowNodes first.");
+                throw new JobFlowException(this.getJobFlowNodeInfo()+" must set jobFlowNodes,please set jobFlowNodes first.");
             } else {
 
-                logger.info("Start parrelJobFlowNode[id={},name={}] begin.",this.getNodeId(),this.getNodeName());
+                logger.info("Start {} begin.",this.getJobFlowNodeInfo());
                 ExecutorService blockedExecutor = buildThreadPool();
                 List<Future> futureList = new ArrayList<>();
                 CyclicBarrier thisBarrier = new CyclicBarrier(jobFlowNodes.size(), () -> {
-                    logger.info("All Parrel jobFlowNodes[{}] ready to running.",jobFlowNodes.size());
+                    logger.info("All Parrel jobFlowNodes[{}] of {} ready to running.",jobFlowNodes.size(),this.getJobFlowNodeInfo());
                 });
                 for (int i = 0; i < jobFlowNodes.size(); i++) {
                     JobFlowNode jobFlowNode = jobFlowNodes.get(i);
@@ -143,7 +144,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             return true;
         }
         else{
-            logger.info("AssertTrigger: false,ignore execute this ParrelJobFlowNode.");
+            logger.info("AssertTrigger: false,ignore execute {}.",this.getJobFlowNodeInfo());
             nodeComplete(null,true);
         }
         return false;
@@ -162,14 +163,21 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void stop() {
-         
+        if(parrelJobFlowNodeContext.assertStoped()){
+            return;
+        }
+        logger.info("Stop {} begin.",this.getJobFlowNodeInfo());
+        parrelJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPPING);
         for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
             JobFlowNode jobFlowNode = jobFlowNodes.get(i);
             jobFlowNode.stop();
         }
         release();
         parrelJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
-        logger.info("Stop ParrelJobFlowNode[id={},nodeName={}] complete.",this.getNodeId(),this.getNodeName());
+        logger.info("Stop {} complete.",this.getJobFlowNodeInfo());
+        if(this.nextJobFlowNode != null){
+            this.nextJobFlowNode.stop();
+        }
 //        if(this.nextJobFlowNode != null){
 //            try {
 //                this.nextJobFlowNode.stop();

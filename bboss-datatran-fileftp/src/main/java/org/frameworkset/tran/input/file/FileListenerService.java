@@ -94,7 +94,11 @@ public class FileListenerService {
     }
 
 
-
+    /**
+     * 如果作业处于暂停状态，回阻塞等待，直到consume使作业恢复执行，并返回true
+     * @param autoPause
+     * @return
+     */
     public boolean isSchedulePaussed(boolean autoPause){
         return this.dataTranPlugin.isSchedulePaussed(  autoPause);
 
