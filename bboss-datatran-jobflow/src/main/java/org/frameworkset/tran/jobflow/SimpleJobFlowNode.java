@@ -116,7 +116,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
                 }
             }
             logger.info("AssertTrigger: false,ignore execute {}.",this.getJobFlowNodeInfo());
-            nodeComplete(null,true);
+            nodeComplete(null,true,jobFlowNodeExecuteContext);
         }
         return false;
     }

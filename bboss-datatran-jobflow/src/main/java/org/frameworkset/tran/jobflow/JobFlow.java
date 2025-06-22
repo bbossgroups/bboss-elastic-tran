@@ -372,7 +372,6 @@ public class JobFlow {
      */
     public void complete(Throwable e){
         jobFlowMetrics.complete(e);
-        
         if(isExternalTimer()){
             //周期性执行，更新状态为调度一次完成
             this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);

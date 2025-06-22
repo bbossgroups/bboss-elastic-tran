@@ -240,7 +240,7 @@ public abstract class JobFlowNode {
      */
     public abstract void consume();
     public void nodeComplete(Throwable throwable){
-        nodeComplete(throwable,false);
+        nodeComplete(throwable,false,jobFlowNodeExecuteContext);
     }
     /**
      * 作业结束时，节点任务结束,可以唤醒下一个任务
@@ -250,7 +250,7 @@ public abstract class JobFlowNode {
      * @param ignoreExecute By NodeTrigger or By Stop 
      */
     
-    public void nodeComplete(Throwable throwable,boolean ignoreExecute){
+    public void nodeComplete(Throwable throwable,boolean ignoreExecute,JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
         jobFlowNodeContext.setExecuteException(throwable);
         complete();        
         if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){

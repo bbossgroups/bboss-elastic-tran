@@ -16,10 +16,7 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.apache.commons.collections.CollectionUtils;
-import org.frameworkset.tran.jobflow.context.AssertResult;
-import org.frameworkset.tran.jobflow.context.DefaultJobFlowNodeExecuteContext;
-import org.frameworkset.tran.jobflow.context.JobFlowContext;
-import org.frameworkset.tran.jobflow.context.ParrelJobFlowNodeContext;
+import org.frameworkset.tran.jobflow.context.*;
 import org.frameworkset.tran.jobflow.listener.JobFlowNodeListener;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
 import org.slf4j.Logger;
@@ -158,7 +155,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                     jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);
                 }
             }
-            nodeComplete(null,true);
+            nodeComplete(null,true,jobFlowNodeExecuteContext);
         }
         return false;
         
@@ -208,15 +205,22 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
 //        }
     }
 
-
+    private Object jobFlowNodeExecuteContextLock = new Object();
     /**
      * 某个并行分支完成时回调
      * @param jobFlowNode
      */
     @Override
     public void brachComplete(JobFlowNode jobFlowNode, Throwable e) {
-        if(this.parrelJobFlowNodeContext.allNodeComplete() ) {            
-            this.nodeComplete( e,false);
+        if(this.parrelJobFlowNodeContext.allNodeComplete() ) {
+            JobFlowNodeExecuteContext jobFlowNodeExecuteContext_ = null;
+            synchronized (jobFlowNodeExecuteContextLock){
+                jobFlowNodeExecuteContext_ = this.jobFlowNodeExecuteContext;
+                this.jobFlowNodeExecuteContext = null;
+            }
+            if(jobFlowNodeExecuteContext_ != null) {
+                this.nodeComplete(e, false,jobFlowNodeExecuteContext_);
+            }
         }
     }
 
