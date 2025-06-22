@@ -26,14 +26,12 @@ import org.frameworkset.tran.AsynBaseTranResultSet;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.JobCountDownLatch;
-import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.es.BaseESPlugin;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
-import org.frameworkset.util.NumberUtils;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;

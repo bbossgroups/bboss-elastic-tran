@@ -21,6 +21,8 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.context.ReInitAction;
 import org.frameworkset.tran.context.TaskContextReinitCallback;
+import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.frameworkset.tran.metrics.BaseMetricsLogReport;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.metrics.TaskMetrics;
@@ -405,5 +407,23 @@ public class TaskContext extends BaseMetricsLogReport {
 
     public String getJobName() {
         return importContext.getJobName();
+    }
+
+    /**
+     * 获取工作流节点执行上下文对象
+     *
+     * @return
+     */
+    public JobFlowNodeExecuteContext getJobFlowNodeExecuteContext() {
+        return importContext.getJobFlowNodeExecuteContext();
+    }
+
+    /**
+     * 获取工作流执行上下文对象
+     *
+     * @return
+     */
+    public JobFlowExecuteContext getJobFlowExecuteContext() {
+        return importContext.getJobFlowExecuteContext();
     }
 }

@@ -26,14 +26,11 @@ sourceSets {
 
 
 dependencies {
-	api (project(':bboss-datatran-geoip'))
-	api (project(':bboss-datatran-metrics'))
-    api (project(':bboss-datatran-jobflow'))
-	testImplementation (
-			[group: 'org.xerial', name: 'sqlite-jdbc', version: "3.45.1.0", transitive: false],
-//			[group: 'mysql', name: 'mysql-connector-java', version: "${mysqlconnectorversion}", transitive: false]
-            [group: 'com.mysql', name: 'mysql-connector-j', version: "${mysqlconnectorversion}", transitive: false],
-	)
+    
+    api  (
+            [group: 'com.bbossgroups', name: 'bboss-core', version: "${PROJ_BBOSS_VERSION}", transitive: true],
+
+    )
 
     compileOnly  (
             [group: 'org.apache.groovy', name: 'groovy', version: "${groovy_version}", transitive: true],

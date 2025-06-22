@@ -24,6 +24,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.InitJobContextCall;
 import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.jobflow.JobFlowNode;
+import org.frameworkset.tran.schedule.ScheduleConfig;
 import org.frameworkset.tran.listener.AsynJobClosedListener;
 import org.frameworkset.tran.listener.AsynJobClosedListenerImpl;
 import org.frameworkset.tran.listener.JobClosedListener;
@@ -1573,7 +1574,7 @@ public class ImportBuilder {
             baseImportConfig.setJobClosedListener(new JobClosedListener() {
                 @Override
                 public void jobClosed(ImportContext importContext, Throwable throwable) {
-                    jobFlowNode.nodeComplete(  importContext,   throwable);
+                    jobFlowNode.nodeComplete(     throwable);
                 }
             });
             

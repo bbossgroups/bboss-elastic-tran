@@ -28,6 +28,7 @@ import org.frameworkset.tran.config.JobInputParamGroup;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
+import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.MetricsLogLevel;
 import org.frameworkset.tran.metrics.MetricsLogReport;
@@ -731,7 +732,7 @@ public class DataTranPluginImpl implements DataTranPlugin {
      * @param scheduled
      * @param scheduleEndCall
      */
-    protected void startEndScheduleThread(boolean scheduled,ScheduleEndCall scheduleEndCall){
+    protected void startEndScheduleThread(boolean scheduled, ScheduleEndCall scheduleEndCall){
         Date scheduleEndDate = importContext.getScheduleEndDate();
         if(scheduled && scheduleEndDate != null){
 

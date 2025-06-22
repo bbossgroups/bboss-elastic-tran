@@ -98,6 +98,7 @@ configure([project(":bboss-datatran-jdbc"),
 		   project(":bboss-datatran-kafka1x"),
 		   project(":bboss-datatran-kafka2x"),
 		   project(":bboss-datatran-core"),
+           project(":bboss-datatran-jobflow"),
 		   project(":bboss-datatran-fileftp"),
 		   project(":bboss-datatran-hbase"),
 		   project(":bboss-datatran-mongodb"),
@@ -109,80 +110,6 @@ configure([project(":bboss-datatran-jdbc"),
            
 ]) { subproject ->
 
-
-//	uploadArchives {
-//		  repositories {
-//
-//			    mavenDeployer {
-//
-//			beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-//	     	repository(url: sonatype_url) {
-//
-//			         authentication(userName: sonatype_username, password: sonatype_password)
-//			}
-//
-//
-//
-//
-//		      pom.project {
-//		        name project.name
-//		        packaging 'jar'
-//		        // optionally artifactId can be defined here
-//		        description PROJ_DESCRIPTION
-//		        url PROJ_WEBSITEURL
-//
-//		        scm {
-//		          connection scm_connection
-//		          developerConnection scm_developerConnection
-//		          url scm_url
-//		        }
-//
-//		        licenses {
-//		          license {
-//		            name PROJ_LICENCE_NAME
-//		            url PROJ_LICENCE_URL
-//		          }
-//		        }
-//
-//		        developers {
-//		          developer {
-//		            id DEVELOPER_ID
-//		            name DEVELOPER_NAME
-//		            email DEVELOPER_EMAIL
-//		          }
-//		        }
-//		      }
-//		    }
-//		  }
-//		}
-		
-//		publishing {
-//			publications {
-//				mavenJava(MavenPublication) {
-//
-//					from components.java
-//
-//					artifact sourcesJar
-//					artifact javaDocJar
-//
-//				}
-//			}
-//			repositories {
-//		        /**maven {
-//		            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-//		            credentials {
-//		                username ""
-//		                password ""
-//		            }
-//		        }*/
-//		        mavenLocal()
-//				repository(url: sonatype_url) {
-//
-//					authentication(userName: sonatype_username, password: sonatype_password)
-//				}
-//		    }
-//
-//		}
 
 	publishing {
 		publications {
@@ -258,14 +185,7 @@ configure([project(":bboss-datatran-jdbc"),
 		sign publishing.publications.mavenJava
 //		sign configurations.archives
 	}
-	//	ext.uploadtocenter=uploadArchivesToMavenCenter.equals("true")
-//	if(uploadtocenter)
-//	{
-//		signing {
-//			//required { uploadtocenter }
-//			sign configurations.archives
-//		}
-//	}
+ 
 
 
 }

@@ -18,6 +18,7 @@ package org.frameworkset.tran.context;
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.frameworkset.tran.jobflow.JobFlowNode;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.frameworkset.tran.metrics.BaseMetricsLogReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public class JobContext extends BaseMetricsLogReport {
     private Date endStartTime;
     private JobFlowNode jobFlowNode;
     private JobFlow jobFlow;
-    private JobFlowExecuteContext jobFlowExecuteContext;
+
 	public JobContext(){
 		jobDatas = new LinkedHashMap<>();
         jobStartTime = new Date();
@@ -135,7 +136,6 @@ public class JobContext extends BaseMetricsLogReport {
         if (jobFlowNode != null){
             this.jobFlowNode = jobFlowNode;
             this.jobFlow = jobFlowNode.getJobFlow();
-            this.jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
         }
     }
 
@@ -144,6 +144,16 @@ public class JobContext extends BaseMetricsLogReport {
     }
 
     public JobFlowExecuteContext getJobFlowExecuteContext() {
-        return jobFlowExecuteContext;
+        if(jobFlowNode != null) {
+            return jobFlowNode.getJobFlow().getJobFlowExecuteContext();
+        }
+        return null;
+    }
+
+    public JobFlowNodeExecuteContext getJobFlowNodeExecuteContext(){
+        if(jobFlowNode != null){
+            return jobFlowNode.getJobFlowNodeExecuteContext();
+        }
+        return null;
     }
 }

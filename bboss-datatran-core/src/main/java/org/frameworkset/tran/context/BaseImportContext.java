@@ -19,6 +19,9 @@ import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.*;
+import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+import org.frameworkset.tran.schedule.ScheduleConfig;
 import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.*;
 import org.frameworkset.tran.plugin.InputPlugin;
@@ -836,5 +839,21 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
     }
     public    void resetMetricsLogLevel(int metricsLogLevel){
         this.baseImportConfig.resetMetricsLogLevel(  metricsLogLevel);
+    }
+
+    /**
+     * 获取工作流节点执行上下文对象
+     * @return
+     */
+    public JobFlowNodeExecuteContext getJobFlowNodeExecuteContext(){
+        return jobContext.getJobFlowNodeExecuteContext();
+    }
+
+    /**
+     * 获取工作流执行上下文对象
+     * @return
+     */
+    public JobFlowExecuteContext getJobFlowExecuteContext(){
+        return jobContext.getJobFlowExecuteContext();
     }
 }

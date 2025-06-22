@@ -16,17 +16,16 @@ package org.frameworkset.tran.context;
  */
 
 import com.frameworkset.orm.annotation.BatchContext;
-import com.frameworkset.orm.annotation.ESIndexWrapper;
 import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.ClientOptions;
 import org.frameworkset.tran.config.OutputConfig;
+import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.frameworkset.tran.metrics.DataTranPluginMetricsLogAPI;
 import org.frameworkset.tran.metrics.TaskMetrics;
-import org.frameworkset.tran.plugin.OutputPlugin;
-import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.record.ValueConvert;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.annotations.DateFormateMeta;
@@ -501,4 +500,16 @@ public interface Context extends DataTranPluginMetricsLogAPI {
     public RecordSpecialConfigsContext getRecordSpecialConfigsContext();
 
     void resolveRecordColumnInfo(String name,Object temp, FieldMeta fieldMeta);
+
+    /**
+     * 获取工作流节点执行上下文对象
+     * @return
+     */
+    JobFlowNodeExecuteContext getJobFlowNodeExecuteContext();
+
+    /**
+     * 获取工作流执行上下文对象
+     * @return
+     */
+    JobFlowExecuteContext getJobFlowExecuteContext();
 }

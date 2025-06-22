@@ -17,15 +17,13 @@ package org.frameworkset.tran.context;
 
 import org.frameworkset.tran.FieldMeta;
 import org.frameworkset.tran.config.InputConfig;
+import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.frameworkset.tran.plugin.OutputPlugin;
 import org.frameworkset.tran.plugin.db.input.DBInputConfig;
 import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
-import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.record.RecordOutpluginSpecialConfig;
 import org.frameworkset.tran.record.RecordOutpluginSpecialConfigs;
-
-import java.util.Date;
-import java.util.HashMap;
 
 /**
  * <p>Description: </p>
@@ -119,5 +117,23 @@ public class RecordSpecialConfigsContext {
         else if(recordOutpluginSpecialConfigs != null){
             recordOutpluginSpecialConfigs.addRecordSpecialConfig(  name,   value);
         }
+    }
+
+    /**
+     * 获取工作流节点执行上下文对象
+     *
+     * @return
+     */
+    public JobFlowNodeExecuteContext getJobFlowNodeExecuteContext() {
+        return importContext.getJobFlowNodeExecuteContext();
+    }
+
+    /**
+     * 获取工作流执行上下文对象
+     *
+     * @return
+     */
+    public JobFlowExecuteContext getJobFlowExecuteContext() {
+        return importContext.getJobFlowExecuteContext();
     }
 }

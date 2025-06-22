@@ -25,7 +25,6 @@ import org.frameworkset.persitent.util.SQLInfo;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.db.TranSQLInfo;
 import org.frameworkset.tran.plugin.db.output.DBOutputConfig;

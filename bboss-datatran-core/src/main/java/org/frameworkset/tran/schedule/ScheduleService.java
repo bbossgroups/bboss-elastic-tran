@@ -18,7 +18,6 @@ package org.frameworkset.tran.schedule;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.schedule.timer.ScheduleTimer;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;

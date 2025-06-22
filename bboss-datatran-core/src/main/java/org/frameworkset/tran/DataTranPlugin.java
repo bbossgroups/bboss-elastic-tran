@@ -19,6 +19,7 @@ import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.config.DynamicParamContext;
 import org.frameworkset.tran.context.Context;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.frameworkset.tran.metrics.DataTranPluginMetricsLogAPI;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;

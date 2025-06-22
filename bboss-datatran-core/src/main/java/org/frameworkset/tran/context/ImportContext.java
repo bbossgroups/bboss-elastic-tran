@@ -19,6 +19,9 @@ import com.frameworkset.orm.annotation.BatchContext;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.*;
+import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+import org.frameworkset.tran.schedule.ScheduleConfig;
 import org.frameworkset.tran.listener.JobClosedListener;
 import org.frameworkset.tran.metrics.DataTranPluginMetricsLogAPI;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
@@ -345,4 +348,15 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
      * @param metricsLogLevel
      */
     void resetMetricsLogLevel(int metricsLogLevel);
+    /**
+     * 获取工作流节点执行上下文对象
+     * @return
+     */
+    JobFlowNodeExecuteContext getJobFlowNodeExecuteContext();
+
+    /**
+     * 获取工作流执行上下文对象
+     * @return
+     */
+    JobFlowExecuteContext getJobFlowExecuteContext();
 }
