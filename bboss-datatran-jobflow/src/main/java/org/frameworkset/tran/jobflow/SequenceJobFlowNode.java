@@ -115,7 +115,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
                 }
             }
             logger.info("AssertTrigger: false,ignore execute {}.",this.getJobFlowNodeInfo());
-            nodeComplete(null,true,jobFlowNodeExecuteContext);
+            nodeComplete(null,true);
         }
         return false;
         
@@ -174,7 +174,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void brachComplete(JobFlowNode jobFlowNode, Throwable e) {
-        this.nodeComplete(e,false,jobFlowNodeExecuteContext);
+        this.nodeComplete(e,false);
     }
 
  

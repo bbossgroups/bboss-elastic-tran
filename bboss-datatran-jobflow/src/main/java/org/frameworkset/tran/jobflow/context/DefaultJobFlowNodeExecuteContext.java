@@ -20,6 +20,7 @@ import org.frameworkset.tran.jobflow.JobFlowNode;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 节点内部子节点之间传递和共享参数
@@ -30,11 +31,24 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     private Map<String,Object> contextDatas = new LinkedHashMap<>();
     private JobFlowNode jobFlowNode;
     private JobFlow jobFlow;
+
+    /**
+     * 判断节点是否已经完成标记
+     */
+    private AtomicBoolean nodeCompleteExecuted = new AtomicBoolean(false);
+    
+    
     
     public DefaultJobFlowNodeExecuteContext(JobFlowNode jobFlowNode){
         this.jobFlowNode = jobFlowNode;
         this.jobFlow = jobFlowNode.getJobFlow();
         
+    }
+    /**
+     * 判断节点是否已经完成
+     */
+    public boolean nodeCompleteUnExecuted(){
+        return nodeCompleteExecuted.compareAndSet(false, true);
     }
     @Override
     public synchronized Object getContextData(String name) {

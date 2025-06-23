@@ -26,7 +26,10 @@ import java.util.Map;
  */
 public interface JobFlowNodeExecuteContext {
     Object getContextData(String name);
-    
+    /**
+     * 判断节点是否已经完成
+     */
+    boolean nodeCompleteUnExecuted();
 
     void putAll(Map<String, Object> contextDatas);
 

@@ -35,7 +35,7 @@ public interface JobFlowNodeFunction {
      * @param jobFlowNodeExecuteContext
      * @return
      */
-    Object call(JobFlowNodeExecuteContext jobFlowNodeExecuteContext);
+    Object call(JobFlowNodeExecuteContext jobFlowNodeExecuteContext) throws Exception;
 
     /**
      * 重置一些监控状态

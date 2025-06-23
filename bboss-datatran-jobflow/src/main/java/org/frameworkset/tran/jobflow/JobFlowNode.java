@@ -252,7 +252,7 @@ public abstract class JobFlowNode {
      */
     public abstract void consume();
     public void nodeComplete(Throwable throwable){
-        nodeComplete(throwable,false,jobFlowNodeExecuteContext);
+        nodeComplete(throwable,false);
     }
     /**
      * 作业结束时，节点任务结束,可以唤醒下一个任务
@@ -262,12 +262,20 @@ public abstract class JobFlowNode {
      * @param ignoreExecute By NodeTrigger or By Stop 
      */
     
-    public void nodeComplete(Throwable throwable,boolean ignoreExecute,JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
+    public void nodeComplete(Throwable throwable,boolean ignoreExecute){
+        if(jobFlowNodeExecuteContext == null || !jobFlowNodeExecuteContext.nodeCompleteUnExecuted()) {
+            return;
+        }
         jobFlowNodeContext.setExecuteException(throwable);
         complete();        
         if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
             for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
                 jobFlowNodeListener.afterExecute(jobFlowNodeExecuteContext,throwable);
+            }
+        }
+        else{
+            if(throwable != null) {
+                logger_.error(this.getJobFlowNodeInfo() + " complete with exception:", throwable);
             }
         }
         release();
@@ -279,16 +287,16 @@ public abstract class JobFlowNode {
         else{
             if(parentJobFlowNode != null){
                 logger_.info("{} execute complete and call parentJobFlowNode[{}]‘s nextNodeComplete" ,getJobFlowNodeInfo() ,parentJobFlowNode.getJobFlowNodeInfo());
-                parentJobFlowNode.nextNodeComplete(     throwable);
+                parentJobFlowNode.nextNodeComplete(     null);
             }
             else{
                 if(this.compositionJobFlowNode != null){
                     logger_.info("Execute {} complete and call compositionJobFlowNode[{}]'s brachComplete.",this.getJobFlowNodeInfo(),compositionJobFlowNode.getJobFlowNodeInfo());
-                    compositionJobFlowNode.brachComplete(this,     throwable);
+                    compositionJobFlowNode.brachComplete(this,     null);
                 }
                 else{
                     logger_.info("Execute {} complete and call {}'s complete.",this.getJobFlowNodeInfo(),jobFlow.getJobInfo());
-                    this.jobFlow.complete(    throwable);
+                    this.jobFlow.complete(    null);
                 }
             }
         }

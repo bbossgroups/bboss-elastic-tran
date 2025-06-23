@@ -155,7 +155,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                     jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);
                 }
             }
-            nodeComplete(null,true,jobFlowNodeExecuteContext);
+            nodeComplete(null,true);
         }
         return false;
         
@@ -213,14 +213,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
     @Override
     public void brachComplete(JobFlowNode jobFlowNode, Throwable e) {
         if(this.parrelJobFlowNodeContext.allNodeComplete() ) {
-            JobFlowNodeExecuteContext jobFlowNodeExecuteContext_ = null;
-            synchronized (jobFlowNodeExecuteContextLock){
-                jobFlowNodeExecuteContext_ = this.jobFlowNodeExecuteContext;
-                this.jobFlowNodeExecuteContext = null;
-            }
-            if(jobFlowNodeExecuteContext_ != null) {
-                this.nodeComplete(e, false,jobFlowNodeExecuteContext_);
-            }
+             this.nodeComplete(e, false);
         }
     }
 

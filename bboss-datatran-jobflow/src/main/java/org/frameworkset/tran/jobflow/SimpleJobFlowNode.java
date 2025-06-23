@@ -102,8 +102,20 @@ public class SimpleJobFlowNode extends JobFlowNode{
             logger.info("Start {} begin.",this.getJobFlowNodeInfo());
 //            dataStream = importBuilder.builder(true);
 //            dataStream.execute();
-            jobFlowNodeFunction.call(jobFlowNodeExecuteContext);
-            
+            try {
+                jobFlowNodeFunction.call(jobFlowNodeExecuteContext);
+            }
+            catch (JobFlowException e){
+                this.nodeComplete(e);
+            }
+            catch (Exception e){
+                
+                this.nodeComplete(new JobFlowException(this.getJobFlowNodeInfo(),e));
+            }
+            catch (Throwable e){
+
+                this.nodeComplete(new JobFlowException(this.getJobFlowNodeInfo(),e));
+            }
             
 //            this.nodeComplete(null);
             return true;
@@ -116,7 +128,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
                 }
             }
             logger.info("AssertTrigger: false,ignore execute {}.",this.getJobFlowNodeInfo());
-            nodeComplete(null,true,jobFlowNodeExecuteContext);
+            nodeComplete(null,true);
         }
         return false;
     }
