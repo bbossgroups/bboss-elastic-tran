@@ -46,6 +46,7 @@ public class TriggerScriptUtil {
             code.append("import org.frameworkset.tran.jobflow.JobFlow;\n");
             code.append("import org.frameworkset.tran.jobflow.JobFlowNode;\n");
             code.append("import org.frameworkset.tran.jobflow.context.NodeTriggerContext;\n");
+            code.append("import org.frameworkset.tran.jobflow.context.StaticContext;\n");
             
             code.append("import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;\n");
             code.append("import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;\n");

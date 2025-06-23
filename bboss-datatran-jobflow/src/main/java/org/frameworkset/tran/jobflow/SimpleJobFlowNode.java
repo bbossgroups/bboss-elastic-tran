@@ -93,7 +93,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
 //            nodeComplete(null,true);
         }        
         else if(this.assertTrigger()) {
-            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this.jobFlow.getJobFlowExecuteContext());
+            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
             if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
                 for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
                     jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);
@@ -109,7 +109,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
             return true;
         }
         else{
-            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this.jobFlow.getJobFlowExecuteContext());
+            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
             if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
                 for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
                     jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);

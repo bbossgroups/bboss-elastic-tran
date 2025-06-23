@@ -18,17 +18,51 @@ package org.frameworkset.tran.jobflow;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 
 /**
- * 工作流执行器
+ * 工作流执行器，一个节点只保存JobFlowNodeFunction的一个实例，因此一次调度执行完毕后，需要通过reset重置状态，release释放资源
  * @author biaoping.yin
  * @Date 2025/6/22
  */
 public interface JobFlowNodeFunction {
-    void init(JobFlowNode jobFlowNode);
-    Object call(JobFlowNodeExecuteContext jobFlowNodeExecuteContext);
-    void reset();
-    void release();
-    void pauseSchedule();
-    void resumeSchedule();
 
+    /**
+     * 初始化构建节点函数实例时，只在构建工作流节点时调用一次
+     * @param jobFlowNode
+     */
+    void init(JobFlowNode jobFlowNode);
+
+    /**
+     * 执行工作流函数
+     * @param jobFlowNodeExecuteContext
+     * @return
+     */
+    Object call(JobFlowNodeExecuteContext jobFlowNodeExecuteContext);
+
+    /**
+     * 重置一些监控状态
+     */
+    void reset();
+
+    /**
+     * 释放资源
+     */
+    void release();
+
+    /**
+     * 暂停
+     */
+    default void pauseSchedule(){
+        
+    }
+
+    /**
+     * 恢复
+     */
+    default void resumeSchedule(){
+        
+    }
+
+    /**
+     * 停止
+     */
     void stop();
 }

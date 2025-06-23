@@ -34,4 +34,14 @@ public interface JobFlowNodeExecuteContext {
 
     void clear();
     JobFlowExecuteContext getJobFlowExecuteContext();
+
+    /**
+     * 暂停节点
+     */
+    void pauseAwait();
+    /**
+     * 判断作业是否已经停止或者正在停止中
+     * @return
+     */
+    AssertResult assertStopped();
 }

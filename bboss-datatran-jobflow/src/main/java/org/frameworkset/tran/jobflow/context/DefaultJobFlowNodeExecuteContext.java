@@ -15,6 +15,9 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.JobFlow;
+import org.frameworkset.tran.jobflow.JobFlowNode;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,9 +30,13 @@ import java.util.Map;
  */
 public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteContext{
     private Map<String,Object> contextDatas = new LinkedHashMap<>();
-    private JobFlowExecuteContext jobFlowExecuteContext;
-    public DefaultJobFlowNodeExecuteContext(JobFlowExecuteContext jobFlowExecuteContext){
-        this.jobFlowExecuteContext = jobFlowExecuteContext;
+    private JobFlowNode jobFlowNode;
+    private JobFlow jobFlow;
+    
+    public DefaultJobFlowNodeExecuteContext(JobFlowNode jobFlowNode){
+        this.jobFlowNode = jobFlowNode;
+        this.jobFlow = jobFlowNode.getJobFlow();
+        
     }
     @Override
     public synchronized Object getContextData(String name) {
@@ -54,7 +61,19 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
 
     @Override
     public JobFlowExecuteContext getJobFlowExecuteContext() {
-        return this.jobFlowExecuteContext;
+        return this.jobFlow.getJobFlowExecuteContext();
     }
+    @Override
+    public void pauseAwait(){
+        this.jobFlow.getJobFlowContext().pauseAwait(jobFlowNode);
+    }
+    /**
+     * 判断作业是否已经停止或者正在停止中
+     * @return
+     */
+    public AssertResult assertStopped(){
+        return this.jobFlow.getJobFlowContext().assertStopped();
+    }
+    
 
 }

@@ -101,7 +101,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
                 throw new JobFlowException(this.getJobFlowNodeInfo()+" must set jobFlowNodes,please set jobFlowNodes first.");
             } else {
-                jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this.jobFlow.getJobFlowExecuteContext());
+                jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
                 
                 logger.info("Start {} begin.",this.getJobFlowNodeInfo());
                 if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
@@ -149,7 +149,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         }
         else{
             logger.info("AssertTrigger: false,ignore execute {}.",this.getJobFlowNodeInfo());
-            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this.jobFlow.getJobFlowExecuteContext());
+            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
             if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
                 for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
                     jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);

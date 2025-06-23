@@ -86,7 +86,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
 //            nodeComplete(null,true);
         }
         else if(assertTrigger()) {
-            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this.jobFlow.getJobFlowExecuteContext());
+            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
             if (headerJobFlowNode == null) {
                 throw new JobFlowException(this.getJobFlowNodeInfo()+":headerJobFlowNode is null.");
             } else {
@@ -108,7 +108,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
             return true;
         }
         else{
-            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this.jobFlow.getJobFlowExecuteContext());
+            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
             if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
                 for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
                     jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);
