@@ -36,6 +36,12 @@ public interface JobFlowNodeExecuteContext {
     JobFlowExecuteContext getJobFlowExecuteContext();
 
     /**
+     * 获取子节点对应的复合节点执行上下文 
+     * @return
+     */
+    JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext();
+
+    /**
      * 暂停节点
      */
     void pauseAwait();

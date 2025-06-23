@@ -22,7 +22,8 @@ import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;
 import org.frameworkset.tran.jobflow.script.TriggerScriptUtil;
 
 /**
- * 流程节点执行触发器
+ * 流程节点执行触发器：可以采用触发器接口和触发器脚本（Groovy）实现条件判断，控制节点是否执行
+ * 
  * 可以通过设置动态脚本来计算节点触发条件，返回boolean类型值
  * 亦可以直接设置TriggerScriptAPI来计算节点触发条件，返回boolean类型值
  * @author biaoping.yin

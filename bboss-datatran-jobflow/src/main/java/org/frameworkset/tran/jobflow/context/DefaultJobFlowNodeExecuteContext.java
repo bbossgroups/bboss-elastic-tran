@@ -22,9 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * <p>Description: </p>
- * <p></p>
- *
+ * 节点内部子节点之间传递和共享参数
  * @author biaoping.yin
  * @Date 2025/3/31
  */
@@ -63,6 +61,17 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     public JobFlowExecuteContext getJobFlowExecuteContext() {
         return this.jobFlow.getJobFlowExecuteContext();
     }
+
+    /**
+     * 获取子节点对应的复合节点执行上下文
+     *
+     * @return
+     */
+    @Override
+    public JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext() {
+        return jobFlowNode.getContainerJobFlowNodeExecuteContext();
+    }
+
     @Override
     public void pauseAwait(){
         this.jobFlow.getJobFlowContext().pauseAwait(jobFlowNode);

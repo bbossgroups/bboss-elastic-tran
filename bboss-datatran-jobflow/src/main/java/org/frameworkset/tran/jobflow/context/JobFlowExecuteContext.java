@@ -21,8 +21,7 @@ import org.frameworkset.util.concurrent.IntegerCount;
 import java.util.Map;
 
 /**
- * <p>Description: </p>
- * <p></p>
+ * 在流程各节点之间传递和共享参数
  *
  * @author biaoping.yin
  * @Date 2025/3/31

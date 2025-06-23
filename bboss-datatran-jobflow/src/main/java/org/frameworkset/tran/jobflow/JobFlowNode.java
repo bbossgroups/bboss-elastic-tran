@@ -85,7 +85,19 @@ public abstract class JobFlowNode {
     public List<JobFlowNodeListener> getJobFlowNodeListeners() {
         return jobFlowNodeListeners;
     }
-
+    /**
+     * 获取子节点对应的复合节点执行上下文
+     *
+     * @return
+     */
+    public JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext() {
+        if(compositionJobFlowNode != null) {
+            return compositionJobFlowNode.getJobFlowNodeExecuteContext();
+        }
+        else{
+            return null;
+        }
+    }
     public JobFlowNodeExecuteContext getJobFlowNodeExecuteContext() {
         return jobFlowNodeExecuteContext;
     }
