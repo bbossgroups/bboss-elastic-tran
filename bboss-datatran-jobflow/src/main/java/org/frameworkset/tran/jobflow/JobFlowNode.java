@@ -267,7 +267,7 @@ public abstract class JobFlowNode {
             return;
         }
         jobFlowNodeContext.setExecuteException(throwable);
-        complete();        
+        complete(throwable);        
         if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
             for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
                 jobFlowNodeListener.afterExecute(jobFlowNodeExecuteContext,throwable);
@@ -345,29 +345,29 @@ public abstract class JobFlowNode {
     protected void nodeStart(){
         if(this.containerJobFlowContext != null){
             containerJobFlowContext.setRunningJobFlowNode(this);
-            containerJobFlowContext.nodeStart();
+            containerJobFlowContext.nodeStart(this);
             
         }
         if(this.containerSequenceJobFlowNodeContext != null){
             this.containerSequenceJobFlowNodeContext.setRunningJobFlowNode(this);
-            this.containerSequenceJobFlowNodeContext.nodeStart();
+            this.containerSequenceJobFlowNodeContext.nodeStart(this);
         }
         if(this.containerParrelJobFlowNodeContext != null){
-            this.containerParrelJobFlowNodeContext.nodeStart();
+            this.containerParrelJobFlowNodeContext.nodeStart(this);
         }
     }
     /**
      * 节点完成时，更新工作流、分支（串行/并行)节点完成节点数量
      */
-    protected void complete(){
+    protected void complete(Throwable throwable){
         if(this.containerSequenceJobFlowNodeContext != null){
-            containerSequenceJobFlowNodeContext.nodeComplete();
+            containerSequenceJobFlowNodeContext.nodeComplete( throwable,this);
         }
         if(this.containerJobFlowContext != null){
-            this.containerJobFlowContext.nodeComplete();
+            this.containerJobFlowContext.nodeComplete( throwable,this);
         }
         if(this.containerParrelJobFlowNodeContext != null){
-            this.containerParrelJobFlowNodeContext.nodeComplete();
+            this.containerParrelJobFlowNodeContext.nodeComplete( throwable,this);
         }
     }
 }

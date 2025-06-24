@@ -59,4 +59,11 @@ public class DefaultJobFlowExecuteContext implements JobFlowExecuteContext {
     public JobFlowMetrics getJobFlowMetrics() {
         return jobFlow.getJobFlowMetrics();
     }
+
+    @Override
+    public StaticContext getJobFlowStaticContext() {
+        return jobFlow.getJobFlowContext().copy();
+    }
+    
+    
 }

@@ -160,11 +160,7 @@ public class JobFlow {
             throw new JobFlowException(e);
         }
         finally {
-            if(CollectionUtils.isNotEmpty(this.jobFlowListeners)){
-                for(JobFlowListener jobFlowListener:jobFlowListeners){
-                    jobFlowListener.afterExecute(jobFlowExecuteContext,throwable);
-                }
-            }
+            
         }
     }
 
@@ -370,8 +366,8 @@ public class JobFlow {
     /**
      * 作业结束时触发工作流任务结束回调方法，等待下一次任务的调度，如果是一次性任务，则直接结束流程任务
      */
-    public void complete(Throwable e){
-        jobFlowMetrics.complete(e);
+    public void complete(Throwable throwable){
+        jobFlowMetrics.complete(throwable);
         if(isExternalTimer()){
             //周期性执行，更新状态为调度一次完成
             this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
@@ -386,6 +382,11 @@ public class JobFlow {
             //周期性执行，更新状态为调度一次完成
             this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
             logger.info("{} 调度执行完成，更新工作流状态为调度完成",jobInfo);
+        }
+        if(CollectionUtils.isNotEmpty(this.jobFlowListeners)){
+            for(JobFlowListener jobFlowListener:jobFlowListeners){
+                jobFlowListener.afterExecute(jobFlowExecuteContext,throwable);
+            }
         }
         this.jobFlowExecuteContext = null;
         this.reset();

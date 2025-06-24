@@ -15,15 +15,39 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.JobFlowNode;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 节点运行情况统计上下文
  * @author biaoping.yin
  * @Date 2025/6/18
  */
 public class StaticContext {
+    /**
+     * 正在运行节点数据
+     */
     private int runningNodes;
+    /**
+     * 启动节点数
+     */
     private int startNodes ;
+    private List<String> startNodeIds;
+    /**
+     * 总完成节点数
+     * completeSuccessNodes + completeFailedNodes = completeNodes
+     */
     private int completeNodes;
+    
+    private int completeSuccessNodes;
+    private int completeWithExceptionNodes;
+
+    private List<String> completeNodeIds;
+
+    private List<String> completeSuccessNodeIds;
+    private List<String> completeWithExceptionNodeIds;
     protected Throwable executeException;
     private Object updateLock = new Object();
     public StaticContext(){
@@ -47,6 +71,12 @@ public class StaticContext {
             staticContext.startNodes = this.startNodes;
             staticContext.completeNodes = this.completeNodes;
             staticContext.runningNodes = this.runningNodes;
+            staticContext.completeWithExceptionNodes = this.completeWithExceptionNodes;
+            staticContext.completeSuccessNodes = this.completeSuccessNodes;
+            staticContext.completeNodeIds = this.completeNodeIds;
+            staticContext.startNodeIds = this.startNodeIds;
+            staticContext.completeSuccessNodeIds = this.completeSuccessNodeIds;
+            staticContext.completeWithExceptionNodeIds = this.completeWithExceptionNodeIds;
             staticContext.executeException = this.executeException;
             return staticContext;
         }
@@ -60,12 +90,20 @@ public class StaticContext {
             startNodes = 0;
             completeNodes = 0;
             runningNodes = 0;
+            completeWithExceptionNodes = 0;
+            completeSuccessNodes = 0;
+            completeNodeIds = null;
+            startNodeIds = null;
+            completeSuccessNodeIds = null;
+            completeWithExceptionNodeIds = null;
         }
         executeException = null;
     }
+    
+    
 
     /**
-     * 获取所有已经启动的节点
+     * 获取所有已经启动的节点数量
      * @return
      */
     public int getStartNodes() {
@@ -78,9 +116,13 @@ public class StaticContext {
      * 节点启动时，增加启动节点计数
      * @return
      */
-    public  int nodeStart() {
+    public  int nodeStart(JobFlowNode jobFlowNode) {
         synchronized (updateLock) {
             startNodes ++;
+            if(this.startNodeIds == null){
+                startNodeIds = new ArrayList<>();
+            }
+            startNodeIds.add(jobFlowNode.getNodeId());
             runningNodes ++;
             return startNodes;
         }
@@ -88,12 +130,34 @@ public class StaticContext {
 
     /**
      * 节点完成时，减少启动节点计数,完成计数器加1
+     * @param throwable 子节点触发的异常
+     * @param jobFlowNode 完成的子节点
      * @return
      */
-    public int nodeComplete() {
+    public int nodeComplete(Throwable throwable, JobFlowNode jobFlowNode) {
         synchronized (updateLock) {
+//            executeException = throwable;
             runningNodes --;//正在运行节点数量递减
             completeNodes++;
+            if(this.completeNodeIds == null){
+                completeNodeIds = new ArrayList<>();
+            }
+            completeNodeIds.add(jobFlowNode.getNodeId());
+             
+            if(throwable == null){
+                completeSuccessNodes ++;
+                if(this.completeSuccessNodeIds == null){
+                    completeSuccessNodeIds = new ArrayList<>();
+                }
+                completeSuccessNodeIds.add(jobFlowNode.getNodeId());
+            }
+            else{
+                if(this.completeWithExceptionNodeIds == null){
+                    completeWithExceptionNodeIds = new ArrayList<>();
+                }
+                completeWithExceptionNodeIds.add(jobFlowNode.getNodeId());
+                completeWithExceptionNodes++;
+            }
             return completeNodes;
         }
     }
@@ -118,6 +182,18 @@ public class StaticContext {
         }
     }
 
+    public int getCompleteWithExceptionNodes() {
+        synchronized (updateLock) {
+            return completeWithExceptionNodes;
+        }
+    }
+
+    public int getCompleteSuccessNodes() {
+        synchronized (updateLock) {
+            return completeSuccessNodes;
+        }
+    }
+
     /**
      * 判断所有启动的节点是否都已经执行完成
      * @return
@@ -125,6 +201,30 @@ public class StaticContext {
     public boolean allNodeComplete(){
         synchronized (updateLock) {
             return completeNodes == startNodes;
+        }
+    }
+
+    public List<String> getCompleteWithExceptionNodeIds() {
+        synchronized (updateLock) {
+            return completeWithExceptionNodeIds;
+        }
+    }
+
+    public List<String> getCompleteNodeIds() {
+        synchronized (updateLock) {
+            return completeNodeIds;
+        }
+    }
+
+    public List<String> getCompleteSuccessNodeIds() {
+        synchronized (updateLock) {
+            return completeSuccessNodeIds;
+        }
+    }
+
+    public List<String> getStartNodeIds() {
+        synchronized (updateLock) {
+            return startNodeIds;
         }
     }
 }

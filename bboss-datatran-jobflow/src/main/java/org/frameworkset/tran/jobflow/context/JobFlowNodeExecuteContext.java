@@ -53,4 +53,6 @@ public interface JobFlowNodeExecuteContext {
      * @return
      */
     AssertResult assertStopped();
+
+    StaticContext getJobFlowNodeStaticContext();
 }

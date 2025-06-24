@@ -36,4 +36,6 @@ public interface JobFlowExecuteContext {
 
     void clear();
     JobFlowMetrics getJobFlowMetrics();
+
+    StaticContext getJobFlowStaticContext();
 }

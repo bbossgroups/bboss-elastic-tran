@@ -94,9 +94,13 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
      * 判断作业是否已经停止或者正在停止中
      * @return
      */
+    @Override
     public AssertResult assertStopped(){
         return this.jobFlow.getJobFlowContext().assertStopped();
     }
-    
 
+    @Override
+    public StaticContext getJobFlowNodeStaticContext() {
+        return jobFlowNode.getJobFlowNodeContext().copy();
+    }
 }
