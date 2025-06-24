@@ -18,7 +18,7 @@ package org.frameworkset.tran.jobflow;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 
 /**
- * 工作流执行器，一个节点只保存JobFlowNodeFunction的一个实例，因此一次调度执行完毕后，需要通过reset重置状态，release释放资源
+ * 工作流执行器函数，一个节点只保存JobFlowNodeFunction的一个实例，因此一次调度执行完毕后，需要通过reset重置状态，release释放资源
  * @author biaoping.yin
  * @Date 2025/6/22
  */
