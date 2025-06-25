@@ -66,7 +66,10 @@ Add the maven dependency of BBoss to your pom.xml:
             <version>7.3.9</version>
         </dependency>
 ```
-
+# bboss-jobflow
+jobflow 提供通用轻量级、高性能流程编排模型，可将各种各样、不同类型的任务编排成工作流，进行统一调度执行，譬如数据采集作业任务、流批处理作业任务、业务办理任务、充值缴费任务以及大模型推理任务等按顺序编排成工作流。
+![](https://esdoc.bbossgroups.com/images/workflow/jobworkflow.png)
+jobflow使用参考文档：https://esdoc.bbossgroups.com/#/jobworkflow
 # 联系我们
 
 QQ交流群：21220580,166471282,3625720,154752521,166471103,166470856
