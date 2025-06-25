@@ -1,5 +1,5 @@
 # bboss-datatran简介
-Bboss is a [Elasticsearch Java rest client](https://esdoc.bbossgroups.com/#/quickstart) ,a [Etl engine](https://esdoc.bbossgroups.com/#/db-es-tool) ,a [Batch/Stream Metrics tool](https://esdoc.bbossgroups.com/#/etl-metrics).
+Bboss is a [Elasticsearch Java rest client](https://esdoc.bbossgroups.com/#/quickstart) ,a [Etl engine](https://esdoc.bbossgroups.com/#/db-es-tool) ,a [Batch/Stream Metrics tool](https://esdoc.bbossgroups.com/#/etl-metrics),a [bboss-jobflow](https://esdoc.bbossgroups.com/#/jobworkflow).
 
 <https://esdoc.bbossgroups.com/#/README>
 
@@ -65,6 +65,10 @@ Add the maven dependency of BBoss to your pom.xml:
             <version>7.3.9</version>
         </dependency>
 ```
+# bboss-jobflow 
+jobflow 提供通用轻量级、高性能流程编排模型，可将各种各样、不同类型的任务编排成工作流，进行统一调度执行，譬如数据采集作业任务、流批处理作业任务、业务办理任务、充值缴费任务以及大模型推理任务等按顺序编排成工作流。
+![](https://esdoc.bbossgroups.com/images/workflow/jobworkflow.png)
+jobflow使用参考文档：https://esdoc.bbossgroups.com/#/jobworkflow
 # 蓝图规划
 1. 增加oracle cdc、postgresql cdc、sql server cdc插件
 2. 增加redis插件

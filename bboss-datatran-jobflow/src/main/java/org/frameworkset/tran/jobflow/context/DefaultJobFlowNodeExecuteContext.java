@@ -55,6 +55,15 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
         return contextDatas.get(name);
     }
 
+    @Override
+    public synchronized Object getContextData(String name, Object defaultValue) {
+        Object value = contextDatas.get(name);
+        if(value == null){
+            value = defaultValue;
+        }
+        return value;
+    }
+
 
     @Override
     public synchronized void putAll(Map<String,Object> contextDatas){
@@ -102,5 +111,13 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     @Override
     public StaticContext getJobFlowNodeStaticContext() {
         return jobFlowNode.getJobFlowNodeContext().copy();
+    }
+    
+    public String getNodeId(){
+        return jobFlowNode.getNodeId();
+    }
+
+    public String getNodeName(){
+        return jobFlowNode.getNodeName();
     }
 }

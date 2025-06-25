@@ -26,6 +26,8 @@ import java.util.Map;
  */
 public interface JobFlowNodeExecuteContext {
     Object getContextData(String name);
+
+    Object getContextData(String name,Object defaultValue);
     /**
      * 判断节点是否已经完成
      */
@@ -55,4 +57,9 @@ public interface JobFlowNodeExecuteContext {
     AssertResult assertStopped();
 
     StaticContext getJobFlowNodeStaticContext();
+
+    String getNodeId() ;
+       
+
+    String getNodeName();
 }

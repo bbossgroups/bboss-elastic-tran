@@ -136,4 +136,13 @@ public class RecordSpecialConfigsContext {
     public JobFlowExecuteContext getJobFlowExecuteContext() {
         return importContext.getJobFlowExecuteContext();
     }
+
+    /**
+     * 获取子节点所属的复合节点（串行/并行）执行上下文对象
+     *
+     * @return
+     */
+    public JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext() {
+        return importContext.getJobFlowNodeExecuteContext().getContainerJobFlowNodeExecuteContext();
+    }
 }

@@ -16,7 +16,6 @@ package org.frameworkset.tran.jobflow.context;
  */
 
 import org.frameworkset.tran.jobflow.metrics.JobFlowMetrics;
-import org.frameworkset.util.concurrent.IntegerCount;
 
 import java.util.Map;
 
@@ -28,7 +27,7 @@ import java.util.Map;
  */
 public interface JobFlowExecuteContext {
     Object getContextData(String name);
-    
+    Object getContextData(String name, Object defaultValue) ;
 
     void putAll(Map<String, Object> contextDatas);
 
@@ -38,4 +37,8 @@ public interface JobFlowExecuteContext {
     JobFlowMetrics getJobFlowMetrics();
 
     StaticContext getJobFlowStaticContext();
+    String getJobFlowId();
+    String getJobFlowName();
+
+
 }
