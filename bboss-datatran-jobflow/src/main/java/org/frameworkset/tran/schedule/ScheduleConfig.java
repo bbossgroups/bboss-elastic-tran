@@ -36,7 +36,12 @@ public class ScheduleConfig {
     /**
      * 一次性执行数据导入操作
      */
-    private Boolean executeOneTime;
+    private boolean executeOneTime;
+
+    /**
+     * 一次性同步执行数据导入操作标记：工作流使用
+     */
+    private boolean executeOneTimeSyn = true;
 
 
 	public boolean isExternalTimer() {
@@ -75,11 +80,18 @@ public class ScheduleConfig {
 		return SimpleStringUtil.object2json(this);
 	}
     public boolean isExecuteOneTime() {
-        return executeOneTime != null ? executeOneTime:false;
+        return executeOneTime;
     }
 
     public void setExecuteOneTime(Boolean executeOneTime) {
         this.executeOneTime = executeOneTime;
     }
-	
+
+    public boolean isExecuteOneTimeSyn() {
+        return executeOneTimeSyn;
+    }
+
+    public void setExecuteOneTimeSyn(boolean executeOneTimeSyn) {
+        this.executeOneTimeSyn = executeOneTimeSyn;
+    }
 }

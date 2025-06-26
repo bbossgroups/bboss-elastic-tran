@@ -73,6 +73,8 @@ public class JobFlow {
     private JobFlowMetrics jobFlowMetrics;
     private GroovyClassLoader groovyClassLoader ;
     private List<JobFlowListener> jobFlowListeners;
+    
+    private OneTimeExecuteThread oneTimeExecuteThread;
 
     public JobFlow(){
         jobFlowContext = new JobFlowContext(this);
@@ -217,6 +219,34 @@ public class JobFlow {
     public void initJob(){
         jobFlowContext.initJob();            
     }
+    
+    public static void delay(String jobInfo,JobFlowScheduleConfig jobFlowScheduleConfig){
+        //第一次执行时，设置延时时间
+        Long _deLay = null;
+        Long deyLay = jobFlowScheduleConfig.getDelay();
+
+
+        Date scheduleDate = jobFlowScheduleConfig.getScheduleDate();
+
+        if (scheduleDate != null) {
+            Date now = new Date();
+            if (scheduleDate.after(now)) {
+                _deLay = scheduleDate.getTime() - now.getTime();
+            }
+        }
+        if(_deLay == null && deyLay != null){
+            _deLay = deyLay;
+        }
+
+
+        if(_deLay != null){
+            try {
+                logger.info("{} will delay {} ms to execute.",jobInfo,_deLay);
+                Thread.sleep(_deLay);
+            } catch (final InterruptedException ignored) {
+            }
+        }
+    }
     /**
      * 启动工作流
      */
@@ -236,8 +266,43 @@ public class JobFlow {
         }
         //一次性执行，定时执行处理
         if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTime() ){
-            initJob();
-            this.execute();
+            oneTimeExecuteThread = new OneTimeExecuteThread(this.getJobFlowName(),new Runnable(){
+
+                /**
+                 * When an object implementing interface {@code Runnable} is used
+                 * to create a thread, starting the thread causes the object's
+                 * {@code run} method to be called in that separately executing
+                 * thread.
+                 * <p>
+                 * The general contract of the method {@code run} is that it may
+                 * take any action whatsoever.
+                 *
+                 * @see Thread#run()
+                 */
+                @Override
+                public void run() {
+                    initJob();
+                    delay(getJobInfo(),jobFlowScheduleConfig);
+                    if(jobFlowContext.assertStopped().isTrue()){
+                        logger.info("{} stopped,ignore delay execute." ,jobInfo);
+                        return;
+                    }
+                    jobFlowContext.pauseAwait();
+                    execute();
+                }
+            });
+            oneTimeExecuteThread.start();
+            try {
+                if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTimeSyn() ) {
+                    logger.info("{} executeOneTime by syn." ,jobInfo);
+                    oneTimeExecuteThread.join();
+                }
+                else{
+                    logger.info("{} executeOneTime by asyn." ,jobInfo);
+                }
+            } catch (InterruptedException e) {
+            }
+
         }
         else if(!jobFlowScheduleConfig.isExternalTimer()){
             initJob();         
@@ -282,9 +347,19 @@ public class JobFlow {
             @Override
             public Object apply(Object o) {
                 startJobFlowNode.stop();
+                if(oneTimeExecuteThread != null){
+                    oneTimeExecuteThread.interrupt();
+                    try {
+                        oneTimeExecuteThread.join();
+                    } catch (InterruptedException e) {
+                         
+                    }
+                }
                 try {
-                    jobFlowScheduleTimer.stop();
+                    if(jobFlowScheduleTimer != null)
+                        jobFlowScheduleTimer.stop();
                 } catch (Exception e) {
+                    logger.warn("stop jobFlowScheduleTimer exception:",e);
                 }
                 try {
                     if (groovyClassLoader != null) {

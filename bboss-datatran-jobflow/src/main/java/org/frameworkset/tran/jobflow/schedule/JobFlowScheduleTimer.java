@@ -97,31 +97,32 @@ public class JobFlowScheduleTimer implements Runnable{
         if(interval == null){
             interval = 100000l;
         }
-        //第一次执行时，设置延时时间
-        Long _deLay = null;
-        Long deyLay = jobFlowScheduleConfig.getDelay();
-        
-        
-        Date scheduleDate = jobFlowScheduleConfig.getScheduleDate();
-
-        if (scheduleDate != null) {
-            Date now = new Date();
-            if (scheduleDate.after(now)) {
-                _deLay = scheduleDate.getTime() - now.getTime();
-            }
-        }
-        if(_deLay == null && deyLay != null){
-            _deLay = deyLay;
-        }
-        
-         
-        if(_deLay != null){
-            try {
-                Thread.sleep(_deLay);
-            } catch (final InterruptedException ignored) {
-                return;
-            }
-        }
+        jobFlow.delay(jobFlow.getJobInfo(), jobFlowScheduleConfig);
+//        //第一次执行时，设置延时时间
+//        Long _deLay = null;
+//        Long deyLay = jobFlowScheduleConfig.getDelay();
+//        
+//        
+//        Date scheduleDate = jobFlowScheduleConfig.getScheduleDate();
+//
+//        if (scheduleDate != null) {
+//            Date now = new Date();
+//            if (scheduleDate.after(now)) {
+//                _deLay = scheduleDate.getTime() - now.getTime();
+//            }
+//        }
+//        if(_deLay == null && deyLay != null){
+//            _deLay = deyLay;
+//        }
+//        
+//         
+//        if(_deLay != null){
+//            try {
+//                Thread.sleep(_deLay);
+//            } catch (final InterruptedException ignored) {
+//                return;
+//            }
+//        }
         while (running) {
             /**
              * 如果没有到达执行时间点，则定时检查直到命中扫描时间点

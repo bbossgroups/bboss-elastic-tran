@@ -193,6 +193,9 @@ public class JobFlowContext  extends StaticContext{
     }
     
     private Object pauseCountDownLatchLock = new Object();
+    public void pauseAwait(){
+        pauseAwait(null);
+    }
     public void pauseAwait(JobFlowNode jobFlowNode){
         if(assertStatus(JobFlowStatus.PAUSE).isTrue() ){
             try {
@@ -201,9 +204,16 @@ public class JobFlowContext  extends StaticContext{
                     countDownLatch = this.pauseCountDownLatch;
                 }
                 if(countDownLatch != null) {
-                    logger.info("Pause {} begin.",jobFlowNode.getJobFlowNodeInfo());
+                    String info = null;
+                    if(jobFlowNode != null){
+                        info = jobFlowNode.getJobFlowNodeInfo();
+                    }
+                    else{
+                        info = jobFlow.getJobInfo();
+                    }
+                    logger.info("Pause {} begin.",info);
                     countDownLatch.await();
-                    logger.info("Consume {} complete.",jobFlowNode.getJobFlowNodeInfo());
+                    logger.info("Consume {} complete.",info);
                 }
             } catch (InterruptedException e) {
 //                throw new RuntimeException(e);
