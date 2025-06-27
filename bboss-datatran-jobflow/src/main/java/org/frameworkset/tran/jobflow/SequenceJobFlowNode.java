@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 顺序执行的复合流程节点
@@ -65,7 +66,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      * 启动流程当前节点
      */
     @Override
-    public boolean start(CyclicBarrier barrier){
+    public boolean start(JobFlowCyclicBarrier barrier){
         sequenceJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
         
         nodeStart();
@@ -74,6 +75,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
                 barrier.await();
             } catch (InterruptedException e) {
             } catch (BrokenBarrierException e) {
+            } catch (TimeoutException e) {
             }
         }
         jobFlow.getJobFlowContext().pauseAwait(this);

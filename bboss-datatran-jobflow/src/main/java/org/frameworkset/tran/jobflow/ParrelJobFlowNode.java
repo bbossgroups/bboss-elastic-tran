@@ -78,7 +78,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      * 启动流程当前节点
      */
     @Override
-    public boolean start(CyclicBarrier barrier){
+    public boolean start(JobFlowCyclicBarrier barrier){
         parrelJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
         nodeStart();
         if(barrier != null) {
@@ -86,6 +86,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                 barrier.await();
             } catch (InterruptedException e) {                
             } catch (BrokenBarrierException e) {
+            } catch (TimeoutException e) {
             }
         }
         jobFlow.getJobFlowContext().pauseAwait(this);
@@ -111,9 +112,9 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                 }
                 ExecutorService blockedExecutor = buildThreadPool();
                 List<Future> futureList = new ArrayList<>();
-                CyclicBarrier thisBarrier = new CyclicBarrier(jobFlowNodes.size(), () -> {
-                    logger.info("All Parrel jobFlowNodes[{}] of {} ready to running.",jobFlowNodes.size(),this.getJobFlowNodeInfo());
-                });
+                JobFlowCyclicBarrier thisBarrier = new JobFlowCyclicBarrier(jobFlowNodes.size(), () -> {
+                    logger.info("{} Parrel jobFlowNodes of {} ready to running.",jobFlowNodes.size(),this.getJobFlowNodeInfo());
+                },1000000L);
                 for (int i = 0; i < jobFlowNodes.size(); i++) {
                     JobFlowNode jobFlowNode = jobFlowNodes.get(i);
                     futureList.add(blockedExecutor.submit(() -> {

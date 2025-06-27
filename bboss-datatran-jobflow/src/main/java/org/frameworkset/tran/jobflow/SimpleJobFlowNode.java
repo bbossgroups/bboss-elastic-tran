@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeoutException;
 
 /**
  *
@@ -72,7 +73,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
      * 启动流程当前节点
      */
     @Override
-    public boolean start(CyclicBarrier barrier){
+    public boolean start(JobFlowCyclicBarrier barrier){
         simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
         nodeStart();
         if(barrier != null) {
@@ -80,6 +81,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
                 barrier.await();
             } catch (InterruptedException e) {
             } catch (BrokenBarrierException e) {
+            } catch (TimeoutException e) {
             }
         }
         jobFlow.getJobFlowContext().pauseAwait(this);

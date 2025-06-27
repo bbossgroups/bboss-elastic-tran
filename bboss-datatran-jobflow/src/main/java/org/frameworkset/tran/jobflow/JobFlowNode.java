@@ -228,7 +228,7 @@ public abstract class JobFlowNode {
     /**
      * 启动流程当前节点
      */
-    public abstract boolean start(CyclicBarrier barrier);
+    public abstract boolean start(JobFlowCyclicBarrier barrier);
     public void start(){
         
         start(null);
