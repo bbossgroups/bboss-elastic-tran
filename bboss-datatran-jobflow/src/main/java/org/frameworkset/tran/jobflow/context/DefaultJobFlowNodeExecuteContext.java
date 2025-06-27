@@ -16,6 +16,7 @@ package org.frameworkset.tran.jobflow.context;
  */
 
 import org.frameworkset.tran.jobflow.JobFlow;
+import org.frameworkset.tran.jobflow.JobFlowException;
 import org.frameworkset.tran.jobflow.JobFlowNode;
 
 import java.util.LinkedHashMap;
@@ -64,6 +65,32 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
         return value;
     }
 
+    @Override
+    public Object getJobFlowContextData(String name) {
+        return this.getJobFlowExecuteContext().getContextData(name);
+    }
+
+    @Override
+    public Object getJobFlowContextData(String name, Object defaultValue) {
+        return this.getJobFlowExecuteContext().getContextData(name,defaultValue);
+    }
+
+    @Override
+    public Object getContainerJobFlowNodeContextData(String name) {
+        if(this.getContainerJobFlowNodeExecuteContext() != null) {
+            return this.getContainerJobFlowNodeExecuteContext().getContextData(name);
+        }
+        throw new JobFlowException("getContainerJobFlowNodeContextData failed:ContainerJobFlowNodeExecuteContext is null.");
+    }
+
+    @Override
+    public Object getContainerJobFlowNodeContextData(String name, Object defaultValue) {
+        if(this.getContainerJobFlowNodeExecuteContext() != null) {
+            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue);
+        }
+        throw new JobFlowException("getContainerJobFlowNodeContextData failed:ContainerJobFlowNodeExecuteContext is null.");
+    }
+
 
     @Override
     public synchronized void putAll(Map<String,Object> contextDatas){
@@ -73,6 +100,19 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     @Override
     public synchronized void addContextData(String name, Object data) {
         this.contextDatas.put(name,data);
+    }
+
+    @Override
+    public void addJobFlowContextData(String name, Object data) {
+        getJobFlowExecuteContext().addContextData(name,data);
+    }
+
+    @Override
+    public void addContainerJobFlowNodeContextData(String name, Object data) {
+        if(this.getContainerJobFlowNodeExecuteContext() != null) {
+            this.getContainerJobFlowNodeExecuteContext().addContainerJobFlowNodeContextData(name,data);
+        }
+        throw new JobFlowException("addContainerJobFlowNodeContextData failed:ContainerJobFlowNodeExecuteContext is null.");
     }
 
     @Override

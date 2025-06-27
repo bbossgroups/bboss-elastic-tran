@@ -28,6 +28,14 @@ public interface JobFlowNodeExecuteContext {
     Object getContextData(String name);
 
     Object getContextData(String name,Object defaultValue);
+    
+    Object getJobFlowContextData(String name);
+
+    Object getJobFlowContextData(String name,Object defaultValue);
+    
+    Object getContainerJobFlowNodeContextData(String name);
+
+    Object getContainerJobFlowNodeContextData(String name,Object defaultValue);
     /**
      * 判断节点是否已经完成
      */
@@ -36,6 +44,10 @@ public interface JobFlowNodeExecuteContext {
     void putAll(Map<String, Object> contextDatas);
 
     void addContextData(String name,Object data);
+
+    void addJobFlowContextData(String name,Object data);
+
+    void addContainerJobFlowNodeContextData(String name,Object data);
 
     void clear();
     JobFlowExecuteContext getJobFlowExecuteContext();
