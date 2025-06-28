@@ -156,4 +156,78 @@ public class JobContext extends BaseMetricsLogReport {
         }
         return null;
     }
+
+
+ 
+
+ 
+    /**
+     * 获取子节点所属的复合节点（串行/并行）执行上下文对象
+     *
+     * @return
+     */
+    public JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext() {
+        return getJobFlowNodeExecuteContext().getContainerJobFlowNodeExecuteContext();
+    }
+
+    public Object getJobFlowContextData(String name) {
+        return this.getJobFlowExecuteContext().getContextData(name);
+    }
+
+    public Object getJobFlowContextData(String name, Object defaultValue) {
+        return this.getJobFlowExecuteContext().getContextData(name,defaultValue);
+    }
+
+    public Object getJobFlowNodeContextData(String name) {
+        return this.getJobFlowNodeExecuteContext().getContextData(name);
+    }
+
+    public Object getJobFlowNodeContextData(String name, Object defaultValue) {
+        return this.getJobFlowNodeExecuteContext().getContextData(name,defaultValue);
+    }
+
+    public Object getContainerJobFlowNodeContextData(String name) {
+        return this.getContainerJobFlowNodeExecuteContext().getContextData(name);
+    }
+
+    public Object getContainerJobFlowNodeContextData(String name, Object defaultValue) {
+        return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue);
+    }
+
+    public void addJobFlowNodeContextData(String name, Object data) {
+        this.getJobFlowNodeExecuteContext().addContextData(name,data);
+    }
+
+    public void addJobFlowContextData(String name, Object data) {
+        this.getJobFlowExecuteContext().addContextData(name,data);
+    }
+
+    public void addContainerJobFlowNodeContextData(String name, Object data) {
+        this.getContainerJobFlowNodeExecuteContext().addContextData(name,data);
+    }
+
+
+    public String getJobFlowId() {
+        return this.getJobFlowExecuteContext().getJobFlowId();
+    }
+
+    public String getJobFlowName() {
+        return this.getJobFlowExecuteContext().getJobFlowName();
+    }
+
+    public String getJobFlowNodeId() {
+        return this.getJobFlowNodeExecuteContext().getNodeId();
+    }
+
+    public String getJobFlowNodeName() {
+        return this.getJobFlowNodeExecuteContext().getNodeName();
+    }
+
+    public String getContainerJobFlowNodeId() {
+        return this.getContainerJobFlowNodeExecuteContext().getNodeId();
+    }
+
+    public String getContainerJobFlowNodeName() {
+        return this.getContainerJobFlowNodeExecuteContext().getNodeName();
+    }
 }

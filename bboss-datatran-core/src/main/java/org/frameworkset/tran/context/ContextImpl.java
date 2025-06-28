@@ -1038,6 +1038,36 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
     }
 
     @Override
+    public String getJobFlowId() {
+        return this.getJobFlowExecuteContext().getJobFlowId();
+    }
+
+    @Override
+    public String getJobFlowName() {
+        return this.getJobFlowExecuteContext().getJobFlowName();
+    }
+
+    @Override
+    public String getJobFlowNodeId() {
+        return this.getJobFlowNodeExecuteContext().getNodeId();
+    }
+
+    @Override
+    public String getJobFlowNodeName() {
+        return this.getJobFlowNodeExecuteContext().getNodeName();
+    }
+
+    @Override
+    public String getContainerJobFlowNodeId() {
+        return this.getContainerJobFlowNodeExecuteContext().getNodeId();
+    }
+
+    @Override
+    public String getContainerJobFlowNodeName() {
+        return this.getContainerJobFlowNodeExecuteContext().getNodeName();
+    }
+
+    @Override
     public Object getJobFlowContextData(String name) {
         return this.getJobFlowExecuteContext().getContextData(name);
     }
@@ -1090,6 +1120,7 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
     public JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext() {
         return importContext.getJobFlowNodeExecuteContext().getContainerJobFlowNodeExecuteContext();
     }
+    
     
     
 }

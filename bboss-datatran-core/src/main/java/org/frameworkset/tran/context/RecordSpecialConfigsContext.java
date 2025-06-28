@@ -181,4 +181,28 @@ public class RecordSpecialConfigsContext {
     public void addContainerJobFlowNodeContextData(String name, Object data) {
         this.getContainerJobFlowNodeExecuteContext().addContextData(name,data);
     }
+
+    public String getJobFlowId() {
+        return this.getJobFlowExecuteContext().getJobFlowId();
+    }
+
+    public String getJobFlowName() {
+        return this.getJobFlowExecuteContext().getJobFlowName();
+    }
+
+    public String getJobFlowNodeId() {
+        return this.getJobFlowNodeExecuteContext().getNodeId();
+    }
+
+    public String getJobFlowNodeName() {
+        return this.getJobFlowNodeExecuteContext().getNodeName();
+    }
+
+    public String getContainerJobFlowNodeId() {
+        return this.getContainerJobFlowNodeExecuteContext().getNodeId();
+    }
+
+    public String getContainerJobFlowNodeName() {
+        return this.getContainerJobFlowNodeExecuteContext().getNodeName();
+    }
 }
