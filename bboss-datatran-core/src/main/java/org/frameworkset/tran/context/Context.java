@@ -512,4 +512,18 @@ public interface Context extends DataTranPluginMetricsLogAPI {
      * @return
      */
     JobFlowExecuteContext getJobFlowExecuteContext();
+
+    Object getJobFlowContextData(String name);
+    Object getJobFlowContextData(String name, Object defaultValue) ;
+
+    Object getJobFlowNodeContextData(String name);
+    Object getJobFlowNodeContextData(String name, Object defaultValue) ;
+
+    Object getContainerJobFlowNodeContextData(String name);
+    Object getContainerJobFlowNodeContextData(String name, Object defaultValue) ;
+    void addJobFlowNodeContextData(String name,Object data);
+
+    void addJobFlowContextData(String name,Object data);
+
+    void addContainerJobFlowNodeContextData(String name,Object data);
 }

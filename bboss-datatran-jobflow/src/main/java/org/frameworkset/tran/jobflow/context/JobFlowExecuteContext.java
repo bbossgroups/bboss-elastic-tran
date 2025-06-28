@@ -28,10 +28,11 @@ import java.util.Map;
 public interface JobFlowExecuteContext {
     Object getContextData(String name);
     Object getContextData(String name, Object defaultValue) ;
+    void addContextData(String name,Object data);
 
     void putAll(Map<String, Object> contextDatas);
 
-    void addContextData(String name,Object data);
+
 
     void clear();
     JobFlowMetrics getJobFlowMetrics();

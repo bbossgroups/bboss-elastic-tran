@@ -435,4 +435,40 @@ public class TaskContext extends BaseMetricsLogReport {
     public JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext() {
         return importContext.getJobFlowNodeExecuteContext().getContainerJobFlowNodeExecuteContext();
     }
+
+    public Object getJobFlowContextData(String name) {
+        return this.getJobFlowExecuteContext().getContextData(name);
+    }
+
+    public Object getJobFlowContextData(String name, Object defaultValue) {
+        return this.getJobFlowExecuteContext().getContextData(name,defaultValue);
+    }
+
+    public Object getJobFlowNodeContextData(String name) {
+        return this.getJobFlowNodeExecuteContext().getContextData(name);
+    }
+
+    public Object getJobFlowNodeContextData(String name, Object defaultValue) {
+        return this.getJobFlowNodeExecuteContext().getContextData(name,defaultValue);
+    }
+
+    public Object getContainerJobFlowNodeContextData(String name) {
+        return this.getContainerJobFlowNodeExecuteContext().getContextData(name);
+    }
+
+    public Object getContainerJobFlowNodeContextData(String name, Object defaultValue) {
+        return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue);
+    }
+
+    public void addJobFlowNodeContextData(String name, Object data) {
+        this.getJobFlowNodeExecuteContext().addContextData(name,data);
+    }
+
+    public void addJobFlowContextData(String name, Object data) {
+        this.getJobFlowExecuteContext().addContextData(name,data);
+    }
+
+    public void addContainerJobFlowNodeContextData(String name, Object data) {
+        this.getContainerJobFlowNodeExecuteContext().addContextData(name,data);
+    }
 }

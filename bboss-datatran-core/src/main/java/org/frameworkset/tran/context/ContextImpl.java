@@ -1037,6 +1037,51 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
         return importContext.getJobFlowExecuteContext();
     }
 
+    @Override
+    public Object getJobFlowContextData(String name) {
+        return this.getJobFlowExecuteContext().getContextData(name);
+    }
+
+    @Override
+    public Object getJobFlowContextData(String name, Object defaultValue) {
+        return this.getJobFlowExecuteContext().getContextData(name,defaultValue);
+    }
+
+    @Override
+    public Object getJobFlowNodeContextData(String name) {
+        return this.getJobFlowNodeExecuteContext().getContextData(name);
+    }
+
+    @Override
+    public Object getJobFlowNodeContextData(String name, Object defaultValue) {
+        return this.getJobFlowNodeExecuteContext().getContextData(name,defaultValue);
+    }
+
+    @Override
+    public Object getContainerJobFlowNodeContextData(String name) {
+        return this.getContainerJobFlowNodeExecuteContext().getContextData(name);
+    }
+
+    @Override
+    public Object getContainerJobFlowNodeContextData(String name, Object defaultValue) {
+        return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue);
+    }
+
+    @Override
+    public void addJobFlowNodeContextData(String name, Object data) {
+        this.getJobFlowNodeExecuteContext().addContextData(name,data);
+    }
+
+    @Override
+    public void addJobFlowContextData(String name, Object data) {
+        this.getJobFlowExecuteContext().addContextData(name,data);
+    }
+
+    @Override
+    public void addContainerJobFlowNodeContextData(String name, Object data) {
+        this.getContainerJobFlowNodeExecuteContext().addContextData(name,data);
+    }
+
     /**
      * 获取子节点所属的复合节点（串行/并行）执行上下文对象
      *
@@ -1045,4 +1090,6 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
     public JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext() {
         return importContext.getJobFlowNodeExecuteContext().getContainerJobFlowNodeExecuteContext();
     }
+    
+    
 }
