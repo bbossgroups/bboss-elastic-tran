@@ -38,33 +38,16 @@ public class CommonJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder {
         super(nodeId, nodeName);        
         this.jobFlowNodeFunction = jobFlowNodeFunction;
     }
-    
+
+    public CommonJobFlowNodeBuilder setAutoNodeComplete(boolean autoNodeComplete) {
+        this.autoNodeComplete = autoNodeComplete;
+        return this;
+    }
 
     
     protected  JobFlowNodeFunction buildJobFlowNodeFunction(){
+   
         return jobFlowNodeFunction;
-    }
-    
-    @Override
-    public JobFlowNode build(JobFlow jobFlow){
-        SimpleJobFlowNode simpleJobFlowNode = null;       
-        
-        simpleJobFlowNode = new SimpleJobFlowNode(buildJobFlowNodeFunction(),nodeTrigger); 
-        simpleJobFlowNode.setNodeId(this.getNodeId());
-        simpleJobFlowNode.setNodeName(this.getNodeName());
-        simpleJobFlowNode.setJobFlow(jobFlow);
-        if(this.parentJobFlowNodeBuilder != null) {
-            simpleJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
-        }
-       
-        this.jobFlowNode = simpleJobFlowNode;
-        if(this.nextJobFlowNodeBuilder != null){
-            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.build(jobFlow);
-            this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
-        }        
-        simpleJobFlowNode.setJobFlowNodeListeners(this.jobFlowNodeListeners);
-        return simpleJobFlowNode;
-        
     }
 
 

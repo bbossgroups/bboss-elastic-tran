@@ -30,5 +30,21 @@ public abstract class BaseJobFlowNodeFunction implements JobFlowNodeFunction{
         this.jobFlowNode = jobFlowNode;
     }
 
+
+    @Override
+    public void reset() {
+
+    }
+
+    @Override
+    public void release() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
    
 }

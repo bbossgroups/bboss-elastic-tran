@@ -41,6 +41,10 @@ public class SimpleJobFlowNode extends JobFlowNode{
      */
 //    private ImportBuilder importBuilder;
     private SimpleJobFlowNodeContext simpleJobFlowNodeContext;
+    /**
+     * 如果需要自动在Function中的call方法调用nodeComplete，则将autoNodeComplete设置为true
+     */
+    protected boolean autoNodeComplete ;
  
     private JobFlowNodeFunction jobFlowNodeFunction;
 //    private DataStream dataStream;
@@ -60,6 +64,14 @@ public class SimpleJobFlowNode extends JobFlowNode{
         this(jobFlowNodeFunction,null);
     }
 
+
+    public void setAutoNodeComplete(boolean autoNodeComplete) {
+        this.autoNodeComplete = autoNodeComplete;
+    }
+
+    public boolean isAutoNodeComplete() {
+        return autoNodeComplete;
+    }
 
     /**
      * 作业工作流每次调度执行串行分支节点时，重置串行分支节点执行状态
@@ -102,21 +114,24 @@ public class SimpleJobFlowNode extends JobFlowNode{
                 }
             }
             logger.info("Start {} begin.",this.getJobFlowNodeInfo());
-//            dataStream = importBuilder.builder(true);
-//            dataStream.execute();
+            Throwable throwable = null;
             try {
                 jobFlowNodeFunction.call(jobFlowNodeExecuteContext);
             }
             catch (JobFlowException e){
-                this.nodeComplete(e);
+                throwable = e;
             }
             catch (Exception e){
-                
-                this.nodeComplete(new JobFlowException(this.getJobFlowNodeInfo(),e));
+                throwable = new JobFlowException(this.getJobFlowNodeInfo(),e);
             }
             catch (Throwable e){
-
-                this.nodeComplete(new JobFlowException(this.getJobFlowNodeInfo(),e));
+                throwable = new JobFlowException(this.getJobFlowNodeInfo(),e);
+                
+            }
+            finally {
+                if(throwable != null || this.autoNodeComplete) {
+                    this.nodeComplete(throwable);
+                }
             }
             
 //            this.nodeComplete(null);

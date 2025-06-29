@@ -27,7 +27,10 @@ import org.frameworkset.tran.jobflow.SimpleJobFlowNode;
  */
 public abstract class SimpleJobFlowNodeBuilder extends JobFlowNodeBuilder {
 
-
+    /**
+     * 如果需要自动在Function中的call方法调用nodeComplete，则将autoNodeComplete设置为true
+     */
+    protected boolean autoNodeComplete ;
 
     /**
      * 串行节点作业配置
@@ -37,8 +40,15 @@ public abstract class SimpleJobFlowNodeBuilder extends JobFlowNodeBuilder {
     public SimpleJobFlowNodeBuilder(String nodeId, String nodeName) {
         super(nodeId, nodeName);        
     }
+    public SimpleJobFlowNodeBuilder setAutoNodeComplete(boolean autoNodeComplete) {
+        this.autoNodeComplete = autoNodeComplete;
+        return this;
+    }
 
-    
+    public boolean isAutoNodeComplete() {
+        return autoNodeComplete;
+    }
+
     protected abstract JobFlowNodeFunction buildJobFlowNodeFunction();
     
     @Override
@@ -49,6 +59,7 @@ public abstract class SimpleJobFlowNodeBuilder extends JobFlowNodeBuilder {
         simpleJobFlowNode.setNodeId(this.getNodeId());
         simpleJobFlowNode.setNodeName(this.getNodeName());
         simpleJobFlowNode.setJobFlow(jobFlow);
+        simpleJobFlowNode.setAutoNodeComplete(this.autoNodeComplete);
         if(this.parentJobFlowNodeBuilder != null) {
             simpleJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
         }
@@ -60,6 +71,8 @@ public abstract class SimpleJobFlowNodeBuilder extends JobFlowNodeBuilder {
         }        
         simpleJobFlowNode.setJobFlowNodeListeners(this.jobFlowNodeListeners);
         return simpleJobFlowNode;
+
+       
         
     }
 
