@@ -79,7 +79,7 @@ public class HBaseRecord extends BaseRecord{
 		}
 	}
 	@Override
-	public Object getValue(String colName) {
+	public Object getValue(String colName) {        
 		byte[][] cs = parser( colName);
 		return data.getValue(cs[0],cs[1]);
 
@@ -96,6 +96,9 @@ public class HBaseRecord extends BaseRecord{
 	}
 	@Override
 	public Date getDateTimeValue(String colName) throws DataImportException {
+        if(colName.equals("_")){
+            return (Date)getMetaValue("timestamp");
+        }
 		Object value = getValue(  colName);
 		if(value == null)
 			return null;
