@@ -69,15 +69,19 @@ public class HBaseRecord extends BaseRecord{
 	public static byte[][] parserColumn(String colName){
 		try {
 			String[] infos = colName.split(":");
-			byte[] f = Bytes.toBytes(infos[0]);
-			byte[] c = Bytes.toBytes(infos[1]);
-			byte[][] cs = new byte[][]{f, c};
+            byte[] family = Bytes.toBytes(infos[0]);
+
+            // 处理没有列限定符的情况（如"info:"）
+            byte[] qualifier = infos.length > 1  ?
+                    Bytes.toBytes(infos[1]) : Bytes.toBytes("");
+			byte[][] cs = new byte[][]{family, qualifier};
 			return cs;
 		}
 		catch (Exception e){
 			throw new DataImportException("Parser Column failed: ["+colName+"] is not a hbase colname like c:name",e);
 		}
 	}
+ 
 	@Override
 	public Object getValue(String colName) {        
 		byte[][] cs = parser( colName);
@@ -132,6 +136,9 @@ public class HBaseRecord extends BaseRecord{
 		String c = "c:d";
 		String[] cs = c.split(":");
 		logger.info(cs[0]+":"+cs[1]);
+        c = "c:";
+        cs = c.split(":");
+        logger.info(cs[0]+":"+cs[1]);
 	}
 
 }
