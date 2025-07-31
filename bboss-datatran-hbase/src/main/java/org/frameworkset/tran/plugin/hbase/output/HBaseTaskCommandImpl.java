@@ -105,7 +105,14 @@ public class HBaseTaskCommandImpl extends BaseTaskCommand<  String> {
 
 		Map<String, Object> datas = dbRecord.getDatas();
 		long timestamp = System.currentTimeMillis();
-		Put put = new Put(toBytes(datas.get(hBaseOutputConfig.getRowKeyField())),timestamp);
+        Object rowKey = null;
+        if(hBaseOutputConfig.isRowKeyUseTempData()){
+            rowKey = dbRecord.getTempData(hBaseOutputConfig.getRowKeyField());
+        }
+        else{
+            rowKey = datas.get(hBaseOutputConfig.getRowKeyField());
+        }
+		Put put = new Put(toBytes(rowKey),timestamp);
 		Iterator<Map.Entry<String,Object>> iterator = datas.entrySet().iterator();
 
 		//如果没有设置列映射关系，则使用默认列

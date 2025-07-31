@@ -41,6 +41,7 @@ public class HBaseOutputConfig extends HBasePluginConfig implements OutputConfig
 
 	private Map<String, List<FamilyColumnMapping>> familyColumnMappings;
 	private String rowKeyField;
+    private boolean rowKeyUseTempData ;
 	private String globalFamiliy;
 	private byte[] bglobalFamiliy = Bytes.toBytes("df");
 	@Override
@@ -123,7 +124,23 @@ public class HBaseOutputConfig extends HBasePluginConfig implements OutputConfig
 		return this;
 	}
 
-	public String getRowKeyField() {
+    /**
+     * 指定rowkey对应的源字段名称，必须指定
+     * @param rowKeyField
+     * @param rowKeyUseTempData 如果为true，会从临时变量区获取rowKey，临时变量区的字段不会存入目标表
+     * @return
+     */
+    public HBaseOutputConfig setRowKeyField(String rowKeyField,boolean rowKeyUseTempData){
+        this.rowKeyField = rowKeyField;
+        this.rowKeyUseTempData = rowKeyUseTempData;
+        return this;
+    }
+
+    public boolean isRowKeyUseTempData() {
+        return rowKeyUseTempData;
+    }
+
+    public String getRowKeyField() {
 		return rowKeyField;
 	}
 
