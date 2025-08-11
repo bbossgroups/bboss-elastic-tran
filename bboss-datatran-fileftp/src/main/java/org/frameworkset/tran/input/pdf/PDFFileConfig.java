@@ -1,5 +1,6 @@
 package org.frameworkset.tran.input.pdf;
 
+import org.frameworkset.tran.input.excel.ExcelFileConfig;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,7 @@ import org.slf4j.LoggerFactory;
  * @description
  * @create 2022/2/12
  */
-public class PDFFileConfig extends FileConfig {
+public class PDFFileConfig extends FileConfig<PDFFileConfig> {
     private Logger logger = LoggerFactory.getLogger(PDFFileConfig.class);
 
     private PDFExtractor pdfExtractor;

@@ -15,6 +15,8 @@ package org.frameworkset.tran.ftp;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.input.RemoteContext;
+
 import java.io.File;
 
 /**
@@ -31,7 +33,7 @@ import java.io.File;
  * @version 1.0
  */
 public class ValidateContext {
-	public ValidateContext(File dataFile, String remoteFile, FtpContext ftpContext, RemoteFileAction remoteFileAction, boolean redownload) {
+	public ValidateContext(File dataFile, String remoteFile, RemoteContext ftpContext, RemoteFileAction remoteFileAction, boolean redownload) {
 		this.dataFile = dataFile;
 		this.remoteFile = remoteFile;
 		this.ftpContext = ftpContext;
@@ -54,7 +56,7 @@ public class ValidateContext {
 	/**
 	 * ftp配置上下文对象
 	 */
-	private FtpContext ftpContext;
+	private RemoteContext ftpContext;
 	/**
 	 * 文件下载接口，提供了文件下载方法，用于下载md5签名文件、数据量稽核文件
 	 */
@@ -80,11 +82,11 @@ public class ValidateContext {
 		this.remoteFile = remoteFile;
 	}
 
-	public FtpContext getFtpContext() {
+	public RemoteContext getFtpContext() {
 		return ftpContext;
 	}
 
-	public void setFtpContext(FtpContext ftpContext) {
+	public void setFtpContext(RemoteContext ftpContext) {
 		this.ftpContext = ftpContext;
 	}
 

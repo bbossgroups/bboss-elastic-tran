@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
  * @description
  * @create 2022/2/12
  */
-public class CommonFileConfig extends FileConfig {
+public class CommonFileConfig extends FileConfig<CommonFileConfig> {
     private Logger logger = LoggerFactory.getLogger(CommonFileConfig.class);
 
     private CommonFileExtractor commonFileExtractor;

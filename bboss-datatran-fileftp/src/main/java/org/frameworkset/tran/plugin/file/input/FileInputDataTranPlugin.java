@@ -9,6 +9,8 @@ import org.frameworkset.tran.file.monitor.FileManager;
 import org.frameworkset.tran.ftp.BackupSuccessFilesClean;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.input.file.*;
+import org.frameworkset.tran.input.s3.OSSFileInputConfig;
+import org.frameworkset.tran.input.s3.S3DirScan;
 import org.frameworkset.tran.plugin.BaseInputPlugin;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
@@ -399,6 +401,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
     private LogDirScan logDirScanThread(LogDirsScanThread logDirsScanThread, FileConfig fileConfig ){
         LogDirScan logDirScan = null;
         FtpConfig ftpConfig = getFtpConfig(fileConfig);
+        OSSFileInputConfig ossFileInputConfig = fileConfig.getOssFileInputConfig();
         if (ftpConfig != null) {
 //            FtpConfig ftpConfig = (FtpConfig) fileConfig;
             if(ftpConfig.getTransferProtocol() == FtpConfig.TRANSFER_PROTOCOL_FTP) {
@@ -412,6 +415,8 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                 logDirScan.setRemote(true);
             }
 
+        } else if (ossFileInputConfig != null) {
+            logDirScan = new S3DirScan(logDirsScanThread,fileConfig,getFileListenerService());
         } else {
             logDirScan = new LogDirScan(logDirsScanThread,
                     fileConfig, getFileListenerService());

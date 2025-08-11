@@ -15,6 +15,7 @@ package org.frameworkset.tran.ftp;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.input.RemoteContext;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
@@ -30,41 +31,34 @@ import java.util.List;
  * @version 1.0
  */
 public class FtpContextImpl implements FtpContext {
-	private FtpConfig ftpConfig ;
-	private FileConfig fileConfig;
-	public FtpContextImpl(FtpConfig ftpConfig, FileConfig fileConfig) {
+	 private FtpConfig ftpConfig;
+	public FtpContextImpl(FtpConfig ftpConfig) {
 		this.ftpConfig = ftpConfig;
-		this.fileConfig = fileConfig;
-	}
-	public boolean deleteRemoteFile(){
-		return this.ftpConfig.isDeleteRemoteFile();
 	}
 
-	@Override
+    @Override
+    public FtpConfig getFtpConfig() {
+        return ftpConfig;
+    }
+
+    @Override
+    public FileConfig getFileConfig() {
+        return ftpConfig.getFileConfig();
+    }
+
+    @Override
 	public String getFtpIP() {
 		return ftpConfig.getFtpIP();
 	}
 
-	@Override
-	public RemoteFileValidate getRemoteFileValidate() {
-		return ftpConfig.getRemoteFileValidate();
-	}
+ 
 
 	@Override
 	public int getFtpPort() {
 		return ftpConfig.getFtpPort();
 	}
 
-	@Override
-	public FtpConfig getFtpConfig() {
-		return ftpConfig;
-	}
-
-	@Override
-	public FileConfig getFileConfig() {
-		return fileConfig;
-	}
-
+ 
 	@Override
 	public String getRemoteFileDir() {
 		return ftpConfig.getRemoteFileDir();
@@ -161,7 +155,7 @@ public class FtpContextImpl implements FtpContext {
 
 	@Override
 	public FileFilter getFileFilter() {
-		return fileConfig.getFileFilter();
+		return ftpConfig.getFileConfig().getFileFilter();
 	}
 
 	@Override

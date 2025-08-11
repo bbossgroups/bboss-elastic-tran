@@ -1,6 +1,7 @@
 package org.frameworkset.tran.input.excel;
 
 import org.frameworkset.tran.input.file.FileConfig;
+import org.frameworkset.tran.input.other.CommonFileConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,7 @@ import org.slf4j.LoggerFactory;
  * @description
  * @create 2022/2/12
  */
-public class ExcelFileConfig extends FileConfig {
+public class ExcelFileConfig extends FileConfig<ExcelFileConfig> {
     private Logger logger = LoggerFactory.getLogger(ExcelFileConfig.class);
 
     public ExcelFileConfig(){

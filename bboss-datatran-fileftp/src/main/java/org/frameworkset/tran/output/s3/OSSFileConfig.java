@@ -15,8 +15,8 @@ package org.frameworkset.tran.output.s3;
  * limitations under the License.
  */
 
-import okhttp3.OkHttpClient;
-import org.frameworkset.tran.output.BaseRemoteConfig;
+//import okhttp3.OkHttpClient;
+import org.frameworkset.tran.plugin.file.BaseRemoteConfig;
 
 /**
  * <p>Description: 文件写入oss数据库配置</p>
@@ -25,14 +25,14 @@ import org.frameworkset.tran.output.BaseRemoteConfig;
  * @author biaoping.yin
  * @Date 2024/8/9
  */
-public class OSSFileConfig extends BaseRemoteConfig {
+public class OSSFileConfig extends BaseRemoteConfig<OSSFileConfig> {
 
     private String name;
     private String endpoint;
     private String accessKeyId;
     private String secretAccesskey;
     private String region;
-    private OkHttpClient httpClient;
+//    private OkHttpClient httpClient;
     private long maxFilePartSize = 10485760L;
     private long connectTimeout = 60000L;
     private long readTimeout = 60000L;
@@ -100,15 +100,15 @@ public class OSSFileConfig extends BaseRemoteConfig {
         this.region = region;
         return this;
     }
-
-    public OkHttpClient getHttpClient() {
-        return httpClient;
-    }
-
-    public OSSFileConfig setHttpClient(OkHttpClient httpClient) {
-        this.httpClient = httpClient;
-        return this;
-    }
+//
+//    public OkHttpClient getHttpClient() {
+//        return httpClient;
+//    }
+//
+//    public OSSFileConfig setHttpClient(OkHttpClient httpClient) {
+//        this.httpClient = httpClient;
+//        return this;
+//    }
 
     public long getMaxFilePartSize() {
         return maxFilePartSize;

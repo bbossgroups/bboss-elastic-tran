@@ -16,6 +16,7 @@ package org.frameworkset.tran.ftp;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.input.RemoteContext;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FtpFileFilter;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
@@ -34,7 +35,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FtpConfig  {
+public class FtpConfig extends RemoteContext<FtpConfig> {
     private Logger logger = LoggerFactory.getLogger(FtpConfig.class);
 
 
@@ -50,9 +51,7 @@ public class FtpConfig  {
 	private String ftpTrustmgr;
 	private String ftpProxyHost;
 	private FtpFileFilter ftpFileFilter;
-	private String downloadTempDir;
 
-	private RemoteFileChannel remoteFileChannel;
 	private int ftpProxyPort;
 
 	private String ftpProxyPassword;
@@ -84,10 +83,7 @@ public class FtpConfig  {
 	 */
 	private long connectTimeout;
 	private int controlKeepAliveReplyTimeout;
-	private String remoteFileDir;
 	private String encoding;
-	private boolean deleteRemoteFile;
-	private RemoteFileValidate remoteFileValidate;
 	private int downloadWorkThreads = 3;
 	private String transferProtocolName;
 	private boolean inited;
@@ -98,11 +94,7 @@ public class FtpConfig  {
 	public String getTransferProtocolName() {
 		return transferProtocolName;
 	}
-	public void destroy(){
-		if(remoteFileChannel != null){
-			remoteFileChannel.destroy();
-		}
-	}
+
 	public FtpConfig setDownloadWorkThreads(int downloadWorkThreads) {
 		this.downloadWorkThreads = downloadWorkThreads;
 		return this;
@@ -155,18 +147,13 @@ public class FtpConfig  {
 		}
 //		return this;
 	}
-	public RemoteFileChannel getRemoteFileChannel() {
-		return remoteFileChannel;
-	}
+
 
 
 	public int getTransferProtocol() {
 		return transferProtocol;
 	}
 
-	public String getDownloadTempDir() {
-		return downloadTempDir;
-	}
 
 	public FtpConfig setTransferProtocol(int transferProtocol) {
 		this.transferProtocol = transferProtocol;
@@ -317,14 +304,6 @@ public class FtpConfig  {
 		return this;
 	}
 
-	public String getRemoteFileDir() {
-		return remoteFileDir;
-	}
-
-	public FtpConfig setRemoteFileDir(String remoteFileDir) {
-		this.remoteFileDir = remoteFileDir;
-		return this;
-	}
 
 	public FtpFileFilter getFtpFileFilter() {
 		return ftpFileFilter;
@@ -355,23 +334,10 @@ public class FtpConfig  {
 		return this;
 	}
 
-	public boolean isDeleteRemoteFile() {
-		return this.deleteRemoteFile;
-	}
+ 
+ 
 
-	public FtpConfig setDeleteRemoteFile(boolean deleteRemoteFile) {
-		this.deleteRemoteFile = deleteRemoteFile;
-		return this;
-	}
-
-	public RemoteFileValidate getRemoteFileValidate() {
-		return remoteFileValidate;
-	}
-
-	public FtpConfig setRemoteFileValidate(RemoteFileValidate remoteFileValidate) {
-		this.remoteFileValidate = remoteFileValidate;
-		return this;
-	}
+ 
 
 	public long getSocketTimeout() {
 		return socketTimeout;

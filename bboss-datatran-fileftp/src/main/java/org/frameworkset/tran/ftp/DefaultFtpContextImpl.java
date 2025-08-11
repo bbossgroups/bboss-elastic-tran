@@ -29,7 +29,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DefaultFtpContextImpl implements FtpContext {
+public class DefaultFtpContextImpl  implements FtpContext {
 	protected FtpConfig ftpConfig ;
 	public DefaultFtpContextImpl(FtpConfig ftpConfig) {
 		this.ftpConfig = ftpConfig;
@@ -42,11 +42,7 @@ public class DefaultFtpContextImpl implements FtpContext {
 	public String getFtpIP() {
 		return ftpConfig.getFtpIP();
 	}
-
-	@Override
-	public RemoteFileValidate getRemoteFileValidate() {
-		return ftpConfig.getRemoteFileValidate();
-	}
+ 
 
 	@Override
 	public int getFtpPort() {
@@ -60,7 +56,7 @@ public class DefaultFtpContextImpl implements FtpContext {
 
 	@Override
 	public FileConfig getFileConfig() {
-		return null;
+		return ftpConfig.getFileConfig();
 	}
 
 

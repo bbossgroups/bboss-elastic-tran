@@ -7,6 +7,7 @@ import org.frameworkset.tran.context.JobContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.ftp.FtpConfig;
+import org.frameworkset.tran.input.s3.OSSFileInputConfig;
 import org.frameworkset.tran.schedule.timer.TimeRange;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.frameworkset.util.OSInfo;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +26,7 @@ import java.util.regex.Pattern;
  * @description
  * @create 2021/3/12
  */
-public class FileConfig extends FieldManager{
+public class FileConfig<T extends FileConfig<T>> extends FieldManager<T>{
     private Logger logger = LoggerFactory.getLogger(FileConfig.class);
 
 
@@ -37,6 +39,9 @@ public class FileConfig extends FieldManager{
      * ftp配置
      */
     private FtpConfig ftpConfig;
+
+
+    private OSSFileInputConfig ossFileInputConfig;
 
     /**
      *重命名文件监听路径：一些日志组件会指定将滚动日志文件放在与当前日志文件不同的目录下，需要通过renameFileSourcePath指定这个不同的目录地址，以便
@@ -72,9 +77,29 @@ public class FileConfig extends FieldManager{
         return skipHeaderLines;
     }
 
-    public FileConfig setSkipHeaderLines(int skipHeaderLines) {
+    public T setSkipHeaderLines(int skipHeaderLines) {
         this.skipHeaderLines = skipHeaderLines;
-        return this;
+        return (T)this;
+    }
+
+    public T setOssFileInputConfig(OSSFileInputConfig ossFileInputConfig) {
+        this.ossFileInputConfig = ossFileInputConfig;
+        if(ossFileInputConfig != null){
+            this.ossFileInputConfig.setFileConfig(this);
+        }
+        return (T)this;
+    }
+
+    public OSSFileInputConfig getOssFileInputConfig() {
+        return ossFileInputConfig;
+    }
+    public T addField(String name,Object value){
+       super.addField(name,value);
+       return (T)this;
+    }
+    public T addFields(Map<String,Object> values){
+        super.addFields(values);
+        return (T)this;
     }
 
     /**
@@ -82,9 +107,9 @@ public class FileConfig extends FieldManager{
      */
     private int skipHeaderLines;
 
-    public FileConfig setFileFilter(FileFilter fileFilter) {
+    public T setFileFilter(FileFilter fileFilter) {
         this.fileFilter = fileFilter;
-        return this;
+        return (T)this;
     }
 
     private FileFilter fileFilter;
@@ -150,18 +175,18 @@ public class FileConfig extends FieldManager{
         return ignoreOlderTime;
     }
 
-    public FileConfig setIgnoreOlderTime(Long ignoreOlderTime) {
+    public T setIgnoreOlderTime(Long ignoreOlderTime) {
         this.ignoreOlderTime = ignoreOlderTime;
-        return this;
+        return (T)this;
     }
 
     public Long getCloseOlderTime() {
         return closeOlderTime;
     }
 
-    public FileConfig setCloseOlderTime(Long closeOlderTime) {
+    public T setCloseOlderTime(Long closeOlderTime) {
         this.closeOlderTime = closeOlderTime;
-        return this;
+        return (T)this;
     }
 
     /**
@@ -206,9 +231,9 @@ public class FileConfig extends FieldManager{
         return fieldBuilder;
     }
 
-    public FileConfig setFieldBuilder(FieldBuilder fieldBuilder) {
+    public T setFieldBuilder(FieldBuilder fieldBuilder) {
         this.fieldBuilder = fieldBuilder;
-        return this;
+        return (T)this;
     }
 
     private FieldBuilder fieldBuilder;
@@ -232,9 +257,9 @@ public class FileConfig extends FieldManager{
 
 
 
-    public FileConfig setScanChild(boolean scanChild) {
+    public T setScanChild(boolean scanChild) {
         this.scanChild = scanChild;
-        return this;
+        return (T)this;
     }
 
     public FileConfig(String sourcePath, FileFilter fileFilter, String fileHeadLineRegular) {
@@ -256,18 +281,18 @@ public class FileConfig extends FieldManager{
         return sourcePath;
     }
 
-    public FileConfig setSourcePath(String sourcePath) {
+    public T setSourcePath(String sourcePath) {
         this.sourcePath = sourcePath;
-        return this;
+        return (T)this;
     }
 
     public String getFileNameRegular() {
         return fileNameRegular;
     }
 
-    public FileConfig setFileNameRegular(String fileNameRegular) {
+    public T setFileNameRegular(String fileNameRegular) {
         this.fileNameRegular = fileNameRegular;
-        return this;
+        return (T)this;
     }
 
     public Pattern getFileHeadLineRexPattern() {
@@ -290,9 +315,9 @@ public class FileConfig extends FieldManager{
         return fileHeadLineRegular;
     }
 
-    public FileConfig setFileHeadLineRegular(String fileHeadLineRegular) {
+    public T setFileHeadLineRegular(String fileHeadLineRegular) {
         this.fileHeadLineRegular = fileHeadLineRegular;
-        return this;
+        return (T)this;
     }
 
     public boolean isScanChild() {
@@ -305,54 +330,54 @@ public class FileConfig extends FieldManager{
         return includeLines;
     }
 
-    public FileConfig setIncludeLines(String[] includeLines,LineMatchType includeLineMatchType) {
+    public T setIncludeLines(String[] includeLines,LineMatchType includeLineMatchType) {
         this.includeLines = includeLines;
         this.includeLineMatchType = includeLineMatchType;
-        return this;
+        return (T)this;
     }
-    public FileConfig setIncludeLines(String[] includeLines) {
+    public T setIncludeLines(String[] includeLines) {
         this.includeLines = includeLines;
-        return this;
+        return (T)this;
     }
     public String[] getExcludeLines() {
         return excludeLines;
     }
-    public FileConfig setExcludeLines(String[] excludeLines) {
+    public T setExcludeLines(String[] excludeLines) {
         this.excludeLines = excludeLines;
-        return this;
+        return (T)this;
     }
 
-    public FileConfig setExcludeLines(String[] excludeLines,LineMatchType excludeLineMatchType) {
+    public T setExcludeLines(String[] excludeLines,LineMatchType excludeLineMatchType) {
         this.excludeLines = excludeLines;
         this.excludeLineMatchType = excludeLineMatchType;
-        return this;
+        return (T)this;
     }
 
     public int getMaxBytes() {
         return maxBytes;
     }
 
-    public FileConfig setMaxBytes(int maxBytes) {
+    public T setMaxBytes(int maxBytes) {
         this.maxBytes = maxBytes;
-        return this;
+        return (T)this;
     }
 
     public boolean isCloseEOF() {
         return closeEOF;
     }
 
-    public FileConfig setCloseEOF(boolean closeEOF) {
+    public T setCloseEOF(boolean closeEOF) {
         this.closeEOF = closeEOF;
-        return this;
+        return (T)this;
     }
 
     public Long getStartPointer() {
         return startPointer;
     }
 
-    public FileConfig setStartPointer(Long startPointer) {
+    public T setStartPointer(Long startPointer) {
         this.startPointer = startPointer;
-        return this;
+        return (T)this;
     }
 
     private boolean inited = false;
@@ -360,11 +385,14 @@ public class FileConfig extends FieldManager{
         if(ftpConfig != null){
             ftpConfig.destroy();
         }
+        if(ossFileInputConfig != null){
+            ossFileInputConfig.destroy();
+        }
 //        importContext = null;
     }
-    public FileConfig init(){
+    public T init(){
         if(inited )
-            return this;
+            return (T)this;
         build();
         inited = true;
         if(getCloseOlderTime() != null && getCloseOlderTime() > 0L) {
@@ -450,8 +478,11 @@ public class FileConfig extends FieldManager{
             ftpConfig.init(this);
 
         }
+        else if(ossFileInputConfig != null){
+            ossFileInputConfig.init(this);
+        }
 
-        return this;
+        return (T)this;
 
     }
 
@@ -473,27 +504,27 @@ public class FileConfig extends FieldManager{
      * 是否启用inode文件标识符机制来识别文件重命名操作，linux环境下起作用，windows环境下不起作用（enableInode强制为false）
      * linux环境下，在不存在重命名的场景下可以关闭inode文件标识符机制，windows环境下强制关闭inode文件标识符机制
      */
-    public FileConfig setEnableInode(boolean enableInode) {
+    public T setEnableInode(boolean enableInode) {
         this.enableInode = enableInode;
-        return this;
+        return (T)this;
     }
 
     public boolean isDeleteEOFFile() {
         return deleteEOFFile;
     }
 
-    public FileConfig setDeleteEOFFile(boolean deleteEOFFile) {
+    public T setDeleteEOFFile(boolean deleteEOFFile) {
         this.deleteEOFFile = deleteEOFFile;
-        return this;
+        return (T)this;
     }
 
     public String getCharsetEncode() {
         return charsetEncode;
     }
 
-    public FileConfig setCharsetEncode(String charsetEncode) {
+    public T setCharsetEncode(String charsetEncode) {
         this.charsetEncode = charsetEncode;
-        return this;
+        return (T)this;
     }
 
     public FileFilter getFileFilter() {
@@ -515,23 +546,23 @@ public class FileConfig extends FieldManager{
         return ignoreFileAssert;
     }
 
-    public FileConfig setIgnoreFileAssert(IgnoreFileAssert ignoreFileAssert) {
+    public T setIgnoreFileAssert(IgnoreFileAssert ignoreFileAssert) {
         this.ignoreFileAssert = ignoreFileAssert;
-        return this;
+        return (T)this;
     }
 
     public CloseOldedFileAssert getCloseOldedFileAssert() {
         return closeOldedFileAssert;
     }
 
-    public FileConfig setCloseOldedFileAssert(CloseOldedFileAssert closeOldedFileAssert) {
+    public T setCloseOldedFileAssert(CloseOldedFileAssert closeOldedFileAssert) {
         this.closeOldedFileAssert = closeOldedFileAssert;
-        return this;
+        return (T)this;
     }
 
-    public FileConfig setRenameFileSourcePath(String renameFileSourcePath) {
+    public T setRenameFileSourcePath(String renameFileSourcePath) {
         this.renameFileSourcePath = renameFileSourcePath;
-        return this;
+        return (T)this;
     }
 
     public File getRenameFileLogDir() {
@@ -546,9 +577,9 @@ public class FileConfig extends FieldManager{
 		return closeRenameEOF;
 	}
 
-	public FileConfig setCloseRenameEOF(boolean closeRenameEOF) {
+	public T setCloseRenameEOF(boolean closeRenameEOF) {
 		this.closeRenameEOF = closeRenameEOF;
-		return this;
+		return (T)this;
 	}
     /**
      * 添加不扫码新文件的时间段
@@ -559,12 +590,12 @@ public class FileConfig extends FieldManager{
      * @param timeRange
      * @return
      */
-    public FileConfig addSkipScanNewFileTimeRange(String timeRange){
+    public T addSkipScanNewFileTimeRange(String timeRange){
         if(timerScheduleConfig == null){
             timerScheduleConfig = new TimerScheduleConfig();
         }
         timerScheduleConfig.addSkipScanNewFileTimeRange(timeRange);
-        return this;
+        return (T)this;
     }
 
     /**
@@ -576,13 +607,13 @@ public class FileConfig extends FieldManager{
      * @param timeRange
      * @return
      */
-    public FileConfig addScanNewFileTimeRange(String timeRange){
+    public T addScanNewFileTimeRange(String timeRange){
         if(timerScheduleConfig == null){
             timerScheduleConfig = new TimerScheduleConfig();
         }
         timerScheduleConfig.addSkipScanNewFileTimeRange(timeRange);
 
-        return this;
+        return (T)this;
     }
 
 
@@ -616,9 +647,11 @@ public class FileConfig extends FieldManager{
         return ftpConfig;
     }
 
-    public FileConfig setFtpConfig(FtpConfig ftpConfig) {
+    public T setFtpConfig(FtpConfig ftpConfig) {
         this.ftpConfig = ftpConfig;
-        return this;
+        if(ftpConfig != null)
+            ftpConfig.setFileConfig(this);
+        return (T)this;
     }
 
 

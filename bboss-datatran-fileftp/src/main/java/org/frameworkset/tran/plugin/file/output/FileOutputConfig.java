@@ -30,7 +30,7 @@ import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FilelogPluginException;
 import org.frameworkset.tran.input.file.FtpFileFilter;
 import org.frameworkset.tran.metrics.TaskMetrics;
-import org.frameworkset.tran.output.BaseRemoteConfig;
+import org.frameworkset.tran.plugin.file.BaseRemoteConfig;
 import org.frameworkset.tran.output.s3.OSSFileConfig;
 import org.frameworkset.tran.output.fileftp.FileSend2Ftp;
 import org.frameworkset.tran.output.fileftp.FilenameGenerator;
@@ -119,10 +119,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
         return ossFileConfig;
     }
 
-    @Override
-	public boolean deleteRemoteFile() {
-		return false;
-	}
+ 
 	@Override
 	public String getEncoding() {
 		return ftpOutConfig.getEncoding();
@@ -153,10 +150,7 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	public int getFileLiveTime() {
 		return baseRemoteConfig.getFileLiveTime();
 	}
-	@Override
-	public RemoteFileValidate getRemoteFileValidate() {
-		return null;
-	}
+ 
 	public FileOutputConfig setFileDir(String fileDir) {
 		this.fileDir = fileDir;
 		return  this;

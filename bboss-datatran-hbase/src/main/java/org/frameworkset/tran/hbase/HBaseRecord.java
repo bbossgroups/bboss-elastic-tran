@@ -78,7 +78,7 @@ public class HBaseRecord extends BaseRecord{
 			return cs;
 		}
 		catch (Exception e){
-			throw new DataImportException("Parser Column failed: ["+colName+"] is not a hbase colname like c:name",e);
+			throw new DataImportException("Parser Column failed: ["+colName+"] is not a hbase colname like c:name or c:",e);
 		}
 	}
  

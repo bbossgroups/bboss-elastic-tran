@@ -30,7 +30,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FieldManager extends FieldMappingManager {
+public class FieldManager<T extends FieldManager<T>> extends FieldMappingManager<T> {
 	private static final Logger logger = LoggerFactory.getLogger(FieldManager.class);
 	public FieldManager(){
 		super();
@@ -43,21 +43,21 @@ public class FieldManager extends FieldMappingManager {
 	 * 需要忽略的字段
 	 */
 	protected Map<String,Object> ignoreFields;
-	public FileConfig addField(String name,Object value){
+	public T addField(String name,Object value){
 		if(addFields == null)
 			addFields = new LinkedHashMap<>();
 		addFields.put(name,value);
 		if(this instanceof FileConfig)
-			return (FileConfig)this;
+			return (T)this;
 		else
 			return null;
 	}
-	public FileConfig addFields(Map<String,Object> values){
+	public T addFields(Map<String,Object> values){
 		if(addFields == null)
 			addFields = new LinkedHashMap<>();
 		addFields.putAll(values);
 		if(this instanceof FileConfig)
-			return (FileConfig)this;
+			return (T)this;
 		else
 			return null;
 	}
@@ -70,22 +70,22 @@ public class FieldManager extends FieldMappingManager {
 		return ignoreFields;
 	}
 
-	public FileConfig ignoreField(String name){
+	public T ignoreField(String name){
 		if(ignoreFields == null)
 			ignoreFields = new LinkedHashMap<>();
 		ignoreFields.put(name,1);
 		if(this instanceof FileConfig)
-			return (FileConfig)this;
+			return (T)this;
 		else
 			return null;
 	}
 
-	public FileConfig ignoreFields(Map<String,Object> ignoreFields){
+	public T ignoreFields(Map<String,Object> ignoreFields){
 		if(ignoreFields == null)
 			ignoreFields = new LinkedHashMap<>();
 		ignoreFields.putAll(ignoreFields);
 		if(this instanceof FileConfig)
-			return (FileConfig)this;
+			return (T)this;
 		else
 			return null;
 	}

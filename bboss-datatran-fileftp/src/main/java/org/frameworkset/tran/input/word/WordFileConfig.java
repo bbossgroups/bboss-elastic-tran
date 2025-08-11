@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  * @description
  * @create 2022/2/12
  */
-public class WordFileConfig extends FileConfig {
+public class WordFileConfig extends FileConfig<WordFileConfig> {
     private Logger logger = LoggerFactory.getLogger(WordFileConfig.class);
 
 

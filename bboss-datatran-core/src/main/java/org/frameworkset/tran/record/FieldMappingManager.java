@@ -28,7 +28,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FieldMappingManager {
+public class FieldMappingManager<T extends FieldMappingManager> {
 	/**
 	 * 文本字段切割符
 	 */
@@ -46,20 +46,20 @@ public class FieldMappingManager {
 	}
 
 
-	public FieldMappingManager addCellMapping(int cell, String field){
+	public T addCellMapping(int cell, String field){
 		CellMapping cellMapping = new CellMapping();
 		cellMapping.setCell(cell);
 		cellMapping.setFieldName(field);
 		return addCellMapping(  cellMapping );
 	}
-	public FieldMappingManager addCellMapping(int cell,String field,Object defaultValue){
+	public T addCellMapping(int cell,String field,Object defaultValue){
 		CellMapping cellMapping = new CellMapping();
 		cellMapping.setCell(cell);
 		cellMapping.setFieldName(field);
 		cellMapping.setDefaultValue(defaultValue);
 		return addCellMapping(  cellMapping );
 	}
-	public FieldMappingManager addDateCellMapping(int cell,String field,int cellType,Object defaultValue,String dateformat){
+	public T addDateCellMapping(int cell,String field,int cellType,Object defaultValue,String dateformat){
 		CellMapping cellMapping = new CellMapping();
 		cellMapping.setCell(cell);
 		cellMapping.setFieldName(field);
@@ -68,7 +68,7 @@ public class FieldMappingManager {
 		cellMapping.setDefaultValue(defaultValue);
 		return addCellMapping(  cellMapping );
 	}
-	public FieldMappingManager addNumberCellMapping(int cell,String field,int cellType,Object defaultValue,String numberformat){
+	public T addNumberCellMapping(int cell,String field,int cellType,Object defaultValue,String numberformat){
 		CellMapping cellMapping = new CellMapping();
 		cellMapping.setCell(cell);
 		cellMapping.setFieldName(field);
@@ -78,7 +78,7 @@ public class FieldMappingManager {
 		return addCellMapping(  cellMapping );
 	}
 
-	public FieldMappingManager addDateCellMapping(int cell,String field,int cellType,String dateformat){
+	public T addDateCellMapping(int cell,String field,int cellType,String dateformat){
 		CellMapping cellMapping = new CellMapping();
 		cellMapping.setCell(cell);
 		cellMapping.setFieldName(field);
@@ -86,7 +86,7 @@ public class FieldMappingManager {
 		cellMapping.setDateFormat(dateformat);
 		return addCellMapping(  cellMapping );
 	}
-	public FieldMappingManager addNumberCellMapping(int cell,String field,int cellType,String numberformat){
+	public T addNumberCellMapping(int cell,String field,int cellType,String numberformat){
 		CellMapping cellMapping = new CellMapping();
 		cellMapping.setCell(cell);
 		cellMapping.setFieldName(field);
@@ -94,7 +94,7 @@ public class FieldMappingManager {
 		cellMapping.setNumberFormat(numberformat);
 		return addCellMapping(  cellMapping );
 	}
-	public FieldMappingManager addCellMappingWithType(int cell,String field,int cellType ){
+	public T addCellMappingWithType(int cell,String field,int cellType ){
 
 		CellMapping cellMapping = new CellMapping();
 		cellMapping.setCell(cell);
@@ -103,7 +103,7 @@ public class FieldMappingManager {
 		return addCellMapping(  cellMapping );
 	}
 
-	public FieldMappingManager addCellMappingWithType(int cell,String field,int cellType ,Object defaultValue){
+	public T addCellMappingWithType(int cell,String field,int cellType ,Object defaultValue){
 
 		CellMapping cellMapping = new CellMapping();
 		cellMapping.setCell(cell);
@@ -112,14 +112,14 @@ public class FieldMappingManager {
 		cellMapping.setDefaultValue(defaultValue);
 		return addCellMapping(  cellMapping );
 	}
-	public FieldMappingManager addCellMapping(CellMapping cellMapping ){
+	public T addCellMapping(CellMapping cellMapping ){
 		if(cellMappingList == null) {
 			cellMappingList = new ArrayList<>();
 			cellMappings = new LinkedHashMap<>();
 		}
 		cellMappingList.add(cellMapping);
 		cellMappings.put(cellMapping.getCell(),cellMapping);
-		return this;
+		return (T)this;
 	}
 	protected void appendFieldList(StringBuilder stringBuilder){
 		for(int i =0; this.cellMappingList != null &&  i < this.cellMappingList.size(); i ++){

@@ -5,6 +5,7 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.frameworkset.tran.ftp.FtpContext;
 import org.frameworkset.tran.ftp.FtpContextImpl;
 import org.frameworkset.tran.ftp.FtpTransfer;
+import org.frameworkset.tran.input.RemoteContext;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class FtpLogDirScan extends LogDirScan {
 
     public FtpLogDirScan(LogDirsScanThread logDirsScanThread, FileConfig fileConfig, FileListenerService fileListenerService) {
         super( logDirsScanThread,fileConfig,fileListenerService);
-        ftpContext = new FtpContextImpl(fileConfig.getFtpConfig(),fileConfig);
+        ftpContext = new FtpContextImpl(fileConfig.getFtpConfig());
     }
 
 
@@ -71,7 +72,7 @@ public class FtpLogDirScan extends LogDirScan {
                                 SimpleStringUtil.getPath(ftpContext.getRemoteFileDir(), name), downloadFutures);
                     }
                 } else {
-                    fileListenerService.checkFtpNewFile(  taskContext,"", ftpContext.getRemoteFileDir(), remoteResourceInfo, ftpContext, downloadFutures);
+                    fileListenerService.checkFtpNewFile(  taskContext,"", ftpContext.getRemoteFileDir(), remoteResourceInfo, (RemoteContext) ftpContext, downloadFutures);
                 }
             }
         }
@@ -125,7 +126,7 @@ public class FtpLogDirScan extends LogDirScan {
                 }
             }
             else{
-                fileListenerService.checkFtpNewFile(  taskContext,relativeParentDir,subdir,remoteResourceInfo,ftpContext ,downloadFutures);
+                fileListenerService.checkFtpNewFile(  taskContext,relativeParentDir,subdir,remoteResourceInfo,(RemoteContext) ftpContext ,downloadFutures);
             }
         }
     }

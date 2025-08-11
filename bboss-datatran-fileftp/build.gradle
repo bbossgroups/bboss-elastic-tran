@@ -39,31 +39,34 @@ dependencies {
 //    api group: 'com.hierynomus', name: 'sshj', version: '0.37.0', transitive: true
 	api group: 'commons-net', name: 'commons-net', version: '3.11.1', transitive: true
     
-	api ('org.apache.poi:poi:5.3.0'){
+	api ('org.apache.poi:poi:5.4.1'){
         exclude group: 'commons-codec', module: 'commons-codec'
         exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
+//        exclude group: 'commons-io', module: 'commons-io'
     }
-	api ('org.apache.poi:poi-ooxml:5.3.0'){
-        exclude group: 'org.apache.commons', module: 'commons-compress'
+	api ('org.apache.poi:poi-ooxml:5.4.1'){
+//        exclude group: 'org.apache.commons', module: 'commons-compress'
         exclude group: 'commons-codec', module: 'commons-codec'
+        exclude group: 'org.apache.commons', module: 'commons-lang3'
         exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
+        exclude group: 'commons-io', module: 'commons-io'
     }
-	api (group: 'org.apache.pdfbox', name: 'pdfbox', version: '3.0.3'){
+	api (group: 'org.apache.pdfbox', name: 'pdfbox', version: '3.0.5'){
         exclude group: 'commons-logging', module: 'commons-logging'
     }
     api([group: 'com.bbossgroups', name: 'bboss-data', version: "${PROJ_BBOSS_DATA_VERSION}", transitive: true])
-    api (group: 'io.minio', name: 'minio', version: '8.5.17'){
-        exclude group: 'com.fasterxml.jackson.jaxrs', module: 'jackson-jaxrs-json-provider'
-        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-csv'
-        exclude group: 'com.fasterxml.jackson.module', module: 'jackson-module-scala_2.12'
-        exclude group: 'com.fasterxml.jackson.datatype', module: 'jackson-datatype-jdk8'
-        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
-        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-annotations'
-        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
-        exclude group: 'org.apache.commons', module: 'commons-lang3'
-        exclude group: 'org.bouncycastle', module: 'bcprov-jdk18on'
-        
-    }
+//    compileOnly (group: 'io.minio', name: 'minio', version: '8.5.17'){
+//        exclude group: 'com.fasterxml.jackson.jaxrs', module: 'jackson-jaxrs-json-provider'
+//        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-csv'
+//        exclude group: 'com.fasterxml.jackson.module', module: 'jackson-module-scala_2.12'
+//        exclude group: 'com.fasterxml.jackson.datatype', module: 'jackson-datatype-jdk8'
+//        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+//        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-annotations'
+//        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
+//        exclude group: 'org.apache.commons', module: 'commons-lang3'
+//        exclude group: 'org.bouncycastle', module: 'bcprov-jdk18on'
+//        
+//    }
 //	compile 'commons-io:commons-io:2.8.0'
 //	compile group: 'commons-io', name: 'commons-io', version: '2.8.0',transitive: true
 }

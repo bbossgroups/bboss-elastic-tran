@@ -3,10 +3,14 @@ package org.frameworkset.tran.input.file;
 import com.frameworkset.util.SimpleStringUtil;
 import net.schmizz.sshj.sftp.RemoteResourceInfo;
 import org.apache.commons.net.ftp.FTPFile;
+import org.frameworkset.nosql.s3.OSSClient;
+import org.frameworkset.nosql.s3.OSSFile;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.ftp.*;
+import org.frameworkset.tran.input.RemoteContext;
+import org.frameworkset.tran.input.s3.OSSFileInputConfig;
 import org.frameworkset.tran.plugin.file.input.FileDataTranPluginImpl;
 import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.frameworkset.tran.plugin.file.input.FileInputDataTranPlugin;
@@ -365,7 +369,7 @@ public class FileListenerService {
 
 
     public void checkSFtpNewFile(TaskContext taskContext, String relativeParentDir, RemoteResourceInfo remoteResourceInfo, final FtpContext ftpContext, List<Future> downloadFutures) {
-        checkRemoteNewFile(  taskContext, relativeParentDir,remoteResourceInfo.getName(), remoteResourceInfo.getPath(),  ftpContext, new RemoteFileAction() {
+        checkRemoteNewFile(  taskContext, relativeParentDir,remoteResourceInfo.getName(), remoteResourceInfo.getPath(),  ftpContext.getFtpConfig(), new RemoteFileAction() {
             @Override
             public boolean downloadFile(String localFile,String remoteFile) {
                 SFTPTransfer.downloadFile(ftpContext,remoteFile,localFile);
@@ -381,6 +385,26 @@ public class FileListenerService {
 
     }
 
+
+    public void checkOSSNewFile(TaskContext taskContext, String relativeParentDir,
+                                OSSFile remoteResourceInfo, final OSSFileInputConfig ossFileInputConfig, List<Future> downloadFutures, OSSClient ossClient) {
+        checkRemoteNewFile(  taskContext, relativeParentDir,remoteResourceInfo.getObjectName(), remoteResourceInfo.getObjectName(),  ossFileInputConfig, new RemoteFileAction() {
+            @Override
+            public boolean downloadFile(String localFile,String remoteFile) {
+                ossClient.downloadObject(ossFileInputConfig.getBucket(),remoteFile,localFile);
+                return true;
+            }
+
+            @Override
+            public void deleteFile(String remoteFile) {
+                ossClient.deleteOssFile(ossFileInputConfig.getBucket(),remoteFile);
+            }
+        },  downloadFutures);
+
+
+    }
+
+
     private synchronized void checkParentExist(File handleFile){
         File parent = handleFile.getParentFile();
         try {
@@ -395,7 +419,7 @@ public class FileListenerService {
     }
 
 
-    private RemoteFileValidate.Result remoteFileValidate(String remoteFile,File dataFile, FtpContext ftpContext, RemoteFileAction remoteFileAction,DownAction downAction,boolean redown){
+    private RemoteFileValidate.Result remoteFileValidate(String remoteFile,File dataFile, RemoteContext ftpContext, RemoteFileAction remoteFileAction,DownAction downAction,boolean redown){
         RemoteFileValidate remoteFileValidate = ftpContext.getRemoteFileValidate();
         if(remoteFileValidate == null)
             return RemoteFileValidate.Result.default_ok;
@@ -510,16 +534,15 @@ public class FileListenerService {
      * @param relativeParentDir
      * @param fileName 远程文件名称
      * @param remoteFile  远程根目录+relativeParentDir
-     * @param ftpContext
+     * @param remoteContext
      * @param remoteFileAction
      */
     private void checkRemoteNewFile(TaskContext taskContext,final String relativeParentDir, String fileName, final String remoteFile,
-                                    final FtpContext ftpContext, final RemoteFileAction remoteFileAction, List<Future> downloadFutures) {
-        FtpConfig ftpConfig = ftpContext.getFtpConfig();
-        FileConfig fileConfig = ftpContext.getFileConfig();
+                                    final RemoteContext remoteContext, final RemoteFileAction remoteFileAction, List<Future> downloadFutures) {
+        FileConfig fileConfig = remoteContext.getFileConfig();
         final File handleFile = new File( SimpleStringUtil.getPath(fileConfig.getSourcePath(),relativeParentDir), fileName);//正式文件,如果有子目录，则需要保存到子目录
         checkParentExist(handleFile);
-        final File localFile = new File(SimpleStringUtil.getPath(ftpConfig.getDownloadTempDir(),relativeParentDir),fileName);//临时下载文件，,如果有子目录，则需要保存到临时子目录，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
+        final File localFile = new File(SimpleStringUtil.getPath(remoteContext.getDownloadTempDir(),relativeParentDir),fileName);//临时下载文件，,如果有子目录，则需要保存到临时子目录，下载完毕后重命名为正式文件，如果正式文件不存在，需重新下载文件
         checkParentExist(localFile);
         final String fileId = FileInodeHandler.change(handleFile.getAbsolutePath());//ftp下载的文件直接使用文件路径作为fileId
         boolean isNewFile = false;
@@ -555,14 +578,14 @@ public class FileListenerService {
             dataTranPlugin.continueFailedTask(fileReaderTask);
         }
         else if(isNewFile && !isDowning) {
-			RemoteFileChannel remoteFileChannel = ftpConfig.getRemoteFileChannel();
+			RemoteFileChannel remoteFileChannel = remoteContext.getRemoteFileChannel();
         	if(remoteFileChannel != null) { //异步并行下载文件
 				Future future = remoteFileChannel.submitNewTask(new Runnable() {
 					@Override
 					public void run() {
 					    try {
                             downAndCollectFile(  taskContext,handleFile, localFile, fileId,
-                                    relativeParentDir, remoteFile, ftpContext, remoteFileAction);
+                                    relativeParentDir, remoteFile, remoteContext, remoteFileAction);
                         }
 					    catch (Exception e){
                             
@@ -574,7 +597,7 @@ public class FileListenerService {
 			}
         	else{ //同步串行下载文件
 				downAndCollectFile(  taskContext,handleFile, localFile, fileId,
-						relativeParentDir, remoteFile, ftpContext, remoteFileAction);
+						relativeParentDir, remoteFile, remoteContext, remoteFileAction);
 			}
         }
 
@@ -595,8 +618,8 @@ public class FileListenerService {
         }
     }
 
-    private void downAndCollectFile( TaskContext taskContext,File handleFile,File localFile,String fileId ,
-                                    String relativeParentDir, final String remoteFile, FtpContext ftpContext, final RemoteFileAction remoteFileAction){
+    private void downAndCollectFile(TaskContext taskContext, File handleFile, File localFile, String fileId ,
+                                    String relativeParentDir, final String remoteFile, RemoteContext ftpContext, final RemoteFileAction remoteFileAction){
         FileConfig fileConfig = ftpContext.getFileConfig();
         /**
          * 如果处理文件不存在，则下载文件到本地临时目录,下载后重命名为正式处理文件，避免因下载中断处理不完整文件问题
@@ -732,7 +755,7 @@ public class FileListenerService {
             return;
         }
         else{
-            if(ftpContext.deleteRemoteFile()) {
+            if(ftpContext.isDeleteRemoteFile()) {
                 try {
 
                     remoteFileAction.deleteFile(remoteFile);
@@ -784,20 +807,20 @@ public class FileListenerService {
 
 
 
-    public void checkFtpNewFile(TaskContext taskContext,String relativeParentDir,String parentDir,FTPFile remoteResourceInfo,   final FtpContext ftpContext, List<Future> downloadFutures) {
+    public void checkFtpNewFile(TaskContext taskContext,String relativeParentDir,String parentDir,FTPFile remoteResourceInfo,   final RemoteContext ftpContext, List<Future> downloadFutures) {
         String name = remoteResourceInfo.getName().trim();
 
         String remoteFile = SimpleStringUtil.getPath(parentDir,name);
         checkRemoteNewFile(   taskContext,relativeParentDir,name, remoteFile,   ftpContext, new RemoteFileAction() {
             @Override
             public boolean downloadFile(String localFile,String remoteFile) {
-                FtpTransfer.downloadFile(ftpContext,localFile,remoteFile);
+                FtpTransfer.downloadFile((FtpContext) ftpContext,localFile,remoteFile);
                 return true;
             }
 
             @Override
             public void deleteFile(String remoteFile) {
-                FtpTransfer.deleteFile(ftpContext,remoteFile);
+                FtpTransfer.deleteFile((FtpContext) ftpContext,remoteFile);
             }
         }, downloadFutures);
 

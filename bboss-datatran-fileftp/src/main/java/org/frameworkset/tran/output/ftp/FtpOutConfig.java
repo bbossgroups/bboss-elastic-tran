@@ -16,7 +16,7 @@ package org.frameworkset.tran.output.ftp;
  */
 
 import org.frameworkset.tran.ftp.FtpConfig;
-import org.frameworkset.tran.output.BaseRemoteConfig;
+import org.frameworkset.tran.plugin.file.BaseRemoteConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FtpOutConfig extends BaseRemoteConfig {
+public class FtpOutConfig extends BaseRemoteConfig<FtpOutConfig> {
  
 	
 	private List<String> hostKeyVerifiers;

@@ -1,4 +1,4 @@
-package org.frameworkset.tran.output;
+package org.frameworkset.tran.plugin.file;
 /**
  * Copyright 2024 bboss
  * <p>
@@ -15,6 +15,8 @@ package org.frameworkset.tran.output;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.input.RemoteContext;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -22,7 +24,7 @@ package org.frameworkset.tran.output;
  * @author biaoping.yin
  * @Date 2024/8/9
  */
-public abstract class BaseRemoteConfig {
+public abstract class BaseRemoteConfig<T extends BaseRemoteConfig<T>> {
 
     protected boolean backupSuccessFiles;
     protected boolean transferEmptyFiles;
@@ -56,15 +58,15 @@ public abstract class BaseRemoteConfig {
 
 
 
-    public BaseRemoteConfig setSuccessFilesCleanInterval(long successFilesCleanInterval) {
+    public T setSuccessFilesCleanInterval(long successFilesCleanInterval) {
         this.successFilesCleanInterval = successFilesCleanInterval;
-        return  this;
+        return  (T)this;
     }
 
 
-    public BaseRemoteConfig setFailedFileResendInterval(long failedFileResendInterval) {
+    public T setFailedFileResendInterval(long failedFileResendInterval) {
         this.failedFileResendInterval = failedFileResendInterval;
-        return  this;
+        return  (T)this;
     }
 
     public long getFailedFileResendInterval() {//300000l
@@ -76,18 +78,18 @@ public abstract class BaseRemoteConfig {
         return backupSuccessFiles;
     }
 
-    public BaseRemoteConfig setBackupSuccessFiles(boolean backupSuccessFiles) {
+    public T setBackupSuccessFiles(boolean backupSuccessFiles) {
         this.backupSuccessFiles = backupSuccessFiles;
-        return  this;
+        return  (T)this;
     }
 
     public boolean isTransferEmptyFiles() {
         return transferEmptyFiles;
     }
 
-    public BaseRemoteConfig setTransferEmptyFiles(boolean transferEmptyFiles) {
+    public T setTransferEmptyFiles(boolean transferEmptyFiles) {
         this.transferEmptyFiles = transferEmptyFiles;
-        return  this;
+        return  (T)this;
     }
 
 
@@ -101,9 +103,9 @@ public abstract class BaseRemoteConfig {
      * @return
      */
 
-    public BaseRemoteConfig setFileLiveTime(int fileLiveTime) {
+    public T setFileLiveTime(int fileLiveTime) {
         this.fileLiveTime = fileLiveTime;
-        return this;
+        return (T)this;
     }
     public boolean isSendFileAsyn() {
         return sendFileAsyn;
@@ -112,18 +114,18 @@ public abstract class BaseRemoteConfig {
      * 设置是否异步发送文件，默认同步发送
      * true 异步发送 false同步发送
      */
-    public BaseRemoteConfig setSendFileAsyn(boolean sendFileAsyn) {
+    public T setSendFileAsyn(boolean sendFileAsyn) {
         this.sendFileAsyn = sendFileAsyn;
-        return this;
+        return (T)this;
     }
 
     public int getSendFileAsynWorkThreads() {
         return sendFileAsynWorkThreads;
     }
 
-    public BaseRemoteConfig setSendFileAsynWorkThreads(int sendFileAsynWorkThreads) {
+    public T setSendFileAsynWorkThreads(int sendFileAsynWorkThreads) {
         this.sendFileAsynWorkThreads = sendFileAsynWorkThreads;
-        return this;
+        return (T)this;
     }
 
 }
