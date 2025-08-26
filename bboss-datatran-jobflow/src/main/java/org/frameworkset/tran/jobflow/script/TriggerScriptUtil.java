@@ -43,6 +43,8 @@ public class TriggerScriptUtil {
             if (StringUtils.isNotEmpty(codeStruction.getImports())) {
                 code.append(codeStruction.getImports());
             }
+            code.append("\nimport org.slf4j.Logger;\n");
+            code.append("import org.slf4j.LoggerFactory;\n");
             code.append("import org.frameworkset.tran.jobflow.JobFlow;\n");
             code.append("import org.frameworkset.tran.jobflow.JobFlowNode;\n");
             code.append("import org.frameworkset.tran.jobflow.context.NodeTriggerContext;\n");
@@ -54,7 +56,9 @@ public class TriggerScriptUtil {
             String apiName = "TriggerScriptAPIImpl_" +SimpleStringUtil.getUUID32() ;
 
             code.append("public class " + apiName + " implements TriggerScriptAPI {\r\n");
-            code.append("boolean needTrigger(NodeTriggerContext nodeTriggerContext) throws Exception {\r\n")
+            code.append("  private static Logger logger = LoggerFactory.getLogger(TriggerScriptAPI.class);\r\n");
+          
+            code.append("public boolean needTrigger(NodeTriggerContext nodeTriggerContext) throws Exception {\r\n")
                     .append(codeStruction.getCode()).append("\r\n}\r\n}");
             script = code.toString();
             if(logger.isDebugEnabled())
