@@ -16,7 +16,6 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
-import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import com.github.shyiko.mysql.binlog.BinaryLogFileReader;
 import com.github.shyiko.mysql.binlog.GtidSet;
 import com.github.shyiko.mysql.binlog.event.*;
@@ -51,10 +50,10 @@ public class MySQLBinlogListener {
     private BaseDataTran mysqlBinlogDataTran;
     private ImportContext importContext;
     private MysqlBinlogInputDatatranPlugin mysqlBinlogInputDatatranPlugin;
-    private BinaryLogClient client;
+    private BinaryLogClientExt client;
     private com.github.shyiko.mysql.binlog.GtidSet gtidSet;
     private ClientConnectThread clientConnectThread;
-    private BinaryLogClient.EventListener binaryLogClientEventListener;
+    private BinaryLogClientExt.EventListener binaryLogClientEventListener;
     private String lastGtid;
     private boolean enableGtidMode;
     /**
@@ -194,7 +193,7 @@ public class MySQLBinlogListener {
 
 
     public void listMasterSlave(){
-        BinaryLogClient client = new BinaryLogClient(mySQLBinlogConfig.getHost(), mySQLBinlogConfig.getPort(),
+        BinaryLogClientExt client = new BinaryLogClientExt(mySQLBinlogConfig.getHost(), mySQLBinlogConfig.getPort(),
                             mySQLBinlogConfig.getDbUser(), mySQLBinlogConfig.getDbPassword());
         EventDeserializer eventDeserializer = new EventDeserializer();
         eventDeserializer.setCompatibilityMode(
@@ -242,7 +241,7 @@ public class MySQLBinlogListener {
             client.setSslSocketFactory(mySQLBinlogConfig.getSslSocketFactory());
         }
 
-        client.registerEventListener(binaryLogClientEventListener = new BinaryLogClient.EventListener() {
+        client.registerEventListener(binaryLogClientEventListener = new BinaryLogClientExt.EventListener() {
             private String table = null;
             private String database = null;
             private byte[] columnTypes = null;
@@ -438,7 +437,7 @@ public class MySQLBinlogListener {
             clientConnectThread.start();
             this.clientConnectThread = clientConnectThread;
             try {
-
+                
                 clientConnectThread.join(mySQLBinlogConfig.getJoinToConnectTimeOut());
 
 

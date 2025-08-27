@@ -15,7 +15,6 @@ package org.frameworkset.tran.plugin.mysqlbinlog.input;
  * limitations under the License.
  */
 
-import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
@@ -31,10 +30,11 @@ import java.io.IOException;
  * @version 1.0
  */
 public class ClientConnectThread extends Thread{
-    private BinaryLogClient client;
+    private static org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ClientConnectThread.class);
+    private BinaryLogClientExt client;
     private DataImportException dataImportException ;
     protected ImportContext importContext;
-    public ClientConnectThread(ImportContext importContext,BinaryLogClient client){
+    public ClientConnectThread(ImportContext importContext,BinaryLogClientExt client){
         this.client = client;
         this.importContext = importContext;
         setName("BinaryLogClient-connect-Thread");
@@ -43,7 +43,9 @@ public class ClientConnectThread extends Thread{
         @Override
     public void run() {
         try {
+            log.info("Start BinaryLogClientExt begin.");
             client.connect();
+            log.info("Start BinaryLogClientExt complete.");
         } catch (IOException e) {
             dataImportException = ImportExceptionUtil.buildDataImportException(importContext,e);
         }
