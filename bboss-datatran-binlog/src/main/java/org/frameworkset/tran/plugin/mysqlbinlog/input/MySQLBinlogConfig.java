@@ -210,8 +210,9 @@ public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
         cdcdbTables.add(cdcdbTable);
     }
     private void addCommonDBTable(List<String> tables){
-        Iterator<Map.Entry<String, Map<String, CDCDBTable>>> iterator = dbTableIdxs.entrySet().iterator();
+        Iterator<Map.Entry<String, Map<String, CDCDBTable>>> iterator = null;
         for(String table:tables) {
+            iterator = dbTableIdxs.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<String, Map<String, CDCDBTable>> entry = iterator.next();
                 Map<String, CDCDBTable> tableMap = entry.getValue();
