@@ -27,6 +27,13 @@ sourceSets {
 
 dependencies {
 	api (project(':bboss-datatran-schedule-quartz'))
-	compileOnly 'com.xuxueli:xxl-job-core:2.1.1'
+//	compileOnly 'com.xuxueli:xxl-job-core:2.1.1'
+    compileOnly(
+            [group: 'com.xuxueli', name: 'xxl-job-core', version: "2.1.1", transitive: true],
+
+
+    ){
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
 }
 

@@ -27,7 +27,7 @@ sourceSets {
 
 dependencies {
 	api (project(':bboss-datatran-schedule-quartz'))
-	compileOnly 'com.xuxueli:xxl-job-core:3.1.0'
+	compileOnly 'com.xuxueli:xxl-job-core:3.2.0'
 	compileOnly "com.bbossgroups:bboss-schedule:${PROJ_BBOSS_VERSION}"
 
 

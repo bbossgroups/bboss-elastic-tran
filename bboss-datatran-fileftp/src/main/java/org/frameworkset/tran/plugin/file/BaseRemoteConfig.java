@@ -18,11 +18,29 @@ package org.frameworkset.tran.plugin.file;
 import org.frameworkset.tran.input.RemoteContext;
 
 /**
- * <p>Description: </p>
- * <p></p>
+ * 抽象基类，用于配置远程文件传输的相关参数。
+ * 使用泛型支持链式调用返回具体子类实例。
  *
- * @author biaoping.yin
- * @Date 2024/8/9
+ * @param <T> 子类类型，用于支持链式调用
+ * 
+ * 链式调用示例：
+ * MyRemoteConfig config = new MyRemoteConfig()
+ *     .setBackupSuccessFiles(true)
+ *     .setTransferEmptyFiles(false)
+ *     .setSuccessFilesCleanInterval(120000)
+ *     .setFileLiveTime(86400);
+ * 
+ * 多级链式调用案例：
+ * MyRemoteConfig config = new MyRemoteConfig()
+ *     .setBackupSuccessFiles(true)
+ *         .setTransferEmptyFiles(false)
+ *         .setSuccessFilesCleanInterval(120000)
+ *     .setFileLiveTime(86400)
+ *         .setSendFileAsyn(true)
+ *         .setSendFileAsynWorkThreads(20)
+ *     .setFailedFileResendInterval(600000);
+ *  @author biaoping.yin
+ *  @Date 2024/8/9
  */
 public abstract class BaseRemoteConfig<T extends BaseRemoteConfig<T>> {
 

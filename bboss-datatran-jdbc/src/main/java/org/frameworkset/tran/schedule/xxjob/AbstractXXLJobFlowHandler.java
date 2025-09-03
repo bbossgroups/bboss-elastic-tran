@@ -32,6 +32,7 @@ public abstract class AbstractXXLJobFlowHandler extends IJobHandler {
     protected ExternalJobFlowScheduler externalJobFlowScheduler;
 
 	private Lock lock = new ReentrantLock();
+    protected ReturnT<String> SUCCESS = ReturnT.SUCCESS;
 	public void init(){
         externalJobFlowScheduler = new ExternalJobFlowScheduler();
         externalJobFlowScheduler.setJobFlowBuilderFunction(buildJobFlowBuilderFunction());
