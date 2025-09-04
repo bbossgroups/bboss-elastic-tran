@@ -91,7 +91,8 @@ public class DBInputDataTranPlugin extends BaseDBPlugin implements InputPlugin {
 	public void afterInit(){
 		if(sqlInfo != null
 				&& sqlInfo.getParamSize() > 0
-				&& !dataTranPlugin.isIncreamentImport() && this.importContext.getJobInputParams() == null){
+				&& !dataTranPlugin.isIncreamentImport() && SimpleStringUtil.isEmpty(this.importContext.getJobInputParams() ) 
+                && SimpleStringUtil.isEmpty(importContext.getJobDynamicInputParams() )){
 			throw new TaskFailedException("1.Parameter variables cannot be set in non-increament import SQL statements："+dbInputConfig.getSql() +"\r\n2.Parameter values must be setted by BaseImportBuilder.addParam(String,Object) method.");
 		}
 //		this.externalTimer = this.importContext.isExternalTimer();

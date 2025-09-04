@@ -764,6 +764,11 @@ public abstract class BaseStatusManager implements StatusManager {
 
 	}
 	public void initLastValueClumnName(){
+        if(importContext.isConfigIncreamentImport() != null
+                && importContext.isConfigIncreamentImport() == false){
+            setIncreamentImport(false);
+            return;
+        }
 		if(lastValueClumnName != null){
 			return ;
 		}
@@ -778,6 +783,7 @@ public abstract class BaseStatusManager implements StatusManager {
 			lastValueClumnName =  dataTranPlugin.getLastValueVarName();
 		}
 
+        
 		if (lastValueClumnName == null){
             if(!importContext.validateIncreamentConfig()) {
                 throw ImportExceptionUtil.buildDataImportException(importContext,"配置校验失败：增量导入情况下，未指定增量导入状态字段!");
