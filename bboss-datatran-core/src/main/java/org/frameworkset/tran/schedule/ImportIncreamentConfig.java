@@ -37,8 +37,17 @@ public class ImportIncreamentConfig {
 	 */
 	public static final int STRING_TYPE = 3;
 
+    /**
+     * 采集中状态
+     */
 	public static final int STATUS_COLLECTING = 0;
+    /**
+     * 采集完成状态
+     */
 	public static final int STATUS_COMPLETE = 1;
+    /**
+     * 采集文件已经不存在或者被删除状态：任务重启时或者正在采集时，检测到状态为采集中的文件已经被删除了，这样就会被标记为丢失的文件状态
+     */
 	public static final int STATUS_LOSTFILE = 2;
 
     /**
