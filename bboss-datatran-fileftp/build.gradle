@@ -42,6 +42,8 @@ dependencies {
 	api ('org.apache.poi:poi:5.4.1'){
         exclude group: 'commons-codec', module: 'commons-codec'
         exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
+        exclude group: 'org.apache.commons', module: 'commons-collections4'
+    
 //        exclude group: 'commons-io', module: 'commons-io'
     }
 	api ('org.apache.poi:poi-ooxml:5.4.1'){
@@ -50,9 +52,13 @@ dependencies {
         exclude group: 'org.apache.commons', module: 'commons-lang3'
         exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
         exclude group: 'commons-io', module: 'commons-io'
+        exclude group: 'org.apache.commons', module: 'commons-collections4'
     }
 	api (group: 'org.apache.pdfbox', name: 'pdfbox', version: '3.0.5'){
         exclude group: 'commons-logging', module: 'commons-logging'
+    }
+    api (group: 'com.opencsv', name: 'opencsv', version: '5.12.0'){
+        exclude group: 'org.apache.commons', module: 'commons-lang3'
     }
     api([group: 'com.bbossgroups', name: 'bboss-data', version: "${PROJ_BBOSS_DATA_VERSION}", transitive: true])
 //    compileOnly (group: 'io.minio', name: 'minio', version: '8.5.17'){

@@ -35,6 +35,9 @@ public class CellMapping {
 	public static final int CELL_NUMBER_DOUBLE = 10;
 	public static final int CELL_STRING = 1;
 
+    /**
+	 * 列索引,从0开始
+	 */
 	private int cell;
 	private String fieldName;
 	private String cellTitle;
@@ -48,6 +51,9 @@ public class CellMapping {
 		return cell;
 	}
 
+    /**
+	 * 列索引,从0开始
+	 */
 	public void setCell(int cell) {
 		this.cell = cell;
 	}

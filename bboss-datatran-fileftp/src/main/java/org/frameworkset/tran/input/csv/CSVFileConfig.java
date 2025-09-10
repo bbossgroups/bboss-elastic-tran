@@ -1,36 +1,27 @@
-package org.frameworkset.tran.input.excel;
+package org.frameworkset.tran.input.csv;
 
 import org.frameworkset.tran.input.file.FileConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * excel 文件采集配置
  * @author yinbp
  * @description
  * @create 2022/2/12
  */
-public class ExcelFileConfig extends FileConfig<ExcelFileConfig> {
-    private Logger logger = LoggerFactory.getLogger(ExcelFileConfig.class);
+public class CSVFileConfig extends FileConfig<CSVFileConfig> {
+    private Logger logger = LoggerFactory.getLogger(CSVFileConfig.class);
 
-    public ExcelFileConfig(){
+    public CSVFileConfig(){
         super();
 
     }
-    public int getSheet() {
-        return sheet;
-    }
+    
 
 
-    public ExcelFileConfig setSheet(int sheet) {
-        this.sheet = sheet;
-        return this;
-    }
-
-
-    private int sheet;
+    
     @Override
-    public ExcelFileConfig init(){
+    public CSVFileConfig init(){
         super.init();
         this.setEnableInode(false);
         this.setCloseEOF(true);//已经结束的文件内容采集完毕后关闭文件对应的采集通道，后续不再监听对应文件的内容变化
@@ -40,7 +31,7 @@ public class ExcelFileConfig extends FileConfig<ExcelFileConfig> {
     @Override
     public void buildMsg(StringBuilder stringBuilder){
 //		super.buildMsg(stringBuilder);
-        stringBuilder.append(",sheet:").append(sheet);
+        stringBuilder.append(",csv:");
         appendFieldList( stringBuilder);
 
     }
