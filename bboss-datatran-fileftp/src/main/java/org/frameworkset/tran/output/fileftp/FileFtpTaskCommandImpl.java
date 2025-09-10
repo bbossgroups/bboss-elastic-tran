@@ -20,6 +20,7 @@ import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.TaskMetrics;
+import org.frameworkset.tran.plugin.file.output.CSVFileOutputConfig;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.task.BaseTaskCommand;
 import org.frameworkset.tran.task.TaskCommandContext;
@@ -36,12 +37,17 @@ import org.slf4j.LoggerFactory;
  * @version 1.0
  */
 public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
-	private FileTransfer fileTransfer;
+    protected FileTransfer fileTransfer;
     protected FileOutputConfig fileOutputConfig;
+
+    protected CSVFileOutputConfig csvOutputConfig;
 	public FileFtpTaskCommandImpl(TaskCommandContext taskCommandContext, FileTransfer fileTransfer, OutputConfig outputConfig) {
 		super(outputConfig,taskCommandContext);
 		this.fileTransfer = fileTransfer;
         fileOutputConfig = (FileOutputConfig) outputConfig;
+        if(outputConfig instanceof CSVFileOutputConfig){
+            csvOutputConfig = (CSVFileOutputConfig) outputConfig;
+        }
 	}
 
 
@@ -57,18 +63,7 @@ public class FileFtpTaskCommandImpl extends BaseTaskCommand<String> {
     public Object getDatas(){
         return records;
     }
-    private String buildDatas() throws Exception {
-        StringBuilder builder = new StringBuilder();
-        BBossStringWriter writer = new BBossStringWriter(builder);
-        CommonRecord record = null;
-        for(int i = 0; i < records.size(); i ++){
-            record = records.get(i);
 
-            fileOutputConfig.generateReocord(taskContext,   taskMetrics,record, writer);
-            writer.write(fileOutputConfig.getLineSeparator());
-        }
-        return writer.toString();
-    }
 
 	private static Logger logger = LoggerFactory.getLogger(FileFtpTaskCommandImpl.class);
 

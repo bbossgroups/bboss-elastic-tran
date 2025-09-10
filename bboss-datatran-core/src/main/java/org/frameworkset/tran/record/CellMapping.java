@@ -34,6 +34,7 @@ public class CellMapping {
 	public static final int CELL_NUMBER_SHORT = 9;
 	public static final int CELL_NUMBER_DOUBLE = 10;
 	public static final int CELL_STRING = 1;
+    public static final String DEFAULT_DATEFORMATTER = "yyyy-MM-dd HH:mm:ss";
 
     /**
 	 * 列索引,从0开始
@@ -46,6 +47,7 @@ public class CellMapping {
 	private String dateFormat;
 	private String numberFormat;
 	private Object defaultValue;
+    
 
 	public int getCell() {
 		return cell;

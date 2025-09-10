@@ -7,6 +7,7 @@ import org.frameworkset.tran.context.TaskContextReinitCallback;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.input.file.GenFileInfo;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
+import org.frameworkset.tran.plugin.file.output.CSVFileOutputConfig;
 import org.frameworkset.tran.plugin.file.output.FileOutputConfig;
 import org.frameworkset.tran.schedule.JobExecuteMetric;
 import org.frameworkset.tran.schedule.Status;
@@ -134,7 +135,13 @@ public class FileFtpOutPutDataTran extends BaseCommonRecordDataTran {
 		}
 	}
 	protected FileTransfer buildFileTransfer(FileOutputConfig fileOutputConfig) {
-		FileTransfer fileTransfer = new FileTransfer(fileOutputConfig,path,this);
+		FileTransfer fileTransfer = null;
+        if(fileOutputConfig instanceof CSVFileOutputConfig){
+            fileTransfer = new CSVFileTransfer((CSVFileOutputConfig)fileOutputConfig,path,this);
+        }
+        else{
+            fileTransfer = new FileTransfer(fileOutputConfig,path,this);
+        }
 		return fileTransfer;
 	}
 	protected FileTransfer initFileTransfer(){

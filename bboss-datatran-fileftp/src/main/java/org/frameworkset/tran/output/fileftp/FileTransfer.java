@@ -59,7 +59,7 @@ public class FileTransfer {
 	 * 写入的记录数
 	 */
 	protected LongCount records;
-	private BufferedWriter bw = null;
+	protected BufferedWriter bw = null;
 	private FileWriter fw = null;
 	private String filePath;
 	private String remoteFilePath;
