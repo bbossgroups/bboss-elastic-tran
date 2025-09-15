@@ -41,10 +41,11 @@ public class IP2RegionV1  implements IP2Region{
 	private String ip2regionDatabase;
 	private boolean enableBtree;
 	@Override
-	public  void init(String ip2regionDatabase,boolean enableBtree){
+	public  void init(String[] ip2regionDatabases,boolean enableBtree){
 		if(searcher != null){
 			return;
 		}
+        String ip2regionDatabase = ip2regionDatabases[0];
 		this.enableBtree = enableBtree;
 		synchronized (this) {
 			if(searcher == null) {

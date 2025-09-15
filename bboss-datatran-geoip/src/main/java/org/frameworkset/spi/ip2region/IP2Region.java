@@ -26,7 +26,9 @@ import org.frameworkset.spi.geoip.IpInfo;
  * @version 1.0
  */
 public interface IP2Region {
-	void init(String ip2regionDatabase,boolean enableBtree);
-	public IpInfo getIpInfo(String ip);
-	public IpInfo getAddressMapResult(String ip);
+	void init(String[] ip2regionDatabase,boolean enableBtree);
+ 
+
+    IpInfo getIpInfo(String ip);
+	IpInfo getAddressMapResult(String ip);
 }

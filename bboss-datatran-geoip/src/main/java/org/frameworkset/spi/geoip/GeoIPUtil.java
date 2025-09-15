@@ -130,12 +130,18 @@ public class GeoIPUtil {
 		if(ip2regionDatabase != null && !ip2regionDatabase.equals("")){
 			if(ip2RegionVersion.equals(ip2RegionVersion_V2)) {
 				IP2RegionV2 ip2Region = new IP2RegionV2();
-				ip2Region.init(ip2regionDatabase, false);
+                String[] paths = ip2regionDatabase.split(";");
+                if(paths.length == 1) {
+                    ip2Region.init(new String[]{ip2regionDatabase, null}, false);
+                }
+                else if(paths.length == 2) {
+                    ip2Region.init(new String[]{paths[0], paths[1]}, false);
+                }
 				this.ip2Region = ip2Region;
 			}
 			else{
 				IP2RegionV1 ip2Region = new IP2RegionV1();
-				ip2Region.init(ip2regionDatabase, false);
+				ip2Region.init(new String[] {ip2regionDatabase,null}, false);
 				this.ip2Region = ip2Region;
 			}
 		}

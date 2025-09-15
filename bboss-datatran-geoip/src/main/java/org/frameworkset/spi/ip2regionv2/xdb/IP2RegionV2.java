@@ -18,10 +18,10 @@ package org.frameworkset.spi.ip2regionv2.xdb;
 
 import com.frameworkset.util.DaemonThread;
 import com.frameworkset.util.ResourceInitial;
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.spi.ip2region.IP2Region;
 import org.frameworkset.spi.ip2region.IP2RegionException;
-import org.frameworkset.spi.ip2region.Util;
 import org.frameworkset.util.shutdown.ShutdownUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,29 +39,37 @@ import java.io.IOException;
  */
 public class IP2RegionV2 implements IP2Region {
 	private static final Logger logger = LoggerFactory.getLogger(IP2RegionV2.class);
-	private Searcher searcher;
+	private Searcher searcher_ipv4;
+
+    private Searcher searcher_ipv6;
 	private DaemonThread daemonThread ;
-	private String ip2regionDatabase;
+    
+	private String ip2regionDatabaseIPV4;
+    private String ip2regionDatabaseIPV6;
+    private Object lock = new Object();
 	@Override
-	public  void init(String ip2regionDatabase,boolean enableBtree){
-		if(searcher != null){
+	public  void init(String[] ip2regionDatabases,boolean enableBtree){
+		if(searcher_ipv4 != null){
 			return;
 		}
-		synchronized (this) {
-			if(searcher == null) {
+		synchronized (lock) {
+			if(searcher_ipv4 == null) {
 				try {
-					this.ip2regionDatabase = ip2regionDatabase;
-					byte[] cBuff = Searcher.loadContentFromFile(ip2regionDatabase);
+					this.ip2regionDatabaseIPV4 = ip2regionDatabases[0];
+                    logger.info("Init ip2regionDatabaseIPV4:{}", ip2regionDatabaseIPV4);
+                    LongByteArray cBuff = Searcher.loadContentFromFile(ip2regionDatabaseIPV4);
 					// 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
-					Searcher searcher = Searcher.newWithBuffer(cBuff);
-					this.searcher = searcher;
+					Searcher searcher = Searcher.newWithBuffer(Version.IPv4,cBuff);
+					this.searcher_ipv4 = searcher;
 
-					daemonThread = new DaemonThread(5000,"ip2regionDatabase-Reload");
+					daemonThread = new DaemonThread(5000,"ip2regionDatabaseIPV4-Reload");
 
-					daemonThread.addFile(new File(ip2regionDatabase), new ResourceInitial() {
+					daemonThread.addFile(new File(ip2regionDatabaseIPV4), new ResourceInitial() {
 						@Override
 						public void reinit() {
-							_reinit();
+                            synchronized (lock) {
+                                searcher_ipv4 = _reinitIp(searcher_ipv4, Version.IPv4, ip2regionDatabaseIPV4);
+                            }
 						}
 					});
 					daemonThread.start();
@@ -77,31 +85,66 @@ public class IP2RegionV2 implements IP2Region {
 
 				} catch (Exception e) {
 					if (logger.isErrorEnabled())
-						logger.error("Init ip2regionDatabase failed:"+ip2regionDatabase, e);
+						logger.error("Init ip2regionDatabase failed:"+ ip2regionDatabaseIPV4, e);
 
-					throw new IP2RegionException("Init ip2regionDatabase failed:"+ip2regionDatabase,e);
+					throw new IP2RegionException("Init ip2regionDatabase failed:"+ ip2regionDatabaseIPV4,e);
 				}
 			}
+            if(searcher_ipv6 == null ){
+                ip2regionDatabaseIPV6 = ip2regionDatabases[1];
+                if(SimpleStringUtil.isNotEmpty(ip2regionDatabaseIPV6)) {
+                    try {
+                        logger.info("Init ip2regionDatabaseIPV6:{}", ip2regionDatabaseIPV6);
+                        LongByteArray cBuff = Searcher.loadContentFromFile(ip2regionDatabaseIPV6);
+                        // 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
+                        Searcher searcher = Searcher.newWithBuffer(Version.IPv6,cBuff);
+                        this.searcher_ipv6 = searcher;
+
+                        daemonThread = new DaemonThread(5000,"ip2regionDatabaseIPV6-Reload");
+
+                        daemonThread.addFile(new File(ip2regionDatabaseIPV4), new ResourceInitial() {
+                            @Override
+                            public void reinit() {
+                                searcher_ipv6 = _reinitIp(searcher_ipv6,Version.IPv6,ip2regionDatabaseIPV6);
+                            }
+                        });
+                        daemonThread.start();
+                        ShutdownUtil.addShutdownHook(new Runnable() {
+                            @Override
+                            public void run() {
+                                daemonThread.stopped();
+                                closeDb();
+                            }
+                        });
+                    } catch (Exception e) {
+                        if (logger.isErrorEnabled())
+                            logger.error("Init ip2regionDatabase failed:" + ip2regionDatabaseIPV4, e);
+
+                        throw new IP2RegionException("Init ip2regionDatabase failed:" + ip2regionDatabaseIPV4, e);
+                    }
+                }
+            }
 
 		}
 	}
 	private void closeDb(){
-		if(searcher != null){
+		if(searcher_ipv4 != null){
 			try {
-				searcher.close();
+				searcher_ipv4.close();
 			} catch (IOException e) {
 				logger.debug("closeDb failed:",e);
 			}
-			searcher = null;
+			searcher_ipv4 = null;
 		}
 	}
-	private synchronized void _reinit(){
-		final Searcher oldSearcher = searcher;
+	private  Searcher _reinitIp(Searcher oldSearcher,Version version,String dataFile){
+//		final Searcher oldSearcher = searcher_ipv4;
 		try {
-			byte[] cBuff = Searcher.loadContentFromFile(ip2regionDatabase);
+            logger.info("Reinit ip2region searcher database:{},{}", dataFile,version.name);
+			LongByteArray cBuff = Searcher.loadContentFromFile(dataFile);
 			// 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
-			Searcher searcher = Searcher.newWithBuffer(cBuff);
-			this.searcher = searcher;
+			Searcher searcher = Searcher.newWithBuffer(version,cBuff);
+			
 
 			Thread t = new Thread(){
 				@Override
@@ -121,48 +164,73 @@ public class IP2RegionV2 implements IP2Region {
 						}
 						catch (Exception e){
 							if (logger.isErrorEnabled())
-								logger.error("Reinit ip2region searcher database "+ip2regionDatabase + " failed:", e);
+								logger.error("Reinit ip2region searcher database "+ dataFile + " failed:", e);
 						}
 					}
 
 				}
 			};
 			t.start();
+            return searcher;
 
 		} catch (Exception e) {
 			if (logger.isErrorEnabled())
-				logger.error("Reinit ip2region searcher database "+ip2regionDatabase + " failed:", e);
+				logger.error("Reinit ip2region searcher database "+ dataFile + " failed:", e);
+            return oldSearcher;
 		}
 	}
 	private void assertInit(){
-		if(searcher == null)
-			throw new IP2RegionException("ip2region searcher database "+ip2regionDatabase + " not inited.");
+		if(searcher_ipv4 == null && searcher_ipv6 == null)
+			throw new IP2RegionException("ip2region searcher database "+ ip2regionDatabaseIPV4
+                    + " and "+ ip2regionDatabaseIPV6+" not inited .");
 	}
 	@Override
 	public IpInfo getIpInfo(String ip){
 		assertInit();
-		if ( Util.isIpAddress(ip) == false ){
-			return null;
-		}
+        
 		try {
-			String region = searcher.search(ip);
+            byte[] ipBytes = Util.parseIP(ip);
+//            if ( Util.isIpAddress(ip) == false ){
+//                return null;
+//            }
+            String region = null;
+            if(Version.IPv4.bytes == ipBytes.length) {
+                region = searcher_ipv4.search(ip);
+            }
+            else 
+                if(Version.IPv6.bytes == ipBytes.length) {
+                region = searcher_ipv6.search(ip);
+            }
+            
 			if(region == null)
 				return null;
 			String[] infos = region.split("\\|");
-			if(infos.length != 5){
-				return null;
-			}
-			//`国家|区域|省份|城市|ISP`
-			IpInfo ipInfo = new IpInfo();
-			ipInfo.setCountry(infos[0]);
-			if(!infos[1].equals( "0"))
-				ipInfo.setArea(infos[1]);
-			if(!infos[2].equals( "0"))
-				ipInfo.setRegion(infos[2]);
-			if(!infos[3].equals( "0"))
-				ipInfo.setCity(infos[3]);
-			if(!infos[4].equals( "0"))
-				ipInfo.setIsp(infos[4]);
+//			if(infos.length != 5){
+//				return null;
+//			}
+            //`国家|区域|省份|城市|ISP`
+            IpInfo ipInfo = new IpInfo();
+            if(infos.length == 4){
+                ipInfo.setCountry(infos[0]);
+                 
+                if(!infos[1].equals( "0"))
+                    ipInfo.setRegion(infos[2]);
+                if(!infos[2].equals( "0"))
+                    ipInfo.setCity(infos[3]);
+                if(!infos[3].equals( "0"))
+                    ipInfo.setIsp(infos[3]);
+            }
+			else if(infos.length == 5) {
+                ipInfo.setCountry(infos[0]);
+                if (!infos[1].equals("0"))
+                    ipInfo.setArea(infos[1]);
+                if (!infos[2].equals("0"))
+                    ipInfo.setRegion(infos[2]);
+                if (!infos[3].equals("0"))
+                    ipInfo.setCity(infos[3]);
+                if (!infos[4].equals("0"))
+                    ipInfo.setIsp(infos[4]);
+            }
 //			ipInfo.setCityId(dataBlock.getCityId()+"");
 			ipInfo.setIp(ip);
 			return ipInfo;

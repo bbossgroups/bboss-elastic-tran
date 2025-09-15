@@ -3,8 +3,6 @@ package org.frameworkset.tran.plugin.file.input;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.input.csv.CSVFileConfig;
 import org.frameworkset.tran.input.csv.CSVFileReaderTask;
-import org.frameworkset.tran.input.excel.ExcelFileConfig;
-import org.frameworkset.tran.input.excel.ExcelFileReaderTask;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileListenerService;
 import org.frameworkset.tran.input.file.FileReaderTask;
