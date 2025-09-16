@@ -38,9 +38,27 @@ public class FieldMappingManager<T extends FieldMappingManager> {
 	 */
 	private List<CellMapping> cellMappingList;
 	private Map<Integer,CellMapping> cellMappings;
+    private int maxCellIndex;
+    public static final int MAX_CELL_INDEX_MATCHES_FAILED_POLICY_IGNORE_RECORD = 1;
+    public static final int MAX_CELL_INDEX_MATCHES_FAILED_POLICY_THROW_EXCEPTION = 2;
+    public static final int MAX_CELL_INDEX_MATCHES_FAILED_POLICY_WARN_USENULLVALUE = 3;
+    
+    /**
+     * 配置最大列号与实际列数匹配失败处理策略
+     */
+    private int maxCellIndexMatchesFailedPolicy = MAX_CELL_INDEX_MATCHES_FAILED_POLICY_WARN_USENULLVALUE;
 	public FieldMappingManager(){
 
 	}
+    
+    public T setMaxCellIndexMatchesFailedPolicy(int maxCellIndexMatchesFailedPolicy) {
+        this.maxCellIndexMatchesFailedPolicy = maxCellIndexMatchesFailedPolicy;
+        return (T)this;
+    }
+    
+    public int getMaxCellIndexMatchesFailedPolicy() {
+        return maxCellIndexMatchesFailedPolicy;
+    }
 	public List<CellMapping> getCellMappingList() {
 		return cellMappingList;
 	}
@@ -118,10 +136,17 @@ public class FieldMappingManager<T extends FieldMappingManager> {
 			cellMappings = new LinkedHashMap<>();
 		}
 		cellMappingList.add(cellMapping);
+        if(cellMapping.getCell() > maxCellIndex)
+            maxCellIndex = cellMapping.getCell();
 		cellMappings.put(cellMapping.getCell(),cellMapping);
 		return (T)this;
 	}
-	protected void appendFieldList(StringBuilder stringBuilder){
+
+    public int getMaxCellIndex() {
+        return maxCellIndex;
+    }
+
+    protected void appendFieldList(StringBuilder stringBuilder){
 		for(int i =0; this.cellMappingList != null &&  i < this.cellMappingList.size(); i ++){
 			stringBuilder.append(",").append(this.cellMappingList.get(i));
 		}

@@ -16,6 +16,7 @@ import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.file.input.FileInputConfig;
 import org.frameworkset.tran.record.CellMapping;
 import org.frameworkset.tran.record.CommonData;
+import org.frameworkset.tran.record.FieldMappingManager;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.DataFormatUtil;
@@ -209,12 +210,39 @@ public class CSVFileReaderTask extends FileReaderTask {
 		if (cellMappings == null || cellMappings.size() == 0) {
 			throw new DataImportException("未指定cell与字段映射关系，参考文档：https://esdoc.bbossgroups.com/#/filelog-guide");
 		}
+        int cellSize = csvFileConfig.getMaxCellIndex() + 1;
+        int realMaxCellIndex =  csvRow.length - 1;
+        if(csvRow.length < cellSize){
+            if(csvFileConfig.getMaxCellIndexMatchesFailedPolicy() == FieldMappingManager.MAX_CELL_INDEX_MATCHES_FAILED_POLICY_WARN_USENULLVALUE) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("csv文件列数小于配置的最大列数：" + cellSize + "，csvRow.length：" + csvRow.length + ",请检查csv文件列数是否正确，参考文档：https://esdoc.bbossgroups.com/#/filelog-guide,data:" + SimpleStringUtil.object2json(csvRow));
+                }
+            }
+            else if(csvFileConfig.getMaxCellIndexMatchesFailedPolicy() == FieldMappingManager.MAX_CELL_INDEX_MATCHES_FAILED_POLICY_THROW_EXCEPTION) {
+
+                throw new DataImportException("csv文件列数小于配置的最大列数："+cellSize+"，csvRow.length："+csvRow.length+",请检查csv文件列数是否正确，参考文档：https://esdoc.bbossgroups.com/#/filelog-guide,data:"+SimpleStringUtil.object2json(csvRow));
+            }
+            else if(csvFileConfig.getMaxCellIndexMatchesFailedPolicy() == FieldMappingManager.MAX_CELL_INDEX_MATCHES_FAILED_POLICY_IGNORE_RECORD) {
+                if(!reachEOFClosed){
+                    recordList.add(new FileLogRecord(taskContext,this.fileDataTran.getImportContext(),true,pointer,reachEOFClosed,false));
+                }
+                return;
+            }
+        }
 		boolean allIsNull = true;
 		Map json = new LinkedHashMap();
-
+            
 		String xssfCell = null;
 		for (CellMapping cellMapping : cellMappings) {
 			try {
+                if(cellMapping.getCell() > realMaxCellIndex){
+                    if (cellMapping.getDefaultValue() != null) {
+                        json.put(cellMapping.getFieldName(), cellMapping.getDefaultValue());
+                    } else {
+                        json.put(cellMapping.getFieldName(), null);
+                    }
+                    continue;
+                }
 				xssfCell = csvRow[cellMapping.getCell()];
 
 				if (xssfCell == null) {
@@ -279,7 +307,7 @@ public class CSVFileReaderTask extends FileReaderTask {
 					throw new DataImportException("cell mapping:" + cellMapping.toString() + ",cell value:" + xssfCell, e);
 				}
 				else{
-					throw new DataImportException("cell mapping:" + cellMapping.toString() , e);
+					throw new DataImportException("cell mapping:" + cellMapping.toString() + ",cell values:" + SimpleStringUtil.object2json(csvRow) , e);
 				}
 			}
 
