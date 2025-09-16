@@ -56,6 +56,11 @@ public class IP2RegionV2 implements IP2Region {
 			if(searcher_ipv4 == null) {
 				try {
 					this.ip2regionDatabaseIPV4 = ip2regionDatabases[0];
+                    File ip2regionDatabaseIPV4File = new File(ip2regionDatabaseIPV4);
+                    if(!ip2regionDatabaseIPV4File.exists()){
+                        logger.warn("ip2regionDatabaseIPV4 file:{} not exists.", ip2regionDatabaseIPV4);
+                        return;
+                    }
                     logger.info("Init ip2regionDatabaseIPV4:{}", ip2regionDatabaseIPV4);
                     LongByteArray cBuff = Searcher.loadContentFromFile(ip2regionDatabaseIPV4);
 					// 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
@@ -92,8 +97,15 @@ public class IP2RegionV2 implements IP2Region {
 			}
             if(searcher_ipv6 == null ){
                 ip2regionDatabaseIPV6 = ip2regionDatabases[1];
+                
                 if(SimpleStringUtil.isNotEmpty(ip2regionDatabaseIPV6)) {
+     
                     try {
+                        File ip2regionDatabaseIPV6File = new File(ip2regionDatabaseIPV6);
+                        if(!ip2regionDatabaseIPV6File.exists()){
+                            logger.warn("ip2regionDatabaseIPV6 file:{} not exists.", ip2regionDatabaseIPV6);
+                            return;
+                        }
                         logger.info("Init ip2regionDatabaseIPV6:{}", ip2regionDatabaseIPV6);
                         LongByteArray cBuff = Searcher.loadContentFromFile(ip2regionDatabaseIPV6);
                         // 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
