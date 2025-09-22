@@ -36,7 +36,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class HBaseInputConfig extends HBasePluginConfig implements InputConfig {
+public class HBaseInputConfig extends HBasePluginConfig<HBaseInputConfig> implements InputConfig<HBaseInputConfig> {
 
 	private String startRow;
 	private String endRow;

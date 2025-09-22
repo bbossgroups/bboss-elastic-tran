@@ -37,7 +37,7 @@ import java.util.List;
  * @author biaoping.yin
  * @Date 2024/11/1
  */
-public class MilvusInputConfig extends BaseConfig implements InputConfig, MilvusConfigInf {
+public class MilvusInputConfig<T extends MilvusInputConfig> extends BaseConfig<MilvusInputConfig> implements InputConfig<MilvusInputConfig>, MilvusConfigInf<MilvusInputConfig> {
     private static Logger logger = LoggerFactory.getLogger(MilvusInputConfig.class);
     private String name;
     private String dbName;
@@ -89,166 +89,166 @@ public class MilvusInputConfig extends BaseConfig implements InputConfig, Milvus
         return outputFields;
     }
 
-    public MilvusInputConfig setOutputFields(List<String> outputFields) {
+    public T setOutputFields(List<String> outputFields) {
         this.outputFields = outputFields;
-        return this;
+        return (T)this;
     }
 
-    public MilvusInputConfig setName(String name) {
+    public T setName(String name) {
         this.name = name;
-        return this;
+        return (T)this;
     }
 
     public String getCollectionName() {
         return collectionName;
     }
 
-    public MilvusInputConfig setCollectionName(String collectionName) {
+    public T setCollectionName(String collectionName) {
         this.collectionName = collectionName;
-        return this;
+        return (T)this;
     }
  
     public String getUri() {
         return uri;
     }
 
-    public MilvusInputConfig setUri(String uri) {
+    public T setUri(String uri) {
         this.uri = uri;
-        return this;
+        return (T)this;
     }
 
     public String getToken() {
         return token;
     }
 
-    public MilvusInputConfig setToken(String token) {
+    public T setToken(String token) {
         this.token = token;
-        return this;
+        return (T)this;
     }
 
     public Integer getMaxIdlePerKey() {
         return maxIdlePerKey;
     }
 
-    public MilvusInputConfig setMaxIdlePerKey(Integer maxIdlePerKey) {
+    public T setMaxIdlePerKey(Integer maxIdlePerKey) {
         this.maxIdlePerKey = maxIdlePerKey;
-        return this;
+        return (T)this;
     }
 
     public Integer getMinIdlePerKey() {
         return minIdlePerKey;
     }
 
-    public MilvusInputConfig setMinIdlePerKey(Integer minIdlePerKey) {
+    public T setMinIdlePerKey(Integer minIdlePerKey) {
         this.minIdlePerKey = minIdlePerKey;
-        return this;
+        return (T)this;
     }
 
     public Integer getMaxTotalPerKey() {
         return maxTotalPerKey;
     }
 
-    public MilvusInputConfig setMaxTotalPerKey(Integer maxTotalPerKey) {
+    public T setMaxTotalPerKey(Integer maxTotalPerKey) {
         this.maxTotalPerKey = maxTotalPerKey;
-        return this;
+        return (T)this;
     }
 
     public Integer getMaxTotal() {
         return maxTotal;
     }
 
-    public MilvusInputConfig setMaxTotal(Integer maxTotal) {
+    public T setMaxTotal(Integer maxTotal) {
         this.maxTotal = maxTotal;
-        return this;
+        return (T)this;
     }
 
     public Boolean getBlockWhenExhausted() {
         return blockWhenExhausted;
     }
 
-    public MilvusInputConfig setBlockWhenExhausted(Boolean blockWhenExhausted) {
+    public T setBlockWhenExhausted(Boolean blockWhenExhausted) {
         this.blockWhenExhausted = blockWhenExhausted;
-        return this;
+        return (T)this;
     }
 
     public Long getMaxBlockWaitDuration() {
         return maxBlockWaitDuration;
     }
 
-    public MilvusInputConfig setMaxBlockWaitDuration(Long maxBlockWaitDuration) {
+    public T setMaxBlockWaitDuration(Long maxBlockWaitDuration) {
         this.maxBlockWaitDuration = maxBlockWaitDuration;
-        return this;
+        return (T)this;
     }
 
     public Long getMinEvictableIdleDuration() {
         return minEvictableIdleDuration;
     }
 
-    public MilvusInputConfig setMinEvictableIdleDuration(Long minEvictableIdleDuration) {
+    public T setMinEvictableIdleDuration(Long minEvictableIdleDuration) {
         this.minEvictableIdleDuration = minEvictableIdleDuration;
-        return this;
+        return (T)this;
     }
 
     public Long getEvictionPollingInterval() {
         return evictionPollingInterval;
     }
 
-    public MilvusInputConfig setEvictionPollingInterval(Long evictionPollingInterval) {
+    public T setEvictionPollingInterval(Long evictionPollingInterval) {
         this.evictionPollingInterval = evictionPollingInterval;
-        return this;
+        return (T)this;
     }
 
     public Boolean getTestOnBorrow() {
         return testOnBorrow;
     }
 
-    public MilvusInputConfig setTestOnBorrow(Boolean testOnBorrow) {
+    public T setTestOnBorrow(Boolean testOnBorrow) {
         this.testOnBorrow = testOnBorrow;
-        return this;
+        return (T)this;
     }
 
     public Boolean getTestOnReturn() {
         return testOnReturn;
     }
 
-    public MilvusInputConfig setTestOnReturn(Boolean testOnReturn) {
+    public T setTestOnReturn(Boolean testOnReturn) {
         this.testOnReturn = testOnReturn;
-        return this;
+        return (T)this;
     }
     public String getDbName() {
         return dbName;
     }
 
-    public MilvusInputConfig setDbName(String dbName) {
+    public T setDbName(String dbName) {
         this.dbName = dbName;
-        return this;
+        return (T)this;
     }
 
     public Long getConnectTimeoutMs() {
         return connectTimeoutMs;
     }
 
-    public MilvusInputConfig setConnectTimeoutMs(Long connectTimeoutMs) {
+    public T setConnectTimeoutMs(Long connectTimeoutMs) {
         this.connectTimeoutMs = connectTimeoutMs;
-        return this;
+        return (T)this;
     }
 
     public Long getIdleTimeoutMs() {
         return idleTimeoutMs;
     }
 
-    public MilvusInputConfig setIdleTimeoutMs(Long idleTimeoutMs) {
+    public T setIdleTimeoutMs(Long idleTimeoutMs) {
         this.idleTimeoutMs = idleTimeoutMs;
-        return this;
+        return (T)this;
     }
 
     public CustomConnectConfigBuilder getCustomConnectConfigBuilder() {
         return customConnectConfigBuilder;
     }
 
-    public MilvusInputConfig setCustomConnectConfigBuilder(CustomConnectConfigBuilder customConnectConfigBuilder) {
+    public T setCustomConnectConfigBuilder(CustomConnectConfigBuilder customConnectConfigBuilder) {
         this.customConnectConfigBuilder = customConnectConfigBuilder;
-        return this;
+        return (T)this;
     }
 
     @Override
@@ -282,18 +282,18 @@ public class MilvusInputConfig extends BaseConfig implements InputConfig, Milvus
         return expr;
     }
 
-    public MilvusInputConfig setExpr(String expr) {
+    public T setExpr(String expr) {
         this.expr = expr;
-        return this;
+        return (T)this;
     }
 
     public ConsistencyLevel getConsistencyLevel() {
         return consistencyLevel;
     }
 
-    public MilvusInputConfig setConsistencyLevel(ConsistencyLevel consistencyLevel) {
+    public T setConsistencyLevel(ConsistencyLevel consistencyLevel) {
         this.consistencyLevel = consistencyLevel;
-        return this;
+        return (T)this;
     }
 
 }

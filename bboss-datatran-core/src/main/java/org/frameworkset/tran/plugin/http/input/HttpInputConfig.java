@@ -38,7 +38,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class HttpInputConfig extends BaseHttpConfig implements InputConfig {
+public class HttpInputConfig extends BaseHttpConfig<HttpInputConfig> implements InputConfig<HttpInputConfig> {
 	private Map<String,Object> httpConfigs;
 	private String sourceHttpPool;
 
@@ -87,10 +87,7 @@ public class HttpInputConfig extends BaseHttpConfig implements InputConfig {
         return dslSetted;
     }
 
-    public HttpInputConfig addDynamicHeader(String header, DynamicHeader dynamicHeader){
-		_addDynamicHeader(header, dynamicHeader);
-		return this;
-	}
+  
 	public HttpResultParser getHttpResultParser() {
 		return httpResultParser;
 	}
@@ -254,15 +251,7 @@ public class HttpInputConfig extends BaseHttpConfig implements InputConfig {
 		this.httpMethod = httpMethod;
 		return this;
 	}
-	public HttpInputConfig addHttpHeaders(Map<String, String> _httpHeaders){
-		_addHttpHeaders(_httpHeaders);
-		return this;
-	}
-	public HttpInputConfig addHttpHeader(String header,String value){
-		_addHttpHeader(header,value);
-		return this;
-	}
-
+ 
     public int getQueryThread() {
         return queryThread;
     }

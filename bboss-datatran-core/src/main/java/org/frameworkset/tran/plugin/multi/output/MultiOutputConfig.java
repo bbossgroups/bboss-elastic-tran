@@ -38,7 +38,7 @@ import java.util.List;
  * @author biaoping.yin
  * @Date 2025/1/3
  */
-public class MultiOutputConfig  extends BaseConfig implements OutputConfig {
+public class MultiOutputConfig  extends BaseConfig<MultiOutputConfig> implements OutputConfig<MultiOutputConfig> {
     private static final Logger logger = LoggerFactory.getLogger(MultiOutputConfig.class);
     private List<OutputConfig> outputConfigs;
     private boolean enableMultiExportResultHandler = true;

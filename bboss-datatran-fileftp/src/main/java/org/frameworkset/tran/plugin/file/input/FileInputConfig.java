@@ -30,7 +30,7 @@ import static org.frameworkset.tran.schedule.ImportIncreamentConfig.STATUSID_POL
  * @description
  * @create 2021/3/12
  */
-public class FileInputConfig extends BaseConfig implements InputConfig {
+public class FileInputConfig<T extends FileInputConfig> extends BaseConfig<T> implements InputConfig<T> {
     public static final int DEFAULT_BUFFER_CAPACITY = 8092;
     private int bufferCapacity = DEFAULT_BUFFER_CAPACITY;
     private AssertMaxThreshold assertMaxFilesThreshold;
@@ -153,7 +153,7 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
         return enableAutoPauseScheduled;
     }
 
-    public FileInputConfig addConfig(FileConfig fileConfig){
+    public T addConfig(FileConfig fileConfig){
 
 
 
@@ -170,9 +170,9 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
 //        fileConfig.init();
         fileConfigList.add(fileConfig);
 
-        return this;
+        return (T)this;
     }
-    public FileInputConfig addConfig(String sourcePath, String fileNameRegular, String fileHeadLine){
+    public T addConfig(String sourcePath, String fileNameRegular, String fileHeadLine){
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
@@ -184,9 +184,9 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
             enableAutoPauseScheduled = false;
         }
         fileConfigList.add(fileConfig);
-        return this;
+        return (T)this;
     }
-    public FileInputConfig addConfig(String sourcePath, String fileNameRegular, String fileHeadLine, boolean scanChild){
+    public T addConfig(String sourcePath, String fileNameRegular, String fileHeadLine, boolean scanChild){
         if(fileConfigList == null){
             fileConfigList = new ArrayList<FileConfig>();
         }
@@ -198,7 +198,7 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
             enableAutoPauseScheduled = false;
         }
         fileConfigList.add(fileConfig);
-        return this;
+        return (T)this;
     }
 
     /**
@@ -208,12 +208,12 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
      * @return
      */
     @Deprecated
-    public FileInputConfig setInterval(Long interval) {
+    public T setInterval(Long interval) {
         return setScanNewFileInterval(interval);
     }
-    public FileInputConfig setScanNewFileInterval(Long scanNewFileInterval) {
+    public T setScanNewFileInterval(Long scanNewFileInterval) {
         this.scanNewFileInterval = scanNewFileInterval;
-        return this;
+        return (T)this;
     }
     public Long getScanNewFileInterval() {
         return scanNewFileInterval;
@@ -227,41 +227,41 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
         return jsondata;
     }
 
-    public FileInputConfig setRootLevel(boolean rootLevel) {
+    public T setRootLevel(boolean rootLevel) {
         this.rootLevel = rootLevel;
-        return this;
+        return (T)this;
     }
 
-    public FileInputConfig setJsondata(boolean jsondata) {
+    public T setJsondata(boolean jsondata) {
         this.jsondata = jsondata;
-        return this;
+        return (T)this;
     }
 
     public String getCharsetEncode() {
         return charsetEncode;
     }
 
-    public FileInputConfig setCharsetEncode(String charsetEncode) {
+    public T setCharsetEncode(String charsetEncode) {
         this.charsetEncode = charsetEncode;
-        return this;
+        return (T)this;
     }
 
     public boolean isEnableMeta() {
         return enableMeta;
     }
 
-    public FileInputConfig setEnableMeta(boolean enableMeta) {
+    public T setEnableMeta(boolean enableMeta) {
         this.enableMeta = enableMeta;
-        return this;
+        return (T)this;
     }
 
     public Long getRegistLiveTime() {
         return registLiveTime;
     }
 
-    public FileInputConfig setRegistLiveTime(Long registLiveTime) {
+    public T setRegistLiveTime(Long registLiveTime) {
         this.registLiveTime = registLiveTime;
-        return this;
+        return (T)this;
     }
 
 
@@ -269,44 +269,44 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
         return checkFileModifyInterval;
     }
 
-    public FileInputConfig setCheckFileModifyInterval(long checkFileModifyInterval) {
+    public T setCheckFileModifyInterval(long checkFileModifyInterval) {
         this.checkFileModifyInterval = checkFileModifyInterval;
-        return this;
+        return (T)this;
     }
     public boolean isBackupSuccessFiles() {
         return backupSuccessFiles;
     }
 
-    public FileInputConfig setBackupSuccessFiles(boolean backupSuccessFiles) {
+    public T setBackupSuccessFiles(boolean backupSuccessFiles) {
         this.backupSuccessFiles = backupSuccessFiles;
-        return this;
+        return (T)this;
     }
 
     public String getBackupSuccessFileDir() {
         return backupSuccessFileDir;
     }
 
-    public FileInputConfig setBackupSuccessFileDir(String backupSuccessFileDir) {
+    public T setBackupSuccessFileDir(String backupSuccessFileDir) {
         this.backupSuccessFileDir = backupSuccessFileDir;
-        return this;
+        return (T)this;
     }
 
     public long getBackupSuccessFileInterval() {
         return backupSuccessFileInterval;
     }
 
-    public FileInputConfig setBackupSuccessFileInterval(long backupSuccessFileInterval) {
+    public T setBackupSuccessFileInterval(long backupSuccessFileInterval) {
         this.backupSuccessFileInterval = backupSuccessFileInterval;
-        return this;
+        return (T)this;
     }
 
     public long getBackupSuccessFileLiveTime() {
         return backupSuccessFileLiveTime;
     }
 
-    public FileInputConfig setBackupSuccessFileLiveTime(long backupSuccessFileLiveTime) {
+    public T setBackupSuccessFileLiveTime(long backupSuccessFileLiveTime) {
         this.backupSuccessFileLiveTime = backupSuccessFileLiveTime;
-        return this;
+        return (T)this;
     }
 
     public boolean isUseETLScheduleForScanNewFile() {
@@ -319,9 +319,9 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
      * @param useETLScheduleForScanNewFile
      * @return
      */
-    public FileInputConfig setUseETLScheduleForScanNewFile(boolean useETLScheduleForScanNewFile) {
+    public T setUseETLScheduleForScanNewFile(boolean useETLScheduleForScanNewFile) {
         this.useETLScheduleForScanNewFile = useETLScheduleForScanNewFile;
-        return this;
+        return (T)this;
     }
 
     public FileReaderTask buildFileReaderTask(TaskContext taskContext, File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,
@@ -356,12 +356,12 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
      * @param timeRange
      * @return
      */
-    public FileInputConfig addSkipScanNewFileTimeRange(String timeRange){
+    public T addSkipScanNewFileTimeRange(String timeRange){
         if(timerScheduleConfig == null){
             timerScheduleConfig = new TimerScheduleConfig();
         }
         timerScheduleConfig.addSkipScanNewFileTimeRange(timeRange);
-        return this;
+        return (T)this;
     }
 
     /**
@@ -373,13 +373,13 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
      * @param timeRange
      * @return
      */
-    public FileInputConfig addScanNewFileTimeRange(String timeRange){
+    public T addScanNewFileTimeRange(String timeRange){
         if(timerScheduleConfig == null){
             timerScheduleConfig = new TimerScheduleConfig();
         }
         timerScheduleConfig.addSkipScanNewFileTimeRange(timeRange);
 
-        return this;
+        return (T)this;
     }
 
 
@@ -392,18 +392,18 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
         return timerScheduleConfig != null?timerScheduleConfig.getSkipScanNewFileTimeRanges():null;
     }
 
-    public FileInputConfig setSleepAwaitTimeAfterFetch(long sleepAwaitTimeAfterFetch) {
+    public T setSleepAwaitTimeAfterFetch(long sleepAwaitTimeAfterFetch) {
         this.sleepAwaitTimeAfterFetch = sleepAwaitTimeAfterFetch;
-        return this;
+        return (T)this;
     }
 
     public long getSleepAwaitTimeAfterFetch() {
         return sleepAwaitTimeAfterFetch;
     }
 
-    public FileInputConfig setSleepAwaitTimeAfterCollect(long sleepAwaitTimeAfterCollect) {
+    public T setSleepAwaitTimeAfterCollect(long sleepAwaitTimeAfterCollect) {
         this.sleepAwaitTimeAfterCollect = sleepAwaitTimeAfterCollect;
-        return this;
+        return (T)this;
     }
 
     public long getSleepAwaitTimeAfterCollect() {
@@ -434,9 +434,9 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
         return fileLiveTime;
     }
 
-    public FileInputConfig setFileLiveTime(long fileLiveTime) {
+    public T setFileLiveTime(long fileLiveTime) {
         this.fileLiveTime = fileLiveTime;
-        return this;
+        return (T)this;
     }
     public TimerScheduleConfig getTimerScheduleConfig() {
         return timerScheduleConfig;
@@ -446,9 +446,9 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
         return cleanCompleteFiles;
     }
 
-    public FileInputConfig setCleanCompleteFiles(boolean cleanCompleteFiles) {
+    public T setCleanCompleteFiles(boolean cleanCompleteFiles) {
         this.cleanCompleteFiles = cleanCompleteFiles;
-        return this;
+        return (T)this;
     }
     public boolean isDisableScanNewFiles() {
         return disableScanNewFiles;
@@ -456,9 +456,9 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
     /**
      * 一次性文件数据采集，禁用新文件扫描机制，控制文件采集的一次性全量处理，这样就不会进行增量监听了，和其他插件的一次性采集设置保持一致
      */
-    public FileInputConfig setDisableScanNewFiles(boolean disableScanNewFiles) {
+    public T setDisableScanNewFiles(boolean disableScanNewFiles) {
         this.disableScanNewFiles = disableScanNewFiles;
-        return this;
+        return (T)this;
     }
 
     public int getMaxMemoryThreshold() {
@@ -470,9 +470,9 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
      * 应用场景：一次性采集大量文件
      */
 
-    public FileInputConfig setMaxMemoryThreshold(int maxMemoryThreshold) {
+    public T setMaxMemoryThreshold(int maxMemoryThreshold) {
         this.maxMemoryThreshold = maxMemoryThreshold;
-        return this;
+        return (T)this;
     }
 
     public int getMaxFilesThreshold() {
@@ -485,9 +485,9 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
      * > 0起作用
      * 应用场景：一次性采集大量文件
      */
-    public FileInputConfig setMaxFilesThreshold(int maxFilesThreshold) {
+    public T setMaxFilesThreshold(int maxFilesThreshold) {
         this.maxFilesThreshold = maxFilesThreshold;
-        return this;
+        return (T)this;
     }
 
     /**
@@ -503,20 +503,20 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
      * 情况下作业重启，已经采集过的文件不会再采集，未采集完的文件，从上次采集截止的位置开始采集
      * 默认 true 禁止
      */
-    public FileInputConfig setDisableScanNewFilesCheckpoint(boolean disableScanNewFilesCheckpoint) {
+    public T setDisableScanNewFilesCheckpoint(boolean disableScanNewFilesCheckpoint) {
         this.disableScanNewFilesCheckpoint = disableScanNewFilesCheckpoint;
-        return this;
+        return (T)this;
     }
 
     public long getScanOldRegistRecordInterval() {
         return scanOldRegistRecordInterval;
     }
 
-    public FileInputConfig setScanOldRegistRecordInterval(long scanOldRegistRecordInterval) {
+    public T setScanOldRegistRecordInterval(long scanOldRegistRecordInterval) {
         if(scanOldRegistRecordInterval <= 0L)
             throw new DataImportException("scanOldRegistRecordInterval must > 0");
         this.scanOldRegistRecordInterval = scanOldRegistRecordInterval;
-        return this;
+        return (T)this;
     }
     /**
      * 设置增量状态ID生成策略，在设置jobId的情况下起作用
@@ -533,17 +533,17 @@ public class FileInputConfig extends BaseConfig implements InputConfig {
         return bufferCapacity;
     }
 
-    public FileInputConfig setBufferCapacity(int bufferCapacity) {
+    public T setBufferCapacity(int bufferCapacity) {
         this.bufferCapacity = bufferCapacity;
-        return this;
+        return (T)this;
     }
 
     public boolean isEnableBufferRead() {
         return enableBufferRead;
     }
 
-    public FileInputConfig setEnableBufferRead(boolean enableBufferRead) {
+    public T setEnableBufferRead(boolean enableBufferRead) {
         this.enableBufferRead = enableBufferRead;
-        return this;
+        return (T)this;
     }
 }

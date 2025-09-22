@@ -37,7 +37,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @Date 2024/11/1
  */
-public class MilvusOutputConfig extends BaseConfig implements OutputConfig, MilvusConfigInf {
+public class MilvusOutputConfig extends BaseConfig<MilvusOutputConfig> implements OutputConfig<MilvusOutputConfig>, MilvusConfigInf<MilvusOutputConfig> {
     private static Logger logger = LoggerFactory.getLogger(MilvusOutputConfig.class);
     private String name;
     private String uri;

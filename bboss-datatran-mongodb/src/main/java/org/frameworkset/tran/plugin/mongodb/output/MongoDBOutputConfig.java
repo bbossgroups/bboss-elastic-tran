@@ -29,7 +29,7 @@ import org.frameworkset.tran.plugin.OutputPlugin;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MongoDBOutputConfig extends BaseMongoDBConfig implements OutputConfig {
+public class MongoDBOutputConfig extends BaseMongoDBConfig<MongoDBOutputConfig> implements OutputConfig<MongoDBOutputConfig> {
 
 	private String objectIdField;
 	private boolean multiCollections = true;

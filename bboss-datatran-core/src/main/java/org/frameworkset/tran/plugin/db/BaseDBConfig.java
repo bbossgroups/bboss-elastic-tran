@@ -33,7 +33,7 @@ import java.util.Properties;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class BaseDBConfig extends BaseConfig {
+public abstract class BaseDBConfig<T extends BaseDBConfig> extends BaseConfig<T> {
 	protected Map<String,Object> customDBConfigs = new HashMap<String, Object>();
 	protected DBConfig dbConfig;
 	protected Map<String,DBConfig> dbConfigMap = new LinkedHashMap<>();
@@ -46,10 +46,11 @@ public abstract class BaseDBConfig extends BaseConfig {
 
 
     public static final String SPECIALCONFIG_JDBCGETVARIABLEVALUE_NAME = "jdbcGetVariableValue";
-	protected void _setJdbcFetchSize(Integer jdbcFetchSize) {
+	public T setJdbcFetchSize(Integer jdbcFetchSize) {
 		this.customDBConfigs.put(DBConfig.db_jdbcFetchSize_key,1);
 		checkDBConfig();
 		dbConfig.setJdbcFetchSize(jdbcFetchSize);
+        return (T)this;
 
 	}
 
@@ -59,152 +60,173 @@ public abstract class BaseDBConfig extends BaseConfig {
 			this.dbConfig = new DBConfig();
 		}
 	}
-	public void _setDbPassword(String dbPassword) {
+	public T setDbPassword(String dbPassword) {
 		this.customDBConfigs.put(DBConfig.db_password_key,1);
 		checkDBConfig();
 		dbConfig.setDbPassword(dbPassword);
-
+        return (T)this;
 	}
 
 
 
-	public void _setShowSql(boolean showSql) {
+	public T setShowSql(boolean showSql) {
 		this.customDBConfigs.put(DBConfig.db_showsql_key,1);
 		checkDBConfig();
 		dbConfig.setShowSql(showSql);
+        return (T)this;
 
 
 	}
 
-	public void _setDbName(String dbName) {
+	public T setDbName(String dbName) {
 		this.customDBConfigs.put(DBConfig.db_name_key,1);
 		checkDBConfig();
 
 		dbConfig.setDbName(dbName);
+        return (T)this;
 
 	}
 
-	public void _setColumnLableUpperCase(boolean columnLableUpperCase) {
+	public T setColumnLableUpperCase(boolean columnLableUpperCase) {
 		this.customDBConfigs.put(DBConfig.db_columnLableUpperCase_key,1);
 		checkDBConfig();
 
 		dbConfig.setColumnLableUpperCase(columnLableUpperCase);
+        return (T)this;
 	}
-	public void _setDbInitSize(int dbInitSize) {
+	public T setDbInitSize(int dbInitSize) {
 		this.customDBConfigs.put(DBConfig.db_initSize_key,1);
 		checkDBConfig();
 
 		dbConfig.setInitSize(dbInitSize);
+        return (T)this;
 	}
-	public void _setDbMaxSize(int dbMaxSize) {
+	public T setDbMaxSize(int dbMaxSize) {
 		this.customDBConfigs.put(DBConfig.db_maxSize_key,1);
 		checkDBConfig();
 
 		dbConfig.setMaxSize(dbMaxSize);
+        return (T)this;
 	}
-	public void _setDbMinIdleSize(int dbMinIdleSize) {
+	public T setDbMinIdleSize(int dbMinIdleSize) {
 		this.customDBConfigs.put(DBConfig.db_minIdleSize_key,1);
 		checkDBConfig();
 
 		dbConfig.setMinIdleSize(dbMinIdleSize);
+        return (T)this;
 	}
 
-	public void _setDbDriver(String dbDriver) {
+	public T setDbDriver(String dbDriver) {
 		this.customDBConfigs.put(DBConfig.db_driver_key,1);
 		checkDBConfig();
 		this.dbConfig.setDbDriver(dbDriver);
+        return (T)this;
 	}
-	public void _setEnableDBTransaction(boolean enableDBTransaction) {
+	public T setEnableDBTransaction(boolean enableDBTransaction) {
 		this.customDBConfigs.put(DBConfig.db_enableDBTransaction_key,1);
 		checkDBConfig();
 		dbConfig.setEnableDBTransaction(enableDBTransaction);
+        return (T)this;
 	}
 
-	public void _setDbAdaptor(String dbAdaptor) {
+	public T setDbAdaptor(String dbAdaptor) {
 		this.customDBConfigs.put(DBConfig.db_dbAdaptor_key,1);
 		checkDBConfig();
 		this.dbConfig.setDbAdaptor(dbAdaptor);
+        return (T)this;
 	}
 
-	public void _setDbtype(String dbtype) {
+	public T setDbtype(String dbtype) {
 		this.customDBConfigs.put(DBConfig.db_dbtype_key,1);
 		checkDBConfig();
 		this.dbConfig.setDbtype(dbtype);
+        return (T)this;
 	}
 
-	public void _setDbUrl(String dbUrl) {
+	public T setDbUrl(String dbUrl) {
 		this.customDBConfigs.put(DBConfig.db_url_key,1);
 		checkDBConfig();
 		dbConfig.setDbUrl(dbUrl);
+        return (T)this;
 	}
 
-	public void _setDbUser(String dbUser) {
+	public T setDbUser(String dbUser) {
 		this.customDBConfigs.put(DBConfig.db_user_key,1);
 		checkDBConfig();
 		this.dbConfig.setDbUser(dbUser);
+        return (T)this;
 	}
 
-	public void _setValidateSQL(String validateSQL) {
+	public T setValidateSQL(String validateSQL) {
 		this.customDBConfigs.put(DBConfig.db_validateSQL_key,1);
 		checkDBConfig();
 		dbConfig.setValidateSQL(validateSQL);
+        return (T)this;
 	}
 
-	public void _setUsePool(boolean usePool) {
+	public T setUsePool(boolean usePool) {
 		this.customDBConfigs.put(DBConfig.db_usePool_key,1);
 		checkDBConfig();
 		dbConfig.setUsePool(usePool);
+        return (T)this;
 	}
 
-	public void _setDbInfoEncryptClass(String dbInfoEncryptClass) {
+	public T setDbInfoEncryptClass(String dbInfoEncryptClass) {
 		this.customDBConfigs.put(DBConfig.db_dbInfoEncryptClass_key,1);
 		checkDBConfig();
 		dbConfig.setDbInfoEncryptClass(dbInfoEncryptClass);
+        return (T)this;
 	}
 
 
 
-	public void _setRemoveAbandoned(boolean removeAbandoned) {
+	public T setRemoveAbandoned(boolean removeAbandoned) {
 		this.customDBConfigs.put(DBConfig.db_removeAbandoned_key,1);
 		checkDBConfig();
 		dbConfig.setRemoveAbandoned(removeAbandoned);
+        return (T)this;
 	}
 
 
 
-	public void _setConnectionTimeout(int connectionTimeout) {
+	public T setConnectionTimeout(int connectionTimeout) {
 		this.customDBConfigs.put(DBConfig.db_connectionTimeout_key,1);
 		checkDBConfig();
 		dbConfig.setConnectionTimeout(connectionTimeout);
+        return (T)this;
 	}
 
 
 
-	public void _setMaxWait(int maxWait) {
+	public T setMaxWait(int maxWait) {
 		this.customDBConfigs.put(DBConfig.db_maxWait_key,1);
 		checkDBConfig();
 		dbConfig.setMaxWait(maxWait);
+        return (T)this;
 	}
 
 
 
-	public void _setMaxIdleTime(int maxIdleTime) {
+	public T setMaxIdleTime(int maxIdleTime) {
 		this.customDBConfigs.put(DBConfig.db_maxIdleTime_key,1);
 		checkDBConfig();
 		dbConfig.setMaxIdleTime(maxIdleTime);
+        return (T)this;
 	}
 
     public Properties getConnectionProperties() {
         return dbConfig.getConnectionProperties();
     }
 
-    public void _setConnectionProperties(Properties connectionProperties) {
+    public T setConnectionProperties(Properties connectionProperties) {
         checkDBConfig();
         dbConfig.setConnectionProperties( connectionProperties);
+        return (T)this;
     }
-    public void _addConnectionProperty(String name,Object value){
+    public T addConnectionProperty(String name,Object value){
         checkDBConfig();
         dbConfig.addConnectionProperty( name, value);
+        return (T)this;
     }
 
     /**
@@ -243,10 +265,11 @@ public abstract class BaseDBConfig extends BaseConfig {
      *         return SQLManager.startPool(tempConf);  
      * @param balance
      */
-    public void _setBalance(String balance) {
+    public T setBalance(String balance) {
         this.customDBConfigs.put(DBConfig.db_balance_key,1);
         checkDBConfig();
         dbConfig.setBalance(balance);
+        return (T)this;
     }
 
 
@@ -291,10 +314,11 @@ public abstract class BaseDBConfig extends BaseConfig {
      *         return SQLManager.startPool(tempConf); 
      * @param enableBalance
      */
-    public void _setEnableBalance(boolean enableBalance) {
+    public T setEnableBalance(boolean enableBalance) {
         this.customDBConfigs.put(DBConfig.db_enableBalance_key,1);
         checkDBConfig();
         dbConfig.setEnableBalance(enableBalance);
+        return (T)this;
     }
 
     public String getBalance() {

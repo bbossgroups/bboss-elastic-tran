@@ -28,7 +28,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class BaseHttpConfig extends BaseConfig {
+public class BaseHttpConfig<T extends BaseHttpConfig> extends BaseConfig<T> {
 	protected boolean showDsl;
 	protected String dslNamespace;
 	protected String dslFile;
@@ -50,11 +50,12 @@ public class BaseHttpConfig extends BaseConfig {
         return putMethod;
     }
 
-    protected void _addDynamicHeader(String header, DynamicHeader dynamicHeader){
+    public T addDynamicHeader(String header, DynamicHeader dynamicHeader){
 		if(dynamicHeaders == null){
 			dynamicHeaders = new LinkedHashMap<>();
 		}
 		dynamicHeaders.put(header,dynamicHeader);
+        return (T)this;
 	}
 
 	public String getDslFile() {
@@ -75,19 +76,21 @@ public class BaseHttpConfig extends BaseConfig {
 		return showDsl;
 	}
 	protected Map<String,String> httpHeaders;
-	protected void _addHttpHeader(String header, String value){
+	public T addHttpHeader(String header, String value){
 		if (httpHeaders == null) {
 			httpHeaders = new LinkedHashMap<>();
 
 		}
 		httpHeaders.put(header,value);
+        return (T)this;
 	}
-	protected void _addHttpHeaders(Map<String, String> _httpHeaders){
+	public T addHttpHeaders(Map<String, String> _httpHeaders){
 		if (httpHeaders == null) {
 			httpHeaders = new LinkedHashMap<>();
 
 		}
 		httpHeaders.putAll(_httpHeaders);
+        return (T)this;
 	}
 
 	public Map<String, String> getHttpHeaders() {

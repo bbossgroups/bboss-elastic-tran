@@ -23,12 +23,10 @@ import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.db.BaseDBConfig;
-import org.frameworkset.tran.plugin.db.output.DBOutputConfig;
 import org.frameworkset.tran.record.RecordBuidler;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
-import java.util.Properties;
 
 /**
  * <p>Description: </p>
@@ -38,7 +36,7 @@ import java.util.Properties;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DBInputConfig extends BaseDBConfig implements InputConfig {
+public class DBInputConfig extends BaseDBConfig<DBInputConfig> implements InputConfig<DBInputConfig> {
 
 	private String sourceDbname;
 	protected String sql;
@@ -169,7 +167,7 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
             fetchSize = importBuilder.getFetchSize();
         }
         if(fetchSize != null){
-            _setJdbcFetchSize(fetchSize);
+            super.setJdbcFetchSize(fetchSize);
         }
         if(isParallelDatarefactor()){
             if(recordBuidler == null){
@@ -190,80 +188,8 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 	public InputPlugin getInputPlugin(ImportContext importContext) {
 		return new DBInputDataTranPlugin(   importContext );
 	}
-
-
-
-	public DBInputConfig setColumnLableUpperCase(boolean columnLableUpperCase) {
-		_setColumnLableUpperCase(columnLableUpperCase);
-		return this;
-	}
-
-	public DBInputConfig setDbInitSize(int dbInitSize) {
-		_setDbInitSize( dbInitSize);
-		return this;
-	}
-	public DBInputConfig setDbMaxSize(int dbMaxSize) {
-		_setDbMaxSize(  dbMaxSize);
-		return this;
-	}
-	public DBInputConfig setDbMinIdleSize(int dbMinIdleSize) {
-		_setDbMinIdleSize(  dbMinIdleSize);
-		return this;
-	}
-
-
-
-	public DBInputConfig setDbDriver(String dbDriver) {
-		_setDbDriver(  dbDriver);
-		return this;
-	}
-	public DBInputConfig setEnableDBTransaction(boolean enableDBTransaction) {
-		_setEnableDBTransaction(  enableDBTransaction);
-		return this;
-	}
-
-
-	public DBInputConfig setDbUrl(String dbUrl) {
-		_setDbUrl( dbUrl);
-		return this;
-	}
-
-	public DBInputConfig setDbAdaptor(String dbAdaptor) {
-		_setDbAdaptor(  dbAdaptor);
-		return this;
-
-	}
-
-	public DBInputConfig setDbtype(String dbtype) {
-		_setDbtype(  dbtype);
-		return this;
-	}
-
-	public DBInputConfig setDbUser(String dbUser) {
-		_setDbUser(  dbUser);
-		return this;
-	}
-
-	public DBInputConfig setDbPassword(String dbPassword) {
-		_setDbPassword(  dbPassword);
-		return this;
-	}
-
-	public DBInputConfig setValidateSQL(String validateSQL) {
-		_setValidateSQL(  validateSQL);
-		return this;
-	}
-
-	public DBInputConfig setUsePool(boolean usePool) {
-		_setUsePool(  usePool);
-		return this;
-	}
-
-
-	public DBInputConfig setDbInfoEncryptClass(String dbInfoEncryptClass){
-		_setDbInfoEncryptClass(dbInfoEncryptClass);
-		return this;
-	}
+ 
+ 
 
     /**
      * 插件查询jdbcFetchSize设置，每次执行查询请求时进行设置
@@ -276,43 +202,7 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 		return  this;
 	}
 
-
-	public DBInputConfig setRemoveAbandoned(boolean removeAbandoned) {
-		_setRemoveAbandoned( removeAbandoned);
-		return  this;
-	}
-
-
-    /**
-     * The minimum amount of time an object may sit idle in the pool before it is eligible for eviction by the idle
-     * object evictor (if any).
-     * 单位：毫秒
-     */
-	public DBInputConfig setConnectionTimeout(int connectionTimeout) {
-		_setConnectionTimeout( connectionTimeout);
-		return  this;
-	}
-
-
-    /**
-     * 申请链接超时时间，单位：毫秒
-     */
-	public DBInputConfig setMaxWait(int maxWait) {
-		_setMaxWait( maxWait);
-		return  this;
-	}
-
-    /**
-     * Set max idle Times in seconds ,if exhaust this times the used connection object will be Abandoned removed if removeAbandoned is true.
-     default value is 300 seconds.
-
-     see removeAbandonedTimeout parameter in commons dbcp.
-     单位：秒
-     */
-	public DBInputConfig setMaxIdleTime(int maxIdleTime) {
-		_setMaxIdleTime( maxIdleTime);
-		return  this;
-	}
+ 
 	public DBConfig getDBConfig(String dbname){
 		return dbConfigMap.get(dbname);
 	}
@@ -320,119 +210,19 @@ public class DBInputConfig extends BaseDBConfig implements InputConfig {
 		return enableDBTransaction;
 	}
 	public DBInputConfig setDbName(String dbName) {
-		_setDbName(  dbName);
+		super.setDbName(  dbName);
 		this.sourceDbname = dbName;
 
 		return this;
 	}
-
-	public DBInputConfig setShowSql(boolean showsql) {
-		_setShowSql(  showsql);
-		return this;
-	}
-
-    public DBInputConfig setConnectionProperties(Properties connectionProperties) {
-        _setConnectionProperties( connectionProperties);
-        return this;
-    }
-    public DBInputConfig addConnectionProperty(String name,Object value){
-        _addConnectionProperty( name, value);
-        return this;
-    }
+  
 
 	public DBInputConfig setEnableDBTransaction(Boolean enableDBTransaction) {
 		this.enableDBTransaction = enableDBTransaction;
 		return this;
 	}
 
- 
-    /**
-     * 1. 为Clickhouse数据源增加负载均衡机制，解决Clickhouse-native-jdbc驱动只有容灾功能而没有负载均衡功能的缺陷，使用方法如下：
-     * 在jdbc url地址后面增加b.balance和b.enableBalance参数
-     * {@code jdbc:clickhouse://101.13.6.4:29000,101.13.6.7:29000,101.13.6.6:29000/visualops?b.balance=roundbin&b.enableBalance=true}
-     * <p>
-     * b.enableBalance为true时启用负载均衡机制，并具备原有容灾功能，否则只具备容灾功能
-     * b.balance 指定负载均衡算法，目前支持random（随机算法，不公平机制）和roundbin(轮询算法，公平机制)两种算法，默认random算法
-     * <p>
-     * 另外也可以在DBConf上进行设置，例如：
-     * BConf tempConf = new DBConf();
-     *         tempConf.setPoolname(ds.getDbname());
-     *         tempConf.setDriver(ds.getDbdriver());
-     *         tempConf.setJdbcurl( ds.getDburl());
-     *         tempConf.setUsername(ds.getDbuser());
-     *         tempConf.setPassword(ds.getDbpassword());
-     *         tempConf.setValidationQuery(ds.getValidationQuery());
-     *         //tempConf.setTxIsolationLevel("READ_COMMITTED");
-     *         tempConf.setJndiName("jndi-"+ds.getDbname());
-     *         PropertiesContainer propertiesContainer = PropertiesUtil.getPropertiesContainer();
-     *         int initialConnections = propertiesContainer.getIntProperty("initialConnections",5);
-     *         tempConf.setInitialConnections(initialConnections);
-     *         int minimumSize = propertiesContainer.getIntProperty("minimumSize",5);
-     *         tempConf.setMinimumSize(minimumSize);
-     *         int maximumSize = propertiesContainer.getIntProperty("maximumSize",10);
-     *         tempConf.setMaximumSize(maximumSize);
-     *         tempConf.setUsepool(true);
-     *         tempConf.setExternal(false);
-     *         tempConf.setEncryptdbinfo(false);
-     *         boolean showsql = propertiesContainer.getBooleanProperty("showsql",true);
-     *         tempConf.setShowsql(showsql);
-     *         tempConf.setQueryfetchsize(null);
-     *         tempConf.setEnableBalance(true);
-     *         tempConf.setBalance(DBConf.BALANCE_RANDOM);
-     *         return SQLManager.startPool(tempConf);
-     *
-     * @param balance
-     * @return
-     */
-    public DBInputConfig setBalance(String balance) {
-        _setBalance(balance);
-        return this;
-    }
-
-
-
-    /**
-     * 1. 为Clickhouse数据源增加负载均衡机制，解决Clickhouse-native-jdbc驱动只有容灾功能而没有负载均衡功能的缺陷，使用方法如下：
-     * 在jdbc url地址后面增加b.balance和b.enableBalance参数
-     * {@code jdbc:clickhouse://101.13.6.4:29000,101.13.6.7:29000,101.13.6.6:29000/visualops?b.balance=roundbin&b.enableBalance=true}
-     * <p>
-     * b.enableBalance为true时启用负载均衡机制，并具备原有容灾功能，否则只具备容灾功能
-     * b.balance 指定负载均衡算法，目前支持random（随机算法，不公平机制）和roundbin(轮询算法，公平机制)两种算法，默认random算法
-     * <p>
-     * 另外也可以在DBConf上进行设置，例如：
-     * BConf tempConf = new DBConf();
-     *         tempConf.setPoolname(ds.getDbname());
-     *         tempConf.setDriver(ds.getDbdriver());
-     *         tempConf.setJdbcurl( ds.getDburl());
-     *         tempConf.setUsername(ds.getDbuser());
-     *         tempConf.setPassword(ds.getDbpassword());
-     *         tempConf.setValidationQuery(ds.getValidationQuery());
-     *         //tempConf.setTxIsolationLevel("READ_COMMITTED");
-     *         tempConf.setJndiName("jndi-"+ds.getDbname());
-     *         PropertiesContainer propertiesContainer = PropertiesUtil.getPropertiesContainer();
-     *         int initialConnections = propertiesContainer.getIntProperty("initialConnections",5);
-     *         tempConf.setInitialConnections(initialConnections);
-     *         int minimumSize = propertiesContainer.getIntProperty("minimumSize",5);
-     *         tempConf.setMinimumSize(minimumSize);
-     *         int maximumSize = propertiesContainer.getIntProperty("maximumSize",10);
-     *         tempConf.setMaximumSize(maximumSize);
-     *         tempConf.setUsepool(true);
-     *         tempConf.setExternal(false);
-     *         tempConf.setEncryptdbinfo(false);
-     *         boolean showsql = propertiesContainer.getBooleanProperty("showsql",true);
-     *         tempConf.setShowsql(showsql);
-     *         tempConf.setQueryfetchsize(null);
-     *         tempConf.setEnableBalance(true);
-     *         tempConf.setBalance(DBConf.BALANCE_RANDOM);
-     *         return SQLManager.startPool(tempConf);
-     *
-     * @param enableBalance
-     * @return
-     */
-    public DBInputConfig setEnableBalance(boolean enableBalance) {
-        _setEnableBalance(enableBalance);
-        return this;
-    }
+   
     public RecordBuidler<ResultSet> getRecordBuidler() {
         return recordBuidler;
     }

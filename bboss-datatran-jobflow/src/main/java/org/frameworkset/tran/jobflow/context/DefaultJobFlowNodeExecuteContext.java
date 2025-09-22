@@ -160,4 +160,11 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     public String getNodeName(){
         return jobFlowNode.getNodeName();
     }
+
+    public JobFlowNode getJobFlowNode() {
+        return jobFlowNode;
+    }
+    public JobFlow getJobFlow() {
+        return jobFlow;
+    }
 }

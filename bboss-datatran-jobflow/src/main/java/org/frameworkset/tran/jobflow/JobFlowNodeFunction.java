@@ -22,13 +22,13 @@ import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
  * @author biaoping.yin
  * @Date 2025/6/22
  */
-public interface JobFlowNodeFunction {
+public interface JobFlowNodeFunction<T extends JobFlowNode> {
 
     /**
      * 初始化构建节点函数实例时，只在构建工作流节点时调用一次
      * @param jobFlowNode
      */
-    void init(JobFlowNode jobFlowNode);
+    void init(T jobFlowNode);
 
     /**
      * 执行工作流函数

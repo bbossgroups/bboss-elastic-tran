@@ -32,7 +32,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ExcelFileOutputConfig extends FileOutputConfig {
+public class ExcelFileOutputConfig extends FileOutputConfig<ExcelFileOutputConfig> {
 	/**
 	 * excel 标题行，为空时忽略
 	 */

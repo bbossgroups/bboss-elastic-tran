@@ -16,6 +16,7 @@ package org.frameworkset.tran.input.file;
  */
 
 import java.io.File;
+import java.nio.charset.Charset;
 
 /**
  * <p>Description: </p>
@@ -29,6 +30,7 @@ public class FileInfo {
 	public FileInfo(String charsetEncode, String filePath,
 					File file, String fileId, FileConfig fileConfig) {
 		this.charsetEncode = charsetEncode;
+        this.charset = fileConfig.getCharset();
 		this.filePath = filePath;
 		this.file = file;
 		this.originFile = file;
@@ -49,6 +51,7 @@ public class FileInfo {
 	 */
 	private boolean closeEOF ;
 	private String charsetEncode;
+    private Charset charset;//Charset.forName(csn);
 	private String filePath;
 	/**
 	 * 实际被采集的文件
@@ -68,6 +71,10 @@ public class FileInfo {
 
 	public String getCharsetEncode() {
 		return charsetEncode;
+	}
+    
+    public Charset getCharset() {
+		return charset;
 	}
 
 	public String getFilePath() {

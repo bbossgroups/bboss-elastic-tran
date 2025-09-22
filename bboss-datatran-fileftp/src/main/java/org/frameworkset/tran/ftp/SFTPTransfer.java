@@ -29,6 +29,8 @@ import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
 import org.frameworkset.tran.input.file.SFTPFilterFileInfo;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+import org.frameworkset.tran.jobflow.scan.JobFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,7 @@ public class SFTPTransfer {
 		final List<RemoteResourceInfo> files = new ArrayList<RemoteResourceInfo>();
 		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
 		final FtpFileFilter ftpFileFilter = fileFtpOupputContext.getFtpFileFilter();
+        final JobFileFilter jobFileFilter = fileFtpOupputContext.getJobFileFilter();
 		final FileConfig fileConfig = fileFtpOupputContext.getFileConfig();
 		handlerFile(  fileFtpOupputContext, new SFTPAction (){
 			@Override
@@ -83,6 +86,19 @@ public class SFTPTransfer {
 						files.addAll(_files);
 					}
 				}
+
+                else if(jobFileFilter != null) {
+                    List<RemoteResourceInfo> _files = sftp.ls(fileFtpOupputContext.getRemoteFileDir(), new RemoteResourceFilter() {
+                        @Override
+                        public boolean accept(RemoteResourceInfo resource) {
+
+                            return jobFileFilter.accept(new SFTPFilterFileInfo(resource), fileFtpOupputContext.getJobFlowNodeExecuteContext());
+                        }
+                    });
+                    if (_files != null && _files.size() > 0) {
+                        files.addAll(_files);
+                    }
+                }
 				else{
 					List<RemoteResourceInfo> _files = sftp.ls(fileFtpOupputContext.getRemoteFileDir());
 					if (_files != null && _files.size() > 0) {
@@ -100,6 +116,9 @@ public class SFTPTransfer {
 		final List<RemoteResourceInfo> files = new ArrayList<RemoteResourceInfo>();
 		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
 		final FtpFileFilter ftpFileFilter = fileFtpOupputContext.getFtpFileFilter();
+        final JobFileFilter jobFileFilter = fileFtpOupputContext.getJobFileFilter();
+
+        final JobFlowNodeExecuteContext jobFlowNodeExecuteContext = fileFtpOupputContext.getJobFlowNodeExecuteContext();
 		final FileConfig fileConfig = fileFtpOupputContext.getFileConfig();
 		handlerFile(  fileFtpOupputContext, new SFTPAction (){
 			@Override
@@ -111,7 +130,7 @@ public class SFTPTransfer {
 					List<RemoteResourceInfo> _files = sftp.ls(remotePath, new RemoteResourceFilter() {
 						@Override
 						public boolean accept(RemoteResourceInfo resource) {
-
+                    
 							return ftpFileFilter.accept(resource, resource.getName(), fileConfig);
 						}
 					});
@@ -123,7 +142,7 @@ public class SFTPTransfer {
 					List<RemoteResourceInfo> _files = sftp.ls(remotePath, new RemoteResourceFilter() {
 						@Override
 						public boolean accept(RemoteResourceInfo resource) {
-
+                            
 							return fileFilter.accept(new SFTPFilterFileInfo(resource), fileConfig);
 						}
 					});
@@ -131,6 +150,18 @@ public class SFTPTransfer {
 						files.addAll(_files);
 					}
 				}
+                else if(jobFileFilter != null){
+                    List<RemoteResourceInfo> _files = sftp.ls(remotePath, new RemoteResourceFilter() {
+                        @Override
+                        public boolean accept(RemoteResourceInfo resource) {
+
+                            return jobFileFilter.accept(new SFTPFilterFileInfo(resource), jobFlowNodeExecuteContext);
+                        }
+                    });
+                    if (_files != null && _files.size() > 0) {
+                        files.addAll(_files);
+                    }
+                }
 				else{
 					List<RemoteResourceInfo> _files = sftp.ls(remotePath);
 					if (_files != null && _files.size() > 0) {
@@ -147,8 +178,12 @@ public class SFTPTransfer {
 	public static List<RemoteResourceInfo> ls(final RemoteResourceInfo parent,final FtpContext fileFtpOupputContext){
 		final List<RemoteResourceInfo> files = new ArrayList<RemoteResourceInfo>();
 		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
-		final FtpFileFilter ftpFileFilter = fileFtpOupputContext.getFtpFileFilter();
+        
+        final FtpFileFilter ftpFileFilter = fileFtpOupputContext.getFtpFileFilter();
 		final FileConfig fileConfig = fileFtpOupputContext.getFileConfig();
+        final JobFileFilter jobFileFilter = fileFtpOupputContext.getJobFileFilter();
+
+        final JobFlowNodeExecuteContext jobFlowNodeExecuteContext = fileFtpOupputContext.getJobFlowNodeExecuteContext();
 		handlerFile(  fileFtpOupputContext, new SFTPAction (){
 			@Override
 			public void execute(SFTPClient sftp) throws IOException {
@@ -172,13 +207,25 @@ public class SFTPTransfer {
 						@Override
 						public boolean accept(RemoteResourceInfo resource) {
 
-							return fileFilter.accept(new SFTPFilterFileInfo(resource), fileConfig);
+                            return fileFilter.accept(new SFTPFilterFileInfo(resource), fileConfig);
 						}
 					});
 					if (_files != null && _files.size() > 0) {
 						files.addAll(_files);
 					}
 				}
+                else if(jobFileFilter != null){
+                    List<RemoteResourceInfo> _files = sftp.ls(parent.getPath(), new RemoteResourceFilter() {
+                        @Override
+                        public boolean accept(RemoteResourceInfo resource) {
+
+                             return jobFileFilter.accept(new SFTPFilterFileInfo(resource), jobFlowNodeExecuteContext);
+                        }
+                    });
+                    if (_files != null && _files.size() > 0) {
+                        files.addAll(_files);
+                    }
+                }
 				else{
 					List<RemoteResourceInfo> _files = sftp.ls(parent.getPath());
 					if (_files != null && _files.size() > 0) {
@@ -262,8 +309,8 @@ public class SFTPTransfer {
 
 			if(fileFtpOupputContext.getHostKeyVerifiers() != null) {
 				ssh.loadKnownHosts();
-				for(String hostKey:fileFtpOupputContext.getHostKeyVerifiers())
-					ssh.addHostKeyVerifier(hostKey);
+				for(Object hostKey:fileFtpOupputContext.getHostKeyVerifiers())
+					ssh.addHostKeyVerifier((String)hostKey);
 			}
 			else{
 				ssh.addHostKeyVerifier(new PromiscuousVerifier());

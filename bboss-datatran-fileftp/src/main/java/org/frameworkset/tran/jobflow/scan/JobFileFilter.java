@@ -1,4 +1,4 @@
-package org.frameworkset.tran.plugin.kafka.output;
+package org.frameworkset.tran.jobflow.scan;
 /**
  * Copyright 2020 bboss
  * <p>
@@ -15,21 +15,26 @@ package org.frameworkset.tran.plugin.kafka.output;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.plugin.OutputPlugin;
+import org.frameworkset.tran.input.file.FileConfig;
+import org.frameworkset.tran.input.file.FileFilter;
+import org.frameworkset.tran.input.file.FilterFileInfo;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 
 /**
- * <p>Description: </p>
+ * <p>Description: 判断job是否采集文件数据</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
- * @Date 2021/2/23 11:42
+ * @Date 2021/8/5 19:46
  * @author biaoping.yin
  * @version 1.0
  */
-public class Kafka2OutputConfig extends KafkaOutputConfig<Kafka2OutputConfig>{
+public interface JobFileFilter  {
 
-	@Override
-	public OutputPlugin getOutputPlugin(ImportContext importContext) {
-		return new Kafka2OutputDataTranPlugin(importContext,this);
-	}
+	/**
+	 * 判断是否采集文件数据，返回true标识采集，false 不采集
+	 * @param fileInfo
+	 * @param jobFlowNodeExecuteContext
+	 * @return
+	 */
+	boolean accept(FilterFileInfo fileInfo, JobFlowNodeExecuteContext jobFlowNodeExecuteContext);
 }

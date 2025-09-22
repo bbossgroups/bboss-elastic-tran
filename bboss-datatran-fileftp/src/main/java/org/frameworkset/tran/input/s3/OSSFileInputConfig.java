@@ -24,6 +24,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.input.RemoteContext;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
+import org.frameworkset.tran.jobflow.RemoteFileInputJobFlowNodeBuilder;
 import org.frameworkset.tran.output.s3.DefaultOSSInfoBuilder;
 import org.frameworkset.tran.output.s3.OSSInfoBuilder;
 import org.slf4j.Logger;
@@ -108,6 +109,29 @@ public class OSSFileInputConfig extends RemoteContext<OSSFileInputConfig> {
             logger.info("OSS远程文件采集:setCloseEOF(true)");
             fileConfig.setCloseEOF(true);//已经结束的文件内容采集完毕后关闭文件对应的采集通道，后续不再监听对应文件的内容变化
         }
+        File f = new File(downloadTempDir);
+        if(!f.exists())
+            f.mkdirs();
+        initOSSClient();
+        if(remoteFileChannel == null && getDownloadWorkThreads() > 0) {
+            remoteFileChannel = new RemoteFileChannel();
+            //用远程文件路径作为线程池名称
+            remoteFileChannel.setThreadName("RemoteFileDownloadChannel-"+getRemoteFileDir());
+            remoteFileChannel.setWorkThreads(getDownloadWorkThreads());
+            remoteFileChannel.init();
+
+        }
+    }
+
+    public void initJob(RemoteFileInputJobFlowNodeBuilder remoteFileInputJobFlowNodeBuilder){
+        if(inited)
+            return;
+        inited = true;
+        if(ossInfoBuilder == null){
+            ossInfoBuilder = new DefaultOSSInfoBuilder();
+        }
+        downloadTempDir = SimpleStringUtil.getPath(getSourcePath(),"temp");
+        
         File f = new File(downloadTempDir);
         if(!f.exists())
             f.mkdirs();

@@ -31,7 +31,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MongoDBInputConfig extends BaseMongoDBConfig implements InputConfig {
+public class MongoDBInputConfig extends BaseMongoDBConfig<MongoDBInputConfig> implements InputConfig<MongoDBInputConfig> {
 
 	private List<String> fetchFields;
 

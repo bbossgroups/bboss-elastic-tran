@@ -15,6 +15,9 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.JobFlow;
+import org.frameworkset.tran.jobflow.JobFlowNode;
+
 import java.util.Map;
 
 /**
@@ -74,4 +77,9 @@ public interface JobFlowNodeExecuteContext {
        
 
     String getNodeName();
+
+    
+
+    JobFlowNode getJobFlowNode() ;
+    JobFlow getJobFlow() ;
 }

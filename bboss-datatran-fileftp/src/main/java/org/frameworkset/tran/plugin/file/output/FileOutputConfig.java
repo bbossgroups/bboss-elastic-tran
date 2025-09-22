@@ -24,11 +24,12 @@ import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.ftp.FtpContext;
-import org.frameworkset.tran.ftp.RemoteFileValidate;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FilelogPluginException;
 import org.frameworkset.tran.input.file.FtpFileFilter;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+import org.frameworkset.tran.jobflow.scan.JobFileFilter;
 import org.frameworkset.tran.metrics.TaskMetrics;
 import org.frameworkset.tran.plugin.file.BaseRemoteConfig;
 import org.frameworkset.tran.output.s3.OSSFileConfig;
@@ -53,7 +54,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpContext {
+public class FileOutputConfig<T extends FileOutputConfig> extends BaseConfig<T> implements OutputConfig<T> , FtpContext<T> {
     private static Logger logger = LoggerFactory.getLogger(FileOutputConfig.class);
 	private FtpOutConfig ftpOutConfig;
 	private FileSend2Ftp fileSend2Ftp;
@@ -110,9 +111,9 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 		return lineSeparator;
 	}
 
-	public FileOutputConfig setLineSeparator(String lineSeparator) {
+	public T setLineSeparator(String lineSeparator) {
 		this.lineSeparator = lineSeparator;
-		return this;
+		return (T)this;
 	}
 
     public OSSFileConfig getOssFileConfig() {
@@ -151,16 +152,21 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 		return baseRemoteConfig.getFileLiveTime();
 	}
  
-	public FileOutputConfig setFileDir(String fileDir) {
+	public T setFileDir(String fileDir) {
 		this.fileDir = fileDir;
-		return  this;
+		return (T)this;
 	}
 	@Override
 	public FileFilter getFileFilter() {
 		throw new UnsupportedOperationException("getFileFilter");
 	}
 
-	@Override
+    @Override
+    public JobFileFilter getJobFileFilter() {
+        throw new UnsupportedOperationException("getJobFileFilter");
+    }
+
+    @Override
 	public FtpFileFilter getFtpFileFilter() {
 		throw new UnsupportedOperationException("getFtpFileFilter");
 	}
@@ -180,9 +186,14 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	public FileConfig getFileConfig() {
 		throw new UnsupportedOperationException("getFileConfig");
 	}
-    
 
-	@Override
+    @Override
+    public JobFlowNodeExecuteContext getJobFlowNodeExecuteContext() {
+        throw new UnsupportedOperationException("getJobFlowNodeExecuteContext");
+    }
+
+
+    @Override
 	public String getRemoteFileDir() {
 		return ftpOutConfig.getRemoteFileDir();
 	}
@@ -194,45 +205,45 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
      * use   public void setRecordGeneratorV1(RecordGeneratorV1 recordGeneratorV1)
      */
     @Deprecated
-	public FileOutputConfig setRecordGenerator(RecordGenerator recordGenerator) {
+	public T setRecordGenerator(RecordGenerator recordGenerator) {
 		this.recordGenerator = recordGenerator;
-		return  this;
+		return (T)this;
 	}
 
 	public FilenameGenerator getFilenameGenerator() {
 		return filenameGenerator;
 	}
 
-	public FileOutputConfig setFilenameGenerator(FilenameGenerator filenameGenerator) {
+	public T setFilenameGenerator(FilenameGenerator filenameGenerator) {
 		this.filenameGenerator = filenameGenerator;
-		return  this;
+		return (T)this;
 	}
 
 	public int getFileWriterBuffsize() {
 		return fileWriterBuffsize;
 	}
 
-	public FileOutputConfig setFileWriterBuffsize(int fileWriterBuffsize) {
+	public T setFileWriterBuffsize(int fileWriterBuffsize) {
 		this.fileWriterBuffsize = fileWriterBuffsize;
-		return  this;
+		return (T)this;
 	}
 
 	public int getMaxFileRecordSize() {
 		return maxFileRecordSize;
 	}
 
-	public FileOutputConfig setMaxFileRecordSize(int maxFileRecordSize) {
+	public T setMaxFileRecordSize(int maxFileRecordSize) {
 		this.maxFileRecordSize = maxFileRecordSize;
-		return  this;
+		return (T)this;
 	}
 
 	public boolean isDisableftp() {
 		return disableftp;
 	}
 
-	public FileOutputConfig setDisableftp(boolean disableftp) {
+	public T setDisableftp(boolean disableftp) {
 		this.disableftp = disableftp;
-		return  this;
+		return (T)this;
 	}
 
 
@@ -240,9 +251,9 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 		return ftpOutConfig;
 	}
 
-	public FileOutputConfig setFtpOutConfig(FtpOutConfig ftpOutConfig) {
+	public T setFtpOutConfig(FtpOutConfig ftpOutConfig) {
 		this.ftpOutConfig = ftpOutConfig;
-		return this;
+		return (T)this;
 	}
 
 	@Override
@@ -421,9 +432,9 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 	 * 文件信息包括：本地文件路径，远程ftp文件路径（可选，启用Ftp/sftp）时有用
 	 * 默认false关闭，
 	 */
-	public FileOutputConfig setEnableGenFileInfoMetric(boolean enableGenFileInfoMetric) {
+	public T setEnableGenFileInfoMetric(boolean enableGenFileInfoMetric) {
 		this.enableGenFileInfoMetric = enableGenFileInfoMetric;
-		return this;
+		return (T)this;
 	}
 
 
@@ -432,9 +443,9 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
 		return fileSend2Ftp;
 	}
 
-	public FileOutputConfig setFileSend2Ftp(FileSend2Ftp fileSend2Ftp) {
+	public T setFileSend2Ftp(FileSend2Ftp fileSend2Ftp) {
 		this.fileSend2Ftp = fileSend2Ftp;
-        return this;
+       return (T)this;
 	}
 
 	public boolean isSendFileAsyn() {
@@ -448,23 +459,23 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
         return existFileReplace;
     }
 
-    public FileOutputConfig setExistFileReplace(boolean existFileReplace) {
+    public T setExistFileReplace(boolean existFileReplace) {
         this.existFileReplace = existFileReplace;
-        return this;
+       return (T)this;
     }
 
     public Integer getMaxForceFileThreshold() {
         return maxForceFileThreshold;
     }
 
-    public FileOutputConfig setMaxForceFileThreshold(Integer maxForceFileThreshold) {
+    public T setMaxForceFileThreshold(Integer maxForceFileThreshold) {
         this.maxForceFileThreshold = maxForceFileThreshold;
-        return this;
+       return (T)this;
     }
 
-    public FileOutputConfig setSplitFile(boolean splitFile) {
+    public T setSplitFile(boolean splitFile) {
         this.splitFile = splitFile;
-        return this;
+       return (T)this;
     }
 
     public boolean isSplitFile() {
@@ -474,14 +485,14 @@ public class FileOutputConfig extends BaseConfig implements OutputConfig , FtpCo
         return maxForceFileThresholdInterval;
     }
 
-    public FileOutputConfig setMaxForceFileThresholdInterval(long maxForceFileThresholdInterval) {
+    public T setMaxForceFileThresholdInterval(long maxForceFileThresholdInterval) {
         this.maxForceFileThresholdInterval = maxForceFileThresholdInterval;
-        return this;
+       return (T)this;
     }
 
-    public FileOutputConfig setOSSFileConfig(OSSFileConfig ossFileConfig) {
+    public T setOSSFileConfig(OSSFileConfig ossFileConfig) {
         this.ossFileConfig = ossFileConfig;
-        return this;
+       return (T)this;
     }
 
     public int getSendFileAsynWorkThreads() {

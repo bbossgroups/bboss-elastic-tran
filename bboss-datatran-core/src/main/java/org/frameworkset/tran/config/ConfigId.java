@@ -22,12 +22,12 @@ package org.frameworkset.tran.config;
  * @author biaoping.yin
  * @Date 2025/2/2
  */
-public interface ConfigId {
+public interface ConfigId<T extends ConfigId> {
     /**
      * 设置插件配置唯一标识，用于区分不同的输出插件或者输入插件，一般在多输出插件过滤记录集时使用
      * @param id
      */
-     void setId(String id);
+     T setId(String id);
 
     /**
      * 获取插件配置唯一标识，用于区分不同的输出插件或者输入插件，一般在多输出插件过滤记录集时使用

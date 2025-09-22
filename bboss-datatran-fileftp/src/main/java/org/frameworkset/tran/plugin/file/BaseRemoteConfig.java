@@ -42,7 +42,7 @@ import org.frameworkset.tran.input.RemoteContext;
  *  @author biaoping.yin
  *  @Date 2024/8/9
  */
-public abstract class BaseRemoteConfig<T extends BaseRemoteConfig<T>> {
+public abstract class BaseRemoteConfig<T extends BaseRemoteConfig> {
 
     protected boolean backupSuccessFiles;
     protected boolean transferEmptyFiles;

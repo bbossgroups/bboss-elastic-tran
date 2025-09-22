@@ -34,7 +34,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class BaseMongoDBConfig extends BaseConfig  {
+public class BaseMongoDBConfig<T extends BaseMongoDBConfig> extends BaseConfig<T>  {
 	private String name;
 	private String serverAddresses;
 	private String option;
@@ -66,45 +66,45 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		return name;
 	}
 
-	public BaseMongoDBConfig setName(String name) {
+	public T setName(String name) {
 		this.name = name;
-		return this;
+		return (T)this;
 	}
 
 	public String getServerAddresses() {
 		return serverAddresses;
 	}
 
-	public BaseMongoDBConfig setServerAddresses(String serverAddresses) {
+	public T setServerAddresses(String serverAddresses) {
 		this.serverAddresses = serverAddresses;
-		return this;
+		return (T)this;
 	}
 
 	public String getOption() {
 		return option;
 	}
 
-	public BaseMongoDBConfig setOption(String option) {
+	public T setOption(String option) {
 		this.option = option;
-		return this;
+		return (T)this;
 	}
 
 	public String getWriteConcern() {
 		return writeConcern;
 	}
 
-	public BaseMongoDBConfig setWriteConcern(String writeConcern) {
+	public T setWriteConcern(String writeConcern) {
 		this.writeConcern = writeConcern;
-		return this;
+		return (T)this;
 	}
 
 	public String getReadPreference() {
 		return readPreference;
 	}
 
-	public BaseMongoDBConfig setReadPreference(String readPreference) {
+	public T setReadPreference(String readPreference) {
 		this.readPreference = readPreference;
-		return this;
+		return (T)this;
 	}
 
 
@@ -113,36 +113,36 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		return connectionsPerHost;
 	}
 
-	public BaseMongoDBConfig setConnectionsPerHost(int connectionsPerHost) {
+	public T setConnectionsPerHost(int connectionsPerHost) {
 		this.connectionsPerHost = connectionsPerHost;
-		return this;
+		return (T)this;
 	}
 
 	public int getMaxWaitTime() {
 		return maxWaitTime;
 	}
 
-	public BaseMongoDBConfig setMaxWaitTime(int maxWaitTime) {
+	public T setMaxWaitTime(int maxWaitTime) {
 		this.maxWaitTime = maxWaitTime;
-		return this;
+		return (T)this;
 	}
 
 	public int getSocketTimeout() {
 		return socketTimeout;
 	}
 
-	public BaseMongoDBConfig setSocketTimeout(int socketTimeout) {
+	public T setSocketTimeout(int socketTimeout) {
 		this.socketTimeout = socketTimeout;
-		return this;
+		return (T)this;
 	}
 
 	public int getConnectTimeout() {
 		return connectTimeout;
 	}
 
-	public BaseMongoDBConfig setConnectTimeout(int connectTimeout) {
+	public T  setConnectTimeout(int connectTimeout) {
 		this.connectTimeout = connectTimeout;
-		return this;
+		return (T)this;
 	}
 
 
@@ -150,18 +150,18 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		return socketKeepAlive;
 	}
 
-	public BaseMongoDBConfig setSocketKeepAlive(Boolean socketKeepAlive) {
+	public T  setSocketKeepAlive(Boolean socketKeepAlive) {
 		this.socketKeepAlive = socketKeepAlive;
-		return this;
+		return (T)this;
 	}
 
 	public String getMode() {
 		return mode;
 	}
 
-	public BaseMongoDBConfig setMode(String mode) {
+	public T  setMode(String mode) {
 		this.mode = mode;
-		return this;
+		return (T)this;
 	}
 
 
@@ -174,22 +174,22 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		return db;
 	}
 
-	public BaseMongoDBConfig setDbCollection(String dbCollection) {
+	public T  setDbCollection(String dbCollection) {
 		this.dbCollection = dbCollection;
-		return this;
+		return (T)this;
 	}
 
-	public BaseMongoDBConfig setDb(String db) {
+	public T  setDb(String db) {
 		this.db = db;
-		return this;
+		return (T)this;
 	}
 	public List<ClientMongoCredential> getCredentials() {
 		return credentials;
 	}
 
-	public BaseMongoDBConfig setCredentials(List<ClientMongoCredential> credentials) {
+	public T  setCredentials(List<ClientMongoCredential> credentials) {
 		this.credentials = credentials;
-		return this;
+		return (T)this;
 	}
 
 	private String mechanism;
@@ -204,9 +204,9 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		return authDb;
 	}
 
-	public BaseMongoDBConfig setAuthDb(String authDb) {
+	public T  setAuthDb(String authDb) {
 		this.authDb = authDb;
-		return this;
+		return (T)this;
 	}
 	public void build(ImportContext importContext, ImportBuilder importBuilder) {
 
@@ -224,14 +224,14 @@ public class BaseMongoDBConfig extends BaseConfig  {
 	}
 
 
-	public BaseMongoDBConfig setPassword(String password) {
+	public T  setPassword(String password) {
 		this.password = password;
-		return this;
+		return (T)this;
 	}
 
-	public BaseMongoDBConfig setUserName(String userName) {
+	public T  setUserName(String userName) {
 		this.userName = userName;
-		return this;
+		return (T)this;
 	}
 
 	/**
@@ -242,9 +242,9 @@ public class BaseMongoDBConfig extends BaseConfig  {
 	 * SCRAM-SHA-1
 	 * SCRAM-SHA-256
 	 */
-	public BaseMongoDBConfig setMechanism(String mechanism) {
+	public T  setMechanism(String mechanism) {
 		this.mechanism = mechanism;
-		return this;
+		return (T)this;
 	}
 
 	/**
@@ -255,17 +255,17 @@ public class BaseMongoDBConfig extends BaseConfig  {
 		return connectString;
 	}
 
-	public BaseMongoDBConfig setConnectString(String connectString) {
+	public T  setConnectString(String connectString) {
 		this.connectString = connectString;
-		return this;
+		return (T)this;
 	}
 
     public CustomSettingBuilder getCustomSettingBuilder() {
         return customSettingBuilder;
     }
 
-    public BaseMongoDBConfig setCustomSettingBuilder(CustomSettingBuilder customSettingBuilder) {
+    public T  setCustomSettingBuilder(CustomSettingBuilder customSettingBuilder) {
         this.customSettingBuilder = customSettingBuilder;
-        return this;
+        return (T)this;
     }
 }

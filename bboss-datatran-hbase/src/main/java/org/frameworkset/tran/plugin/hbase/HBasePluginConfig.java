@@ -28,7 +28,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class HBasePluginConfig extends BaseConfig  {
+public class HBasePluginConfig<T extends HBasePluginConfig> extends BaseConfig<T>  {
 	private String name = "default";
 	private Map<String,String> hbaseClientProperties;
 	private int hbaseClientThreadCount;
@@ -55,79 +55,79 @@ public class HBasePluginConfig extends BaseConfig  {
 		return hbaseClientProperties;
 	}
 
-	public HBasePluginConfig addHbaseClientProperty(String name, String value){
+	public T addHbaseClientProperty(String name, String value){
 		if(hbaseClientProperties == null){
 			hbaseClientProperties = new LinkedHashMap<>();
 		}
 		hbaseClientProperties.put(name,value);
-		return this;
+		return (T)this;
 	}
-	public HBasePluginConfig setHbaseClientProperties(Map<String, String> properties) {
+	public T setHbaseClientProperties(Map<String, String> properties) {
 		this.hbaseClientProperties = properties;
-		return this;
+		return (T)this;
 	}
 
 	public int getHbaseClientThreadCount() {
 		return hbaseClientThreadCount;
 	}
 
-	public HBasePluginConfig setHbaseClientThreadCount(int hbaseClientThreadCount) {
+	public T setHbaseClientThreadCount(int hbaseClientThreadCount) {
 		this.hbaseClientThreadCount = hbaseClientThreadCount;
-		return this;
+		return (T)this;
 	}
 
 	public int getHbaseClientThreadQueue() {
 		return hbaseClientThreadQueue;
 	}
 
-	public HBasePluginConfig setHbaseClientThreadQueue(int hbaseClientThreadQueue) {
+	public T setHbaseClientThreadQueue(int hbaseClientThreadQueue) {
 		this.hbaseClientThreadQueue = hbaseClientThreadQueue;
-		return this;
+		return (T)this;
 	}
 
 	public long getHbaseClientKeepAliveTime() {
 		return hbaseClientKeepAliveTime;
 	}
 
-	public HBasePluginConfig setHbaseClientKeepAliveTime(long hbaseClientKeepAliveTime) {
+	public T setHbaseClientKeepAliveTime(long hbaseClientKeepAliveTime) {
 		this.hbaseClientKeepAliveTime = hbaseClientKeepAliveTime;
-		return this;
+		return (T)this;
 	}
 
 	public long getHbaseClientBlockedWaitTimeout() {
 		return hbaseClientBlockedWaitTimeout;
 	}
 
-	public HBasePluginConfig setHbaseClientBlockedWaitTimeout(long hbaseClientBlockedWaitTimeout) {
+	public T setHbaseClientBlockedWaitTimeout(long hbaseClientBlockedWaitTimeout) {
 		this.hbaseClientBlockedWaitTimeout = hbaseClientBlockedWaitTimeout;
-		return this;
+		return (T)this;
 	}
 
 	public int getHbaseClientWarnMultsRejects() {
 		return hbaseClientWarnMultsRejects;
 	}
 
-	public HBasePluginConfig setHbaseClientWarnMultsRejects(int hbaseClientWarnMultsRejects) {
+	public T setHbaseClientWarnMultsRejects(int hbaseClientWarnMultsRejects) {
 		this.hbaseClientWarnMultsRejects = hbaseClientWarnMultsRejects;
-		return this;
+		return (T)this;
 	}
 
 	public boolean isHbaseClientPreStartAllCoreThreads() {
 		return hbaseClientPreStartAllCoreThreads;
 	}
 
-	public HBasePluginConfig setHbaseClientPreStartAllCoreThreads(boolean hbaseClientPreStartAllCoreThreads) {
+	public T setHbaseClientPreStartAllCoreThreads(boolean hbaseClientPreStartAllCoreThreads) {
 		this.hbaseClientPreStartAllCoreThreads = hbaseClientPreStartAllCoreThreads;
-		return this;
+		return (T)this;
 	}
 
 	public Boolean getHbaseClientThreadDaemon() {
 		return hbaseClientThreadDaemon;
 	}
 
-	public HBasePluginConfig setHbaseClientThreadDaemon(Boolean hbaseClientThreadDaemon) {
+	public T setHbaseClientThreadDaemon(Boolean hbaseClientThreadDaemon) {
 		this.hbaseClientThreadDaemon = hbaseClientThreadDaemon;
-		return this;
+		return (T)this;
 	}
 
 	public String getHbaseTable() {
@@ -140,9 +140,9 @@ public class HBasePluginConfig extends BaseConfig  {
 	 * @param hbaseTable
 	 * @return
 	 */
-	public HBasePluginConfig setHbaseTable(String hbaseTable) {
+	public T setHbaseTable(String hbaseTable) {
 		this.hbaseTable = hbaseTable;
-		return this;
+		return (T)this;
 	}
 
 
@@ -150,9 +150,9 @@ public class HBasePluginConfig extends BaseConfig  {
 		return hbaseBatch;
 	}
 
-	public HBasePluginConfig setHbaseBatch(Integer hbaseBatch) {
+	public T setHbaseBatch(Integer hbaseBatch) {
 		this.hbaseBatch = hbaseBatch;
-		return this;
+		return (T)this;
 	}
 
 

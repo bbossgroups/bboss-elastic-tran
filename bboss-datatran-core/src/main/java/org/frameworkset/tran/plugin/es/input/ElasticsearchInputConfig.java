@@ -34,7 +34,7 @@ import org.frameworkset.tran.plugin.es.ESField;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ElasticsearchInputConfig extends BaseConfig implements InputConfig {
+public class ElasticsearchInputConfig extends BaseConfig<ElasticsearchInputConfig> implements InputConfig<ElasticsearchInputConfig> {
 
 	private String sourceElasticsearch = "default";
 	private String scrollLiveTime = "100m";

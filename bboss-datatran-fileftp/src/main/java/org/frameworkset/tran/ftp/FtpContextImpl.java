@@ -15,10 +15,11 @@ package org.frameworkset.tran.ftp;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.input.RemoteContext;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+import org.frameworkset.tran.jobflow.scan.JobFileFilter;
 
 import java.util.List;
 
@@ -32,9 +33,17 @@ import java.util.List;
  */
 public class FtpContextImpl implements FtpContext {
 	 private FtpConfig ftpConfig;
+
+    protected JobFlowNodeExecuteContext jobFlowNodeExecuteContext;
+    private JobFileFilter jobFileFilter;
 	public FtpContextImpl(FtpConfig ftpConfig) {
 		this.ftpConfig = ftpConfig;
 	}
+    public FtpContextImpl(FtpConfig ftpConfig,JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFileFilter jobFileFilter) {
+        this.ftpConfig = ftpConfig;
+        this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
+        this.jobFileFilter = jobFileFilter;
+    }
 
     @Override
     public FtpConfig getFtpConfig() {
@@ -44,6 +53,11 @@ public class FtpContextImpl implements FtpContext {
     @Override
     public FileConfig getFileConfig() {
         return ftpConfig.getFileConfig();
+    }
+
+    @Override
+    public JobFlowNodeExecuteContext getJobFlowNodeExecuteContext() {
+        return jobFlowNodeExecuteContext;
     }
 
     @Override
@@ -154,9 +168,18 @@ public class FtpContextImpl implements FtpContext {
 	}
 
 	@Override
-	public FileFilter getFileFilter() {
-		return ftpConfig.getFileConfig().getFileFilter();
+	public FileFilter getFileFilter() {     
+        if(ftpConfig.getFileConfig() != null) {
+            return ftpConfig.getFileConfig().getFileFilter();
+        }
+        return null;
 	}
+
+    @Override
+    public JobFileFilter getJobFileFilter() {
+
+        return this.jobFileFilter;
+    }
 
 	@Override
 	public FtpFileFilter getFtpFileFilter() {

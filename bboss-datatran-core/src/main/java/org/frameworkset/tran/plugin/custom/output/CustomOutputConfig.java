@@ -30,7 +30,7 @@ import org.frameworkset.tran.plugin.OutputPlugin;
  * @author biaoping.yin
  * @version 1.0
  */
-public class CustomOutputConfig extends BaseConfig implements OutputConfig {
+public class CustomOutputConfig extends BaseConfig<CustomOutputConfig> implements OutputConfig<CustomOutputConfig> {
 
    
     private CustomOutPutV1 customOutPutV1;

@@ -25,7 +25,7 @@ import org.frameworkset.tran.jobflow.ParrelJobFlowNode;
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class ParrelJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder {
+public class ParrelJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<ParrelJobFlowNodeBuilder> {
     
     
     

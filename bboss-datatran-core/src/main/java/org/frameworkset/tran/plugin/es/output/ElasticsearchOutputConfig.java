@@ -45,7 +45,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ElasticsearchOutputConfig extends BaseConfig implements OutputConfig {
+public class ElasticsearchOutputConfig extends BaseConfig<ElasticsearchOutputConfig> implements OutputConfig<ElasticsearchOutputConfig> {
 	private String index;
 	/**抽取数据的sql语句*/
 	private String indexType;

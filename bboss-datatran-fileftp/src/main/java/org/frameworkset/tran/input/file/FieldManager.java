@@ -30,7 +30,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FieldManager<T extends FieldManager<T>> extends FieldMappingManager<T> {
+public class FieldManager<T extends FieldManager> extends FieldMappingManager<T> {
 	private static final Logger logger = LoggerFactory.getLogger(FieldManager.class);
 	public FieldManager(){
 		super();

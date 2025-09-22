@@ -39,7 +39,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
+public class HttpOutputConfig extends BaseHttpConfig<HttpOutputConfig> implements OutputConfig<HttpOutputConfig> {
 
 	private Map<String,Object> httpConfigs;
 
@@ -123,16 +123,7 @@ public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 		return this;
 	}
 
-	/**
-	 * 添加动态生成的头信息，比如有生命周期的认证token信息等
-	 * @param header
-	 * @param dynamicHeader
-	 * @return
-	 */
-	public HttpOutputConfig addDynamicHeader(String header, DynamicHeader dynamicHeader){
-		_addDynamicHeader(header, dynamicHeader);
-		return this;
-	}
+ 
 	/**
 	 * 是否直接发送数据到服务端，默认为true，如果需要处理数据
 	 */
@@ -241,14 +232,7 @@ public class HttpOutputConfig extends BaseHttpConfig implements OutputConfig {
 //		getRecordGenerator().buildRecord(taskContext,  taskMetrics, record, builder);
 	}
 
-	public HttpOutputConfig addHttpHeaders(Map<String, String> _httpHeaders){
-		_addHttpHeaders(_httpHeaders);
-		return this;
-	}
-	public HttpOutputConfig addHttpHeader(String header,String value){
-		_addHttpHeader(header,value);
-		return this;
-	}
+ 
 
 	public String getDataDslName() {
 		return dataDslName;

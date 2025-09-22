@@ -34,7 +34,7 @@ import static org.frameworkset.tran.metrics.job.MetricsConfig.DEFAULT_metricsInt
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class KafkaInputConfig extends BaseConfig implements InputConfig {
+public abstract class KafkaInputConfig<T extends KafkaInputConfig> extends BaseConfig<T> implements InputConfig<T> {
 	private Properties kafkaConfigs = null;
 	private String kafkaTopic;
 	private long checkinterval = 3000l;
@@ -67,19 +67,19 @@ public abstract class KafkaInputConfig extends BaseConfig implements InputConfig
 	 * 并行消费处理拒绝消息
 	 */
 	private String discardRejectMessage ;
-	public KafkaInputConfig setKafkaConfigs(Properties kafkaConfigs) {
+	public T setKafkaConfigs(Properties kafkaConfigs) {
 		this.kafkaConfigs = kafkaConfigs;
-		return this;
+		return (T)this;
 	}
-	public KafkaInputConfig addKafkaConfig(String key,Object value){
+	public T addKafkaConfig(String key,Object value){
 		if(kafkaConfigs == null)
 			kafkaConfigs = new Properties();
 		kafkaConfigs.put(key,value);
-		return this;
+		return (T)this;
 	}
-	public KafkaInputConfig setKafkaTopic(String kafkaTopic) {
+	public T setKafkaTopic(String kafkaTopic) {
 		this.kafkaTopic = kafkaTopic;
-		return this;
+		return (T)this;
 	}
 
 	public Properties getKafkaConfigs(){
@@ -94,54 +94,54 @@ public abstract class KafkaInputConfig extends BaseConfig implements InputConfig
 		return checkinterval;
 	}
 
-	public KafkaInputConfig setCheckinterval(long checkinterval) {
+	public T setCheckinterval(long checkinterval) {
 		this.checkinterval = checkinterval;
-		return this;
+		return (T)this;
 	}
 
 	public String getDiscardRejectMessage() {
 		return discardRejectMessage;
 	}
 
-	public KafkaInputConfig setDiscardRejectMessage(String discardRejectMessage) {
+	public T setDiscardRejectMessage(String discardRejectMessage) {
 		this.discardRejectMessage = discardRejectMessage;
-		return this;
+		return (T)this;
 	}
 
 	public int getConsumerThreads() {
 		return consumerThreads;
 	}
 
-	public KafkaInputConfig setConsumerThreads(int threads) {
+	public T setConsumerThreads(int threads) {
 		this.consumerThreads = threads;
-		return this;
+		return (T)this;
 	}
 
 	public long getPollTimeOut() {
 		return pollTimeOut;
 	}
 
-	public KafkaInputConfig setPollTimeOut(long pollTimeOut) {
+	public T setPollTimeOut(long pollTimeOut) {
 		this.pollTimeOut = pollTimeOut;
-		return this;
+		return (T)this;
 	}
 
 	public String getValueCodec() {
 		return valueCodec;
 	}
 
-	public KafkaInputConfig setValueCodec(String valueCodec) {
+	public T setValueCodec(String valueCodec) {
 		this.valueCodec = valueCodec;
-		return this;
+		return (T)this;
 	}
 
 	public String getKeyCodec() {
 		return keyCodec;
 	}
 
-	public KafkaInputConfig setKeyCodec(String keyCodec) {
+	public T setKeyCodec(String keyCodec) {
 		this.keyCodec = keyCodec;
-		return this;
+		return (T)this;
 	}
 	private Integer kafkaWorkThreads;
 	private Integer kafkaWorkQueue;
@@ -152,14 +152,14 @@ public abstract class KafkaInputConfig extends BaseConfig implements InputConfig
 		return kafkaWorkQueue;
 	}
 
-	public KafkaInputConfig setKafkaWorkThreads(Integer kafkaWorkThreads) {
+	public T setKafkaWorkThreads(Integer kafkaWorkThreads) {
 		this.kafkaWorkThreads = kafkaWorkThreads;
-		return this;
+		return (T)this;
 	}
 
-	public KafkaInputConfig setKafkaWorkQueue(Integer kafkaWorkQueue) {
+	public T setKafkaWorkQueue(Integer kafkaWorkQueue) {
 		this.kafkaWorkQueue = kafkaWorkQueue;
-		return this;
+		return (T)this;
 	}
 
 	private void preHandlerCodec(){
@@ -203,9 +203,9 @@ public abstract class KafkaInputConfig extends BaseConfig implements InputConfig
 		return metricsInterval;
 	}
 
-	public KafkaInputConfig setMetricsInterval(long metricsInterval) {
+	public T setMetricsInterval(long metricsInterval) {
 		this.metricsInterval = metricsInterval;
-		return this;
+		return (T)this;
 	}
 
 }

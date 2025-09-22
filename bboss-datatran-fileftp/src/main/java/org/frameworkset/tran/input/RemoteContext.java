@@ -15,22 +15,27 @@ package org.frameworkset.tran.input;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.ftp.RemoteFileValidate;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.frameworkset.tran.plugin.file.BaseRemoteConfig;
 
 /**
  * @author biaoping.yin
  * @Date 2025/8/9
  */
-public abstract class RemoteContext<T extends RemoteContext<T> > extends BaseRemoteConfig<T> {
+public abstract class RemoteContext<T extends RemoteContext> extends BaseRemoteConfig {
     protected FileConfig fileConfig;
-
 
     protected String remoteFileDir;
     protected RemoteFileValidate remoteFileValidate;
     protected 	String downloadTempDir;
+    /**
+     * 工作流节点需要进行配置:设置本地文件存放路径
+     */
+    protected String sourcePath;
     protected RemoteFileChannel remoteFileChannel;
 
 
@@ -40,10 +45,19 @@ public abstract class RemoteContext<T extends RemoteContext<T> > extends BaseRem
         return fileConfig;
     }
 
+    /**
+     * 工作流节点需要进行配置:设置本地文件存放路径
+     * @return
+     */
+    public String getSourcePath() {
+        return sourcePath;
+    }
+
     public boolean isDeleteRemoteFile() {
         return deleteRemoteFile;
     }
     
+ 
     public String getRemoteFileDir() {
         return remoteFileDir;
     }
@@ -70,6 +84,14 @@ public abstract class RemoteContext<T extends RemoteContext<T> > extends BaseRem
 
     public T setFileConfig(FileConfig fileConfig) {
         this.fileConfig = fileConfig;
+        if(SimpleStringUtil.isEmpty(sourcePath)) {
+            this.setSourcePath(fileConfig.getSourcePath());
+        }
+        return (T)this;
+    }
+    
+    public T setSourcePath(String sourcePath) {
+        this.sourcePath = sourcePath;
         return (T)this;
     }
 
@@ -91,6 +113,8 @@ public abstract class RemoteContext<T extends RemoteContext<T> > extends BaseRem
         this.downloadTempDir = downloadTempDir;
         return (T)this;
     }
+
+ 
 
     public void destroy() {
         if(remoteFileChannel != null){

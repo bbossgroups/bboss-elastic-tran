@@ -16,7 +16,6 @@ package org.frameworkset.tran.config;
  */
 
 import org.frameworkset.tran.DataTranPlugin;
-import org.frameworkset.tran.context.BaseImportContext;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.context.RecordSpecialConfigsContext;
 import org.frameworkset.tran.plugin.InputPlugin;
@@ -30,9 +29,9 @@ import org.frameworkset.tran.record.RecordBuidler;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface InputConfig extends ConfigId{
-	public void build(ImportContext importContext,ImportBuilder importBuilder);
-	public DataTranPlugin buildDataTranPlugin(ImportContext importContext);
+public interface InputConfig<T extends InputConfig> extends ConfigId<T>{
+	void build(ImportContext importContext,ImportBuilder importBuilder);
+	DataTranPlugin buildDataTranPlugin(ImportContext importContext);
 	InputPlugin getInputPlugin(ImportContext importContext);
 	void afterBuild(ImportBuilder importBuilder,ImportContext importContext);
     default void initRecordSpecialConfigsContext(RecordSpecialConfigsContext recordSpecialConfigsContext){
@@ -42,24 +41,24 @@ public interface InputConfig extends ConfigId{
     }
     /**
      * 并行Datarefactor处理需要设置RecordBuidler，默认为DBRecordBuilder，如果需要自定义resultset record，从DBRecordBuilder继承实现方法即可：
-     * {@code public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException}
+     * {@code Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException}
      * @param parallelDatarefactor
      * @return
      */
-    default InputConfig setParallelDatarefactor(boolean parallelDatarefactor){
-        return this;
+    default T setParallelDatarefactor(boolean parallelDatarefactor){
+        return (T)this;
     }
     default RecordBuidler getRecordBuidler(){
         return null;
     }
     /**
      * 并行Datarefactor处理标记为parallelDatarefactor=true时，需要设置RecordBuidler，默认为DBRecordBuilder，如果需要自定义resultset record，从DBRecordBuilder继承实现方法即可：
-     * {@code public Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException}
+     * {@code Map<String, Object> build(RecordBuidlerContext<ResultSet> recordBuidlerContext) throws DataImportException}
      * @param recordBuidler
      * @return
      */
-    default InputConfig setRecordBuidler(RecordBuidler recordBuidler){
-        return this;
+    default T setRecordBuidler(RecordBuidler recordBuidler){
+        return (T)this;
     }
     boolean isSortedDefault();
     default boolean enableLocalDate(){

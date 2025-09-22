@@ -1,12 +1,11 @@
 package org.frameworkset.tran.input.s3;
 
 import com.frameworkset.util.SimpleStringUtil;
-import net.schmizz.sshj.sftp.RemoteResourceInfo;
 import org.frameworkset.nosql.s3.OSSClient;
 import org.frameworkset.nosql.s3.OSSFile;
-import org.frameworkset.nosql.s3.OSSStartResult;
-import org.frameworkset.tran.ftp.SFTPTransfer;
 import org.frameworkset.tran.input.file.*;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+import org.frameworkset.tran.jobflow.scan.JobFileFilter;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,18 +55,8 @@ public class S3DirScan extends LogDirScan {
         }
         FileFilter fileFilter = fileConfig.getFileFilter();
         List<OSSFile> files = ossClient.listOssFile(ossFileConfig.getBucket(),ossFileConfig.getRemoteFileDir(), fileConfig.isScanChild());
-
-        if(fileFilter != null){
-            List<OSSFile> newFiles = new ArrayList<>(); 
-            for(int i = 0; i < files.size(); i ++ ){
-                OSSFile file = files.get(i);
-                FilterFileInfo fileInfo = new OSSFilterFileInfo(file);
-                if(fileFilter.accept(fileInfo,fileConfig)){
-                    newFiles.add(file);
-                }
-            }
-            files = newFiles;
-        }
+        files = filterFiles(  fileFilter,  files,  fileConfig);
+        
         if(files == null || files.size() == 0){
             if(logger.isInfoEnabled()) {
                 logger.warn("Remote oss dir[{}] is a file or empty directory.", ossFileConfig.getRemoteFileDir());
@@ -95,7 +84,23 @@ public class S3DirScan extends LogDirScan {
 
 
     }
+    private List<OSSFile> filterFiles(FileFilter fileFilter, List<OSSFile> files, FileConfig fileConfig){
+        if(fileFilter != null){
+            List<OSSFile> newFiles = new ArrayList<>();
+            for(int i = 0; i < files.size(); i ++ ){
+                OSSFile file = files.get(i);
+                FilterFileInfo fileInfo = new OSSFilterFileInfo(file);
+                if(fileFilter.accept(fileInfo,fileConfig)){
+                    newFiles.add(file);
+                }
+            }
+            return newFiles;
+        }
+        else{
+            return files;
+        }
 
+    }
     public void scanSubDirNewFile(TaskContext taskContext,String relativeParentDir,OSSFile logDir,List<Future> downloadFutures){
         String path = SimpleStringUtil.getPath(relativeParentDir,logDir.getObjectName());
         if(logger.isDebugEnabled()){
@@ -106,8 +111,9 @@ public class S3DirScan extends LogDirScan {
                         fileConfig.getFileFilter().getClass().getCanonicalName());
             }
         }
-        
+        FileFilter fileFilter = fileConfig.getFileFilter();
         List<OSSFile> files = ossClient.listOssFile(ossFileConfig.getBucket(),null);
+        files = filterFiles(  fileFilter,  files,  fileConfig);
         if(files == null || files.size() == 0){
             if(logger.isInfoEnabled()) {
                 logger.info("{} must be a directory or is empty directory.",path);
@@ -133,7 +139,6 @@ public class S3DirScan extends LogDirScan {
                     if (logger.isInfoEnabled()) {
                         logger.info("Ignore oss dir:{}", path);
                     }
-                    continue;
                 }
                 else{
                     scanSubDirNewFile(  taskContext,path,remoteResourceInfo, downloadFutures);

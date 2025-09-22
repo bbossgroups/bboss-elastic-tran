@@ -25,7 +25,7 @@ import org.frameworkset.tran.jobflow.SequenceJobFlowNode;
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder {
+public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<SequenceJobFlowNodeBuilder> {
 
     private JobFlowNodeBuilder headerJobFlowNodeBuilder;
     private JobFlowNodeBuilder currentJobFlowNodeBuilder;

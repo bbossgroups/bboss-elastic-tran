@@ -25,7 +25,7 @@ import java.util.List;
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public abstract class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder {
+public abstract class CompositionJobFlowNodeBuilder<T extends CompositionJobFlowNodeBuilder> extends JobFlowNodeBuilder<T> {
     
      
     private JobFlowNodeType jobFlowNodeType ; 
@@ -43,7 +43,7 @@ public abstract class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder {
         this.jobFlowNodeType = jobFlowNodeType;
     }
     public CompositionJobFlowNodeBuilder(){
-        
+        super();
         this.jobFlowNodeType = jobFlowNodeType;
     }
 
@@ -137,20 +137,20 @@ public abstract class CompositionJobFlowNodeBuilder extends JobFlowNodeBuilder {
      * @param jobFlowNodeBuilder
      * @return
      */
-    public CompositionJobFlowNodeBuilder addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
+    public T addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
 //        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
         init();
         nodeBuilders.add(jobFlowNodeBuilder);
-        return this;
+        return (T)this;
     }
 
 
-    public CompositionJobFlowNodeBuilder setJobFlowNodeType(JobFlowNodeType jobFlowNodeType) {
+    public T setJobFlowNodeType(JobFlowNodeType jobFlowNodeType) {
         if(jobFlowNodeType == JobFlowNodeType.SIMPLE){
             throw new JobFlowException("CompositionJobFlowNodeBuilder jobFlowNodeType must be set SEQUENCE or PARREL,but is SIMPLE.");
         }
         this.jobFlowNodeType = jobFlowNodeType;
-        return this;
+        return (T)this;
     }
 
     public JobFlowNodeType getJobFlowNodeType() {

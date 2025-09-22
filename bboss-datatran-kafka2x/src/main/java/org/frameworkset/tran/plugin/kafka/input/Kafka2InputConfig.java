@@ -26,7 +26,7 @@ import org.frameworkset.tran.plugin.InputPlugin;
  * @author biaoping.yin
  * @version 1.0
  */
-public class Kafka2InputConfig extends KafkaInputConfig {
+public class Kafka2InputConfig extends KafkaInputConfig<Kafka2InputConfig> {
 
 
 	@Override
@@ -35,7 +35,7 @@ public class Kafka2InputConfig extends KafkaInputConfig {
 	}
 
     @Override
-    public KafkaInputConfig setCheckinterval(long checkinterval) {
+    public Kafka2InputConfig setCheckinterval(long checkinterval) {
         throw new UnsupportedOperationException("Kafka2InputConfig.setCheckinterval");
     }
 }

@@ -1,5 +1,6 @@
 package org.frameworkset.tran.input.file;
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -119,6 +121,7 @@ public class FileConfig<T extends FileConfig<T>> extends FieldManager<T>{
     //需要包含的记录条件,正则匹配
     private String[] includeLines;
     private String charsetEncode ;
+    private Charset charset;//Charset.forName(csn);
     public LineMatchType getIncludeLineMatchType() {
         return includeLineMatchType;
     }
@@ -390,9 +393,17 @@ public class FileConfig<T extends FileConfig<T>> extends FieldManager<T>{
         }
 //        importContext = null;
     }
+
+    public Charset getCharset() {
+        return charset;
+    }
+
     public T init(){
         if(inited )
             return (T)this;
+        if(SimpleStringUtil.isNotEmpty(charsetEncode)) {
+            charset = Charset.forName(charsetEncode);
+        }
         build();
         inited = true;
         if(getCloseOlderTime() != null && getCloseOlderTime() > 0L) {
@@ -439,6 +450,19 @@ public class FileConfig<T extends FileConfig<T>> extends FieldManager<T>{
                 excludeLinesRexPattern[i] = Pattern.compile(this.excludeLines[i]);
             }
         }
+        if(this.fileNameRexPattern != null && this.fileFilter != null){
+            logger.warn("Cannot set both fileNameRexPattern and fileFilter at the same time,fileFilter will be used and ignore fileNameRexPattern {}.",this.fileNameRegular);
+        }
+        if(fileFilter == null && this.fileNameRexPattern != null){
+            fileFilter = new FileFilter() {
+                @Override
+                public boolean accept(FilterFileInfo fileInfo, FileConfig fileConfig) {
+                    Matcher m = fileNameRexPattern.matcher(fileInfo.getFileName());
+                    return m.matches();                        
+                }
+            };
+        }
+         
         filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -448,11 +472,7 @@ public class FileConfig<T extends FileConfig<T>> extends FieldManager<T>{
                     if (!isSameDir)//文件路径不匹配，直接忽略
                         return false;
                 }
-                if(fileNameRexPattern != null) {
-                    Matcher m = fileNameRexPattern.matcher(name);
-                    return m.matches();
-                }
-                else if(fileFilter != null){
+                if(fileFilter != null){
                     try {
                         return fileFilter.accept(new LocalFilterFileInfo(dir, name), FileConfig.this);
                     }

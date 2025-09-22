@@ -34,7 +34,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MetricsOutputConfig extends BaseConfig implements OutputConfig {
+public class MetricsOutputConfig extends BaseConfig<MetricsOutputConfig> implements OutputConfig<MetricsOutputConfig> {
 
 	private List<ETLMetrics> metrics;
 

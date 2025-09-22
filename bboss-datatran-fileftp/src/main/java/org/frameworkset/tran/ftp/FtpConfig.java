@@ -20,6 +20,7 @@ import org.frameworkset.tran.input.RemoteContext;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FtpFileFilter;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
+import org.frameworkset.tran.jobflow.RemoteFileInputJobFlowNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ public class FtpConfig extends RemoteContext<FtpConfig> {
     private Logger logger = LoggerFactory.getLogger(FtpConfig.class);
 
 
+    
     public static final int TRANSFER_PROTOCOL_FTP = 1;
 	public static final int TRANSFER_PROTOCOL_SFTP = 2;
 	private List<String> hostKeyVerifiers;
@@ -110,7 +112,7 @@ public class FtpConfig extends RemoteContext<FtpConfig> {
 	public List<String> getHostKeyVerifiers() {
 		return hostKeyVerifiers;
 	}
-
+ 
 //	@Override
 	public void init(FileConfig fileConfig){
 		if(inited)
@@ -147,6 +149,30 @@ public class FtpConfig extends RemoteContext<FtpConfig> {
 		}
 //		return this;
 	}
+
+    public void initJob(RemoteFileInputJobFlowNodeBuilder remoteFileInputJobFlowNodeBuilder){
+        if(inited)
+            return;
+        inited = true;
+        if(transferProtocol == FtpConfig.TRANSFER_PROTOCOL_FTP)
+            this.transferProtocolName = "FTP";
+        else
+            this.transferProtocolName = "SFTP";
+        downloadTempDir = SimpleStringUtil.getPath(getSourcePath(),"temp");
+         
+        File f = new File(downloadTempDir);
+        if(!f.exists())
+            f.mkdirs();
+        if(remoteFileChannel == null && getDownloadWorkThreads() > 0) {
+            remoteFileChannel = new RemoteFileChannel();
+            //用远程文件路径作为线程池名称
+            remoteFileChannel.setThreadName("RemoteFileDownloadChannel-"+getRemoteFileDir());
+            remoteFileChannel.setWorkThreads(getDownloadWorkThreads());
+            remoteFileChannel.init();
+
+        }
+//		return this;
+    }
 
 
 

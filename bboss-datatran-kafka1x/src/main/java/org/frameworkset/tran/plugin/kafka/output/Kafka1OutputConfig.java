@@ -26,7 +26,7 @@ import org.frameworkset.tran.plugin.OutputPlugin;
  * @author biaoping.yin
  * @version 1.0
  */
-public class Kafka1OutputConfig extends KafkaOutputConfig{
+public class Kafka1OutputConfig extends KafkaOutputConfig<Kafka1OutputConfig>{
 
 	@Override
 	public OutputPlugin getOutputPlugin(ImportContext importContext) {

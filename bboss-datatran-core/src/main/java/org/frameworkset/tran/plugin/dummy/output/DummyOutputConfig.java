@@ -35,7 +35,7 @@ import java.io.Writer;
  * @author biaoping.yin
  * @version 1.0
  */
-public class DummyOutputConfig extends BaseConfig implements OutputConfig {
+public class DummyOutputConfig extends BaseConfig<DummyOutputConfig> implements OutputConfig<DummyOutputConfig> {
 	private boolean printRecord;
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.util.ReocordGenerator

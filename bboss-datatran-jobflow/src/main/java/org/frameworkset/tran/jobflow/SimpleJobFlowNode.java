@@ -53,11 +53,12 @@ public class SimpleJobFlowNode extends JobFlowNode{
         if(jobFlowNodeFunction == null){
             throw new JobFlowException("jobFlowNodeFunction is null.");
         }
-        jobFlowNodeFunction.init(this);
+        
 //        this.importBuilder.setJobFlowNode(this);
         this.nodeTrigger = nodeTrigger;
         simpleJobFlowNodeContext = new SimpleJobFlowNodeContext(this);
         this.jobFlowNodeContext = simpleJobFlowNodeContext;
+        jobFlowNodeFunction.init(this);
     }
 
     public SimpleJobFlowNode(JobFlowNodeFunction jobFlowNodeFunction){

@@ -40,7 +40,7 @@ import java.util.Properties;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class KafkaOutputConfig extends BaseConfig implements OutputConfig {
+public abstract class KafkaOutputConfig<T extends KafkaOutputConfig> extends BaseConfig<T> implements OutputConfig<T> {
 	private Properties kafkaConfigs = null;
 	public static final String metricKey_kafkaoutputplutin = "kafkaoutputplutin";
 	/**

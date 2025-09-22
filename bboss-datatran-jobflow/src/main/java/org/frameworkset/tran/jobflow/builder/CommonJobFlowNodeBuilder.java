@@ -15,17 +15,14 @@ package org.frameworkset.tran.jobflow.builder;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.jobflow.JobFlowNodeFunction;
-import org.frameworkset.tran.jobflow.SimpleJobFlowNode;
 
 /**
  * 通用工作流作业节点构建器
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class CommonJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder {
+public class CommonJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<CommonJobFlowNodeBuilder> {
     
 
     protected JobFlowNodeFunction jobFlowNodeFunction;
@@ -39,11 +36,7 @@ public class CommonJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder {
         this.jobFlowNodeFunction = jobFlowNodeFunction;
     }
 
-    public CommonJobFlowNodeBuilder setAutoNodeComplete(boolean autoNodeComplete) {
-        this.autoNodeComplete = autoNodeComplete;
-        return this;
-    }
-
+ 
     
     protected  JobFlowNodeFunction buildJobFlowNodeFunction(){
    

@@ -35,7 +35,7 @@ import java.util.List;
  * @author biaoping.yin
  * @Date 2024/11/1
  */
-public class MilvusVectorInputConfig extends MilvusInputConfig {
+public class MilvusVectorInputConfig extends MilvusInputConfig<MilvusVectorInputConfig> {
     private static Logger logger = LoggerFactory.getLogger(MilvusVectorInputConfig.class);
    
      

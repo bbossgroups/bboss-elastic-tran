@@ -25,24 +25,27 @@ import org.frameworkset.tran.jobflow.SimpleJobFlowNode;
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public abstract class SimpleJobFlowNodeBuilder extends JobFlowNodeBuilder {
+public abstract class SimpleJobFlowNodeBuilder<T extends SimpleJobFlowNodeBuilder> extends JobFlowNodeBuilder<T> {
 
     /**
      * 如果需要自动在Function中的call方法调用nodeComplete，则将autoNodeComplete设置为true
      */
     protected boolean autoNodeComplete ;
 
+    public SimpleJobFlowNodeBuilder(String nodeId, String nodeName) {
+        super(nodeId, nodeName);
+    }
     /**
      * 串行节点作业配置
      */
 //    protected ImportBuilder importBuilder;
 
-    public SimpleJobFlowNodeBuilder(String nodeId, String nodeName) {
-        super(nodeId, nodeName);        
+    public SimpleJobFlowNodeBuilder() {
+        super();        
     }
-    public SimpleJobFlowNodeBuilder setAutoNodeComplete(boolean autoNodeComplete) {
+    public T setAutoNodeComplete(boolean autoNodeComplete) {
         this.autoNodeComplete = autoNodeComplete;
-        return this;
+        return (T)this;
     }
 
     public boolean isAutoNodeComplete() {

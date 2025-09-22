@@ -32,7 +32,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class CSVFileOutputConfig extends FileOutputConfig {
+public class CSVFileOutputConfig extends FileOutputConfig<CSVFileOutputConfig> {
     private boolean enableHeader = true;
 	/**
 	 * 列索引、列名称、列对应的字段field名称映射关系

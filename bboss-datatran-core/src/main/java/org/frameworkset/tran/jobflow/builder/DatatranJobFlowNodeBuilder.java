@@ -23,7 +23,7 @@ import org.frameworkset.tran.jobflow.JobFlowNodeFunction;
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class DatatranJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder {
+public class DatatranJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<DatatranJobFlowNodeBuilder> {
 
 
  

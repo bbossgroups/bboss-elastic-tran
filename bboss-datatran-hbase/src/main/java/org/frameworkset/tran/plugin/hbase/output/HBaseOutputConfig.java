@@ -37,7 +37,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class HBaseOutputConfig extends HBasePluginConfig implements OutputConfig {
+public class HBaseOutputConfig extends HBasePluginConfig<HBaseOutputConfig> implements OutputConfig<HBaseOutputConfig> {
 
 	private Map<String, List<FamilyColumnMapping>> familyColumnMappings;
 	private String rowKeyField;

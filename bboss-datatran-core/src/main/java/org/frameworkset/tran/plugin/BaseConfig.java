@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author biaoping.yin
  * @version 1.0
  */
-public abstract class BaseConfig  extends FieldMappingManager implements ConfigId {
+public abstract class BaseConfig<T extends BaseConfig>  extends FieldMappingManager<T> implements ConfigId<T> {
     private static final Logger log_ = LoggerFactory.getLogger(BaseConfig.class);
     protected String pluginNo;
     /**
@@ -46,13 +46,15 @@ public abstract class BaseConfig  extends FieldMappingManager implements ConfigI
     public boolean isMultiOutputTran(){
         return multiOutputTran;
     }
-    public void setMultiOutputTran(boolean multiOutputTran){
+    public T setMultiOutputTran(boolean multiOutputTran){
         this.multiOutputTran = multiOutputTran;
+        return (T)this;
     }
 
     @Override
-    public void setId(String id){
+    public T setId(String id){
         this.id = id;
+        return (T)this;
     }
     @Override
     public String getId(){
@@ -75,8 +77,9 @@ public abstract class BaseConfig  extends FieldMappingManager implements ConfigI
         return outputPlugin;
     }
 
-    public void setOutputPlugin(OutputPlugin outputPlugin) {
+    public T setOutputPlugin(OutputPlugin outputPlugin) {
         this.outputPlugin = outputPlugin;
+        return (T)this;
     }
 
     public boolean isSortedDefault(){
@@ -87,8 +90,9 @@ public abstract class BaseConfig  extends FieldMappingManager implements ConfigI
 	}
 
 
-    public void setPluginNo(String pluginNo) {
+    public T setPluginNo(String pluginNo) {
         this.pluginNo = pluginNo;
+        return (T)this;
     }
     public void destroyExportResultHandler(){
         try {

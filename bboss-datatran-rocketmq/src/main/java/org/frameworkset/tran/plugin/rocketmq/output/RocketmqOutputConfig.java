@@ -40,7 +40,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class RocketmqOutputConfig extends BaseConfig implements OutputConfig {
+public class RocketmqOutputConfig extends BaseConfig<RocketmqOutputConfig> implements OutputConfig<RocketmqOutputConfig> {
 	private Map<String,Object> productConfigs = null;
 	public static final String metricKey_rocketmqoutputplugin = "rocketmqoutputplugin";
 	/**

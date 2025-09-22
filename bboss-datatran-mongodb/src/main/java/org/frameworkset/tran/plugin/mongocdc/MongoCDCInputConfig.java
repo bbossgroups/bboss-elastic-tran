@@ -34,7 +34,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfig {
+public class MongoCDCInputConfig extends BaseMongoDBConfig<MongoCDCInputConfig> implements InputConfig<MongoCDCInputConfig> {
 
 	private String replicaSet;
 
@@ -243,12 +243,12 @@ public class MongoCDCInputConfig extends BaseMongoDBConfig implements InputConfi
 	}
 
 	@Override
-	public BaseMongoDBConfig setDbCollection(String dbCollection) {
+	public MongoCDCInputConfig setDbCollection(String dbCollection) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public BaseMongoDBConfig setDb(String db) {
+	public MongoCDCInputConfig setDb(String db) {
 		throw new UnsupportedOperationException();
 	}
 }

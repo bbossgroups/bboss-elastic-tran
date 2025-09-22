@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow.builder;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.jobflow.NodeTrigger;
@@ -31,7 +32,7 @@ import java.util.List;
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public abstract class JobFlowNodeBuilder {
+public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
 
     protected JobFlowNodeBuilder parentJobFlowNodeBuilder;
     
@@ -65,27 +66,31 @@ public abstract class JobFlowNodeBuilder {
     }
 
     public JobFlowNodeBuilder(){
-         
+        this.nodeId = SimpleStringUtil.getUUID32();
+        this.nodeName = this.getClass().getName() + ":" + nodeName;
     }
 
-    public JobFlowNodeBuilder addJobFlowNodeListener(JobFlowNodeListener jobFlowNodeListener){
+ 
+
+    public T addJobFlowNodeListener(JobFlowNodeListener jobFlowNodeListener){
         if(jobFlowNodeListeners == null){
             jobFlowNodeListeners = new ArrayList<>();
         }
         jobFlowNodeListeners.add(jobFlowNodeListener);
-        return this;
+        return (T)this;
     }
-    protected void setParentJobFlowNodeBuilder(JobFlowNodeBuilder parentJobFlowNodeBuilder) {
+    protected T setParentJobFlowNodeBuilder(JobFlowNodeBuilder parentJobFlowNodeBuilder) {
         this.parentJobFlowNodeBuilder = parentJobFlowNodeBuilder;
+        return (T)this;
     }
     /**
      * 设置节点的触发器构建器，如果总触发器不成立，如果是复合节点，在不执行nodeBuilders中的所有子任务，每个子任务都可以有自己的触发器，如果简单作业节点则不执行简单作业节点
      * @param nodeTriggerCreate
      * @return
      */
-    public JobFlowNodeBuilder setNodeTriggerCreate(NodeTriggerCreate nodeTriggerCreate){
+    public T setNodeTriggerCreate(NodeTriggerCreate nodeTriggerCreate){
         this.nodeTriggerCreate = nodeTriggerCreate;
-        return this;
+        return (T)this;
     }
     public JobFlowNodeBuilder getParentJobFlowNodeBuilder() {
         return parentJobFlowNodeBuilder;
@@ -102,9 +107,10 @@ public abstract class JobFlowNodeBuilder {
      * 添加后续节点构建器，如果存在则添加
      * @param nextJobFlowNodeBuilder
      */
-    protected void setNextJobFlowNodeBuilder(JobFlowNodeBuilder nextJobFlowNodeBuilder){
+    protected T setNextJobFlowNodeBuilder(JobFlowNodeBuilder nextJobFlowNodeBuilder){
         this.nextJobFlowNodeBuilder = nextJobFlowNodeBuilder;
         this.nextJobFlowNodeBuilder.setParentJobFlowNodeBuilder(this);
+        return (T)this;
     }
     
     public abstract JobFlowNode build(JobFlow jobFlow);
@@ -113,18 +119,18 @@ public abstract class JobFlowNodeBuilder {
         return nodeId;
     }
 
-    public JobFlowNodeBuilder setNodeId(String nodeId) {
+    public T setNodeId(String nodeId) {
         this.nodeId = nodeId;
-        return this;
+        return (T)this;
     }
 
     public String getNodeName() {
         return nodeName;
     }
 
-    public JobFlowNodeBuilder setNodeName(String nodeName) {
+    public T setNodeName(String nodeName) {
         this.nodeName = nodeName;
-        return this;
+        return (T)this;
     }
 
 
@@ -133,9 +139,9 @@ public abstract class JobFlowNodeBuilder {
      * @param nodeTrigger
      * @return
      */
-    public JobFlowNodeBuilder setNodeTrigger(NodeTrigger nodeTrigger) {
+    public T setNodeTrigger(NodeTrigger nodeTrigger) {
         this.nodeTrigger = nodeTrigger;
-        return this;
+        return (T)this;
     }
 
     public NodeTrigger getNodeTrigger() {

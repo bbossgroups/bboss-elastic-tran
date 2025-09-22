@@ -43,7 +43,7 @@ import static org.frameworkset.tran.metrics.job.MetricsConfig.DEFAULT_metricsInt
  * @author biaoping.yin
  * @version 1.0
  */
-public class MySQLBinlogConfig extends BaseConfig implements InputConfig {
+public class MySQLBinlogConfig extends BaseConfig<MySQLBinlogConfig> implements InputConfig<MySQLBinlogConfig> {
     private static Logger logger = LoggerFactory.getLogger(MySQLBinlogConfig.class);
     private String host;
     private int port;

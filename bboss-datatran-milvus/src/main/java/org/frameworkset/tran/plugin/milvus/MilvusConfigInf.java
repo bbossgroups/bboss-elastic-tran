@@ -25,7 +25,7 @@ import org.frameworkset.nosql.milvus.CustomConnectConfigBuilder;
  * @author biaoping.yin
  * @Date 2024/11/29
  */
-public interface MilvusConfigInf {
+public interface MilvusConfigInf<T extends MilvusConfigInf> {
     public String getName() ;
 
     public String getCollectionName();

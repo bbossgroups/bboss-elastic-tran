@@ -17,7 +17,7 @@ import java.io.File;
  * @description
  * @create 2021/3/12
  */
-public class CSVFileInputConfig extends FileInputConfig {
+public class CSVFileInputConfig extends FileInputConfig<CSVFileInputConfig> {
 
     @Override
     public FileReaderTask buildFileReaderTask(TaskContext taskContext, File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,

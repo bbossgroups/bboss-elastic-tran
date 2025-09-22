@@ -18,6 +18,8 @@ package org.frameworkset.tran.ftp;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+import org.frameworkset.tran.jobflow.scan.JobFileFilter;
 
 import java.util.List;
 
@@ -31,10 +33,22 @@ import java.util.List;
  */
 public class DefaultFtpContextImpl  implements FtpContext {
 	protected FtpConfig ftpConfig ;
+    protected JobFlowNodeExecuteContext jobFlowNodeExecuteContext;
 	public DefaultFtpContextImpl(FtpConfig ftpConfig) {
 		this.ftpConfig = ftpConfig;
 	}
-	public boolean deleteRemoteFile(){
+
+    public DefaultFtpContextImpl(FtpConfig ftpConfig,JobFlowNodeExecuteContext jobFlowNodeExecuteContext) {
+        this.ftpConfig = ftpConfig;
+        this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
+    }
+
+    @Override
+    public JobFlowNodeExecuteContext getJobFlowNodeExecuteContext() {
+        return this.jobFlowNodeExecuteContext;
+    }
+
+    public boolean deleteRemoteFile(){
 		return this.ftpConfig.isDeleteRemoteFile();
 	}
 
@@ -158,8 +172,12 @@ public class DefaultFtpContextImpl  implements FtpContext {
 		return null;
 	}
 
+    @Override
+    public JobFileFilter getJobFileFilter() {
+        return null;
+    }
 
-	@Override
+    @Override
 	public FtpFileFilter getFtpFileFilter() {
 		return ftpConfig.getFtpFileFilter();
 	}

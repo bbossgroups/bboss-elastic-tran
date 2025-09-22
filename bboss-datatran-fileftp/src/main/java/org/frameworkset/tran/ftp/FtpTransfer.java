@@ -21,6 +21,8 @@ import org.apache.commons.net.io.CopyStreamListener;
 import org.apache.commons.net.util.TrustManagerUtils;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.input.file.FileFilter;
+import org.frameworkset.tran.input.file.SFTPFilterFileInfo;
+import org.frameworkset.tran.jobflow.scan.JobFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,23 +124,36 @@ public class FtpTransfer {
 	public static List<FTPFile> ls(final FtpContext fileFtpOupputContext) {
 		final List<FTPFile> files = new ArrayList<FTPFile>();
 		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
+        final JobFileFilter jobFileFilter = fileFtpOupputContext.getJobFileFilter();
 		handle(fileFtpOupputContext, new FTPAction() {
 
 			@Override
 			public void execute(FTPClient ftp) throws IOException {
 				try {
 					FTPFile[] ftpFiles = null;
-					if(fileFilter == null){
-						ftpFiles = ftp.listFiles(fileFtpOupputContext.getRemoteFileDir());
-					}
-					else{
-						ftpFiles = ftp.listFiles(fileFtpOupputContext.getRemoteFileDir(), new FTPFileFilter() {
-							@Override
-							public boolean accept(FTPFile file) {
+					if(fileFilter != null){
+                        ftpFiles = ftp.listFiles(fileFtpOupputContext.getRemoteFileDir(), new FTPFileFilter() {
+                            @Override
+                            public boolean accept(FTPFile file) {
+                                return fileFilter.accept(new FTPFilterFileInfo(fileFtpOupputContext.getRemoteFileDir(),file),fileFtpOupputContext.getFileConfig());                               
 
-								return fileFilter.accept(new FTPFilterFileInfo(fileFtpOupputContext.getRemoteFileDir(),file),fileFtpOupputContext.getFileConfig());
-							}
-						});
+                            }
+                        });
+						
+					}
+                    else if(jobFileFilter != null){
+                        ftpFiles = ftp.listFiles(fileFtpOupputContext.getRemoteFileDir(), new FTPFileFilter() {
+                            @Override
+                            public boolean accept(FTPFile file) {
+                                
+
+                                    return jobFileFilter.accept(new FTPFilterFileInfo(fileFtpOupputContext.getRemoteFileDir(),file),fileFtpOupputContext.getJobFlowNodeExecuteContext());
+
+                            }
+                        });
+                    }
+					else{
+                        ftpFiles = ftp.listFiles(fileFtpOupputContext.getRemoteFileDir());
 					}
 
 					files.addAll(Arrays.asList(ftpFiles));
@@ -158,23 +173,36 @@ public class FtpTransfer {
 	public static List<FTPFile> ls(final String remoteDir,final FtpContext fileFtpOupputContext) {
 		final List<FTPFile> files = new ArrayList<FTPFile>();
 		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
+        final JobFileFilter jobFileFilter = fileFtpOupputContext.getJobFileFilter();
 		handle(fileFtpOupputContext, new FTPAction() {
 
 			@Override
 			public void execute(FTPClient ftp) throws IOException {
 				try {
 					FTPFile[] ftpFiles = null;
-					if(fileFilter == null){
-						ftpFiles = ftp.listFiles(remoteDir);
-					}
-					else{
-						ftpFiles = ftp.listFiles(remoteDir, new FTPFileFilter() {
-							@Override
-							public boolean accept(FTPFile file) {
+					if(fileFilter != null){
+                        ftpFiles = ftp.listFiles(remoteDir, new FTPFileFilter() {
+                            @Override
+                            public boolean accept(FTPFile file) {
 
-								return fileFilter.accept(new FTPFilterFileInfo(remoteDir,file),fileFtpOupputContext.getFileConfig());
-							}
-						});
+                                    return fileFilter.accept(new FTPFilterFileInfo(remoteDir,file),fileFtpOupputContext.getFileConfig());
+
+                            }
+                        });
+						
+					}
+                    else if(jobFileFilter != null){
+                        ftpFiles = ftp.listFiles(remoteDir, new FTPFileFilter() {
+                            @Override
+                            public boolean accept(FTPFile file) {
+
+                                    return jobFileFilter.accept(new FTPFilterFileInfo(remoteDir,file),fileFtpOupputContext.getJobFlowNodeExecuteContext());
+
+                            }
+                        });
+                    }
+					else{
+                        ftpFiles = ftp.listFiles(remoteDir);
 					}
 
 					files.addAll(Arrays.asList(ftpFiles));

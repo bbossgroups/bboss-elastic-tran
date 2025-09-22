@@ -18,6 +18,8 @@ package org.frameworkset.tran.ftp;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+import org.frameworkset.tran.jobflow.scan.JobFileFilter;
 
 import java.util.List;
 
@@ -29,36 +31,38 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface FtpContext {
+public interface FtpContext<T extends FtpContext> {
 	String getFtpIP();
 	int getFtpPort();
 	FtpConfig getFtpConfig();
 	FileConfig getFileConfig();
+    JobFlowNodeExecuteContext getJobFlowNodeExecuteContext();
 	String getRemoteFileDir();
 
-	public String getFtpUser() ;
+	String getFtpUser() ;
 
-	public String getFtpPassword() ;
-	public List<String> getHostKeyVerifiers();
+	String getFtpPassword() ;
+	List<String> getHostKeyVerifiers();
 
-	public String getFtpProtocol();
-	public String getFtpTrustmgr();
-	public Boolean localActive();
-	public Boolean useEpsvWithIPv4();
-	public int getTransferProtocol();
-	public String getFtpProxyHost();
-	public int getFtpProxyPort();
-	public String getFtpProxyUser();
-	public String getFtpProxyPassword();
-	public boolean printHash();
-	public Boolean binaryTransfer();
-	public long getKeepAliveTimeout();
-	public long getSocketTimeout();
-	public long getConnectTimeout();
+	String getFtpProtocol();
+	String getFtpTrustmgr();
+	Boolean localActive();
+	Boolean useEpsvWithIPv4();
+	int getTransferProtocol();
+	String getFtpProxyHost();
+	int getFtpProxyPort();
+	String getFtpProxyUser();
+	String getFtpProxyPassword();
+	boolean printHash();
+	Boolean binaryTransfer();
+	long getKeepAliveTimeout();
+	long getSocketTimeout();
+	long getConnectTimeout();
 
 
-	public int getControlKeepAliveReplyTimeout();
+	int getControlKeepAliveReplyTimeout();
 	FileFilter getFileFilter();
+    JobFileFilter getJobFileFilter();
 	FtpFileFilter getFtpFileFilter();
 
 	String getEncoding();

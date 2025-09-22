@@ -16,7 +16,7 @@ import java.io.File;
  * @description
  * @create 2021/3/12
  */
-public class WordFileInputConfig extends FileInputConfig {
+public class WordFileInputConfig extends FileInputConfig<WordFileInputConfig> {
 
     @Override
     public FileReaderTask buildFileReaderTask(TaskContext taskContext, File file, String fileId, FileConfig fileConfig, long pointer, FileListenerService fileListenerService, BaseDataTran fileDataTran,

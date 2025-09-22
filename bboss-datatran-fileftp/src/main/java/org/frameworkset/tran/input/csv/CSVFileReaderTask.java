@@ -9,6 +9,7 @@ import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.Record;
+import org.frameworkset.tran.input.file.CustomFileReader;
 import org.frameworkset.tran.input.file.FileListenerService;
 import org.frameworkset.tran.input.file.FileLogRecord;
 import org.frameworkset.tran.input.file.FileReaderTask;
@@ -100,9 +101,16 @@ public class CSVFileReaderTask extends FileReaderTask {
 //            synchronized (this){  单线程处理，无需同步处理
 
 			if (reader == null) {
-                 reader = new CSVReaderBuilder(new FileReader(file))
-                        .withCSVParser(CSV_PARSER) // 复用已定义的 CSV_PARSER
-                        .build();
+                if(csvFileConfig.getCharset() != null) {
+                    reader = new CSVReaderBuilder(new CustomFileReader(file,csvFileConfig.getCharset()))
+                            .withCSVParser(CSV_PARSER) // 复用已定义的 CSV_PARSER
+                            .build();
+                }
+                else{
+                    reader = new CSVReaderBuilder(new CustomFileReader(file))
+                            .withCSVParser(CSV_PARSER) // 复用已定义的 CSV_PARSER
+                            .build();
+                }
                  
              
 

@@ -26,7 +26,7 @@ import org.frameworkset.tran.plugin.InputPlugin;
  * @author biaoping.yin
  * @version 1.0
  */
-public class Kafka1InputConfig extends KafkaInputConfig {
+public class Kafka1InputConfig extends KafkaInputConfig<Kafka1InputConfig> {
 
 
 	@Override

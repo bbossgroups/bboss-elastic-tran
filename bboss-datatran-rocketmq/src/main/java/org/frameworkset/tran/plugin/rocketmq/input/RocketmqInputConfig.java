@@ -36,7 +36,7 @@ import static org.frameworkset.tran.metrics.job.MetricsConfig.DEFAULT_metricsInt
  * @author biaoping.yin
  * @version 1.0
  */
-public class RocketmqInputConfig extends BaseConfig implements InputConfig {
+public class RocketmqInputConfig extends BaseConfig<RocketmqInputConfig> implements InputConfig<RocketmqInputConfig> {
 	private Map<String,Object> consumerConfigs = null;
     private String accessKey;
     private String secretKey;

@@ -34,7 +34,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface OutputConfig  extends ConfigId{
+public interface OutputConfig<T extends OutputConfig>  extends ConfigId<T>{
 	public void build(ImportContext importContext,ImportBuilder importBuilder);
     
 
@@ -42,7 +42,7 @@ public interface OutputConfig  extends ConfigId{
     }
      
     public boolean isMultiOutputTran();
-    public void setMultiOutputTran(boolean multiOutputTran);
+    public T setMultiOutputTran(boolean multiOutputTran);
     /**
      * 根据上下文配置创建OutputPlugin
      * @param importContext
@@ -55,7 +55,7 @@ public interface OutputConfig  extends ConfigId{
      */
     OutputPlugin getOutputPlugin();
 
-    void setOutputPlugin(OutputPlugin outputPlugin);
+    T setOutputPlugin(OutputPlugin outputPlugin);
     
 	public WrapedExportResultHandler buildExportResultHandler(ExportResultHandler exportResultHandler);
 
@@ -65,7 +65,7 @@ public interface OutputConfig  extends ConfigId{
     default public List<ETLMetrics> getMetrics() {
         return null;
     }
-    public void setPluginNo(String pluginNo) ;
+    public T setPluginNo(String pluginNo) ;
 
     public String getPluginNo();
 

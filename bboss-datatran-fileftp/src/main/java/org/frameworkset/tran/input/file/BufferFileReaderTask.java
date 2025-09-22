@@ -387,12 +387,12 @@ public class BufferFileReaderTask extends FileReaderTask{
         if (arrPos == 0)
             return null;
         try {
-            if(fileInfo.getCharsetEncode() != null)
-                return new String(arr, 0, arrPos,fileInfo.getCharsetEncode());
+            if(fileInfo.getCharset() != null)
+                return new String(arr, 0, arrPos,fileInfo.getCharset());
             else{
                 return new String(arr, 0, arrPos);
             }
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
           throw new FilelogPluginException("decode line data failed:",e);
         }
     }

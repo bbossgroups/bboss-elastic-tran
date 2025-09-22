@@ -15,6 +15,8 @@ package org.frameworkset.tran.input.file;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+
 /**
  * <p>Description: 判断是否采集文件数据</p>
  * <p></p>
@@ -23,7 +25,7 @@ package org.frameworkset.tran.input.file;
  * @author biaoping.yin
  * @version 1.0
  */
-public interface FileFilter {
+public interface FileFilter   {
 
 	/**
 	 * 判断是否采集文件数据，返回true标识采集，false 不采集
@@ -32,4 +34,6 @@ public interface FileFilter {
 	 * @return
 	 */
 	boolean accept(FilterFileInfo fileInfo,FileConfig fileConfig);
+
+ 
 }
