@@ -18,7 +18,7 @@ package org.frameworkset.tran.jobflow;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 
 /**
- * 记录已经下载文件的记录
+ * 文件下载情况记录
  * @author biaoping.yin
  * @Date 2025/9/22
  */
@@ -28,8 +28,9 @@ public interface DownloadedFileRecord {
      * 记录下载文件之前
      * @param downloadFileMetrics
      * @param jobFlowNodeExecuteContext
+     * @return 根据返回值控制是否继续下载文件，true:下载，false:停止下载
      */
-    void recordBeforeDownload(DownloadFileMetrics downloadFileMetrics , JobFlowNodeExecuteContext jobFlowNodeExecuteContext);
+    boolean recordBeforeDownload(DownloadFileMetrics downloadFileMetrics , JobFlowNodeExecuteContext jobFlowNodeExecuteContext);
     /**
      * 记录下载文件之后
      * @param downloadFileMetrics

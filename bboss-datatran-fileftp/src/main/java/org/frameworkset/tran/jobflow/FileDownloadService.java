@@ -284,7 +284,8 @@ public class FileDownloadService {
             downloadFileMetrics.setLocalFilePath(handleFile.getAbsolutePath());
             downloadFileMetrics.setRemoteFilePath(remoteFile);
             try {
-                
+                if(!downloadedFileRecord.recordBeforeDownload(downloadFileMetrics,jobFlowNodeExecuteContext))
+                    return;
                 /**
                  * 支持断点续传
                  */
@@ -312,7 +313,7 @@ public class FileDownloadService {
                          
                         long start = System.currentTimeMillis();
                        
-                        downloadedFileRecord.recordBeforeDownload(downloadFileMetrics,jobFlowNodeExecuteContext);
+                      
                         remoteFileAction.downloadFile(localFile.getAbsolutePath(), remoteFile);
                        
                         long elapsed = System.currentTimeMillis() - start ;

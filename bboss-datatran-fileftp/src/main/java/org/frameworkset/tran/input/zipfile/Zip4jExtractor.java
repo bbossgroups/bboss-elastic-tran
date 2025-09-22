@@ -40,6 +40,10 @@ public class Zip4jExtractor {
         if (zipFile.isEncrypted()) {
             zipFile.setPassword(password.toCharArray());
         }
+//        // 检查ZIP文件是否分卷
+//        if(zipFile.isSplitArchive()){
+//            // 合并分卷文件
+//        }
         zipFile.extractAll(destDirectory);
     }
 

@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 记录已经下载文件的记录
+ * 记录已经下载文件记录到日志文件中，默认实现方式，用户可以自行实现自己的记录下载
  * @author biaoping.yin
  * @Date 2025/9/22
  */
@@ -35,9 +35,10 @@ public class DefaultDownloadedFileRecord implements DownloadedFileRecord{
      * @param jobFlowNodeExecuteContext
      */
     @Override
-    public void recordBeforeDownload(DownloadFileMetrics downloadFileMetrics ,  JobFlowNodeExecuteContext jobFlowNodeExecuteContext) {
+    public boolean recordBeforeDownload(DownloadFileMetrics downloadFileMetrics ,  JobFlowNodeExecuteContext jobFlowNodeExecuteContext) {
         logger.info("Record before download remoteFilePath:{},localFilePath:{},nodeId:{},nodeName:{}",
                 downloadFileMetrics.getRemoteFilePath(), downloadFileMetrics.getLocalFilePath(), jobFlowNodeExecuteContext.getNodeId(), jobFlowNodeExecuteContext.getNodeName());
+        return true;
     }
 
     public void recordAfterDownload(DownloadFileMetrics downloadFileMetrics , JobFlowNodeExecuteContext jobFlowNodeExecuteContext, Throwable exception){
