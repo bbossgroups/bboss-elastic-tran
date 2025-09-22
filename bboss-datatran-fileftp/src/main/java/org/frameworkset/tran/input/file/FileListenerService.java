@@ -748,6 +748,9 @@ public class FileListenerService {
                 throw new FileDownException("下载文件"+remoteFile + "到"+handleFile.getAbsolutePath()+"失败",e);
             }
         }
+        else{
+            logger.info("文件：{}已存在，忽略下载",handleFile.getAbsolutePath());
+        }
 
         if(!handleFile.exists()){
             logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteFile,handleFile.getAbsolutePath());

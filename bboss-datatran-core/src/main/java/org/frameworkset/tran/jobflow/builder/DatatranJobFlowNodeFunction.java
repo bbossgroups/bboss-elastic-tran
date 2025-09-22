@@ -29,19 +29,38 @@ public class DatatranJobFlowNodeFunction implements JobFlowNodeFunction {
     private JobFlowNode jobFlowNode;
     private ImportBuilder importBuilder;
     private DataStream dataStream;
+
+    protected ImportBuilderFunction importBuilderFunction;
     @Override
     public void init(JobFlowNode jobFlowNode) {
         this.jobFlowNode = jobFlowNode;
-        importBuilder.setJobFlowNode(jobFlowNode);
+        if(importBuilder != null) {
+            importBuilder.setJobFlowNode(jobFlowNode);
+        }
     }
 
     public void setImportBuilder(ImportBuilder importBuilder) {
         this.importBuilder = importBuilder;
     }
 
+    public void setImportBuilderFunction(ImportBuilderFunction importBuilderFunction) {
+        this.importBuilderFunction = importBuilderFunction;
+    }
+
     @Override
     public Object call(JobFlowNodeExecuteContext jobFlowNodeExecuteContext) {
-         dataStream = importBuilder.builder(true);
+        ImportBuilder _importBuilder = null;
+         if(importBuilderFunction != null){
+             _importBuilder = importBuilderFunction.build(jobFlowNodeExecuteContext);
+             if(_importBuilder != null) {
+                 _importBuilder.setJobFlowNode(jobFlowNode);
+             }
+         }
+         else{
+             _importBuilder = importBuilder;
+         }
+         
+         dataStream = _importBuilder.builder(true);
          dataStream.execute();
          return true;
     }

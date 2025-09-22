@@ -19,6 +19,8 @@ import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.input.s3.OSSFileInputConfig;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.frameworkset.tran.jobflow.scan.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author biaoping.yin
@@ -26,11 +28,13 @@ import org.frameworkset.tran.jobflow.scan.*;
  */
 public class DownloadJobFlowNodeFunction implements JobFlowNodeFunction{
 
+    private static Logger logger = LoggerFactory.getLogger(DownloadJobFlowNodeFunction.class);
     private RemoteFileInputJobFlowNodeBuilder remoteFileInputJobFlowNodeBuilder;
     private JobFlowNode jobFlowNode;
     private FileDownloadService fileDownloadService;
     private FtpConfig ftpConfig;
     private OSSFileInputConfig ossFileInputConfig;
+    
 
     public void setRemoteFileInputJobFlowNodeBuilder(RemoteFileInputJobFlowNodeBuilder remoteFileInputJobFlowNodeBuilder) {
         this.remoteFileInputJobFlowNodeBuilder = remoteFileInputJobFlowNodeBuilder;
@@ -107,7 +111,7 @@ public class DownloadJobFlowNodeFunction implements JobFlowNodeFunction{
      */
     @Override
     public void reset() {
-
+        logger.info("execute relase");
     }
 
     /**
@@ -115,12 +119,7 @@ public class DownloadJobFlowNodeFunction implements JobFlowNodeFunction{
      */
     @Override
     public void release() {
-        if(ftpConfig != null){
-            ftpConfig.destroy();
-        }
-        if(ossFileInputConfig != null){
-            ossFileInputConfig.destroy();
-        }
+        logger.info("execute relase");
     }
 
     /**
@@ -128,6 +127,11 @@ public class DownloadJobFlowNodeFunction implements JobFlowNodeFunction{
      */
     @Override
     public void stop() {
-
+        if(ftpConfig != null){
+            ftpConfig.destroy();
+        }
+        if(ossFileInputConfig != null){
+            ossFileInputConfig.destroy();
+        }
     }
 }

@@ -60,6 +60,8 @@ dependencies {
     api (group: 'com.opencsv', name: 'opencsv', version: '5.12.0'){
         exclude group: 'org.apache.commons', module: 'commons-lang3'
     }
+    api (group: 'net.lingala.zip4j', name: 'zip4j', version: '2.11.5')
+
     api([group: 'com.bbossgroups', name: 'bboss-data', version: "${PROJ_BBOSS_DATA_VERSION}", transitive: true])
 //    compileOnly (group: 'io.minio', name: 'minio', version: '8.5.17'){
 //        exclude group: 'com.fasterxml.jackson.jaxrs', module: 'jackson-jaxrs-json-provider'
@@ -76,4 +78,5 @@ dependencies {
 //	compile 'commons-io:commons-io:2.8.0'
 //	compile group: 'commons-io', name: 'commons-io', version: '2.8.0',transitive: true
 }
+
 

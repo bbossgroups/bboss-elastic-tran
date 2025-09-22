@@ -136,6 +136,7 @@ public class OSSFileInputConfig extends RemoteContext<OSSFileInputConfig> {
         if(!f.exists())
             f.mkdirs();
         initOSSClient();
+        super.initJob();
         if(remoteFileChannel == null && getDownloadWorkThreads() > 0) {
             remoteFileChannel = new RemoteFileChannel();
             //用远程文件路径作为线程池名称

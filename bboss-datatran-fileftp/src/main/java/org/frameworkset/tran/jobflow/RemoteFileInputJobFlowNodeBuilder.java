@@ -47,6 +47,7 @@ public class RemoteFileInputJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<
     private String fileNameRegular;
     private Pattern fileNameRexPattern = null;
     
+    private DownloadedFileRecord downloadedFileRecord;
  
    
  
@@ -108,6 +109,8 @@ public class RemoteFileInputJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<
         
         return downloadJobFlowNodeFunction;
     }
+
+    
 
     /**
      * 设置FTP/SFTP远程文件采集配置：包括FTP/SFTP服务器配置，远程文件目录，下载文件目录，下载文件数量，是否删除已经下载的远程文件

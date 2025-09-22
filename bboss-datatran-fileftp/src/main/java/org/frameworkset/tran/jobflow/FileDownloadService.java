@@ -12,6 +12,7 @@ import org.frameworkset.tran.input.file.DownAction;
 import org.frameworkset.tran.input.file.FileCheckResult;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
 import org.frameworkset.tran.input.s3.OSSFileInputConfig;
+import org.frameworkset.tran.input.zipfile.Zip4jExtractor;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -186,6 +187,8 @@ public class FileDownloadService {
 
         return fileCheckResult;
     }
+    
+    
     /**
      *
      * @param relativeParentDir
@@ -276,8 +279,12 @@ public class FileDownloadService {
          * 如果处理文件不存在，则下载文件到本地临时目录,下载后重命名为正式处理文件，避免因下载中断处理不完整文件问题
          */
         if(!handleFile.exists()) {
-
+            DownloadedFileRecord downloadedFileRecord = ftpContext.getDownloadedFileRecord();
+            DownloadFileMetrics downloadFileMetrics = new DownloadFileMetrics();
+            downloadFileMetrics.setLocalFilePath(handleFile.getAbsolutePath());
+            downloadFileMetrics.setRemoteFilePath(remoteFile);
             try {
+                
                 /**
                  * 支持断点续传
                  */
@@ -304,9 +311,12 @@ public class FileDownloadService {
                          
                          
                         long start = System.currentTimeMillis();
+                       
+                        downloadedFileRecord.recordBeforeDownload(downloadFileMetrics,jobFlowNodeExecuteContext);
                         remoteFileAction.downloadFile(localFile.getAbsolutePath(), remoteFile);
+                       
                         long elapsed = System.currentTimeMillis() - start ;
-                        
+                        downloadFileMetrics.setElapsed(elapsed);
                         if (!localFile.exists()) {
                             
                             if (!redown) {
@@ -338,6 +348,8 @@ public class FileDownloadService {
                 downAction.down(-1, false);
                 if (!localFile.exists()) {
                     removeDownTrace(fileId);
+                    downloadFileMetrics.setMessage("localFile not exists:"+localFile.getAbsolutePath());
+                    downloadedFileRecord.recordAfterDownload(downloadFileMetrics,jobFlowNodeExecuteContext,null);
                     return;
                 }
 
@@ -345,18 +357,19 @@ public class FileDownloadService {
                     long startTime = System.currentTimeMillis();
                     RemoteFileValidate.Result result = remoteFileValidate(remoteFile, localFile, ftpContext, remoteFileAction, downAction, false);
                     long endTime = System.currentTimeMillis();
-                    
+                    downloadFileMetrics.setValidateElapsed(endTime - startTime);
                     if (!result.isOk()) {
                         StringBuilder builder = new StringBuilder();
                         builder.append("文件校验失败：localPath:")
                                 .append(localFile.getAbsolutePath()).append(",remotePath:")
                                 .append(remoteFile).append(",校验耗时：")
-                                .append(endTime - startTime).append("毫秒，失败原因：").append(result.getMessage());
+                                .append(downloadFileMetrics.getValidateElapsed()).append("毫秒，失败原因：").append(result.getMessage());
                         String msg = builder.toString();
                         logger.warn(msg);
 
 //                        dataTranPlugin.reportJobMetricWarn(taskContext,msg);
                         removeDownTrace(fileId);
+                        downloadFileMetrics.setMessage(msg);
                         return;
                     }
                     else{
@@ -364,7 +377,7 @@ public class FileDownloadService {
                         builder.append("文件校验成功：localPath:")
                                 .append(localFile.getAbsolutePath()).append(",remotePath:")
                                 .append(remoteFile).append(",校验耗时：")
-                                .append(endTime - startTime).append("毫秒 ");
+                                .append(downloadFileMetrics.getValidateElapsed()).append("毫秒 ");
                         String msg = builder.toString();
                         logger.info(msg);
 //                        if(taskContext != null) {
@@ -376,6 +389,21 @@ public class FileDownloadService {
                 if (renamesuccess) {
                     if (logger.isInfoEnabled())
                         logger.info("Rename " + localFile.getAbsolutePath() + " to " + handleFile.getAbsolutePath());
+                    //开始解压文件：
+                    if(ftpContext.isUnzip()){
+                        logger.info("Start unzip file:"+handleFile.getAbsolutePath());
+                        long startTime = System.currentTimeMillis();
+                        Zip4jExtractor.extractEncryptedZip(handleFile,ftpContext.getUnzipDir(),ftpContext.getZipFilePassward());
+                        long endTime = System.currentTimeMillis();
+                        downloadFileMetrics.setUnzipElapsed(endTime - startTime);
+                        if(ftpContext.isDeleteZipFileAfterUnzip()){
+                            handleFile.delete();
+                            if(logger.isInfoEnabled())
+                                logger.info("Delete zip file:"+handleFile.getAbsolutePath());
+                        }
+                    }
+                    downloadedFileRecord.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,null);
+                    
                 } else {
                     removeDownTrace(fileId);
                     StringBuilder builder = new StringBuilder();
@@ -387,17 +415,26 @@ public class FileDownloadService {
 
 //                    dataTranPlugin.reportJobMetricWarn(taskContext,msg);
                     logger.warn(msg);
+                    downloadFileMetrics.setMessage(msg);
+                    downloadedFileRecord.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,null);
                     return;
                 }
             }
             catch (Exception e){
                 removeDownTrace(fileId);
-                throw new FileDownException("下载文件"+remoteFile + "到"+handleFile.getAbsolutePath()+"失败",e);
+                downloadFileMetrics.setMessage("下载文件"+remoteFile + "到"+handleFile.getAbsolutePath()+"失败");
+                downloadedFileRecord.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,e);
+                throw new FileDownException(downloadFileMetrics.getMessage(),e);
             }
             catch (Throwable e){
                 removeDownTrace(fileId);
-                throw new FileDownException("下载文件"+remoteFile + "到"+handleFile.getAbsolutePath()+"失败",e);
+                downloadFileMetrics.setMessage("下载文件"+remoteFile + "到"+handleFile.getAbsolutePath()+"失败");
+                downloadedFileRecord.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,e);
+                throw new FileDownException(downloadFileMetrics.getMessage(),e);
             }
+        }
+        else{
+            logger.info("文件：{}已存在，忽略下载",handleFile.getAbsolutePath());
         }
 
         if(!handleFile.exists()){

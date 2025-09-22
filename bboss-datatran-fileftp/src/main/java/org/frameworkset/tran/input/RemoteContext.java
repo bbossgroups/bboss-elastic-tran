@@ -19,7 +19,8 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.ftp.RemoteFileValidate;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
-import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+import org.frameworkset.tran.jobflow.DefaultDownloadedFileRecord;
+import org.frameworkset.tran.jobflow.DownloadedFileRecord;
 import org.frameworkset.tran.plugin.file.BaseRemoteConfig;
 
 /**
@@ -36,13 +37,54 @@ public abstract class RemoteContext<T extends RemoteContext> extends BaseRemoteC
      * 工作流节点需要进行配置:设置本地文件存放路径
      */
     protected String sourcePath;
+    protected String zipFilePassward;
+    
+    /**
+     * 是否解压文件
+     */
+    protected boolean unzip ;
+    /**
+     * 文件解压目录
+     */
+    protected String unzipDir;
+    /**
+     * 解压后是否删除zip文件
+     */
+    protected boolean deleteZipFileAfterUnzip = true;
     protected RemoteFileChannel remoteFileChannel;
 
 
 
     protected boolean deleteRemoteFile;
+    protected DownloadedFileRecord downloadedFileRecord;
     public FileConfig getFileConfig() {
         return fileConfig;
+    }
+    public DownloadedFileRecord getDownloadedFileRecord() {
+        return downloadedFileRecord;
+    }
+    public T setDownloadedFileRecord(DownloadedFileRecord downloadedFileRecord) {
+        this.downloadedFileRecord = downloadedFileRecord;
+        return (T)this;
+    }
+    
+    protected void initJob(){
+        if(downloadedFileRecord == null){
+            downloadedFileRecord = new DefaultDownloadedFileRecord();
+        }
+    }
+    /**
+     * 解压后是否删除zip文件，默认为true
+     * @param deleteZipFileAfterUnzip
+     * @return
+     */
+    public T setDeleteZipFileAfterUnzip(boolean deleteZipFileAfterUnzip) {
+        this.deleteZipFileAfterUnzip = deleteZipFileAfterUnzip;
+        return (T)this;
+    }
+
+    public boolean isDeleteZipFileAfterUnzip() {
+        return deleteZipFileAfterUnzip;
     }
 
     /**
@@ -53,11 +95,37 @@ public abstract class RemoteContext<T extends RemoteContext> extends BaseRemoteC
         return sourcePath;
     }
 
+    public String getUnzipDir() {
+        return unzipDir;
+    }
+
+    public T setUnzipDir(String unzipDir) {
+        this.unzipDir = unzipDir;
+        return (T)this;
+    }
+
     public boolean isDeleteRemoteFile() {
         return deleteRemoteFile;
     }
-    
- 
+
+    public T setUnzip(boolean unzip) {
+        this.unzip = unzip;
+        return (T)this;
+    }
+
+    public boolean isUnzip() {
+        return unzip;
+    }
+
+    public String getZipFilePassward() {
+        return zipFilePassward;
+    }
+
+    public T setZipFilePassward(String zipFilePassward) {
+        this.zipFilePassward = zipFilePassward;
+        return (T)this;
+    }
+
     public String getRemoteFileDir() {
         return remoteFileDir;
     }

@@ -26,7 +26,7 @@ import org.frameworkset.tran.jobflow.JobFlowNodeFunction;
 public class DatatranJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<DatatranJobFlowNodeBuilder> {
 
 
- 
+    protected ImportBuilderFunction importBuilderFunction;
 
     /**
      * 串行节点作业配置
@@ -37,10 +37,15 @@ public class DatatranJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<Datatra
         super(nodeId, nodeName);        
     }
 
+    public DatatranJobFlowNodeBuilder() {
+        super();
+    }
+
     @Override
     protected JobFlowNodeFunction buildJobFlowNodeFunction() {
         DatatranJobFlowNodeFunction datatranJobFlowNodeFunction = new DatatranJobFlowNodeFunction()  ;
         datatranJobFlowNodeFunction.setImportBuilder(importBuilder);
+        datatranJobFlowNodeFunction.setImportBuilderFunction(importBuilderFunction);
         return datatranJobFlowNodeFunction;
     }
 
@@ -54,4 +59,8 @@ public class DatatranJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<Datatra
         return importBuilder;
     }
 
+    public DatatranJobFlowNodeBuilder setImportBuilderFunction(ImportBuilderFunction importBuilderFunction) {
+        this.importBuilderFunction = importBuilderFunction;
+        return this;
+    }
 }

@@ -51,7 +51,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author biaoping.yin
- * @Date 2025/8/27
+ * Date 2025/8/27
  */
 public class BinaryLogClientExt implements BinaryLogClientMXBean {
 
