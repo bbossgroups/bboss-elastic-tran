@@ -434,7 +434,8 @@ public class FileDownloadService {
             }
         }
         else{
-            logger.info("文件：{}已存在，忽略下载",handleFile.getAbsolutePath());
+            if(logger.isDebugEnabled())
+                logger.debug("文件：{}已存在，忽略下载",handleFile.getAbsolutePath());
         }
 
         if(!handleFile.exists()){

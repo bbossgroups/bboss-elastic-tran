@@ -748,8 +748,9 @@ public class FileListenerService {
                 throw new FileDownException("下载文件"+remoteFile + "到"+handleFile.getAbsolutePath()+"失败",e);
             }
         }
-        else{
-            logger.info("文件：{}已存在，忽略下载",handleFile.getAbsolutePath());
+        else {
+            if(logger.isDebugEnabled())
+                logger.debug("文件：{}已存在，忽略下载",handleFile.getAbsolutePath());
         }
 
         if(!handleFile.exists()){
