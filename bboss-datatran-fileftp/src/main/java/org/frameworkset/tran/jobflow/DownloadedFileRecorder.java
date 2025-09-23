@@ -26,6 +26,7 @@ public interface DownloadedFileRecorder {
 
     /**
      * 通过本方法记录下载文件信息，同时亦可以判断文件是否已经下载过，如果已经下载过则返回false，忽略下载，否则返回true允许下载
+     * 一般会持久化保存到数据库中
      * @param downloadFileMetrics
      * @param jobFlowNodeExecuteContext
      * @return 根据返回值控制是否继续下载文件，true:下载，false:停止下载

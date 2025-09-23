@@ -318,7 +318,9 @@ public class FileDataTranPluginImpl extends DataTranPluginImpl {
                     else {
                         fileListenerService.addCompletedFileTask(status.getFileId(), fileInputDataTranPlugin.buildFileReaderTask(status.getFileId()
                                 , status, fileInputConfig));
-                        logger.info("Ignore complete file {}",status.getFilePath());
+                        if(logger.isDebugEnabled()) {
+                            logger.debug("Ignore complete file {}", status.getFilePath());
+                        }
                     }
 					continue;
 				}
