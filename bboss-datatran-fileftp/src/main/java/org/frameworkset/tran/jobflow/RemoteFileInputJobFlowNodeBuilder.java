@@ -44,11 +44,13 @@ public class RemoteFileInputJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<
      */
     public RemoteFileInputJobFlowNodeBuilder(String nodeId, String nodeName) {
         super(nodeId, nodeName);
+        this.setAutoNodeComplete(true);
     }
 
     
     public RemoteFileInputJobFlowNodeBuilder(){
         super();
+        this.setAutoNodeComplete(true);
     }
     /**
      * 构建文件采集函数
