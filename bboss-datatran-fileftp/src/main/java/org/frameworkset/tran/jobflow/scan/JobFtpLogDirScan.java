@@ -7,6 +7,7 @@ import org.frameworkset.tran.ftp.FtpContext;
 import org.frameworkset.tran.ftp.FtpContextImpl;
 import org.frameworkset.tran.ftp.FtpTransfer;
 import org.frameworkset.tran.input.RemoteContext;
+import org.frameworkset.tran.jobflow.DownloadfileConfig;
 import org.frameworkset.tran.jobflow.FileDownloadService;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.slf4j.Logger;
@@ -30,9 +31,9 @@ public class JobFtpLogDirScan extends JobLogDirScan {
 
  
 
-    public JobFtpLogDirScan(FtpConfig ftpConfig, FileDownloadService fileDownloadService) {
-        super(   fileDownloadService);
-        this.ftpConfig = ftpConfig;
+    public JobFtpLogDirScan(DownloadfileConfig downloadfileConfig, FileDownloadService fileDownloadService) {
+        super(  downloadfileConfig,   fileDownloadService);
+        this.ftpConfig = downloadfileConfig.getFtpConfig();
         
     }
 
@@ -41,13 +42,13 @@ public class JobFtpLogDirScan extends JobLogDirScan {
      */
     @Override
     public void scanNewFile(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
-        FtpContext ftpContext = new FtpContextImpl(ftpConfig,jobFlowNodeExecuteContext,fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter());
+        FtpContext ftpContext = new FtpContextImpl(ftpConfig,jobFlowNodeExecuteContext,downloadfileConfig.getFileFilter());
         if(logger.isDebugEnabled()){
-            if(fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter() == null)
-                logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",ftpContext.getRemoteFileDir(),fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileNameRegular());
+            if(downloadfileConfig.getFileFilter() == null)
+                logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",ftpContext.getRemoteFileDir(),downloadfileConfig.getFileNameRegular());
             else{
                 logger.debug("Scan new ftp file in remote dir {} with filename filter {}.",ftpContext.getRemoteFileDir(),
-                        fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter().getClass().getCanonicalName());
+                        downloadfileConfig.getFileFilter().getClass().getCanonicalName());
             }
         }
         List<FTPFile> files = FtpTransfer.ls(ftpContext);
@@ -65,7 +66,7 @@ public class JobFtpLogDirScan extends JobLogDirScan {
                 }
                 if (remoteResourceInfo.isDirectory()) {
                     String name = remoteResourceInfo.getName().trim();
-                    if (!fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().isScanChild()) {
+                    if (!downloadfileConfig.isScanChild()) {
                         if (logger.isInfoEnabled()) {
                             logger.info("Ignore ftp dir:{}", name);
                         }
@@ -98,14 +99,14 @@ public class JobFtpLogDirScan extends JobLogDirScan {
 
     public void scanSubDirNewFile(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,FTPFile logDir,String relativeParentDir,String subdir, List<Future> downloadFutures){
         if(logger.isDebugEnabled()){
-            if(fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter() == null)
-                logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",subdir,fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileNameRegular());
+            if(downloadfileConfig.getFileFilter() == null)
+                logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",subdir,downloadfileConfig.getFileNameRegular());
             else{
                 logger.debug("Scan new ftp file in remote dir {} with filename filter {}.",subdir,
-                        fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter().getClass().getCanonicalName());
+                        downloadfileConfig.getFileFilter().getClass().getCanonicalName());
             }
         }
-        FtpContext ftpContext = new FtpContextImpl(ftpConfig,jobFlowNodeExecuteContext,fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter());
+        FtpContext ftpContext = new FtpContextImpl(ftpConfig,jobFlowNodeExecuteContext,downloadfileConfig.getFileFilter());
         List<FTPFile> files = FtpTransfer.ls(subdir,ftpContext);
         if(files == null || files.size() == 0){
             if(logger.isDebugEnabled()) {
@@ -119,7 +120,7 @@ public class JobFtpLogDirScan extends JobLogDirScan {
             }
             if(remoteResourceInfo.isDirectory()) {
                 String name = remoteResourceInfo.getName().trim();
-                if(!fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().isScanChild()) {
+                if(!downloadfileConfig.isScanChild()) {
                     if (logger.isInfoEnabled()) {
                         logger.info("Ignore ftp dir:{}", name);
                     }                   

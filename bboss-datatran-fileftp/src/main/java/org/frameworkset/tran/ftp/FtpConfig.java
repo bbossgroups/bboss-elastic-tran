@@ -20,7 +20,7 @@ import org.frameworkset.tran.input.RemoteContext;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FtpFileFilter;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
-import org.frameworkset.tran.jobflow.RemoteFileInputJobFlowNodeBuilder;
+import org.frameworkset.tran.jobflow.DownloadfileConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,7 +150,7 @@ public class FtpConfig extends RemoteContext<FtpConfig> {
 //		return this;
 	}
 
-    public void initJob(RemoteFileInputJobFlowNodeBuilder remoteFileInputJobFlowNodeBuilder){
+    public void initJob(DownloadfileConfig downloadfileConfig){
         if(inited)
             return;
         inited = true;

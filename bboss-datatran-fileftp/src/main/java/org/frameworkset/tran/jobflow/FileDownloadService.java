@@ -279,12 +279,12 @@ public class FileDownloadService {
          * 如果处理文件不存在，则下载文件到本地临时目录,下载后重命名为正式处理文件，避免因下载中断处理不完整文件问题
          */
         if(!handleFile.exists()) {
-            DownloadedFileRecord downloadedFileRecord = ftpContext.getDownloadedFileRecord();
+            DownloadedFileRecorder downloadedFileRecorder = downloadJobFlowNodeFunction.getDownloadedFileRecord();
             DownloadFileMetrics downloadFileMetrics = new DownloadFileMetrics();
             downloadFileMetrics.setLocalFilePath(handleFile.getAbsolutePath());
             downloadFileMetrics.setRemoteFilePath(remoteFile);
             try {
-                if(!downloadedFileRecord.recordBeforeDownload(downloadFileMetrics,jobFlowNodeExecuteContext))
+                if(!downloadedFileRecorder.recordBeforeDownload(downloadFileMetrics,jobFlowNodeExecuteContext))
                     return;
                 /**
                  * 支持断点续传
@@ -350,7 +350,7 @@ public class FileDownloadService {
                 if (!localFile.exists()) {
                     removeDownTrace(fileId);
                     downloadFileMetrics.setMessage("localFile not exists:"+localFile.getAbsolutePath());
-                    downloadedFileRecord.recordAfterDownload(downloadFileMetrics,jobFlowNodeExecuteContext,null);
+                    downloadedFileRecorder.recordAfterDownload(downloadFileMetrics,jobFlowNodeExecuteContext,null);
                     return;
                 }
 
@@ -403,7 +403,7 @@ public class FileDownloadService {
                                 logger.info("Delete zip file:"+handleFile.getAbsolutePath());
                         }
                     }
-                    downloadedFileRecord.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,null);
+                    downloadedFileRecorder.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,null);
                     
                 } else {
                     removeDownTrace(fileId);
@@ -417,20 +417,20 @@ public class FileDownloadService {
 //                    dataTranPlugin.reportJobMetricWarn(taskContext,msg);
                     logger.warn(msg);
                     downloadFileMetrics.setMessage(msg);
-                    downloadedFileRecord.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,null);
+                    downloadedFileRecorder.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,null);
                     return;
                 }
             }
             catch (Exception e){
                 removeDownTrace(fileId);
                 downloadFileMetrics.setMessage("下载文件"+remoteFile + "到"+handleFile.getAbsolutePath()+"失败");
-                downloadedFileRecord.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,e);
+                downloadedFileRecorder.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,e);
                 throw new FileDownException(downloadFileMetrics.getMessage(),e);
             }
             catch (Throwable e){
                 removeDownTrace(fileId);
                 downloadFileMetrics.setMessage("下载文件"+remoteFile + "到"+handleFile.getAbsolutePath()+"失败");
-                downloadedFileRecord.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,e);
+                downloadedFileRecorder.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,e);
                 throw new FileDownException(downloadFileMetrics.getMessage(),e);
             }
         }
@@ -484,9 +484,6 @@ public class FileDownloadService {
 
     }
 
-    public RemoteFileInputJobFlowNodeBuilder getRemoteFileInputJobFlowNodeBuilder() {
-        return downloadJobFlowNodeFunction.getRemoteFileInputJobFlowNodeBuilder();
-    }
- 
+
  
 }

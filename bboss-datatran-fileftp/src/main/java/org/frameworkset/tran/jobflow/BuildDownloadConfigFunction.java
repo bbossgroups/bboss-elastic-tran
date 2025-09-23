@@ -18,25 +18,14 @@ package org.frameworkset.tran.jobflow;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 
 /**
- * 文件下载情况记录
  * @author biaoping.yin
- * @Date 2025/9/22
+ * @Date 2025/9/23
  */
-public interface DownloadedFileRecord {
-
+public interface BuildDownloadConfigFunction {
     /**
-     * 记录下载文件之前
-     * @param downloadFileMetrics
+     * 流程节点执行时，每次调用本方法构建下载文件配置，可以根据流程执行上下文参数来构建下载文件配置
      * @param jobFlowNodeExecuteContext
-     * @return 根据返回值控制是否继续下载文件，true:下载，false:停止下载
+     * @return
      */
-    boolean recordBeforeDownload(DownloadFileMetrics downloadFileMetrics , JobFlowNodeExecuteContext jobFlowNodeExecuteContext);
-    /**
-     * 记录下载文件之后
-     * @param downloadFileMetrics
-     * @param jobFlowNodeExecuteContext
-     * @param exception
-     */
-    void recordAfterDownload(DownloadFileMetrics downloadFileMetrics , JobFlowNodeExecuteContext jobFlowNodeExecuteContext,Throwable exception);
-
+    DownloadfileConfig buildDownloadConfig(JobFlowNodeExecuteContext jobFlowNodeExecuteContext);
 }

@@ -6,6 +6,7 @@ import org.frameworkset.nosql.s3.OSSFile;
 import org.frameworkset.tran.input.file.*;
 import org.frameworkset.tran.input.s3.OSSFileInputConfig;
 import org.frameworkset.tran.input.s3.OSSFilterFileInfo;
+import org.frameworkset.tran.jobflow.DownloadfileConfig;
 import org.frameworkset.tran.jobflow.FileDownloadService;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.slf4j.Logger;
@@ -27,9 +28,10 @@ public class JobS3DirScan extends JobLogDirScan {
     private OSSClient ossClient ;
     private OSSFileInputConfig ossFileConfig;
  
-    public JobS3DirScan(OSSFileInputConfig ossFileInputConfig, FileDownloadService fileDownloadService) {
-        super(  fileDownloadService);
-        this.ossFileConfig = ossFileInputConfig;
+    public JobS3DirScan(DownloadfileConfig downloadfileConfig, FileDownloadService fileDownloadService) {
+        super( downloadfileConfig, fileDownloadService);
+       
+        this.ossFileConfig = downloadfileConfig.getOssFileInputConfig();
         this.ossClient = ossFileConfig.getOssClient();
     }
 
@@ -39,15 +41,15 @@ public class JobS3DirScan extends JobLogDirScan {
     @Override
     public void scanNewFile(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
         if(logger.isDebugEnabled()){
-            if(fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter() == null)
-                logger.debug("Scan new oss file in remote dir {} with filename regex {}.",ossFileConfig.getRemoteFileDir(),fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileNameRegular());
+            if(downloadfileConfig.getFileFilter() == null)
+                logger.debug("Scan new oss file in remote dir {} with filename regex {}.",ossFileConfig.getRemoteFileDir(),downloadfileConfig.getFileNameRegular());
             else{
                 logger.debug("Scan new oss file in remote dir {} with filename filter {}.",ossFileConfig.getRemoteFileDir(),
-                        fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter().getClass().getCanonicalName());
+                        downloadfileConfig.getFileFilter().getClass().getCanonicalName());
             }
         }
-        JobFileFilter fileFilter = fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter();
-        List<OSSFile> files = ossClient.listOssFile(ossFileConfig.getBucket(),ossFileConfig.getRemoteFileDir(), fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().isScanChild());
+        JobFileFilter fileFilter = downloadfileConfig.getFileFilter();
+        List<OSSFile> files = ossClient.listOssFile(ossFileConfig.getBucket(),ossFileConfig.getRemoteFileDir(), downloadfileConfig.isScanChild());
         files = filterFiles(  fileFilter,  files,  jobFlowNodeExecuteContext);
         
         if(files == null || files.size() == 0){
@@ -97,14 +99,14 @@ public class JobS3DirScan extends JobLogDirScan {
     public void scanSubDirNewFile(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,String relativeParentDir,OSSFile logDir,List<Future> downloadFutures){
         String path = SimpleStringUtil.getPath(relativeParentDir,logDir.getObjectName());
         if(logger.isDebugEnabled()){
-            if(fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter() == null)
-                logger.debug("Scan new oss file in remote dir {} with filename regex {}.",path,fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileNameRegular());
+            if(downloadfileConfig.getFileFilter() == null)
+                logger.debug("Scan new oss file in remote dir {} with filename regex {}.",path,downloadfileConfig.getFileNameRegular());
             else{
                 logger.debug("Scan new oss file in remote dir {} with filename filter {}.",path,
-                        fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter().getClass().getCanonicalName());
+                        downloadfileConfig.getFileFilter().getClass().getCanonicalName());
             }
         }
-        JobFileFilter fileFilter = fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().getFileFilter();
+        JobFileFilter fileFilter = downloadfileConfig.getFileFilter();
         List<OSSFile> files = ossClient.listOssFile(ossFileConfig.getBucket(),null);
         files = filterFiles(  fileFilter,  files,  jobFlowNodeExecuteContext);
         if(files == null || files.size() == 0){
@@ -128,7 +130,7 @@ public class JobS3DirScan extends JobLogDirScan {
             }
             if(remoteResourceInfo.isDir()) {
                 String path = SimpleStringUtil.getPath(relativeParentDir,remoteResourceInfo.getObjectName());
-                if(!fileDownloadService.getRemoteFileInputJobFlowNodeBuilder().isScanChild()) {
+                if(!downloadfileConfig.isScanChild()) {
                     if (logger.isInfoEnabled()) {
                         logger.info("Ignore oss dir:{}", path);
                     }

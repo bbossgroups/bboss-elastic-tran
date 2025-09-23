@@ -19,8 +19,6 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.ftp.RemoteFileValidate;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
-import org.frameworkset.tran.jobflow.DefaultDownloadedFileRecord;
-import org.frameworkset.tran.jobflow.DownloadedFileRecord;
 import org.frameworkset.tran.plugin.file.BaseRemoteConfig;
 
 /**
@@ -56,22 +54,16 @@ public abstract class RemoteContext<T extends RemoteContext> extends BaseRemoteC
 
 
     protected boolean deleteRemoteFile;
-    protected DownloadedFileRecord downloadedFileRecord;
     public FileConfig getFileConfig() {
         return fileConfig;
     }
-    public DownloadedFileRecord getDownloadedFileRecord() {
-        return downloadedFileRecord;
-    }
-    public T setDownloadedFileRecord(DownloadedFileRecord downloadedFileRecord) {
-        this.downloadedFileRecord = downloadedFileRecord;
-        return (T)this;
-    }
+ 
+ 
     
     protected void initJob(){
-        if(downloadedFileRecord == null){
-            downloadedFileRecord = new DefaultDownloadedFileRecord();
-        }
+//        if(downloadedFileRecord == null){
+//            downloadedFileRecord = new DefaultDownloadedFileRecord();
+//        }
     }
     /**
      * 解压后是否删除zip文件，默认为true

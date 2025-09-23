@@ -22,14 +22,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 记录已经下载文件记录到日志文件中，默认实现方式，用户可以自行实现自己的记录下载
+ * 
  * @author biaoping.yin
  * @Date 2025/9/22
  */
-public class DefaultDownloadedFileRecord implements DownloadedFileRecord{
-    private Logger logger = LoggerFactory.getLogger(DefaultDownloadedFileRecord.class);
+public class DefaultDownloadedFileRecorder implements DownloadedFileRecorder {
+    private Logger logger = LoggerFactory.getLogger(DefaultDownloadedFileRecorder.class);
 
     /**
-     * 记录下载文件之前
+     * 通过本方法记录下载文件信息，同时亦可以判断文件是否已经下载过，如果已经下载过则返回false，忽略下载，否则返回true允许下载
      *
      * @param downloadFileMetrics
      * @param jobFlowNodeExecuteContext
@@ -41,6 +42,12 @@ public class DefaultDownloadedFileRecord implements DownloadedFileRecord{
         return true;
     }
 
+    /**
+     * 通过本方法记录下载文件信息，同时亦可以判断文件是否已经下载过，如果已经下载过则返回false，忽略下载，否则返回true允许下载
+     *
+     * @param downloadFileMetrics
+     * @param jobFlowNodeExecuteContext
+     */
     public void recordAfterDownload(DownloadFileMetrics downloadFileMetrics , JobFlowNodeExecuteContext jobFlowNodeExecuteContext, Throwable exception){
         if(exception == null) {
             logger.info("Record after complete download:{},nodeId:{},nodeName:{}",

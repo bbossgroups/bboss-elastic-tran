@@ -31,14 +31,30 @@ public interface JobFlowNodeExecuteContext {
     Object getContextData(String name);
 
     Object getContextData(String name,Object defaultValue);
+
+    Object getContextData(String name,boolean fromContainer);
+
+    Object getContextData(String name,Object defaultValue,boolean fromContainer);
     
     Object getJobFlowContextData(String name);
 
     Object getJobFlowContextData(String name,Object defaultValue);
-    
+    /**
+     * 获取容器节点对应的上下文数据,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * @param name
+     * @return
+     */
     Object getContainerJobFlowNodeContextData(String name);
 
+    /**
+     * 获取容器节点对应的上下文数据,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * 如果最终参数值为null，则返回默认值
+     * @param name
+     * @param defaultValue
+     * @return
+     */
     Object getContainerJobFlowNodeContextData(String name,Object defaultValue);
+    
     /**
      * 判断节点是否已经完成
      */

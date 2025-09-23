@@ -32,7 +32,7 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     private Map<String,Object> contextDatas = new LinkedHashMap<>();
     private JobFlowNode jobFlowNode;
     private JobFlow jobFlow;
-
+   
     /**
      * 判断节点是否已经完成标记
      */
@@ -53,12 +53,37 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     }
     @Override
     public synchronized Object getContextData(String name) {
-        return contextDatas.get(name);
+        return getContextData(  name,false);
     }
 
     @Override
     public synchronized Object getContextData(String name, Object defaultValue) {
         Object value = contextDatas.get(name);
+        if(value == null){
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    @Override
+    public Object getContextData(String name,boolean fromContainer){
+        Object value = contextDatas.get(name);
+        if(value == null && fromContainer){
+            if(this.getContainerJobFlowNodeExecuteContext() != null) {
+                value = this.getContainerJobFlowNodeExecuteContext().getContextData(name,true);
+            }
+        }
+        return value;
+    }
+    @Override
+    public Object getContextData(String name,Object defaultValue,boolean fromContainer){
+        Object value = contextDatas.get(name);
+        
+        if(value == null && fromContainer){
+            if(this.getContainerJobFlowNodeExecuteContext() != null) {
+                value = this.getContainerJobFlowNodeExecuteContext().getContextData(name,true);
+            }
+        }
         if(value == null){
             value = defaultValue;
         }
@@ -78,7 +103,7 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     @Override
     public Object getContainerJobFlowNodeContextData(String name) {
         if(this.getContainerJobFlowNodeExecuteContext() != null) {
-            return this.getContainerJobFlowNodeExecuteContext().getContextData(name);
+            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,true);
         }
         throw new JobFlowException("getContainerJobFlowNodeContextData failed:ContainerJobFlowNodeExecuteContext is null.");
     }
@@ -86,7 +111,7 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     @Override
     public Object getContainerJobFlowNodeContextData(String name, Object defaultValue) {
         if(this.getContainerJobFlowNodeExecuteContext() != null) {
-            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue);
+            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue,true);
         }
         throw new JobFlowException("getContainerJobFlowNodeContextData failed:ContainerJobFlowNodeExecuteContext is null.");
     }

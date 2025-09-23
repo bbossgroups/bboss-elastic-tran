@@ -1,5 +1,6 @@
 package org.frameworkset.tran.jobflow.scan;
 
+import org.frameworkset.tran.jobflow.DownloadfileConfig;
 import org.frameworkset.tran.jobflow.FileDownloadService;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.slf4j.Logger;
@@ -16,11 +17,15 @@ public class JobLogDirScan implements JobLogDirScanInf {
     protected FileDownloadService fileDownloadService;
     private boolean remote;
 
+    protected DownloadfileConfig downloadfileConfig;
+    
+
 
     
     
-    public JobLogDirScan(FileDownloadService fileDownloadService){
+    public JobLogDirScan(DownloadfileConfig downloadfileConfig,FileDownloadService fileDownloadService){
         this.fileDownloadService = fileDownloadService;
+        this.downloadfileConfig = downloadfileConfig;
     }
 
 

@@ -24,7 +24,7 @@ import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.input.RemoteContext;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
-import org.frameworkset.tran.jobflow.RemoteFileInputJobFlowNodeBuilder;
+import org.frameworkset.tran.jobflow.DownloadfileConfig;
 import org.frameworkset.tran.output.s3.DefaultOSSInfoBuilder;
 import org.frameworkset.tran.output.s3.OSSInfoBuilder;
 import org.slf4j.Logger;
@@ -123,7 +123,7 @@ public class OSSFileInputConfig extends RemoteContext<OSSFileInputConfig> {
         }
     }
 
-    public void initJob(RemoteFileInputJobFlowNodeBuilder remoteFileInputJobFlowNodeBuilder){
+    public void initJob(DownloadfileConfig downloadfileConfig){
         if(inited)
             return;
         inited = true;
