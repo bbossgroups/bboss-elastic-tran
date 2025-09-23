@@ -34,8 +34,21 @@ public class DownloadFileMetrics {
      */
     private long validateElapsed;
 
+    /**
+     * 从当前压缩文件中解压的文件数量
+     */
+    private int files;
+    /**
+     * 远程文件路径
+     */
     private String remoteFilePath;
+    /**
+     * 本地存放路径
+     */
     private String localFilePath;
+    /**
+     * 其他说明信息
+     */
     private String message;
 
     public String getRemoteFilePath() {
@@ -81,5 +94,21 @@ public class DownloadFileMetrics {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    /**
+     * 获取从当前压缩文件中解压的文件数量
+     * @return
+     */
+    public int getFiles() {
+        return files;
+    }
+
+    /**
+     * 从当前压缩文件中解压的文件数量
+     * @param files
+     */
+    public void setFiles(int files) {
+        this.files = files;
     }
 }

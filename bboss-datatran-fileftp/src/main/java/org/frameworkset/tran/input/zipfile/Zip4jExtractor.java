@@ -2,6 +2,8 @@ package org.frameworkset.tran.input.zipfile;
 
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 /**
@@ -27,24 +29,46 @@ import java.io.File;
 
 
 public class Zip4jExtractor {
+    private static Logger logger = LoggerFactory.getLogger(Zip4jExtractor.class);
+//    public static void main(String[] args) throws Exception { 
+//        String zipFilePath = "C:\\data\\zipfile\\3.zip";
+//         
+//        String password = "123456";
+//        int files = getZipFileCount(zipFilePath);
+//        System.out.println("ZIP文件包含" + files + "个文件");
+//    }
     
     /**
      * 解压加密的ZIP文件
      * @param zipFilePath ZIP文件路径
      * @param destDirectory 解压目标目录
      * @param password 密码
+     * @return 解压文件数量                
      * @throws ZipException ZIP异常
      */
-    public static void extractEncryptedZip(File zipFilePath, String destDirectory, String password) throws ZipException {
+    public static int extractEncryptedZip(File zipFilePath, String destDirectory, String password) throws ZipException {
         ZipFile zipFile = new ZipFile(zipFilePath);
         if (zipFile.isEncrypted()) {
             zipFile.setPassword(password.toCharArray());
         }
+        int files = zipFile.getFileHeaders().size();
 //        // 检查ZIP文件是否分卷
 //        if(zipFile.isSplitArchive()){
 //            // 合并分卷文件
 //        }
         zipFile.extractAll(destDirectory);
+        return files;
+    }
+
+    /**
+     * 获取zip包中的文件数量
+     * @param zipFilePath ZIP文件路径
+     * @return 解压文件数量
+     */
+    public static int getZipFileCount(String zipFilePath) throws ZipException {
+        ZipFile zipFile = new ZipFile(zipFilePath);
+        int files = zipFile.getFileHeaders().size();
+        return files;
     }
 
     /**
@@ -52,10 +76,11 @@ public class Zip4jExtractor {
      * @param zipFilePath ZIP文件路径
      * @param destDirectory 解压目标目录
      * @param password 密码
+     * @return 解压文件数量
      * @throws ZipException ZIP异常
      */
-    public static void extractEncryptedZip(String zipFilePath, String destDirectory, String password) throws ZipException {
-        extractEncryptedZip(new File( zipFilePath),  destDirectory,  password);
+    public static int extractEncryptedZip(String zipFilePath, String destDirectory, String password) throws ZipException {
+        return extractEncryptedZip(new File( zipFilePath),  destDirectory,  password);
     }
     
     /**
