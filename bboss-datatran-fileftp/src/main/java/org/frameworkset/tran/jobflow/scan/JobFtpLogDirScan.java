@@ -42,13 +42,13 @@ public class JobFtpLogDirScan extends JobLogDirScan {
      */
     @Override
     public void scanNewFile(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
-        FtpContext ftpContext = new FtpContextImpl(ftpConfig,jobFlowNodeExecuteContext,downloadfileConfig.getFileFilter());
+        FtpContext ftpContext = new FtpContextImpl(ftpConfig,jobFlowNodeExecuteContext,downloadfileConfig.getJobFileFilter());
         if(logger.isDebugEnabled()){
-            if(downloadfileConfig.getFileFilter() == null)
+            if(downloadfileConfig.getJobFileFilter() == null)
                 logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",ftpContext.getRemoteFileDir(),downloadfileConfig.getFileNameRegular());
             else{
                 logger.debug("Scan new ftp file in remote dir {} with filename filter {}.",ftpContext.getRemoteFileDir(),
-                        downloadfileConfig.getFileFilter().getClass().getCanonicalName());
+                        downloadfileConfig.getJobFileFilter().getClass().getCanonicalName());
             }
         }
         List<FTPFile> files = FtpTransfer.ls(ftpContext);
@@ -99,14 +99,14 @@ public class JobFtpLogDirScan extends JobLogDirScan {
 
     public void scanSubDirNewFile(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,FTPFile logDir,String relativeParentDir,String subdir, List<Future> downloadFutures){
         if(logger.isDebugEnabled()){
-            if(downloadfileConfig.getFileFilter() == null)
+            if(downloadfileConfig.getJobFileFilter() == null)
                 logger.debug("Scan new ftp file in remote dir {} with filename regex {}.",subdir,downloadfileConfig.getFileNameRegular());
             else{
                 logger.debug("Scan new ftp file in remote dir {} with filename filter {}.",subdir,
-                        downloadfileConfig.getFileFilter().getClass().getCanonicalName());
+                        downloadfileConfig.getJobFileFilter().getClass().getCanonicalName());
             }
         }
-        FtpContext ftpContext = new FtpContextImpl(ftpConfig,jobFlowNodeExecuteContext,downloadfileConfig.getFileFilter());
+        FtpContext ftpContext = new FtpContextImpl(ftpConfig,jobFlowNodeExecuteContext,downloadfileConfig.getJobFileFilter());
         List<FTPFile> files = FtpTransfer.ls(subdir,ftpContext);
         if(files == null || files.size() == 0){
             if(logger.isDebugEnabled()) {

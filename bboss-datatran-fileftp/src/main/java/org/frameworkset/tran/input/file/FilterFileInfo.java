@@ -28,4 +28,5 @@ public interface FilterFileInfo {
 	public String getFileName();
 	public boolean isDirectory();
 	public Object getFileObject();
+    public long getLastModified();
 }

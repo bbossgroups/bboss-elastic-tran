@@ -54,4 +54,9 @@ public class FTPFilterFileInfo implements FilterFileInfo {
 	public Object getFileObject() {
 		return file;
 	}
+
+    @Override
+    public long getLastModified(){
+        return file.getTimestamp().getTimeInMillis();
+    }
 }

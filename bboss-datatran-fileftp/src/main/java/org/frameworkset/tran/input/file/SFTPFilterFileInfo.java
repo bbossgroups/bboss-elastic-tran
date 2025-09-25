@@ -49,4 +49,9 @@ public class SFTPFilterFileInfo implements FilterFileInfo{
 	public Object getFileObject() {
 		return remoteResourceInfo;
 	}
+
+    @Override
+    public long getLastModified(){
+        return remoteResourceInfo.getAttributes().getMtime();
+    }
 }

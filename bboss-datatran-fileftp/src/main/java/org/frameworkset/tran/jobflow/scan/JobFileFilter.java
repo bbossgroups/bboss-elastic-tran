@@ -15,8 +15,6 @@ package org.frameworkset.tran.jobflow.scan;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.input.file.FileConfig;
-import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FilterFileInfo;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 

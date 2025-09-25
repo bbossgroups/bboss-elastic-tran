@@ -50,4 +50,10 @@ public class OSSFilterFileInfo implements FilterFileInfo {
     public Object getFileObject() {
         return ossFile;
     }
+
+
+    @Override
+    public long getLastModified(){
+        return ossFile.getLastModified().getTime();
+    }
 }

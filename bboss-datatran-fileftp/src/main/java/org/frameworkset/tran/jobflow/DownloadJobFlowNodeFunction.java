@@ -42,7 +42,7 @@ public class DownloadJobFlowNodeFunction implements JobFlowNodeFunction{
  
 
     public JobFileFilter getFileFilter() {
-        return downloadfileConfig.getFileFilter();
+        return downloadfileConfig.getJobFileFilter();
     }
 
     public boolean isScanChild() {
@@ -97,6 +97,8 @@ public class DownloadJobFlowNodeFunction implements JobFlowNodeFunction{
         }
         
     }
+    
+
     private JobLogDirScan logDirScanThread(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
        
         JobLogDirScan jobLogDirScan = null;
@@ -114,10 +116,13 @@ public class DownloadJobFlowNodeFunction implements JobFlowNodeFunction{
                         downloadfileConfig,fileDownloadService);
                 jobLogDirScan.setRemote(true);
             }
-
+           
         } else if (downloadfileConfig.getOssFileInputConfig()  != null) {
             jobLogDirScan = new JobS3DirScan(downloadfileConfig,fileDownloadService);
         } 
+        else if(downloadfileConfig.isLifecycle()){
+            jobLogDirScan = new JobLogDirScan(downloadfileConfig,fileDownloadService);
+        }
         return jobLogDirScan;
     }
     /**

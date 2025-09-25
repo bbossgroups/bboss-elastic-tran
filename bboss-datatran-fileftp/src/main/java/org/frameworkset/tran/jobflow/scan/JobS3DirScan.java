@@ -41,14 +41,14 @@ public class JobS3DirScan extends JobLogDirScan {
     @Override
     public void scanNewFile(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
         if(logger.isDebugEnabled()){
-            if(downloadfileConfig.getFileFilter() == null)
+            if(downloadfileConfig.getJobFileFilter() == null)
                 logger.debug("Scan new oss file in remote dir {} with filename regex {}.",ossFileConfig.getRemoteFileDir(),downloadfileConfig.getFileNameRegular());
             else{
                 logger.debug("Scan new oss file in remote dir {} with filename filter {}.",ossFileConfig.getRemoteFileDir(),
-                        downloadfileConfig.getFileFilter().getClass().getCanonicalName());
+                        downloadfileConfig.getJobFileFilter().getClass().getCanonicalName());
             }
         }
-        JobFileFilter fileFilter = downloadfileConfig.getFileFilter();
+        JobFileFilter fileFilter = downloadfileConfig.getJobFileFilter();
         List<OSSFile> files = ossClient.listOssFile(ossFileConfig.getBucket(),ossFileConfig.getRemoteFileDir(), downloadfileConfig.isScanChild());
         files = filterFiles(  fileFilter,  files,  jobFlowNodeExecuteContext);
         
@@ -99,14 +99,14 @@ public class JobS3DirScan extends JobLogDirScan {
     public void scanSubDirNewFile(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,String relativeParentDir,OSSFile logDir,List<Future> downloadFutures){
         String path = SimpleStringUtil.getPath(relativeParentDir,logDir.getObjectName());
         if(logger.isDebugEnabled()){
-            if(downloadfileConfig.getFileFilter() == null)
+            if(downloadfileConfig.getJobFileFilter() == null)
                 logger.debug("Scan new oss file in remote dir {} with filename regex {}.",path,downloadfileConfig.getFileNameRegular());
             else{
                 logger.debug("Scan new oss file in remote dir {} with filename filter {}.",path,
-                        downloadfileConfig.getFileFilter().getClass().getCanonicalName());
+                        downloadfileConfig.getJobFileFilter().getClass().getCanonicalName());
             }
         }
-        JobFileFilter fileFilter = downloadfileConfig.getFileFilter();
+        JobFileFilter fileFilter = downloadfileConfig.getJobFileFilter();
         List<OSSFile> files = ossClient.listOssFile(ossFileConfig.getBucket(),null);
         files = filterFiles(  fileFilter,  files,  jobFlowNodeExecuteContext);
         if(files == null || files.size() == 0){

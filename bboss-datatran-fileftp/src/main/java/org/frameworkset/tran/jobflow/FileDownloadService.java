@@ -42,9 +42,11 @@ public class FileDownloadService {
         this.downloadJobFlowNodeFunction = downloadJobFlowNodeFunction;
     }
 
-   
 
-     
+
+    public DownloadfileConfig getDownloadfileConfig() {
+        return this.downloadJobFlowNodeFunction.getDownloadfileConfig();
+    }
 
 
 
@@ -199,6 +201,33 @@ public class FileDownloadService {
      */
     private void checkRemoteNewFile(JobFlowNodeExecuteContext jobFlowNodeExecuteContext, final String relativeParentDir, String fileName, final String remoteFile,
                                     final RemoteContext remoteContext, final RemoteFileAction remoteFileAction, List<Future> downloadFutures) {
+        if(this.getDownloadfileConfig().isLifecycle()){
+            RemoteFileChannel remoteFileChannel = remoteContext.getRemoteFileChannel();
+            if(remoteFileChannel != null) { //异步并行下载或者清理文件
+                Future future = remoteFileChannel.submitNewTask(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if(logger.isInfoEnabled()){
+                            logger.info("Delete old remote file:{},fileMaxLiveTime:{}毫秒", remoteFile,getDownloadfileConfig().getFileLiveTime());
+                        }
+                        remoteFileAction.deleteFile(remoteFile);
+
+                    }
+                });
+                downloadFutures.add(future);
+            }
+            else{ //同步串行下载或者清理文件
+
+
+                if(logger.isInfoEnabled()){
+                    logger.info("Delete old remote file:{},fileMaxLiveTime:{}毫秒", remoteFile,getDownloadfileConfig().getFileLiveTime());
+                }
+                remoteFileAction.deleteFile(remoteFile);
+            }
+           
+            return;
+        }        
         String sourcePath = remoteContext.getSourcePath();
         final File handleFile = new File( SimpleStringUtil.getPath(sourcePath,relativeParentDir), fileName);//正式文件,如果有子目录，则需要保存到子目录
         checkParentExist(handleFile);
@@ -234,25 +263,35 @@ public class FileDownloadService {
         }
         if(isNewFile && !isDowning) {
 			RemoteFileChannel remoteFileChannel = remoteContext.getRemoteFileChannel();
-        	if(remoteFileChannel != null) { //异步并行下载文件
+        	if(remoteFileChannel != null) { //异步并行下载或者清理文件
 				Future future = remoteFileChannel.submitNewTask(new Runnable() {
 					@Override
 					public void run() {
-					    try {
-                            downAndCollectFile(  jobFlowNodeExecuteContext,handleFile, localFile, fileId,
+
+                        try {
+                            downAndCollectFile(jobFlowNodeExecuteContext, handleFile, localFile, fileId,
                                     relativeParentDir, remoteFile, remoteContext, remoteFileAction);
                         }
-					    catch (Exception e){
-                            
-					        logger.error("Download remoteFile" + remoteFile+ " to " + localFile+ " And Collect File failed：",e);
+                        catch (Exception e){
+
+                            logger.error("Download remoteFile" + remoteFile+ " to " + localFile+ " And Collect File failed：",e);
                         }
+                       
 					}
 				});
                 downloadFutures.add(future);
 			}
-        	else{ //同步串行下载文件
-				downAndCollectFile(  jobFlowNodeExecuteContext,handleFile, localFile, fileId,
-						relativeParentDir, remoteFile, remoteContext, remoteFileAction);
+        	else{ //同步串行下载或者清理文件
+
+
+                try {
+                    downAndCollectFile(  jobFlowNodeExecuteContext,handleFile, localFile, fileId,
+                            relativeParentDir, remoteFile, remoteContext, remoteFileAction);
+                }
+                catch (Exception e){
+
+                    logger.error("Download remoteFile" + remoteFile+ " to " + localFile+ " And Collect File failed：",e);
+                }
 			}
         }
 
@@ -272,6 +311,7 @@ public class FileDownloadService {
             lock.unlock();
         }
     }
+
 
     private void downAndCollectFile(JobFlowNodeExecuteContext jobFlowNodeExecuteContext, File handleFile, File localFile, String fileId ,
                                     String relativeParentDir, final String remoteFile, RemoteContext ftpContext, final RemoteFileAction remoteFileAction){

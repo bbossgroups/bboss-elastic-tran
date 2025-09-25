@@ -21,6 +21,7 @@ import org.frameworkset.tran.ftp.FtpConfig;
 import org.frameworkset.tran.input.file.FilterFileInfo;
 import org.frameworkset.tran.input.s3.OSSFileInputConfig;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+import org.frameworkset.tran.jobflow.lifecycle.LifecycleJobFileFilter;
 import org.frameworkset.tran.jobflow.scan.JobFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,52 @@ public class DownloadfileConfig {
     private boolean scanChild;
     private String fileNameRegular;
     private Pattern fileNameRexPattern = null;
+    private String sourcePath;
+
+
+    /**
+     * 是否是文件生命周期管理任务：支持本地文件、Ftp文件以及OSS文件生命周期管理
+     * 对于最近修改时间超过指定时长fileLiveTime的文件进行删除处理
+     */
+    protected boolean lifecycle;
+
+    /**
+     * 文件生命周期管理：文件保存时间时长，单位：毫秒
+     */
+    protected long fileLiveTime;
+
+
+    public long getFileLiveTime() {
+        return fileLiveTime;
+    }
+
+    /**
+     * 文件生命周期管理：设置文件保存时间时长，单位：毫秒
+     * @param fileLiveTime
+     * @return
+     */
+    public DownloadfileConfig setFileLiveTime(long fileLiveTime) {
+        this.fileLiveTime = fileLiveTime;
+        return this;
+    }
+
+    public String getSourcePath() {
+        return sourcePath;
+    }
+
+    public DownloadfileConfig setSourcePath(String sourcePath) {
+        this.sourcePath = sourcePath;
+        return this;
+    }
+
+    public DownloadfileConfig setLifecycle(boolean lifecycle) {
+        this.lifecycle = lifecycle;
+        return this;
+    }
+
+    public boolean isLifecycle() {
+        return lifecycle;
+    }
 
     public FtpConfig getFtpConfig() {
         return ftpConfig;
@@ -59,7 +106,7 @@ public class DownloadfileConfig {
         return this;
     }
 
-    public JobFileFilter getFileFilter() {
+    public JobFileFilter getJobFileFilter() {
         return jobFileFilter;
     }
 
@@ -89,12 +136,33 @@ public class DownloadfileConfig {
     public void init() {
         if(ftpConfig != null){
             if(SimpleStringUtil.isEmpty(ftpConfig.getSourcePath()) ){
-                throw new JobFlowException("没有指定下载本地目录");
+                if(SimpleStringUtil.isEmpty(this.getSourcePath())) {
+                    if(!this.isLifecycle()) {
+                        throw new JobFlowException("没有指定下载本地目录");
+                    }
+                }
+                else{
+                    ftpConfig.setSourcePath(this.getSourcePath());
+                }
             }
         }
-        if(ossFileInputConfig != null){
+        else  if(ossFileInputConfig != null){
             if(SimpleStringUtil.isEmpty(ossFileInputConfig.getSourcePath()) ){
-                throw new JobFlowException("没有指定下载本地目录");
+                if(SimpleStringUtil.isEmpty(this.getSourcePath())) {
+                    if(!this.isLifecycle()) {
+                        throw new JobFlowException("没有指定下载本地目录");
+                    }
+                }
+                else{
+                    ossFileInputConfig.setSourcePath(this.getSourcePath());
+                }
+            }
+        }
+        else{
+            if(SimpleStringUtil.isEmpty(this.getSourcePath())) {
+                if(this.isLifecycle()) {
+                    throw new JobFlowException("没有指定文件目录");
+                }
             }
         }
 
@@ -113,6 +181,17 @@ public class DownloadfileConfig {
                 }
             };
         }
+        if(this.isLifecycle()){
+            if(this.fileLiveTime <= 0){
+                throw new JobFlowException("请指定文件保存时长");
+            }
+            if(this.jobFileFilter != null){
+                jobFileFilter = new LifecycleJobFileFilter(jobFileFilter,this);
+            }
+            else{
+                jobFileFilter = new LifecycleJobFileFilter(null,this);
+            }
+        }
         if(ftpConfig != null){
             ftpConfig.initJob(this);
 
@@ -120,6 +199,7 @@ public class DownloadfileConfig {
         else if(ossFileInputConfig != null){
             ossFileInputConfig.initJob(this);
         }
+        
     }
     
     public void destroy() {
