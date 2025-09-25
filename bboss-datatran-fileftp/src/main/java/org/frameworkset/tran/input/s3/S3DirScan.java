@@ -4,8 +4,6 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.nosql.s3.OSSClient;
 import org.frameworkset.nosql.s3.OSSFile;
 import org.frameworkset.tran.input.file.*;
-import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
-import org.frameworkset.tran.jobflow.scan.JobFileFilter;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +45,9 @@ public class S3DirScan extends LogDirScan {
     public void scanNewFile(TaskContext taskContext){
         if(logger.isDebugEnabled()){
             if(fileConfig.getFileFilter() == null)
-                logger.debug("Scan new oss file in remote dir {} with filename regex {}.",ossFileConfig.getRemoteFileDir(),fileConfig.getFileNameRegular());
+                logger.debug("Scan new oss file in remote dir {}  bulket[{}] with filename regex {}.",ossFileConfig.getRemoteFileDir(),ossFileConfig.getBucket(),fileConfig.getFileNameRegular());
             else{
-                logger.debug("Scan new oss file in remote dir {} with filename filter {}.",ossFileConfig.getRemoteFileDir(),
+                logger.debug("Scan new oss file in remote dir {}  bulket[{}] with filename filter {}.",ossFileConfig.getRemoteFileDir(),ossFileConfig.getBucket(),
                         fileConfig.getFileFilter().getClass().getCanonicalName());
             }
         }
@@ -59,7 +57,7 @@ public class S3DirScan extends LogDirScan {
         
         if(files == null || files.size() == 0){
             if(logger.isInfoEnabled()) {
-                logger.warn("Remote oss dir[{}] is a file or empty directory.", ossFileConfig.getRemoteFileDir());
+                logger.warn("Remote oss dir[{}]  bulket[{}] is a file or empty directory.", ossFileConfig.getRemoteFileDir(),ossFileConfig.getBucket());
             }
             return;
         }
@@ -105,9 +103,9 @@ public class S3DirScan extends LogDirScan {
         String path = SimpleStringUtil.getPath(relativeParentDir,logDir.getObjectName());
         if(logger.isDebugEnabled()){
             if(fileConfig.getFileFilter() == null)
-                logger.debug("Scan new oss file in remote dir {} with filename regex {}.",path,fileConfig.getFileNameRegular());
+                logger.debug("Scan new oss file in remote dir {}  bulket[{}] with filename regex {}.",path,ossFileConfig.getBucket(),fileConfig.getFileNameRegular());
             else{
-                logger.debug("Scan new oss file in remote dir {} with filename filter {}.",path,
+                logger.debug("Scan new oss file in remote dir {}  bulket[{}] with filename filter {}.",path,ossFileConfig.getBucket(),
                         fileConfig.getFileFilter().getClass().getCanonicalName());
             }
         }
@@ -116,7 +114,7 @@ public class S3DirScan extends LogDirScan {
         files = filterFiles(  fileFilter,  files,  fileConfig);
         if(files == null || files.size() == 0){
             if(logger.isInfoEnabled()) {
-                logger.info("{} must be a directory or is empty directory.",path);
+                logger.info("File{}  bulket[{}] must be a directory or is empty directory.",path,ossFileConfig.getBucket());
             }
             return;
         }
@@ -137,7 +135,7 @@ public class S3DirScan extends LogDirScan {
                 String path = SimpleStringUtil.getPath(relativeParentDir,remoteResourceInfo.getObjectName());
                 if(!fileConfig.isScanChild()) {
                     if (logger.isInfoEnabled()) {
-                        logger.info("Ignore oss dir:{}", path);
+                        logger.info("Ignore oss dir:{}  bulket[{}]", path,ossFileConfig.getBucket());
                     }
                 }
                 else{

@@ -42,9 +42,9 @@ public class JobS3DirScan extends JobLogDirScan {
     public void scanNewFile(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
         if(logger.isDebugEnabled()){
             if(downloadfileConfig.getJobFileFilter() == null)
-                logger.debug("Scan new oss file in remote dir {} with filename regex {}.",ossFileConfig.getRemoteFileDir(),downloadfileConfig.getFileNameRegular());
+                logger.debug("Scan new oss file in remote dir {}  bulket[{}] with filename regex {}.",ossFileConfig.getRemoteFileDir(),ossFileConfig.getBucket(),downloadfileConfig.getFileNameRegular());
             else{
-                logger.debug("Scan new oss file in remote dir {} with filename filter {}.",ossFileConfig.getRemoteFileDir(),
+                logger.debug("Scan new oss file in remote dir {}  bulket[{}] with filename filter {}.",ossFileConfig.getRemoteFileDir(),ossFileConfig.getBucket(),
                         downloadfileConfig.getJobFileFilter().getClass().getCanonicalName());
             }
         }
@@ -54,7 +54,7 @@ public class JobS3DirScan extends JobLogDirScan {
         
         if(files == null || files.size() == 0){
             if(logger.isInfoEnabled()) {
-                logger.warn("Remote oss dir[{}] is a file or empty directory.", ossFileConfig.getRemoteFileDir());
+                logger.warn("Remote oss dir[{}] bulket[{}] is a file or empty directory.", ossFileConfig.getRemoteFileDir(),ossFileConfig.getBucket());
             }
             return;
         }
@@ -100,9 +100,9 @@ public class JobS3DirScan extends JobLogDirScan {
         String path = SimpleStringUtil.getPath(relativeParentDir,logDir.getObjectName());
         if(logger.isDebugEnabled()){
             if(downloadfileConfig.getJobFileFilter() == null)
-                logger.debug("Scan new oss file in remote dir {} with filename regex {}.",path,downloadfileConfig.getFileNameRegular());
+                logger.debug("Scan new oss file in remote dir {}  bulket[{}] with filename regex {}.",path,ossFileConfig.getBucket(),downloadfileConfig.getFileNameRegular());
             else{
-                logger.debug("Scan new oss file in remote dir {} with filename filter {}.",path,
+                logger.debug("Scan new oss file in remote dir {} bulket[{}] with filename filter {}.",path,ossFileConfig.getBucket(),
                         downloadfileConfig.getJobFileFilter().getClass().getCanonicalName());
             }
         }
@@ -111,7 +111,7 @@ public class JobS3DirScan extends JobLogDirScan {
         files = filterFiles(  fileFilter,  files,  jobFlowNodeExecuteContext);
         if(files == null || files.size() == 0){
             if(logger.isInfoEnabled()) {
-                logger.info("{} must be a directory or is empty directory.",path);
+                logger.info("file {}  bulket[{}] must be a directory or is empty directory.",path,ossFileConfig.getBucket());
             }
             return;
         }
@@ -132,7 +132,7 @@ public class JobS3DirScan extends JobLogDirScan {
                 String path = SimpleStringUtil.getPath(relativeParentDir,remoteResourceInfo.getObjectName());
                 if(!downloadfileConfig.isScanChild()) {
                     if (logger.isInfoEnabled()) {
-                        logger.info("Ignore oss dir:{}", path);
+                        logger.info("Ignore oss dir:{} bulket[{}]", path,ossFileConfig.getBucket());
                     }
                     continue;
                 }
