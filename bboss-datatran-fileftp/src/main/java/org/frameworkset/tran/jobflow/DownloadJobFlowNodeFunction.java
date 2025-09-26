@@ -146,7 +146,7 @@ public class DownloadJobFlowNodeFunction implements JobFlowNodeFunction{
      */
     @Override
     public void reset() {
-        logger.info("execute relase");
+        logger.debug("execute reset");
     }
 
     /**
@@ -157,7 +157,7 @@ public class DownloadJobFlowNodeFunction implements JobFlowNodeFunction{
         if(buildDownloadConfigFunction != null && downloadfileConfig != null){
             downloadfileConfig.destroy();
         }
-        logger.info("execute relase");
+        logger.info("execute release complete.");
     }
 
     /**

@@ -46,14 +46,21 @@ public class LifecycleJobFileFilter implements JobFileFilter {
         if(!fileInfo.isDirectory()){
             long mtime = fileInfo.getLastModified();
             long currentTime = System.currentTimeMillis();
-            if(currentTime - mtime >= downloadfileConfig.getFileLiveTime()){
-                if(jobFileFilter == null){
-                    return true;
+            if(downloadfileConfig.getFileLiveTime() != null) {
+                if (currentTime - mtime >= downloadfileConfig.getFileLiveTime()) {
+                    if (jobFileFilter == null) {
+                        return true;
+                    }
+                    return jobFileFilter.accept(fileInfo, jobFlowNodeExecuteContext);
+                } else {
+                    return false;
                 }
-                return jobFileFilter.accept(fileInfo,jobFlowNodeExecuteContext);
             }
             else{
-                return false;
+                if (jobFileFilter == null) {
+                    return false;
+                }
+                return jobFileFilter.accept(fileInfo, jobFlowNodeExecuteContext);
             }
         }
         else {

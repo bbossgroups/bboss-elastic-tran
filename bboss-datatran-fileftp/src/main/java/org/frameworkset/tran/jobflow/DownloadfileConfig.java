@@ -53,10 +53,10 @@ public class DownloadfileConfig {
     /**
      * 文件生命周期管理：文件保存时间时长，单位：毫秒
      */
-    protected long fileLiveTime;
+    protected Long fileLiveTime;
 
 
-    public long getFileLiveTime() {
+    public Long getFileLiveTime() {
         return fileLiveTime;
     }
 
@@ -182,9 +182,11 @@ public class DownloadfileConfig {
             };
         }
         if(this.isLifecycle()){
-            if(this.fileLiveTime <= 0){
-                throw new JobFlowException("请指定文件保存时长");
+            if((this.fileLiveTime == null || this.fileLiveTime <= 0)
+                    && jobFileFilter == null){
+                throw new JobFlowException("请指定文件保存时长或者指定归档清理文件过滤器");
             }
+
             if(this.jobFileFilter != null){
                 jobFileFilter = new LifecycleJobFileFilter(jobFileFilter,this);
             }

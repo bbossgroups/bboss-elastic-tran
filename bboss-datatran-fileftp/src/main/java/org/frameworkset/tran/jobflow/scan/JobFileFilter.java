@@ -19,7 +19,7 @@ import org.frameworkset.tran.input.file.FilterFileInfo;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 
 /**
- * <p>Description: 判断job是否采集文件数据</p>
+ * <p>Description: 判断job是否采集文件数据或者归档文件</p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2021/8/5 19:46
@@ -29,7 +29,7 @@ import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 public interface JobFileFilter  {
 
 	/**
-	 * 判断是否采集文件数据，返回true标识采集，false 不采集
+	 * 判断是否采集文件数据或者归档文件，返回true标识采集/归档，false 不采集/归档
 	 * @param fileInfo
 	 * @param jobFlowNodeExecuteContext
 	 * @return

@@ -63,8 +63,15 @@ public class JobLogDirScan implements JobLogDirScanInf {
                 file = files[i];
 
                 if(file.isFile() && file.exists()) {
-                    if(logger.isInfoEnabled())
-                        logger.info("Delete file:{},fileMaxLiveTime:{}毫秒",file.getAbsoluteFile(),downloadfileConfig.getFileLiveTime());
+                    if(downloadfileConfig.getFileLiveTime() != null) {
+                        if(logger.isInfoEnabled())
+                            logger.info("Delete file:{},fileMaxLiveTime:{}毫秒",file.getAbsoluteFile(),downloadfileConfig.getFileLiveTime());
+                    }
+                    else{
+                        if(logger.isInfoEnabled())
+                            logger.info("Delete old remote file:{}", file.getAbsoluteFile());
+                    }
+                    
                     file.delete();
                 }
                 else if (downloadfileConfig.isScanChild()){ //如果需要扫描子目录
@@ -90,8 +97,14 @@ public class JobLogDirScan implements JobLogDirScanInf {
                 }
                 file = files[i];
                 if(file.isFile() && file.exists()) {
-                    if(logger.isInfoEnabled())
-                        logger.info("Delete file:{},fileMaxLiveTime:{}毫秒",file.getAbsoluteFile(),downloadfileConfig.getFileLiveTime());
+                    if(downloadfileConfig.getFileLiveTime() != null) {
+                        if(logger.isInfoEnabled())
+                            logger.info("Delete file:{},fileMaxLiveTime:{}毫秒",file.getAbsoluteFile(),downloadfileConfig.getFileLiveTime());
+                    }
+                    else{
+                        if(logger.isInfoEnabled())
+                            logger.info("Delete old remote file:{}", file.getAbsoluteFile());
+                    }
                     file.delete();
                 }
                 else if (downloadfileConfig.isScanChild()){ //如果需要扫描子目录

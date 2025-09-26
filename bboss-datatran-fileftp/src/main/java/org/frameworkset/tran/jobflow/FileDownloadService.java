@@ -209,7 +209,12 @@ public class FileDownloadService {
                     public void run() {
 
                         if(logger.isInfoEnabled()){
-                            logger.info("Delete old remote file:{},fileMaxLiveTime:{}毫秒", remoteFile,getDownloadfileConfig().getFileLiveTime());
+                            if(getDownloadfileConfig().getFileLiveTime() != null) {
+                                logger.info("Delete old remote file:{},fileMaxLiveTime:{}毫秒", remoteFile, getDownloadfileConfig().getFileLiveTime());
+                            }
+                            else{
+                                logger.info("Delete old remote file:{}", remoteFile);
+                            }
                         }
                         remoteFileAction.deleteFile(remoteFile);
 
@@ -221,7 +226,13 @@ public class FileDownloadService {
 
 
                 if(logger.isInfoEnabled()){
-                    logger.info("Delete old remote file:{},fileMaxLiveTime:{}毫秒", remoteFile,getDownloadfileConfig().getFileLiveTime());
+                    if(getDownloadfileConfig().getFileLiveTime() != null) {
+                        logger.info("Delete old remote file:{},fileMaxLiveTime:{}毫秒", remoteFile,getDownloadfileConfig().getFileLiveTime());
+                    }
+                    else{
+                        logger.info("Delete old remote file:{}", remoteFile);
+                    }
+                    
                 }
                 remoteFileAction.deleteFile(remoteFile);
             }
