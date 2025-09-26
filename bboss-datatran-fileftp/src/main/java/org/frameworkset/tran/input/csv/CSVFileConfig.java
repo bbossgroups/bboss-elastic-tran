@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory;
  */
 public class CSVFileConfig extends FileConfig<CSVFileConfig> {
     private Logger logger = LoggerFactory.getLogger(CSVFileConfig.class);
-
+    private String separator = ",";
+    private String quoteChar = "\"";
     public CSVFileConfig(){
         super();
 
@@ -28,6 +29,25 @@ public class CSVFileConfig extends FileConfig<CSVFileConfig> {
 
         return this;
     }
+
+    public String getSeparator() {
+        return separator;
+    }
+
+    public String getQuoteChar() {
+        return quoteChar;
+    }
+
+    public CSVFileConfig setSeparator(String separator) {
+        this.separator = separator;
+        return this;
+    }
+
+    public CSVFileConfig setQuoteChar(String quoteChar) {
+        this.quoteChar = quoteChar;
+        return this;
+    }
+
     @Override
     public void buildMsg(StringBuilder stringBuilder){
 //		super.buildMsg(stringBuilder);

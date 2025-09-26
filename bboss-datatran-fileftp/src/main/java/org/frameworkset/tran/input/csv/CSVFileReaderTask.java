@@ -38,7 +38,8 @@ public class CSVFileReaderTask extends FileReaderTask {
 	private static Logger logger = LoggerFactory.getLogger(CSVFileReaderTask.class);
 	private CSVFileConfig csvFileConfig;
 	private CSVReader reader;
-    private static CSVParser CSV_PARSER = new CSVParserBuilder()
+    private CSVParser csvParser ;
+    private static CSVParser DEFAULT_CSV_PARSER = new CSVParserBuilder()
             .withSeparator(',')
             .withQuoteChar('"')
             .build();
@@ -53,6 +54,21 @@ public class CSVFileReaderTask extends FileReaderTask {
 				fileDataTran,
 				currentStatus, fileImportConfig);
         csvFileConfig = fileConfig;
+        CSVParserBuilder csvParserBuilder = new CSVParserBuilder();
+               
+        if(SimpleStringUtil.isNotEmpty(csvFileConfig.getSeparator())){
+            csvParserBuilder.withSeparator(csvFileConfig.getSeparator().charAt(0));
+        }
+        else{
+            csvParserBuilder.withSeparator(',');
+        }
+        if(SimpleStringUtil.isNotEmpty(csvFileConfig.getQuoteChar())){
+            csvParserBuilder.withQuoteChar(csvFileConfig.getQuoteChar().charAt(0));
+        }
+        else{
+            csvParserBuilder.withQuoteChar('"');
+        }
+        csvParser = csvParserBuilder.build();
 
 	}
 
@@ -101,14 +117,14 @@ public class CSVFileReaderTask extends FileReaderTask {
 //            synchronized (this){  单线程处理，无需同步处理
 
 			if (reader == null) {
-                if(csvFileConfig.getCharset() != null) {
+                if(SimpleStringUtil.isNotEmpty(csvFileConfig.getCharset())) {
                     reader = new CSVReaderBuilder(new CustomFileReader(file,csvFileConfig.getCharset()))
-                            .withCSVParser(CSV_PARSER) // 复用已定义的 CSV_PARSER
+                            .withCSVParser(csvParser) // 复用已定义的 CSV_PARSER
                             .build();
                 }
                 else{
                     reader = new CSVReaderBuilder(new CustomFileReader(file))
-                            .withCSVParser(CSV_PARSER) // 复用已定义的 CSV_PARSER
+                            .withCSVParser(csvParser) // 复用已定义的 CSV_PARSER
                             .build();
                 }
                  
@@ -144,7 +160,16 @@ public class CSVFileReaderTask extends FileReaderTask {
             
             String[] messageArr = null;
             while (true) {
-                messageArr = reader.readNext();
+                try {
+                    messageArr = reader.readNext();
+                    pointer++;
+                } catch (Exception e) {
+                    pointer++;
+                    logger.warn("messageArr = reader.readNext() failed: line="+pointer,e);
+                    recordList.add(new FileLogRecord(taskContext,this.fileDataTran.getImportContext(),true,pointer,reachEOFClosed,false));
+                    
+                    continue;
+                }
                 if(messageArr == null){
                     reachEOFClosed = true;                   
                     break;
