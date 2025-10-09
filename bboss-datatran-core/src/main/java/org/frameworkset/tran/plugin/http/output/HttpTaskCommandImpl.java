@@ -15,7 +15,7 @@ package org.frameworkset.tran.plugin.http.output;
  * limitations under the License.
  */
 
-import org.apache.http.entity.ContentType;
+import org.apache.hc.core5.http.ContentType;
 import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.CommonRecord;

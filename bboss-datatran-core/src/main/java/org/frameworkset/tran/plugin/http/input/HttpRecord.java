@@ -15,7 +15,7 @@ package org.frameworkset.tran.plugin.http.input;
  * limitations under the License.
  */
 
-import org.apache.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.http.HttpResult;
 import org.frameworkset.tran.record.CommonMapRecord;
@@ -38,7 +38,7 @@ public class HttpRecord  extends CommonMapRecord {
 		this.httpResult = httpResult;
 	}
 
-	public HttpResponse getResponse(){
+	public ClassicHttpResponse getResponse(){
 		return httpResult.getResponse();
 	}
 	public HttpResult<Map> getHttpResult() {

@@ -15,7 +15,7 @@ package org.frameworkset.tran.plugin.http;
  * limitations under the License.
  */
 
-import org.apache.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.frameworkset.tran.plugin.http.input.QueryAction;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public class HttpResult<T> {
 	 * 从报文中提取的待处理数据集合
 	 */
 	private List<T> datas;
-	private HttpResponse response;
+	private ClassicHttpResponse response;
     private int seq;
     private QueryAction queryAction;
 	/**
@@ -53,11 +53,11 @@ public class HttpResult<T> {
 		this.datas = datas;
 	}
 
-	public HttpResponse getResponse() {
+	public ClassicHttpResponse getResponse() {
 		return response;
 	}
 
-	public void setResponse(HttpResponse response) {
+	public void setResponse(ClassicHttpResponse response) {
 		this.response = response;
 	}
 

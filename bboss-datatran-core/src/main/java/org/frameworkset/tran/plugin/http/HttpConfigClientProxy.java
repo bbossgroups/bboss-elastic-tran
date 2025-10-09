@@ -15,12 +15,14 @@ package org.frameworkset.tran.plugin.http;
  * limitations under the License.
  */
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.entity.ContentType;
-import org.apache.http.util.EntityUtils;
+
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.frameworkset.elasticsearch.client.ConfigHolder;
 import org.frameworkset.elasticsearch.template.BaseTemplateContainerImpl;
 import org.frameworkset.elasticsearch.template.ConfigDSLUtil;
@@ -128,8 +130,8 @@ public class HttpConfigClientProxy {
 			dynamicHeaderContext.setDatas(dsl);
         BaseURLResponseHandler<List<T>> baseURLResponseHandler = new BaseURLResponseHandler<List<T>>() {
             @Override
-            public List<T> handleResponse(final HttpResponse response)
-                    throws ClientProtocolException, IOException {
+            public List<T> handleResponse(final ClassicHttpResponse response)
+                    throws ClientProtocolException, IOException, ParseException {
                 httpResult.setResponse(response);
                 handleListResponse(httpResult,httpInputConfig,   httpResultParserContext,url, response, resultType);
                 return httpResult.getDatas();
@@ -147,8 +149,8 @@ public class HttpConfigClientProxy {
         List<T> datas =  HttpRequestProxy.httpPutforList(  httpInputConfig.getSourceHttpPool(),
                 httpInputConfig.getQueryUrl(),params, HttpProxyHelper.getHttpHeaders(httpInputConfig,dynamicHeaderContext), resultType, new BaseURLResponseHandler<List<T>>() {
             @Override
-            public List<T> handleResponse(final HttpResponse response)
-                    throws ClientProtocolException, IOException {
+            public List<T> handleResponse(final ClassicHttpResponse response)
+                    throws ClientProtocolException, IOException, ParseException {
                 httpResult.setResponse(response);
                 handleListResponse(httpResult,httpInputConfig,   httpResultParserContext,url, response, resultType);
                 return httpResult.getDatas();
@@ -158,9 +160,9 @@ public class HttpConfigClientProxy {
         return httpResult;
     }
 
-	public static <T> void handleListResponse(HttpResult<T> httpResult, HttpInputConfig httpInputConfig, HttpResultParserContext httpResultParserContext, String url, HttpResponse response, Class<T> resultType)
-			throws ClientProtocolException, IOException {
-		int status = response.getStatusLine().getStatusCode();
+	public static <T> void handleListResponse(HttpResult<T> httpResult, HttpInputConfig httpInputConfig, HttpResultParserContext httpResultParserContext, String url, ClassicHttpResponse response, Class<T> resultType)
+            throws ClientProtocolException, IOException, ParseException {
+		int status = response.getCode();
 
 		if (org.frameworkset.spi.remote.http.ResponseUtil.isHttpStatusOK( status)) {
 			if(httpInputConfig.getHttpResultParser() == null) {
@@ -217,8 +219,8 @@ public class HttpConfigClientProxy {
 		return HttpRequestProxy. sendBody(  httpOutputConfig.getTargetHttpPool(),  requestBody,   httpOutputConfig.getServiceUrl(), HttpProxyHelper.getHttpHeaders(httpOutputConfig,dynamicHeaderContext),   ContentType.APPLICATION_JSON, new BaseURLResponseHandler<String>() {
 
 			@Override
-			public String handleResponse(final HttpResponse response)
-					throws ClientProtocolException, IOException {
+			public String handleResponse(final ClassicHttpResponse response)
+                    throws ClientProtocolException, IOException, ParseException {
 				return ResponseUtil.handleStringResponse(url, response);
 			}
 
@@ -241,8 +243,8 @@ public class HttpConfigClientProxy {
             dynamicHeaderContext.setDatas(dsl);
         BaseURLResponseHandler<List<T>> baseURLResponseHandler = new BaseURLResponseHandler<List<T>>() {
             @Override
-            public List<T> handleResponse(final HttpResponse response)
-                    throws ClientProtocolException, IOException {
+            public List<T> handleResponse(final ClassicHttpResponse response)
+                    throws ClientProtocolException, IOException, ParseException {
                 httpResult.setResponse(response);
                 handleListResponse(httpResult,httpInputConfig,   httpResultParserContext,url, response, resultType);
                 return httpResult.getDatas();
@@ -262,8 +264,8 @@ public class HttpConfigClientProxy {
         List<T> datas =  HttpRequestProxy.httpPostForList(  httpInputConfig.getSourceHttpPool(),  httpInputConfig.getQueryUrl(), params,HttpProxyHelper.getHttpHeaders(httpInputConfig,dynamicHeaderContext),
                                                 resultType,new BaseURLResponseHandler<List<T>>() {
             @Override
-            public List<T> handleResponse(final HttpResponse response)
-                    throws ClientProtocolException, IOException {
+            public List<T> handleResponse(final ClassicHttpResponse response)
+                    throws ClientProtocolException, IOException, ParseException {
                 httpResult.setResponse(response);
                 handleListResponse(httpResult,httpInputConfig,   httpResultParserContext,url, response, resultType);
                 return httpResult.getDatas();
@@ -278,8 +280,8 @@ public class HttpConfigClientProxy {
 
 		List<T> datas =  HttpRequestProxy.httpGetforList(  httpInputConfig.getSourceHttpPool(),   httpInputConfig.getQueryUrl(),params, HttpProxyHelper.getHttpHeaders(httpInputConfig,dynamicHeaderContext), resultType,new BaseURLResponseHandler<List<T>>() {
 			@Override
-			public List<T> handleResponse(final HttpResponse response)
-					throws ClientProtocolException, IOException {
+			public List<T> handleResponse(final ClassicHttpResponse response)
+                    throws ClientProtocolException, IOException, ParseException {
 				httpResult.setResponse(response);
 				handleListResponse(httpResult,httpInputConfig,   httpResultParserContext,url, response, resultType);
 				return httpResult.getDatas();
@@ -296,8 +298,8 @@ public class HttpConfigClientProxy {
 		}
 		List<T> datas =  HttpRequestProxy.sendBody(  poolname,  dsl,   url, (Map<String, String>)null, ContentType.APPLICATION_JSON, new BaseURLResponseHandler<List<T>>() {
 			@Override
-			public List<T> handleResponse(final HttpResponse response)
-					throws ClientProtocolException, IOException {
+			public List<T> handleResponse(final ClassicHttpResponse response)
+                    throws ClientProtocolException, IOException, ParseException {
 				httpResult.setResponse(response);
 				return ResponseUtil.handleListResponse( url, response, resultType);
 			}
@@ -308,7 +310,7 @@ public class HttpConfigClientProxy {
 
 	public   <T> T sendBody(final String poolname,  String requestBody, String url,
 								 final Map<String, String> headers, ContentType contentType,
-								 final ResponseHandler<T> responseHandler) throws HttpProxyRequestException {
+								 final HttpClientResponseHandler<T> responseHandler) throws HttpProxyRequestException {
 		return HttpRequestProxy.sendBody( poolname,   requestBody,   url,
 		  headers,   contentType,
 		  responseHandler);

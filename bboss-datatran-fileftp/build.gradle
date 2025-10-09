@@ -37,10 +37,11 @@ dependencies {
     }
     api group: 'org.bouncycastle', name: 'bcpkix-jdk18on', version: '1.79'
 //    api group: 'com.hierynomus', name: 'sshj', version: '0.37.0', transitive: true
-	api group: 'commons-net', name: 'commons-net', version: '3.11.1', transitive: true
+	api group: 'commons-net', name: 'commons-net', version: '3.12.0', transitive: true
     
 	api ('org.apache.poi:poi:5.4.1'){
         exclude group: 'commons-codec', module: 'commons-codec'
+        exclude group: 'commons-io', module: 'commons-io'
         exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
         exclude group: 'org.apache.commons', module: 'commons-collections4'
     
