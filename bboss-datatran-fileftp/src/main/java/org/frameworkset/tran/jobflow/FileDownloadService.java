@@ -13,6 +13,7 @@ import org.frameworkset.tran.input.file.FileCheckResult;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
 import org.frameworkset.tran.input.s3.OSSFileInputConfig;
 import org.frameworkset.tran.input.zipfile.Zip4jExtractor;
+import org.frameworkset.tran.input.zipfile.ZipFilePasswordFunction;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -448,7 +449,11 @@ public class FileDownloadService {
                     if(ftpContext.isUnzip()){
                         logger.info("Start unzip file:"+downloadFileMetrics.getLocalFilePath());
                         long startTime = System.currentTimeMillis();
-                        int files = Zip4jExtractor.extractEncryptedZip(handleFile,ftpContext.getUnzipDir(),ftpContext.getZipFilePassward());
+                        ZipFilePasswordFunction zipFilePasswordFunction = ftpContext.getZipFilePasswordFunction();
+                        String zipFilePassward = zipFilePasswordFunction == null?ftpContext.getZipFilePassward():
+                                            zipFilePasswordFunction.getZipFilePassword(jobFlowNodeExecuteContext,downloadFileMetrics.getRemoteFilePath(),downloadFileMetrics.getLocalFilePath());
+                        
+                        int files = Zip4jExtractor.extractEncryptedZip(handleFile,ftpContext.getUnzipDir(),zipFilePassward);
                         long endTime = System.currentTimeMillis();
                         downloadFileMetrics.setUnzipElapsed(endTime - startTime);
                         downloadFileMetrics.setFiles(files);

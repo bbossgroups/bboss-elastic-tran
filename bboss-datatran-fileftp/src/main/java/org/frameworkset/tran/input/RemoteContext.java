@@ -19,6 +19,7 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.ftp.RemoteFileValidate;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
+import org.frameworkset.tran.input.zipfile.ZipFilePasswordFunction;
 import org.frameworkset.tran.plugin.file.BaseRemoteConfig;
 
 /**
@@ -36,6 +37,7 @@ public abstract class RemoteContext<T extends RemoteContext> extends BaseRemoteC
      */
     protected String sourcePath;
     protected String zipFilePassward;
+    protected ZipFilePasswordFunction zipFilePasswordFunction;
     
     /**
      * 是否解压文件
@@ -111,6 +113,15 @@ public abstract class RemoteContext<T extends RemoteContext> extends BaseRemoteC
 
     public String getZipFilePassward() {
         return zipFilePassward;
+    }
+
+    public T setZipFilePasswordFunction(ZipFilePasswordFunction zipFilePasswordFunction) {
+        this.zipFilePasswordFunction = zipFilePasswordFunction;
+        return (T)this;
+    }
+
+    public ZipFilePasswordFunction getZipFilePasswordFunction() {
+        return zipFilePasswordFunction;
     }
 
     public T setZipFilePassward(String zipFilePassward) {
