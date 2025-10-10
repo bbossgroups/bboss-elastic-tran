@@ -286,7 +286,8 @@ public class FileDownloadService {
                         }
                         catch (Exception e){
 
-                            logger.error("Download remoteFile" + remoteFile+ " to " + localFile+ " And Collect File failed：",e);
+                            if(logger.isErrorEnabled())
+                                logger.error("Download remoteFile" + remoteFile+ " to " + localFile+ " And Collect File failed：",e);
                         }
                        
 					}
@@ -302,7 +303,8 @@ public class FileDownloadService {
                 }
                 catch (Exception e){
 
-                    logger.error("Download remoteFile" + remoteFile+ " to " + localFile+ " And Collect File failed：",e);
+                    if(logger.isErrorEnabled())
+                        logger.error("Download remoteFile" + remoteFile+ " to " + localFile+ " And Collect File failed：",e);
                 }
 			}
         }
@@ -354,7 +356,8 @@ public class FileDownloadService {
                            
                             builder.append("开始第").append(times + 1).append("次重试下载文件：localPath:").append(localFilePath).append(",remotePath:").append(remoteFile).append("");
                             msg = builder.toString();
-                            logger.warn(msg);
+                            if(logger.isWarnEnabled())
+                                logger.warn(msg);
                             
                         }
                         else{
@@ -380,13 +383,15 @@ public class FileDownloadService {
                                         .append(",耗时:").append(elapsed).append("毫秒!");
                                 msg = builder.toString();
                                 builder.setLength(0);
-                                logger.warn(msg);
+                                if(logger.isWarnEnabled())
+                                    logger.warn(msg);
                             } else {
                                 builder.append("第").append(times + 1).append("次重试下载文件失败：localPath:").append(localFilePath)
                                         .append(",remotePath:").append(remoteFile).append(",耗时:").append(elapsed).append("毫秒!");
                                 msg = builder.toString();
                                 builder.setLength(0);
-                                logger.warn(msg);
+                                if(logger.isWarnEnabled())
+                                    logger.warn(msg);
                             }
 
 //                            dataTranPlugin.reportJobMetricWarn(taskContext,msg);
@@ -421,7 +426,8 @@ public class FileDownloadService {
                                 .append(remoteFile).append(",校验耗时：")
                                 .append(downloadFileMetrics.getValidateElapsed()).append("毫秒，失败原因：").append(result.getMessage());
                         String msg = builder.toString();
-                        logger.warn(msg);
+                        if(logger.isWarnEnabled())
+                            logger.warn(msg);
 
 //                        dataTranPlugin.reportJobMetricWarn(taskContext,msg);
                         removeDownTrace(fileId);
@@ -429,13 +435,15 @@ public class FileDownloadService {
                         return;
                     }
                     else{
-                        StringBuilder builder = new StringBuilder();
-                        builder.append("文件校验成功：localPath:")
-                                .append(localFilePath).append(",remotePath:")
-                                .append(remoteFile).append(",校验耗时：")
-                                .append(downloadFileMetrics.getValidateElapsed()).append("毫秒 ");
-                        String msg = builder.toString();
-                        logger.info(msg);
+                        if(logger.isInfoEnabled()) {
+                            StringBuilder builder = new StringBuilder();
+                            builder.append("文件校验成功：localPath:")
+                                    .append(localFilePath).append(",remotePath:")
+                                    .append(remoteFile).append(",校验耗时：")
+                                    .append(downloadFileMetrics.getValidateElapsed()).append("毫秒 ");
+                            String msg = builder.toString();
+                            logger.info(msg);
+                        }
 //                        if(taskContext != null) {
 //                            taskContext.reportJobMetricLog(msg);
 //                        }
@@ -447,7 +455,8 @@ public class FileDownloadService {
                         logger.info("Rename " + localFilePath + " to " + downloadFileMetrics.getLocalFilePath());
                     //开始解压文件：
                     if(ftpContext.isUnzip()){
-                        logger.info("Start unzip file:"+downloadFileMetrics.getLocalFilePath());
+                        if(logger.isInfoEnabled())
+                            logger.info("Start unzip file:"+downloadFileMetrics.getLocalFilePath());
                         long startTime = System.currentTimeMillis();
                         ZipFilePasswordFunction zipFilePasswordFunction = ftpContext.getZipFilePasswordFunction();
                         String zipFilePassward = zipFilePasswordFunction == null?ftpContext.getZipFilePassward():
@@ -475,7 +484,8 @@ public class FileDownloadService {
                     String msg = builder.toString();
 
 //                    dataTranPlugin.reportJobMetricWarn(taskContext,msg);
-                    logger.warn(msg);
+                    if(logger.isWarnEnabled())
+                        logger.warn(msg);
                     downloadFileMetrics.setMessage(msg);
                     downloadedFileRecorder.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,null);
                     return;
@@ -500,7 +510,8 @@ public class FileDownloadService {
         }
 
         if(!handleFile.exists()){
-            logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFilePath,remoteFile,downloadFileMetrics.getLocalFilePath());
+            if(logger.isWarnEnabled())
+                logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFilePath,remoteFile,downloadFileMetrics.getLocalFilePath());
             removeDownTrace(fileId);
             return;
         }
@@ -513,7 +524,8 @@ public class FileDownloadService {
                         logger.debug("删除远程ftp服务器文件{}完毕",remoteFile);
                     }
                 } catch (Exception e) {
-                    logger.warn("删除远程ftp服务器文件失败：" + remoteFile, e);
+                    if(logger.isWarnEnabled())
+                        logger.warn("删除远程ftp服务器文件失败：" + remoteFile, e);
                 }
             }
         }
