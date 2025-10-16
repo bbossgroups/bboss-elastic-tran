@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * @description
  * @create 2021/3/12
  */
-public class FileConfig<T extends FileConfig<T>> extends FieldManager<T>{
+public class FileConfig<T extends FileConfig> extends FieldManager<T>{
     private Logger logger = LoggerFactory.getLogger(FileConfig.class);
 
 

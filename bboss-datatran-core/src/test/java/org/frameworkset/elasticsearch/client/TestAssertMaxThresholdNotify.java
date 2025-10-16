@@ -30,7 +30,7 @@ import static java.lang.Thread.sleep;
 public class TestAssertMaxThresholdNotify {
     public static void main(String[] args){
         AssertMaxThreshold assertMaxThreshold = new AssertMaxThreshold(3,50000L);
-        assertMaxThreshold.increament(10);
+        assertMaxThreshold.increament();
 
 
         Thread t2 = new Thread(new Runnable() {

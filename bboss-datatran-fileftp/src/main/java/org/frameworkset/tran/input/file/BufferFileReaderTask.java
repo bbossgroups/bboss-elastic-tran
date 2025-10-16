@@ -98,6 +98,11 @@ public class BufferFileReaderTask extends FileReaderTask{
         int position = 0;
         //文件结束标记
         boolean eof = limit <= 0;
+        if(eof){
+            readMetric.setReachEOFClosed( reachEOFClosed());
+            readMetric.setPrePointer(prePointer);
+            return;
+        }
         while (!eof) {            
             byte c = -1;
             //行结尾
@@ -342,7 +347,12 @@ public class BufferFileReaderTask extends FileReaderTask{
                  * 发送空记录
                  */
 
-                pointer = readMetric.getLine().getOffset();
+                if(readMetric.getLine() != null) {
+                    pointer = readMetric.getLine().getOffset();
+                }
+                else {
+                    pointer = readMetric.getPrePointer();
+                }
                 sendReadEOFcloseEvent(pointer);
                 
                 taskEnded();

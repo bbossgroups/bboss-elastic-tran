@@ -162,6 +162,10 @@ public class CSVFileReaderTask extends FileReaderTask {
             while (true) {
                 try {
                     messageArr = reader.readNext();
+                    if(messageArr == null){
+                        reachEOFClosed = true;
+                        break;
+                    }
                     pointer++;
                 } catch (Exception e) {
                     pointer++;
@@ -170,10 +174,7 @@ public class CSVFileReaderTask extends FileReaderTask {
                     
                     continue;
                 }
-                if(messageArr == null){
-                    reachEOFClosed = true;                   
-                    break;
-                }
+                
                 resultOfCSV(file, pointer, messageArr, recordList, reachEOFClosed);
                 if(inputPlugin.isStopCollectData()){
                     break;

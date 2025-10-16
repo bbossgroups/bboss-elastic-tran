@@ -805,6 +805,14 @@ public class FileReaderTask extends FieldManager{
         return false;
     }
 
+    protected boolean reachEOFClosed(){
+//        if(fileConfig.isCloseEOF() && line.isEof()){
+        if(fileInfo.isCloseEOF()){
+            return true;
+        }
+        return false;
+    }
+
 	/**
 	 * 单位：毫秒
 	 * 从文件采集（fetch）一个batch的数据后，休息一会，避免cpu占用过高，在大量文件同时采集时可以设置，大于0有效，默认值0

@@ -156,7 +156,8 @@ public class FieldMappingManager<T extends FieldMappingManager> {
 		return fieldSplit;
 	}
 
-	public void setFieldSplit(String fieldSplit) {
+	public T setFieldSplit(String fieldSplit) {
 		this.fieldSplit = fieldSplit;
+        return (T)this;
 	}
 }
