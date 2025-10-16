@@ -84,6 +84,15 @@ public class FtpConfig extends RemoteContext<FtpConfig> {
 	 * 建立连接超时时间，单位：毫秒
 	 */
 	private long connectTimeout;
+    /**
+     *       Sets the current data connection mode to {@code PASSIVE_LOCAL_DATA_CONNECTION_MODE}. Use this method only for data transfers between the client and
+     *      server. This method causes a PASV (or EPSV) command to be issued to the server before the opening of every data connection, telling the server to open a
+     *      data port to which the client will connect to conduct data transfers. The FTPClient will stay in PASSIVE_LOCAL_DATA_CONNECTION_MODE until the
+     *      mode is changed by calling some other method such as enterLocalActiveMode enterLocalActiveMode()
+     *      <p>
+     *      <strong>N.B.</strong> currently calling any connect method will reset the mode to ACTIVE_LOCAL_DATA_CONNECTION_MODE.
+     *      </p>
+     */
     private Boolean enterLocalPassiveMode;
 	private int controlKeepAliveReplyTimeout;
 	private String encoding;
@@ -395,11 +404,27 @@ public class FtpConfig extends RemoteContext<FtpConfig> {
 		this.connectTimeout = connectTimeout;
 		return this;
 	}
-
+    /**
+     *       Sets the current data connection mode to {@code PASSIVE_LOCAL_DATA_CONNECTION_MODE}. Use this method only for data transfers between the client and
+     *      server. This method causes a PASV (or EPSV) command to be issued to the server before the opening of every data connection, telling the server to open a
+     *      data port to which the client will connect to conduct data transfers. The FTPClient will stay in PASSIVE_LOCAL_DATA_CONNECTION_MODE until the
+     *      mode is changed by calling some other method such as enterLocalActiveMode enterLocalActiveMode()
+     *      <p>
+     *      <strong>N.B.</strong> currently calling any connect method will reset the mode to ACTIVE_LOCAL_DATA_CONNECTION_MODE.
+     *      </p>
+     */
     public Boolean enterLocalPassiveMode() {
         return enterLocalPassiveMode;
     }
-
+    /**
+     *       Sets the current data connection mode to {@code PASSIVE_LOCAL_DATA_CONNECTION_MODE}. Use this method only for data transfers between the client and
+     *      server. This method causes a PASV (or EPSV) command to be issued to the server before the opening of every data connection, telling the server to open a
+     *      data port to which the client will connect to conduct data transfers. The FTPClient will stay in PASSIVE_LOCAL_DATA_CONNECTION_MODE until the
+     *      mode is changed by calling some other method such as enterLocalActiveMode enterLocalActiveMode()
+     *      <p>
+     *      <strong>N.B.</strong> currently calling any connect method will reset the mode to ACTIVE_LOCAL_DATA_CONNECTION_MODE.
+     *      </p>
+     */
     public FtpConfig setEnterLocalPassiveMode(Boolean enterLocalPassiveMode) {
         this.enterLocalPassiveMode = enterLocalPassiveMode;
         return this;
