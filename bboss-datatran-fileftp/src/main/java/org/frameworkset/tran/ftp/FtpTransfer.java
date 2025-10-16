@@ -350,6 +350,10 @@ public class FtpTransfer {
 			} else {
 				ftp.connect(fileFtpOupputContext.getFtpIP());
 			}
+            if(fileFtpOupputContext.enterLocalPassiveMode() != null && fileFtpOupputContext.enterLocalPassiveMode()) {
+                // 设置被动模式（关键）
+                ftp.enterLocalPassiveMode();
+            }
 			if(logger.isDebugEnabled())
 				logger.debug("Connected to " + fileFtpOupputContext.getFtpIP() + " on " + (fileFtpOupputContext.getFtpPort() > 0 ? fileFtpOupputContext.getFtpPort() : ftp.getDefaultPort()));
 

@@ -83,7 +83,10 @@ public class DefaultFtpContextImpl  implements FtpContext {
 	public String getFtpUser() {
 		return ftpConfig.getFtpUser();
 	}
-
+    @Override
+    public  Boolean enterLocalPassiveMode(){
+        return ftpConfig.enterLocalPassiveMode();
+    }
 	@Override
 	public String getFtpPassword() {
 		return ftpConfig.getFtpPassword();

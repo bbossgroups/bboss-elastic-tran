@@ -54,6 +54,7 @@ public class FtpOutConfig extends BaseRemoteConfig<FtpOutConfig> {
 	private String ftpProtocol;
 	private String ftpTrustmgr;
 	private String ftpProxyHost;
+    private Boolean enterLocalPassiveMode;
 
 
 	private int ftpProxyPort;
@@ -304,4 +305,13 @@ public class FtpOutConfig extends BaseRemoteConfig<FtpOutConfig> {
 		this.connectTimeout = connectTimeout;
 		return this;
 	}
+
+    public Boolean getEnterLocalPassiveMode() {
+        return enterLocalPassiveMode;
+    }
+
+    public FtpOutConfig setEnterLocalPassiveMode(Boolean enterLocalPassiveMode) {
+        this.enterLocalPassiveMode = enterLocalPassiveMode;
+        return this;
+    }
 }

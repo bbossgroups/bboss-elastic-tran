@@ -34,6 +34,7 @@ import java.util.List;
 public interface FtpContext<T extends FtpContext> {
 	String getFtpIP();
 	int getFtpPort();
+    Boolean enterLocalPassiveMode();
 	FtpConfig getFtpConfig();
 	FileConfig getFileConfig();
     JobFlowNodeExecuteContext getJobFlowNodeExecuteContext();

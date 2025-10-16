@@ -84,6 +84,7 @@ public class FtpConfig extends RemoteContext<FtpConfig> {
 	 * 建立连接超时时间，单位：毫秒
 	 */
 	private long connectTimeout;
+    private Boolean enterLocalPassiveMode;
 	private int controlKeepAliveReplyTimeout;
 	private String encoding;
 	private int downloadWorkThreads = 3;
@@ -394,4 +395,13 @@ public class FtpConfig extends RemoteContext<FtpConfig> {
 		this.connectTimeout = connectTimeout;
 		return this;
 	}
+
+    public Boolean enterLocalPassiveMode() {
+        return enterLocalPassiveMode;
+    }
+
+    public FtpConfig setEnterLocalPassiveMode(Boolean enterLocalPassiveMode) {
+        this.enterLocalPassiveMode = enterLocalPassiveMode;
+        return this;
+    }
 }

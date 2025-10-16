@@ -358,7 +358,9 @@ public class FileOutputConfig<T extends FileOutputConfig> extends BaseConfig<T> 
 	public String getFtpProxyHost() {
 		return ftpOutConfig.getFtpProxyHost();
 	}
-
+    public Boolean enterLocalPassiveMode() {
+        return ftpOutConfig.getEnterLocalPassiveMode();
+    }
 	public int getFtpProxyPort() {
 		return ftpOutConfig.getFtpProxyPort();
 	}

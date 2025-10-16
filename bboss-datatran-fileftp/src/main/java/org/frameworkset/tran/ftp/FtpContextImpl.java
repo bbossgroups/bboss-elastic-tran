@@ -15,9 +15,12 @@ package org.frameworkset.tran.ftp;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.input.RemoteContext;
 import org.frameworkset.tran.input.file.FileConfig;
 import org.frameworkset.tran.input.file.FileFilter;
 import org.frameworkset.tran.input.file.FtpFileFilter;
+import org.frameworkset.tran.input.file.RemoteFileChannel;
+import org.frameworkset.tran.input.zipfile.ZipFilePasswordFunction;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.frameworkset.tran.jobflow.scan.JobFileFilter;
 
@@ -31,7 +34,7 @@ import java.util.List;
  * @author biaoping.yin
  * @version 1.0
  */
-public class FtpContextImpl implements FtpContext {
+public class FtpContextImpl extends RemoteContext<FtpContextImpl> implements FtpContext {
 	 private FtpConfig ftpConfig;
 
     protected JobFlowNodeExecuteContext jobFlowNodeExecuteContext;
@@ -43,6 +46,61 @@ public class FtpContextImpl implements FtpContext {
         this.ftpConfig = ftpConfig;
         this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
         this.jobFileFilter = jobFileFilter;
+    }
+
+    @Override
+    public  Boolean enterLocalPassiveMode(){
+        return ftpConfig.enterLocalPassiveMode();
+    }
+
+    /**
+     * 工作流节点需要进行配置:设置本地文件存放路径
+     *
+     * @return
+     */
+    @Override
+    public String getSourcePath() {
+        return ftpConfig.getSourcePath();
+    }
+
+    @Override
+    public String getUnzipDir() {
+        return ftpConfig.getUnzipDir();
+    }
+
+    @Override
+    public boolean isUnzip() {
+        return ftpConfig.isUnzip();
+    }
+
+    @Override
+    public String getZipFilePassward() {
+        return ftpConfig.getZipFilePassward();
+    }
+
+    @Override
+    public ZipFilePasswordFunction getZipFilePasswordFunction() {
+        return ftpConfig.getZipFilePasswordFunction();
+    }
+
+    @Override
+    public boolean isBackupSuccessFiles() {
+        return ftpConfig.isBackupSuccessFiles();
+    }
+
+    @Override
+    public boolean isTransferEmptyFiles() {
+        return ftpConfig.isTransferEmptyFiles();
+    }
+
+    @Override
+    public boolean isSendFileAsyn() {
+        return ftpConfig.isSendFileAsyn();
+    }
+
+    @Override
+    public int getSendFileAsynWorkThreads() {
+        return ftpConfig.getSendFileAsynWorkThreads();
     }
 
     @Override
@@ -192,4 +250,42 @@ public class FtpContextImpl implements FtpContext {
 	}
 
 
+    public String getDownloadTempDir() {
+        return ftpConfig.getDownloadTempDir();
+    }
+
+    @Override
+    public RemoteFileChannel getRemoteFileChannel() {
+        return ftpConfig.getRemoteFileChannel();
+    }
+
+    @Override
+    public RemoteFileValidate getRemoteFileValidate() {
+        return ftpConfig.getRemoteFileValidate();
+    }
+
+    @Override
+    public void destroy() {
+        ftpConfig.destroy();
+    }
+
+    /**
+     * 单位：毫秒,默认1分钟
+     *
+     * @return
+     */
+    @Override
+    public long getSuccessFilesCleanInterval() {
+        return ftpConfig.getSuccessFilesCleanInterval();
+    }
+
+    @Override
+    public long getFailedFileResendInterval() {
+        return ftpConfig.getFailedFileResendInterval();
+    }
+
+    @Override
+    public int getFileLiveTime() {
+        return ftpConfig.getFileLiveTime();
+    }
 }
