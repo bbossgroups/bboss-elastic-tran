@@ -60,7 +60,11 @@ dependencies {
     }
     api (group: 'com.opencsv', name: 'opencsv', version: '5.12.0'){
         exclude group: 'org.apache.commons', module: 'commons-lang3'
+        exclude group: 'org.apache.commons', module: 'commons-text'
     }
+    api(
+				[group: 'org.apache.commons', name: 'commons-text', version: "1.14.0", transitive: false]
+		)
     api (group: 'net.lingala.zip4j', name: 'zip4j', version: '2.11.5')
 
     api([group: 'com.bbossgroups', name: 'bboss-data', version: "${PROJ_BBOSS_DATA_VERSION}", transitive: true])
