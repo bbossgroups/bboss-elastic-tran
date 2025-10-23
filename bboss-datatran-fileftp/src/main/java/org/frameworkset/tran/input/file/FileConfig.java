@@ -121,6 +121,7 @@ public class FileConfig<T extends FileConfig> extends FieldManager<T>{
     //需要包含的记录条件,正则匹配
     private String[] includeLines;
     private String charsetEncode ;
+    private ChatsetFunction chatsetFunction;
     private Charset charset;//Charset.forName(csn);
     public LineMatchType getIncludeLineMatchType() {
         return includeLineMatchType;
@@ -697,5 +698,14 @@ public class FileConfig<T extends FileConfig> extends FieldManager<T>{
 
     public void build(){
 
+    }
+
+    public ChatsetFunction getChatsetFunction() {
+        return chatsetFunction;
+    }
+
+    public T setChatsetFunction(ChatsetFunction chatsetFunction) {
+        this.chatsetFunction = chatsetFunction;
+        return (T)this;
     }
 }

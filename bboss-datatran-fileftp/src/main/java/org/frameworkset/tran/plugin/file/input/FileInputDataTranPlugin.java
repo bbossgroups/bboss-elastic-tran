@@ -106,10 +106,21 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
         final FileTaskContext taskContext = new FileTaskContext(importContext);
         //构建文件信息
         File file = new File(status.getRealPath());
-        String charSet = fileConfig.getCharsetEncode() ;
-        if(charSet == null || charSet.equals("")){
-            charSet = getFileListenerService().getFileInputConfig().getCharsetEncode();
+        ChatsetFunction chatsetFunction = fileConfig.getChatsetFunction();
+        if(chatsetFunction ==  null){
+            chatsetFunction = getFileListenerService().getFileInputConfig().getChatsetFunction();
         }
+        String charSet = null;
+        if(chatsetFunction != null){
+            charSet = chatsetFunction.getCharset(file,fileConfig);
+        }
+        else {
+            charSet = fileConfig.getCharsetEncode();
+            if (charSet == null || charSet.equals("")) {
+                charSet = getFileListenerService().getFileInputConfig().getCharsetEncode();
+            }
+        }
+        
         FileInfo fileInfo = new FileInfo(charSet,
                 FileInodeHandler.change(file.getAbsolutePath()),
                 file,  status.getFileId(), fileConfig);

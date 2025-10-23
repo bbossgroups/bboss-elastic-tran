@@ -7,10 +7,7 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.context.ImportContext;
-import org.frameworkset.tran.input.file.BufferFileReaderTask;
-import org.frameworkset.tran.input.file.FileConfig;
-import org.frameworkset.tran.input.file.FileListenerService;
-import org.frameworkset.tran.input.file.FileReaderTask;
+import org.frameworkset.tran.input.file.*;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.schedule.Status;
@@ -58,6 +55,8 @@ public class FileInputConfig<T extends FileInputConfig> extends BaseConfig<T> im
     private boolean jsondata ;
     private boolean enableMeta;
     private String charsetEncode = "UTF-8";
+
+    private ChatsetFunction chatsetFunction;
     private List<FileConfig> fileConfigList;
     private long checkFileModifyInterval = 2000L;
     /**
@@ -544,6 +543,15 @@ public class FileInputConfig<T extends FileInputConfig> extends BaseConfig<T> im
 
     public T setEnableBufferRead(boolean enableBufferRead) {
         this.enableBufferRead = enableBufferRead;
+        return (T)this;
+    }
+
+    public ChatsetFunction getChatsetFunction() {
+        return chatsetFunction;
+    }
+
+    public T setChatsetFunction(ChatsetFunction chatsetFunction) {
+        this.chatsetFunction = chatsetFunction;
         return (T)this;
     }
 }
