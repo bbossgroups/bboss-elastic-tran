@@ -15,14 +15,16 @@ package org.frameworkset.tran.ftp;
  * limitations under the License.
  */
 
+import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.*;
 import org.apache.commons.net.io.CopyStreamEvent;
 import org.apache.commons.net.io.CopyStreamListener;
 import org.apache.commons.net.util.TrustManagerUtils;
+import org.frameworkset.soa.BBossStringWriter;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.input.file.FileFilter;
-import org.frameworkset.tran.input.file.SFTPFilterFileInfo;
 import org.frameworkset.tran.jobflow.scan.JobFileFilter;
+import org.frameworkset.util.concurrent.ListWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,14 +117,47 @@ public class FtpTransfer {
 			}
 		});
 	}
+    private static List<FTPFile> listFiles(FTPClient ftpClient,String remoteDir) throws IOException{
+        return listFiles(  ftpClient,  remoteDir,(FTPFileFilter)null);
+    }
 
+    private static List<FTPFile> listFiles(FTPClient ftpClient,String remoteDir,FTPFileFilter ftpFileFilter) throws IOException {
+        boolean success = ftpClient.changeWorkingDirectory(remoteDir);
+        if(!success){
+            logger.warn("RemoteDir do not exist or can not be visit:{}",remoteDir);
+            return null;
+        }
+        List<FTPFile> result = null;
+        FTPFile[] ftpFiles = ftpClient.listFiles( );
+        if(ftpFileFilter != null  ){
+            if(ftpFiles != null && ftpFiles.length > 0) {
+                result = new ArrayList<FTPFile>();
+                for (FTPFile ftpFile : ftpFiles) {
+                    if (ftpFileFilter.accept(ftpFile)) {
+                        result.add(ftpFile);
+                    }
+                }
+                if (result.size() <= 0) {
+                    result = null;
+                }
+            }
+        }
+        else{
+            if(ftpFiles != null && ftpFiles.length > 0){
+                result = Arrays.asList(ftpFiles);
+            }
+        }
+        return result;
+        
+    }
 	/**
 	 * 列出文件
 	 * @param fileFtpOupputContext
 	 * @return
 	 */
 	public static List<FTPFile> ls(final FtpContext fileFtpOupputContext) {
-		final List<FTPFile> files = new ArrayList<FTPFile>();
+//		final List<FTPFile> files = new ArrayList<FTPFile>();
+        final ListWrapper<FTPFile> files = new ListWrapper<FTPFile>();
 		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
         final JobFileFilter jobFileFilter = fileFtpOupputContext.getJobFileFilter();
 		handle(fileFtpOupputContext, new FTPAction() {
@@ -130,19 +165,18 @@ public class FtpTransfer {
 			@Override
 			public void execute(FTPClient ftp) throws IOException {
 				try {
-					FTPFile[] ftpFiles = null;
 					if(fileFilter != null){
-                        ftpFiles = ftp.listFiles(fileFtpOupputContext.getRemoteFileDir(), new FTPFileFilter() {
+                        files.setDatas( listFiles(ftp,fileFtpOupputContext.getRemoteFileDir(), new FTPFileFilter() {
                             @Override
                             public boolean accept(FTPFile file) {
                                 return fileFilter.accept(new FTPFilterFileInfo(fileFtpOupputContext.getRemoteFileDir(),file),fileFtpOupputContext.getFileConfig());                               
 
                             }
-                        });
+                        }));
 						
 					}
                     else if(jobFileFilter != null){
-                        ftpFiles = ftp.listFiles(fileFtpOupputContext.getRemoteFileDir(), new FTPFileFilter() {
+                        files.setDatas(  listFiles(ftp,fileFtpOupputContext.getRemoteFileDir(), new FTPFileFilter() {
                             @Override
                             public boolean accept(FTPFile file) {
                                 
@@ -150,19 +184,18 @@ public class FtpTransfer {
                                     return jobFileFilter.accept(new FTPFilterFileInfo(fileFtpOupputContext.getRemoteFileDir(),file),fileFtpOupputContext.getJobFlowNodeExecuteContext());
 
                             }
-                        });
+                        }));
                     }
 					else{
-                        ftpFiles = ftp.listFiles(fileFtpOupputContext.getRemoteFileDir());
+                        files.setDatas( listFiles(ftp,fileFtpOupputContext.getRemoteFileDir()));
 					}
 
-					files.addAll(Arrays.asList(ftpFiles));
 				} catch (Exception e) {
 					throw new DataImportException("Ls files from ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " failed:remote dir[" + fileFtpOupputContext.getRemoteFileDir() + "]", e);
 				}
 			}
 		});
-		return files;
+		return files.getDatas();
 	}
 
 	/**
@@ -171,7 +204,7 @@ public class FtpTransfer {
 	 * @return
 	 */
 	public static List<FTPFile> ls(final String remoteDir,final FtpContext fileFtpOupputContext) {
-		final List<FTPFile> files = new ArrayList<FTPFile>();
+        final ListWrapper<FTPFile> files = new ListWrapper<>();
 		final FileFilter fileFilter = fileFtpOupputContext.getFileFilter();
         final JobFileFilter jobFileFilter = fileFtpOupputContext.getJobFileFilter();
 		handle(fileFtpOupputContext, new FTPAction() {
@@ -179,39 +212,37 @@ public class FtpTransfer {
 			@Override
 			public void execute(FTPClient ftp) throws IOException {
 				try {
-					FTPFile[] ftpFiles = null;
 					if(fileFilter != null){
-                        ftpFiles = ftp.listFiles(remoteDir, new FTPFileFilter() {
+                        files.setDatas( listFiles(ftp,remoteDir, new FTPFileFilter() {
                             @Override
                             public boolean accept(FTPFile file) {
 
                                     return fileFilter.accept(new FTPFilterFileInfo(remoteDir,file),fileFtpOupputContext.getFileConfig());
 
                             }
-                        });
+                        }));
 						
 					}
                     else if(jobFileFilter != null){
-                        ftpFiles = ftp.listFiles(remoteDir, new FTPFileFilter() {
+                        files.setDatas( listFiles(ftp,remoteDir, new FTPFileFilter() {
                             @Override
                             public boolean accept(FTPFile file) {
 
                                     return jobFileFilter.accept(new FTPFilterFileInfo(remoteDir,file),fileFtpOupputContext.getJobFlowNodeExecuteContext());
 
                             }
-                        });
+                        }));
                     }
 					else{
-                        ftpFiles = ftp.listFiles(remoteDir);
+                        files.setDatas( listFiles(ftp,remoteDir));
 					}
 
-					files.addAll(Arrays.asList(ftpFiles));
 				} catch (Exception e) {
 					throw new DataImportException("Ls files from ftp " + fileFtpOupputContext.getFtpIP() + ":" + fileFtpOupputContext.getFtpPort() + " failed:remote dir[" + remoteDir + "]", e);
 				}
 			}
 		});
-		return files;
+		return files.getDatas();
 	}
 
 	/**
@@ -350,17 +381,15 @@ public class FtpTransfer {
 			} else {
 				ftp.connect(fileFtpOupputContext.getFtpIP());
 			}
-            if(fileFtpOupputContext.enterLocalPassiveMode() != null && fileFtpOupputContext.enterLocalPassiveMode()) {
-                // 设置被动模式（关键）
-                ftp.enterLocalPassiveMode();
-            }
-			if(logger.isDebugEnabled())
-				logger.debug("Connected to " + fileFtpOupputContext.getFtpIP() + " on " + (fileFtpOupputContext.getFtpPort() > 0 ? fileFtpOupputContext.getFtpPort() : ftp.getDefaultPort()));
+            
+            // After connection attempt, you should check the reply code to verify
+            // success.
+            reply = ftp.getReplyCode();
 
-			// After connection attempt, you should check the reply code to verify
-			// success.
-			reply = ftp.getReplyCode();
+            if(logger.isDebugEnabled())
+				logger.debug("Connected to " + fileFtpOupputContext.getFtpIP() + " on " + (fileFtpOupputContext.getFtpPort() > 0 ? fileFtpOupputContext.getFtpPort() : ftp.getDefaultPort()) + ",ReplyCode:"+reply);
 
+		
 			if (!FTPReply.isPositiveCompletion(reply)) {
 				ftp.disconnect();
 				logger.info("FTP server refused connection.");
@@ -396,7 +425,11 @@ public class FtpTransfer {
 
 			// Use passive mode as default because most of us are
 			// behind firewalls these days.
-			if(fileFtpOupputContext.localActive() != null) {
+            if(fileFtpOupputContext.enterLocalPassiveMode() != null && fileFtpOupputContext.enterLocalPassiveMode()) {
+                // 设置被动模式（关键）
+                ftp.enterLocalPassiveMode();
+            }
+			else if(fileFtpOupputContext.localActive() != null) {
 				if (fileFtpOupputContext.localActive()) {
 					ftp.enterLocalActiveMode();
 				} else {
@@ -405,6 +438,28 @@ public class FtpTransfer {
 			}
 			if(fileFtpOupputContext.useEpsvWithIPv4() != null)
 				ftp.setUseEPSVwithIPv4(fileFtpOupputContext.useEpsvWithIPv4());
+            
+            if(fileFtpOupputContext.debugMode() != null && fileFtpOupputContext.debugMode()) {
+
+                int passivePort = ftp.getPassivePort();
+                logger.info("被动模式数据连接: {}:{}" ,ftp.getPassiveHost(),passivePort);
+                //将命令输出到logger,构建一个Writer，将输出通过logger输出
+                ftp.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(new BBossStringWriter() {
+                     
+
+                    @Override
+                    public void flush()  {
+                        if(logger.isInfoEnabled()) {
+                            logger.info(getBuffer().toString());
+                        }
+                    }
+ 
+                }), true));
+                
+                
+                
+                 
+            }
 //
 //			InputStream input = null;
 //			try   {

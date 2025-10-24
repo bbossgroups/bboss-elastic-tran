@@ -102,6 +102,8 @@ public class FtpOutConfig extends BaseRemoteConfig<FtpOutConfig> {
 
 	private Boolean useEpsvWithIPv4;
 	private String remoteFileDir;
+
+    private Boolean debugMode;
 	
 	public String getFtpProtocol() {
 		return ftpProtocol;

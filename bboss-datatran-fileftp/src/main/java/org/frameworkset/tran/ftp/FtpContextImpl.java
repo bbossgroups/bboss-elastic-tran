@@ -179,7 +179,12 @@ public class FtpContextImpl extends RemoteContext<FtpContextImpl> implements Ftp
 		return ftpConfig.isUseEpsvWithIPv4();
 	}
 
-	@Override
+    @Override
+    public Boolean debugMode() {
+        return ftpConfig.getDebugMode();
+    }
+
+    @Override
 	public int getTransferProtocol() {
 		return ftpConfig.getTransferProtocol();
 	}

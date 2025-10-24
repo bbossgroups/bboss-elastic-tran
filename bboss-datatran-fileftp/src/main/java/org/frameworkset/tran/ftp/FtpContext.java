@@ -58,6 +58,7 @@ public interface FtpContext<T extends FtpContext> {
 	String getFtpTrustmgr();
 	Boolean localActive();
 	Boolean useEpsvWithIPv4();
+    Boolean debugMode();
 	int getTransferProtocol();
 	String getFtpProxyHost();
 	int getFtpProxyPort();

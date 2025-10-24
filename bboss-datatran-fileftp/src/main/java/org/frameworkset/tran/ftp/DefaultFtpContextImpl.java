@@ -126,7 +126,12 @@ public class DefaultFtpContextImpl  implements FtpContext {
 		return ftpConfig.isUseEpsvWithIPv4();
 	}
 
-	@Override
+    @Override
+    public Boolean debugMode() {
+        return ftpConfig.getDebugMode();
+    }
+
+    @Override
 	public int getTransferProtocol() {
 		return ftpConfig.getTransferProtocol();
 	}

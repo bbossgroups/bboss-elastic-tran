@@ -63,6 +63,9 @@ public class FtpConfig extends RemoteContext<FtpConfig> {
 	private Boolean localActive;
 
 	private Boolean useEpsvWithIPv4;
+
+
+    private Boolean debugMode;
 	/**
 	 * 毫秒为单位
 	 */
@@ -427,6 +430,15 @@ public class FtpConfig extends RemoteContext<FtpConfig> {
      */
     public FtpConfig setEnterLocalPassiveMode(Boolean enterLocalPassiveMode) {
         this.enterLocalPassiveMode = enterLocalPassiveMode;
+        return this;
+    }
+
+    public Boolean getDebugMode() {
+        return debugMode;
+    }
+
+    public FtpConfig setDebugMode(Boolean debugMode) {
+        this.debugMode = debugMode;
         return this;
     }
 }

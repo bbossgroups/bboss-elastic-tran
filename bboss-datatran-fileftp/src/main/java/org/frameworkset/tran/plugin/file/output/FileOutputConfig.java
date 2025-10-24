@@ -174,10 +174,21 @@ public class FileOutputConfig<T extends FileOutputConfig> extends BaseConfig<T> 
 	public Boolean useEpsvWithIPv4() {
 		return ftpOutConfig.isUseEpsvWithIPv4();
 	}
+
+
+    private Boolean debugMode;
 	@Override
 	public FtpConfig getFtpConfig() {
 		throw new UnsupportedOperationException("getFtpConfig");
 	}
+    
+    public Boolean debugMode() {
+        return debugMode;
+    }
+    public T setDebugMode(Boolean debugMode) {
+        this.debugMode = debugMode;
+        return (T)this;
+    }
 	@Override
 	public Boolean localActive() {
 		return ftpOutConfig.isLocalActive();
