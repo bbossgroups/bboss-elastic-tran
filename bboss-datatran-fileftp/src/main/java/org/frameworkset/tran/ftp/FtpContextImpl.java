@@ -82,6 +82,11 @@ public class FtpContextImpl extends RemoteContext<FtpContextImpl> implements Ftp
     }
 
     @Override
+    public boolean isUntar() {
+        return ftpConfig.isUntar();
+    }
+
+    @Override
     public String getZipFilePassward() {
         return ftpConfig.getZipFilePassward();
     }

@@ -12,6 +12,7 @@ import org.frameworkset.tran.input.file.DownAction;
 import org.frameworkset.tran.input.file.FileCheckResult;
 import org.frameworkset.tran.input.file.RemoteFileChannel;
 import org.frameworkset.tran.input.s3.OSSFileInputConfig;
+import org.frameworkset.tran.input.zipfile.ArchiveExtractor;
 import org.frameworkset.tran.input.zipfile.Zip4jExtractor;
 import org.frameworkset.tran.input.zipfile.ZipFilePasswordFunction;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
@@ -453,7 +454,7 @@ public class FileDownloadService {
                 if (renamesuccess) {
                     if (logger.isInfoEnabled())
                         logger.info("Rename " + localFilePath + " to " + downloadFileMetrics.getLocalFilePath());
-                    //开始解压文件：
+                    //开始解压zip文件：
                     if(ftpContext.isUnzip()){
                         if(logger.isInfoEnabled())
                             logger.info("Start unzip file:"+downloadFileMetrics.getLocalFilePath());
@@ -470,6 +471,22 @@ public class FileDownloadService {
                             handleFile.delete();
                             if(logger.isInfoEnabled())
                                 logger.info("Delete zip file:"+downloadFileMetrics.getLocalFilePath());
+                        }
+                    }
+                    //开始解压tar文件：
+                    else if(ftpContext.isUntar()){
+                        if(logger.isInfoEnabled())
+                            logger.info("Start untar file:"+downloadFileMetrics.getLocalFilePath());
+                        long startTime = System.currentTimeMillis();
+
+                        int files = ArchiveExtractor.extract(handleFile,ftpContext.getUnzipDir());
+                        long endTime = System.currentTimeMillis();
+                        downloadFileMetrics.setUnzipElapsed(endTime - startTime);
+                        downloadFileMetrics.setFiles(files);
+                        if(ftpContext.isDeleteZipFileAfterUnzip()){
+                            handleFile.delete();
+                            if(logger.isInfoEnabled())
+                                logger.info("Delete tar file:"+downloadFileMetrics.getLocalFilePath());
                         }
                     }
                     downloadedFileRecorder.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,null);

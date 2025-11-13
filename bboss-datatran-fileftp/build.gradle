@@ -48,7 +48,7 @@ dependencies {
 //        exclude group: 'commons-io', module: 'commons-io'
     }
 	api ('org.apache.poi:poi-ooxml:5.4.1'){
-//        exclude group: 'org.apache.commons', module: 'commons-compress'
+        exclude group: 'org.apache.commons', module: 'commons-compress'
         exclude group: 'commons-codec', module: 'commons-codec'
         exclude group: 'org.apache.commons', module: 'commons-lang3'
         exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
@@ -66,7 +66,7 @@ dependencies {
 				[group: 'org.apache.commons', name: 'commons-text', version: "1.14.0", transitive: false]
 		)
     api (group: 'net.lingala.zip4j', name: 'zip4j', version: '2.11.5')
-
+    api 'org.apache.commons:commons-compress:1.28.0'
     api([group: 'com.bbossgroups', name: 'bboss-data', version: "${PROJ_BBOSS_DATA_VERSION}", transitive: true])
 //    compileOnly (group: 'io.minio', name: 'minio', version: '8.5.17'){
 //        exclude group: 'com.fasterxml.jackson.jaxrs', module: 'jackson-jaxrs-json-provider'

@@ -43,6 +43,13 @@ public abstract class RemoteContext<T extends RemoteContext> extends BaseRemoteC
      * 是否解压文件
      */
     protected boolean unzip ;
+
+
+
+    /**
+     * 是否解压tar.gz文件
+     */
+    protected boolean untar ;
     /**
      * 文件解压目录
      */
@@ -185,7 +192,14 @@ public abstract class RemoteContext<T extends RemoteContext> extends BaseRemoteC
         return (T)this;
     }
 
- 
+    public boolean isUntar() {
+        return untar;
+    }
+
+    public T setUntar(boolean untar) {
+        this.untar = untar;
+        return (T)this;
+    }
 
     public void destroy() {
         if(remoteFileChannel != null){
