@@ -10,6 +10,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.input.file.*;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.schedule.AssertStopBarrier;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeRange;
@@ -137,11 +138,29 @@ public class FileInputConfig<T extends FileInputConfig> extends BaseConfig<T> im
      * 应用场景：一次性采集大量文件
      */
     private int maxFilesThreshold = -1;
+
+    /**
+     * 一次性执行扫描任务是否终止决断信号器，如果扫描任务需要终止则返回true，否则返回false
+     * 如果返回false，需要等待一会，然后再次执行扫描采集任务
+     */
+    private AssertStopBarrier assertStopBarrier;
     public FileInputConfig() {
     }
 
+    /**
+     * 一次性执行扫描任务是否终止决断信号器，如果扫描任务需要终止则返回true，否则返回false
+     * 如果返回false，需要等待一会，然后再次执行扫描采集任务
+     * @param assertStopBarrier
+     * @return
+     */
+    public T setAssertStopBarrier(AssertStopBarrier assertStopBarrier) {
+        this.assertStopBarrier = assertStopBarrier;
+        return (T)this;
+    }
 
-
+    public AssertStopBarrier getAssertStopBarrier() {
+        return assertStopBarrier;
+    }
 
     public List<FileConfig> getFileConfigList() {
         return fileConfigList;

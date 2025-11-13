@@ -12,6 +12,7 @@ import org.frameworkset.tran.input.file.*;
 import org.frameworkset.tran.input.s3.OSSFileInputConfig;
 import org.frameworkset.tran.input.s3.S3DirScan;
 import org.frameworkset.tran.plugin.BaseInputPlugin;
+import org.frameworkset.tran.schedule.AssertStopBarrier;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.util.TranConstant;
@@ -469,6 +470,33 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
             return isScanInitOrFinish;
         }
     }
+    
+    private void scanFileConfig(TaskContext taskContext,LogDirScan logDirScan){
+        try {
+            logDirScan.scanNewFile(taskContext);
+        } catch (DataImportException dataImportException) {
+            String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
+            if(taskContext != null) {
+                dataTranPlugin.throwException(taskContext, new DataImportException(msg,
+                        dataImportException));
+            }
+            else{
+                dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,
+                        dataImportException);
+            }
+            logger.error(msg, dataImportException);
+        }
+        catch (Exception e) {
+            String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
+            if(taskContext != null) {
+                dataTranPlugin.throwException(  taskContext,   new DataImportException( msg,e));
+            }
+            else{
+                dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,e);
+            }
+            logger.error(msg, e);
+        }
+    }
     @Override
     public void doImportData(TaskContext taskContext) throws DataImportException {
 
@@ -476,7 +504,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
         {
             List<FileConfig> fileConfigs = this.fileInputConfig.getFileConfigList();
             if (fileConfigs != null && fileConfigs.size() > 0) {
-
+                //定期扫描新文件
                 if (!fileInputConfig.isDisableScanNewFiles()) {
                     if (!fileInputConfig.isUseETLScheduleForScanNewFile()) {//采用内置新文件扫描调度机制
                         ScanNewFile scan = new ScanNewFile() {
@@ -492,39 +520,36 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                                             return false;
                                         }
                                     }
-//                                    if (!schedulePaused) {
-                                        for (LogDirScan logDirScan : logDirScans) {
-                                            try {
-                                                logDirScan.scanNewFile(taskContext);
-                                            } catch (DataImportException dataImportException) {
-                                                String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
-                                                if(taskContext != null) {
-                                                    dataTranPlugin.throwException(taskContext, new DataImportException(msg,
-                                                            dataImportException));
-                                                }
-                                                else{
-                                                    dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,
-                                                            dataImportException);
-                                                }
-                                                logger.error(msg, dataImportException);
+                                    for (LogDirScan logDirScan : logDirScans) {
+                                        scanFileConfig(  taskContext,  logDirScan);
+                                        /**
+                                        try {
+                                            logDirScan.scanNewFile(taskContext);
+                                        } catch (DataImportException dataImportException) {
+                                            String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
+                                            if(taskContext != null) {
+                                                dataTranPlugin.throwException(taskContext, new DataImportException(msg,
+                                                        dataImportException));
                                             }
-                                            catch (Exception e) {
-                                                String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
-                                                if(taskContext != null) {
-                                                    dataTranPlugin.throwException(  taskContext,   new DataImportException( msg,e));
-                                                }
-                                                else{
-                                                    dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,e);
-                                                }
-                                                logger.error(msg, e);
+                                            else{
+                                                dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,
+                                                        dataImportException);
                                             }
+                                            logger.error(msg, dataImportException);
                                         }
-//                                    } else {
-//                                        //todo here,markscanFinished
-//                                        if (logger.isInfoEnabled()) {
-//                                            logger.info("Ignore Scan new files for Paussed Schedule Task,waiting for next resume schedule sign to continue.");
-//                                        }
-//                                    }
+                                        catch (Exception e) {
+                                            String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
+                                            if(taskContext != null) {
+                                                dataTranPlugin.throwException(  taskContext,   new DataImportException( msg,e));
+                                            }
+                                            else{
+                                                dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,e);
+                                            }
+                                            logger.error(msg, e);
+                                        }
+                                         */
+                                    }
+
                                     return true;
                                 }
                                 finally {
@@ -559,6 +584,8 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                             markscanStart();
                             try {
                                 for (LogDirScan logDirScan : logDirScans) {
+                                    scanFileConfig(  taskContext,  logDirScan);
+                                    /**
                                     try {
                                         logDirScan.scanNewFile(taskContext);
                                     } catch (Exception e) {
@@ -572,6 +599,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                                         }
                                         logger.error(msg, e);
                                     }
+                                     */
                                 }
                             }
                             finally {
@@ -582,9 +610,43 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                     }
                 }
                 else{
+                    //一次性采集
                     markscanStart();
                     try {
-                        doFirstTime(  taskContext,fileConfigs);
+                        AssertStopBarrier assertStopBarrier = fileInputConfig.getAssertStopBarrier();
+                        if(assertStopBarrier == null) {
+                            doFirstTime(taskContext, fileConfigs);
+                        }
+                        else{
+                            do{
+
+                                if (logDirScans == null) { //初始执行不判断是否调度暂停，后续需要进行判断
+                                        doFirstTime(  taskContext,fileConfigs);
+                                    
+                                } else {
+                                    logger.info("数据生产任务正在数据文件，再次执行扫描新生成的数据文件.");
+                                    for (LogDirScan logDirScan : logDirScans) {
+                                        scanFileConfig(  taskContext,  logDirScan);
+                                        /**
+                                        try {
+                                            logDirScan.scanNewFile(taskContext);
+                                        } catch (Exception e) {
+                                            String msg = "扫描新文件异常:" + logDirScan.getFileConfig().toString();
+                                            if(taskContext != null) {
+                                                dataTranPlugin.throwException(  taskContext,   new DataImportException( msg,e));
+                                            }
+                                            else{
+                                                dataTranPlugin.reportJobMetricErrorLog(taskContext, msg,
+                                                        e);
+                                            }
+                                            logger.error(msg, e);
+                                        }
+                                         */
+                                    }
+                                    
+                                }
+                            }while (!assertStopBarrier.assertStop());
+                        }
                     }
                     finally {
                         markscanFinished();
@@ -610,7 +672,8 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
         for (FileConfig fileConfig : fileConfigs) {
             LogDirScan logDirScan = logDirScanThread(logDirsScanThread, fileConfig);
             logDirScans.add(logDirScan);
-            logDirScan.scanNewFile(  taskContext);
+            scanFileConfig(  taskContext,  logDirScan);
+//            logDirScan.scanNewFile(  taskContext);
         }
     }
 
