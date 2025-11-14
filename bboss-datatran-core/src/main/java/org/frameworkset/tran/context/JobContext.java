@@ -194,6 +194,28 @@ public class JobContext extends BaseMetricsLogReport {
         return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue);
     }
 
+    /**
+     * 获取容器节点对应的上下文数据,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * @param name
+     *  @param scanParent true 遍历上级容器,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止 false不遍历
+     * @return
+     */
+    public Object getContainerJobFlowNodeContextData(String name,boolean scanParent){
+        return this.getJobFlowNodeExecuteContext().getContainerJobFlowNodeContextData(name,scanParent);
+    }
+
+    /**
+     * 获取容器节点对应的上下文数据,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * 如果最终参数值为null，则返回默认值
+     * @param name
+     * @param defaultValue
+     * @param scanParent true 遍历上级容器,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止 false不遍历
+     * @return
+     */
+    public Object getContainerJobFlowNodeContextData(String name,Object defaultValue,boolean scanParent){
+        return this.getJobFlowNodeExecuteContext().getContainerJobFlowNodeContextData(name,defaultValue,scanParent);
+    }
+
     public void addJobFlowNodeContextData(String name, Object data) {
         this.getJobFlowNodeExecuteContext().addContextData(name,data);
     }
