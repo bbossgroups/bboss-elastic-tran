@@ -28,44 +28,120 @@ import java.util.Map;
  * @Date 2025/3/31
  */
 public interface JobFlowNodeExecuteContext {
+    /**
+     * 获取当前节点对应的上下文数据
+     * @param name
+     * @return
+     */
     Object getContextData(String name);
 
+    /**
+     * 获取当前节点对应的上下文数据
+     * 如果最终参数值为null，则返回默认值
+     * @param name
+     * @param defaultValue
+     * @return
+     */
     Object getContextData(String name,Object defaultValue);
 
-    Object getContextData(String name,boolean fromContainer);
+    /**
+     * 先从当前节点上下文获取参数值,scanParent为true时，会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * @param name
+     * @param scanParent
+     * @return
+     */
+    Object getContextData(String name,boolean scanParent);
 
-    Object getContextData(String name,Object defaultValue,boolean fromContainer);
+    /**
+     * 先从当前节点上下文获取参数值,scanParent为true时，会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * 如果最终参数值为null，则返回默认值
+     * @param name
+     * @param defaultValue
+     * @param scanParent
+     * @return
+     */
+    Object getContextData(String name,Object defaultValue,boolean scanParent);
     
+    /**
+     * 获取作业工作流对应的上下文数据
+     * @param name
+     * @return
+     */
     Object getJobFlowContextData(String name);
 
+    /**
+     * 获取作业工作流对应的上下文数据
+     * 如果最终参数值为null，则返回默认值
+     * @param name
+     * @param defaultValue
+     * @return
+     */
     Object getJobFlowContextData(String name,Object defaultValue);
     /**
-     * 获取容器节点对应的上下文数据,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * 获取直接上级容器节点对应的上下文数据
      * @param name
      * @return
      */
     Object getContainerJobFlowNodeContextData(String name);
 
     /**
-     * 获取容器节点对应的上下文数据,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * 获取直接上级容器节点对应的上下文数据
      * 如果最终参数值为null，则返回默认值
      * @param name
      * @param defaultValue
      * @return
      */
     Object getContainerJobFlowNodeContextData(String name,Object defaultValue);
+
+
+    /**
+     * 获取容器节点对应的上下文数据,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * @param name
+     *  @param scanParent true 遍历上级容器,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止 false不遍历
+     * @return
+     */
+    Object getContainerJobFlowNodeContextData(String name,boolean scanParent);
+
+    /**
+     * 获取容器节点对应的上下文数据,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * 如果最终参数值为null，则返回默认值
+     * @param name
+     * @param defaultValue
+     * @param scanParent true 遍历上级容器,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止 false不遍历
+     * @return
+     */
+    Object getContainerJobFlowNodeContextData(String name,Object defaultValue,boolean scanParent);
     
     /**
      * 判断节点是否已经完成
      */
     boolean nodeCompleteUnExecuted();
 
+    /**
+     * 添加多个上下文数据
+     * @param contextDatas
+     */
     void putAll(Map<String, Object> contextDatas);
 
+    /**
+     * 添加节点对应的上下文数据
+     * @param name
+     * @param data
+     */
     void addContextData(String name,Object data);
 
+    /**
+     * 添加作业工作流对应的上下文数据
+     * @param name
+     * @param data
+     */
     void addJobFlowContextData(String name,Object data);
 
+    /**
+     * 添加容器节点对应的上下文数据
+     * @param name
+     * @param data
+     */
     void addContainerJobFlowNodeContextData(String name,Object data);
 
     void clear();

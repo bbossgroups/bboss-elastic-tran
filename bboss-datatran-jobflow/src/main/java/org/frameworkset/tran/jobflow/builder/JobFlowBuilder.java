@@ -60,18 +60,34 @@ public class JobFlowBuilder {
         this.jobFlowName = jobFlowName;
         return this;
     }
-    
-    public JobFlowBuilder addJobFlowNode(JobFlowNodeBuilder jobFlowNodeBuilder){
+
+    /**
+     * 添加作业节点
+     * @param jobFlowNodeBuilder
+     * @return
+     */
+    public JobFlowBuilder addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
         if(this.headerJobFlowNodeBuilder == null) {
             this.headerJobFlowNodeBuilder = jobFlowNodeBuilder;
-           
+
         }
         if(currentJobFlowNodeBuilder != null)
             this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
         this.currentJobFlowNodeBuilder = jobFlowNodeBuilder;
-            
-        
+
+
         return this;
+    }
+    
+    /**
+     * 添加作业节点
+     * 建议使用方法：addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder)
+     * @param jobFlowNodeBuilder
+     * @return
+     */
+    @Deprecated
+    public JobFlowBuilder addJobFlowNode(JobFlowNodeBuilder jobFlowNodeBuilder){      
+        return addJobFlowNodeBuilder(  jobFlowNodeBuilder);
     }
     
     public JobFlow build(){

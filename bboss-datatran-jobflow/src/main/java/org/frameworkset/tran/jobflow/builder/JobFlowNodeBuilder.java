@@ -67,7 +67,7 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
 
     public JobFlowNodeBuilder(){
         this.nodeId = SimpleStringUtil.getUUID32();
-        this.nodeName = this.getClass().getName() + ":" + nodeName;
+        this.nodeName = this.getClass().getSimpleName();
     }
 
  

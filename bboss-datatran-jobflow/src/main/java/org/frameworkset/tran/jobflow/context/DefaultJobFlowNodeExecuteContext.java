@@ -103,18 +103,51 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     @Override
     public Object getContainerJobFlowNodeContextData(String name) {
         if(this.getContainerJobFlowNodeExecuteContext() != null) {
-            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,true);
+            return this.getContainerJobFlowNodeExecuteContext().getContextData(name);
         }
-        throw new JobFlowException("getContainerJobFlowNodeContextData failed:ContainerJobFlowNodeExecuteContext is null.");
+        return null;
     }
 
     @Override
     public Object getContainerJobFlowNodeContextData(String name, Object defaultValue) {
         if(this.getContainerJobFlowNodeExecuteContext() != null) {
-            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue,true);
+            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue);
         }
-        throw new JobFlowException("getContainerJobFlowNodeContextData failed:ContainerJobFlowNodeExecuteContext is null.");
+        return null;
     }
+
+
+    /**
+     * 获取容器节点对应的上下文数据,scanParent为true时,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * @param name
+     *  @param scanParent true 遍历上级容器,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止 false不遍历
+     * @return
+     */
+    @Override
+    public Object getContainerJobFlowNodeContextData(String name,boolean scanParent){
+        if(this.getContainerJobFlowNodeExecuteContext() != null) {
+            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,scanParent);
+        }
+        return null;
+    }
+    
+
+    /**
+     * 获取容器节点对应的上下文数据,scanParent为true时,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止
+     * 如果最终参数值为null，则返回默认值
+     * @param name
+     * @param defaultValue
+     * @param scanParent true 遍历上级容器,会逐级递从当前容器到上级容器递归获取上下文参数数据，直到获取为止或者达到最上级为止 false不遍历
+     * @return
+     */
+    @Override
+    public Object getContainerJobFlowNodeContextData(String name,Object defaultValue,boolean scanParent){
+        if(this.getContainerJobFlowNodeExecuteContext() != null) {
+            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue,scanParent);
+        }
+        return null;
+    }
+    
 
 
     @Override

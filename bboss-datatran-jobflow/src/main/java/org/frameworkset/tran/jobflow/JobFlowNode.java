@@ -162,16 +162,22 @@ public abstract class JobFlowNode {
     
     public boolean assertTrigger(){
         if(nodeTrigger == null){
-            logger_.info("AssertTrigger: null AssertTrigger and return true,flowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
+            if(logger_.isDebugEnabled()) {
+                logger_.debug("AssertTrigger: null AssertTrigger and return true,flowNode[id={},name={}].", this.getNodeId(), this.getNodeName());
+            }
             return true;
         }
         try {
             if(this.nodeTrigger.assertTrigger(jobFlow,this)){
-                logger_.info("AssertTrigger: true,flowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
+                if(logger_.isDebugEnabled()) {
+                    logger_.debug("AssertTrigger: true,flowNode[id={},name={}].", this.getNodeId(), this.getNodeName());
+                }
                 return true;
             }
             else{
-                logger_.info("AssertTrigger: false,flowNode[id={},name={}].",this.getNodeId(),this.getNodeName());
+                if(logger_.isDebugEnabled()) {
+                    logger_.debug("AssertTrigger: false,flowNode[id={},name={}].", this.getNodeId(), this.getNodeName());
+                }
                 return false;
             }
         } catch (Exception e) {
