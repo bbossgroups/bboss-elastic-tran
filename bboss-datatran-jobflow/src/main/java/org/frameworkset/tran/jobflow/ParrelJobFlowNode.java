@@ -164,9 +164,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
 
     @Override
     protected void release(){
-        if(blockedExecutor != null){
-            blockedExecutor.shutdown();
-        }
+        
         super.release();
     }
     
@@ -183,6 +181,9 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
             JobFlowNode jobFlowNode = jobFlowNodes.get(i);
             jobFlowNode.stop();
+        }
+        if(blockedExecutor != null){
+            blockedExecutor.shutdown();
         }
         release();
         parrelJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);

@@ -624,7 +624,7 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
                                         doFirstTime(  taskContext,fileConfigs);
                                     
                                 } else {
-                                    logger.info("数据生产任务正在数据文件，再次执行扫描新生成的数据文件.");
+                                    logger.info("数据生产任务正在生产数据文件，再次执行扫描新生成的数据文件.");
                                     for (LogDirScan logDirScan : logDirScans) {
                                         scanFileConfig(  taskContext,  logDirScan);
                                         /**
