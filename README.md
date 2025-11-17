@@ -62,7 +62,7 @@ Add the maven dependency of BBoss to your pom.xml:
        <dependency>
             <groupId>com.bbossgroups.plugins</groupId>
             <artifactId>bboss-datatran-jdbc</artifactId>
-            <version>7.5.3</version>
+            <version>7.5.5</version>
         </dependency>
 ```
 # bboss-jobflow 

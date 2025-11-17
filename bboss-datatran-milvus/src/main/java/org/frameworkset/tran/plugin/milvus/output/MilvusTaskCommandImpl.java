@@ -147,7 +147,7 @@ public class MilvusTaskCommandImpl  extends CommonBaseTaskCommand<Object>  {
                 Map<String,Object> collectionSchemaIdx = getCollectionSchemaIdx(  milvusClientV2);
                 
                 if (milvusOutputConfig.isUpsert()) {
-                    UpsertReq.UpsertReqBuilder<?, ?> upsertReqBuilder = UpsertReq.builder();
+                    UpsertReq.UpsertReqBuilder upsertReqBuilder = UpsertReq.builder();
                     upsertReqBuilder.collectionName(milvusOutputConfig.getCollectionName());
                     if (SimpleStringUtil.isNotEmpty(milvusOutputConfig.getPartitionName())) {
                         upsertReqBuilder.partitionName(milvusOutputConfig.getPartitionName());
@@ -156,7 +156,7 @@ public class MilvusTaskCommandImpl  extends CommonBaseTaskCommand<Object>  {
                     UpsertResp upsertResp = milvusClientV2.upsert(upsertReqBuilder.build());
                     return upsertResp;
                 } else {
-                    InsertReq.InsertReqBuilder<?, ?> insertReqBuilder = InsertReq.builder();
+                    InsertReq.InsertReqBuilder insertReqBuilder = InsertReq.builder();
                     insertReqBuilder.collectionName(milvusOutputConfig.getCollectionName());
                     if (SimpleStringUtil.isNotEmpty(milvusOutputConfig.getPartitionName())) {
                         insertReqBuilder.partitionName(milvusOutputConfig.getPartitionName());
