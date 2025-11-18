@@ -47,6 +47,21 @@ public class IP2RegionV2 implements IP2Region {
 	private String ip2regionDatabaseIPV4;
     private String ip2regionDatabaseIPV6;
     private Object lock = new Object();
+    
+    
+    private void startMonitor(){
+        if(daemonThread == null) {
+            daemonThread = new DaemonThread(5000, "ip2regionDatabaseIP-Reload");
+            daemonThread.start();
+            ShutdownUtil.addShutdownHook(new Runnable() {
+                @Override
+                public void run() {
+                    daemonThread.stopped();
+                    closeDb();
+                }
+            });
+        }
+    }
 	@Override
 	public  void init(String[] ip2regionDatabases,boolean enableBtree){
 		if(searcher_ipv4 != null){
@@ -59,32 +74,34 @@ public class IP2RegionV2 implements IP2Region {
                     File ip2regionDatabaseIPV4File = new File(ip2regionDatabaseIPV4);
                     if(!ip2regionDatabaseIPV4File.exists()){
                         logger.warn("ip2regionDatabaseIPV4 file:{} not exists.", ip2regionDatabaseIPV4);
-                        return;
-                    }
-                    logger.info("Init ip2regionDatabaseIPV4:{}", ip2regionDatabaseIPV4);
-                    LongByteArray cBuff = Searcher.loadContentFromFile(ip2regionDatabaseIPV4);
-					// 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
-					Searcher searcher = Searcher.newWithBuffer(Version.IPv4,cBuff);
-					this.searcher_ipv4 = searcher;
-
-					daemonThread = new DaemonThread(5000,"ip2regionDatabaseIPV4-Reload");
-
-					daemonThread.addFile(new File(ip2regionDatabaseIPV4), new ResourceInitial() {
-						@Override
-						public void reinit() {
-                            synchronized (lock) {
-                                searcher_ipv4 = _reinitIp(searcher_ipv4, Version.IPv4, ip2regionDatabaseIPV4);
+                        startMonitor();
+                        daemonThread.addFile(new File(ip2regionDatabaseIPV4), new ResourceInitial() {
+                            @Override
+                            public void reinit() {
+                                synchronized (lock) {
+                                    searcher_ipv4 = _reinitIp(searcher_ipv4, Version.IPv4, ip2regionDatabaseIPV4);
+                                }
                             }
-						}
-					});
-					daemonThread.start();
-					ShutdownUtil.addShutdownHook(new Runnable() {
-						@Override
-						public void run() {
-							daemonThread.stopped();
-							closeDb();
-						}
-					});
+                        },true);                         
+                    }
+                    else {
+                        logger.info("Init ip2regionDatabaseIPV4:{}", ip2regionDatabaseIPV4);
+                        LongByteArray cBuff = Searcher.loadContentFromFile(ip2regionDatabaseIPV4);
+                        // 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
+                        Searcher searcher = Searcher.newWithBuffer(Version.IPv4, cBuff);
+                        this.searcher_ipv4 = searcher;
+
+                        startMonitor();
+                        daemonThread.addFile(new File(ip2regionDatabaseIPV4), new ResourceInitial() {
+                            @Override
+                            public void reinit() {
+                                synchronized (lock) {
+                                    searcher_ipv4 = _reinitIp(searcher_ipv4, Version.IPv4, ip2regionDatabaseIPV4);
+                                }
+                            }
+                        }, true);
+                    }
+					
 
 
 
@@ -104,30 +121,34 @@ public class IP2RegionV2 implements IP2Region {
                         File ip2regionDatabaseIPV6File = new File(ip2regionDatabaseIPV6);
                         if(!ip2regionDatabaseIPV6File.exists()){
                             logger.warn("ip2regionDatabaseIPV6 file:{} not exists.", ip2regionDatabaseIPV6);
-                            return;
+                            startMonitor();
+
+                            daemonThread.addFile(new File(ip2regionDatabaseIPV6), new ResourceInitial() {
+                                @Override
+                                public void reinit() {
+                                    searcher_ipv6 = _reinitIp(searcher_ipv6,Version.IPv6,ip2regionDatabaseIPV6);
+                                }
+                            },true);
+                           
+                           
                         }
-                        logger.info("Init ip2regionDatabaseIPV6:{}", ip2regionDatabaseIPV6);
-                        LongByteArray cBuff = Searcher.loadContentFromFile(ip2regionDatabaseIPV6);
-                        // 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
-                        Searcher searcher = Searcher.newWithBuffer(Version.IPv6,cBuff);
-                        this.searcher_ipv6 = searcher;
+                        else {
+                            logger.info("Init ip2regionDatabaseIPV6:{}", ip2regionDatabaseIPV6);
+                            LongByteArray cBuff = Searcher.loadContentFromFile(ip2regionDatabaseIPV6);
+                            // 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
+                            Searcher searcher = Searcher.newWithBuffer(Version.IPv6, cBuff);
+                            this.searcher_ipv6 = searcher;
 
-                        daemonThread = new DaemonThread(5000,"ip2regionDatabaseIPV6-Reload");
+                            startMonitor();
 
-                        daemonThread.addFile(new File(ip2regionDatabaseIPV4), new ResourceInitial() {
-                            @Override
-                            public void reinit() {
-                                searcher_ipv6 = _reinitIp(searcher_ipv6,Version.IPv6,ip2regionDatabaseIPV6);
-                            }
-                        });
-                        daemonThread.start();
-                        ShutdownUtil.addShutdownHook(new Runnable() {
-                            @Override
-                            public void run() {
-                                daemonThread.stopped();
-                                closeDb();
-                            }
-                        });
+                            daemonThread.addFile(new File(ip2regionDatabaseIPV6), new ResourceInitial() {
+                                @Override
+                                public void reinit() {
+                                    searcher_ipv6 = _reinitIp(searcher_ipv6, Version.IPv6, ip2regionDatabaseIPV6);
+                                }
+                            }, true);
+                        }
+                        
                     } catch (Exception e) {
                         if (logger.isErrorEnabled())
                             logger.error("Init ip2regionDatabase failed:" + ip2regionDatabaseIPV4, e);
