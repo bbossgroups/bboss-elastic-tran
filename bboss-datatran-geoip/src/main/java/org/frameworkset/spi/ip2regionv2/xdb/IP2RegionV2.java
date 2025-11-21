@@ -168,7 +168,17 @@ public class IP2RegionV2 implements IP2Region {
 				logger.debug("closeDb failed:",e);
 			}
 			searcher_ipv4 = null;
+
+            
 		}
+        if(searcher_ipv6 != null){
+            try {
+                searcher_ipv6.close();
+            } catch (IOException e) {
+                logger.debug("closeDb failed:",e);
+            }
+            searcher_ipv6 = null;
+        }
 	}
 	private  Searcher _reinitIp(Searcher oldSearcher,Version version,String dataFile){
 //		final Searcher oldSearcher = searcher_ipv4;
@@ -187,7 +197,7 @@ public class IP2RegionV2 implements IP2Region {
 							sleep(60000l);//延迟60秒关闭老对象
 
 						} catch (InterruptedException e) {
-							e.printStackTrace();
+							logger.debug("Reinit ip2region searcher database "+ dataFile + " Interrupted:", e);
 						}
 					}
 					if(oldSearcher != null) {
@@ -228,11 +238,13 @@ public class IP2RegionV2 implements IP2Region {
 //            }
             String region = null;
             if(Version.IPv4.bytes == ipBytes.length) {
-                region = searcher_ipv4.search(ip);
+                if(searcher_ipv4 != null)
+                    region = searcher_ipv4.search(ip);
             }
             else 
                 if(Version.IPv6.bytes == ipBytes.length) {
-                region = searcher_ipv6.search(ip);
+                    if(searcher_ipv6 != null)
+                        region = searcher_ipv6.search(ip);
             }
             
 			if(region == null)

@@ -15,6 +15,8 @@ package org.frameworkset.tran.input.file;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
+
 import java.io.File;
 import java.nio.charset.Charset;
 
@@ -31,6 +33,9 @@ public class FileInfo {
 					File file, String fileId, FileConfig fileConfig) {
 		this.charsetEncode = charsetEncode;
         this.charset = fileConfig.getCharset();
+        if(charset == null && SimpleStringUtil.isNotEmpty(charsetEncode)){
+            charset = Charset.forName(charsetEncode);
+        }
 		this.filePath = filePath;
 		this.file = file;
 		this.originFile = file;
