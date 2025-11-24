@@ -52,12 +52,17 @@ public class LogDirScan implements LogDirScanInf{
     public void scanNewFile(TaskContext taskContext){
 
         if(logger.isDebugEnabled()){
-            logger.debug("scan new log file in dir {} with filename regex {}.",fileConfig.getLogDir(),fileConfig.getFileNameRegular());
+            logger.debug("Scan new log file in dir {} with filename regex {}.",fileConfig.getLogDir(),fileConfig.getFileNameRegular());
         }
         File logDir = fileConfig.getLogDir();
         FilenameFilter filter = fileConfig.getFilter();
         if(logDir.isDirectory() && logDir.exists()){
             File[] files = logDir.listFiles(filter);
+            if(files == null || files.length == 0){
+                if(logger.isInfoEnabled()){
+                    logger.info("Scan new log file in dir {}  with filename regex {}: Collect files is null or 0.",fileConfig.getLogDir(),fileConfig.getFileNameRegular());
+                }
+            }
             File file = null;
             for(int i = 0; files != null && i < files.length; i ++){
                 if (!logDirsScanThread.isRunning()) {
@@ -87,6 +92,11 @@ public class LogDirScan implements LogDirScanInf{
         if(logDir.isDirectory() && logDir.exists()){
             File[] files = logDir.listFiles(filter);
             File file = null;
+            if(files == null || files.length == 0){
+                if(logger.isInfoEnabled()){
+                    logger.info("scan new log file in sub dir {}: Collect files is null or 0.",logDir.getAbsolutePath());
+                }
+            }
             for(int i = 0; files != null && i < files.length; i ++){
                 if (!logDirsScanThread.isRunning()) {
                     break;
