@@ -54,6 +54,8 @@ public class DownloadfileConfig {
      * 文件生命周期管理：文件保存时间时长，单位：毫秒
      */
     protected Long fileLiveTime;
+    
+     
 
 
     public Long getFileLiveTime() {

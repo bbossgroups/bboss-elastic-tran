@@ -280,11 +280,9 @@ public class FileInputDataTranPlugin extends BaseInputPlugin {
             this.backupSuccessFilesClean.stop();
         }
         if(oldRegistFileRecordCleanTask != null){
-            oldRegistFileRecordCleanTask.stop();
+            oldRegistFileRecordCleanTask.stopThread();
         }
-//        if(completeFileCleanTask != null){
-//            completeFileCleanTask.stopThread();
-//		}
+ 
 
     }
 

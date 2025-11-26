@@ -60,7 +60,7 @@ public class LogDirScan implements LogDirScanInf{
             File[] files = logDir.listFiles(filter);
             if(files == null || files.length == 0){
                 if(logger.isInfoEnabled()){
-                    logger.info("Scan new log file in dir {}  with filename regex {}: Collect files is null or 0.",fileConfig.getLogDir(),fileConfig.getFileNameRegular());
+                    logger.info("Scan new log file in dir {}  with filename regex {}: Need collect files is null or 0.",fileConfig.getLogDir(),fileConfig.getFileNameRegular());
                 }
             }
             File file = null;
@@ -94,7 +94,7 @@ public class LogDirScan implements LogDirScanInf{
             File file = null;
             if(files == null || files.length == 0){
                 if(logger.isInfoEnabled()){
-                    logger.info("scan new log file in sub dir {}: Collect files is null or 0.",logDir.getAbsolutePath());
+                    logger.info("scan new log file in sub dir {}: Need collect files is null or 0.",logDir.getAbsolutePath());
                 }
             }
             for(int i = 0; files != null && i < files.length; i ++){

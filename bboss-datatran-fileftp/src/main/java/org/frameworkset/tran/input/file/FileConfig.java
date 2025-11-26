@@ -172,8 +172,9 @@ public class FileConfig<T extends FileConfig> extends FieldManager<T>{
     /**
      * 是否启用inode文件标识符机制来识别文件重命名操作，linux环境下起作用，windows环境下不起作用（enableInode强制为false）
      * linux环境下，在不存在重命名的场景下可以关闭inode文件标识符机制，windows环境下强制关闭inode文件标识符机制
+     * 默认值false
      */
-    private boolean enableInode = true;
+    private boolean enableInode = false;
 
     public Long getIgnoreOlderTime() {
         return ignoreOlderTime;
@@ -524,6 +525,7 @@ public class FileConfig<T extends FileConfig> extends FieldManager<T>{
     /**
      * 是否启用inode文件标识符机制来识别文件重命名操作，linux环境下起作用，windows环境下不起作用（enableInode强制为false）
      * linux环境下，在不存在重命名的场景下可以关闭inode文件标识符机制，windows环境下强制关闭inode文件标识符机制
+     * 默认为false
      */
     public T setEnableInode(boolean enableInode) {
         this.enableInode = enableInode;

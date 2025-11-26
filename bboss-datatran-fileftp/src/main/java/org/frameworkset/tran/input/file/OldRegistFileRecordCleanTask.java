@@ -17,11 +17,11 @@ package org.frameworkset.tran.input.file;
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.file.input.FileInputConfig;
+import org.frameworkset.tran.util.StoppedThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * <p>Description: 迁移过期的已完成状态记录</p>
@@ -31,44 +31,32 @@ import java.util.TimerTask;
  * @author biaoping.yin
  * @version 1.0
  */
-public class OldRegistFileRecordCleanTask {
+public class OldRegistFileRecordCleanTask extends StoppedThread {
     private static final Logger logger = LoggerFactory.getLogger(CompleteFileCleanTask.class);
     private FileInputConfig fileInputConfig;
     private ImportContext importContext;
     private FileListenerService fileListenerService;
-    private  Timer timer ;
     private long registLiveTime;
     public OldRegistFileRecordCleanTask(FileInputConfig fileInputConfig, ImportContext importContext,FileListenerService fileListenerService){
+        super("OldRegistFileRecordCleanTask-"+importContext.getJobName());
         this.fileInputConfig = fileInputConfig;
         this.registLiveTime = fileInputConfig.getRegistLiveTime();
         this.importContext = importContext;
         this.fileListenerService = fileListenerService;
+        this.setDaemon(true);
     }
-    private Object lock = new Object();
-    public void stop(){
-        if(timer == null)
-            return;
-        synchronized (lock) {
-            if (timer != null) {
-                timer.cancel();
-                timer = null;
+    
+
+    @Override
+    public void run() { 
+        do {
+            fileListenerService.handleOldRegistRecords(registLiveTime);
+            try {
+                sleep(fileInputConfig.getScanOldRegistRecordInterval());
+            } catch (InterruptedException e) {
+                break;
             }
-        }
+        } while (!stopped);
     }
-    private Object lock1 = new Object();
-
-	public void start(){
-
-        timer = new Timer("OldRegistFileRecordCleanTask-"+importContext.getJobName(), true);
-        timer.schedule(new TimerTask(){
-            @Override
-            public void run() {
-                synchronized (lock1) {//确保同时只调度一次在执行
-                    fileListenerService.handleOldRegistRecords(registLiveTime);
-                }
-            }
-        },30000L,fileInputConfig.getScanOldRegistRecordInterval());
-
-
-	}
+	
 }

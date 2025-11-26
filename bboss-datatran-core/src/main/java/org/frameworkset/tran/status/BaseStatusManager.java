@@ -28,6 +28,7 @@ import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
+import org.frameworkset.tran.task.BaseTranJob;
 import org.frameworkset.util.shutdown.ShutdownUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +75,44 @@ public abstract class BaseStatusManager implements StatusManager {
 	protected String checkHisFieldSQL ;
 	protected String deleteSQL;
 	protected String deleteByJobIdSQL;
+    /**
+	 * 获取采集状态表中正在采集和文件丢失的记录
+	 */
 	protected String selectAllSQL;
+
+    /**
+     * 获取采集状态表中fileId对应的采集已完成状态记录
+     */
+    protected String selectCompleteStatusByFileId;
+
+    /**
+     * 获取采集状态表中采集已完成状态记录
+     */
+    protected String selectCompleteStatuses;
+
+    /**
+     * 获取采集历史状态表中fileId对应的采集状态记录
+     */
+    protected String selectHistoryStatusByFileId;
+    
+    /**
+     * 获取采集状态表中jobId对应作业正在采集和文件丢失的记录
+     */
 	protected String selectAllByJobIdSQL;
+
+    /**
+     * 获取采集状态表中jobId对应作业的fileId对应的已完成记录信息
+     */
+    protected String selectCompleteStatusByJobIdAndFileIdSQL;
+    /**
+     * 获取采集状态表中jobId对应作业的fileId对应的已完成记录信息
+     */
+    protected String selectCompleteStatusByJobIdSQL;
+
+    /**
+     * 获取采集历史状态表中jobId对应作业的fileId对应的记录信息
+     */
+    protected String selectHistoryStatusByJobIdAndFileIdSQL;
 	protected String existSQL;
 	protected String existHisSQL;
 
@@ -530,16 +567,29 @@ public abstract class BaseStatusManager implements StatusManager {
 
 			existSQL = new StringBuilder().append("select 1 from ").append(statusTableName).toString();
 			existHisSQL = new StringBuilder().append("select 1 from ").append(historyStatusTableName).toString();
-			selectSQL = new StringBuilder().append("select id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
+            String selectfields = "select id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ";
+			selectSQL = new StringBuilder().append(selectfields)
 					.append(statusTableName).append(" where id=? and jobType=?").toString();
-			selectByJobIdSQL = new StringBuilder().append("select id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
+			selectByJobIdSQL = new StringBuilder().append(selectfields)
 					.append(statusTableName).append(" where id=? and ").append(" jobId=? and jobType=?").toString();
-			checkFieldSQL = "select filePath,fileId,relativeParentDir,status,jobId,jobType,strLastValue from " + statusTableName;
-			checkHisFieldSQL = "select filePath,fileId,relativeParentDir,status,statusId,jobId,jobType,strLastValue from " + historyStatusTableName;
-			selectAllSQL =  new StringBuilder().append("select id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
-					.append(statusTableName).append(" where jobType=?").toString();
-			selectAllByJobIdSQL =  new StringBuilder().append("select id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType from ")
-					.append(statusTableName).append(" where jobId = ? and jobType=?").toString();
+			checkFieldSQL = "select filePath,fileId,relativeParentDir,status,jobId,jobType,strLastValue from " + statusTableName + " where 1 <> 1";
+			checkHisFieldSQL = "select filePath,fileId,relativeParentDir,status,statusId,jobId,jobType,strLastValue from " + historyStatusTableName + " where 1 <> 1";
+			selectAllSQL =  new StringBuilder().append(selectfields)
+					.append(statusTableName).append(" where jobType=? and status in (0,2)").toString();
+            selectCompleteStatusByFileId = new StringBuilder().append(selectfields)
+					.append(statusTableName).append(" where fileId = ? and jobType=? and status = 1").toString();
+
+            selectCompleteStatuses = new StringBuilder().append(selectfields)
+                    .append(statusTableName).append(" where jobType=? and status = 1 and lasttime <= ?").toString();
+			selectAllByJobIdSQL =  new StringBuilder().append(selectfields)
+					.append(statusTableName).append(" where jobId = ? and jobType=? and status in (0,2)").toString();
+
+            selectCompleteStatusByJobIdAndFileIdSQL = new StringBuilder().append(selectfields)
+                    .append(statusTableName).append(" where jobId = ? and fileId = ? and jobType=? and status = 1").toString();
+
+            selectCompleteStatusByJobIdSQL = new StringBuilder().append(selectfields)
+                    .append(statusTableName).append(" where jobId = ? and jobType=? and status = 1 and lasttime <= ?").toString();
+            
 			updateSQL = new StringBuilder().append("update ").append(statusTableName)
 					.append(" set lasttime = ?,lastvalue = ? ,strLastValue = ?,lastvaluetype= ? , filePath = ?,relativeParentDir = ?,fileId = ? ,status = ? where id=? and jobType=?").toString();
 			updateByJobIdSQL = new StringBuilder().append("update ").append(statusTableName)
@@ -554,6 +604,11 @@ public abstract class BaseStatusManager implements StatusManager {
 					.append(statusTableName).append(" where id=? and jobType=?").toString();
 			deleteByJobIdSQL = new StringBuilder().append("delete from ")
 					.append(statusTableName).append(" where id=? and ").append(" jobId=? and jobType=?").toString();
+            String selectHistoryFields = "select id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType,statusId from ";
+            selectHistoryStatusByFileId = new StringBuilder().append(selectHistoryFields).append(statusTableName)
+                    .append("_his  where fileId = ? and jobType=?").toString();
+            this.selectHistoryStatusByJobIdAndFileIdSQL = new StringBuilder().append(selectHistoryFields).append(statusTableName)
+                    .append("_his  where jobId = ? and fileId = ? and jobType=?").toString();
 			insertHistorySQL = new StringBuilder().append("insert into ").append(statusTableName)
 					.append("_his (id,lasttime,lastvalue,strLastValue,lastvaluetype,filePath,relativeParentDir,fileId,status,jobId,jobType,statusId) values(?,?,?,?,?,?,?,?,?,?,?,?)").toString();
 		}
@@ -1021,46 +1076,95 @@ public abstract class BaseStatusManager implements StatusManager {
 	public  void handleOldedRegistedRecordTasks(List<Status> completed){
 
 
-		try {
-			for (Status status_ : completed) {
-				File file = new File(status_.getFilePath());
-				if(!file.exists()) {
-                    Status status = status_.copy();
-                    handleStatus(status,true);
-                    SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
-                            status.getCurrentLastValueWrapper().getLastValue(),status.getStrLastValue(), status.getLastValueType(), status.getFilePath(), status.getRelativeParentDir(),status.getFileId(), status.getStatus(),status.getJobId(),status.getJobType(),status.getId());
-                    if(status.getJobId() == null) {
-                        SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId(),status.getJobType());
-                    }
-                    else{
-                        SQLExecutor.deleteWithDBName(statusDbname, deleteByJobIdSQL, status.getId(),status.getJobId(),status.getJobType());
-                    }
-                    if(logger.isInfoEnabled())
-                        logger.info("Move Olded Task Registed Record to history complete {}:",status.toString());
-
-				}
-
-			}
-		}
-		catch (Exception e){
-			logger.error("handleOldedRegistedRecordTasks failed:",e);
-		}
+        handleOldedRegistedRecordTasks( completed,true);
 
 
 	}
 
+    /**
+     * 迁移过期的已完成状态记录
+     * @param completed
+     */
+    public  void handleOldedRegistedRecordTasks(List<Status> completed,boolean needCopy){
+
+
+        try {
+            for (Status status_ : completed) {
+
+                Status status = needCopy?status_.copy():status_;
+                handleStatus(status,true);
+                SQLExecutor.insertWithDBName(statusDbname, insertHistorySQL, SimpleStringUtil.getUUID(), status.getTime(),
+                        status.getCurrentLastValueWrapper().getLastValue(),status.getStrLastValue(), status.getLastValueType(), status.getFilePath(), status.getRelativeParentDir(),status.getFileId(), status.getStatus(),status.getJobId(),status.getJobType(),status.getId());
+                if(status.getJobId() == null) {
+                    SQLExecutor.deleteWithDBName(statusDbname, deleteSQL, status.getId(),status.getJobType());
+                }
+                else{
+                    SQLExecutor.deleteWithDBName(statusDbname, deleteByJobIdSQL, status.getId(),status.getJobId(),status.getJobType());
+                }
+                if(logger.isInfoEnabled())
+                    logger.info("Move Olded Task Registed Records to history complete {}:",status.toString());
+
+
+
+            }
+        }
+        catch (Exception e){
+            logger.error("handleOldedRegistedRecordTasks failed:",e);
+        }
+
+
+    }
+
+    /**
+     * 迁移过期的已完成状态记录:指定过期时间
+     */
+    public  void handleOldedRegistedRecordTasks(long deleteTime){
+
+
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");           
+            
+            List<Status> completed = null;
+            if(importContext.getJobId() != null) {
+                completed = SQLExecutor.queryListWithDBName(Status.class, statusDbname, selectCompleteStatusByJobIdSQL, importContext.getJobId(), importContext.getJobType(),deleteTime);
+            }
+            else{
+                completed = SQLExecutor.queryListWithDBName(Status.class, statusDbname, selectCompleteStatuses,  importContext.getJobType(),deleteTime);
+            }
+            
+            if(logger.isInfoEnabled()){
+                StringBuilder sb = new StringBuilder();
+                BaseTranJob.builderJobInfo(sb,importContext );
+                logger.info("获取作业{}已过期历史记录数据,过期时间：{},过期记录数：{} ",sb.toString(), dateFormat.format(new Date(deleteTime)),completed != null?completed.size():0);
+            }
+            if(completed != null && completed.size() >  0){
+                for(Status status:completed){
+                    lastValueWraperSerial.deserial(status);
+                }
+                handleOldedRegistedRecordTasks( completed,false);
+            }
+             
+            
+        }
+        catch (Exception e){
+            logger.error("handleOldedRegistedRecordTasks failed:",e);
+        }
+
+
+    }
+    public boolean isOldRegistRecordWithDeleteTime(Status completed ,long deleteTime){
+        long lastTime = completed.getTime();
+        if (lastTime <= deleteTime) {
+            return true;
+        }
+//        }
+        return false;
+    }
     public  boolean isOldRegistRecord(Status completed ,long registLiveTime){
 
         long now = System.currentTimeMillis();
-        long deletedTime = now - registLiveTime;
-        File file = new File(completed.getFilePath());
-        if(!file.exists()) {
-            long lastTime = completed.getTime();
-            if (lastTime <= deletedTime) {
-               return true;
-            }
-        }
-        return false;
+        long deleteTime = now - registLiveTime;
+        return isOldRegistRecordWithDeleteTime(  completed ,  deleteTime);
     }
 
 	@Override
@@ -1113,7 +1217,47 @@ public abstract class BaseStatusManager implements StatusManager {
 			throw new DataImportException(e);
 		}
 	}
-	protected void loadCurrentStatus(){
+
+    /**
+     * 根据fileId获取已完成状态Status
+     * @param fileId
+     */
+    @Override
+    public Status getComplateStatusByFileId(String fileId) { 
+        try {
+            String jobId = importContext.getJobId();
+            String jobType = importContext.getJobType();
+            Status status = null;
+            if (jobId == null) {
+                status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectCompleteStatusByFileId, fileId, jobType);
+                if(status == null){
+                    status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectHistoryStatusByFileId, fileId, jobType);
+                    if(status != null){
+                        status.setHistoryStatus(true);
+                    }
+                }
+            } else {
+                status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectCompleteStatusByJobIdAndFileIdSQL,  jobId, fileId,jobType);
+                if(status == null){
+                    status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectHistoryStatusByJobIdAndFileIdSQL,  jobId, fileId,jobType);
+                    if(status != null){
+                        status.setHistoryStatus(true);
+                    }
+                }
+            }
+            if(status != null) {
+                this.lastValueWraperSerial.deserial(status);
+            }
+            return status;
+        } catch (Exception e){
+            throw new DataImportException(e);
+            
+        }
+    }
+    /**
+     * 加载当前作业状态
+     */
+    protected void loadCurrentStatus(){
 		try {
 
 			/**

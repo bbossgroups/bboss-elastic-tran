@@ -40,6 +40,11 @@ public abstract class RemoteContext<T extends RemoteContext> extends BaseRemoteC
     protected ZipFilePasswordFunction zipFilePasswordFunction;
     
     /**
+     * 是否下载替换已经存在的文件
+     */
+    protected boolean replaceExistFile;
+    
+    /**
      * 是否解压文件
      */
     protected boolean unzip ;
@@ -199,6 +204,19 @@ public abstract class RemoteContext<T extends RemoteContext> extends BaseRemoteC
     public T setUntar(boolean untar) {
         this.untar = untar;
         return (T)this;
+    }
+    /**
+     * 是否下载替换已经存在的文件
+     */
+    public T setReplaceExistFile(boolean replaceExistFile) {
+        this.replaceExistFile = replaceExistFile;
+        return (T)this;
+    }
+    /**
+     * 是否下载替换已经存在的文件
+     */
+    public boolean isReplaceExistFile() {
+        return replaceExistFile;
     }
 
     public void destroy() {

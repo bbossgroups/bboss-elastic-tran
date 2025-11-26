@@ -334,18 +334,19 @@ public class SFTPTransfer {
 				sftp.close();
 			}
 		} catch (UserAuthException e) {
-//			logger.error(message,e);
 			throw new DataImportException(errorMessage,e);
 		} catch (TransportException e) {
-//			logger.error(message,e);
 			throw new DataImportException(errorMessage,e);
 		} catch (IOException e) {
-//			logger.error(message,e);
 			throw new DataImportException(errorMessage,e);
-		} finally {
+		}  catch (DataImportException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DataImportException(errorMessage,e);
+        } finally {
 			try {
 				ssh.disconnect();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				logger.warn("ssh " + fileFtpOupputContext.getFtpIP()+":"+fileFtpOupputContext.getFtpPort() + " disconnect failed:",e);
 			}
 		}

@@ -337,13 +337,29 @@ public class FileDownloadService {
         DownloadFileMetrics downloadFileMetrics = new DownloadFileMetrics();
         downloadFileMetrics.setLocalFilePath(handleFile.getAbsolutePath());
         downloadFileMetrics.setRemoteFilePath(remoteFile);
+        boolean exits = handleFile.exists();
+        if(exits){
+            if(ftpContext.isReplaceExistFile()){
+                if(logger.isInfoEnabled())
+                    logger.info("ReplaceExistFile is true and delete old file and redown file:{}", handleFile.getAbsoluteFile());
+                boolean deleted = handleFile.delete();
+                if(!deleted){
+                    if(logger.isWarnEnabled())
+                        logger.warn("Delete old file:{} failed", handleFile.getAbsoluteFile());
+                }
+            }
+        }
         if(!handleFile.exists()) {
             DownloadedFileRecorder downloadedFileRecorder = downloadJobFlowNodeFunction.getDownloadedFileRecord();
             
            
             try {
-                if(!downloadedFileRecorder.recordBeforeDownload(downloadFileMetrics,jobFlowNodeExecuteContext))
+                if(!downloadedFileRecorder.recordBeforeDownload(downloadFileMetrics,jobFlowNodeExecuteContext)) {
+                    if(logger.isDebugEnabled()){
+                        logger.debug("Ignore already downloaded file:{}", handleFile.getAbsoluteFile());
+                    }
                     return;
+                }
                 /**
                  * 支持断点续传
                  */
@@ -365,6 +381,8 @@ public class FileDownloadService {
                             
                             builder.append("开始下载文件：localPath:").append(localFilePath).append(",remotePath:").append(remoteFile).append("");
                             msg = builder.toString();
+                            if(logger.isInfoEnabled())
+                                logger.info(msg);
                         }
                         builder.setLength(0);
 //                        dataTranPlugin.reportJobMetricLog(taskContext,msg);
@@ -395,15 +413,14 @@ public class FileDownloadService {
                                     logger.warn(msg);
                             }
 
-//                            dataTranPlugin.reportJobMetricWarn(taskContext,msg);
                         }
                         else{
                             builder.append("下载文件完成：localPath:").append(localFilePath).append(",remotePath:").append(remoteFile)
                                     .append(",耗时:").append(elapsed).append("毫秒!");
                             msg = builder.toString();
                             builder.setLength(0);
-
-//                            dataTranPlugin.reportJobMetricLog(taskContext,msg);
+                            if(logger.isInfoEnabled())
+                                logger.info(msg);
                         }
                     }
                 };
@@ -489,6 +506,7 @@ public class FileDownloadService {
                                 logger.info("Delete tar file:"+downloadFileMetrics.getLocalFilePath());
                         }
                     }
+                    removeDownTrace(fileId);
                     downloadedFileRecorder.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,null);
                     
                 } else {
@@ -530,7 +548,6 @@ public class FileDownloadService {
             if(logger.isWarnEnabled())
                 logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFilePath,remoteFile,downloadFileMetrics.getLocalFilePath());
             removeDownTrace(fileId);
-            return;
         }
         else{
             if(ftpContext.isDeleteRemoteFile()) {

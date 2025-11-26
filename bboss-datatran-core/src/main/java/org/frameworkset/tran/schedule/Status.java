@@ -32,6 +32,10 @@ public class Status {
 	private String id;
     @Column(name = "lasttime")
 	private long time;
+    /**
+	 * 是否为历史状态(来源于历史状态表)
+	 */
+    private boolean historyStatus;
 	/**
 	 * 0 数字类型
 	 * 1 日期类型
@@ -212,4 +216,11 @@ public class Status {
         this.originCurrentLastValueWrapper = originCurrentLastValueWrapper;
     }
 
+    public boolean isHistoryStatus() {
+        return historyStatus;
+    }
+
+    public void setHistoryStatus(boolean historyStatus) {
+        this.historyStatus = historyStatus;
+    }
 }

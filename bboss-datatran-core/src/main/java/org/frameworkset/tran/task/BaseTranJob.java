@@ -49,6 +49,19 @@ public abstract class BaseTranJob implements TranJob {
         return builder;
     }
 
+    public static StringBuilder builderJobInfo(StringBuilder builder, ImportContext importContext){
+        InputPlugin inputPlugin = importContext.getInputPlugin();
+        OutputPlugin outputPlugin = importContext.getOutputPlugin();
+        builder.append("inputJobType[").append(inputPlugin.getJobType()).append("],")
+                .append("outputJobType[").append(outputPlugin.getJobType()).append("]");
+        if(importContext.getJobId() != null)
+            builder.append(",jobID[").append(importContext.getJobId()).append("]");
+        if(importContext.getJobName() != null)
+            builder.append(",jobName[").append(importContext.getJobName())
+                    .append("] ");
+        return builder;
+    }
+
     public BuildMapDataContext buildMapDataContext(ImportContext importContext){
         List<ETLMetrics> etlMetrics = importContext.getMetrics();
         BuildMapDataContext buildMapDataContext = null;

@@ -40,6 +40,8 @@ public class FileListenerService {
     private Map<String, FileReaderTask> fileConfigMap;
     private Map<String,Object> downLoadTraces ;
     private Map<String, FileReaderTask> completedTasks;
+
+    private Map<String, Status> lazyCompletedTasks;
     private Map<String, FileReaderTask> failedTasks;
     private Map<String, FileReaderTask> lostedTasks;
     private Map<String, FileReaderTask> oldedTasks;
@@ -50,11 +52,12 @@ public class FileListenerService {
     private Object dummy = new Object();
     private Lock lock = new ReentrantLock();
     public FileListenerService(ImportContext fileImportContext) {
-        this.fileConfigMap = new HashMap<String, FileReaderTask>();
-        this.completedTasks = new HashMap<String, FileReaderTask>();
-        failedTasks  = new HashMap<String, FileReaderTask>();
-        this.lostedTasks = new HashMap<String, FileReaderTask>();
-        this.oldedTasks = new HashMap<String, FileReaderTask>();
+        this.fileConfigMap = new HashMap<>();
+        this.completedTasks = new HashMap<>();
+        this.lazyCompletedTasks = new HashMap<>();
+        failedTasks  = new HashMap<>();
+        this.lostedTasks = new HashMap<>();
+        this.oldedTasks = new HashMap<>();
         downLoadTraces = new HashMap<>();
         this.importContext = fileImportContext;
         this.fileInputConfig = (FileInputConfig) importContext.getInputConfig();
@@ -303,12 +306,16 @@ public class FileListenerService {
 
 
             if (fileReaderTask == null) {
-                if(this.completedTasks.containsKey(fileId)) {//作业已经完成
-                    logger.debug("Ignore complete file {}",file.getAbsolutePath());
+                if(checkCompleteTask(fileId)) {//作业已经完成
+                    if(logger.isDebugEnabled()) {
+                        logger.debug("Ignore complete file {}", file.getAbsolutePath());
+                    }
                     return FileCheckResult.FileCheckResult_CompleteFile;
                 }
                 else if(this.oldedTasks.containsKey(fileId)){//作业已经被移除到过时作业清单
-                    logger.debug("Ignore old file {}",file.getAbsolutePath());
+                    if(logger.isDebugEnabled()) {
+                        logger.debug("Ignore old file {}", file.getAbsolutePath());
+                    }
                     return FileCheckResult.FileCheckResult_OldFile;
                 }
                 else if(this.failedTasks.containsKey(fileId)){//作业已经被移除到失败作业清单
@@ -316,7 +323,9 @@ public class FileListenerService {
                     result = FileCheckResult.FileCheckResult_FailedFile;
                 }
                 else if(this.lostedTasks.containsKey(fileId)){//作业已经被移除到文件被删除作业清单
-                    logger.debug("Ignore losted file {}",file.getAbsolutePath());
+                    if(logger.isDebugEnabled()) {
+                        logger.debug("Ignore losted file {}", file.getAbsolutePath());
+                    }
                     return FileCheckResult.FileCheckResult_LostedFile;
                 }
 
@@ -414,7 +423,9 @@ public class FileListenerService {
             }
         }
         catch (Exception e){
-            logger.warn("Create parent dir " + parent.getAbsolutePath() + " failed:");
+            if(logger.isWarnEnabled()) {
+                logger.warn("Create parent dir " + parent.getAbsolutePath() + " failed:");
+            }
         }
     }
 
@@ -430,7 +441,9 @@ public class FileListenerService {
                dataFile.delete();
                if (result.getMessage() != null ) {
 
-                   logger.warn("FILE_VALIDATE_FAILED file {},remotePath:{}  failed:{}", dataFile.getAbsolutePath(), remoteFile,result.getMessage());
+                   if(logger.isWarnEnabled()) {
+                       logger.warn("FILE_VALIDATE_FAILED file {},remotePath:{}  failed:{}", dataFile.getAbsolutePath(), remoteFile, result.getMessage());
+                   }
                }
            }
         }
@@ -439,7 +452,9 @@ public class FileListenerService {
 
                 if (result.getMessage() != null ) {
 
-                    logger.warn("FILE_VALIDATE_FAILED file {},remotePath:{}  failed:{}", dataFile.getAbsolutePath(), remoteFile,result.getMessage());
+                    if(logger.isWarnEnabled()) {
+                        logger.warn("FILE_VALIDATE_FAILED file {},remotePath:{}  failed:{}", dataFile.getAbsolutePath(), remoteFile, result.getMessage());
+                    }
                 }
             }
         }
@@ -447,7 +462,9 @@ public class FileListenerService {
             if(!redown) {
                 if (result.getMessage() != null ) {
 
-                    logger.warn("FILE_VALIDATE_FAILED file {},remotePath:{}  failed:{}", dataFile.getAbsolutePath(), remoteFile,result.getMessage());
+                    if(logger.isWarnEnabled()) {
+                        logger.warn("FILE_VALIDATE_FAILED file {},remotePath:{}  failed:{}", dataFile.getAbsolutePath(), remoteFile, result.getMessage());
+                    }
                 }
                 int downloadCounts = result.getRedownloadCounts();
                 if (downloadCounts > 0) {
@@ -456,12 +473,16 @@ public class FileListenerService {
                         try {
                             dataFile.delete();//删除文件，再重新下载
                         } catch (Exception e) {
-                            logger.warn("FILE_VALIDATE_FAILED_REDOWNLOAD delete file " + dataFile.getAbsolutePath() + ",remotePath:"+remoteFile+" failed:", e);
+                            if(logger.isWarnEnabled()) {
+                                logger.warn("FILE_VALIDATE_FAILED_REDOWNLOAD delete file " + dataFile.getAbsolutePath() + ",remotePath:" + remoteFile + " failed:", e);
+                            }
                         }
                         try {
                             Thread.currentThread().sleep(10000l);//等待10秒后下载
                         } catch (InterruptedException e) {
-                            logger.warn("", e);
+                            if(logger.isWarnEnabled()) {
+                                logger.warn("", e);
+                            }
                         }
 
                         downAction.down(tmp,true);//重下文件
@@ -470,14 +491,18 @@ public class FileListenerService {
                         }
                         result = remoteFileValidate(remoteFile,dataFile, ftpContext, remoteFileAction, downAction, true);
                         if (result.isOk()) {
-                            logger.info("File {} ,RemotePath:{} 重试{}次后下载成功.", dataFile.getAbsolutePath(),remoteFile,tmp + 1);
+                            if(logger.isInfoEnabled()) {
+                                logger.info("File {} ,RemotePath:{} 重试{}次后下载成功.", dataFile.getAbsolutePath(), remoteFile, tmp + 1);
+                            }
                             break;
                         }
 
                         tmp++;
                         if (result.getMessage() != null ) {
 
-                            logger.warn("FILE_VALIDATE_FAILED file {} ,remotePath:{} failed:{}", dataFile.getAbsolutePath(),remoteFile,result.getMessage());
+                            if(logger.isWarnEnabled()) {
+                                logger.warn("FILE_VALIDATE_FAILED file {} ,remotePath:{} failed:{}", dataFile.getAbsolutePath(), remoteFile, result.getMessage());
+                            }
                         }
                         if (tmp == downloadCounts) {
                             break;
@@ -488,7 +513,9 @@ public class FileListenerService {
                     if (!result.isOk() && dataFile.exists())//
                         dataFile.delete();//删除文件，再重新下载
                 } catch (Exception e) {
-                    logger.warn("FILE_VALIDATE_FAILED_REDOWNLOAD delete file " + dataFile.getAbsolutePath() + ",remotePath:"+remoteFile+" failed:", e);
+                    if(logger.isWarnEnabled()) {
+                        logger.warn("FILE_VALIDATE_FAILED_REDOWNLOAD delete file " + dataFile.getAbsolutePath() + ",remotePath:" + remoteFile + " failed:", e);
+                    }
                 }
             }
         }
@@ -497,22 +524,42 @@ public class FileListenerService {
 
 
     }
-
+    
+    private boolean checkCompleteTask(String fileId){
+        boolean isComplete = this.completedTasks.containsKey(fileId);
+        if(!isComplete) {
+            isComplete = this.lazyCompletedTasks.containsKey(fileId);
+            if(!isComplete) {
+                Status status = getBaseDataTranPlugin().getStatusManager().getComplateStatusByFileId(fileId);
+                if (status != null) {
+                    isComplete = true;
+                    lazyCompletedTasks.put(fileId, status);
+                }
+            }
+        }
+        return isComplete;
+    }
     private FileCheckResult checkFileIdIsNew(String fileId){
         FileCheckResult fileCheckResult = new FileCheckResult();
         FileReaderTask fileReaderTask = fileConfigMap.get(fileId);
         int isNewFile = 0;
         if (fileReaderTask == null) {
-            if(this.completedTasks.containsKey(fileId)) {//作业已经完成
-                logger.debug("Ignore complete file {}",fileId);
+            if(checkCompleteTask(fileId)) {//作业已经完成
+                if(logger.isDebugEnabled()) {
+                    logger.debug("Ignore complete file {}", fileId);
+                }
                 isNewFile = FileCheckResult.FileCheckResult_CompleteFile;
             }
             else if(this.oldedTasks.containsKey(fileId)){//作业已经被移除到过时作业清单
-                logger.debug("Ignore old file {}",fileId);
+                if(logger.isDebugEnabled()) {
+                    logger.debug("Ignore old file {}", fileId);
+                }
                 isNewFile = FileCheckResult.FileCheckResult_OldFile;
             }
             else if(this.lostedTasks.containsKey(fileId)){//作业已经被移除到过时作业清单
-                logger.debug("Ignore losted file {}",fileId);
+                if(logger.isDebugEnabled()) {
+                    logger.debug("Ignore losted file {}", fileId);
+                }
                 isNewFile = FileCheckResult.FileCheckResult_LostedFile;
             }
             else if(this.failedTasks.containsKey(fileId)){//作业是一个失败作业
@@ -588,8 +635,10 @@ public class FileListenerService {
                                     relativeParentDir, remoteFile, remoteContext, remoteFileAction);
                         }
 					    catch (Exception e){
-                            
-					        logger.error("Download remoteFile" + remoteFile+ " to " + localFile+ " And Collect File failed：",e);
+
+                            if(logger.isErrorEnabled()) {
+                                logger.error("Download remoteFile" + remoteFile + " to " + localFile + " And Collect File failed：", e);
+                            }
                         }
 					}
 				});
@@ -640,7 +689,9 @@ public class FileListenerService {
                            
                             builder.append("开始第").append(times + 1).append("次重试下载文件：localPath:").append(localFile.getAbsolutePath()).append(",remotePath:").append(remoteFile).append("");
                             msg = builder.toString();
-                            logger.warn(msg);
+                            if(logger.isWarnEnabled()) {
+                                logger.warn(msg);
+                            }
                             
                         }
                         else{
@@ -663,13 +714,17 @@ public class FileListenerService {
                                         .append(",耗时:").append(elapsed).append("毫秒!");
                                 msg = builder.toString();
                                 builder.setLength(0);
-                                logger.warn(msg);
+                                if(logger.isWarnEnabled()) {
+                                    logger.warn(msg);
+                                }
                             } else {
                                 builder.append("第").append(times + 1).append("次重试下载文件失败：localPath:").append(localFile.getAbsolutePath())
                                         .append(",remotePath:").append(remoteFile).append(",耗时:").append(elapsed).append("毫秒!");
                                 msg = builder.toString();
                                 builder.setLength(0);
-                                logger.warn(msg);
+                                if(logger.isWarnEnabled()) {
+                                    logger.warn(msg);
+                                }
                             }
 
                             dataTranPlugin.reportJobMetricWarn(taskContext,msg);
@@ -702,7 +757,9 @@ public class FileListenerService {
                                 .append(remoteFile).append(",校验耗时：")
                                 .append(endTime - startTime).append("毫秒，失败原因：").append(result.getMessage());
                         String msg = builder.toString();
-                        logger.warn(msg);
+                        if(logger.isWarnEnabled()) {
+                            logger.warn(msg);
+                        }
 
                         dataTranPlugin.reportJobMetricWarn(taskContext,msg);
                         removeDownTrace(fileId);
@@ -715,7 +772,9 @@ public class FileListenerService {
                                 .append(remoteFile).append(",校验耗时：")
                                 .append(endTime - startTime).append("毫秒 ");
                         String msg = builder.toString();
-                        logger.info(msg);
+                        if(logger.isInfoEnabled()) {
+                            logger.info(msg);
+                        }
                         if(taskContext != null) {
                             taskContext.reportJobMetricLog(msg);
                         }
@@ -735,7 +794,9 @@ public class FileListenerService {
                     String msg = builder.toString();
 
                     dataTranPlugin.reportJobMetricWarn(taskContext,msg);
-                    logger.warn(msg);
+                    if(logger.isWarnEnabled()) {
+                        logger.warn(msg);
+                    }
                     return;
                 }
             }
@@ -754,7 +815,9 @@ public class FileListenerService {
         }
 
         if(!handleFile.exists()){
-            logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteFile,handleFile.getAbsolutePath());
+            if(logger.isWarnEnabled()){
+                logger.warn("文件下载后重命名失败：tempPath:{},remotePath:{},handle file path:{}",localFile.getAbsolutePath(),remoteFile,handleFile.getAbsolutePath());
+            }
             removeDownTrace(fileId);
             return;
         }
@@ -767,7 +830,9 @@ public class FileListenerService {
                         logger.debug("删除远程ftp服务器文件{}完毕",remoteFile);
                     }
                 } catch (Exception e) {
-                    logger.warn("删除远程ftp服务器文件失败：" + remoteFile, e);
+                    if(logger.isWarnEnabled()) {
+                        logger.warn("删除远程ftp服务器文件失败：" + remoteFile, e);
+                    }
                 }
             }
         }
@@ -862,28 +927,48 @@ public class FileListenerService {
         List<FileReaderTask> oldedRegistRecords = new ArrayList<>();
         StatusManager statusManager = this.dataTranPlugin.getStatusManager();
         List<Status> oldedRegistStatuses = new ArrayList<>();
+        long now = System.currentTimeMillis();
+        long deletedTime = now - registLiveTime;
         lock.lock();
         try {
             Iterator<Map.Entry<String,FileReaderTask>> iterator = this.completedTasks.entrySet().iterator();
             while (iterator.hasNext()){
                 Map.Entry<String,FileReaderTask> entry = iterator.next();
                 FileReaderTask fileReaderTask = entry.getValue();
-                if(statusManager.isOldRegistRecord(fileReaderTask.getCurrentStatus(),registLiveTime)){
+                if(statusManager.isOldRegistRecordWithDeleteTime(fileReaderTask.getCurrentStatus(),deletedTime)){
                     oldedRegistRecords.add(fileReaderTask);
                     oldedRegistStatuses.add(fileReaderTask.getCurrentStatus());
                 }
             }
             for(FileReaderTask fileReaderTask:oldedRegistRecords){
                 this.completedTasks.remove(fileReaderTask.getFileId());
+                Status status = fileReaderTask.getCurrentStatus();
+                status.setHistoryStatus( true);
+                this.lazyCompletedTasks.put(fileReaderTask.getFileId(),status);
                 this.oldedTasks.remove(fileReaderTask.getFileId());
             }
+            Iterator<Map.Entry<String,Status>> lazyIterator = this.lazyCompletedTasks.entrySet().iterator();
+            while (lazyIterator.hasNext()){
+                Map.Entry<String,Status> entry = lazyIterator.next();
+                Status status = entry.getValue();
+                if(!status.isHistoryStatus() && statusManager.isOldRegistRecordWithDeleteTime(status,deletedTime)){
+                    oldedRegistStatuses.add(status);
+                    status.setHistoryStatus( true);
+                }
+            }
+            
 
         }
         finally {
             lock.unlock();
         }
-        if(oldedRegistStatuses.size() > 0 )
+        if(oldedRegistStatuses.size() > 0 ) {
             statusManager.handleOldedRegistedRecordTasks(oldedRegistStatuses);
+        }
+        
+        statusManager.handleOldedRegistedRecordTasks(deletedTime);
+        
+        
 
     }
 }

@@ -30,38 +30,57 @@ import java.util.Map;
  * @version 1.0
  */
 public interface StatusManager {
-    public  boolean isOldRegistRecord(Status completed ,long registLiveTime);
-	public LoadCurrentStatus getLoadCurrentStatus();
-	public void putStatus(Status currentStatus) throws Exception;
-	public void flushStatus();
-	public void stop();
-	public boolean isStoped();
-	public void initLastValueClumnName();
-	public void setIncreamentImport(boolean increamentImport);
-	public void initLastValueType();
-	public void initTableAndStatus(InitLastValueClumnName initLastValueClumnName);
-	public String getLastValueClumnName();
-	public void stopStatusDatasource();
+     boolean isOldRegistRecord(Status completed ,long registLiveTime);
 
-	public  void handleLostedTasks(List<Status> losteds , boolean needSyn);
-	public  void handleOldedRegistedRecordTasks(List<Status> completed);
+    boolean isOldRegistRecordWithDeleteTime(Status completed ,long deleteTime);
+	LoadCurrentStatus getLoadCurrentStatus();
+	void putStatus(Status currentStatus) throws Exception;
+	void flushStatus();
+	void stop();
+	boolean isStoped();
+	void initLastValueClumnName();
+	void setIncreamentImport(boolean increamentImport);
+	void initLastValueType();
+	void initTableAndStatus(InitLastValueClumnName initLastValueClumnName);
+	String getLastValueClumnName();
+	void stopStatusDatasource();
 
-	public Map getParamValue(Map params);
-//    public Object getLastValue();
-	public Object[] putLastParamValue(Map params);
-	public void updateStatus(Status currentStatus) throws Exception;
-	public boolean isIncreamentImport();
-	public void handleOldedTasks(List<Status> olded);
-	public void handleOldedTask(Status olded);
-	public Status getCurrentStatus();
-	public void addStatus(Status currentStatus) throws DataImportException;
-//	public void forceflushLastValue(Status currentStatus);
+	 void handleLostedTasks(List<Status> losteds , boolean needSyn);
+	 void handleOldedRegistedRecordTasks(List<Status> completed);
 
-    public void flushLastValue(LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed);
-//	public void flushLastValue(LastValueWrapper lastValue,Status currentStatus);
 
-	public int getLastValueType();
+     void handleOldedRegistedRecordTasks(long deleteTime);
+
+	Map getParamValue(Map params);
+//    Object getLastValue();
+	Object[] putLastParamValue(Map params);
+	void updateStatus(Status currentStatus) throws Exception;
+	boolean isIncreamentImport();
+	void handleOldedTasks(List<Status> olded);
+	void handleOldedTask(Status olded);
+	Status getCurrentStatus();
+	void addStatus(Status currentStatus) throws DataImportException;
+//	void forceflushLastValue(Status currentStatus);
+
+    void flushLastValue(LastValueWrapper lastValue, Status currentStatus, boolean reachEOFClosed);
+//	void flushLastValue(LastValueWrapper lastValue,Status currentStatus);
+
+	int getLastValueType();
 
 	List<Status> getPluginStatuses();
-	public Status getStatus(String jobId, String jobType, String statusId);
+    /**
+	 * 根据任务id，任务类型，任务状态id获取任务状态
+	 * @param jobId
+	 * @param jobType
+	 * @param statusId
+	 * @return
+	 */
+	Status getStatus(String jobId, String jobType, String statusId);
+
+    /**
+	 * 根据fileId获取已完成状态Status
+	 * @param fileId
+	 * @return
+	 */
+    Status getComplateStatusByFileId(String fileId);
 }

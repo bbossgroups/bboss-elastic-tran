@@ -273,10 +273,19 @@ public class FileInputConfig<T extends FileInputConfig> extends BaseConfig<T> im
         return (T)this;
     }
 
+    /**
+     * 已完成任务记录存活时间，超过对应的时间值，并且源文件已经被清理，则将对应的任务记录迁移到历史表
+     * @return
+     */
     public Long getRegistLiveTime() {
         return registLiveTime;
     }
 
+    /**
+     * 已完成任务记录存活时间，超过对应的时间值，并且源文件已经被清理，则将对应的任务记录迁移到历史表
+     * @param registLiveTime
+     * @return
+     */
     public T setRegistLiveTime(Long registLiveTime) {
         this.registLiveTime = registLiveTime;
         return (T)this;
