@@ -608,6 +608,9 @@ public class FileListenerService {
                     downLoadTraces.put(fileId, dummy);
                 } else {
                     isDowning = true;
+                    if(logger.isDebugEnabled()){
+                        logger.debug("DataTran FILE_DOWNLOAD_TRACE file {} ,remotePath:{} is downloading or downloaded.", handleFile.getAbsolutePath(),remoteFile);
+                    }
                 }
             }
             else if(handleFile.isFile() && handleFile.exists()){

@@ -263,6 +263,9 @@ public class FileDownloadService {
                     downLoadTraces.put(fileId, dummy);
                 } else {
                     isDowning = true;
+                    if(logger.isDebugEnabled()){
+                        logger.debug("JobFlow FILE_DOWNLOAD_TRACE file {} ,remotePath:{} is downloading or downloaded.", handleFile.getAbsolutePath(),remoteFile);
+                    }
                 }
             }
             else if(handleFile.isFile() && handleFile.exists()){
@@ -506,7 +509,7 @@ public class FileDownloadService {
                                 logger.info("Delete tar file:"+downloadFileMetrics.getLocalFilePath());
                         }
                     }
-                    removeDownTrace(fileId);
+//                    removeDownTrace(fileId);
                     downloadedFileRecorder.recordAfterDownload(downloadFileMetrics, jobFlowNodeExecuteContext,null);
                     
                 } else {
