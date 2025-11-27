@@ -15,6 +15,10 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
+import org.frameworkset.elasticsearch.ESVersionInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * <p>Description: </p>
  * <p></p>
@@ -24,7 +28,25 @@ package org.frameworkset.tran;
  * @version 1.0
  */
 public class TranVersion {
-	public static String getVersion636(){
-		return "6.3.6";
-	}
+    private static final String VERSION = "7.5.6";
+    private static final String RELEASEDATE = "20251127";
+    private static Logger logger = LoggerFactory.getLogger(TranVersion.class);
+    static {
+        logger.info(getVersionDescription());
+    }
+    public static String getVersion756(){
+        return VERSION+"_"+RELEASEDATE;
+    }
+
+    public static String getVersion(){
+        return VERSION;
+    }
+
+    /**
+     * Returns the catenation of the description and cvs fields.
+     * @return String with description
+     */
+    public static String getVersionDescription() {
+        return "bboss datatran client Version: \t" + VERSION + ",Release Date:\t" + RELEASEDATE ;
+    }
 }

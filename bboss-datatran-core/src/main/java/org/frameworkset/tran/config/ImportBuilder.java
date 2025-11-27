@@ -61,6 +61,7 @@ public class ImportBuilder {
 	private Map jobInputParams;
 
 	private Map jobOutputParams;
+    private TranVersion tranVersion;
 
 
     private OutputRecordsFilter outputRecordsFilter;
