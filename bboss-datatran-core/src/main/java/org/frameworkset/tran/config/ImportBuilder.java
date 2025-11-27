@@ -16,6 +16,7 @@ package org.frameworkset.tran.config;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.frameworkset.spi.BBOSSVersion;
 import org.frameworkset.spi.DefaultApplicationContext;
 import org.frameworkset.spi.assemble.GetProperties;
 import org.frameworkset.tran.*;
@@ -44,7 +45,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static org.frameworkset.tran.DBConfig.*;
-
+import org.frameworkset.elasticsearch.ESVersionInfo;
 /**
  * <p>Description: </p>
  * <p></p>
@@ -61,7 +62,13 @@ public class ImportBuilder {
 	private Map jobInputParams;
 
 	private Map jobOutputParams;
-    private TranVersion tranVersion;
+    static{
+        BBOSSVersion.getVersion();
+        ESVersionInfo.getESVersion();
+        TranVersion.getVersion();
+       
+        
+    } 
 
 
     private OutputRecordsFilter outputRecordsFilter;

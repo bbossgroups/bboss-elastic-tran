@@ -15,7 +15,7 @@ package org.frameworkset.tran;
  * limitations under the License.
  */
 
-import org.frameworkset.elasticsearch.ESVersionInfo;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +47,6 @@ public class TranVersion {
      * @return String with description
      */
     public static String getVersionDescription() {
-        return "bboss datatran client Version: \t" + VERSION + ",Release Date:\t" + RELEASEDATE ;
+        return "bboss datatran Version: " + VERSION + ",Release Date: " + RELEASEDATE ;
     }
 }

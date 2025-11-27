@@ -15,6 +15,8 @@ package org.frameworkset.tran.jobflow.builder;
  * limitations under the License.
  */
 
+import org.frameworkset.spi.BBOSSVersion;
+import org.frameworkset.tran.TranVersion;
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.listener.JobFlowListener;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
@@ -29,6 +31,10 @@ import java.util.List;
  * @Date 2025/3/31
  */
 public class JobFlowBuilder {
+    static{
+        BBOSSVersion.getVersion();
+        TranVersion.getVersion();
+    }
     /**
      * 作业流程id
      */
