@@ -149,18 +149,18 @@ public abstract class BaseStatusManager implements StatusManager {
 		flushThread = new StatusFlushThread(this,
 				dataTranPlugin.getImportContext().getAsynFlushStatusInterval());
 		flushThread.start();
-		ShutdownUtil.addShutdownHook(new Runnable() {
-			@Override
-			public void run() {
-				if(isStoped())
-					return;
-				synchronized(BaseStatusManager.this) {
-					if(isStoped())
-						return;
-					flushStatus();
-				}
-			}
-		});
+//		ShutdownUtil.addShutdownHook(new Runnable() {
+//			@Override
+//			public void run() {
+//				if(isStoped())
+//					return;
+//				synchronized(BaseStatusManager.this) {
+//					if(isStoped())
+//						return;
+//					flushStatus();
+//				}
+//			}
+//		});
 	}
 
 //	private ReadWriteLock putStatusLock = new ReentrantReadWriteLock();

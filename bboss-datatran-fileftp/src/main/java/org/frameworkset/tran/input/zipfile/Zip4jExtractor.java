@@ -30,13 +30,15 @@ import java.io.File;
 
 public class Zip4jExtractor {
     private static Logger logger = LoggerFactory.getLogger(Zip4jExtractor.class);
-//    public static void main(String[] args) throws Exception { 
-//        String zipFilePath = "C:\\data\\zipfile\\3.zip";
-//         
-//        String password = "123456";
-//        int files = getZipFileCount(zipFilePath);
-//        System.out.println("ZIP文件包含" + files + "个文件");
-//    }
+    public static void main(String[] args) throws Exception { 
+        String zipFilePath = "C:\\data\\zipfile\\behavior_event_02_20251014143006.zip";
+
+        String password = "123456";
+        int files = getZipFileCount(zipFilePath);
+        
+        files = extractEncryptedZip(zipFilePath, "C:\\data\\unzipfile\\", password);
+        System.out.println("ZIP文件包含" + files + "个文件");
+    }
     
     /**
      * 解压加密的ZIP文件
@@ -47,17 +49,29 @@ public class Zip4jExtractor {
      * @throws ZipException ZIP异常
      */
     public static int extractEncryptedZip(File zipFilePath, String destDirectory, String password) throws ZipException {
-        ZipFile zipFile = new ZipFile(zipFilePath);
-        if (zipFile.isEncrypted()) {
-            zipFile.setPassword(password.toCharArray());
-        }
-        int files = zipFile.getFileHeaders().size();
+        ZipFile zipFile = null;
+        try {
+            zipFile = new ZipFile(zipFilePath);
+            if (zipFile.isEncrypted()) {
+                zipFile.setPassword(password.toCharArray());
+            }
+            int files = zipFile.getFileHeaders().size();
 //        // 检查ZIP文件是否分卷
 //        if(zipFile.isSplitArchive()){
 //            // 合并分卷文件
 //        }
-        zipFile.extractAll(destDirectory);
-        return files;
+            zipFile.extractAll(destDirectory);
+            return files;
+        }
+        finally {
+            if(zipFile != null){
+                try{
+                    zipFile.close();
+                }catch (Exception e){
+                     
+                }
+            }
+        }
     }
 
     /**
@@ -66,9 +80,21 @@ public class Zip4jExtractor {
      * @return 解压文件数量
      */
     public static int getZipFileCount(String zipFilePath) throws ZipException {
-        ZipFile zipFile = new ZipFile(zipFilePath);
-        int files = zipFile.getFileHeaders().size();
-        return files;
+        ZipFile zipFile = null;
+        try {
+            zipFile = new ZipFile(zipFilePath);
+            int files = zipFile.getFileHeaders().size();
+            return files;
+        }
+        finally {
+            if(zipFile != null){
+                try{
+                    zipFile.close();
+                }catch (Exception e){
+                     
+                }
+            }
+        }
     }
 
     /**
@@ -90,8 +116,21 @@ public class Zip4jExtractor {
      * @throws ZipException ZIP异常
      */
     public static boolean isEncrypted(String zipFilePath) throws ZipException {
-        ZipFile zipFile = new ZipFile(zipFilePath);
-        return zipFile.isEncrypted();
+
+        ZipFile zipFile = null;
+        try {
+            zipFile = new ZipFile(zipFilePath);
+            return zipFile.isEncrypted();
+        }
+        finally {
+            if(zipFile != null){
+                try{
+                    zipFile.close();
+                }catch (Exception e){
+
+                }
+            }
+        }
     }
 }
 
