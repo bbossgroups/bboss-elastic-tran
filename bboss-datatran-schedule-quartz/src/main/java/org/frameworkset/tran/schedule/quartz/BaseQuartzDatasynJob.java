@@ -45,12 +45,12 @@ public abstract class BaseQuartzDatasynJob implements Job {
     private Lock lock = new ReentrantLock();
     protected void buildJob(){
         init( );
-        ShutdownUtil.addShutdownHook(new Runnable() {
-            @Override
-            public void run() {
-                destroy();
-            }
-        });
+//        ShutdownUtil.addShutdownHook(new Runnable() {
+//            @Override
+//            public void run() {
+//                destroy();
+//            }
+//        });
     }
     public void destroy(){
         if(externalScheduler != null){

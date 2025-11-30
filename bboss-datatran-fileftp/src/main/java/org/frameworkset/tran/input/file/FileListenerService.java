@@ -529,7 +529,7 @@ public class FileListenerService {
         boolean isComplete = this.completedTasks.containsKey(fileId);
         if(!isComplete) {
             isComplete = this.lazyCompletedTasks.containsKey(fileId);
-            if(!isComplete) {
+            if(!isComplete ) {
                 Status status = getBaseDataTranPlugin().getStatusManager().getComplateStatusByFileId(fileId);
                 if (status != null) {
                     isComplete = true;

@@ -69,16 +69,19 @@ public class IP2RegionV1  implements IP2Region{
 				}
 			});
 			daemonThread.start();
-			ShutdownUtil.addShutdownHook(new Runnable() {
-				@Override
-				public void run() {
-					daemonThread.stopped();
-					closeDb();
-				}
-			});
+//			ShutdownUtil.addShutdownHook(new Runnable() {
+//				@Override
+//				public void run() {
+//					daemonThread.stopped();
+//					closeDb();
+//				}
+//			});
 		}
 	}
-	private void closeDb(){
+	public void closeDb(){
+        if(daemonThread != null){
+            daemonThread.stopped();
+        }
 		if(searcher != null){
 			try {
 				searcher.close();

@@ -58,7 +58,9 @@ public class IPDBTest1 {
             System.out.println(SimpleStringUtil.object2json(address));
             address = addressUtils.getIpInfo("113.90.117.151");//ipv6
             System.out.println(SimpleStringUtil.object2json(address));
-
+            
+            //释放资源
+            addressUtils.stop();
 
 		} catch (Exception e) {
 			e.printStackTrace();

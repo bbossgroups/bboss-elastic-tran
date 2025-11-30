@@ -178,9 +178,8 @@ public class DBOutputDataTranPlugin extends BaseDBPlugin implements OutputPlugin
                 PersistentSQLVariable var = (PersistentSQLVariable) vars.get(i);
                 varName = var.getVariableName();
                 temp = dbRecord.getData(varName);
-                if (temp == null) {
-                    if (logger.isDebugEnabled())
-                        logger.debug("未指定绑定变量的值：{}", varName);
+                if (temp == null && logger.isDebugEnabled() && !dbRecord.containKey(varName)) {
+                    logger.debug("未指定绑定变量的值：{}", varName);
                 }
                 param = new Param();
                 param.setVariable(var);
@@ -195,67 +194,6 @@ public class DBOutputDataTranPlugin extends BaseDBPlugin implements OutputPlugin
             recordOutpluginSpecialConfig.addRecordSpecialConfigOnly(SPECIALCONFIG_RECORDPARAMS_NAME,records);
         }
     }
-//    @Override
-//    public CommonRecord buildRecord(Context context){
-//        DBRecord dbRecord = new DBRecord();
-//        super.buildRecord(dbRecord,context);
-//        if(!context.isDDL()) {
-//            List<VariableHandler.Variable> vars = null;
-//            Object temp = null;
-//            Param param = null;
-//
-//
-//            TranSQLInfo insertSqlinfo = dbOutputConfig.getTargetSqlInfo(context.getTaskContext(), dbRecord);
-//            TranSQLInfo updateSqlinfo = dbOutputConfig.getTargetUpdateSqlInfo(context.getTaskContext(), dbRecord);
-//            TranSQLInfo deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(context.getTaskContext(), dbRecord);
-//
-//            if (context.isInsert()) {
-//                if(insertSqlinfo != null) {
-//                    vars = insertSqlinfo.getVars();
-//                }
-//                else{
-//                    throw ImportExceptionUtil.buildDataImportException(importContext,"Record is marked insert,but insert sql not setted. See document to set insert sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
-//                }
-//            } else if (context.isUpdate()) {
-//                if(updateSqlinfo != null) {
-//                    vars = updateSqlinfo.getVars();
-//                }
-//                else{
-//                    throw ImportExceptionUtil.buildDataImportException(importContext,"Record is marked update,but update sql not setted. See document to set update sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
-//                }
-//
-//            } else {
-//                if(deleteSqlinfo != null) {
-//                    vars = deleteSqlinfo.getVars();
-//                }
-//                else{
-//                    throw ImportExceptionUtil.buildDataImportException(importContext,"Record is marked delete,but delete sql not setted. See document to set delete sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
-//                }
-//            }
-//            String varName = null;
-//            List<Param> record = new ArrayList<>();
-//            for (int i = 0; i < vars.size(); i++) {
-//                PersistentSQLVariable var = (PersistentSQLVariable) vars.get(i);
-//                varName = var.getVariableName();
-//                temp = dbRecord.getData(varName);
-//                if (temp == null) {
-//                    if (logger.isDebugEnabled())
-//                        logger.debug("未指定绑定变量的值：{}", varName);
-//                }
-//                param = new Param();
-//                param.setVariable(var);
-//                param.setIndex(var.getPosition() + 1);
-//                param.setData(temp);
-//                param.setName(varName);
-//                param.setMethod(var.getMethod());
-//
-//                record.add(param);
-//
-//            }
-//            dbRecord.setParams(record);
-//        }
-//        return dbRecord;
-//
-//    }
+
 
 }

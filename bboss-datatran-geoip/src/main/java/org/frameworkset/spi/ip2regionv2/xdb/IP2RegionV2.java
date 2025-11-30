@@ -53,13 +53,13 @@ public class IP2RegionV2 implements IP2Region {
         if(daemonThread == null) {
             daemonThread = new DaemonThread(5000, "ip2regionDatabaseIP-Reload");
             daemonThread.start();
-            ShutdownUtil.addShutdownHook(new Runnable() {
-                @Override
-                public void run() {
-                    daemonThread.stopped();
-                    closeDb();
-                }
-            });
+//            ShutdownUtil.addShutdownHook(new Runnable() {
+//                @Override
+//                public void run() {
+//                    
+//                    closeDb();
+//                }
+//            });
         }
     }
 	@Override
@@ -160,7 +160,10 @@ public class IP2RegionV2 implements IP2Region {
 
 		}
 	}
-	private void closeDb(){
+	public void closeDb(){
+        if(daemonThread != null){
+            daemonThread.stopped();
+        }
 		if(searcher_ipv4 != null){
 			try {
 				searcher_ipv4.close();

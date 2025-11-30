@@ -60,22 +60,23 @@ public class HttpConfigClientProxy {
 	private static Logger logger = LoggerFactory.getLogger(HttpConfigClientProxy.class);
 	protected String configFile;
 	protected ConfigDSLUtil configDSLUtil;
-	private  static ConfigHolder configHolder = new ConfigHolder("HttpProxy");
-	static
-	{
-		ShutdownUtil.addShutdownHook(new Runnable(){
-
-			public void run() {
-				configHolder.stopmonitor();
-				configHolder.destory();
-
-			}});
-	}
-	public HttpConfigClientProxy(String configFile){
+	private  ConfigHolder configHolder = null;//new ConfigHolder("HttpProxy");
+//	static
+//	{
+//		ShutdownUtil.addShutdownHook(new Runnable(){
+//
+//			public void run() {
+//				configHolder.stopmonitor();
+//				configHolder.destory();
+//
+//			}});
+//	}
+	public HttpConfigClientProxy(ConfigHolder configHolder,String configFile){
+        this.configHolder = configHolder;
 		this.configFile = configFile;
 		configDSLUtil = configHolder.getConfigDSLUtil(configFile);
 	}
-	public HttpConfigClientProxy(BaseTemplateContainerImpl templateContainer){
+	public HttpConfigClientProxy(ConfigHolder configHolder,BaseTemplateContainerImpl templateContainer){
 		templateContainer.setConfigHolder(configHolder);
 		configDSLUtil = configHolder.getConfigDSLUtil(templateContainer);
 	}

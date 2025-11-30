@@ -92,6 +92,26 @@ public class GeoIPUtil {
 	private boolean assertEmpty(){
 		return SimpleStringUtil.isEmpty(database) || SimpleStringUtil.isEmpty(asnDatabase);
 	}
+    private Object stopLock = new Object();
+    private boolean stopped = false;
+    public void stop(){
+        if(stopped ){
+            return;
+        }
+        synchronized (stopLock){
+            if(stopped )
+                return;
+            stopped = true;
+        }
+        if(geoIPFilter != null) {
+            this.geoIPFilter.stop();
+            geoIPFilter = null;
+        }
+        if(ip2Region != null){
+            ip2Region.closeDb();
+            ip2Region = null;
+        }
+    }
 	public void init(){
 
 		if(!assertEmpty()){

@@ -23,7 +23,6 @@ import org.frameworkset.elasticsearch.template.TemplateMeta;
 import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.BasePlugin;
@@ -56,10 +55,12 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 	private ResourceStartResult resourceStartResult ;
 	private HttpConfigClientProxy httpConfigClientProxy ;
     private ExecutorService blockedExecutor;
+    private HttpProxyHelper httpProxyHelper;
 
 	public HttpInputDataTranPlugin(ImportContext importContext) {
 		super(importContext);
 		httpInputConfig = (HttpInputConfig) importContext.getInputConfig();
+        httpProxyHelper = new HttpProxyHelper();
 		this.jobType = "HttpInputDataTranPlugin";
 	}
 
@@ -245,7 +246,7 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 	@Override
 	public void afterInit() {
 		if(SimpleStringUtil.isNotEmpty(httpInputConfig.getQueryDsl())) {
-			httpConfigClientProxy = HttpProxyHelper.getHttpConfigClientProxy(new BaseTemplateContainerImpl(httpInputConfig.getDslNamespace()) {
+			httpConfigClientProxy = httpProxyHelper.getHttpConfigClientProxy(new BaseTemplateContainerImpl(httpInputConfig.getDslNamespace()) {
 				@Override
 				protected Map<String, TemplateMeta> loadTemplateMetas(String namespace) {
 					try {
@@ -269,7 +270,7 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 			});
 		}
 		else{
-			httpConfigClientProxy = HttpProxyHelper.getHttpConfigClientProxy(httpInputConfig.getDslFile());
+			httpConfigClientProxy = httpProxyHelper.getHttpConfigClientProxy(httpInputConfig.getDslFile());
 		}
 
         if(dataTranPlugin.hasJobInputParamGroups()){
@@ -301,6 +302,9 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 		}
         if(blockedExecutor != null){
             ThreadPoolFactory.shutdownExecutor(blockedExecutor);
+        }
+        if (httpProxyHelper != null){
+            httpProxyHelper.destory();
         }
 	}
 }

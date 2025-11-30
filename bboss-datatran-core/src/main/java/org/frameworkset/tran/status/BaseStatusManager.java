@@ -149,18 +149,6 @@ public abstract class BaseStatusManager implements StatusManager {
 		flushThread = new StatusFlushThread(this,
 				dataTranPlugin.getImportContext().getAsynFlushStatusInterval());
 		flushThread.start();
-//		ShutdownUtil.addShutdownHook(new Runnable() {
-//			@Override
-//			public void run() {
-//				if(isStoped())
-//					return;
-//				synchronized(BaseStatusManager.this) {
-//					if(isStoped())
-//						return;
-//					flushStatus();
-//				}
-//			}
-//		});
 	}
 
 //	private ReadWriteLock putStatusLock = new ReentrantReadWriteLock();
@@ -1223,30 +1211,33 @@ public abstract class BaseStatusManager implements StatusManager {
      * @param fileId
      */
     @Override
-    public Status getComplateStatusByFileId(String fileId) { 
+    public Status getComplateStatusByFileId(String fileId) {
+        Status status = null;
         try {
-            String jobId = importContext.getJobId();
-            String jobType = importContext.getJobType();
-            Status status = null;
-            if (jobId == null) {
-                status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectCompleteStatusByFileId, fileId, jobType);
-                if(status == null){
-                    status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectHistoryStatusByFileId, fileId, jobType);
-                    if(status != null){
-                        status.setHistoryStatus(true);
+            if(this.isIncreamentImport()){
+                String jobId = importContext.getJobId();
+                String jobType = importContext.getJobType();
+               
+                if (jobId == null) {
+                    status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectCompleteStatusByFileId, fileId, jobType);
+                    if(status == null){
+                        status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectHistoryStatusByFileId, fileId, jobType);
+                        if(status != null){
+                            status.setHistoryStatus(true);
+                        }
+                    }
+                } else {
+                    status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectCompleteStatusByJobIdAndFileIdSQL,  jobId, fileId,jobType);
+                    if(status == null){
+                        status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectHistoryStatusByJobIdAndFileIdSQL,  jobId, fileId,jobType);
+                        if(status != null){
+                            status.setHistoryStatus(true);
+                        }
                     }
                 }
-            } else {
-                status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectCompleteStatusByJobIdAndFileIdSQL,  jobId, fileId,jobType);
-                if(status == null){
-                    status = SQLExecutor.queryObjectWithDBName(Status.class, statusDbname, selectHistoryStatusByJobIdAndFileIdSQL,  jobId, fileId,jobType);
-                    if(status != null){
-                        status.setHistoryStatus(true);
-                    }
+                if(status != null) {
+                    this.lastValueWraperSerial.deserial(status);
                 }
-            }
-            if(status != null) {
-                this.lastValueWraperSerial.deserial(status);
             }
             return status;
         } catch (Exception e){

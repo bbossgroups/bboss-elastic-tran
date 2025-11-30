@@ -48,11 +48,13 @@ import java.util.Map;
 public class HttpOutputDataTranPlugin extends BasePlugin implements OutputPlugin {
 	protected HttpOutputConfig httpOutputConfig ;
 	private ResourceStartResult resourceStartResult ;
+    private HttpProxyHelper httpProxyHelper;
 
 	private HttpConfigClientProxy httpConfigClientProxy ;
 	public HttpOutputDataTranPlugin(OutputConfig pluginOutputConfig, ImportContext importContext){
 		super(  pluginOutputConfig,importContext);
 		httpOutputConfig = (HttpOutputConfig)   pluginOutputConfig;
+        httpProxyHelper = new HttpProxyHelper();
 
 	}
     @Override
@@ -67,12 +69,14 @@ public class HttpOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 	public HttpConfigClientProxy getHttpConfigClientProxy() {
 		return httpConfigClientProxy;
 	}
+    
+    
 
 	@Override
 	public void afterInit() {
 		if(!httpOutputConfig.isDirectSendData()){
 			if(SimpleStringUtil.isNotEmpty(httpOutputConfig.getDataDsl())) {
-				httpConfigClientProxy = HttpProxyHelper.getHttpConfigClientProxy(new BaseTemplateContainerImpl(httpOutputConfig.getDslNamespace()) {
+				httpConfigClientProxy = httpProxyHelper.getHttpConfigClientProxy(new BaseTemplateContainerImpl(httpOutputConfig.getDslNamespace()) {
 					@Override
 					protected Map<String, TemplateMeta> loadTemplateMetas(String namespace) {
 						try {
@@ -96,7 +100,7 @@ public class HttpOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 				});
 			}
 			else{
-				httpConfigClientProxy = HttpProxyHelper.getHttpConfigClientProxy(httpOutputConfig.getDslFile());
+				httpConfigClientProxy = httpProxyHelper.getHttpConfigClientProxy(httpOutputConfig.getDslFile());
 			}
 		}
 	}
@@ -121,6 +125,9 @@ public class HttpOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 
 
 		}
+        if (httpProxyHelper != null){
+            httpProxyHelper.destory();
+        }
 	}
 
 

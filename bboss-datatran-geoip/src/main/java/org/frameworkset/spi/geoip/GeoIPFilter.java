@@ -103,12 +103,12 @@ public class GeoIPFilter {
         }
       });
       daemonThread.start();
-      ShutdownUtil.addShutdownHook(new Runnable() {
-        @Override
-        public void run() {
-          daemonThread.stopped();
-        }
-      });
+//      ShutdownUtil.addShutdownHook(new Runnable() {
+//        @Override
+//        public void run() {
+//          daemonThread.stopped();
+//        }
+//      });
     } catch (InvalidDatabaseException e) {
       throw new IllegalArgumentException("The database provided is invalid or corrupted.", e);
     } catch (IOException e) {
@@ -117,6 +117,21 @@ public class GeoIPFilter {
 
     this.desiredFields = createDesiredFields();
     this.asnDesiredFields = createAsnDesiredFields();
+  }
+  
+  public void stop(){
+      if(daemonThread != null) {
+          daemonThread.stopped();
+      }
+
+      try {
+          databaseReader.close();
+      } catch (Exception e) {
+      }
+      try {
+          asnDatabaseReader.close();
+      } catch (Exception e) {
+      }
   }
 
   public void resetDatabaseReader(){

@@ -52,6 +52,17 @@ public class ArchiveExtractor {
             throw new IllegalArgumentException("不支持的文件格式: " + lowerCaseFileName);
         }
     }
+
+    /**
+     * 解压文件主方法，根据文件扩展名自动选择解压方式
+     *
+     * @param tarFilePath 源压缩文件路径
+     * @param destinationDir 目标解压目录
+     * @throws IOException IO异常
+     */
+    public static int extract(String tarFilePath, String destinationDir) throws IOException {
+        return extract(new File(tarFilePath),  destinationDir);
+    }
     
     /**
      * 解压tar.gz文件

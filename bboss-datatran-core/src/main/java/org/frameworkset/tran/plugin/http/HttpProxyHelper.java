@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.http;
  * limitations under the License.
  */
 
+import org.frameworkset.elasticsearch.client.ConfigHolder;
 import org.frameworkset.elasticsearch.template.BaseTemplateContainerImpl;
 import org.frameworkset.tran.DataImportException;
 
@@ -32,8 +33,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version 1.0
  */
 public class HttpProxyHelper {
-	private static Map<String, HttpConfigClientProxy> configDSLUtils = new ConcurrentHashMap<>();
-	public static HttpConfigClientProxy getHttpConfigClientProxy(String configDSLFile){
+	private Map<String, HttpConfigClientProxy> configDSLUtils = new ConcurrentHashMap<>();
+    
+    private ConfigHolder configHolder = new ConfigHolder("HttpProxy");
+	public HttpConfigClientProxy getHttpConfigClientProxy( String configDSLFile){
 		HttpConfigClientProxy httpConfigClientProxy = configDSLUtils.get(configDSLFile);
 		if(httpConfigClientProxy != null)
 			return httpConfigClientProxy;
@@ -42,13 +45,13 @@ public class HttpProxyHelper {
 			if(httpConfigClientProxy != null)
 				return httpConfigClientProxy;
 			// TODO Auto-generated method stub
-			httpConfigClientProxy =  new HttpConfigClientProxy(configDSLFile);
+			httpConfigClientProxy =  new HttpConfigClientProxy(configHolder,configDSLFile);
 			configDSLUtils.put(configDSLFile,httpConfigClientProxy);
 		}
 		return httpConfigClientProxy;
 	}
 
-	public static HttpConfigClientProxy getHttpConfigClientProxy(BaseTemplateContainerImpl templateContainer){
+	public HttpConfigClientProxy getHttpConfigClientProxy(BaseTemplateContainerImpl templateContainer){
 		String namespace = templateContainer.getNamespace();
 		HttpConfigClientProxy httpConfigClientProxy = configDSLUtils.get(namespace);
 		if(httpConfigClientProxy != null)
@@ -58,7 +61,7 @@ public class HttpProxyHelper {
 			if(httpConfigClientProxy != null)
 				return httpConfigClientProxy;
 			// TODO Auto-generated method stub
-			httpConfigClientProxy =  new HttpConfigClientProxy(templateContainer);
+			httpConfigClientProxy =  new HttpConfigClientProxy(configHolder,templateContainer);
 			configDSLUtils.put(namespace,httpConfigClientProxy);
 		}
 		return httpConfigClientProxy;
@@ -94,5 +97,22 @@ public class HttpProxyHelper {
 		}
 
 	}
+    private boolean destoryed = false;
+    private Object lock = new Object();
+    public void destory(){
+//    	for(HttpConfigClientProxy httpConfigClientProxy:configDSLUtils.values()){
+//    		httpConfigClientProxy.destory();
+//    	}
+        if(destoryed)
+            return;
+        synchronized (lock){
+            if(destoryed){
+                return;
+            }
+            destoryed = true;
+        }
+        configHolder.destory();
+        configDSLUtils.clear();
+    }
 
 }
