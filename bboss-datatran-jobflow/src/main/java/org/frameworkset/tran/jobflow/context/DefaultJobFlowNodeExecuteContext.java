@@ -169,6 +169,7 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     public void addContainerJobFlowNodeContextData(String name, Object data) {
         if(this.getContainerJobFlowNodeExecuteContext() != null) {
             this.getContainerJobFlowNodeExecuteContext().addContextData(name,data);
+            return;
         }
         throw new JobFlowException("addContainerJobFlowNodeContextData failed:ContainerJobFlowNodeExecuteContext is null.");
     }

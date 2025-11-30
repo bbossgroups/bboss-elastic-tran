@@ -107,7 +107,14 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                 logger.info("Start {} begin.",this.getJobFlowNodeInfo());
                 if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
                     for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
-                        jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);
+                        
+                        try {
+                            jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);
+                        }
+                        catch (Exception e){
+                            logger.warn(this.getJobFlowNodeInfo()+"JobFlowNodeListener.beforeExecute failed:",e);
+//                            throw new JobFlowException(this.getJobFlowNodeInfo()+" JobFlowNodeListener.beforeExecute failed:",e);
+                        }
                     }
                 }
                 ExecutorService blockedExecutor = buildThreadPool();
@@ -153,7 +160,14 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
             if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
                 for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
-                    jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);
+                    
+                    try {
+                        jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);
+                    }
+                    catch (Exception e){
+                        logger.warn(this.getJobFlowNodeInfo()+"JobFlowNodeListener.beforeExecute failed:",e);
+//                        throw new JobFlowException(this.getJobFlowNodeInfo()+" JobFlowNodeListener.beforeExecute failed:",e);
+                    }
                 }
             }
             nodeComplete(null,true);
@@ -190,7 +204,14 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         logger.info("Stop {} complete.",this.getJobFlowNodeInfo());
         if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
             for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
-                jobFlowNodeListener.afterEnd(this);
+                
+                try {
+                    jobFlowNodeListener.afterEnd(this);
+                }
+                catch (Exception e){
+                    logger.warn(this.getJobFlowNodeInfo()+"JobFlowNodeListener.afterEnd failed:",e);
+//                    throw new JobFlowException(this.getJobFlowNodeInfo()+" obFlowNodeListener.afterEnd failed:",e);
+                }
             }
         }
         if(this.nextJobFlowNode != null){

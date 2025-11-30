@@ -273,17 +273,23 @@ public abstract class JobFlowNode {
             return;
         }
         jobFlowNodeContext.setExecuteException(throwable);
-        complete(throwable);        
+        complete(throwable);
+        if(throwable != null) {
+            logger_.error(this.getJobFlowNodeInfo() + " complete with exception:", throwable);
+        }
         if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
             for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
-                jobFlowNodeListener.afterExecute(jobFlowNodeExecuteContext,throwable);
+                try {
+                    jobFlowNodeListener.afterExecute(jobFlowNodeExecuteContext, throwable);
+                }
+                catch (Exception e){
+                    logger_.warn(this.getJobFlowNodeInfo()+"JobFlowNodeListener.afterExecute failed:",e);
+//                    throw new JobFlowException(this.getJobFlowNodeInfo()+" JobFlowNodeListener.afterExecute failed:",e);
+                }
+                
             }
         }
-        else{
-            if(throwable != null) {
-                logger_.error(this.getJobFlowNodeInfo() + " complete with exception:", throwable);
-            }
-        }
+        
         release();
         
         if(this.nextJobFlowNode != null && !ignoreExecute){
