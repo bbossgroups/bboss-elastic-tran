@@ -148,10 +148,13 @@ public class DBOutputDataTranPlugin extends BaseDBPlugin implements OutputPlugin
             TranSQLInfo insertSqlinfo = dbOutputConfig.getTargetSqlInfo(context.getTaskContext(), dbRecord);
             TranSQLInfo updateSqlinfo = dbOutputConfig.getTargetUpdateSqlInfo(context.getTaskContext(), dbRecord);
             TranSQLInfo deleteSqlinfo = dbOutputConfig.getTargetDeleteSqlInfo(context.getTaskContext(), dbRecord);
-
+            String configSQL = null;
+            String name = null;
             if (context.isInsert()) {
                 if(insertSqlinfo != null) {
                     vars = insertSqlinfo.getVars();
+                    name = insertSqlinfo.getSqlName();
+                    configSQL = insertSqlinfo.getOriginSQL();
                 }
                 else{
                     throw ImportExceptionUtil.buildDataImportException(importContext,"Record is marked insert,but insert sql not setted. See document to set insert sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
@@ -159,6 +162,8 @@ public class DBOutputDataTranPlugin extends BaseDBPlugin implements OutputPlugin
             } else if (context.isUpdate()) {
                 if(updateSqlinfo != null) {
                     vars = updateSqlinfo.getVars();
+                    name = insertSqlinfo.getSqlName();
+                    configSQL = updateSqlinfo.getOriginSQL();
                 }
                 else{
                     throw ImportExceptionUtil.buildDataImportException(importContext,"Record is marked update,but update sql not setted. See document to set update sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
@@ -167,10 +172,17 @@ public class DBOutputDataTranPlugin extends BaseDBPlugin implements OutputPlugin
             } else {
                 if(deleteSqlinfo != null) {
                     vars = deleteSqlinfo.getVars();
+                    name = insertSqlinfo.getSqlName();
+                    configSQL = deleteSqlinfo.getOriginSQL();
                 }
                 else{
                     throw ImportExceptionUtil.buildDataImportException(importContext,"Record is marked delete,but delete sql not setted. See document to set delete sql：https://esdoc.bbossgroups.com/#/datatran-plugins?id=_21-db%e8%be%93%e5%87%ba%e6%8f%92%e4%bb%b6");
                 }
+            }
+            if(vars == null ){
+                String msg = "未设置参数变量，请检查sql配置["+name+"]是否正确:"+configSQL;
+                logger.warn(msg);
+                throw ImportExceptionUtil.buildDataImportException(importContext,msg);
             }
             String varName = null;
             List<Param> records = new ArrayList<>();

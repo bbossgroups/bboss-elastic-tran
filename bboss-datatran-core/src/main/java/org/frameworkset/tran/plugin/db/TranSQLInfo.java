@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class TranSQLInfo {
 	private String originSQL;
+    private String sqlName;
 	private String sql;
 	private List<VariableHandler.Variable> vars;
     private List<String> targetDBNames;
@@ -65,5 +66,13 @@ public class TranSQLInfo {
 
     public void setTargetDBNames(List<String> targetDBNames) {
         this.targetDBNames = targetDBNames;
+    }
+
+    public String getSqlName() {
+        return sqlName;
+    }
+
+    public void setSqlName(String sqlName) {
+        this.sqlName = sqlName;
     }
 }

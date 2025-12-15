@@ -83,6 +83,7 @@ public abstract class TranUtil {
 		if(sqlName == null || sqlName.equals(""))
 			return null;
 		TranSQLInfo sqlInfo = new TranSQLInfo();
+        sqlInfo.setSqlName(sqlName);
 		SQLInfo sqlinfo = null;
 		ConfigSQLExecutor configSQLExecutor = null;
 		try {
