@@ -34,7 +34,7 @@ bboss-datatran 数据同步作业直接采用java语言开发，小巧而精致�
 
 JDK requirement: JDK 1.8+
 
-Elasticsearch version requirements: 1.X,2.X,5.X,6.X,7.x,8.x,+
+Elasticsearch version requirements: 1.X,2.X,5.X,6.X,7.x,8.x,9.x,+
 
 Spring booter 1.x,2.x,3.x,+
 
