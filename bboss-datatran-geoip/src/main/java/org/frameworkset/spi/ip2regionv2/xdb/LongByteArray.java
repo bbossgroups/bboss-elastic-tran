@@ -37,6 +37,10 @@ public class LongByteArray {
         return length;
     }
 
+    public int size() {
+        return buffs.size();
+    }
+
     // internal method to determine the position of the specified offset
     private Position determinate(final long offset) {
         int index = 0, position = 0, buffLen = buffs.size();
@@ -114,7 +118,7 @@ public class LongByteArray {
     public int getInt2(long offset) {
         final byte[] b = new byte[4];
         copy(offset, b, 0, 4);
-        return LittleEndian.getInt2(b, 0);
+        return LittleEndian.getUint16(b, 0);
     }
 
     // position entry class

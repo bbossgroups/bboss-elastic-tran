@@ -44,8 +44,10 @@ public class IPDBTest1 {
 			addressUtils.setIp2regionDatabase("C:\\data\\geolite2\\ip2region_v4.xdb;C:\\data\\geolite2\\ip2region_v6.xdb");
 			addressUtils.setCachesize(2000);
 			addressUtils.init();
-			IpInfo address = addressUtils.getIpInfo("2409:8922:8e10:322:c558:432b:5a65:6d5c");
+			IpInfo address = addressUtils.getIpInfo("1111:8922:8e10:322:c558:432b:1111:6d5c");
 			System.out.println(SimpleStringUtil.object2json(address));
+            address = addressUtils.getIpInfo("2409:8922:8e10:322:c558:432b:5a65:6d5c");
+            System.out.println(SimpleStringUtil.object2json(address));
             address = addressUtils.getIpInfo("223.104.130.11");
             System.out.println(SimpleStringUtil.object2json(address));
 			address = addressUtils.getIpInfo("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");//ipv6

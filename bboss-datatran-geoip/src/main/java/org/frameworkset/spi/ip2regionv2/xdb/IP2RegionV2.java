@@ -22,7 +22,8 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.spi.geoip.IpInfo;
 import org.frameworkset.spi.ip2region.IP2Region;
 import org.frameworkset.spi.ip2region.IP2RegionException;
-import org.frameworkset.util.shutdown.ShutdownUtil;
+import org.frameworkset.spi.ip2regionv2.service.Config;
+import org.frameworkset.spi.ip2regionv2.service.Ip2Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +40,10 @@ import java.io.IOException;
  */
 public class IP2RegionV2 implements IP2Region {
 	private static final Logger logger = LoggerFactory.getLogger(IP2RegionV2.class);
-	private Searcher searcher_ipv4;
-
-    private Searcher searcher_ipv6;
+//	private Searcher searcher_ipv4;
+//
+//    private Searcher searcher_ipv6;
+    private Ip2Region ip2Region;
 	private DaemonThread daemonThread ;
     
 	private String ip2regionDatabaseIPV4;
@@ -62,134 +64,130 @@ public class IP2RegionV2 implements IP2Region {
 //            });
         }
     }
+    private void _init(String ip2regionDatabaseIPV4,String ip2regionDatabaseIPV6){
+        Config v4Config = null;
+
+        Config v6Config = null;
+        try {
+            File ip2regionDatabaseIPV4File = new File(ip2regionDatabaseIPV4);
+            if(!ip2regionDatabaseIPV4File.exists()){
+                logger.warn("ip2regionDatabaseIPV4 file:{} not exists.", ip2regionDatabaseIPV4);
+
+            }
+            else {
+                v4Config = Config.custom()
+                        .setCachePolicy(Config.BufferCache)
+                        .setSearchers(15)
+                        .setXdbPath(ip2regionDatabaseIPV4)
+                        .asV4();
+
+            }
+
+
+
+
+        } catch (Exception e) {
+            if (logger.isErrorEnabled())
+                logger.error("Init ip2regionDatabase failed:"+ ip2regionDatabaseIPV4, e);
+
+            throw new IP2RegionException("Init ip2regionDatabase failed:"+ ip2regionDatabaseIPV4,e);
+        }
+
+
+        if(SimpleStringUtil.isNotEmpty(ip2regionDatabaseIPV6)) {
+
+            try {
+                File ip2regionDatabaseIPV6File = new File(ip2regionDatabaseIPV6);
+                if(!ip2regionDatabaseIPV6File.exists()){
+                    logger.warn("ip2regionDatabaseIPV6 file:{} not exists.", ip2regionDatabaseIPV6);
+
+
+
+                }
+                else {
+                    logger.info("Init ip2regionDatabaseIPV6:{}", ip2regionDatabaseIPV6);
+                    v6Config = Config.custom()
+                            .setCachePolicy(Config.BufferCache)
+                            .setSearchers(15)
+                            .setXdbPath(ip2regionDatabaseIPV6)
+                            .asV6();
+
+                }
+
+            } catch (Exception e) {
+                if (logger.isErrorEnabled())
+                    logger.error("Init ip2regionDatabase failed:" + ip2regionDatabaseIPV6, e);
+
+                throw new IP2RegionException("Init ip2regionDatabase failed:" + ip2regionDatabaseIPV6, e);
+            }
+        }
+        if(v4Config != null || v6Config != null) {
+            try {
+                Ip2Region ip2Region = Ip2Region.create(v4Config, v6Config);
+                this.ip2Region = ip2Region;
+            } catch (IOException e) {
+                throw new IP2RegionException("Init ip2regionDatabase failed:ip2regionDatabaseIPV4=" + ip2regionDatabaseIPV4
+                        +"ip2regionDatabaseIPV6=" + ip2regionDatabaseIPV6, e);
+            }
+        }
+    }
 	@Override
 	public  void init(String[] ip2regionDatabases,boolean enableBtree){
-		if(searcher_ipv4 != null){
+		if(ip2Region != null){
 			return;
 		}
 		synchronized (lock) {
-			if(searcher_ipv4 == null) {
-				try {
-					this.ip2regionDatabaseIPV4 = ip2regionDatabases[0];
-                    File ip2regionDatabaseIPV4File = new File(ip2regionDatabaseIPV4);
-                    if(!ip2regionDatabaseIPV4File.exists()){
-                        logger.warn("ip2regionDatabaseIPV4 file:{} not exists.", ip2regionDatabaseIPV4);
-                        startMonitor();
-                        daemonThread.addFile(new File(ip2regionDatabaseIPV4), new ResourceInitial() {
-                            @Override
-                            public void reinit() {
-                                synchronized (lock) {
-                                    searcher_ipv4 = _reinitIp(searcher_ipv4, Version.IPv4, ip2regionDatabaseIPV4);
-                                }
-                            }
-                        },true);                         
-                    }
-                    else {
-                        logger.info("Init ip2regionDatabaseIPV4:{}", ip2regionDatabaseIPV4);
-                        LongByteArray cBuff = Searcher.loadContentFromFile(ip2regionDatabaseIPV4);
-                        // 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
-                        Searcher searcher = Searcher.newWithBuffer(Version.IPv4, cBuff);
-                        this.searcher_ipv4 = searcher;
-
-                        startMonitor();
-                        daemonThread.addFile(new File(ip2regionDatabaseIPV4), new ResourceInitial() {
-                            @Override
-                            public void reinit() {
-                                synchronized (lock) {
-                                    searcher_ipv4 = _reinitIp(searcher_ipv4, Version.IPv4, ip2regionDatabaseIPV4);
-                                }
-                            }
-                        }, true);
-                    }
-					
-
-
-
-				} catch (Exception e) {
-					if (logger.isErrorEnabled())
-						logger.error("Init ip2regionDatabase failed:"+ ip2regionDatabaseIPV4, e);
-
-					throw new IP2RegionException("Init ip2regionDatabase failed:"+ ip2regionDatabaseIPV4,e);
-				}
-			}
-            if(searcher_ipv6 == null ){
-                ip2regionDatabaseIPV6 = ip2regionDatabases[1];
-                
-                if(SimpleStringUtil.isNotEmpty(ip2regionDatabaseIPV6)) {
-     
-                    try {
-                        File ip2regionDatabaseIPV6File = new File(ip2regionDatabaseIPV6);
-                        if(!ip2regionDatabaseIPV6File.exists()){
-                            logger.warn("ip2regionDatabaseIPV6 file:{} not exists.", ip2regionDatabaseIPV6);
-                            startMonitor();
-
-                            daemonThread.addFile(new File(ip2regionDatabaseIPV6), new ResourceInitial() {
-                                @Override
-                                public void reinit() {
-                                    searcher_ipv6 = _reinitIp(searcher_ipv6,Version.IPv6,ip2regionDatabaseIPV6);
-                                }
-                            },true);
-                           
-                           
+			if(ip2Region == null) {
+                this.ip2regionDatabaseIPV4 = ip2regionDatabases[0];
+                this.ip2regionDatabaseIPV6 = ip2regionDatabases[1];
+                _init(ip2regionDatabaseIPV4,ip2regionDatabaseIPV6);
+                startMonitor();
+                daemonThread.addFile(new File(ip2regionDatabaseIPV4), new ResourceInitial() {
+                    @Override
+                    public void reinit() {
+                        synchronized (lock) {
+                            _reinitIp(ip2Region, ip2regionDatabaseIPV4,ip2regionDatabaseIPV6);
                         }
-                        else {
-                            logger.info("Init ip2regionDatabaseIPV6:{}", ip2regionDatabaseIPV6);
-                            LongByteArray cBuff = Searcher.loadContentFromFile(ip2regionDatabaseIPV6);
-                            // 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
-                            Searcher searcher = Searcher.newWithBuffer(Version.IPv6, cBuff);
-                            this.searcher_ipv6 = searcher;
-
-                            startMonitor();
-
-                            daemonThread.addFile(new File(ip2regionDatabaseIPV6), new ResourceInitial() {
-                                @Override
-                                public void reinit() {
-                                    searcher_ipv6 = _reinitIp(searcher_ipv6, Version.IPv6, ip2regionDatabaseIPV6);
-                                }
-                            }, true);
-                        }
-                        
-                    } catch (Exception e) {
-                        if (logger.isErrorEnabled())
-                            logger.error("Init ip2regionDatabase failed:" + ip2regionDatabaseIPV4, e);
-
-                        throw new IP2RegionException("Init ip2regionDatabase failed:" + ip2regionDatabaseIPV4, e);
                     }
-                }
+                },true);
+                daemonThread.addFile(new File(ip2regionDatabaseIPV6), new ResourceInitial() {
+                    @Override
+                    public void reinit() {
+                        synchronized (lock) {
+                            _reinitIp(ip2Region, ip2regionDatabaseIPV4,ip2regionDatabaseIPV6);
+                        }
+                    }
+                },true);
             }
 
+            
 		}
 	}
 	public void closeDb(){
         if(daemonThread != null){
             daemonThread.stopped();
         }
-		if(searcher_ipv4 != null){
+		if(ip2Region != null){
 			try {
-				searcher_ipv4.close();
-			} catch (IOException e) {
-				logger.debug("closeDb failed:",e);
-			}
-			searcher_ipv4 = null;
+                ip2Region.close();
+			} catch (InterruptedException e) {
+				 
+			}  catch (Exception e) {
+                 
+            }
+            ip2Region = null;
 
             
 		}
-        if(searcher_ipv6 != null){
-            try {
-                searcher_ipv6.close();
-            } catch (IOException e) {
-                logger.debug("closeDb failed:",e);
-            }
-            searcher_ipv6 = null;
-        }
+        
 	}
-	private  Searcher _reinitIp(Searcher oldSearcher,Version version,String dataFile){
+	private  void _reinitIp(Ip2Region oldSearcher,String v4file,String v6file){
 //		final Searcher oldSearcher = searcher_ipv4;
+ 
 		try {
-            logger.info("Reinit ip2region searcher database:{},{}", dataFile,version.name);
-			LongByteArray cBuff = Searcher.loadContentFromFile(dataFile);
-			// 2、使用上述的 cBuff 创建一个完全基于内存的查询对象。
-			Searcher searcher = Searcher.newWithBuffer(version,cBuff);
+            logger.info("Reinit ip2region searcher database:ip2regionDatabaseIPV4={},ip2regionDatabaseIPV6={}", v4file,v6file);
+            _init(ip2regionDatabaseIPV4,ip2regionDatabaseIPV6);
+			
 			
 
 			Thread t = new Thread(){
@@ -200,7 +198,7 @@ public class IP2RegionV2 implements IP2Region {
 							sleep(60000l);//延迟60秒关闭老对象
 
 						} catch (InterruptedException e) {
-							logger.debug("Reinit ip2region searcher database "+ dataFile + " Interrupted:", e);
+							 
 						}
 					}
 					if(oldSearcher != null) {
@@ -209,24 +207,21 @@ public class IP2RegionV2 implements IP2Region {
 							oldSearcher.close();
 						}
 						catch (Exception e){
-							if (logger.isErrorEnabled())
-								logger.error("Reinit ip2region searcher database "+ dataFile + " failed:", e);
+							 
 						}
 					}
 
 				}
 			};
 			t.start();
-            return searcher;
 
 		} catch (Exception e) {
 			if (logger.isErrorEnabled())
-				logger.error("Reinit ip2region searcher database "+ dataFile + " failed:", e);
-            return oldSearcher;
+				logger.error("Reinit ip2region searcher database:ip2regionDatabaseIPV4="+v4file+",ip2regionDatabaseIPV6="+v6file +" failed:", e);
 		}
 	}
 	private void assertInit(){
-		if(searcher_ipv4 == null && searcher_ipv6 == null)
+		if(ip2Region == null )
 			throw new IP2RegionException("ip2region searcher database "+ ip2regionDatabaseIPV4
                     + " and "+ ip2regionDatabaseIPV6+" not inited .");
 	}
@@ -239,16 +234,8 @@ public class IP2RegionV2 implements IP2Region {
 //            if ( Util.isIpAddress(ip) == false ){
 //                return null;
 //            }
-            String region = null;
-            if(Version.IPv4.bytes == ipBytes.length) {
-                if(searcher_ipv4 != null)
-                    region = searcher_ipv4.search(ip);
-            }
-            else 
-                if(Version.IPv6.bytes == ipBytes.length) {
-                    if(searcher_ipv6 != null)
-                        region = searcher_ipv6.search(ip);
-            }
+            String region = ip2Region.search(ipBytes);
+            
             
 			if(region == null)
 				return null;

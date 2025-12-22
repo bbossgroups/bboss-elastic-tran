@@ -8,7 +8,6 @@ package org.frameworkset.spi.ip2regionv2.xdb;
 // @Author Lion <chenxin619315@gmail.com>
 // @Date   2025/09/10
 
-
 public abstract class Version {
     public static final int IPv4VersionNo = 4;
     public static final int IPv6VersionNo = 6;

@@ -4,11 +4,14 @@
 
 package org.frameworkset.spi.ip2regionv2.xdb;
 
+import java.io.File;
+
 // xdb searcher (Not thread safe implementation)
 // @Author Lion <chenxin619315@gmail.com>
 // @Date   2022/06/23
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 
 public class Searcher {
@@ -29,6 +32,7 @@ public class Searcher {
     private final Version version;
 
     // random access file handle for file-based search
+    private final File xdbFile;
     private final RandomAccessFile handle;
 
     private int ioCount = 0;
@@ -45,12 +49,20 @@ public class Searcher {
 
     // --- static method to create searchers
 
-    public static Searcher newWithFileOnly(Version version, String dbPath) throws IOException {
-        return new Searcher(version, dbPath, null, null);
+    public static Searcher newWithFileOnly(Version version, String xdbPath) throws IOException {
+        return new Searcher(version, new File(xdbPath), null, null);
     }
 
-    public static Searcher newWithVectorIndex(Version version, String dbPath, byte[] vectorIndex) throws IOException {
-        return new Searcher(version, dbPath, vectorIndex, null);
+    public static Searcher newWithFileOnly(Version version, File xdbFile) throws IOException {
+        return new Searcher(version, xdbFile, null, null);
+    }
+
+    public static Searcher newWithVectorIndex(Version version, String xdbPath, byte[] vectorIndex) throws IOException {
+        return new Searcher(version, new File(xdbPath), vectorIndex, null);
+    }
+
+    public static Searcher newWithVectorIndex(Version version, File xdbFile, byte[] vectorIndex) throws IOException {
+        return new Searcher(version, xdbFile, vectorIndex, null);
     }
 
     public static Searcher newWithBuffer(Version version, LongByteArray cBuff) throws IOException {
@@ -59,14 +71,15 @@ public class Searcher {
 
     // --- End of creator
 
-    public Searcher(Version version, String dbFile, byte[] vectorIndex, LongByteArray cBuff) throws IOException {
+    public Searcher(Version version, File xdbFile, byte[] vectorIndex, LongByteArray cBuff) throws IOException {
         this.version = version;
+        this.xdbFile = xdbFile;
         if (cBuff != null) {
             this.handle = null;
             this.vectorIndex = null;
             this.contentBuff = cBuff;
         } else {
-            this.handle = new RandomAccessFile(dbFile, "r");
+            this.handle = new RandomAccessFile(xdbFile, "r");
             this.vectorIndex = vectorIndex;
             this.contentBuff = null;
         }
@@ -124,8 +137,8 @@ public class Searcher {
         final int bytes = ip.length, dBytes = ip.length << 1;
         final int segIndexSize = version.segmentIndexSize;
         final byte[] buff = new byte[segIndexSize];
-        int dataLen = -1;
-        long dataPtr = -1, l = 0, h = (ePtr - sPtr) / segIndexSize;
+        int dataLen = 0;
+        long dataPtr = 0, l = 0, h = (ePtr - sPtr) / segIndexSize;
         while (l <= h) {
             long m = (l + h) >> 1;
             long p = sPtr + m * segIndexSize;
@@ -137,7 +150,7 @@ public class Searcher {
             } else if (version.ipSubCompare(ip, buff, bytes) > 0) {
                 l = m + 1;
             } else {
-                dataLen = LittleEndian.getInt2(buff, dBytes);
+                dataLen = LittleEndian.getUint16(buff, dBytes);
                 dataPtr = LittleEndian.getUint32(buff, dBytes + 2);
                 break;
             }
@@ -145,8 +158,8 @@ public class Searcher {
 
         // empty match interception
         // System.out.printf("dataLen: %d, dataPtr: %d\n", dataLen, dataPtr);
-        if (dataPtr < 0) {
-            return null;
+        if (dataLen == 0) {
+            return "";
         }
 
         // load and return the region data
@@ -173,7 +186,19 @@ public class Searcher {
         }
     }
 
+    @Override public String toString() {
+        return String.format(
+            "%s->{version:%s, xdb:%s, vIndex:%s, cBuffer:%s}", 
+            super.toString(),
+            version.name, xdbFile == null ? "null" : xdbFile.getAbsolutePath(), 
+            vectorIndex == null ? "null" : String.valueOf(vectorIndex.length),
+            contentBuff == null ? "null" : String.valueOf(contentBuff.length())
+        );
+    }
+
+    // ---
     // --- static util function
+    // --- read xdb header
 
     public static Header loadHeader(RandomAccessFile handle) throws IOException {
         handle.seek(0);
@@ -182,12 +207,22 @@ public class Searcher {
         return new Header(buff);
     }
 
-    public static Header loadHeaderFromFile(String dbPath) throws IOException {
-        final RandomAccessFile handle = new RandomAccessFile(dbPath, "r");
+    public static Header loadHeaderFromFile(File xdbFile) throws IOException {
+        final RandomAccessFile handle = new RandomAccessFile(xdbFile, "r");
         final Header header = loadHeader(handle);
         handle.close();
         return header;
     }
+
+    public static Header loadHeaderFromFile(String xdbPath) throws IOException {
+        return loadHeaderFromFile(new File(xdbPath));
+    }
+
+    public static Header loadHeaderFromBuffer(LongByteArray cBuffer) throws IOException {
+        return new Header(cBuffer.slice(0, HeaderInfoLength));
+    }
+
+    // --- read xdb vector index
 
     public static byte[] loadVectorIndex(RandomAccessFile handle) throws IOException {
         handle.seek(HeaderInfoLength);
@@ -201,12 +236,23 @@ public class Searcher {
         return buff;
     }
 
-    public static byte[] loadVectorIndexFromFile(String dbPath) throws IOException {
-        final RandomAccessFile handle = new RandomAccessFile(dbPath, "r");
+    public static byte[] loadVectorIndexFromFile(File xdbFile) throws IOException {
+        final RandomAccessFile handle = new RandomAccessFile(xdbFile, "r");
         final byte[] vIndex = loadVectorIndex(handle);
         handle.close();
         return vIndex;
     }
+
+    public static byte[] loadVectorIndexFromFile(String xdbPath) throws IOException {
+        return loadVectorIndexFromFile(new File(xdbPath));
+    }
+
+    public static byte[] loadVectorIndexFromBuffer(LongByteArray cBuffer) throws IOException {
+        final int len = VectorIndexRows * VectorIndexCols * VectorIndexSize;
+        return cBuffer.slice(HeaderInfoLength, len);
+    }
+
+    // --- read xdb content
 
     public static LongByteArray loadContent(RandomAccessFile handle) throws IOException {
         handle.seek(0);
@@ -227,11 +273,54 @@ public class Searcher {
         return byteArray;
     }
 
-    public static LongByteArray loadContentFromFile(String dbPath) throws IOException {
-        final RandomAccessFile handle = new RandomAccessFile(dbPath, "r");
+    public static LongByteArray loadContentFromFile(File xdbFile) throws IOException {
+        final RandomAccessFile handle = new RandomAccessFile(xdbFile, "r");
         final LongByteArray content = loadContent(handle);
         handle.close();
         return content;
+    }
+
+    public static LongByteArray loadContentFromFile(String xdbPath) throws IOException {
+        return loadContentFromFile(new File(xdbPath));
+    }
+
+    public static LongByteArray loadContentFromInputStream(InputStream is) throws IOException {
+        final LongByteArray byteArray = new LongByteArray();
+        while (true) {
+            boolean done = false;
+
+            // read at most MAX_WRITE_BYTES bytes
+            int rLen, tBytes = 0;
+            final byte[] buff = new byte[MAX_WRITE_BYTES];
+            while (true) {
+                rLen = is.read(buff, tBytes, buff.length - tBytes);
+                if (rLen == -1) {
+                    // reach the end of the stream
+                    done = true;
+                    break;
+                } else if (rLen == 0) {
+                    // the entire buff was filled
+                    break;
+                }
+
+                tBytes += rLen;
+            }
+
+            // check and copy the buffer with its actual filled bytes
+            if (tBytes == buff.length) {
+                byteArray.append(buff);
+            } else {
+                final byte[] nBuff = new byte[tBytes];
+                System.arraycopy(buff, 0, nBuff, 0, tBytes);
+                byteArray.append(nBuff);
+            }
+
+            if (done) {
+                break;
+            }
+        }
+
+        return byteArray;
     }
 
     // --- verify util function
@@ -242,9 +331,7 @@ public class Searcher {
     //
     // @Note: You Just need to check this ONCE when the service starts
     // Or use another process (eg, A command) to check once Just to confirm the suitability.
-    public static void verify(RandomAccessFile handle) throws IOException, XdbException {
-        final Header header = loadHeader(handle);
-
+    public static void verify(Header header, long fileBytes) throws IOException, XdbException {
         // get the runtime ptr bytes
         int runtimePtrBytes = 0;
         if (header.version == STRUCTURE_20) {
@@ -258,15 +345,23 @@ public class Searcher {
         // 1, confirm the xdb file size
         // to ensure that the maximum file pointer does not overflow
         final long maxFilePtr = (1L << (runtimePtrBytes * 8)) - 1;
-        if (handle.length() > maxFilePtr) {
+        if (fileBytes > maxFilePtr) {
             throw new XdbException("xdb file exceeds the maximum supported bytes: "+maxFilePtr+"");
         }
     }
 
-    public static void verifyFromFile(String dbFile) throws IOException, XdbException {
-        final RandomAccessFile handle = new RandomAccessFile(dbFile, "r");
+    public static void verify(RandomAccessFile handle) throws IOException, XdbException {
+        verify(loadHeader(handle), handle.length());
+    }
+
+    public static void verifyFromFile(File xdbFile) throws IOException, XdbException {
+        final RandomAccessFile handle = new RandomAccessFile(xdbFile, "r");
         verify(handle);
         handle.close();
+    }
+
+    public static void verifyFromFile(String xdbPath) throws IOException, XdbException {
+        verifyFromFile(new File(xdbPath));
     }
 
 }
