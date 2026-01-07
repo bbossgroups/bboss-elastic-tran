@@ -1,2 +1,1 @@
-mongodb-es
-mongodb-db
+redis输出插件
