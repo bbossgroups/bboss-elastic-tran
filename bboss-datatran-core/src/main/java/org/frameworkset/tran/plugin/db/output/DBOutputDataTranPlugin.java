@@ -190,15 +190,25 @@ public class DBOutputDataTranPlugin extends BaseDBPlugin implements OutputPlugin
                 PersistentSQLVariable var = (PersistentSQLVariable) vars.get(i);
                 varName = var.getVariableName();
                 temp = dbRecord.getData(varName);
-                if (temp == null && logger.isDebugEnabled() && !dbRecord.containKey(varName)) {
-                    logger.debug("未指定绑定变量的值：{}", varName);
-                }
                 param = new Param();
                 param.setVariable(var);
                 param.setIndex(var.getPosition() + 1);
-                param.setData(temp);
-                param.setName(varName);
+                if (temp == null ) {
+                    if(logger.isDebugEnabled() && !dbRecord.containKey(varName)) {
+                        logger.debug("未指定绑定变量的值：{}", varName);
+                    }
+                    if(var.getDefaultObjectValue() != null){
+                        param.setData(var.getDefaultObjectValue());
+                    }
+                    
+
+                }
+                else {
+                    param.setData(temp);
+                }
                 param.setMethod(var.getMethod());
+                param.setName(varName);
+              
 
                 records.add(param);
 
