@@ -7,6 +7,7 @@ import org.frameworkset.spi.assemble.GetProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +22,21 @@ public class SyndataXXJobConfig {
     private static SyndataXXJobConfig instance = new SyndataXXJobConfig();
     public static SyndataXXJobConfig getInstance() {
         return instance;
+    }
+    private static Method registJobHandler;
+    static {
+        try {
+            registJobHandler = XxlJobExecutor.class.getDeclaredMethod("registJobHandler", String.class, IJobHandler.class);
+        }
+        catch (Exception e){
+            try {
+                registJobHandler = XxlJobExecutor.class.getDeclaredMethod("registryJobHandler", String.class, IJobHandler.class);
+            }
+            catch (Exception ee){
+                
+            }
+            
+        }
     }
 
 
@@ -52,7 +68,8 @@ public class SyndataXXJobConfig {
                         if(!value.equals("")) {
                             try {
                                 IJobHandler abstractDB2ESXXJobHandler = (IJobHandler)Class.forName(value).newInstance();
-                                XxlJobExecutor.registJobHandler(name, new WrapperXXLJobHandler(abstractDB2ESXXJobHandler));
+                                registJobHandler.invoke(null,name,new WrapperXXLJobHandler(abstractDB2ESXXJobHandler));
+//                                XxlJobExecutor.registJobHandler(name, new WrapperXXLJobHandler(abstractDB2ESXXJobHandler));
                             }
                             catch (Exception e){
                                 logger.error(new StringBuilder().append("registJobHandler [").append(orineName).append("=").append(orignValue).append("] failed:").toString(),e);
