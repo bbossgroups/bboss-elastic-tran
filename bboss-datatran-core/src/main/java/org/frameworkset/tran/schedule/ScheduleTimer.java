@@ -36,6 +36,7 @@ public class ScheduleTimer implements Runnable{
 	private static Logger logger = LoggerFactory.getLogger(ScheduleTimer.class);
 	private Thread thread = null;
 	protected volatile boolean running = false;
+    private Object stopLock = new Object();
 	public ScheduleTimer(TimerScheduleConfig timerScheduleConfig,ScheduleService scheduleService ){
 		this.timerScheduleConfig = timerScheduleConfig;
 		this.scheduleService = scheduleService;
@@ -46,16 +47,18 @@ public class ScheduleTimer implements Runnable{
 	 *
 	 * @throws Exception if an error occurs initializing the observer
 	 */
-	public synchronized void start() throws IllegalStateException {
-		if (running) {
-			throw new IllegalStateException("BBossScheduleTimer is already running");
-		}
+	public void start() throws IllegalStateException {
+        synchronized (stopLock) {
+            if (running) {
+                throw new IllegalStateException("BBossScheduleTimer is already running");
+            }
 
-		running = true;
+            running = true;
 
-		thread = new Thread(this,"BBossScheduleTimer-"+scheduleService.getImportContext().getJobName());
-		thread.setDaemon(false);
-		thread.start();
+            thread = new Thread(this, "BBossScheduleTimer-" + scheduleService.getImportContext().getJobName());
+            thread.setDaemon(false);
+            thread.start();
+        }
 	}
 
 	/**
@@ -63,7 +66,7 @@ public class ScheduleTimer implements Runnable{
 	 *
 	 * @throws Exception if an error occurs initializing the observer
 	 */
-	public synchronized void stop() throws Exception {
+	public void stop() throws Exception {
 		stop(timerScheduleConfig.getPeriod());
 	}
 
@@ -75,17 +78,23 @@ public class ScheduleTimer implements Runnable{
 	 * @throws Exception if an error occurs initializing the observer
 	 * @since 2.1
 	 */
-	public synchronized void stop(final long stopInterval) throws Exception {
-		if (running == false) {
-			throw new IllegalStateException("Monitor is not running");
-		}
-		running = false;
-		try {
-			thread.interrupt();
-			thread.join(stopInterval);
-		} catch (final InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+	public void stop(final long stopInterval) throws Exception {
+        synchronized (stopLock) { 
+        
+            if (running == false) {
+                throw new IllegalStateException("Monitor is not running");
+            }
+            running = false;
+           
+           
+            
+        }
+        thread.interrupt();
+        try {             
+            thread.join(stopInterval);
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 	}
 	/**
 	 * Runs this monitor.

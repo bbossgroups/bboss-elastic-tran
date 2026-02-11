@@ -317,12 +317,17 @@ public class FileTransfer {
             sendFile();
             if (this.maxForceFileThresholdCheck != null) {
                 this.maxForceFileThresholdCheck.stopMaxForceFileThresholdCheck();
-                maxForceFileThresholdCheck = null;
+               
             }
         }
         finally {
             transferLock.unlock();
         }
+        if (this.maxForceFileThresholdCheck != null) {
+            this.maxForceFileThresholdCheck.joinThread();
+
+        }
+        maxForceFileThresholdCheck = null;
     }
     /**
      *

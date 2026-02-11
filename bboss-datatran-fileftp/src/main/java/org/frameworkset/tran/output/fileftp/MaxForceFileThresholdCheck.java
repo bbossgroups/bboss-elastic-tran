@@ -38,6 +38,10 @@ public class MaxForceFileThresholdCheck extends Thread{
     public void stopMaxForceFileThresholdCheck(){
         this.stop = true;
         this.interrupt();
+        
+    }
+    
+    public void joinThread(){
         try {
             this.join();
         } catch (InterruptedException e) {

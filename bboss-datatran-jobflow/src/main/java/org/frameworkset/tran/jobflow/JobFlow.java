@@ -356,8 +356,10 @@ public class JobFlow {
                     }
                 }
                 try {
-                    if(jobFlowScheduleTimer != null)
+                    if(jobFlowScheduleTimer != null) {
                         jobFlowScheduleTimer.stop();
+                        jobFlowScheduleTimer.joinThread(jobFlowScheduleConfig.getPeriod());
+                    }
                 } catch (Exception e) {
                     logger.warn("stop jobFlowScheduleTimer exception:",e);
                 }

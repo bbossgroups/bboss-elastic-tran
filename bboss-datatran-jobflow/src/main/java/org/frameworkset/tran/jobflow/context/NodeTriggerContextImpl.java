@@ -58,6 +58,47 @@ public class NodeTriggerContextImpl implements NodeTriggerContext{
     }
 
     @Override
+    public Object getFlowContextData(String name) {
+        return jobFlowExecuteContext.getContextData( name);
+    }
+
+    @Override
+    public Object getFlowContextData(String name,Object defaultValue) {
+        return jobFlowExecuteContext.getContextData( name,defaultValue);
+    }
+
+
+    @Override
+    public Object getContainerContextData(String name) {
+        if(this.jobFlowNode.getContainerJobFlowNodeExecuteContext() != null)
+            return this.jobFlowNode.getContainerJobFlowNodeExecuteContext().getContextData( name);
+        return null;
+    }
+
+    @Override
+    public Object getContainerContextData(String name,Object defaultValue) {
+        if(this.jobFlowNode.getContainerJobFlowNodeExecuteContext() != null)
+            return this.jobFlowNode.getContainerJobFlowNodeExecuteContext().getContextData( name,defaultValue);
+        return null;
+    }
+
+    @Override
+    public Object getContainerContextData(String name,boolean scanParant) {
+        if(this.jobFlowNode.getContainerJobFlowNodeExecuteContext() != null)
+            return this.jobFlowNode.getContainerJobFlowNodeExecuteContext().getContextData( name,scanParant);
+        return null;
+    }
+
+    @Override
+    public Object getContainerContextData(String name,Object defaultValue,boolean scanParant) {
+        if(this.jobFlowNode.getContainerJobFlowNodeExecuteContext() != null)
+            return this.jobFlowNode.getContainerJobFlowNodeExecuteContext().getContextData( name,defaultValue,  scanParant);
+        return null;
+    }
+
+ 
+
+    @Override
     public JobFlowStatus getJobFlowStatus() {
         return jobFlowStatus;
     }

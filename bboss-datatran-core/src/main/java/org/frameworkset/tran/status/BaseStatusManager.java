@@ -129,6 +129,7 @@ public abstract class BaseStatusManager implements StatusManager {
 	protected int lastValueType;
 	private StatusFlushThread flushThread ;
 	private boolean stoped;
+    private Object stopLock = new Object();
 	public BaseStatusManager(
 							 DataTranPlugin dataTranPlugin){
 
@@ -184,23 +185,32 @@ public abstract class BaseStatusManager implements StatusManager {
 	}
 
 	@Override
-	public synchronized void stop(){
-		if(stoped )
-			return;
-		stoped = true;
-		if(flushThread != null) {
-            flushThread.interrupt();
-            try {
-                flushThread.join();
-            } catch (InterruptedException e) {
+	public void stop(){
+        synchronized (stopLock) {
+            if (stoped)
+                return;
 
+            stoped = true;
+            
+        }
+        if (flushThread != null) {
+            flushThread.interrupt();
+
+        }
+        try {
+            if (flushThread != null) {
+                flushThread.join();
             }
+        } catch (InterruptedException e) {
+
         }
 	}
 
 	@Override
-	public synchronized boolean isStoped() {
-		return stoped;
+	public  boolean isStoped() {
+        synchronized (stopLock) {
+            return stoped;
+        }
 	}
 
 	protected Object convertLastValue(Object lastValue){
@@ -1492,26 +1502,6 @@ public abstract class BaseStatusManager implements StatusManager {
 		}
 	}
 
-//	@Override
-//	public void flushLastValue(LastValueWrapper lastValue,Status currentStatus) {
-//		flushLastValue(lastValue, currentStatus,false);
-//	}
-//    @Override
-//    public void flushLastValueWrapper(LastValueWrapper lastValueWrapper, Status currentStatus){
-//        flushLastValueWrapper( lastValueWrapper,  currentStatus,false);
-//    }
-
-//	@Override
-//	public void forceflushLastValue(Status currentStatus) {
-//		synchronized (currentStatus) {
-//
-//			currentStatus.setStatus(ImportIncreamentConfig.STATUS_COMPLETE);
-//			currentStatus.setTime(System.currentTimeMillis());
-//            Status tmp = currentStatus.copy();
-//			this.storeStatus(tmp);
-//		}
-//
-//	}
 
 	public void storeStatus(Status currentStatus)  {
 

@@ -36,7 +36,7 @@ public abstract class CallableJobFlowNodeBuilder<T extends CallableJobFlowNodeBu
         return new BaseJobFlowNodeFunction() {
             @Override
             public Object call(JobFlowNodeExecuteContext jobFlowNodeExecuteContext) throws Exception {                 
-                return call(jobFlowNodeExecuteContext);
+                return CallableJobFlowNodeBuilder.this.call(jobFlowNodeExecuteContext);
             }
         };
 

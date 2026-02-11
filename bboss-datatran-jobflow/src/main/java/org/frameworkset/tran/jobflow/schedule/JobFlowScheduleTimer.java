@@ -63,7 +63,7 @@ public class JobFlowScheduleTimer implements Runnable{
      *
      * @throws Exception if an error occurs initializing the observer
      */
-    public synchronized void stop() throws Exception {
+    public void stop() throws Exception {
         stop(jobFlowScheduleConfig.getPeriod());
     }
 
@@ -80,11 +80,15 @@ public class JobFlowScheduleTimer implements Runnable{
             throw new IllegalStateException("Monitor is not running");
         }
         running = false;
+         
+        thread.interrupt();
+         
+    }
+    public void joinThread(final long stopInterval){
         try {
-            thread.interrupt();
             thread.join(stopInterval);
-        } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
+        } catch (InterruptedException e) {
+             
         }
     }
     private Object runLock = new Object();
