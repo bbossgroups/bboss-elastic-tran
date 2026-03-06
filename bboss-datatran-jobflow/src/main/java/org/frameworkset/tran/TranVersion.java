@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TranVersion {
     private static final String VERSION = "7.5.6";
-    private static final String RELEASEDATE = "20251127";
+    private static final String RELEASEDATE = "20260306";
     private static Logger logger = LoggerFactory.getLogger(TranVersion.class);
     static {
         logger.info(getVersionDescription());
