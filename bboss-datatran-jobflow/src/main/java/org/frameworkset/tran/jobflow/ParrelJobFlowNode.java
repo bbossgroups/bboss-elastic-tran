@@ -79,6 +79,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier){
+        this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext ;
         jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
         nodeStart();
         if(barrier != null) {
@@ -127,6 +128,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                     futureList.add(blockedExecutor.submit(() -> {
                         JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = jobFlowNode.buildJobFlowNodeExecuteContext();
                         //todo call assertTrigger 
+                        _jobFlowNodeExecuteContext.setContainerParrelJobFlowNodeExecuteContext(jobFlowNodeExecuteContext);
                         jobFlowNode.execute(_jobFlowNodeExecuteContext,thisBarrier);
                     }));
                     
@@ -178,11 +180,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         
     }
 
-    @Override
-    protected void release(){
-        
-        super.release();
-    }
+ 
     
     /**
      * 停止流程当前节点
@@ -220,15 +218,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         if(this.nextJobFlowNode != null){
             this.nextJobFlowNode.stop();
         }
-//        if(this.nextJobFlowNode != null){
-//            try {
-//                this.nextJobFlowNode.stop();
-////                logger.warn("Stop nextJobFlowNode[id={},nodeName={}] complete.",this.getNodeId(),this.getNodeName());
-//            }
-//            catch (Exception e){
-//                logger.warn("Stop nextJobFlowNode[id="+nextJobFlowNode.getNodeId()+",nodeName="+nextJobFlowNode.getNodeName()+"] failed:",e);
-//            }
-//        }
+
     }
 
     private Object jobFlowNodeExecuteContextLock = new Object();

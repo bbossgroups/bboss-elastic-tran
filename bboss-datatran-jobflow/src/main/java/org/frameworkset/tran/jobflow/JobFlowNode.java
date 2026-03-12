@@ -96,10 +96,17 @@ public abstract class JobFlowNode {
    
     
     protected JobFlowNodeContext jobFlowNodeContext;
-    
-    
+
+
+    /**
+     * release方法需要再流程完成后统一执行
+     */
     protected void release(){
-        jobFlowNodeExecuteContext = null;
+        //todo 在流程结束时调用
+        if(jobFlowNodeExecuteContext != null) {
+            jobFlowNodeExecuteContext .clear();
+//            jobFlowNodeExecuteContext = null;
+        }
     }
 
     public void setJobFlowNodeListeners(List<JobFlowNodeListener> jobFlowNodeListeners) {
@@ -115,12 +122,13 @@ public abstract class JobFlowNode {
      * @return
      */
     public JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext() {
-        if(compositionJobFlowNode != null) {
-            return compositionJobFlowNode.getJobFlowNodeExecuteContext();
-        }
-        else{
-            return null;
-        }
+//        if(compositionJobFlowNode != null) {
+//            return compositionJobFlowNode.getJobFlowNodeExecuteContext();
+//        }
+//        else{
+//            return null;
+//        }
+        return this.jobFlowNodeExecuteContext.getContainerJobFlowNodeExecuteContext();
     }
     public JobFlowNodeExecuteContext getJobFlowNodeExecuteContext() {
         return jobFlowNodeExecuteContext;
@@ -201,7 +209,9 @@ public abstract class JobFlowNode {
     
     public void reset(){
         //todo 是否需要reset，jobFlowNodeExecuteContext本身的生命周期就是执行期间有效，执行完后自动销毁，下次创建会重新创建
-        this.jobFlowNodeExecuteContext.reset();
+        if(jobFlowNodeExecuteContext != null){
+            jobFlowNodeExecuteContext.reset();
+        }
         if(nextJobFlowNode != null){
             nextJobFlowNode.reset();
         }
@@ -355,9 +365,26 @@ public abstract class JobFlowNode {
             this.nextJobFlowNode.execute(_jobFlowNodeExecuteContext);
         }
         else{
+            JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getDirectContainerJobFlowNodeExecuteContext();
+            if(containerJobFlowNodeExecuteContext != null 
+//                    || this.jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext() != null
+//                    || this.jobFlowNodeExecuteContext.getContainerParrelJobFlowNodeExecuteContext() != null
+//                    || this.jobFlowNodeExecuteContext.getContainerConditionJobFlowNodeExecuteContext() != null
+            ){
+                CompositionJobFlowNode compositionJobFlowNode = (CompositionJobFlowNode)containerJobFlowNodeExecuteContext.getJobFlowNode();
+                logger_.info("Execute {} complete and call compositionJobFlowNode[{}]'s brachComplete.",this.getJobFlowNodeInfo(),compositionJobFlowNode.getJobFlowNodeInfo());
+                compositionJobFlowNode.brachComplete(this,null);
+            }
+            else{
+                logger_.info("Execute {} complete and call {}'s complete.",this.getJobFlowNodeInfo(),jobFlow.getJobInfo());
+                this.jobFlow.complete(    null);
+            }
+            
+            /**
             if(parentJobFlowNode != null){
                 logger_.info("{} execute complete and call parentJobFlowNode[{}]‘s nextNodeComplete" ,getJobFlowNodeInfo() ,parentJobFlowNode.getJobFlowNodeInfo());
                 parentJobFlowNode.nextNodeComplete(     null);
+                
             }
             else{
                 if(this.compositionJobFlowNode != null){
@@ -368,7 +395,7 @@ public abstract class JobFlowNode {
                     logger_.info("Execute {} complete and call {}'s complete.",this.getJobFlowNodeInfo(),jobFlow.getJobInfo());
                     this.jobFlow.complete(    null);
                 }
-            }
+            }*/
         }
     }
      
@@ -377,7 +404,9 @@ public abstract class JobFlowNode {
 
     /**
      * 作业结束时，通知父节点，当前节点任务执行结束
+     * 废弃方法
      */
+    @Deprecated
     public void nextNodeComplete( Throwable e){
         if(this.parentJobFlowNode != null){
             parentJobFlowNode.nextNodeComplete(   e);
@@ -433,19 +462,29 @@ public abstract class JobFlowNode {
      * 节点完成时，更新工作流、分支（串行/并行)节点完成节点数量
      */
     protected void complete(Throwable throwable){
-        SequenceJobFlowNodeExecuteContext containerSequenceJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext();
-        if(containerSequenceJobFlowNodeExecuteContext != null){
-            containerSequenceJobFlowNodeExecuteContext.nodeComplete( throwable,this);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getDirectContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null){
+            containerJobFlowNodeExecuteContext.nodeComplete(throwable, this);
         }
+        
+//        SequenceJobFlowNodeExecuteContext containerSequenceJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext();
+//        if(containerSequenceJobFlowNodeExecuteContext != null){
+//            containerSequenceJobFlowNodeExecuteContext.nodeComplete( throwable,this);
+//        }
         JobFlowExecuteContext containerJobFlowExecuteContext = this.jobFlowNodeExecuteContext.getContainerJobFlowExecuteContext();
         if(containerJobFlowContext != null){
             containerJobFlowContext.nodeComplete( throwable,this);
             containerJobFlowExecuteContext.nodeComplete(throwable, this);
         }
-        JobFlowNodeExecuteContext containerParrelJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getContainerParrelJobFlowNodeExecuteContext();
-        if(containerParrelJobFlowNodeExecuteContext != null){            
-            containerParrelJobFlowNodeExecuteContext.nodeComplete( throwable,this);
-        }
+//        JobFlowNodeExecuteContext containerParrelJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getContainerJobFlowNodeExecuteContext();
+//        if(containerParrelJobFlowNodeExecuteContext != null){            
+//            containerParrelJobFlowNodeExecuteContext.nodeComplete( throwable,this);
+//        }
+
+//        JobFlowNodeExecuteContext containerConditionJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getContainerConditionJobFlowNodeExecuteContext();
+//        if(containerConditionJobFlowNodeExecuteContext != null){
+//            containerConditionJobFlowNodeExecuteContext.nodeComplete( throwable,this);
+//        }
     }
 
     /**

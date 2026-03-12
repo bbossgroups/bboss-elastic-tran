@@ -68,7 +68,8 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier){
-        SequenceJobFlowNodeExecuteContext sequenceJobFlowNodeExecuteContext = (SequenceJobFlowNodeExecuteContext) this.jobFlowNodeExecuteContext;   
+        this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
+        SequenceJobFlowNodeExecuteContext sequenceJobFlowNodeExecuteContext = (SequenceJobFlowNodeExecuteContext) jobFlowNodeExecuteContext;   
 //        headerJobFlowNode.setContainerSequenceJobFlowNodeExecuteContext(sequenceJobFlowNodeExecuteContext);
         sequenceJobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
         nodeStart();

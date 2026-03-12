@@ -43,8 +43,12 @@ public class NodeTriggerContextImpl implements NodeTriggerContext{
         this.jobFlowNode = jobFlowNode;
         this.preFlowNode = jobFlowNode.getParentJobFlowNode();
         if(preFlowNode != null) {
-            this.preJobFlowStaticContext = preFlowNode.getJobFlowNodeExecuteContext().getJobFlowNodeStaticContext();
-            this.preJobFlowNodeStatus = preFlowNode.getJobFlowNodeExecuteContext().getJobFlowNodeStatus();
+            JobFlowNodeExecuteContext preJobFlowNodeExecuteContext = preFlowNode.getJobFlowNodeExecuteContext();
+//            if(preJobFlowNodeExecuteContext instanceof ConditionJobFlowNodeExecuteContext){
+//                preJobFlowNodeExecuteContext = ((ConditionJobFlowNodeExecuteContext)preJobFlowNodeExecuteContext).getMatchedJobFlowNodeExecuteContext();
+//            }
+            this.preJobFlowStaticContext = preJobFlowNodeExecuteContext.getJobFlowNodeStaticContext();
+            this.preJobFlowNodeStatus = preJobFlowNodeExecuteContext.getJobFlowNodeStatus();
         }
     }
 

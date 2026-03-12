@@ -152,10 +152,18 @@ public interface JobFlowNodeExecuteContext {
     JobFlowExecuteContext getJobFlowExecuteContext();
 
     /**
-     * 获取子节点对应的复合节点执行上下文 
+     * 获取子节点对应的复合节点执行上下文,如果复合节点执行上下文类型为条件类型复合节点执行上下文，需要进一步获取
+     * 条件类型复合节点执行上下文的上级复合节点上下文(可能是串行复合节点上下文，也可能是并行复合节点上下文，二者中的一种)
+     * 条件上下复合节点上下文不用于保存容器节点参数数据
      * @return
      */
     JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext();
+
+    /**
+     * 获取子节点对应的复合节点执行上下文，可能是串行、并行、条件复合节点上下文
+     * @return
+     */
+    JobFlowNodeExecuteContext getDirectContainerJobFlowNodeExecuteContext();
 
     /**
      * 暂停节点

@@ -45,6 +45,8 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     protected JobFlowExecuteContext containerJobFlowExecuteContext;
     
     protected JobFlowNodeExecuteContext containerConditionJobFlowNodeExecuteContext;
+
+    protected JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext;
    
     /**
      * 判断节点是否已经完成标记
@@ -205,7 +207,9 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
 
     @Override
     public synchronized void clear(){
-        this.contextDatas.clear();
+        if(this.contextDatas != null) {
+            this.contextDatas.clear();
+        }
     }
 
     @Override
@@ -220,7 +224,40 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
      */
     @Override
     public JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext() {
-        return jobFlowNode.getContainerJobFlowNodeExecuteContext();
+//        return jobFlowNode.getContainerJobFlowNodeExecuteContext();
+        if( this.containerJobFlowNodeExecuteContext == null)
+            return null;
+        JobFlowNodeExecuteContext temp = containerJobFlowNodeExecuteContext;
+        JobFlowNodeExecuteContext pre = null;
+        
+        do {
+           
+            if(temp instanceof ConditionJobFlowNodeExecuteContext){
+                pre = temp;
+                temp = temp.getDirectContainerJobFlowNodeExecuteContext();
+                if(temp == null){
+                    break;
+                }
+                if( pre == temp){
+                    break;
+                }
+            }
+            else{
+                break;
+            }               
+                
+        }while (true);
+        return temp;
+       
+    }
+
+    /**
+     * 获取子节点对应的复合节点执行上下文，可能是串行、并行、条件复合节点上下文
+     * @return
+     */
+    @Override
+    public JobFlowNodeExecuteContext getDirectContainerJobFlowNodeExecuteContext(){
+        return this.containerJobFlowNodeExecuteContext;
     }
 
     @Override
@@ -315,6 +352,7 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     @Override
     public void setContainerSequenceJobFlowNodeExecuteContext(SequenceJobFlowNodeExecuteContext containerSequenceJobFlowNodeExecuteContext) {
         this.containerSequenceJobFlowNodeExecuteContext = containerSequenceJobFlowNodeExecuteContext;
+        this.containerJobFlowNodeExecuteContext = containerSequenceJobFlowNodeExecuteContext;
     }
     @Override
     public JobFlowNodeExecuteContext getContainerParrelJobFlowNodeExecuteContext() {
@@ -323,10 +361,13 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     @Override
     public void setContainerParrelJobFlowNodeExecuteContext(JobFlowNodeExecuteContext containerParrelJobFlowNodeExecuteContext) {
         this.containerParrelJobFlowNodeExecuteContext = containerParrelJobFlowNodeExecuteContext;
+        this.containerJobFlowNodeExecuteContext = containerParrelJobFlowNodeExecuteContext;
+    
     }
     @Override
     public void setContainerConditionJobFlowNodeExecuteContext(JobFlowNodeExecuteContext containerConditionJobFlowNodeExecuteContext ){
         this.containerConditionJobFlowNodeExecuteContext = containerConditionJobFlowNodeExecuteContext;
+        this.containerJobFlowNodeExecuteContext = containerConditionJobFlowNodeExecuteContext;
     }
     
     @Override

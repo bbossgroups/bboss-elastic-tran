@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.context.ConditionJobFlowNodeExecuteContext;
 import org.frameworkset.tran.jobflow.context.DefaultJobFlowNodeExecuteContext;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ import java.util.List;
  * @author biaoping.yin
  * @Date 2025/3/31
  */
-public class ConditionJobFlowNode extends JobFlowNode{
+public class ConditionJobFlowNode extends CompositionJobFlowNode{
     private static Logger logger = LoggerFactory.getLogger(ConditionJobFlowNode.class);
     /**
      * 默认节点
@@ -38,16 +39,27 @@ public class ConditionJobFlowNode extends JobFlowNode{
      * 匹配的节点
      */
     private JobFlowNode matchedJobFlowNode;
-    private List<JobFlowNode> jobFlowNodes;
 
-    public void setJobFlowNodes(List<JobFlowNode> jobFlowNodes) {
-        this.jobFlowNodes = jobFlowNodes;
+    public JobFlowNodeExecuteContext buildJobFlowNodeExecuteContext( ) {
+        return new ConditionJobFlowNodeExecuteContext(this);
     }
+    /**
+     * 串行分支全部完成是回调
+     *
+     * @param jobFlowNode
+     * @param e
+     */
+    @Override
+    public void brachComplete(JobFlowNode jobFlowNode, Throwable e) {
+        this.nodeComplete(e,false);
+    }
+     
 
     public void setDefaultJobFlowNode(JobFlowNode defaultJobFlowNode) {
         this.defaultJobFlowNode = defaultJobFlowNode;
     }
 
+     
     public ConditionJobFlowNode addJobFlowNode(JobFlowNode jobFlowNode){
         if(jobFlowNodes == null)
             jobFlowNodes = new ArrayList<JobFlowNode>();
@@ -87,6 +99,7 @@ public class ConditionJobFlowNode extends JobFlowNode{
     @Override
     public boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier) {
         try {
+            this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
             evalJobFlowNode();
 
         }
@@ -106,6 +119,7 @@ public class ConditionJobFlowNode extends JobFlowNode{
         }
         JobFlowNodeExecuteContext matchedJobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(matchedJobFlowNode);
         matchedJobFlowNodeExecuteContext.setContainerConditionJobFlowNodeExecuteContext(jobFlowNodeExecuteContext);
+        ((ConditionJobFlowNodeExecuteContext)jobFlowNodeExecuteContext).setMatchedJobFlowNodeExecuteContext(matchedJobFlowNodeExecuteContext);
         return matchedJobFlowNode.execute(matchedJobFlowNodeExecuteContext, barrier);
          
     }

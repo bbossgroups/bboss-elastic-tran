@@ -83,6 +83,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
      */
     @Override
     public boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext, JobFlowCyclicBarrier barrier){
+        this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
         jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
         nodeStart();
         if(barrier != null) {
@@ -104,7 +105,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
 //            nodeComplete(null,true);
         }        
         else if(this.assertTrigger()) {
-            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
+//            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
             if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
                 for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
                     
@@ -142,7 +143,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
             return true;
         }
         else{
-            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
+//            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
             if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
                 for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
                     
