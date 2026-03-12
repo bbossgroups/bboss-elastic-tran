@@ -61,76 +61,6 @@ public abstract class CompositionJobFlowNodeBuilder<T extends CompositionJobFlow
     }
 
 
-//    /**
-//     * 设置复合节点的总触发器构建器，如果总触发器不成立，在不执行nodeBuilders中的所有子任务，每个子任务都可以有自己的触发器
-//     * @param compositionNodeTriggerCreate
-//     * @return
-//     */
-//    public CompositionJobFlowNodeBuilder addNodeTriggerCreate(NodeTriggerCreate compositionNodeTriggerCreate){
-//        this.nodeTriggerCreate = compositionNodeTriggerCreate;
-//        return this;
-//    }
-//    /**
-//     * 添加一个简单的子任务,并设置任务触发器
-//     * @param nodeId 
-//     * @param nodeName 
-//     * @param importBuilderCreate
-//     * @param nodeTriggerCreate
-//     * @return
-//     */
-//    public CompositionJobFlowNodeBuilder addImportBuilder(String nodeId, String nodeName, ImportBuilderCreate importBuilderCreate, NodeTriggerCreate nodeTriggerCreate){
-////        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
-//        init();
-//        nodeBuilders.add(new SimpleJobFlowNodeBuilder().buildImportBuilder(importBuilderCreate,nodeTriggerCreate)
-//                .setNodeId(nodeId).setNodeName(nodeName));
-//        return this;
-//    }
-//
-//    /**
-//     * 
-//     * @param nodeId
-//     * @param nodeName
-//     * @param importBuilder
-//     * @param nodeTrigger
-//     * @return
-//     */
-//    public CompositionJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilder importBuilder, NodeTrigger nodeTrigger){
-////        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
-//        init();
-//        nodeBuilders.add(new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder).setNodeTrigger(nodeTrigger)
-//                .setNodeId(nodeId).setNodeName(nodeName));
-//        return this;
-//    }
-//
-//    /**
-//     * 添加一个简单的子任务
-//     * @param nodeId
-//     * @param nodeName
-//     * @param importBuilderCreate
-//     * @return
-//     */
-//    public CompositionJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilderCreate importBuilderCreate){
-////        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
-//        init();
-//        nodeBuilders.add(new SimpleJobFlowNodeBuilder().buildImportBuilder(importBuilderCreate)
-//                .setNodeId(nodeId).setNodeName(nodeName));
-//        return this;
-//    }
-//
-//    /**
-//     * 添加一个简单的子任务
-//     * @param nodeId
-//     * @param nodeName
-//     * @param importBuilder
-//     * @return
-//     */
-//    public CompositionJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilder importBuilder){
-////        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
-//        init();
-//        nodeBuilders.add(new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder)
-//                .setNodeId(nodeId).setNodeName(nodeName));
-//        return this;
-//    }
 
     /**
      * 添加复杂并行子任务，存在串行多个子任务或者串行任务
@@ -140,6 +70,10 @@ public abstract class CompositionJobFlowNodeBuilder<T extends CompositionJobFlow
     public T addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
 //        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
         init();
+        if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null){
+            throw new JobFlowBuilderException("节点不能重复添加到复合节点中");
+        }
+        jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
         nodeBuilders.add(jobFlowNodeBuilder);
         return (T)this;
     }

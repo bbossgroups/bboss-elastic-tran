@@ -56,6 +56,9 @@ public abstract class SimpleJobFlowNodeBuilder<T extends SimpleJobFlowNodeBuilde
     
     @Override
     public JobFlowNode build(JobFlow jobFlow){
+        if(this.jobFlowNode != null){
+            return jobFlowNode;
+        }
         SimpleJobFlowNode simpleJobFlowNode = null;       
         
         simpleJobFlowNode = new SimpleJobFlowNode(buildJobFlowNodeFunction(),nodeTrigger); 

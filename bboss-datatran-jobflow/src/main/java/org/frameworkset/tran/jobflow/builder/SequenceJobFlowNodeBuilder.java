@@ -39,50 +39,6 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         super(JobFlowNodeType.SEQUENCE);
     }
 
-//    /**
-//     *
-//     * @param nodeId
-//     * @param nodeName
-//     * @param importBuilder
-//     * @param nodeTrigger
-//     * @return
-//     */
-//    public SequenceJobFlowNodeBuilder addImportBuilder(String nodeId, String nodeName, ImportBuilder importBuilder, NodeTrigger nodeTrigger){
-//        JobFlowNodeBuilder jobFlowNodeBuilder = new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder).setNodeTrigger(nodeTrigger)
-//                .setNodeId(nodeId).setNodeName(nodeName);
-//        _addJobFlowNodeBuilder(  jobFlowNodeBuilder);
-//        
-//        
-//        return this;
-//    }
-//
-//    /**
-//     * 添加一个简单的子任务
-//     * @param nodeId
-//     * @param nodeName
-//     * @param importBuilderCreate
-//     * @return
-//     */
-//    public SequenceJobFlowNodeBuilder addImportBuilder(String nodeId, String nodeName, ImportBuilderCreate importBuilderCreate){
-//        JobFlowNodeBuilder jobFlowNodeBuilder = new SimpleJobFlowNodeBuilder().buildImportBuilder(importBuilderCreate)
-//                .setNodeId(nodeId).setNodeName(nodeName);
-//        _addJobFlowNodeBuilder(  jobFlowNodeBuilder);
-//        return this;
-//    }
-//
-//    /**
-//     * 添加一个简单的子任务
-//     * @param nodeId
-//     * @param nodeName
-//     * @param importBuilder
-//     * @return
-//     */
-//    public SequenceJobFlowNodeBuilder addImportBuilder(String nodeId,String nodeName,ImportBuilder importBuilder){
-//        JobFlowNodeBuilder jobFlowNodeBuilder = new SimpleJobFlowNodeBuilder().setImportBuilder(importBuilder)
-//                .setNodeId(nodeId).setNodeName(nodeName);
-//        _addJobFlowNodeBuilder(  jobFlowNodeBuilder);
-//        return this;
-//    }
 
     /**
      * 添加复杂串行子任务，存在串行多个子任务或者串行任务
@@ -91,7 +47,10 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
      */
     public SequenceJobFlowNodeBuilder addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
         init();
-
+        if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null){
+            throw new JobFlowBuilderException("节点不能重复添加到复合节点中");
+        }
+        jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
         if(this.headerJobFlowNodeBuilder == null) {
             this.headerJobFlowNodeBuilder = jobFlowNodeBuilder;
 
@@ -102,20 +61,69 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         nodeBuilders.add(jobFlowNodeBuilder);
         return this;
     }
+    
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param jobFlowNodeBuilder
+     * @return
+     */
+    public SequenceJobFlowNodeBuilder addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
+        return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,false);
+    }
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param jobFlowNodeBuilder
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public SequenceJobFlowNodeBuilder addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,boolean defaultConditionNode){
+        init();
+        CompositionJobFlowNodeBuilder compositionJobFlowNodeBuilder = jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder();
+        if(compositionJobFlowNodeBuilder != null ){
+            if(compositionJobFlowNodeBuilder != this) {
+                throw new JobFlowBuilderException("条件节点只能添加到当前复合节点中");
+            }
+        }
+        else{
+            jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
+        }
+        jobFlowNodeBuilder.setDefaultConditionNode(defaultConditionNode);
+        if(currentJobFlowNodeBuilder != null) {
+            if(currentJobFlowNodeBuilder instanceof ConditionJobFlowNodeBuilder){
+                ((ConditionJobFlowNodeBuilder)currentJobFlowNodeBuilder).addJobFlowNodeBuilder(jobFlowNodeBuilder);
+            }
+            else {
+                ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = (ConditionJobFlowNodeBuilder) currentJobFlowNodeBuilder.getNextJobFlowNodeBuilder();
+                if (conditionJobFlowNodeBuilder != null) {
+                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+                } else {
+                    conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+                    currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
+                    nodeBuilders.add(conditionJobFlowNodeBuilder);
+                }
+            }
 
-//    /**
-//     * 添加复杂并行子任务，存在串行多个子任务或者串行任务
-//     * @param jobFlowNodeBuilder
-//     * @return
-//     */
-//    public SequenceJobFlowNodeBuilder addJobFlowNodeBuilder(CompositionJobFlowNodeBuilder jobFlowNodeBuilder){
-//        _addJobFlowNodeBuilder(  jobFlowNodeBuilder);
-//        return this;
-//    }
+        }
+        else{
+            ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+            conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+            this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
+            nodeBuilders.add(conditionJobFlowNodeBuilder);
+            if(this.headerJobFlowNodeBuilder == null) {
+                this.headerJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
+
+            }
+        }
+        return this;
+    }
 
 
     @Override
     public JobFlowNode build(JobFlow jobFlow){
+        if(this.jobFlowNode != null){
+            return jobFlowNode;
+        }
         SequenceJobFlowNode sequenceJobFlowNode = new SequenceJobFlowNode();
          
         sequenceJobFlowNode.setNodeId(this.getNodeId());
@@ -132,9 +140,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         }
         //构建顺序节点链路
         sequenceJobFlowNode.setHeaderJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));
-//        for(JobFlowNodeBuilder jobFlowNodeBuilder:nodeBuilders){
-//            compositionJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.build(jobFlow));
-//        }
+ 
         this.jobFlowNode = sequenceJobFlowNode;
         if(this.nextJobFlowNodeBuilder != null){
             JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.build(jobFlow);

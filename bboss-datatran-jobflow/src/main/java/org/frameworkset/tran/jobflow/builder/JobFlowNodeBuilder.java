@@ -37,8 +37,19 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
     protected JobFlowNodeBuilder parentJobFlowNodeBuilder;
     
     protected JobFlowNodeBuilder nextJobFlowNodeBuilder;
+
+    /**
+     * 只有在主干流程上面的节点才有流程构建器值，主干流程中的条件节点，必须是主干流程的节点，不能是串行或者并行节点中的节点
+     */
+    protected JobFlowBuilder jobFlowBuilder;
+
+    /**
+     * 如果节点包含在串行或者并行节点中，才有值
+     */
+    protected CompositionJobFlowNodeBuilder compositionJobFlowNodeBuilder;
     protected String nodeId;
     protected String nodeName;
+    protected boolean defaultConditionNode;
    
     protected List<JobFlowNodeListener> jobFlowNodeListeners;
 
@@ -112,6 +123,19 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
         this.nextJobFlowNodeBuilder.setParentJobFlowNodeBuilder(this);
         return (T)this;
     }
+
+    /**
+     * 添加后续条件分支节点构建器，如果存在则添加
+     * @param conditionJobFlowNodeBuilder
+     */
+    protected T addNextConditionJobFlowNodeBuilder(JobFlowNodeBuilder conditionJobFlowNodeBuilder){
+        if(this.nextJobFlowNodeBuilder == null){
+            this.nextJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+            this.nextJobFlowNodeBuilder.setParentJobFlowNodeBuilder(this);
+        }
+        ((ConditionJobFlowNodeBuilder)this.nextJobFlowNodeBuilder).addJobFlowNodeBuilder(conditionJobFlowNodeBuilder);       
+        return (T)this;
+    }
     
     public abstract JobFlowNode build(JobFlow jobFlow);
 
@@ -146,6 +170,32 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
 
     public NodeTrigger getNodeTrigger() {
         return nodeTrigger;
+    }
+
+    public T setDefaultConditionNode(boolean defaultConditionNode) {
+        this.defaultConditionNode = defaultConditionNode;
+        return (T)this;
+    }
+
+    public boolean isDefaultConditionNode() {
+        return defaultConditionNode;
+    }
+
+    public T setCompositionJobFlowNodeBuilder(CompositionJobFlowNodeBuilder compositionJobFlowNodeBuilder) {
+        this.compositionJobFlowNodeBuilder = compositionJobFlowNodeBuilder;
+        return (T)this;
+    }
+
+    public CompositionJobFlowNodeBuilder getCompositionJobFlowNodeBuilder() {
+        return compositionJobFlowNodeBuilder;
+    }
+
+    public JobFlowBuilder getJobFlowBuilder() {
+        return jobFlowBuilder;
+    }
+
+    public void setJobFlowBuilder(JobFlowBuilder jobFlowBuilder) {
+        this.jobFlowBuilder = jobFlowBuilder;
     }
 }
 

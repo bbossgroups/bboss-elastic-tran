@@ -23,39 +23,15 @@ import org.frameworkset.tran.jobflow.JobFlowNodeStatus;
  * @author biaoping.yin
  * @Date 2025/6/18
  */
-public class JobFlowNodeContext extends StaticContext{
-     protected JobFlowNodeStatus jobFlowNodeStatus = JobFlowNodeStatus.INIT;
-     protected JobFlowNode jobFlowNode;
-     private Object updateJobFlowNodeStatusLock = new Object();
-    public JobFlowNodeStatus updateJobFlowNodeStatus(JobFlowNodeStatus jobFlowNodeStatus){
-        synchronized (updateJobFlowNodeStatusLock){
-            this.jobFlowNodeStatus = jobFlowNodeStatus;
-            return jobFlowNodeStatus;
-        }
-       
-    }
-    
-    public boolean assertStoped(){
-        synchronized (updateJobFlowNodeStatusLock){
-            return jobFlowNodeStatus == JobFlowNodeStatus.STOPED || jobFlowNodeStatus == JobFlowNodeStatus.STOPPING;
-        }
-        
+public class JobFlowNodeContext //extends StaticContext
+{
+    protected JobFlowNode jobFlowNode;
+
+    public void setJobFlowNode(JobFlowNode jobFlowNode) {
+        this.jobFlowNode = jobFlowNode;
     }
 
     public JobFlowNode getJobFlowNode() {
         return jobFlowNode;
-    }
-
-    public JobFlowNodeStatus getJobFlowNodeStatus() {
-        synchronized (updateJobFlowNodeStatusLock){
-            return jobFlowNodeStatus;
-        }
-    }
-
-    public void reset(){
-        synchronized (updateJobFlowNodeStatusLock){
-            jobFlowNodeStatus = JobFlowNodeStatus.INIT;
-        }
-        super.reset();
     }
 }

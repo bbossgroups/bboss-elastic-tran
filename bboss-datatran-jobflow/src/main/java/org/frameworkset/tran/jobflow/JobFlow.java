@@ -20,10 +20,7 @@ import groovy.lang.GroovyClassLoader;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
-import org.frameworkset.tran.jobflow.context.AssertResult;
-import org.frameworkset.tran.jobflow.context.DefaultJobFlowExecuteContext;
-import org.frameworkset.tran.jobflow.context.JobFlowContext;
-import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
+import org.frameworkset.tran.jobflow.context.*;
 import org.frameworkset.tran.jobflow.listener.JobFlowListener;
 import org.frameworkset.tran.jobflow.metrics.JobFlowMetrics;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
@@ -118,6 +115,7 @@ public class JobFlow {
     public void setStartJobFlowNode(JobFlowNode startJobFlowNode) {
         this.startJobFlowNode = startJobFlowNode;
         this.startJobFlowNode.setContainerJobFlowContext(this.jobFlowContext);
+//        this.startJobFlowNode.setContainerJobFlowExecuteContext(this.jobFlowExecuteContext);
     }
 
     private String jobInfo ;
@@ -147,7 +145,9 @@ public class JobFlow {
         }
         Throwable throwable = null;
         try {
-            this.startJobFlowNode.start();
+            JobFlowNodeExecuteContext jobFlowNodeExecuteContext = this.startJobFlowNode.buildJobFlowNodeExecuteContext();
+            jobFlowNodeExecuteContext.setContainerJobFlowExecuteContext(this.jobFlowExecuteContext);
+            this.startJobFlowNode.execute(  jobFlowNodeExecuteContext);
         }
         catch (RuntimeException e){
             throwable = e;
@@ -212,7 +212,7 @@ public class JobFlow {
      * 作业工作流每次调度执行时，重置工作流执行状态
      */
     private void reset(){
-        this.jobFlowContext.reset();
+//        this.jobFlowContext.reset();
         this.startJobFlowNode.reset();
     }
 

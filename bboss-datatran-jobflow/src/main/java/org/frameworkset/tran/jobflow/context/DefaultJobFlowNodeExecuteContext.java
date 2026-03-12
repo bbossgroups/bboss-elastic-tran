@@ -18,6 +18,7 @@ package org.frameworkset.tran.jobflow.context;
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.JobFlowException;
 import org.frameworkset.tran.jobflow.JobFlowNode;
+import org.frameworkset.tran.jobflow.JobFlowNodeStatus;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,6 +33,18 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     private Map<String,Object> contextDatas = new LinkedHashMap<>();
     private JobFlowNode jobFlowNode;
     private JobFlow jobFlow;
+    protected StaticContext staticContext;
+    private JobFlowNodeContext jobFlowNodeContext;
+
+
+    protected SequenceJobFlowNodeExecuteContext containerSequenceJobFlowNodeExecuteContext;
+
+
+    protected JobFlowNodeExecuteContext containerParrelJobFlowNodeExecuteContext;
+
+    protected JobFlowExecuteContext containerJobFlowExecuteContext;
+    
+    protected JobFlowNodeExecuteContext containerConditionJobFlowNodeExecuteContext;
    
     /**
      * 判断节点是否已经完成标记
@@ -40,11 +53,27 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     
     
     
-    public DefaultJobFlowNodeExecuteContext(JobFlowNode jobFlowNode){
+    public DefaultJobFlowNodeExecuteContext(JobFlowNode jobFlowNode ){
         this.jobFlowNode = jobFlowNode;
         this.jobFlow = jobFlowNode.getJobFlow();
+        this.staticContext = new StaticContext();
+        this.jobFlowNodeContext = jobFlowNode.getJobFlowNodeContext();
         
     }
+
+    public JobFlowNodeContext getJobFlowNodeContext() {
+        return jobFlowNodeContext;
+    }
+
+    public StaticContext getStaticContext() {
+        return staticContext;
+    }
+
+
+    public void nodeStart(JobFlowNode jobFlowNode){
+        this.staticContext.nodeStart( jobFlowNode);
+    }
+
     /**
      * 判断节点是否已经完成
      */
@@ -209,7 +238,8 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
 
     @Override
     public StaticContext getJobFlowNodeStaticContext() {
-        return jobFlowNode.getJobFlowNodeContext().copy();
+//        return jobFlowNode.getJobFlowNodeContext().copy();
+        return this.staticContext;
     }
     
     public String getNodeId(){
@@ -225,5 +255,92 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     }
     public JobFlow getJobFlow() {
         return jobFlow;
+    }
+
+    protected JobFlowNodeStatus jobFlowNodeStatus = JobFlowNodeStatus.INIT;
+
+    private Object updateJobFlowNodeStatusLock = new Object();
+    public JobFlowNodeStatus updateJobFlowNodeStatus(JobFlowNodeStatus jobFlowNodeStatus){
+        synchronized (updateJobFlowNodeStatusLock){
+            this.jobFlowNodeStatus = jobFlowNodeStatus;
+            return jobFlowNodeStatus;
+        }
+
+    }
+
+    public boolean assertStoped(){
+        synchronized (updateJobFlowNodeStatusLock){
+            return jobFlowNodeStatus == JobFlowNodeStatus.STOPED || jobFlowNodeStatus == JobFlowNodeStatus.STOPPING;
+        }
+
+    }
+ 
+
+    public JobFlowNodeStatus getJobFlowNodeStatus() {
+        synchronized (updateJobFlowNodeStatusLock){
+            return jobFlowNodeStatus;
+        }
+    }
+
+    public void reset(){
+        synchronized (updateJobFlowNodeStatusLock){
+            jobFlowNodeStatus = JobFlowNodeStatus.INIT;
+        }
+//        super.reset();
+    }
+
+    /**
+     * 工作流或者复合节点（串行/并行）子节点完成时，减少启动节点计数,完成计数器加1
+     * @param throwable 子节点触发的异常
+     * @param jobFlowNode 完成的子节点
+     * @return
+     */
+    public void nodeComplete(Throwable throwable, JobFlowNode jobFlowNode) {
+         this.staticContext.nodeComplete(  throwable,jobFlowNode);
+    }
+
+    @Override
+    public void setContainerJobFlowExecuteContext(JobFlowExecuteContext jobFlowExecuteContext) {
+        this.containerJobFlowExecuteContext = jobFlowExecuteContext;
+    }
+    @Override
+    public JobFlowExecuteContext getContainerJobFlowExecuteContext() {
+        return containerJobFlowExecuteContext;
+    }
+
+    @Override
+    public SequenceJobFlowNodeExecuteContext getContainerSequenceJobFlowNodeExecuteContext() {
+        return containerSequenceJobFlowNodeExecuteContext;
+    }
+    @Override
+    public void setContainerSequenceJobFlowNodeExecuteContext(SequenceJobFlowNodeExecuteContext containerSequenceJobFlowNodeExecuteContext) {
+        this.containerSequenceJobFlowNodeExecuteContext = containerSequenceJobFlowNodeExecuteContext;
+    }
+    @Override
+    public JobFlowNodeExecuteContext getContainerParrelJobFlowNodeExecuteContext() {
+        return containerParrelJobFlowNodeExecuteContext;
+    }
+    @Override
+    public void setContainerParrelJobFlowNodeExecuteContext(JobFlowNodeExecuteContext containerParrelJobFlowNodeExecuteContext) {
+        this.containerParrelJobFlowNodeExecuteContext = containerParrelJobFlowNodeExecuteContext;
+    }
+    @Override
+    public void setContainerConditionJobFlowNodeExecuteContext(JobFlowNodeExecuteContext containerConditionJobFlowNodeExecuteContext ){
+        this.containerConditionJobFlowNodeExecuteContext = containerConditionJobFlowNodeExecuteContext;
+    }
+    
+    @Override
+    public JobFlowNodeExecuteContext getContainerConditionJobFlowNodeExecuteContext(){
+        return containerConditionJobFlowNodeExecuteContext;
+    }
+
+    @Override
+    public void setExecuteException(Throwable throwable){
+        staticContext.setExecuteException(throwable);
+    }
+    
+    @Override
+    public boolean allNodeComplete(){
+        return staticContext.allNodeComplete();
     }
 }

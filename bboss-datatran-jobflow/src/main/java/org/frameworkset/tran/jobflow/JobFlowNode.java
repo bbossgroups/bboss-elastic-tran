@@ -21,7 +21,9 @@ import org.frameworkset.tran.jobflow.listener.JobFlowNodeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.CyclicBarrier;
 
 
@@ -37,7 +39,21 @@ public abstract class JobFlowNode {
     protected String nodeName;
     protected JobFlow jobFlow;
     protected String jobFlowNodeInfo;
+    /**
+     * 节点所属的容器节点
+     */
     protected CompositionJobFlowNode compositionJobFlowNode;
+    /**
+     * 条件流程节点所属的条件复合节点清单
+     * 条件复合节点包含了条件流程节点的parent节点
+     */
+    protected List<ConditionJobFlowNode> conditionJobFlowNodes;
+    protected ConditionJobFlowNode runningConditionJobFlowNode;
+    
+    public JobFlowNodeExecuteContext buildJobFlowNodeExecuteContext( ) {
+        return new DefaultJobFlowNodeExecuteContext(this);
+    }
+    
     /**
      * 串行节点触发条件
      */
@@ -47,6 +63,7 @@ public abstract class JobFlowNode {
      * 父节点可能是串行节点，也可能是并行节点
      */
     protected JobFlowNode parentJobFlowNode;
+    protected Stack<JobFlowNode> parentJobFlowNodeStack;
     protected List<JobFlowNodeListener> jobFlowNodeListeners;
     /**
      * 下一节点作业配置
@@ -59,20 +76,27 @@ public abstract class JobFlowNode {
      */
     protected SequenceJobFlowNodeContext containerSequenceJobFlowNodeContext;
 
+
+
     /**
      * 用于跟踪和记录并行分支节点执行情况
      */
     protected ParrelJobFlowNodeContext containerParrelJobFlowNodeContext;
-       
 
+
+    
+
+
+    protected JobFlowNodeExecuteContext jobFlowNodeExecuteContext;
     /**
-     * 跟踪和记录工作流节点执行情况
+     * 跟踪和记录工作流主干节点执行情况
      */
     protected JobFlowContext containerJobFlowContext;
     
+   
+    
     protected JobFlowNodeContext jobFlowNodeContext;
     
-    protected JobFlowNodeExecuteContext jobFlowNodeExecuteContext;
     
     protected void release(){
         jobFlowNodeExecuteContext = null;
@@ -133,12 +157,29 @@ public abstract class JobFlowNode {
         }
     }
 
+//    public void setContainerSequenceJobFlowNodeExecuteContext(SequenceJobFlowNodeExecuteContext containerSequenceJobFlowNodeExecuteContext) {
+//        this.containerSequenceJobFlowNodeExecuteContext = containerSequenceJobFlowNodeExecuteContext;
+//        this.containerSequenceJobFlowNodeContext = (SequenceJobFlowNodeContext)containerSequenceJobFlowNodeExecuteContext.getJobFlowNodeContext();
+//        if(this.nextJobFlowNode != null){
+//            this.nextJobFlowNode.setContainerSequenceJobFlowNodeExecuteContext(containerSequenceJobFlowNodeExecuteContext);
+//        }
+//    }
+
     public void setContainerJobFlowContext(JobFlowContext containerJobFlowContext) {
         this.containerJobFlowContext = containerJobFlowContext;
         if(this.nextJobFlowNode != null){
             this.nextJobFlowNode.setContainerJobFlowContext(containerJobFlowContext);
         }
     }
+
+//    public void setContainerJobFlowExecuteContext(JobFlowExecuteContext containerJobFlowExecuteContext) {
+//        
+//        this.containerJobFlowExecuteContext = containerJobFlowExecuteContext;
+//        this.containerJobFlowContext = containerJobFlowExecuteContext.getJobFlowContext();
+//        if(this.nextJobFlowNode != null){
+//            this.nextJobFlowNode.setContainerJobFlowExecuteContext(containerJobFlowExecuteContext);
+//        }
+//    }
 
     public void setContainerParrelJobFlowNodeContext(ParrelJobFlowNodeContext containerParrelJobFlowNodeContext) {
         this.containerParrelJobFlowNodeContext = containerParrelJobFlowNodeContext;
@@ -150,11 +191,17 @@ public abstract class JobFlowNode {
     }
 
     public void setParentJobFlowNode(JobFlowNode parentJobFlowNode) {
+        if(this.parentJobFlowNode != null){
+            if(this.parentJobFlowNodeStack == null)
+                this.parentJobFlowNodeStack = new Stack<>();
+            this.parentJobFlowNodeStack.push(this.parentJobFlowNode);
+        }
         this.parentJobFlowNode = parentJobFlowNode;
     }
     
     public void reset(){
-        jobFlowNodeContext.reset();
+        //todo 是否需要reset，jobFlowNodeExecuteContext本身的生命周期就是执行期间有效，执行完后自动销毁，下次创建会重新创建
+        this.jobFlowNodeExecuteContext.reset();
         if(nextJobFlowNode != null){
             nextJobFlowNode.reset();
         }
@@ -234,10 +281,10 @@ public abstract class JobFlowNode {
     /**
      * 启动流程当前节点
      */
-    public abstract boolean start(JobFlowCyclicBarrier barrier);
-    public void start(){
-        
-        start(null);
+    public abstract boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier);
+    public void execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
+
+        execute(jobFlowNodeExecuteContext,null);
     }
 //    /**
 //     * 启动流程当前节点
@@ -272,7 +319,7 @@ public abstract class JobFlowNode {
         if(jobFlowNodeExecuteContext == null || !jobFlowNodeExecuteContext.nodeCompleteUnExecuted()) {
             return;
         }
-        jobFlowNodeContext.setExecuteException(throwable);
+        jobFlowNodeExecuteContext.setExecuteException(throwable);
         complete(throwable);
         if(throwable != null) {
             logger_.error(this.getJobFlowNodeInfo() + " complete with exception:", throwable);
@@ -294,7 +341,18 @@ public abstract class JobFlowNode {
         
         if(this.nextJobFlowNode != null && !ignoreExecute){
             logger_.info("{} execute complete and start nextJobFlowNode[{}]",getJobFlowNodeInfo() ,nextJobFlowNode.getJobFlowNodeInfo());
-            this.nextJobFlowNode.start();
+            JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = nextJobFlowNode.buildJobFlowNodeExecuteContext();
+            if(this.jobFlowNodeExecuteContext.getContainerJobFlowExecuteContext() != null){
+                _jobFlowNodeExecuteContext.setContainerJobFlowExecuteContext(this.jobFlowNodeExecuteContext.getContainerJobFlowExecuteContext());
+            }
+            if(this.jobFlowNodeExecuteContext.getContainerParrelJobFlowNodeExecuteContext() != null) {
+                _jobFlowNodeExecuteContext.setContainerParrelJobFlowNodeExecuteContext(this.jobFlowNodeExecuteContext.getContainerParrelJobFlowNodeExecuteContext());
+            }
+            if(this.jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext() != null){
+                _jobFlowNodeExecuteContext.setContainerSequenceJobFlowNodeExecuteContext(this.jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext());
+            }
+            
+            this.nextJobFlowNode.execute(_jobFlowNodeExecuteContext);
         }
         else{
             if(parentJobFlowNode != null){
@@ -355,31 +413,62 @@ public abstract class JobFlowNode {
      * 节点启动时，更新工作流、分支（串行/并行)节点运行数量
      */
     protected void nodeStart(){
-        if(this.containerJobFlowContext != null){
+        JobFlowExecuteContext containerJobFlowExecuteContext = this.jobFlowNodeExecuteContext.getContainerJobFlowExecuteContext();
+        if(containerJobFlowExecuteContext != null){
             containerJobFlowContext.setRunningJobFlowNode(this);
-            containerJobFlowContext.nodeStart(this);
+            containerJobFlowExecuteContext.nodeStart(this);
             
         }
-        if(this.containerSequenceJobFlowNodeContext != null){
-            this.containerSequenceJobFlowNodeContext.setRunningJobFlowNode(this);
-            this.containerSequenceJobFlowNodeContext.nodeStart(this);
+        SequenceJobFlowNodeExecuteContext containerSequenceJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext();
+        if(containerSequenceJobFlowNodeExecuteContext != null){
+            containerSequenceJobFlowNodeExecuteContext.setRunningJobFlowNode(this);
+            containerSequenceJobFlowNodeExecuteContext.nodeStart(this);
         }
-        if(this.containerParrelJobFlowNodeContext != null){
-            this.containerParrelJobFlowNodeContext.nodeStart(this);
+        JobFlowNodeExecuteContext containerParrelJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getContainerParrelJobFlowNodeExecuteContext();
+        if(containerParrelJobFlowNodeExecuteContext != null){
+            containerParrelJobFlowNodeExecuteContext.nodeStart(this);
         }
     }
     /**
      * 节点完成时，更新工作流、分支（串行/并行)节点完成节点数量
      */
     protected void complete(Throwable throwable){
-        if(this.containerSequenceJobFlowNodeContext != null){
-            containerSequenceJobFlowNodeContext.nodeComplete( throwable,this);
+        SequenceJobFlowNodeExecuteContext containerSequenceJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext();
+        if(containerSequenceJobFlowNodeExecuteContext != null){
+            containerSequenceJobFlowNodeExecuteContext.nodeComplete( throwable,this);
         }
-        if(this.containerJobFlowContext != null){
-            this.containerJobFlowContext.nodeComplete( throwable,this);
+        JobFlowExecuteContext containerJobFlowExecuteContext = this.jobFlowNodeExecuteContext.getContainerJobFlowExecuteContext();
+        if(containerJobFlowContext != null){
+            containerJobFlowContext.nodeComplete( throwable,this);
+            containerJobFlowExecuteContext.nodeComplete(throwable, this);
         }
-        if(this.containerParrelJobFlowNodeContext != null){
-            this.containerParrelJobFlowNodeContext.nodeComplete( throwable,this);
+        JobFlowNodeExecuteContext containerParrelJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getContainerParrelJobFlowNodeExecuteContext();
+        if(containerParrelJobFlowNodeExecuteContext != null){            
+            containerParrelJobFlowNodeExecuteContext.nodeComplete( throwable,this);
         }
+    }
+
+    /**
+     * 一个节点可能包含在多个条件节点中
+     * @param conditionJobFlowNode
+     */
+    protected void addConditionJobFlowNode(ConditionJobFlowNode conditionJobFlowNode) {
+        if(this.conditionJobFlowNodes == null){
+            this.conditionJobFlowNodes = new ArrayList<>();
+            
+        }
+        this.conditionJobFlowNodes.add(conditionJobFlowNode);
+    }
+
+    public List<ConditionJobFlowNode> getConditionJobFlowNodes() {
+        return conditionJobFlowNodes;
+    }
+
+    public void setRunningConditionJobFlowNode(ConditionJobFlowNode runningConditionJobFlowNode) {
+        this.runningConditionJobFlowNode = runningConditionJobFlowNode;
+    }
+
+    public ConditionJobFlowNode getRunningConditionJobFlowNode() {
+        return runningConditionJobFlowNode;
     }
 }

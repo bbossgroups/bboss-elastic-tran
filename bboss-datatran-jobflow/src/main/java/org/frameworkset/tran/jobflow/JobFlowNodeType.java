@@ -32,5 +32,10 @@ public enum JobFlowNodeType {
     /**
      * 并行执行的复合类型节点，节点清单中所有节点将并行执行
      */
-    PARREL
+    PARREL,
+
+    /**
+     * 条件复合类型节点，每次从节点清单中选取符合条件的节点执行
+     */
+    CONDITION
 }

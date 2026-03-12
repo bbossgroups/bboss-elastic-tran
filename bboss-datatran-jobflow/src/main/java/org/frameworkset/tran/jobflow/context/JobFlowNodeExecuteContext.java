@@ -17,6 +17,7 @@ package org.frameworkset.tran.jobflow.context;
 
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.JobFlowNode;
+import org.frameworkset.tran.jobflow.JobFlowNodeStatus;
 
 import java.util.Map;
 
@@ -28,6 +29,9 @@ import java.util.Map;
  * @Date 2025/3/31
  */
 public interface JobFlowNodeExecuteContext {
+    boolean assertStoped();
+    JobFlowNodeStatus updateJobFlowNodeStatus(JobFlowNodeStatus jobFlowNodeStatus);
+    JobFlowNodeContext getJobFlowNodeContext();
     /**
      * 获取当前节点对应的上下文数据
      * @param name
@@ -174,4 +178,31 @@ public interface JobFlowNodeExecuteContext {
 
     JobFlowNode getJobFlowNode() ;
     JobFlow getJobFlow() ;
+
+    SequenceJobFlowNodeExecuteContext getContainerSequenceJobFlowNodeExecuteContext();
+
+    void setContainerSequenceJobFlowNodeExecuteContext(SequenceJobFlowNodeExecuteContext containerSequenceJobFlowNodeExecuteContext);
+
+    JobFlowNodeExecuteContext getContainerParrelJobFlowNodeExecuteContext();
+
+    void setContainerParrelJobFlowNodeExecuteContext(JobFlowNodeExecuteContext containerParrelJobFlowNodeExecuteContext);
+
+    JobFlowNodeExecuteContext getContainerConditionJobFlowNodeExecuteContext();
+
+    void setExecuteException(Throwable throwable);
+
+    void nodeStart(JobFlowNode jobFlowNode);
+
+    void nodeComplete(Throwable throwable, JobFlowNode jobFlowNode);
+
+    void setContainerJobFlowExecuteContext(JobFlowExecuteContext jobFlowExecuteContext);
+    JobFlowExecuteContext getContainerJobFlowExecuteContext();
+
+    boolean allNodeComplete();
+
+    JobFlowNodeStatus getJobFlowNodeStatus();
+
+    void reset();
+
+    void setContainerConditionJobFlowNodeExecuteContext(JobFlowNodeExecuteContext jobFlowNodeExecuteContext);
 }

@@ -29,7 +29,7 @@ import java.util.function.Function;
  * @author biaoping.yin
  * @Date 2025/6/18
  */
-public class JobFlowContext  extends StaticContext{
+public class JobFlowContext  {
     private static Logger logger = LoggerFactory.getLogger(JobFlowContext.class);
     private JobFlow jobFlow;
     protected JobFlowStatus jobFlowStatus = JobFlowStatus.INIT;
@@ -267,10 +267,9 @@ public class JobFlowContext  extends StaticContext{
      * @param jobFlowNode 完成的子节点
      * @return
      */    
-    @Override
-    public int nodeComplete(Throwable throwable, JobFlowNode jobFlowNode) {
+    public void nodeComplete(Throwable throwable, JobFlowNode jobFlowNode) {
         this.runningJobFlowNode = null;
-        return super.nodeComplete(throwable,jobFlowNode);
+//        return super.nodeComplete(throwable,jobFlowNode);
         
     }
 

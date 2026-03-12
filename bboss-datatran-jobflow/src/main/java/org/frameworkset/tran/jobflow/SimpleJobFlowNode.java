@@ -16,16 +16,12 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.apache.commons.collections.CollectionUtils;
-import org.frameworkset.tran.jobflow.context.AssertResult;
-import org.frameworkset.tran.jobflow.context.DefaultJobFlowNodeExecuteContext;
-import org.frameworkset.tran.jobflow.context.JobFlowContext;
-import org.frameworkset.tran.jobflow.context.SimpleJobFlowNodeContext;
+import org.frameworkset.tran.jobflow.context.*;
 import org.frameworkset.tran.jobflow.listener.JobFlowNodeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -86,8 +82,8 @@ public class SimpleJobFlowNode extends JobFlowNode{
      * 启动流程当前节点
      */
     @Override
-    public boolean start(JobFlowCyclicBarrier barrier){
-        simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
+    public boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext, JobFlowCyclicBarrier barrier){
+        jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
         nodeStart();
         if(barrier != null) {
             try {
@@ -176,17 +172,17 @@ public class SimpleJobFlowNode extends JobFlowNode{
      */
     @Override
     public void stop(){
-        if(simpleJobFlowNodeContext.assertStoped())
+        if(jobFlowNodeExecuteContext.assertStoped())
             return;
         logger.info("Stop {} begin.",this.getJobFlowNodeInfo());
-        simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPPING);
+        jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPPING);
 //        if(dataStream != null){
 //            dataStream.destroy(true);
 //        }
 
         jobFlowNodeFunction.stop();
-        
-        simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
+
+        jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
         logger.info("Stop {} complete.",this.getJobFlowNodeInfo());
         if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
             for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
@@ -218,7 +214,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
 //        }
         if(jobFlowNodeFunction != null){
             jobFlowNodeFunction.pauseSchedule();
-            simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.PAUSE);
+            jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.PAUSE);
         }
     }
 
@@ -227,7 +223,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
      */
     @Override
     public void consume() {
-        simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.RUNNING);
+        jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.RUNNING);
 //        if(dataStream != null){
 //            dataStream.resumeSchedule();
 //        }

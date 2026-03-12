@@ -68,20 +68,72 @@ public class JobFlowBuilder {
     }
 
     /**
-     * 添加作业节点
+     * 主干流程管理：添加作业节点
      * @param jobFlowNodeBuilder
      * @return
      */
     public JobFlowBuilder addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
+        if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null){
+            throw new JobFlowBuilderException("串行分支节点或者并行分支节点中的作业节点不能添加到主干流程中");
+        }
+        if(jobFlowNodeBuilder.getJobFlowBuilder() != null){
+            throw new JobFlowBuilderException("作业节点不能重复添加到主干流程中");
+        }
+        jobFlowNodeBuilder.setJobFlowBuilder(this);
         if(this.headerJobFlowNodeBuilder == null) {
             this.headerJobFlowNodeBuilder = jobFlowNodeBuilder;
 
         }
+        
         if(currentJobFlowNodeBuilder != null)
             this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
         this.currentJobFlowNodeBuilder = jobFlowNodeBuilder;
 
 
+        return this;
+    }
+    /**
+     * 主干流程管理：为当前作业节点添加多个带条件的下一个作业节点（条件符合节点）
+     * @param jobFlowNodeBuilder
+     * @return
+     */
+    public JobFlowBuilder addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
+        return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,false);
+    }
+    
+    /**
+     * 主干流程管理：为当前作业节点添加带条件的下一个作业节点
+     * @param jobFlowNodeBuilder
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public JobFlowBuilder addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,boolean defaultConditionNode){
+        jobFlowNodeBuilder.setDefaultConditionNode(defaultConditionNode);
+        if(currentJobFlowNodeBuilder != null) {
+            if(currentJobFlowNodeBuilder instanceof ConditionJobFlowNodeBuilder){
+                ((ConditionJobFlowNodeBuilder)currentJobFlowNodeBuilder).addJobFlowNodeBuilder(jobFlowNodeBuilder);
+            }
+            else {
+                ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = (ConditionJobFlowNodeBuilder) currentJobFlowNodeBuilder.getNextJobFlowNodeBuilder();
+                if (conditionJobFlowNodeBuilder != null) {
+                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+                } else {
+                    conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+                    currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
+                }
+            }
+            
+        }
+        else{
+            ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+            conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+            this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
+            if(this.headerJobFlowNodeBuilder == null) {
+                this.headerJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
+
+            }
+        }
         return this;
     }
     

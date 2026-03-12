@@ -16,6 +16,7 @@ package org.frameworkset.tran.jobflow.context;
  */
 
 import org.frameworkset.tran.jobflow.JobFlow;
+import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.jobflow.metrics.JobFlowMetrics;
 
 import java.util.LinkedHashMap;
@@ -31,8 +32,16 @@ import java.util.Map;
 public class DefaultJobFlowExecuteContext implements JobFlowExecuteContext {
     private Map<String,Object> contextDatas = new LinkedHashMap<>();
     private JobFlow jobFlow;
+    private StaticContext staticContext;
+    private JobFlowContext jobFlowContext;
     public DefaultJobFlowExecuteContext(JobFlow jobFlow){
         this.jobFlow = jobFlow;
+        this.staticContext = new StaticContext();
+        this.jobFlowContext = jobFlow.getJobFlowContext();
+    }
+
+    public JobFlowContext getJobFlowContext(){
+        return jobFlowContext;
     }
     @Override
     public synchronized Object getContextData(String name) {
@@ -69,7 +78,8 @@ public class DefaultJobFlowExecuteContext implements JobFlowExecuteContext {
 
     @Override
     public StaticContext getJobFlowStaticContext() {
-        return jobFlow.getJobFlowContext().copy();
+//        return jobFlow.getJobFlowContext().copy();
+        return staticContext;
     }
 
     @Override
@@ -82,5 +92,25 @@ public class DefaultJobFlowExecuteContext implements JobFlowExecuteContext {
         return jobFlow.getJobFlowName();
     }
 
+    /**
+     * 工作流或者复合节点（串行/并行）子节点完成时，减少启动节点计数,完成计数器加1
+     * @param throwable 子节点触发的异常
+     * @param jobFlowNode 完成的子节点
+     * @return
+     */
+    @Override
+    public int nodeComplete(Throwable throwable, JobFlowNode jobFlowNode) {
+        this.jobFlowContext.nodeComplete(throwable, jobFlowNode);
+//        this.runningJobFlowNode = null;
+        return staticContext.nodeComplete(throwable,jobFlowNode);
+
+    }
+
+
+
+    @Override
+    public void nodeStart(JobFlowNode jobFlowNode){
+        staticContext.nodeStart(jobFlowNode);
+    }
 
 }

@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.jobflow.metrics.JobFlowMetrics;
 
 import java.util.Map;
@@ -29,8 +30,9 @@ public interface JobFlowExecuteContext {
     Object getContextData(String name);
     Object getContextData(String name, Object defaultValue) ;
     void addContextData(String name,Object data);
-
     void putAll(Map<String, Object> contextDatas);
+    JobFlowContext getJobFlowContext();
+    void nodeStart(JobFlowNode jobFlowNode);
 
 
 
@@ -40,6 +42,6 @@ public interface JobFlowExecuteContext {
     StaticContext getJobFlowStaticContext();
     String getJobFlowId();
     String getJobFlowName();
-
+    int nodeComplete(Throwable throwable, JobFlowNode jobFlowNode);
 
 }

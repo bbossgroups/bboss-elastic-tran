@@ -40,6 +40,9 @@ public class ParrelJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Parr
 
     @Override
     public JobFlowNode build(JobFlow jobFlow){
+        if(this.jobFlowNode != null){
+            return jobFlowNode;
+        }
         ParrelJobFlowNode parrelJobFlowNode = new ParrelJobFlowNode();
         parrelJobFlowNode.setNodeId(this.getNodeId());
         parrelJobFlowNode.setNodeName(this.getNodeName());

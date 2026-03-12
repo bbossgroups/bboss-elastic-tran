@@ -26,76 +26,17 @@ import org.frameworkset.tran.jobflow.SequenceJobFlowNode;
 public class SequenceJobFlowNodeContext extends JobFlowNodeContext {
     private SequenceJobFlowNode sequenceJobFlowNode;
 
-    /**
-     * 当前正在执行的作业节点
-     */
-    private JobFlowNode runningJobFlowNode;
-
-    private Object runningJobFlowNodeLock = new Object();
-
+  
     public SequenceJobFlowNodeContext(SequenceJobFlowNode sequenceJobFlowNode){
         super();
         this.sequenceJobFlowNode = sequenceJobFlowNode;
         this.jobFlowNode = sequenceJobFlowNode;
     }
-    
-    public void reset(){
-        synchronized (runningJobFlowNodeLock) {
-            this.runningJobFlowNode = null;
-        }
-        super.reset();
-    }
+   
    
 
     public SequenceJobFlowNode getSequenceJobFlowNode() {
         return sequenceJobFlowNode;
     }
 
-    public void setRunningJobFlowNode(JobFlowNode runningJobFlowNode) {
-        synchronized (runningJobFlowNodeLock) {
-            this.runningJobFlowNode = runningJobFlowNode;
-        }
-    }
-
-    public JobFlowNode getRunningJobFlowNode() {
-        synchronized (runningJobFlowNodeLock) {
-            return runningJobFlowNode;
-        }
-    }
-
-    public void stop() {
-        synchronized (runningJobFlowNodeLock) {
-            if(runningJobFlowNode != null){
-                this.runningJobFlowNode.stop();
-            }
-        }
-    }
-
-    public void pause() {
-        synchronized (runningJobFlowNodeLock) {
-            if(runningJobFlowNode != null){
-                this.runningJobFlowNode.pause();
-            }
-        }
-    }
-    public void consume() {
-        synchronized (runningJobFlowNodeLock) {
-            if(runningJobFlowNode != null){
-                this.runningJobFlowNode.consume();
-            }
-        }
-    }
-
-    /**
-     * 工作流或者复合节点（串行/并行）子节点完成时，减少启动节点计数,完成计数器加1
-     * @param throwable 子节点触发的异常
-     * @param jobFlowNode 完成的子节点
-     * @return
-     */
-    @Override
-    public int nodeComplete(Throwable throwable,JobFlowNode jobFlowNode) {
-        this.runningJobFlowNode = null;
-        return super.nodeComplete(throwable,jobFlowNode);
-
-    }
 }
