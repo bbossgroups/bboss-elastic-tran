@@ -450,7 +450,7 @@ public class JobFlow {
             this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
             logger.info("{} 调度执行完成，更新工作流状态为调度完成",jobInfo);
         }
-        else if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTime() || jobFlowScheduleConfig.isExecuteOneTimeSyn()){
+        else if(jobFlowScheduleConfig == null || jobFlowScheduleConfig.isExecuteOneTime() ){
             //一次性执行，更新状态为停止
             this.jobFlowContext.updateJobFlowStatus(JobFlowStatus.COMPLETE);
             stop();

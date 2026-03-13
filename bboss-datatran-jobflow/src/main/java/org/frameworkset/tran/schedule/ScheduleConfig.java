@@ -39,7 +39,7 @@ public class ScheduleConfig {
     private boolean executeOneTime;
 
     /**
-     * 一次性同步执行数据导入操作标记：工作流使用
+     * 一次性同步执行数据导入操作标记：工作流使用，当executeOneTime为true时起作用
      */
     private boolean executeOneTimeSyn = true;
 
