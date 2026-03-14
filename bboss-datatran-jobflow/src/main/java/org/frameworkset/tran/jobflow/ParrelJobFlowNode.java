@@ -41,7 +41,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         this.parrelJobFlowNodeContext = new ParrelJobFlowNodeContext(this);
         this.jobFlowNodeContext = parrelJobFlowNodeContext;
     }
-    public ExecutorService buildThreadPool(){
+    private ExecutorService buildThreadPool(){
         if(blockedExecutor != null)
             return blockedExecutor;
         synchronized (blockedExecutorLock) {
@@ -53,6 +53,29 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             }
         }
         return blockedExecutor;
+    }
+
+
+
+    /**
+     * 获取线程池监控信息
+     * @return 包含线程池各项指标的字符串
+     */
+    public String getThreadPoolMetrics() {
+        if (blockedExecutor instanceof ThreadPoolExecutor) {
+            ThreadPoolExecutor executor = (ThreadPoolExecutor) blockedExecutor;
+            return String.format(
+                    "ParrelJobFlowNode[%s] ThreadPoolMetrics: active=%d, poolSize=%d, corePoolSize=%d, maxPoolSize=%d, queueSize=%d, completed=%d",
+                    this.nodeName,
+                    executor.getActiveCount(),
+                    executor.getPoolSize(),
+                    executor.getCorePoolSize(),
+                    executor.getMaximumPoolSize(),
+                    executor.getQueue().size(),
+                    executor.getCompletedTaskCount()
+            );
+        }
+        return "Thread pool not initialized";
     }
 
     public void addJobFlowNode(JobFlowNode jobFlowNode){
@@ -79,104 +102,108 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier){
-        this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext ;
-        jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
-        nodeStart();
-        if(barrier != null) {
-            try {
-                barrier.await();
-            } catch (InterruptedException e) {                
-            } catch (BrokenBarrierException e) {
-            } catch (TimeoutException e) {
+        try {
+            logger.info("Execute {} begin.", this.getJobFlowNodeInfo());
+            lastException = null;
+            this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
+            jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
+            nodeStart();
+            if (barrier != null) {
+                try {
+                    logger.info("Execute {} barrier.await().", this.getJobFlowNodeInfo());
+                    barrier.await();
+                } catch (InterruptedException e) {
+                } catch (BrokenBarrierException e) {
+                } catch (TimeoutException e) {
+                }
             }
-        }
-        jobFlow.getJobFlowContext().pauseAwait(this);
-        JobFlowContext jobFlowContext = this.jobFlow.getJobFlowContext();
-        AssertResult assertResult = jobFlowContext.assertStopped();
-        if(assertResult.isTrue())
-        {
-            logger.info("AssertStopped: true,ignore execute {}.",this.getJobFlowNodeInfo());
+            jobFlow.getJobFlowContext().pauseAwait(this);
+            JobFlowContext jobFlowContext = this.jobFlow.getJobFlowContext();
+            AssertResult assertResult = jobFlowContext.assertStopped();
+            if (assertResult.isTrue()) {
+                logger.info("AssertStopped: true,ignore execute {}.", this.getJobFlowNodeInfo());
 //            nodeComplete(null,true);
-            return false;
-        }
-        else if(assertTrigger()) {
-            if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
-                throw new JobFlowException(this.getJobFlowNodeInfo()+" must set jobFlowNodes,please set jobFlowNodes first.");
-            } else {
+                return false;
+            } else if (assertTrigger()) {
+                if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
+                    logger.info("Execute {} jobFlowNodes == null || jobFlowNodes.size() == 0, must set jobFlowNodes,please set jobFlowNodes first. .", this.getJobFlowNodeInfo());
+                    throw new JobFlowException(this.getJobFlowNodeInfo() + " must set jobFlowNodes,please set jobFlowNodes first.");
+                } else {
 //                jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
-                
-                logger.info("Start {} begin.",this.getJobFlowNodeInfo());
-                if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
-                    for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
-                        
+                    try {
+                        logger.info("Start {} begin.", this.getJobFlowNodeInfo());
+                        if (CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)) {
+                            for (JobFlowNodeListener jobFlowNodeListener : jobFlowNodeListeners) {
+
+                                try {
+                                    jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);
+                                } catch (Exception e) {
+                                    logger.warn(this.getJobFlowNodeInfo() + "JobFlowNodeListener.beforeExecute failed:", e);
+//                            throw new JobFlowException(this.getJobFlowNodeInfo()+" JobFlowNodeListener.beforeExecute failed:",e);
+                                }
+                            }
+                        }
+                        ExecutorService blockedExecutor = buildThreadPool();
+//                logger.info("{} {}",this.getJobFlowNodeInfo(),getThreadPoolMetrics());
+                        List<Future> futureList = new ArrayList<>();
+                        JobFlowCyclicBarrier thisBarrier = new JobFlowCyclicBarrier(jobFlowNodes.size(), () -> {
+                            logger.info("{} Parrel jobFlowNodes of {} ready to running.", jobFlowNodes.size(), this.getJobFlowNodeInfo());
+                        }, 1000000L);
+                        for (int i = 0; i < jobFlowNodes.size(); i++) {
+                            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
+                            futureList.add(blockedExecutor.submit(() -> {
+                                JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = jobFlowNode.buildJobFlowNodeExecuteContext();
+                                //todo call assertTrigger 
+                                _jobFlowNodeExecuteContext.setContainerParrelJobFlowNodeExecuteContext(jobFlowNodeExecuteContext);
+                                jobFlowNode.execute(_jobFlowNodeExecuteContext, thisBarrier);
+                            }));
+
+
+                        }
+                        List<Throwable> exceptions = null;
+                        for (Future future : futureList) {
+                            try {
+                                future.get();
+                            } catch (InterruptedException e) {
+//                        throw new RuntimeException(e);
+                            } catch (ExecutionException e) {
+                                if (exceptions == null) {
+                                    exceptions = new ArrayList<>();
+                                }
+                                exceptions.add(e.getCause());
+                            }
+                        }
+
+                    } finally {
+                        this.nodeComplete(lastException, false);
+                    }
+
+
+                }
+                return true;
+            } else {
+                logger.info("AssertTrigger: false,ignore execute {}.", this.getJobFlowNodeInfo());
+//            jobFlowNodeExecuteContext = buildJobFlowNodeExecuteContext();
+                if (CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)) {
+                    for (JobFlowNodeListener jobFlowNodeListener : jobFlowNodeListeners) {
+
                         try {
                             jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);
-                        }
-                        catch (Exception e){
-                            logger.warn(this.getJobFlowNodeInfo()+"JobFlowNodeListener.beforeExecute failed:",e);
-//                            throw new JobFlowException(this.getJobFlowNodeInfo()+" JobFlowNodeListener.beforeExecute failed:",e);
-                        }
-                    }
-                }
-                ExecutorService blockedExecutor = buildThreadPool();
-                List<Future> futureList = new ArrayList<>();
-                JobFlowCyclicBarrier thisBarrier = new JobFlowCyclicBarrier(jobFlowNodes.size(), () -> {
-                    logger.info("{} Parrel jobFlowNodes of {} ready to running.",jobFlowNodes.size(),this.getJobFlowNodeInfo());
-                },1000000L);
-                for (int i = 0; i < jobFlowNodes.size(); i++) {
-                    JobFlowNode jobFlowNode = jobFlowNodes.get(i);
-                    futureList.add(blockedExecutor.submit(() -> {
-                        JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = jobFlowNode.buildJobFlowNodeExecuteContext();
-                        //todo call assertTrigger 
-                        _jobFlowNodeExecuteContext.setContainerParrelJobFlowNodeExecuteContext(jobFlowNodeExecuteContext);
-                        jobFlowNode.execute(_jobFlowNodeExecuteContext,thisBarrier);
-                    }));
-                    
-                   
-                }
-                List<Throwable> exceptions = null;
-                for(Future future:futureList){
-                    try {
-                        future.get();
-                    } catch (InterruptedException e) {
-//                        throw new RuntimeException(e);
-                    } catch (ExecutionException e) {
-                        if(exceptions == null){
-                            exceptions = new ArrayList<>();
-                        }
-                        exceptions.add(e.getCause());
-                    }
-                }
-                
-//                if(CollectionUtils.isNotEmpty(exceptions)){
-//                    logger.warn("Execute parrelJobFlowNode[id={},name={}] complete with exceptions.",this.getNodeId(),this.getNodeName());
-//                    throw new JobFlowException("ParrelJobFlowNode execute exception:",exceptions);
-//                }
-//                else{
-//                    logger.info("Execute parrelJobFlowNode[id={},name={}] complete.",this.getNodeId(),this.getNodeName());
-//                }
-//                nodeComplete(null);
-            }
-            return true;
-        }
-        else{
-            logger.info("AssertTrigger: false,ignore execute {}.",this.getJobFlowNodeInfo());
-//            jobFlowNodeExecuteContext = buildJobFlowNodeExecuteContext();
-            if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
-                for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
-                    
-                    try {
-                        jobFlowNodeListener.beforeExecute(jobFlowNodeExecuteContext);
-                    }
-                    catch (Exception e){
-                        logger.warn(this.getJobFlowNodeInfo()+"JobFlowNodeListener.beforeExecute failed:",e);
+                        } catch (Exception e) {
+                            logger.warn(this.getJobFlowNodeInfo() + "JobFlowNodeListener.beforeExecute failed:", e);
 //                        throw new JobFlowException(this.getJobFlowNodeInfo()+" JobFlowNodeListener.beforeExecute failed:",e);
+                        }
                     }
                 }
+                nodeComplete(null, true);
             }
-            nodeComplete(null,true);
+            return false;
         }
-        return false;
+        catch (Exception e){
+            logger.error(this.getJobFlowNodeInfo()+" execute failed:",e);
+            lastException = e;
+            return false;
+        }
         
     }
 
@@ -222,15 +249,18 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
     }
 
     private Object jobFlowNodeExecuteContextLock = new Object();
+    private Throwable lastException;
     /**
      * 某个并行分支完成时回调
      * @param jobFlowNode
      */
     @Override
     public void brachComplete(JobFlowNode jobFlowNode, Throwable e) {
-        if(this.jobFlowNodeExecuteContext.allNodeComplete() ) {
-             this.nodeComplete(e, false);
-        }
+        if(e != null)
+            lastException = e;
+//        if(this.jobFlowNodeExecuteContext.allNodeComplete() ) {
+//             this.nodeComplete(e, false);
+//        }
     }
 
  

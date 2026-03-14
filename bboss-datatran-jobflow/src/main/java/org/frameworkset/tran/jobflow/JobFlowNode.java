@@ -240,6 +240,9 @@ public abstract class JobFlowNode {
         } catch (Exception e) {
             throw new JobFlowException("AassertTrigger failed:",e);
         }
+        catch (Throwable e) {
+            throw new JobFlowException("AassertTrigger failed:",e);
+        }
     }
     
     
@@ -326,101 +329,87 @@ public abstract class JobFlowNode {
      */
     
     public void nodeComplete(Throwable throwable,boolean ignoreExecute){
-        if(jobFlowNodeExecuteContext == null || !jobFlowNodeExecuteContext.nodeCompleteUnExecuted()) {
-            return;
-        }
-        jobFlowNodeExecuteContext.setExecuteException(throwable);
-        complete(throwable);
-        if(throwable != null) {
-            logger_.error(this.getJobFlowNodeInfo() + " complete with exception:", throwable);
-        }
-        if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
-            for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
-                try {
-                    jobFlowNodeListener.afterExecute(jobFlowNodeExecuteContext, throwable);
-                }
-                catch (Exception e){
-                    logger_.warn(this.getJobFlowNodeInfo()+"JobFlowNodeListener.afterExecute failed:",e);
+        try {
+            if (jobFlowNodeExecuteContext == null || !jobFlowNodeExecuteContext.nodeCompleteUnExecuted()) {
+                return;
+            }
+            jobFlowNodeExecuteContext.setExecuteException(throwable);
+            complete(throwable);
+            if (throwable != null) {
+                logger_.error(this.getJobFlowNodeInfo() + " complete with exception:", throwable);
+            }
+            if (CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)) {
+                for (JobFlowNodeListener jobFlowNodeListener : jobFlowNodeListeners) {
+                    try {
+                        jobFlowNodeListener.afterExecute(jobFlowNodeExecuteContext, throwable);
+                    } catch (Exception e) {
+                        logger_.warn(this.getJobFlowNodeInfo() + "JobFlowNodeListener.afterExecute failed:", e);
 //                    throw new JobFlowException(this.getJobFlowNodeInfo()+" JobFlowNodeListener.afterExecute failed:",e);
+                    }
+
                 }
-                
             }
-        }
-        
-        release();
-        
-        if(this.nextJobFlowNode != null && !ignoreExecute){
-            logger_.info("{} execute complete and start nextJobFlowNode[{}]",getJobFlowNodeInfo() ,nextJobFlowNode.getJobFlowNodeInfo());
-            JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = nextJobFlowNode.buildJobFlowNodeExecuteContext();
-            if(this.jobFlowNodeExecuteContext.getContainerJobFlowExecuteContext() != null){
-                _jobFlowNodeExecuteContext.setContainerJobFlowExecuteContext(this.jobFlowNodeExecuteContext.getContainerJobFlowExecuteContext());
-            }
-            if(this.jobFlowNodeExecuteContext.getContainerParrelJobFlowNodeExecuteContext() != null) {
-                _jobFlowNodeExecuteContext.setContainerParrelJobFlowNodeExecuteContext(this.jobFlowNodeExecuteContext.getContainerParrelJobFlowNodeExecuteContext());
-            }
-            if(this.jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext() != null){
-                _jobFlowNodeExecuteContext.setContainerSequenceJobFlowNodeExecuteContext(this.jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext());
-            }
-            
-            this.nextJobFlowNode.execute(_jobFlowNodeExecuteContext);
-        }
-        else{
-            JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getDirectContainerJobFlowNodeExecuteContext();
-            if(containerJobFlowNodeExecuteContext != null 
+
+            release();
+
+            if (this.nextJobFlowNode != null && !ignoreExecute) {
+                logger_.info("{} execute complete and start nextJobFlowNode[{}]", getJobFlowNodeInfo(), nextJobFlowNode.getJobFlowNodeInfo());
+                JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = nextJobFlowNode.buildJobFlowNodeExecuteContext();
+                JobFlowNodeExecuteContext directContainerJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getDirectContainerJobFlowNodeExecuteContext();
+
+                //需将当前节点的实际容器节点执行上下文传递给下一个节点，当前节点隶属于条件节点时，则用条件复合节点的容器执行上下文
+                JobFlowNodeExecuteContext tmp = null;
+                if(directContainerJobFlowNodeExecuteContext != null && directContainerJobFlowNodeExecuteContext instanceof ConditionJobFlowNodeExecuteContext){
+                    tmp = directContainerJobFlowNodeExecuteContext;
+                }
+                else{
+                    tmp = this.jobFlowNodeExecuteContext;
+                }
+
+                if (tmp.getContainerJobFlowExecuteContext() != null) {
+                    _jobFlowNodeExecuteContext.setContainerJobFlowExecuteContext(tmp.getContainerJobFlowExecuteContext());
+                }
+                if (tmp.getContainerParrelJobFlowNodeExecuteContext() != null) {
+                    _jobFlowNodeExecuteContext.setContainerParrelJobFlowNodeExecuteContext(tmp.getContainerParrelJobFlowNodeExecuteContext());
+                }
+                if (tmp.getContainerSequenceJobFlowNodeExecuteContext() != null) {
+                    _jobFlowNodeExecuteContext.setContainerSequenceJobFlowNodeExecuteContext(tmp.getContainerSequenceJobFlowNodeExecuteContext());
+                }
+
+
+                this.nextJobFlowNode.execute(_jobFlowNodeExecuteContext);
+                logger_.info("{} execute complete and nextJobFlowNode[{}] execute completed.", getJobFlowNodeInfo(), nextJobFlowNode.getJobFlowNodeInfo());
+            } else {
+                JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getDirectContainerJobFlowNodeExecuteContext();
+                if (containerJobFlowNodeExecuteContext != null
 //                    || this.jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext() != null
 //                    || this.jobFlowNodeExecuteContext.getContainerParrelJobFlowNodeExecuteContext() != null
 //                    || this.jobFlowNodeExecuteContext.getContainerConditionJobFlowNodeExecuteContext() != null
-            ){
-                CompositionJobFlowNode compositionJobFlowNode = (CompositionJobFlowNode)containerJobFlowNodeExecuteContext.getJobFlowNode();
-                logger_.info("Execute {} complete and call compositionJobFlowNode[{}]'s brachComplete.",this.getJobFlowNodeInfo(),compositionJobFlowNode.getJobFlowNodeInfo());
-                compositionJobFlowNode.brachComplete(this,null);
-            }
-            else{
-                logger_.info("Execute {} complete and call {}'s complete.",this.getJobFlowNodeInfo(),jobFlow.getJobInfo());
-                this.jobFlow.complete(    null);
-            }
-            
-            /**
-            if(parentJobFlowNode != null){
-                logger_.info("{} execute complete and call parentJobFlowNode[{}]‘s nextNodeComplete" ,getJobFlowNodeInfo() ,parentJobFlowNode.getJobFlowNodeInfo());
-                parentJobFlowNode.nextNodeComplete(     null);
-                
-            }
-            else{
-                if(this.compositionJobFlowNode != null){
-                    logger_.info("Execute {} complete and call compositionJobFlowNode[{}]'s brachComplete.",this.getJobFlowNodeInfo(),compositionJobFlowNode.getJobFlowNodeInfo());
-                    compositionJobFlowNode.brachComplete(this,     null);
+                ) {
+                    CompositionJobFlowNode compositionJobFlowNode = (CompositionJobFlowNode) containerJobFlowNodeExecuteContext.getJobFlowNode();
+                    logger_.info("Execute {} complete and call compositionJobFlowNode[{}]'s brachComplete.", this.getJobFlowNodeInfo(), compositionJobFlowNode.getJobFlowNodeInfo());
+                    compositionJobFlowNode.brachComplete(this, null);
+                } else {
+                    logger_.info("Execute {} complete and call {}'s complete.", this.getJobFlowNodeInfo(), jobFlow.getJobInfo());
+                    this.jobFlow.complete(null);
                 }
-                else{
-                    logger_.info("Execute {} complete and call {}'s complete.",this.getJobFlowNodeInfo(),jobFlow.getJobInfo());
-                    this.jobFlow.complete(    null);
-                }
-            }*/
+
+
+            }
+        }
+        catch (JobFlowException e){
+            logger_.error("Execute nodeComplete failed:"+jobFlow.getJobInfo()+", "+this.getJobFlowNodeInfo(),e);
+            throw e;
+        }
+        catch (Exception e){
+            logger_.error("Execute nodeComplete failed:"+jobFlow.getJobInfo()+", "+this.getJobFlowNodeInfo(),e);
+            throw new JobFlowException("Execute nodeComplete failed:"+jobFlow.getJobInfo()+", "+this.getJobFlowNodeInfo(),e);
         }
     }
      
 
     
 
-    /**
-     * 作业结束时，通知父节点，当前节点任务执行结束
-     * 废弃方法
-     */
-    @Deprecated
-    public void nextNodeComplete( Throwable e){
-        if(this.parentJobFlowNode != null){
-            parentJobFlowNode.nextNodeComplete(   e);
-        }
-        else{
-            if(this.compositionJobFlowNode != null){
-                this.compositionJobFlowNode.brachComplete(this,    e);
-            }
-            else{
-                this.jobFlow.complete(     e);
-            }
-        }
-
-    }
 
 
     
@@ -472,7 +461,7 @@ public abstract class JobFlowNode {
 //            containerSequenceJobFlowNodeExecuteContext.nodeComplete( throwable,this);
 //        }
         JobFlowExecuteContext containerJobFlowExecuteContext = this.jobFlowNodeExecuteContext.getContainerJobFlowExecuteContext();
-        if(containerJobFlowContext != null){
+        if(containerJobFlowExecuteContext != null){
             containerJobFlowContext.nodeComplete( throwable,this);
             containerJobFlowExecuteContext.nodeComplete(throwable, this);
         }

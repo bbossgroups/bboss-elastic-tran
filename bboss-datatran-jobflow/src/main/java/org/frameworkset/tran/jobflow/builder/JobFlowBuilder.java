@@ -160,6 +160,7 @@ public class JobFlowBuilder {
             jobFlow.setExternalTimer(this.isExternalTimer());
         }
         jobFlow.initJobInfo();
+        jobFlow.initGroovyClassLoader();
         jobFlow.setStartJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));    
         
         return jobFlow;

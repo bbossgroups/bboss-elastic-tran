@@ -39,7 +39,9 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
             return jobFlowNode;
         }
         ConditionJobFlowNode  conditionJobFlowNode = new ConditionJobFlowNode();
-      
+        conditionJobFlowNode.setNodeId(this.getNodeId());
+        conditionJobFlowNode.setNodeName(this.getNodeName());
+        conditionJobFlowNode.setJobFlow(jobFlow);
         for(JobFlowNodeBuilder jobFlowNodeBuilder : nodeBuilders) {
             JobFlowNode jobFlowNode = jobFlowNodeBuilder.build(jobFlow);
             conditionJobFlowNode.addJobFlowNode(jobFlowNode);

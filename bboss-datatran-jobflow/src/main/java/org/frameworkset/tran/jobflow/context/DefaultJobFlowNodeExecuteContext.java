@@ -133,16 +133,18 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
 
     @Override
     public Object getContainerJobFlowNodeContextData(String name) {
-        if(this.getContainerJobFlowNodeExecuteContext() != null) {
-            return this.getContainerJobFlowNodeExecuteContext().getContextData(name);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null) {
+            return containerJobFlowNodeExecuteContext.getContextData(name);
         }
         return null;
     }
 
     @Override
     public Object getContainerJobFlowNodeContextData(String name, Object defaultValue) {
-        if(this.getContainerJobFlowNodeExecuteContext() != null) {
-            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null) {
+            return containerJobFlowNodeExecuteContext.getContextData(name,defaultValue);
         }
         return null;
     }
@@ -156,8 +158,9 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
      */
     @Override
     public Object getContainerJobFlowNodeContextData(String name,boolean scanParent){
-        if(this.getContainerJobFlowNodeExecuteContext() != null) {
-            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,scanParent);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null) {
+            return containerJobFlowNodeExecuteContext.getContextData(name,scanParent);
         }
         return null;
     }
@@ -173,8 +176,9 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
      */
     @Override
     public Object getContainerJobFlowNodeContextData(String name,Object defaultValue,boolean scanParent){
-        if(this.getContainerJobFlowNodeExecuteContext() != null) {
-            return this.getContainerJobFlowNodeExecuteContext().getContextData(name,defaultValue,scanParent);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null) {
+            return containerJobFlowNodeExecuteContext.getContextData(name,defaultValue,scanParent);
         }
         return null;
     }
@@ -198,8 +202,9 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
 
     @Override
     public void addContainerJobFlowNodeContextData(String name, Object data) {
-        if(this.getContainerJobFlowNodeExecuteContext() != null) {
-            this.getContainerJobFlowNodeExecuteContext().addContextData(name,data);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null) {
+            containerJobFlowNodeExecuteContext.addContextData(name,data);
             return;
         }
         throw new JobFlowException("addContainerJobFlowNodeContextData failed:ContainerJobFlowNodeExecuteContext is null.");

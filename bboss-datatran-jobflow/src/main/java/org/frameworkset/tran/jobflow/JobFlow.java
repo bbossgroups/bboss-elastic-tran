@@ -75,7 +75,7 @@ public class JobFlow {
 
     public JobFlow(){
         jobFlowContext = new JobFlowContext(this);
-        initGroovyClassLoader();
+        
         
         jobFlowMetrics = new JobFlowMetrics();
     }
@@ -100,7 +100,7 @@ public class JobFlow {
         return jobFlowContext;
     }
 
-    private  void initGroovyClassLoader() {
+    public  void initGroovyClassLoader() {
         if(groovyClassLoader != null){
             return;
         }

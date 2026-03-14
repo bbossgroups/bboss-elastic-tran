@@ -22,7 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.TimeoutException;
 
 /**
  *
@@ -35,6 +36,7 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
      * 默认节点
      */
     private JobFlowNode defaultJobFlowNode;
+
     /**
      * 匹配的节点
      */
@@ -60,10 +62,11 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
     }
 
      
-    public ConditionJobFlowNode addJobFlowNode(JobFlowNode jobFlowNode){
+    public ConditionJobFlowNode addJobFlowNode(JobFlowNode jobFlowNode){        
         if(jobFlowNodes == null)
             jobFlowNodes = new ArrayList<JobFlowNode>();
         jobFlowNodes.add(jobFlowNode);
+        
         jobFlowNode.addConditionJobFlowNode(this);
         return this;
     }
@@ -75,6 +78,10 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
     public JobFlowNode evalJobFlowNode() {
         matchedJobFlowNode = null;
         for(JobFlowNode jobFlowNode : jobFlowNodes){
+            if(jobFlowNode.getNodeTrigger() == null){
+                logger.warn("流程{}中的条件流程节点{}没有配置条件判断器,忽略。",this.getJobFlow().getJobInfo(),jobFlowNode.getJobFlowNodeInfo()   );
+                continue;
+            }
             if(jobFlowNode.assertTrigger()){
                 matchedJobFlowNode = jobFlowNode;
                 break;
@@ -98,10 +105,32 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier) {
+        if(logger.isDebugEnabled()) {
+            logger.debug("Execute [{}] entered", getJobFlowNodeInfo());
+        }
+        if(barrier != null) {
+            try {
+                barrier.await();
+            } catch (InterruptedException e) {
+            } catch (BrokenBarrierException e) {
+            } catch (TimeoutException e) {
+            }
+        }
+        if(logger.isDebugEnabled()){
+            logger.debug("Execute [{}] begin", getJobFlowNodeInfo());
+        }
         try {
+
             this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
             evalJobFlowNode();
-
+            JobFlowNodeExecuteContext matchedJobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(matchedJobFlowNode);
+            matchedJobFlowNodeExecuteContext.setContainerConditionJobFlowNodeExecuteContext(jobFlowNodeExecuteContext);
+            ((ConditionJobFlowNodeExecuteContext)jobFlowNodeExecuteContext).setMatchedJobFlowNodeExecuteContext(matchedJobFlowNodeExecuteContext);
+            boolean result = matchedJobFlowNode.execute(matchedJobFlowNodeExecuteContext, barrier);
+            if(logger.isDebugEnabled()){
+                logger.debug("Execute [{}] complete", getJobFlowNodeInfo());
+            }
+            return result;
         }
         catch (JobFlowException e)
         {
@@ -117,10 +146,7 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
             return false;
             
         }
-        JobFlowNodeExecuteContext matchedJobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(matchedJobFlowNode);
-        matchedJobFlowNodeExecuteContext.setContainerConditionJobFlowNodeExecuteContext(jobFlowNodeExecuteContext);
-        ((ConditionJobFlowNodeExecuteContext)jobFlowNodeExecuteContext).setMatchedJobFlowNodeExecuteContext(matchedJobFlowNodeExecuteContext);
-        return matchedJobFlowNode.execute(matchedJobFlowNodeExecuteContext, barrier);
+       
          
     }
 

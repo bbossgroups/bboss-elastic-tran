@@ -28,9 +28,11 @@ import org.frameworkset.tran.jobflow.SimpleJobFlowNode;
 public abstract class SimpleJobFlowNodeBuilder<T extends SimpleJobFlowNodeBuilder> extends JobFlowNodeBuilder<T> {
 
     /**
-     * 如果需要自动在Function中的call方法调用nodeComplete，则将autoNodeComplete设置为true
+     * 默认作业节点在Function call结束后都会自动结束，如果需要手动在Function中的call方法调用nodeComplete，则将autoNodeComplete设置为false
+     * 目前框架默认提供的数据交换节点需要手动在数据交换作业完成时结束作业节点
+     * 注意：同一个节点在一次调度执行过程中，nodeComplete只会被调用一次，并且确保被调用一次
      */
-    protected boolean autoNodeComplete ;
+    protected boolean autoNodeComplete = true;
 
     public SimpleJobFlowNodeBuilder(String nodeId, String nodeName) {
         super(nodeId, nodeName);
@@ -43,11 +45,20 @@ public abstract class SimpleJobFlowNodeBuilder<T extends SimpleJobFlowNodeBuilde
     public SimpleJobFlowNodeBuilder() {
         super();        
     }
+    /**
+     * 默认作业节点在Function call结束后都会自动结束，如果需要手动在Function中的call方法调用nodeComplete，则将autoNodeComplete设置为false
+     * 目前框架默认提供的数据交换节点需要手动在数据交换作业完成时结束作业节点
+     * 注意：同一个节点在一次调度执行过程中，nodeComplete只会被调用一次，并且确保被调用一次
+     */
     public T setAutoNodeComplete(boolean autoNodeComplete) {
         this.autoNodeComplete = autoNodeComplete;
         return (T)this;
     }
-
+    /**
+     * 默认作业节点在Function call结束后都会自动结束，如果需要手动在Function中的call方法调用nodeComplete，则将autoNodeComplete设置为false
+     * 目前框架默认提供的数据交换节点需要手动在数据交换作业完成时结束作业节点
+     * 注意：同一个节点在一次调度执行过程中，nodeComplete只会被调用一次，并且确保被调用一次
+     */
     public boolean isAutoNodeComplete() {
         return autoNodeComplete;
     }

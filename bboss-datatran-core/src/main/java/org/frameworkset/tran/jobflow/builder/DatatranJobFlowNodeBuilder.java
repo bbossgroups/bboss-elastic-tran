@@ -34,11 +34,13 @@ public class DatatranJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<Datatra
     protected ImportBuilder importBuilder;
 
     public DatatranJobFlowNodeBuilder(String nodeId, String nodeName) {
-        super(nodeId, nodeName);        
+        super(nodeId, nodeName);     
+        this.autoNodeComplete = false;
     }
 
     public DatatranJobFlowNodeBuilder() {
         super();
+        this.autoNodeComplete = false;
     }
 
     @Override
