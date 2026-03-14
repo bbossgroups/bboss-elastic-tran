@@ -73,6 +73,7 @@ public class JobFlowBuilder {
      * @return
      */
     public JobFlowBuilder addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
+        validateJobFlowNodeBuilder(jobFlowNodeBuilder);
         if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null){
             throw new JobFlowBuilderException("串行分支节点或者并行分支节点中的作业节点不能添加到主干流程中");
         }
@@ -101,6 +102,12 @@ public class JobFlowBuilder {
         return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,false);
     }
     
+    private void validateJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
+        if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null){
+            throw new JobFlowBuilderException("串行分支节点或者并行分支节点中的作业节点不能添加到主干流程中");
+        }
+         
+    }
     /**
      * 主干流程管理：为当前作业节点添加带条件的下一个作业节点
      * @param jobFlowNodeBuilder
@@ -108,6 +115,7 @@ public class JobFlowBuilder {
      * @return
      */
     public JobFlowBuilder addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,boolean defaultConditionNode){
+        validateJobFlowNodeBuilder(jobFlowNodeBuilder);
         jobFlowNodeBuilder.setDefaultConditionNode(defaultConditionNode);
         if(currentJobFlowNodeBuilder != null) {
             if(currentJobFlowNodeBuilder instanceof ConditionJobFlowNodeBuilder){

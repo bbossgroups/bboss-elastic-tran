@@ -47,9 +47,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
      */
     public SequenceJobFlowNodeBuilder addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
         init();
-        if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null){
-            throw new JobFlowBuilderException("节点不能重复添加到复合节点中");
-        }
+        validate(jobFlowNodeBuilder);
         jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
         if(this.headerJobFlowNodeBuilder == null) {
             this.headerJobFlowNodeBuilder = jobFlowNodeBuilder;

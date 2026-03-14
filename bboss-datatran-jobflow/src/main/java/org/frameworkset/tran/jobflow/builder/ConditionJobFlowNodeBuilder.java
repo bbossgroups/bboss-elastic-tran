@@ -32,7 +32,14 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
     public ConditionJobFlowNodeBuilder(){
         super(JobFlowNodeType.CONDITION);
     }
- 
+    @Override
+    protected void validate(JobFlowNodeBuilder jobFlowNodeBuilder){
+//        CompositionJobFlowNodeBuilder _compositionJobFlowNodeBuilder =  jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder();
+//        if(_compositionJobFlowNodeBuilder != null){
+//            if(this.compositionJobFlowNodeBuilder != _compositionJobFlowNodeBuilder)
+//                throw new JobFlowBuilderException("已有节点不能重复添加到其他复合节点中");
+//        }
+    }
     @Override
     public JobFlowNode build(JobFlow jobFlow){
         if(this.jobFlowNode != null){

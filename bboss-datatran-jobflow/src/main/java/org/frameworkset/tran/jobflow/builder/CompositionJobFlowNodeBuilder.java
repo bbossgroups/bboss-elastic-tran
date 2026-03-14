@@ -60,6 +60,11 @@ public abstract class CompositionJobFlowNodeBuilder<T extends CompositionJobFlow
         }
     }
 
+    protected void validate(JobFlowNodeBuilder jobFlowNodeBuilder){
+        if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null){
+            throw new JobFlowBuilderException("节点不能重复添加到复合节点中");
+        }
+    }
 
 
     /**
@@ -70,10 +75,10 @@ public abstract class CompositionJobFlowNodeBuilder<T extends CompositionJobFlow
     public T addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
 //        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
         init();
-        if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null){
-            throw new JobFlowBuilderException("节点不能重复添加到复合节点中");
+        validate(jobFlowNodeBuilder);
+        if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() == null) {
+            jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
         }
-        jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
         nodeBuilders.add(jobFlowNodeBuilder);
         return (T)this;
     }
