@@ -91,15 +91,23 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
                 ((ConditionJobFlowNodeBuilder)currentJobFlowNodeBuilder).addJobFlowNodeBuilder(jobFlowNodeBuilder);
             }
             else {
-                ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = (ConditionJobFlowNodeBuilder) currentJobFlowNodeBuilder.getNextJobFlowNodeBuilder();
-                if (conditionJobFlowNodeBuilder != null) {
-                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
-                } else {
-                    conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
-                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
-                    currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
-                    nodeBuilders.add(conditionJobFlowNodeBuilder);
-                }
+//                ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = (ConditionJobFlowNodeBuilder) currentJobFlowNodeBuilder.getNextJobFlowNodeBuilder();
+//                if (conditionJobFlowNodeBuilder != null) {
+//                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+//                } else {
+//                    conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+//                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+//                    currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
+//                    
+//                    nodeBuilders.add(conditionJobFlowNodeBuilder);
+//                    currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
+//                }
+                ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+                conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+                currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
+
+                nodeBuilders.add(conditionJobFlowNodeBuilder);
+                currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
             }
 
         }

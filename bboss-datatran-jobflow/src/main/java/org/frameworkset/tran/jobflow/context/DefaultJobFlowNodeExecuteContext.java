@@ -15,10 +15,7 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowException;
-import org.frameworkset.tran.jobflow.JobFlowNode;
-import org.frameworkset.tran.jobflow.JobFlowNodeStatus;
+import org.frameworkset.tran.jobflow.*;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,6 +28,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteContext{
     private Map<String,Object> contextDatas = new LinkedHashMap<>();
+
+
+    private Map<String,Object> checkFirstExecuteInContainerLifeCycleDatas = new LinkedHashMap<>();
     private JobFlowNode jobFlowNode;
     private JobFlow jobFlow;
     protected StaticContext staticContext;
@@ -215,6 +215,9 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
         if(this.contextDatas != null) {
             this.contextDatas.clear();
         }
+        if(this.checkFirstExecuteInContainerLifeCycleDatas != null){
+            this.checkFirstExecuteInContainerLifeCycleDatas.clear();
+        }
     }
 
     @Override
@@ -388,5 +391,20 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     @Override
     public boolean allNodeComplete(){
         return staticContext.allNodeComplete();
+    }
+    private Object checkFirstExecuteInContainerLifeCycleLock = new Object();
+    @Override
+    public boolean checkFirstExecuteInContainerLifeCycle(ConditionJobFlowNode conditionJobFlowNode){
+        String uuid = conditionJobFlowNode.getConditionJobFlowNodeUUID();
+        if (checkFirstExecuteInContainerLifeCycleDatas.containsKey(uuid)) {
+            return false;
+        }
+        synchronized (checkFirstExecuteInContainerLifeCycleLock) {
+            if (checkFirstExecuteInContainerLifeCycleDatas.containsKey(uuid)) {
+                return false;
+            }
+            checkFirstExecuteInContainerLifeCycleDatas.put(uuid, true);
+            return true;
+        }
     }
 }

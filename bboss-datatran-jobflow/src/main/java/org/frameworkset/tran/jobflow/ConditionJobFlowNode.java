@@ -15,8 +15,10 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.jobflow.context.ConditionJobFlowNodeExecuteContext;
 import org.frameworkset.tran.jobflow.context.DefaultJobFlowNodeExecuteContext;
+import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,8 @@ import java.util.concurrent.TimeoutException;
  */
 public class ConditionJobFlowNode extends CompositionJobFlowNode{
     private static Logger logger = LoggerFactory.getLogger(ConditionJobFlowNode.class);
+    private String conditionJobFlowNodeUUID;
+    
     /**
      * 默认节点
      */
@@ -41,6 +45,14 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
      * 匹配的节点
      */
     private JobFlowNode matchedJobFlowNode;
+    public ConditionJobFlowNode(){
+        super();
+        this.conditionJobFlowNodeUUID = SimpleStringUtil.getUUID32();
+    }
+
+    public String getConditionJobFlowNodeUUID() {
+        return conditionJobFlowNodeUUID;
+    }
 
     public JobFlowNodeExecuteContext buildJobFlowNodeExecuteContext( ) {
         return new ConditionJobFlowNodeExecuteContext(this);
@@ -91,13 +103,31 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
             if (defaultJobFlowNode != null) {
                 matchedJobFlowNode = defaultJobFlowNode;
             } else {
-                throw new JobFlowException("没有符合条件的节点，也没有配置默认的节点.");
+                return null;
             }
         }
         return matchedJobFlowNode;
     }
 
 
+    /**
+     * 当条件分支如果没有匹配到任何条件节点，也没有默认节点，则直接跳过条件节点，是否终止条件节点后续节点执行呢？处理逻辑如下：
+     * 判断条件分支是不是在工作流容器的调度周期或者所属容器的调度周期内第一次执行
+     * 如果是第一次，则返回true并终止条件分支后续的流程节点执行，否则返回false，然后执行条件分支后续的流程节点
+     * @return
+     */
+    private boolean checkFirstExecuteInContainerLifeCycle(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = jobFlowNodeExecuteContext.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null){
+            return containerJobFlowNodeExecuteContext.checkFirstExecuteInContainerLifeCycle(this);
+        }
+        JobFlowExecuteContext containerJobFlowExecuteContext = jobFlowNodeExecuteContext.getContainerJobFlowExecuteContext();
+        if(containerJobFlowExecuteContext != null){
+            return containerJobFlowExecuteContext.checkFirstExecuteInContainerLifeCycle(this);
+        }
+        //既不在容器调度周期内，也不在工作流调度周期内，这种情况不可能存在，但是还是返回true，不执行条件分支后续的流程节点
+        return true;
+    }
     /**
      * 启动流程当前节点
      * @param jobFlowNodeExecuteContext
@@ -123,6 +153,14 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
 
             this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
             evalJobFlowNode();
+            if(matchedJobFlowNode == null) {
+                boolean checkFirstExecuteInContainerLifeCycle = checkFirstExecuteInContainerLifeCycle(jobFlowNodeExecuteContext);
+                if(checkFirstExecuteInContainerLifeCycle){
+                    logger.info("流程{}中的条件流程节点{}没有匹配到任何条件，且没有默认节点，终止条件节点后续节点执行。",this.getJobFlow().getJobInfo(),this.getJobFlowNodeInfo()   );
+                }
+                nodeComplete(null,checkFirstExecuteInContainerLifeCycle);
+                return false;
+            }
             JobFlowNodeExecuteContext matchedJobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(matchedJobFlowNode);
             matchedJobFlowNodeExecuteContext.setContainerConditionJobFlowNodeExecuteContext(jobFlowNodeExecuteContext);
             ((ConditionJobFlowNodeExecuteContext)jobFlowNodeExecuteContext).setMatchedJobFlowNodeExecuteContext(matchedJobFlowNodeExecuteContext);
@@ -155,7 +193,8 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void stop() {
-        matchedJobFlowNode.stop();
+        if(matchedJobFlowNode != null)
+            matchedJobFlowNode.stop();
     }
 
     /**
@@ -163,7 +202,8 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void pause() {
-        matchedJobFlowNode.pause();
+        if(matchedJobFlowNode != null)
+            matchedJobFlowNode.pause();
 
     }
 
@@ -172,6 +212,7 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void consume() {
-        matchedJobFlowNode.consume();
+        if(matchedJobFlowNode != null)
+            matchedJobFlowNode.consume();
     }
 }

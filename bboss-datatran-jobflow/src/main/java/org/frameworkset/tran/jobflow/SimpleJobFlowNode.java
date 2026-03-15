@@ -185,6 +185,10 @@ public class SimpleJobFlowNode extends JobFlowNode{
      */
     @Override
     public void stop(){
+        //节点没有执行，无需stop
+        if(jobFlowNodeExecuteContext == null){
+            return;
+        }
         if(jobFlowNodeExecuteContext.assertStoped())
             return;
         logger.info("Stop {} begin.",this.getJobFlowNodeInfo());
@@ -225,6 +229,11 @@ public class SimpleJobFlowNode extends JobFlowNode{
 //            dataStream.pauseSchedule();
 //            simpleJobFlowNodeContext.updateJobFlowNodeStatus(JobFlowNodeStatus.PAUSE);
 //        }
+        //节点未执行，无需暂停
+        if(jobFlowNodeExecuteContext == null){
+            return;
+        }
+
         if(jobFlowNodeFunction != null){
             jobFlowNodeFunction.pauseSchedule();
             jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.PAUSE);

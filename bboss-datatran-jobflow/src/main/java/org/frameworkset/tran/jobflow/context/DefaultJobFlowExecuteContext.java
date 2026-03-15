@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.ConditionJobFlowNode;
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.jobflow.metrics.JobFlowMetrics;
@@ -69,6 +70,7 @@ public class DefaultJobFlowExecuteContext implements JobFlowExecuteContext {
     @Override
     public synchronized void clear(){
         this.contextDatas.clear();
+        this.checkFirstExecuteInContainerLifeCycleDatas.clear();
     }
 
     @Override
@@ -113,4 +115,20 @@ public class DefaultJobFlowExecuteContext implements JobFlowExecuteContext {
         staticContext.nodeStart(jobFlowNode);
     }
 
+    private Map<String,Object> checkFirstExecuteInContainerLifeCycleDatas = new LinkedHashMap<>();
+    private Object checkFirstExecuteInContainerLifeCycleLock = new Object();
+    @Override
+    public boolean checkFirstExecuteInContainerLifeCycle(ConditionJobFlowNode conditionJobFlowNode){
+        String uuid = conditionJobFlowNode.getConditionJobFlowNodeUUID();
+        if (checkFirstExecuteInContainerLifeCycleDatas.containsKey(uuid)) {
+            return false;
+        }
+        synchronized (checkFirstExecuteInContainerLifeCycleLock) {
+            if (checkFirstExecuteInContainerLifeCycleDatas.containsKey(uuid)) {
+                return false;
+            }
+            checkFirstExecuteInContainerLifeCycleDatas.put(uuid, true);
+            return true;
+        }
+    }
 }

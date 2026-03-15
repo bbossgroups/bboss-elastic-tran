@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.ConditionJobFlowNode;
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.jobflow.JobFlowNodeStatus;
@@ -31,6 +32,7 @@ import java.util.Map;
 public interface JobFlowNodeExecuteContext {
     boolean assertStoped();
     JobFlowNodeStatus updateJobFlowNodeStatus(JobFlowNodeStatus jobFlowNodeStatus);
+    boolean checkFirstExecuteInContainerLifeCycle(ConditionJobFlowNode conditionJobFlowNode);
     JobFlowNodeContext getJobFlowNodeContext();
     /**
      * 获取当前节点对应的上下文数据

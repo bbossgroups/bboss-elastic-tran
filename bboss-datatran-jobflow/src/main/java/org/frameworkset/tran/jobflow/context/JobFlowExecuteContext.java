@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow.context;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.ConditionJobFlowNode;
 import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.jobflow.metrics.JobFlowMetrics;
 
@@ -34,7 +35,7 @@ public interface JobFlowExecuteContext {
     JobFlowContext getJobFlowContext();
     void nodeStart(JobFlowNode jobFlowNode);
 
-
+    boolean checkFirstExecuteInContainerLifeCycle(ConditionJobFlowNode conditionJobFlowNode);
 
     void clear();
     JobFlowMetrics getJobFlowMetrics();

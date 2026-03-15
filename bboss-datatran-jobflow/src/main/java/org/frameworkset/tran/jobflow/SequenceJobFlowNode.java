@@ -148,6 +148,11 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void stop() {
+        //节点未执行，无需stop
+        if(jobFlowNodeExecuteContext == null){
+            return;
+        }
+
         if(this.jobFlowNodeExecuteContext.assertStoped()){
             return;
         }        
@@ -212,6 +217,10 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void pause() {
+        //节点未执行，无需暂停
+        if(jobFlowNodeExecuteContext == null){
+            return;
+        }
         SequenceJobFlowNodeExecuteContext sequenceJobFlowNodeExecuteContext = (SequenceJobFlowNodeExecuteContext) this.jobFlowNodeExecuteContext;
         sequenceJobFlowNodeExecuteContext.pause();
         sequenceJobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.PAUSE);
@@ -230,6 +239,10 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
 //            JobFlowNode jobFlowNode = jobFlowNodes.get(i);
 //            jobFlowNode.consume();
 //        }
+        //节点未执行，无需唤醒
+        if(jobFlowNodeExecuteContext == null){
+            return;
+        }
         SequenceJobFlowNodeExecuteContext sequenceJobFlowNodeExecuteContext = (SequenceJobFlowNodeExecuteContext) this.jobFlowNodeExecuteContext;
         sequenceJobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.RUNNING);
         sequenceJobFlowNodeExecuteContext.consume();

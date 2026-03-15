@@ -214,7 +214,11 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void stop() {
-        
+        //节点未执行，无需stop
+        if(jobFlowNodeExecuteContext == null){
+            return;
+        }
+
         if(jobFlowNodeExecuteContext.assertStoped()){
             return;
         }
@@ -271,6 +275,11 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void pause() {
+        //节点未执行，无需暂停
+        if(jobFlowNodeExecuteContext == null){
+            return;
+        }
+
         for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
             JobFlowNode jobFlowNode = jobFlowNodes.get(i);
             jobFlowNode.pause();
@@ -283,6 +292,11 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void consume() {
+        //节点未执行，无需唤醒
+        if(jobFlowNodeExecuteContext == null){
+            return;
+        }
+
         jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.RUNNING);
         for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
             JobFlowNode jobFlowNode = jobFlowNodes.get(i);

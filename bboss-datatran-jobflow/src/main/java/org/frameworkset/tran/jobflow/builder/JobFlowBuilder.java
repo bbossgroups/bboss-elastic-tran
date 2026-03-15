@@ -122,14 +122,20 @@ public class JobFlowBuilder {
                 ((ConditionJobFlowNodeBuilder)currentJobFlowNodeBuilder).addJobFlowNodeBuilder(jobFlowNodeBuilder);
             }
             else {
-                ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = (ConditionJobFlowNodeBuilder) currentJobFlowNodeBuilder.getNextJobFlowNodeBuilder();
-                if (conditionJobFlowNodeBuilder != null) {
-                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
-                } else {
-                    conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
-                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
-                    currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
-                }
+//                ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = (ConditionJobFlowNodeBuilder) currentJobFlowNodeBuilder.getNextJobFlowNodeBuilder();
+//                if (conditionJobFlowNodeBuilder != null) {
+//                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+//                } else {
+//                    conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+//                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+//                    currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
+//                    currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
+//                }
+
+                ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+                conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+                currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
+                currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
             }
             
         }
