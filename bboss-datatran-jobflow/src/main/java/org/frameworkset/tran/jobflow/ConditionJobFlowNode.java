@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
@@ -35,6 +37,8 @@ import java.util.concurrent.TimeoutException;
 public class ConditionJobFlowNode extends CompositionJobFlowNode{
     private static Logger logger = LoggerFactory.getLogger(ConditionJobFlowNode.class);
     private String conditionJobFlowNodeUUID;
+
+
     
     /**
      * 默认节点
@@ -48,6 +52,11 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
     public ConditionJobFlowNode(){
         super();
         this.conditionJobFlowNodeUUID = SimpleStringUtil.getUUID32();
+    }
+
+    public ConditionJobFlowNode(String conditionJobFlowNodeUUID){
+        super();
+        this.conditionJobFlowNodeUUID = conditionJobFlowNodeUUID;
     }
 
     public String getConditionJobFlowNodeUUID() {
@@ -74,11 +83,13 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
     }
 
      
-    public ConditionJobFlowNode addJobFlowNode(JobFlowNode jobFlowNode){        
+    public ConditionJobFlowNode addJobFlowNode(JobFlowNode jobFlowNode,NodeTrigger conditionNodeTrigger){        
         if(jobFlowNodes == null)
-            jobFlowNodes = new ArrayList<JobFlowNode>();
+            jobFlowNodes = new ArrayList<>();
         jobFlowNodes.add(jobFlowNode);
-        
+        if(conditionNodeTrigger != null){
+            jobFlowNode.addConditionNodeTrigger(this.getConditionJobFlowNodeUUID(),conditionNodeTrigger);
+        }
         jobFlowNode.addConditionJobFlowNode(this);
         return this;
     }
@@ -90,11 +101,11 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
     public JobFlowNode evalJobFlowNode() {
         matchedJobFlowNode = null;
         for(JobFlowNode jobFlowNode : jobFlowNodes){
-            if(jobFlowNode.getNodeTrigger() == null){
+            if(jobFlowNode.getNodeTrigger() == null || jobFlowNode.getConditionNodeTrigger(this.conditionJobFlowNodeUUID) == null){
                 logger.warn("流程{}中的条件流程节点{}没有配置条件判断器,忽略。",this.getJobFlow().getJobInfo(),jobFlowNode.getJobFlowNodeInfo()   );
                 continue;
             }
-            if(jobFlowNode.assertTrigger()){
+            if(jobFlowNode.assertTrigger(conditionJobFlowNodeUUID)){
                 matchedJobFlowNode = jobFlowNode;
                 break;
             }

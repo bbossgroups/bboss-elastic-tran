@@ -28,7 +28,7 @@ import java.util.List;
 public abstract class CompositionJobFlowNode extends JobFlowNode{
     private static Logger logger = LoggerFactory.getLogger(CompositionJobFlowNode.class);
     /**
-     * 并行节点作业配置
+     * 并行/串行/条件符合节点作业节点清单
      */
     protected List<JobFlowNode> jobFlowNodes;
 

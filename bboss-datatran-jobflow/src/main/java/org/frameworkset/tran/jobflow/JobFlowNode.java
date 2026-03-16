@@ -21,10 +21,7 @@ import org.frameworkset.tran.jobflow.listener.JobFlowNodeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-import java.util.concurrent.CyclicBarrier;
+import java.util.*;
 
 
 /**
@@ -49,7 +46,10 @@ public abstract class JobFlowNode {
      */
     protected List<ConditionJobFlowNode> conditionJobFlowNodes;
     protected ConditionJobFlowNode runningConditionJobFlowNode;
-    
+    /**
+     * 流程节点可能出现在不同的条件复合节点中，可以为对应的不同的条件复合节点指定不同的触发器，以条件复合节点的id为key
+     */
+    protected Map<String,NodeTrigger> conditionNodeTriggers = new LinkedHashMap<>();
     public JobFlowNodeExecuteContext buildJobFlowNodeExecuteContext( ) {
         return new DefaultJobFlowNodeExecuteContext(this);
     }
@@ -244,6 +244,38 @@ public abstract class JobFlowNode {
             throw new JobFlowException("AassertTrigger failed:",e);
         }
     }
+
+    public boolean assertTrigger(String conditionNodeUUID){
+        NodeTrigger nodeTrigger = conditionNodeTriggers.get(conditionNodeUUID);
+        if(nodeTrigger == null){
+            nodeTrigger = this.nodeTrigger;
+        }
+        if(nodeTrigger == null){
+            if(logger_.isDebugEnabled()) {
+                logger_.debug("AssertTrigger: null AssertTrigger and return true,flowNode[id={},name={}].", this.getNodeId(), this.getNodeName());
+            }
+            return true;
+        }
+        try {
+            if(nodeTrigger.assertTrigger(jobFlow,this)){
+                if(logger_.isDebugEnabled()) {
+                    logger_.debug("AssertTrigger: true,flowNode[id={},name={}].", this.getNodeId(), this.getNodeName());
+                }
+                return true;
+            }
+            else{
+                if(logger_.isDebugEnabled()) {
+                    logger_.debug("AssertTrigger: false,flowNode[id={},name={}].", this.getNodeId(), this.getNodeName());
+                }
+                return false;
+            }
+        } catch (Exception e) {
+            throw new JobFlowException("AassertTrigger failed:",e);
+        }
+        catch (Throwable e) {
+            throw new JobFlowException("AassertTrigger failed:",e);
+        }
+    }
     
     
 
@@ -353,7 +385,9 @@ public abstract class JobFlowNode {
             release();
 
             if (this.nextJobFlowNode != null && !ignoreExecute) {
-                logger_.info("{} execute complete and start nextJobFlowNode[{}]", getJobFlowNodeInfo(), nextJobFlowNode.getJobFlowNodeInfo());
+                if(logger_.isDebugEnabled()) {
+                    logger_.debug("{} execute complete and start nextJobFlowNode[{}]", getJobFlowNodeInfo(), nextJobFlowNode.getJobFlowNodeInfo());
+                }
                 JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = nextJobFlowNode.buildJobFlowNodeExecuteContext();
                 JobFlowNodeExecuteContext directContainerJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getDirectContainerJobFlowNodeExecuteContext();
 
@@ -378,7 +412,9 @@ public abstract class JobFlowNode {
 
 
                 this.nextJobFlowNode.execute(_jobFlowNodeExecuteContext);
-                logger_.info("{} execute complete and nextJobFlowNode[{}] execute completed.", getJobFlowNodeInfo(), nextJobFlowNode.getJobFlowNodeInfo());
+                if(logger_.isDebugEnabled()) {
+                    logger_.debug("{} execute complete and nextJobFlowNode[{}] execute completed.", getJobFlowNodeInfo(), nextJobFlowNode.getJobFlowNodeInfo());
+                }
             } else {
                 JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNodeExecuteContext.getDirectContainerJobFlowNodeExecuteContext();
                 if (containerJobFlowNodeExecuteContext != null
@@ -387,10 +423,14 @@ public abstract class JobFlowNode {
 //                    || this.jobFlowNodeExecuteContext.getContainerConditionJobFlowNodeExecuteContext() != null
                 ) {
                     CompositionJobFlowNode compositionJobFlowNode = (CompositionJobFlowNode) containerJobFlowNodeExecuteContext.getJobFlowNode();
-                    logger_.info("Execute {} complete and call compositionJobFlowNode[{}]'s brachComplete.", this.getJobFlowNodeInfo(), compositionJobFlowNode.getJobFlowNodeInfo());
+                    if(logger_.isDebugEnabled()) {
+                        logger_.debug("Execute {} complete and call compositionJobFlowNode[{}]'s brachComplete.", this.getJobFlowNodeInfo(), compositionJobFlowNode.getJobFlowNodeInfo());
+                    }
                     compositionJobFlowNode.brachComplete(this, null);
                 } else {
-                    logger_.info("Execute {} complete and call {}'s complete.", this.getJobFlowNodeInfo(), jobFlow.getJobInfo());
+                    if(logger_.isDebugEnabled()) {
+                        logger_.debug("Execute {} complete and call {}'s complete.", this.getJobFlowNodeInfo(), jobFlow.getJobInfo());
+                    }
                     this.jobFlow.complete(null);
                 }
 
@@ -499,4 +539,13 @@ public abstract class JobFlowNode {
     public ConditionJobFlowNode getRunningConditionJobFlowNode() {
         return runningConditionJobFlowNode;
     }
+
+    public void addConditionNodeTrigger(String conditionJobFlowNodeUUID, NodeTrigger conditionNodeTrigger) {
+        this.conditionNodeTriggers.put(conditionJobFlowNodeUUID,conditionNodeTrigger);
+    }
+    public NodeTrigger getConditionNodeTrigger(String conditionJobFlowNodeUUID) {
+        return this.conditionNodeTriggers.get(conditionJobFlowNodeUUID);
+    }
+
+  
 }

@@ -15,10 +15,8 @@ package org.frameworkset.tran.jobflow.builder;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.ConditionJobFlowNode;
-import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowNode;
-import org.frameworkset.tran.jobflow.JobFlowNodeType;
+import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.jobflow.*;
 
 
 /**
@@ -27,11 +25,17 @@ import org.frameworkset.tran.jobflow.JobFlowNodeType;
  * @Date 2025/3/31
  */
 public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<ConditionJobFlowNodeBuilder> {
-
+    private String conditionJobFlowNodeUUID;
 
     public ConditionJobFlowNodeBuilder(){
         super(JobFlowNodeType.CONDITION);
+        this.conditionJobFlowNodeUUID = SimpleStringUtil.getUUID32();
     }
+
+    public String getConditionJobFlowNodeUUID() {
+        return conditionJobFlowNodeUUID;
+    }
+
     @Override
     protected void validate(JobFlowNodeBuilder jobFlowNodeBuilder){
 //        CompositionJobFlowNodeBuilder _compositionJobFlowNodeBuilder =  jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder();
@@ -45,16 +49,27 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
         if(this.jobFlowNode != null){
             return jobFlowNode;
         }
-        ConditionJobFlowNode  conditionJobFlowNode = new ConditionJobFlowNode();
+        ConditionJobFlowNode  conditionJobFlowNode = new ConditionJobFlowNode(this.conditionJobFlowNodeUUID);
         conditionJobFlowNode.setNodeId(this.getNodeId());
         conditionJobFlowNode.setNodeName(this.getNodeName());
         conditionJobFlowNode.setJobFlow(jobFlow);
         for(JobFlowNodeBuilder jobFlowNodeBuilder : nodeBuilders) {
-            JobFlowNode jobFlowNode = jobFlowNodeBuilder.build(jobFlow);
-            conditionJobFlowNode.addJobFlowNode(jobFlowNode);
-            if(jobFlowNodeBuilder.isDefaultConditionNode()){
-                conditionJobFlowNode.setDefaultJobFlowNode(jobFlowNode);
+            if(jobFlowNodeBuilder == this){
+                NodeTrigger conditionNodeTrigger = jobFlowNodeBuilder.getConditionNodeTrigger(this.conditionJobFlowNodeUUID);
+                conditionJobFlowNode.addJobFlowNode(conditionJobFlowNode,conditionNodeTrigger);
+                if(jobFlowNodeBuilder.isDefaultConditionNode(this.conditionJobFlowNodeUUID)){
+                    conditionJobFlowNode.setDefaultJobFlowNode(conditionJobFlowNode);
+                }
             }
+            else {
+                JobFlowNode jobFlowNode = jobFlowNodeBuilder.build(jobFlow);
+                NodeTrigger conditionNodeTrigger = jobFlowNodeBuilder.getConditionNodeTrigger(this.conditionJobFlowNodeUUID);
+                conditionJobFlowNode.addJobFlowNode(jobFlowNode,conditionNodeTrigger);
+                if(jobFlowNodeBuilder.isDefaultConditionNode(this.conditionJobFlowNodeUUID)){
+                    conditionJobFlowNode.setDefaultJobFlowNode(jobFlowNode);
+                }
+            }
+            
             
         }
        
@@ -72,6 +87,18 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
 
        
         
+    }
+
+    /**
+     * 添加复杂并行子任务，存在串行多个子任务或者串行任务
+     * @param jobFlowNodeBuilder
+     * @return
+     */
+    public ConditionJobFlowNodeBuilder addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger){
+//        this.nodeBuilder = importBuilderCreate.createImportBuilder(this);
+        super.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+        jobFlowNodeBuilder.setConditionNodeTrigger(this.conditionJobFlowNodeUUID,conditionNodeTrigger);
+        return this;
     }
 
 

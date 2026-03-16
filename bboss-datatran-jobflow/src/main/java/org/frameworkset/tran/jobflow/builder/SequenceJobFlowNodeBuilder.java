@@ -15,10 +15,10 @@ package org.frameworkset.tran.jobflow.builder;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowNode;
-import org.frameworkset.tran.jobflow.JobFlowNodeType;
-import org.frameworkset.tran.jobflow.SequenceJobFlowNode;
+import org.frameworkset.tran.jobflow.*;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * 
@@ -29,6 +29,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
 
     private JobFlowNodeBuilder headerJobFlowNodeBuilder;
     private JobFlowNodeBuilder currentJobFlowNodeBuilder;
+    private Map<String,ConditionJobFlowNodeBuilder> conditionJobFlowNodeBuilders = new LinkedHashMap<>();
 
    
     public SequenceJobFlowNodeBuilder(String nodeId,String nodeName){
@@ -65,16 +66,37 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
      * @param jobFlowNodeBuilder
      * @return
      */
-    public SequenceJobFlowNodeBuilder addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
+    public String addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
         return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,false);
     }
+
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param jobFlowNodeBuilder
+     * @param nodeTrigger 指定条件节点条件触发器
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger nodeTrigger){
+        return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,nodeTrigger,false);
+    }
+
     /**
      * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
      * @param jobFlowNodeBuilder
      * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
      * @return
      */
-    public SequenceJobFlowNodeBuilder addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,boolean defaultConditionNode){
+    public String addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,boolean defaultConditionNode){
+        return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder, (NodeTrigger) null,defaultConditionNode);
+    }
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param jobFlowNodeBuilder
+     * @param conditionNodeTrigger 节点条件触发器
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
         init();
         CompositionJobFlowNodeBuilder compositionJobFlowNodeBuilder = jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder();
         if(compositionJobFlowNodeBuilder != null ){
@@ -85,29 +107,20 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         else{
             jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
         }
-        jobFlowNodeBuilder.setDefaultConditionNode(defaultConditionNode);
+        String cid = null;
         if(currentJobFlowNodeBuilder != null) {
             if(currentJobFlowNodeBuilder instanceof ConditionJobFlowNodeBuilder){
-                ((ConditionJobFlowNodeBuilder)currentJobFlowNodeBuilder).addJobFlowNodeBuilder(jobFlowNodeBuilder);
+                ((ConditionJobFlowNodeBuilder)currentJobFlowNodeBuilder).addJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger);
+                cid = ((ConditionJobFlowNodeBuilder)currentJobFlowNodeBuilder).getConditionJobFlowNodeUUID();
             }
-            else {
-//                ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = (ConditionJobFlowNodeBuilder) currentJobFlowNodeBuilder.getNextJobFlowNodeBuilder();
-//                if (conditionJobFlowNodeBuilder != null) {
-//                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
-//                } else {
-//                    conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
-//                    conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
-//                    currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
-//                    
-//                    nodeBuilders.add(conditionJobFlowNodeBuilder);
-//                    currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
-//                }
+            else { 
                 ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
                 conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
                 currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
-
                 nodeBuilders.add(conditionJobFlowNodeBuilder);
                 currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
+                cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
+                conditionJobFlowNodeBuilders.put(cid, conditionJobFlowNodeBuilder);
             }
 
         }
@@ -120,9 +133,179 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
                 this.headerJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
 
             }
+            cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
+            conditionJobFlowNodeBuilders.put(cid, conditionJobFlowNodeBuilder);
         }
-        return this;
+
+        jobFlowNodeBuilder.setDefaultConditionNode(cid,defaultConditionNode);
+        return cid;
     }
+
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param conditionNodeId
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(String  conditionNodeId){
+        return addConditionJobFlowNodeBuilder(conditionNodeId,false);
+    }
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param conditionNodeId
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(String  conditionNodeId,boolean defaultConditionNode){
+        JobFlowNodeBuilder jobFlowNodeBuilder = conditionJobFlowNodeBuilders.get(conditionNodeId);
+        if(jobFlowNodeBuilder == null){
+            throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
+        }
+        return this.addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,defaultConditionNode);
+         
+    }
+
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param conditionNodeId
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(String  conditionNodeId, NodeTrigger nodeTrigger){
+        return addConditionJobFlowNodeBuilder(conditionNodeId,nodeTrigger,false);
+    }
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param conditionNodeId
+     * @param nodeTrigger 指定条件节点条件触发器 
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(String  conditionNodeId, NodeTrigger nodeTrigger,boolean defaultConditionNode){
+        JobFlowNodeBuilder jobFlowNodeBuilder = conditionJobFlowNodeBuilders.get(conditionNodeId);
+        if(jobFlowNodeBuilder == null){
+            throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
+        }
+        return this.addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,nodeTrigger,defaultConditionNode);
+
+    }
+
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param jobFlowNodeBuilder
+     * @return
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
+        return addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,false);
+    }
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param jobFlowNodeBuilder
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,boolean defaultConditionNode){
+        return addAnotherConditionJobFlowNodeBuilder( jobFlowNodeBuilder,(NodeTrigger)null, defaultConditionNode);
+    }
+
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param conditionNodeId
+     * @return
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(String  conditionNodeId){
+        return addAnotherConditionJobFlowNodeBuilder(conditionNodeId,false);
+    }
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param conditionNodeId
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(String  conditionNodeId,boolean defaultConditionNode){
+        
+        return this.addAnotherConditionJobFlowNodeBuilder(conditionNodeId,(NodeTrigger) null,defaultConditionNode);
+    }
+
+
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param jobFlowNodeBuilder
+     * @param nodeTrigger 指定条件节点条件触发器 
+     * @return
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,NodeTrigger nodeTrigger){
+        return addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,  nodeTrigger,false);
+    }
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param jobFlowNodeBuilder
+     * @param nodeTrigger 指定条件节点条件触发器
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,NodeTrigger nodeTrigger,boolean defaultConditionNode){
+        init();
+        CompositionJobFlowNodeBuilder compositionJobFlowNodeBuilder = jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder();
+        if(compositionJobFlowNodeBuilder != null ){
+            if(compositionJobFlowNodeBuilder != this) {
+                throw new JobFlowBuilderException("条件节点只能添加到当前复合节点中");
+            }
+        }
+        else{
+            jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
+        }
+        String cid = null;
+        if(currentJobFlowNodeBuilder != null) {
+            ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+            conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,  nodeTrigger);
+            currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
+            nodeBuilders.add(conditionJobFlowNodeBuilder);
+            currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
+            cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
+
+            conditionJobFlowNodeBuilders.put(cid, conditionJobFlowNodeBuilder);
+        }
+        else{
+            ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+            conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,  nodeTrigger);
+            this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
+            nodeBuilders.add(conditionJobFlowNodeBuilder);
+            if(this.headerJobFlowNodeBuilder == null) {
+                this.headerJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
+
+            }
+            cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
+            conditionJobFlowNodeBuilders.put(cid, conditionJobFlowNodeBuilder);
+        }
+
+        jobFlowNodeBuilder.setDefaultConditionNode(cid,defaultConditionNode);
+        return cid;
+    }
+
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param conditionNodeId
+     * @param nodeTrigger 指定条件节点条件触发器 
+     * @return
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(String  conditionNodeId,NodeTrigger nodeTrigger){
+        return addAnotherConditionJobFlowNodeBuilder(conditionNodeId,  nodeTrigger,false);
+    }
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param conditionNodeId
+     * @param nodeTrigger 指定条件节点条件触发器 
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(String  conditionNodeId,NodeTrigger nodeTrigger,boolean defaultConditionNode){
+        JobFlowNodeBuilder jobFlowNodeBuilder = conditionJobFlowNodeBuilders.get(conditionNodeId);
+        if(jobFlowNodeBuilder == null){
+            throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
+        }
+        return this.addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,  nodeTrigger,defaultConditionNode);
+    }
+    
+    
 
 
     @Override

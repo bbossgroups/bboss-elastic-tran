@@ -23,7 +23,9 @@ import org.frameworkset.tran.jobflow.NodeTriggerCreate;
 import org.frameworkset.tran.jobflow.listener.JobFlowNodeListener;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Description: </p>
@@ -49,8 +51,12 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
     protected CompositionJobFlowNodeBuilder compositionJobFlowNodeBuilder;
     protected String nodeId;
     protected String nodeName;
-    protected boolean defaultConditionNode;
-   
+    protected Map<String,Boolean> conditionNodeDefaultConditionNodes = new LinkedHashMap<>();
+    /**
+     * 流程节点可能出现在不同的条件复合节点中，可以为对应的不同的条件复合节点指定不同的触发器，以条件复合节点的id为key
+     */
+    protected Map<String,NodeTrigger> conditionNodeTriggers = new LinkedHashMap<>();
+
     protected List<JobFlowNodeListener> jobFlowNodeListeners;
 
 
@@ -71,6 +77,12 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
      *  创建的流程作业节点
      */
     protected JobFlowNode jobFlowNode ;
+
+    /**
+     * 确保nodeId的唯一性
+     * @param nodeId
+     * @param nodeName
+     */
     public JobFlowNodeBuilder(String nodeId,String nodeName){
         this.nodeId = nodeId;
         this.nodeName = nodeName;
@@ -172,12 +184,16 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
         return nodeTrigger;
     }
 
-    public T setDefaultConditionNode(boolean defaultConditionNode) {
-        this.defaultConditionNode = defaultConditionNode;
+    public T setDefaultConditionNode(String conditionNodeId,boolean defaultConditionNode) {
+        this.conditionNodeDefaultConditionNodes.put(conditionNodeId,defaultConditionNode);
         return (T)this;
     }
 
-    public boolean isDefaultConditionNode() {
+    public boolean isDefaultConditionNode(String conditionNodeId) {
+        Boolean defaultConditionNode = this.conditionNodeDefaultConditionNodes.get(conditionNodeId);
+        if(defaultConditionNode == null){
+            return false;
+        }
         return defaultConditionNode;
     }
 
@@ -196,6 +212,15 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
 
     public void setJobFlowBuilder(JobFlowBuilder jobFlowBuilder) {
         this.jobFlowBuilder = jobFlowBuilder;
+    }
+
+    public void setConditionNodeTrigger(String conditionJobFlowNodeUUID, NodeTrigger conditionNodeTrigger) {
+        if(conditionNodeTrigger != null)
+            this.conditionNodeTriggers.put(conditionJobFlowNodeUUID,conditionNodeTrigger);
+    }
+    
+    public NodeTrigger getConditionNodeTrigger(String conditionJobFlowNodeUUID) {
+        return conditionNodeTriggers.get(conditionJobFlowNodeUUID);
     }
 }
 
