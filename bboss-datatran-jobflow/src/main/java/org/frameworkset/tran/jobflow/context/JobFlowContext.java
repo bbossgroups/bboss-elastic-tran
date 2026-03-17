@@ -265,7 +265,6 @@ public class JobFlowContext  {
      * 工作流或者复合节点（串行/并行）子节点完成时，减少启动节点计数,完成计数器加1
      * @param throwable 子节点触发的异常
      * @param jobFlowNode 完成的子节点
-     * @return
      */    
     public void nodeComplete(Throwable throwable, JobFlowNode jobFlowNode) {
         this.runningJobFlowNode = null;
