@@ -100,8 +100,9 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     public Object getContextData(String name,boolean fromContainer){
         Object value = contextDatas.get(name);
         if(value == null && fromContainer){
-            if(this.getContainerJobFlowNodeExecuteContext() != null) {
-                value = this.getContainerJobFlowNodeExecuteContext().getContextData(name,true);
+            JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.getContainerJobFlowNodeExecuteContext();
+            if(containerJobFlowNodeExecuteContext != null) {
+                value = containerJobFlowNodeExecuteContext.getContextData(name,true);
             }
         }
         return value;
@@ -111,8 +112,9 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
         Object value = contextDatas.get(name);
         
         if(value == null && fromContainer){
-            if(this.getContainerJobFlowNodeExecuteContext() != null) {
-                value = this.getContainerJobFlowNodeExecuteContext().getContextData(name,true);
+            JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.getContainerJobFlowNodeExecuteContext();
+            if(containerJobFlowNodeExecuteContext != null) {
+                value = containerJobFlowNodeExecuteContext.getContextData(name,true);
             }
         }
         if(value == null){
@@ -377,7 +379,23 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
         this.containerConditionJobFlowNodeExecuteContext = containerConditionJobFlowNodeExecuteContext;
         this.containerJobFlowNodeExecuteContext = containerConditionJobFlowNodeExecuteContext;
     }
-    
+
+    @Override
+    public boolean containContextData(String name) {
+        return this.contextDatas.containsKey(name);
+    }
+
+
+    public boolean containContextData(String name, boolean scanParant){
+        boolean contain = this.contextDatas.containsKey(name);
+        if(!contain && scanParant){
+            JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.getContainerJobFlowNodeExecuteContext();
+            if(containerJobFlowNodeExecuteContext != null)
+                return containerJobFlowNodeExecuteContext.containContextData(name,scanParant);
+        }
+        return contain;
+    }
+
     @Override
     public JobFlowNodeExecuteContext getContainerConditionJobFlowNodeExecuteContext(){
         return containerConditionJobFlowNodeExecuteContext;

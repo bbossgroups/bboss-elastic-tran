@@ -33,9 +33,13 @@ public interface NodeTriggerContext {
     JobFlowNodeStatus getPreJobFlowNodeStatus();
     Object getFlowContextData(String name) ;
     Object getFlowContextData(String name,Object defaultValue) ;
+    boolean containJobFlowContextData(String name);
     Object getContainerContextData(String name) ;
+
+    boolean containContainerContextData(String name);
     Object getContainerContextData(String name,Object defaultValue) ;
     Object getContainerContextData(String name,boolean scanParant);
+    boolean containContainerContextData(String name,boolean scanParant);
     Object getContainerContextData(String name,Object defaultValue,boolean scanParant);
 
 }

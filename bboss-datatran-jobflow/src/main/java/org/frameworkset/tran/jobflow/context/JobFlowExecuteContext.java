@@ -45,4 +45,5 @@ public interface JobFlowExecuteContext {
     String getJobFlowName();
     int nodeComplete(Throwable throwable, JobFlowNode jobFlowNode);
 
+    boolean containJobFlowContextData(String name);
 }

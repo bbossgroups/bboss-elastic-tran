@@ -101,7 +101,7 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
     public JobFlowNode evalJobFlowNode() {
         matchedJobFlowNode = null;
         for(JobFlowNode jobFlowNode : jobFlowNodes){
-            if(jobFlowNode.getNodeTrigger() == null || jobFlowNode.getConditionNodeTrigger(this.conditionJobFlowNodeUUID) == null){
+            if(jobFlowNode.getNodeTrigger() == null && jobFlowNode.getConditionNodeTrigger(this.conditionJobFlowNodeUUID) == null){
                 logger.warn("流程{}中的条件流程节点{}没有配置条件判断器,忽略。",this.getJobFlow().getJobInfo(),jobFlowNode.getJobFlowNodeInfo()   );
                 continue;
             }

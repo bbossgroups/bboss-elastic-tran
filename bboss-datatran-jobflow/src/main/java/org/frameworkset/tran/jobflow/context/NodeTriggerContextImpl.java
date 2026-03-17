@@ -72,32 +72,57 @@ public class NodeTriggerContextImpl implements NodeTriggerContext{
         return jobFlowExecuteContext.getContextData( name,defaultValue);
     }
 
+    @Override
+    public boolean containJobFlowContextData(String name) {
+        return jobFlowExecuteContext.containJobFlowContextData( name);
+    }
+
 
     @Override
     public Object getContainerContextData(String name) {
-        if(this.jobFlowNode.getContainerJobFlowNodeExecuteContext() != null)
-            return this.jobFlowNode.getContainerJobFlowNodeExecuteContext().getContextData( name);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null)
+            return containerJobFlowNodeExecuteContext.getContextData( name);
         return null;
     }
 
     @Override
+    public boolean containContainerContextData(String name) {
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null)
+            return containerJobFlowNodeExecuteContext.containContextData( name);
+        return false;
+    }
+
+    @Override
     public Object getContainerContextData(String name,Object defaultValue) {
-        if(this.jobFlowNode.getContainerJobFlowNodeExecuteContext() != null)
-            return this.jobFlowNode.getContainerJobFlowNodeExecuteContext().getContextData( name,defaultValue);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null)
+            return containerJobFlowNodeExecuteContext.getContextData( name,defaultValue);
         return null;
     }
 
     @Override
     public Object getContainerContextData(String name,boolean scanParant) {
-        if(this.jobFlowNode.getContainerJobFlowNodeExecuteContext() != null)
-            return this.jobFlowNode.getContainerJobFlowNodeExecuteContext().getContextData( name,scanParant);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null)
+            return containerJobFlowNodeExecuteContext.getContextData( name,scanParant);
         return null;
     }
 
     @Override
+    public boolean containContainerContextData(String name, boolean scanParant) {
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null)
+            return containerJobFlowNodeExecuteContext.containContextData( name,scanParant);
+        return false;
+    }
+
+    @Override
     public Object getContainerContextData(String name,Object defaultValue,boolean scanParant) {
-        if(this.jobFlowNode.getContainerJobFlowNodeExecuteContext() != null)
-            return this.jobFlowNode.getContainerJobFlowNodeExecuteContext().getContextData( name,defaultValue,  scanParant);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null)
+            return containerJobFlowNodeExecuteContext.getContextData( name,defaultValue,  scanParant);
         return null;
     }
 

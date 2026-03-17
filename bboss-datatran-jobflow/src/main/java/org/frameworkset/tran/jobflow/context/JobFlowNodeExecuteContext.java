@@ -215,4 +215,8 @@ public interface JobFlowNodeExecuteContext {
     void reset();
 
     void setContainerConditionJobFlowNodeExecuteContext(JobFlowNodeExecuteContext jobFlowNodeExecuteContext);
+
+    boolean containContextData(String name);
+
+    boolean containContextData(String name, boolean scanParant);
 }

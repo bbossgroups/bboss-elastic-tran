@@ -108,6 +108,10 @@ public class DefaultJobFlowExecuteContext implements JobFlowExecuteContext {
 
     }
 
+    @Override
+    public boolean containJobFlowContextData(String name) {
+        return this.contextDatas.containsKey(name);
+    }
 
 
     @Override
