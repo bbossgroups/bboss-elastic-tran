@@ -207,18 +207,45 @@ public class JobFlowBuilder {
         return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger,false);
     }
 
-
-
+ 
+   
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支，可以连续添加多个
+     *  allCondtionNodeMathfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     *       true 执行，false 终止执行，默认值false
+     * @param allCondtionNodeMathfailedContinue 
+     * @param jobFlowNodeBuilder
+     * @param conditionNodeTrigger
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger){
+        return addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,jobFlowNodeBuilder,   conditionNodeTrigger,false);
+    }
 
 
 
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支
+     * allCondtionNodeMathfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     * true 执行，false 终止执行，默认值false
      * @param jobFlowNodeBuilder
      * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
      * @return
      */
     public String addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
+        return addConditionJobFlowNodeBuilder(false,jobFlowNodeBuilder, conditionNodeTrigger,defaultConditionNode);
+    }
+
+
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支
+     * allCondtionNodeMathfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     * true 执行，false 终止执行，默认值false
+     * @param jobFlowNodeBuilder
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
         validateJobFlowNodeBuilder(jobFlowNodeBuilder);
 
         String cid = null;
@@ -231,6 +258,7 @@ public class JobFlowBuilder {
 
 
                 ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+                conditionJobFlowNodeBuilder.setAllCondtionNodeMathfailedContinue(allCondtionNodeMathfailedContinue);
                 conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger);
                 currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
                 currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
@@ -241,6 +269,7 @@ public class JobFlowBuilder {
         }
         else{
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+            conditionJobFlowNodeBuilder.setAllCondtionNodeMathfailedContinue(allCondtionNodeMathfailedContinue);
             conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
             this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
             if(this.headerJobFlowNodeBuilder == null) {

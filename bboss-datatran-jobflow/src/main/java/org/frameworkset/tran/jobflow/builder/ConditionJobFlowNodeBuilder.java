@@ -26,7 +26,12 @@ import org.frameworkset.tran.jobflow.*;
  */
 public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<ConditionJobFlowNodeBuilder> {
     private String conditionJobFlowNodeUUID;
-
+    /**
+     * 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     * true 执行，false 终止执行，默认值false
+     * 需要在添加第一个条件节点时时，进行设置
+     */
+    private boolean allCondtionNodeMathfailedContinue;
     public ConditionJobFlowNodeBuilder(){
         super(JobFlowNodeType.CONDITION);
         this.conditionJobFlowNodeUUID = SimpleStringUtil.getUUID32();
@@ -50,6 +55,7 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
             return jobFlowNode;
         }
         ConditionJobFlowNode  conditionJobFlowNode = new ConditionJobFlowNode(this.conditionJobFlowNodeUUID);
+        conditionJobFlowNode.setAllCondtionNodeMathfailedContinue(this.allCondtionNodeMathfailedContinue);
         conditionJobFlowNode.setNodeId(this.getNodeId());
         conditionJobFlowNode.setNodeName(this.getNodeName());
         conditionJobFlowNode.setJobFlow(jobFlow);
@@ -101,7 +107,22 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
         return this;
     }
 
-
+    /**
+     * 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     * true 执行，false 终止执行，默认值false
+     * 需要在添加第一个条件节点时时，进行设置
+     */
+    public boolean isAllCondtionNodeMathfailedContinue() {
+        return allCondtionNodeMathfailedContinue;
+    }
+    /**
+     * 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     * true 执行，false 终止执行，默认值false
+     * 需要在添加第一个条件节点时时，进行设置
+     */
+    public void setAllCondtionNodeMathfailedContinue(boolean allCondtionNodeMathfailedContinue) {
+        this.allCondtionNodeMathfailedContinue = allCondtionNodeMathfailedContinue;
+    }
 
 
 }

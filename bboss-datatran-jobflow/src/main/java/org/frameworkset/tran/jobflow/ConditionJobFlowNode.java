@@ -24,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
@@ -38,7 +36,12 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
     private static Logger logger = LoggerFactory.getLogger(ConditionJobFlowNode.class);
     private String conditionJobFlowNodeUUID;
 
-
+    /**
+     * 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     * true 执行，false 终止执行，默认值false
+     * 需要在添加第一个条件节点时时，进行设置
+     */
+    private boolean allCondtionNodeMathfailedContinue;
     
     /**
      * 默认节点
@@ -169,7 +172,17 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
                 if(checkFirstExecuteInContainerLifeCycle){
                     logger.info("流程{}中的条件流程节点{}没有匹配到任何条件，且没有默认节点，终止条件节点后续节点执行。",this.getJobFlow().getJobInfo(),this.getJobFlowNodeInfo()   );
                 }
-                nodeComplete(null,checkFirstExecuteInContainerLifeCycle);
+                if(checkFirstExecuteInContainerLifeCycle) {
+                    if(allCondtionNodeMathfailedContinue) {
+                        nodeComplete(null, false);
+                    }
+                    else{
+                        nodeComplete(null, true);
+                    }
+                }
+                else{
+                    nodeComplete(null, false);
+                }
                 return false;
             }
             JobFlowNodeExecuteContext matchedJobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(matchedJobFlowNode);
@@ -225,5 +238,19 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
     public void consume() {
         if(matchedJobFlowNode != null)
             matchedJobFlowNode.consume();
+    }
+    /**
+     * 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     * true 执行，false 终止执行，默认值false
+     */
+    public boolean isAllCondtionNodeMathfailedContinue() {
+        return allCondtionNodeMathfailedContinue;
+    }
+    /**
+     * 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     * true 执行，false 终止执行，默认值false
+     */
+    public void setAllCondtionNodeMathfailedContinue(boolean allCondtionNodeMathfailedContinue) {
+        this.allCondtionNodeMathfailedContinue = allCondtionNodeMathfailedContinue;
     }
 }
