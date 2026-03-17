@@ -65,10 +65,23 @@ Add the maven dependency of BBoss to your pom.xml:
             <version>7.5.5</version>
         </dependency>
 ```
-# bboss-jobflow 
-jobflow 提供通用轻量级、高性能流程编排模型，可将各种各样、不同类型的任务编排成工作流，进行统一调度执行，譬如数据采集作业任务、流批处理作业任务、业务办理任务、充值缴费任务以及大模型推理任务等按顺序编排成工作流。
+# bboss-jobflowgraph 
+jobflow 提供通用轻量级、高性能流程、有限循环图编排模型，可将各种各样、不同类型的任务编排成工作流和有向循环图，进行统一调度执行，譬如数据采集作业任务、流批处理作业任务、业务办理任务、充值缴费任务以及多模态多智能体大模型推理任务等按顺序编排成工作流。
 ![](https://esdoc.bbossgroups.com/images/workflow/jobworkflow.png)
+
+有向循环图
+
+![](https://esdoc.bbossgroups.com/images/workflow/bbossgraph.png)
+
+说明：
+
+- 基于有向循环图的智能体协同、自主规划、迭代执行、结果评估和优化机制；可灵活设置最大循环次数，避免流程陷入无限循环
+- 基于串行、并行、条件类型流程节点，实现多智能体协同流程编排和执行
+- 基于流程上下文、复合节点上下文、节点上下文三层上下文环境，实现智能体长短期记忆分层管理
+- 任务调度：提供一次性和周期性两种任务调度策略，灵活调度智能体协同工作流
+
 jobflow使用参考文档：https://esdoc.bbossgroups.com/#/jobworkflow
+
 # 蓝图规划
 1. 增加oracle cdc、postgresql cdc、sql server cdc插件
 2. 增加redis插件
