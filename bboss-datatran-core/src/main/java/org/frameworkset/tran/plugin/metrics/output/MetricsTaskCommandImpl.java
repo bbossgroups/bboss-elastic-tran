@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  */
 public class MetricsTaskCommandImpl extends BaseTaskCommand<  String> {
 	private Logger logger = LoggerFactory.getLogger(MetricsTaskCommandImpl.class);
-	private TaskContext taskContext;
 	private MetricsOutputConfig metricsOutputConfig;
 	public MetricsTaskCommandImpl(TaskCommandContext taskCommandContext, OutputConfig outputConfig) {
 		super( outputConfig, taskCommandContext);

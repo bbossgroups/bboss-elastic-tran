@@ -44,7 +44,6 @@ import java.util.concurrent.Future;
 public class MultiTaskCommandImpl extends BaseTaskCommand< String> {
 	private static final Logger logger = LoggerFactory.getLogger(MultiTaskCommandImpl.class);
 	
-	private TaskContext taskContext;
 	private MultiOutputConfig multiOutputConfig;
     private MultiOutputDataTranPlugin multiOutputDataTranPlugin ;
     private InnerCommandBuilder innerCommandBuilder;

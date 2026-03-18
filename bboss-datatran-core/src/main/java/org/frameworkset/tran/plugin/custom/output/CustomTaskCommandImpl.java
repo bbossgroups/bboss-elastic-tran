@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 public class CustomTaskCommandImpl extends BaseTaskCommand< String> {
 	private Logger logger = LoggerFactory.getLogger(CustomTaskCommandImpl.class);
 	
-	private TaskContext taskContext;
 	private CustomOutputConfig customOutputConfig;
 	public CustomTaskCommandImpl(TaskCommandContext taskCommandContext, OutputConfig customOutputConfig) {
 		super(  customOutputConfig,taskCommandContext);
