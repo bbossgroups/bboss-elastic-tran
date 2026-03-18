@@ -185,7 +185,8 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
                 }
                 return false;
             }
-            JobFlowNodeExecuteContext matchedJobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(matchedJobFlowNode);
+//            JobFlowNodeExecuteContext matchedJobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(matchedJobFlowNode);
+            JobFlowNodeExecuteContext matchedJobFlowNodeExecuteContext = matchedJobFlowNode.buildJobFlowNodeExecuteContext();
             matchedJobFlowNodeExecuteContext.setContainerConditionJobFlowNodeExecuteContext(jobFlowNodeExecuteContext);
             ((ConditionJobFlowNodeExecuteContext)jobFlowNodeExecuteContext).setMatchedJobFlowNodeExecuteContext(matchedJobFlowNodeExecuteContext);
             boolean result = matchedJobFlowNode.execute(matchedJobFlowNodeExecuteContext, barrier);
