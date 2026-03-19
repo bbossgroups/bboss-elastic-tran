@@ -36,8 +36,8 @@ public class FieldMappingManager<T extends FieldMappingManager> {
 	/**
 	 * 通过fieldSplit切割的字段位置、对应字段名称、字段类型、字段默认值、字段格式映射配置
 	 */
-	private List<CellMapping> cellMappingList;
-	private Map<Integer,CellMapping> cellMappings;
+	protected List<CellMapping> cellMappingList;
+	protected Map<Integer,CellMapping> cellMappings;
     private int maxCellIndex;
     public static final int MAX_CELL_INDEX_MATCHES_FAILED_POLICY_IGNORE_RECORD = 1;
     public static final int MAX_CELL_INDEX_MATCHES_FAILED_POLICY_THROW_EXCEPTION = 2;
@@ -50,6 +50,12 @@ public class FieldMappingManager<T extends FieldMappingManager> {
 	public FieldMappingManager(){
 
 	}
+	protected void initFieldMappingList(){
+		if(cellMappingList == null) {
+			cellMappingList = new ArrayList<>();
+			cellMappings = new LinkedHashMap<>();
+		}
+	}
     
     public T setMaxCellIndexMatchesFailedPolicy(int maxCellIndexMatchesFailedPolicy) {
         this.maxCellIndexMatchesFailedPolicy = maxCellIndexMatchesFailedPolicy;
@@ -60,6 +66,7 @@ public class FieldMappingManager<T extends FieldMappingManager> {
         return maxCellIndexMatchesFailedPolicy;
     }
 	public List<CellMapping> getCellMappingList() {
+		initFieldMappingList();
 		return cellMappingList;
 	}
 
@@ -132,8 +139,7 @@ public class FieldMappingManager<T extends FieldMappingManager> {
 	}
 	public T addCellMapping(CellMapping cellMapping ){
 		if(cellMappingList == null) {
-			cellMappingList = new ArrayList<>();
-			cellMappings = new LinkedHashMap<>();
+			initFieldMappingList();
 		}
 		cellMappingList.add(cellMapping);
         if(cellMapping.getCell() > maxCellIndex)

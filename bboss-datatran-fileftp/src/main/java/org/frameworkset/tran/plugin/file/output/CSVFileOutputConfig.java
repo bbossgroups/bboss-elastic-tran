@@ -21,9 +21,6 @@ import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CellMapping;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -34,14 +31,9 @@ import java.util.List;
  */
 public class CSVFileOutputConfig extends FileOutputConfig<CSVFileOutputConfig> {
     private boolean enableHeader = true;
-	/**
-	 * 列索引、列名称、列对应的字段field名称映射关系
-	 */
-	private List<CellMapping> cellMappingList = new ArrayList<>();
+ 
 
-	public List<CellMapping> getCellMappingList() {
-		return cellMappingList;
-	}
+ 
 
     public boolean isEnableHeader() {
         return enableHeader;
@@ -102,7 +94,7 @@ public class CSVFileOutputConfig extends FileOutputConfig<CSVFileOutputConfig> {
 		return addCellMapping(  cellMapping );
 	}
 	public CSVFileOutputConfig addCellMapping(CellMapping cellMapping ){
-
+		initFieldMappingList();
 		cellMappingList.add(cellMapping);
 		return this;
 	}

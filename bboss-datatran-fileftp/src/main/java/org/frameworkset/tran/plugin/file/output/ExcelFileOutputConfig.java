@@ -21,9 +21,6 @@ import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CellMapping;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * <p>Description: </p>
  * <p></p>
@@ -46,15 +43,13 @@ public class ExcelFileOutputConfig extends FileOutputConfig<ExcelFileOutputConfi
 	 * 默认100条记录
 	 */
 	private int flushRows = 100;
-	/**
-	 * 列索引、列名称、列对应的字段field名称映射关系
-	 */
-	private List<CellMapping> cellMappingList = new ArrayList<>();
+ 
 
 	public String getTitle() {
 		return title;
 	}
 
+	
 	public ExcelFileOutputConfig setTitle(String title) {
 		this.title = title;
 		return this;
@@ -69,9 +64,7 @@ public class ExcelFileOutputConfig extends FileOutputConfig<ExcelFileOutputConfi
 		return this;
 	}
 
-	public List<CellMapping> getCellMappingList() {
-		return cellMappingList;
-	}
+ 
 
 
 
@@ -126,7 +119,7 @@ public class ExcelFileOutputConfig extends FileOutputConfig<ExcelFileOutputConfi
 		return addCellMapping(  cellMapping );
 	}
 	public ExcelFileOutputConfig addCellMapping(CellMapping cellMapping ){
-
+		initFieldMappingList();
 		cellMappingList.add(cellMapping);
 		return this;
 	}
