@@ -327,8 +327,8 @@ public class BaseImportConfig {
 	 * 以字段的小写名称为key
 	 */
 	private Map<String, FieldMeta> fieldMetaMap;
-	private List<FieldMeta> fieldValues;
-
+//	private List<FieldMeta> fieldValues;
+	private Map<String,FieldMeta> valuesIdxByName;
 	public Map<String, FieldMeta> getValuesIdxByName() {
 		return valuesIdxByName;
 	}
@@ -341,7 +341,8 @@ public class BaseImportConfig {
 		this.valuesIdxByName = valuesIdxByName;
 	}
 
-	private Map<String,FieldMeta> valuesIdxByName;
+
+ 
 	private DataRefactor dataRefactor;
 
 	private int batchSize;
@@ -490,13 +491,15 @@ public class BaseImportConfig {
 
 
 
-	public List<FieldMeta> getFieldValues() {
-		return fieldValues;
-	}
+//	public List<FieldMeta> getFieldValues() {
+//		return fieldValues;
+//	}
+//	
+	
 
-	public void setFieldValues(List<FieldMeta> fieldValues) {
-		this.fieldValues = fieldValues;
-	}
+//	public void setFieldValues(List<FieldMeta> fieldValues) {
+//		this.fieldValues = fieldValues;
+//	}
 
 	public DataRefactor getDataRefactor() {
 		return dataRefactor;

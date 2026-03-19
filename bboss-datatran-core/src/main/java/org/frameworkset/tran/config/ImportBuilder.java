@@ -1158,21 +1158,21 @@ public class ImportBuilder {
 	 * @param value
 	 * @return
 	 */
-	public static FieldMeta addFieldValue(List<FieldMeta> fieldValues,String fieldName,Object value){
+	public static FieldMeta addFieldValue(Map<String,FieldMeta> fieldValues,String fieldName,Object value){
 		FieldMeta fieldMeta = new FieldMeta();
 		fieldMeta.setTargetFieldName(fieldName);
 		fieldMeta.setValue(value);
-		fieldValues.add(fieldMeta);
+		fieldValues.put(fieldName,fieldMeta);
 		return fieldMeta;
 	}
 
 
-	public static FieldMeta addFieldValue(List<FieldMeta> fieldValues,String fieldName,String dateFormat,Object value,String locale,String timeZone){
+	public static FieldMeta addFieldValue(Map<String,FieldMeta> fieldValues,String fieldName,String dateFormat,Object value,String locale,String timeZone){
 		FieldMeta fieldMeta = new FieldMeta();
 		fieldMeta.setTargetFieldName(fieldName);
 		fieldMeta.setValue(value);
 		fieldMeta.setDateFormateMeta(buildDateFormateMeta( dateFormat,  locale,  timeZone));
-		fieldValues.add(fieldMeta);
+		fieldValues.put(fieldName,fieldMeta);
 		return fieldMeta;
 
 	}
@@ -1206,7 +1206,7 @@ public class ImportBuilder {
 	/**抽取数据的sql语句*/
 	private String timeZone;
 	private final Map<String,FieldMeta> fieldMetaMap = new HashMap<String,FieldMeta>();
-	private final List<FieldMeta> fieldValues = new ArrayList<FieldMeta>();
+//	private final List<FieldMeta> fieldValues = new ArrayList<FieldMeta>();
 
 	protected Map<String,FieldMeta> valuesIdxByName = new LinkedHashMap<>();
 	private transient DataRefactor dataRefactor;
@@ -1275,11 +1275,13 @@ public class ImportBuilder {
 	 * @return
 	 */
 	public ImportBuilder addFieldValue(String fieldName, Object value){
-		FieldMeta fieldMeta = addFieldValue(  fieldValues,  fieldName,  value);
-		valuesIdxByName.put(fieldName,fieldMeta);
+		FieldMeta fieldMeta = addFieldValue(  valuesIdxByName,  fieldName,  value);
+//		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
+	
 
+	
 	/**
 	 * 补充额外的字段和值
 	 * @param fieldName
@@ -1288,13 +1290,13 @@ public class ImportBuilder {
 	 * @return
 	 */
 	public ImportBuilder addFieldValue(String fieldName, String dateFormat, Object value){
-		FieldMeta fieldMeta = addFieldValue(  fieldValues,  fieldName,  dateFormat,  value,  locale,  timeZone);
-		valuesIdxByName.put(fieldName,fieldMeta);
+		FieldMeta fieldMeta = addFieldValue(  valuesIdxByName,  fieldName,  dateFormat,  value,  locale,  timeZone);
+//		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
 	public ImportBuilder addFieldValue(String fieldName, String dateFormat, Object value, String locale, String timeZone){
-		FieldMeta fieldMeta = addFieldValue(  fieldValues,  fieldName,  dateFormat,  value,  locale,  timeZone);
-		valuesIdxByName.put(fieldName,fieldMeta);
+		FieldMeta fieldMeta = addFieldValue(  valuesIdxByName,  fieldName,  dateFormat,  value,  locale,  timeZone);
+//		valuesIdxByName.put(fieldName,fieldMeta);
 		return this;
 	}
 
@@ -1403,7 +1405,7 @@ public class ImportBuilder {
 
 		baseImportConfig.setUseJavaName(this.useJavaName);
 		baseImportConfig.setFieldMetaMap(this.fieldMetaMap);
-		baseImportConfig.setFieldValues(fieldValues);
+//		baseImportConfig.setFieldValues(fieldValues);
 		baseImportConfig.setValuesIdxByName(valuesIdxByName);
 		baseImportConfig.setDataRefactor(this.dataRefactor);
 		baseImportConfig.setSortLastValue(this.sortLastValue);

@@ -200,7 +200,7 @@ public abstract class BasePlugin {
 
         Map<String,Object> addedFields = new HashMap<String,Object>();
         //计算记录级别字段配置值
-        List<FieldMeta> fieldValueMetas = context.getFieldValues();//context优先级高于splitColumns,splitColumns高于全局配置，全局配置高于数据源级别字段值
+        Map<String,FieldMeta> fieldValueMetas = context.getValuesIdxByName();//context优先级高于splitColumns,splitColumns高于全局配置，全局配置高于数据源级别字段值
 
         appendFieldValues( dbRecord, columns,    fieldValueMetas,  addedFields, useResultKeys,context);
         //计算记录切割字段，如果存在忽略字段，则需要通过补偿方法，对数据进行忽略处理
@@ -208,7 +208,7 @@ public abstract class BasePlugin {
                 splitColumns,
                 addedFields,context);
         //计算全局级别字段配置值
-        fieldValueMetas = context.getGlobalFieldValues();//全局配置
+        fieldValueMetas = context.getGlobalValuesIdxByName();//全局配置
         appendFieldValues(  dbRecord, columns,   fieldValueMetas,  addedFields,  useResultKeys,context);
         //计算数据源级别字段值
         String varName = null;
@@ -312,14 +312,16 @@ public abstract class BasePlugin {
     }
     private void appendFieldValues(CommonRecord record,
                                    String[] columns ,
-                                   List<FieldMeta> fieldValueMetas,
+                                   Map<String,FieldMeta> fieldValueMetas,
                                    Map<String, Object> addedFields, boolean useResultKeys,Context context) {
         if(fieldValueMetas ==  null || fieldValueMetas.size() == 0){
             return;
         }
 
         if(columns != null && columns.length > 0) {
-            for (FieldMeta fieldMeta : fieldValueMetas) {
+			FieldMeta fieldMeta = null;
+            for (Map.Entry<String, FieldMeta> entry : fieldValueMetas.entrySet()) {
+				fieldMeta = entry.getValue();
                 String fieldName = fieldMeta.getTargetFieldName();
                 if (addedFields.containsKey(fieldName))
                     continue;
@@ -341,7 +343,9 @@ public abstract class BasePlugin {
             }
         }
         else{ //hbase之类的数据同步工具，数据都是在datarefactor接口中封装处理，columns信息不存在，直接用fieldValueMetas即可
-            for (FieldMeta fieldMeta : fieldValueMetas) {
+			FieldMeta fieldMeta = null;
+			for (Map.Entry<String, FieldMeta> entry : fieldValueMetas.entrySet()) {
+				fieldMeta = entry.getValue();
                 String fieldName = fieldMeta.getTargetFieldName();
                 if (addedFields.containsKey(fieldName))
                     continue;

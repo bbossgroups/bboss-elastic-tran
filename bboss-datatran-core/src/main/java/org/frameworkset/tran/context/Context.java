@@ -223,7 +223,7 @@ public interface Context extends DataTranPluginMetricsLogAPI {
 //	public Boolean getEsDocAsUpsert();
 //	public Object getEsDetectNoop();
 //	public Boolean getEsReturnSource();
-	List<FieldMeta> getGlobalFieldValues();
+Map<String, FieldMeta> getGlobalValuesIdxByName();
 	Object getValue(int i, String colName, int sqlType) throws Exception;
 	ImportContext getImportContext();
     @Deprecated
@@ -263,9 +263,9 @@ public interface Context extends DataTranPluginMetricsLogAPI {
 	Object getValue(String fieldName,int sqlType)  throws DataImportException;
 	Date getDateValue(String fieldName, DateFormat dateFormat) throws Exception;
     Date getDateValue(String fieldName, String dateFormat) throws Exception;
-	List<FieldMeta> getFieldValues();
+//	List<FieldMeta> getFieldValues();
 	Map<String,FieldMeta> getFieldMetaMap();
-
+	Map<String, FieldMeta> getValuesIdxByName();
 	/**
 	 * 记录级字段映射优先级>全局字段映射优先级
 	 * @param colName

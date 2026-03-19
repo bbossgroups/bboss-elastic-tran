@@ -59,7 +59,7 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
     private static Logger logger = LoggerFactory.getLogger(ContextImpl.class);
     private TableMapping tableMapping;
     private String recordKeyField;
-    protected List<FieldMeta> fieldValues;
+//    protected List<FieldMeta> fieldValues;
     protected Map<String, FieldMeta> valuesIdxByName;
     protected Map<String, FieldMeta> fieldMetaMap;
     private boolean useBatchContextIndexName = false;
@@ -221,10 +221,7 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 //	}
 
 
-    @Override
-    public List<FieldMeta> getGlobalFieldValues() {
-        return baseImportConfig.getFieldValues();
-    }
+ 
 
     public Boolean getUseLowcase() {
         return baseImportConfig.getUseLowcase();
@@ -258,12 +255,15 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
     public ImportContext getImportContext() {
         return importContext;
     }
-
-    public List<FieldMeta> getFieldValues() {
-        return this.fieldValues;
-    }
-
-    public Map<String, FieldMeta> getFieldMetaMap() {
+	@Override
+	public Map<String, FieldMeta> getGlobalValuesIdxByName() {
+		return baseImportConfig.getValuesIdxByName();
+	}
+	public Map<String, FieldMeta> getValuesIdxByName() {
+		return valuesIdxByName;
+	}
+	
+	public Map<String, FieldMeta> getFieldMetaMap() {
         return this.fieldMetaMap;
     }
 
@@ -277,12 +277,12 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 
     @Override
     public Context addFieldValue(String fieldName, Object value) {
-        if (this.fieldValues == null) {
-            fieldValues = new ArrayList<FieldMeta>();
+        if (this.valuesIdxByName == null) {
+//            fieldValues = new ArrayList<FieldMeta>();
             valuesIdxByName = new LinkedHashMap<>();
         }
-        FieldMeta fieldMeta = ImportBuilder.addFieldValue(fieldValues, fieldName, value);
-        valuesIdxByName.put(fieldName, fieldMeta);
+        FieldMeta fieldMeta = ImportBuilder.addFieldValue(valuesIdxByName, fieldName, value);
+//        valuesIdxByName.put(fieldName, fieldMeta);
         return this;
     }
 
@@ -361,23 +361,23 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
 
     @Override
     public Context addFieldValue(String fieldName, String dateFormat, Object value) {
-        if (this.fieldValues == null) {
-            fieldValues = new ArrayList<FieldMeta>();
+        if (this.valuesIdxByName == null) {
+//            fieldValues = new ArrayList<FieldMeta>();
             valuesIdxByName = new LinkedHashMap<>();
         }
-        FieldMeta fieldMeta = ImportBuilder.addFieldValue(fieldValues, fieldName, dateFormat, value, baseImportConfig.getLocale(), baseImportConfig.getTimeZone());
-        valuesIdxByName.put(fieldName, fieldMeta);
+        FieldMeta fieldMeta = ImportBuilder.addFieldValue(valuesIdxByName, fieldName, dateFormat, value, baseImportConfig.getLocale(), baseImportConfig.getTimeZone());
+//        valuesIdxByName.put(fieldName, fieldMeta);
         return this;
     }
 
     @Override
     public Context addFieldValue(String fieldName, String dateFormat, Object value, String locale, String timeZone) {
-        if (this.fieldValues == null) {
-            fieldValues = new ArrayList<FieldMeta>();
+        if (this.valuesIdxByName == null) {
+//            fieldValues = new ArrayList<FieldMeta>();
             valuesIdxByName = new LinkedHashMap<>();
         }
-        FieldMeta fieldMeta = ImportBuilder.addFieldValue(fieldValues, fieldName, dateFormat, value, locale, timeZone);
-        valuesIdxByName.put(fieldName, fieldMeta);
+        FieldMeta fieldMeta = ImportBuilder.addFieldValue(valuesIdxByName, fieldName, dateFormat, value, locale, timeZone);
+//        valuesIdxByName.put(fieldName, fieldMeta);
         return this;
     }
 
