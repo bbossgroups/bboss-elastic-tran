@@ -532,4 +532,5 @@ Map<String, FieldMeta> getGlobalValuesIdxByName();
     void addJobFlowContextData(String name,Object data);
 
     void addContainerJobFlowNodeContextData(String name,Object data);
+    JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext();
 }
