@@ -84,13 +84,21 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
      * @param nodeName
      */
     public JobFlowNodeBuilder(String nodeId,String nodeName){
-        this.nodeId = nodeId;
-        this.nodeName = nodeName;
+        if(nodeId == null)
+            this.nodeId = SimpleStringUtil.getUUID32();
+        else 
+            this.nodeId = nodeId;
+        if(nodeName == null)
+        {
+            this.nodeName = this.getClass().getSimpleName();
+        }
+        else {
+            this.nodeName = nodeName;
+        }
     }
 
     public JobFlowNodeBuilder(){
-        this.nodeId = SimpleStringUtil.getUUID32();
-        this.nodeName = this.getClass().getSimpleName();
+        this((String)null,(String)null);
     }
 
  

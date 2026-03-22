@@ -17,6 +17,7 @@ package org.frameworkset.tran.schedule.xxjob;
 
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.IJobHandler;
+import org.frameworkset.tran.jobflow.builder.JobFlowBuilder;
 import org.frameworkset.tran.jobflow.schedule.ExternalJobFlowScheduler;
 import org.frameworkset.tran.jobflow.schedule.JobFlowBuilderFunction;
 
@@ -37,7 +38,15 @@ public abstract class AbstractXXLJobFlowHandler extends IJobHandler {
         externalJobFlowScheduler = new ExternalJobFlowScheduler();
         externalJobFlowScheduler.setJobFlowBuilderFunction(buildJobFlowBuilderFunction());
     }
-    protected abstract JobFlowBuilderFunction buildJobFlowBuilderFunction();
+    protected abstract JobFlowBuilder buildJobFlowBuilder(Object params) ;
+    protected JobFlowBuilderFunction buildJobFlowBuilderFunction(){
+        return new JobFlowBuilderFunction() {
+            @Override
+            public JobFlowBuilder build(Object params) {
+                return buildJobFlowBuilder(params);
+            }
+        };
+    }
     
 	@Override
 	public void execute(){

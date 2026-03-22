@@ -35,6 +35,9 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
     public SequenceJobFlowNodeBuilder(String nodeId,String nodeName){
         super(nodeId,nodeName,JobFlowNodeType.SEQUENCE);
     }
+    public SequenceJobFlowNodeBuilder( String nodeName){
+        super(null,nodeName,JobFlowNodeType.SEQUENCE);
+    }
 
     public SequenceJobFlowNodeBuilder(){
         super(JobFlowNodeType.SEQUENCE);

@@ -36,6 +36,16 @@ public class CommonJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<CommonJob
         this.jobFlowNodeFunction = jobFlowNodeFunction;
     }
 
+    public CommonJobFlowNodeBuilder( String nodeName,JobFlowNodeFunction jobFlowNodeFunction) {
+        super(null, nodeName);
+        this.jobFlowNodeFunction = jobFlowNodeFunction;
+    }
+
+    public CommonJobFlowNodeBuilder( JobFlowNodeFunction jobFlowNodeFunction) {
+        super(null, null);
+        this.jobFlowNodeFunction = jobFlowNodeFunction;
+    }
+
  
     
     protected  JobFlowNodeFunction buildJobFlowNodeFunction(){

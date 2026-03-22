@@ -25,10 +25,11 @@ import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
  * @Date 2025/3/31
  */
 public abstract class CallableJobFlowNodeBuilder<T extends CallableJobFlowNodeBuilder> extends SimpleJobFlowNodeBuilder<T> {
-
+    public CallableJobFlowNodeBuilder(  String nodeName) {
+        super(null, nodeName);
+    }
     public CallableJobFlowNodeBuilder(String nodeId, String nodeName) {
         super(nodeId, nodeName);
-        setAutoNodeComplete(true);
     }
     public abstract Object call(JobFlowNodeExecuteContext jobFlowNodeExecuteContext) throws Exception ;
     @Override

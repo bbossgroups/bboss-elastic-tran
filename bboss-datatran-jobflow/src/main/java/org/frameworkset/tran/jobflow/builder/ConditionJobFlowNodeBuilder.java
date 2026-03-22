@@ -34,7 +34,7 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
     private boolean allCondtionNodeMathfailedContinue;
     public ConditionJobFlowNodeBuilder(){
         super(JobFlowNodeType.CONDITION);
-        this.conditionJobFlowNodeUUID = SimpleStringUtil.getUUID32();
+        this.conditionJobFlowNodeUUID = nodeId;
     }
 
     public String getConditionJobFlowNodeUUID() {

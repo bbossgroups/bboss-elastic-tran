@@ -37,6 +37,9 @@ public abstract class SimpleJobFlowNodeBuilder<T extends SimpleJobFlowNodeBuilde
     public SimpleJobFlowNodeBuilder(String nodeId, String nodeName) {
         super(nodeId, nodeName);
     }
+    public SimpleJobFlowNodeBuilder(  String nodeName) {
+        super(null, nodeName);
+    }
     /**
      * 串行节点作业配置
      */

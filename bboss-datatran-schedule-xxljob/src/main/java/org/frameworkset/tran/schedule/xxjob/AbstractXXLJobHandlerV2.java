@@ -15,6 +15,7 @@ package org.frameworkset.tran.schedule.xxjob;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.schedule.DataStreamBuilder;
 import org.frameworkset.tran.schedule.ExternalScheduler;
 
@@ -31,8 +32,16 @@ public abstract class AbstractXXLJobHandlerV2 extends AbstractXXLJobHandler {
         externalScheduler = new ExternalScheduler();
         externalScheduler.dataStream(buildDataStreamBuilder());
     }
-    protected abstract DataStreamBuilder buildDataStreamBuilder();
-	
+    protected abstract ImportBuilder builderImportBuilder(Object params);
 
+    protected DataStreamBuilder buildDataStreamBuilder() {
+        return new DataStreamBuilder(){
+            @Override
+            public ImportBuilder builder(Object params) {
+                ImportBuilder importBuilder = builderImportBuilder(  params);
+                return importBuilder;
+            }
+        };
+    }
 
 }

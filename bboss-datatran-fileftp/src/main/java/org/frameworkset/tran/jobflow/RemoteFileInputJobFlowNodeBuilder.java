@@ -47,6 +47,11 @@ public class RemoteFileInputJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<
         this.setAutoNodeComplete(true);
     }
 
+    public RemoteFileInputJobFlowNodeBuilder(  String nodeName) {
+        super(null, nodeName);
+        this.setAutoNodeComplete(true);
+    }
+
     
     public RemoteFileInputJobFlowNodeBuilder(){
         super();

@@ -40,6 +40,7 @@ public abstract class CompositionJobFlowNodeBuilder<T extends CompositionJobFlow
     }
 
     public CompositionJobFlowNodeBuilder(JobFlowNodeType jobFlowNodeType){
+        super(null,null);
         this.jobFlowNodeType = jobFlowNodeType;
     }
     public CompositionJobFlowNodeBuilder(){

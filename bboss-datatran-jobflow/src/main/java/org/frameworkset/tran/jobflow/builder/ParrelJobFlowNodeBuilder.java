@@ -33,6 +33,10 @@ public class ParrelJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Parr
         super( nodeId, nodeName,JobFlowNodeType.PARREL);
     }
 
+    public ParrelJobFlowNodeBuilder(String nodeName ){
+        super( null, nodeName,JobFlowNodeType.PARREL);
+    }
+
     public ParrelJobFlowNodeBuilder( ){
         super( JobFlowNodeType.PARREL);
     }
