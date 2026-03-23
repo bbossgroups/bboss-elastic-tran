@@ -40,6 +40,10 @@ public class CellMapping {
 	 * 列索引,从0开始
 	 */
 	private int cell;
+
+
+
+    private String targetField;
 	private String fieldName;
 	private String cellTitle;
 	private String cellComment;
@@ -162,4 +166,12 @@ public class CellMapping {
 	public void setCellComment(String cellComment) {
 		this.cellComment = cellComment;
 	}
+
+    public String getTargetField() {
+        return targetField;
+    }
+
+    public void setTargetField(String targetField) {
+        this.targetField = targetField;
+    }
 }

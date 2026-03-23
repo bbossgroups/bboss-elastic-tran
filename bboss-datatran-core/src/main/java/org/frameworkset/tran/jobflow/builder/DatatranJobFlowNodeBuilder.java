@@ -46,6 +46,8 @@ public class DatatranJobFlowNodeBuilder extends SimpleJobFlowNodeBuilder<Datatra
         super();
         this.autoNodeComplete = false;
     }
+    
+    
 
     @Override
     protected JobFlowNodeFunction buildJobFlowNodeFunction() {

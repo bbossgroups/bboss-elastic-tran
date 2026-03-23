@@ -15,6 +15,8 @@ package org.frameworkset.tran.record;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.plugin.feishu.output.FeishuTableOutputConfig;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,12 +52,19 @@ public class FieldMappingManager<T extends FieldMappingManager> {
 	public FieldMappingManager(){
 
 	}
-	protected void initFieldMappingList(){
+    protected void initFieldMappingList(){
+        initFieldMappingList(false);
+    }
+	protected void initFieldMappingList(boolean simple){
 		if(cellMappingList == null) {
 			cellMappingList = new ArrayList<>();
-			cellMappings = new LinkedHashMap<>();
+            if(!simple) {
+                cellMappings = new LinkedHashMap<>();
+            }
 		}
 	}
+    
+    
     
     public T setMaxCellIndexMatchesFailedPolicy(int maxCellIndexMatchesFailedPolicy) {
         this.maxCellIndexMatchesFailedPolicy = maxCellIndexMatchesFailedPolicy;
@@ -65,13 +74,18 @@ public class FieldMappingManager<T extends FieldMappingManager> {
     public int getMaxCellIndexMatchesFailedPolicy() {
         return maxCellIndexMatchesFailedPolicy;
     }
-	public List<CellMapping> getCellMappingList() {
-		initFieldMappingList();
-		return cellMappingList;
-	}
+    public List<CellMapping> getCellMappingList() {
+        initFieldMappingList(false);
+        return cellMappingList;
+    }
+
+    public List<CellMapping> getSimpleCellMappingList() {
+        return cellMappingList;
+    }
 
 
-	public T addCellMapping(int cell, String field){
+
+    public T addCellMapping(int cell, String field){
 		CellMapping cellMapping = new CellMapping();
 		cellMapping.setCell(cell);
 		cellMapping.setFieldName(field);
@@ -139,7 +153,7 @@ public class FieldMappingManager<T extends FieldMappingManager> {
 	}
 	public T addCellMapping(CellMapping cellMapping ){
 		if(cellMappingList == null) {
-			initFieldMappingList();
+			initFieldMappingList(false);
 		}
 		cellMappingList.add(cellMapping);
         if(cellMapping.getCell() > maxCellIndex)
@@ -147,6 +161,18 @@ public class FieldMappingManager<T extends FieldMappingManager> {
 		cellMappings.put(cellMapping.getCell(),cellMapping);
 		return (T)this;
 	}
+
+    public T addCellMapping(String targetField,String sourceField){
+        if(cellMappingList == null) {
+            initFieldMappingList(true);
+        }
+        CellMapping cellMapping = new CellMapping();
+        cellMapping.setTargetField(targetField);
+        cellMapping.setFieldName(sourceField);
+        cellMappingList.add(cellMapping);       
+         
+        return (T)this;
+    }
 
     public int getMaxCellIndex() {
         return maxCellIndex;
@@ -166,4 +192,6 @@ public class FieldMappingManager<T extends FieldMappingManager> {
 		this.fieldSplit = fieldSplit;
         return (T)this;
 	}
+
+ 
 }
