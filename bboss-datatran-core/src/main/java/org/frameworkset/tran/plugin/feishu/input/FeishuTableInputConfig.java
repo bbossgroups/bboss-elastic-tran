@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.feishu.input;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.ImportBuilder;
@@ -23,6 +24,8 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.feishu.BaseFeishuTableConfig;
 import org.slf4j.Logger;
+
+import java.util.Map;
 
 /**
  * @author biaoping.yin
@@ -34,7 +37,10 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
    private String requestBody;
    private String userIdType = "open_id";
    private String searchUrl ;
-   private ItemParser itemParser;
+   @JsonIgnore
+   private Map<String,FieldValueConvertor> fieldValueConvertors;
+   @JsonIgnore
+   private AllFieldValueConvertor allFieldValueConvertor;
 
     @Override
     public void build(ImportContext importContext, ImportBuilder importBuilder) {
@@ -87,12 +93,27 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
         return this;
     }
 
-    public FeishuTableInputConfig setItemParser(ItemParser itemParser) {
-        this.itemParser = itemParser;
+    public FeishuTableInputConfig registFieldValueConvertor(String field,FieldValueConvertor fieldValueConvertor) {
+        if(fieldValueConvertors == null){
+            fieldValueConvertors = new java.util.HashMap<>();
+        }
+        fieldValueConvertors.put(field,fieldValueConvertor);
         return this;
     }
 
-    public ItemParser getItemParser() {
-        return itemParser;
+    public FieldValueConvertor fieldValueConvertor(String field) {
+        if(fieldValueConvertors != null){
+            return fieldValueConvertors.get(field);
+        }
+        return null;
+    }
+    
+    public FeishuTableInputConfig setAllFieldValueConvertor(AllFieldValueConvertor allFieldValueConvertor) {
+        this.allFieldValueConvertor = allFieldValueConvertor;
+        return this;
+    }
+    
+    public AllFieldValueConvertor getAllFieldValueConvertor() {
+        return allFieldValueConvertor;
     }
 }

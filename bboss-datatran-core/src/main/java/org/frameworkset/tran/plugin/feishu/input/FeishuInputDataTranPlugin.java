@@ -93,9 +93,8 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
             
 
             private FeishuData handleItem(Map<String,Object> item){
-                if(feishuTableInputConfig.getItemParser() != null){
-                    return feishuTableInputConfig.getItemParser().handleItem(item);
-                }
+                FieldValueConvertor  fieldValueConvertor = null;
+                AllFieldValueConvertor allFieldValueConvertor = feishuTableInputConfig.getAllFieldValueConvertor();
                 FeishuData feishuData = new FeishuData();
                 String record_id = (String)item.get("record_id");
                 feishuData.setRecordId(record_id);
@@ -106,14 +105,58 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
                     Map.Entry<String, Object> entry =  iterator.next();
                     String key =   entry.getKey();
                     Object value = entry.getValue();
-                    if(value instanceof List){
-                        List<Map> v = (List<Map>)value;
-                        if(v != null && v.size() > 0) {                            
-                            newfields.put(key, v.get(0).get("text"));
-                        }
+                    fieldValueConvertor = feishuTableInputConfig.fieldValueConvertor(key);
+                    if(fieldValueConvertor != null){
+                        newfields.put(key, fieldValueConvertor.handleItem(fields, key,value));
+                    }
+                    else if(allFieldValueConvertor != null){
+                        newfields.put(key, allFieldValueConvertor.handleItem(fields, key,value));
                     }
                     else {
-                        newfields.put(key, value);
+                        if (value instanceof List) {
+                            List v = (List) value;
+                            int size = v.size();
+                            if (v != null && size > 0) {
+                                Object o = v.get(0);
+                                
+                                if(o instanceof Map){
+                                    if(size == 1) {
+                                        newfields.put(key, ((Map) o).get("text"));
+                                    }
+                                    else{
+                                        List texts = new ArrayList(size);
+                                        for(Object o1:v){
+                                            texts.add(((Map) o1).get("text"));
+                                        }
+                                        newfields.put(key, texts);
+                                    }
+                                }
+                                else{
+                                    newfields.put(key, v);
+                                }
+                                
+                            }
+                        }
+                        else if(value instanceof Map){
+                            Map map = (Map)value;
+                            Integer type = (Integer) map.get("type");
+                            if(type != null){
+                                //公式值处理：{"type":1,"value":[{"text":"[100%]","type":"text"}]}
+                                List<Map> functionValue = (List<Map>) map.get("value");
+                                if(functionValue != null && functionValue.size() > 0){
+                                    newfields.put(key, functionValue.get(0).get("text"));
+                                }
+                                else{
+                                    newfields.put(key, value);
+                                }
+                            }
+                            else{
+                                newfields.put(key, value);
+                            }
+                        }
+                        else {
+                            newfields.put(key, value);
+                        }
                     }
                 }
                 feishuData.setFields(newfields);

@@ -18,10 +18,11 @@ package org.frameworkset.tran.plugin.feishu.input;
 import java.util.Map;
 
 /**
+ * 全局值转换器：针对所有字段的值转换器，只需要设置一个，优先级低于字段级别转换器
  * @author biaoping.yin
  * @Date 2026/3/24
  */
-public interface ItemParser {
-    FeishuData handleItem(Map<String,Object> item);
+public interface AllFieldValueConvertor {
+    Object handleItem(Map<String,Object> fields,String field,Object value);
 
 }
