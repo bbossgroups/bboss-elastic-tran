@@ -369,7 +369,9 @@ public class ImportBuilder {
 	/**
 	 * 定时任务拦截器
 	 */
+    @JsonIgnore
 	private transient List<CallInterceptor> callInterceptors;
+    @JsonIgnore
 	private transient List<String> callInterceptorClasses;
 
 	private String applicationPropertiesFile;
