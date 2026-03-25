@@ -119,7 +119,7 @@ public class FeishuTaskCommandImpl extends BaseTaskCommand< String> {
             }
             if(deleteRecords != null && deleteRecords.size() > 0) {
                 Map<String, Object> deleteRequestData = new LinkedHashMap<>();
-                deleteRequestData.put("records", updateRecords);
+                deleteRequestData.put("records", deleteRecords);
                 feishuHelper.sendRequest(accessToken, deleteRequestData, batchDeleteUrl);
             }
         }
