@@ -32,6 +32,7 @@ public class FeishuTableOutputConfig extends BaseFeishuTableConfig<FeishuTableOu
     private String listFieldsUrl;
 
     private String batchDeleteUrl;
+    
  
 
     @Override
@@ -44,6 +45,9 @@ public class FeishuTableOutputConfig extends BaseFeishuTableConfig<FeishuTableOu
         batchUpdateUrl = "/open-apis/bitable/v1/apps/"+feishuTableAppToken+"/tables/"+feishuTableId+"/records/batch_update";
         batchDeleteUrl = "/open-apis/bitable/v1/apps/"+feishuTableAppToken+"/tables/"+feishuTableId+"/records/batch_delete";
         listFieldsUrl = "/open-apis/bitable/v1/apps/"+feishuTableAppToken+"/tables/"+feishuTableId+"/fields";
+        searchUrl = "/open-apis/bitable/v1/apps/"
+                +feishuTableAppToken+"/tables/"
+                +feishuTableId+"/records/search?page_size=10&user_id_type="+userIdType   ;
     }
  
 

@@ -68,17 +68,11 @@ public class FeishuTaskCommandImpl extends BaseTaskCommand< String> {
             if(accessToken == null){
                 accessToken = feishuHelper.getTenantAccessToken();
             }
-            
+            String recordIdFieldName = feishuTableOutputConfig.getRecordIdFieldName();
             for(CommonRecord record:records){
                
                 Map<String,Object> data = record.getDatas();
-                if(record.isDelete()) {
-                    if(deleteRecords == null){
-                        deleteRecords = new ArrayList<>();
-                    }
-                    deleteRecords.add((String) data.get("record_id"));                   
-                }
-                else {
+                if(!record.isDelete()) {
                     Map feishuData = new LinkedHashMap();
                     Map feishuDataItem = new LinkedHashMap();
                     List<CellMapping> cellMappings = feishuTableOutputConfig.getSimpleCellMappingList();
@@ -96,12 +90,19 @@ public class FeishuTaskCommandImpl extends BaseTaskCommand< String> {
                         insertRecords.add(feishuData);
                     } else {
                         feishuData.put("fields", feishuDataItem);
-                        feishuData.put("record_id", data.get("recordId"));
+                        feishuData.put("record_id", data.get(recordIdFieldName));
                         if(updateRecords == null){
                             updateRecords = new ArrayList<>();
                         }
                         updateRecords.add(feishuData);
                     }
+                               
+                }
+                else {
+                    if(deleteRecords == null){
+                        deleteRecords = new ArrayList<>();
+                    }
+                    deleteRecords.add((String) data.get(recordIdFieldName));
                 }
 
 

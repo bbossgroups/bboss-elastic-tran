@@ -36,14 +36,30 @@ public class FeishuHelper {
     private String appId;
     private String appSecret;
     private String feishuDatasource;
-    public FeishuHelper(String feishuDatasource, String appId, String appSecret){
+    private BaseFeishuTableConfig baseFeishuTableConfig;
+    private String accessTokenKey;
+    public FeishuHelper(BaseFeishuTableConfig baseFeishuTableConfig,String feishuDatasource, String appId, String appSecret){
         this.appId = appId;
         this.appSecret = appSecret;
         this.feishuDatasource = feishuDatasource;
+        this.baseFeishuTableConfig = baseFeishuTableConfig;
+        this.accessTokenKey = baseFeishuTableConfig.getAccessTokenKey();
         
     }
 
     public String getAccessToken(TaskContext taskContext,String accessTokenKey){
+        String accessToken = null;
+        if(taskContext.getJobFlowNodeExecuteContext() != null) {
+//		String accessToken = customOutPutContext.getTaskContext().getTaskStringData("accessToken");
+            accessToken = (String) taskContext.getJobFlowNodeExecuteContext().getJobFlowContextData(accessTokenKey);
+        }
+        else{
+            accessToken = taskContext.getTaskStringData(accessTokenKey);
+        }
+        return accessToken;
+    }
+
+    public String getAccessToken(TaskContext taskContext){
         String accessToken = null;
         if(taskContext.getJobFlowNodeExecuteContext() != null) {
 //		String accessToken = customOutPutContext.getTaskContext().getTaskStringData("accessToken");
@@ -92,6 +108,54 @@ public class FeishuHelper {
 
         Map deleteResult = HttpRequestProxy.sendJsonBody(feishuDatasource,requestBody,deleteUrl,headers,Map.class);
         return deleteResult;
+    }
+    
+    public String getRecordIdByField(TaskContext taskContext,String fieldName, Object value){
+        StringBuilder requestBody = new StringBuilder();
+        requestBody.append("{")
+                .append("\"automatic_fields\": false,")
+                .append("\"field_names\": [")
+                .append("],")
+                .append("\"filter\": {")
+                .append("\"conditions\": [")
+                .append("{")
+                .append("\"field_name\": \"").append(fieldName).append("\",")
+                .append("\"operator\": \"is\",")
+                .append("\"value\": [");
+        if(value instanceof String) {
+            requestBody.append("\"").append(value).append("\"");
+        }
+        else{
+            requestBody.append(value);
+        }
+        requestBody.append("]")
+                .append("}		")
+                .append("],")
+                .append("\"conjunction\": \"and\"")
+                .append("},")
+                .append("\"sort\": [")
+                .append("],")
+                .append("\"view_id\": \"").append(baseFeishuTableConfig.getFeishuViewId()).append("\"")
+                .append("}");
+
+        //用INDICATOR_ID替换变量${INDICATOR_ID}
+        
+
+        Map datas = searchData(getAccessToken(taskContext),baseFeishuTableConfig.getSearchUrl(),  requestBody.toString());
+        String recordId = null;
+        if(datas != null ){
+            Map data = (Map)datas.get("data");
+            if(data != null) {
+                List<Map> items = (List<Map>) data.get("items");
+                if (items != null && items.size() > 0) {
+                    for (Map item : items) {
+                        recordId = (String) item.get("record_id");
+                    }
+                }
+            }
+
+        }
+        return recordId;
     }
 
     /**

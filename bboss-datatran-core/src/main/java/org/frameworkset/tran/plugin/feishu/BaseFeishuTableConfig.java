@@ -20,6 +20,7 @@ import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
+import org.frameworkset.tran.plugin.feishu.input.FeishuTableInputConfig;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,7 +39,17 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
     protected String feishuAppId;
     protected String feishAppSecret;
 
+
+
+
+    private String recordIdFieldName = "record_id";
+
+    protected String feishuViewId;
+
     protected String accessTokenKey = "accessToken";
+
+    protected String searchUrl;
+    protected String userIdType = "open_id";
 
 
 
@@ -50,7 +61,19 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
         return httpConfigs;
     }
 
-     
+    public String getSearchUrl() {
+        return searchUrl;
+    }
+
+
+    public String getUserIdType() {
+        return userIdType;
+    }
+
+    public T setUserIdType(String userIdType) {
+        this.userIdType = userIdType;
+        return (T)this;
+    }
     public void build(ImportContext importContext, ImportBuilder importBuilder) {
         if(SimpleStringUtil.isEmpty(feishuTableAppToken) ){
             throw new IllegalArgumentException("feishuTableAppToken is empty!");
@@ -74,7 +97,7 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
             }
         }
         
-        feishuHelper = new FeishuHelper(feishuDataSource,feishuAppId,feishAppSecret);
+        feishuHelper = new FeishuHelper(this,feishuDataSource,feishuAppId,feishAppSecret);
        
     }
 
@@ -147,6 +170,24 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
 
     public T setAccessTokenKey(String accessTokenKey) {
         this.accessTokenKey = accessTokenKey;
+        return (T)this;
+    }
+
+    public String getFeishuViewId() {
+        return feishuViewId;
+    }
+
+    public T setFeishuViewId(String feishuViewId) {
+        this.feishuViewId = feishuViewId;
+        return (T)this;
+    }
+
+    public String getRecordIdFieldName() {
+        return recordIdFieldName;
+    }
+
+    public T setRecordIdFieldName(String recordIdFieldName) {
+        this.recordIdFieldName = recordIdFieldName;
         return (T)this;
     }
 }

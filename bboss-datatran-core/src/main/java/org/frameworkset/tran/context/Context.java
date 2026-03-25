@@ -21,6 +21,7 @@ import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.cdc.TableMapping;
 import org.frameworkset.tran.config.ClientOptions;
+import org.frameworkset.tran.config.InputConfig;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
@@ -49,6 +50,9 @@ public interface Context extends DataTranPluginMetricsLogAPI {
     public static final String ROCKETMQ_TOPIC_KEY = "_____rocketmq.topic";
     TaskMetrics getTaskMetrics();
     void setTaskMetrics(TaskMetrics taskMetrics);
+    OutputConfig getOutputConfig();
+
+    InputConfig getInputConfig();
     /**
      * 设置记录级别的kafka主题
      * @param topic

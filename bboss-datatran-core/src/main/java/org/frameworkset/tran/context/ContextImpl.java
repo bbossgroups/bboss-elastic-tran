@@ -1002,6 +1002,16 @@ public class ContextImpl extends BaseMetricsLogReport implements Context {
         this.taskMetrics = taskMetrics;
     }
 
+    @Override
+    public OutputConfig getOutputConfig() {
+        return importContext.getOutputConfig();
+    }
+
+    @Override
+    public InputConfig getInputConfig() {
+        return importContext.getInputConfig();
+    }
+
     public void setMessageKey(Object messageKey) {
         this.messageKey = messageKey;
     }

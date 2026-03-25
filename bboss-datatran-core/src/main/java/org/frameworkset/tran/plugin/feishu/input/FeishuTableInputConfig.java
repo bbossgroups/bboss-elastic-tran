@@ -35,8 +35,6 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
     private static Logger logger = org.slf4j.LoggerFactory.getLogger(FeishuTableInputConfig.class);
 
    private String requestBody;
-   private String userIdType = "open_id";
-   private String searchUrl ;
    @JsonIgnore
    private Map<String,FieldValueConvertor> fieldValueConvertors;
    @JsonIgnore
@@ -66,9 +64,7 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
                 +fetchSize+"&user_id_type="+userIdType   ;
     }
 
-    public String getSearchUrl() {
-        return searchUrl;
-    }
+   
 
     @Override
     public InputPlugin getInputPlugin(ImportContext importContext) {
@@ -84,14 +80,6 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
         return this;
     }
 
-    public String getUserIdType() {
-        return userIdType;
-    }
-
-    public FeishuTableInputConfig setUserIdType(String userIdType) {
-        this.userIdType = userIdType;
-        return this;
-    }
 
     public FeishuTableInputConfig registFieldValueConvertor(String field,FieldValueConvertor fieldValueConvertor) {
         if(fieldValueConvertors == null){
