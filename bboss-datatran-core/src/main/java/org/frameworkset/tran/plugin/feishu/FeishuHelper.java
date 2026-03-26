@@ -158,6 +158,124 @@ public class FeishuHelper {
         return recordId;
     }
 
+    public List<String> getRecordIdsByField(TaskContext taskContext,String fieldName, Object value){
+        StringBuilder requestBody = new StringBuilder();
+        requestBody.append("{")
+                .append("\"automatic_fields\": false,")
+                .append("\"field_names\": [")
+                .append("],")
+                .append("\"filter\": {")
+                .append("\"conditions\": [")
+                .append("{")
+                .append("\"field_name\": \"").append(fieldName).append("\",")
+                .append("\"operator\": \"is\",")
+                .append("\"value\": [");
+        if(value instanceof String) {
+            requestBody.append("\"").append(value).append("\"");
+        }
+        else{
+            requestBody.append(value);
+        }
+        requestBody.append("]")
+                .append("}		")
+                .append("],")
+                .append("\"conjunction\": \"and\"")
+                .append("},")
+                .append("\"sort\": [")
+                .append("],")
+                .append("\"view_id\": \"").append(baseFeishuTableConfig.getFeishuViewId()).append("\"")
+                .append("}");
+
+        //用INDICATOR_ID替换变量${INDICATOR_ID}
+
+
+        Map datas = searchData(getAccessToken(taskContext),baseFeishuTableConfig.getSearchUrl(),  requestBody.toString());
+        List<String> recordIds = null;
+        if(datas != null ){
+            Map data = (Map)datas.get("data");
+            if(data != null) {
+                List<Map> items = (List<Map>) data.get("items");
+                if (items != null && items.size() > 0) {
+                    recordIds = new ArrayList<>();
+                    for (Map item : items) {
+                        recordIds.add((String) item.get("record_id"));
+                    }
+                }
+            }
+
+        }
+        return recordIds;
+    }
+
+    /**
+     * 根据条件获取id集合
+     * @param taskContext
+     * @return
+     */
+    public List<String> getRecordIdsByField(TaskContext taskContext,List<FieldName2ndValues> fieldName2ndValues){
+        StringBuilder requestBody = new StringBuilder();
+        requestBody.append("{")
+                .append("\"automatic_fields\": false,")
+                .append("\"field_names\": [")
+                .append("],")
+                .append("\"filter\": {")
+                .append("\"conditions\": [");
+        for(int i = 0; i < fieldName2ndValues.size(); i++) {
+            FieldName2ndValues _fieldName2ndValues = fieldName2ndValues.get(i);
+            String fieldName = _fieldName2ndValues.getFieldName();
+            Object[] values = _fieldName2ndValues.getValues();
+            if(i > 0){
+                requestBody.append(",");
+            }
+            
+            requestBody.append("{")
+                    .append("\"field_name\": \"").append(fieldName).append("\",")
+                    .append("\"operator\": \"").append(_fieldName2ndValues.getOperator()).append("\",")
+                    .append("\"value\": [");
+            for(int j = 0; j < values.length; j++) {
+                Object value = values[j];
+                if(j > 0){                    
+                    requestBody.append(",");
+                }
+                if (value instanceof String) {
+                    requestBody.append("\"").append(value).append("\"");
+                } else {
+                    requestBody.append(value);
+                }
+            }
+            
+            requestBody.append("]")
+                    .append("}		");
+        }
+        requestBody.append("],")
+                .append("\"conjunction\": \"and\"")
+                .append("},")
+                .append("\"sort\": [")
+                .append("],")
+                .append("\"view_id\": \"").append(baseFeishuTableConfig.getFeishuViewId()).append("\"")
+                .append("}");
+
+        //用INDICATOR_ID替换变量${INDICATOR_ID}
+
+
+        Map datas = searchData(getAccessToken(taskContext),baseFeishuTableConfig.getSearchUrl(),  requestBody.toString());
+        List<String> recordIds = null;
+        if(datas != null ){
+            Map data = (Map)datas.get("data");
+            if(data != null) {
+                List<Map> items = (List<Map>) data.get("items");
+                if (items != null && items.size() > 0) {
+                    recordIds = new ArrayList<>();
+                    for (Map item : items) {
+                        recordIds.add((String) item.get("record_id"));
+                    }
+                }
+            }
+
+        }
+        return recordIds;
+    }
+
     /**
      * 获取飞书租户访问令牌
      * @return

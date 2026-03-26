@@ -73,7 +73,7 @@ public class FeishuTaskCommandImpl extends BaseTaskCommand< String> {
                
                 Map<String,Object> data = record.getDatas();
                 if(!record.isDelete()) {
-                    Map feishuData = new LinkedHashMap();
+                    
                     Map feishuDataItem = new LinkedHashMap();
                     List<CellMapping> cellMappings = feishuTableOutputConfig.getSimpleCellMappingList();
                     //组装飞书表格的数据格式
@@ -83,18 +83,42 @@ public class FeishuTaskCommandImpl extends BaseTaskCommand< String> {
 
 
                     if (!record.isUpdate()) {
+                        Map feishuData = new LinkedHashMap();
                         feishuData.put("fields", feishuDataItem);
                         if(insertRecords == null){
                             insertRecords = new ArrayList<>();
                         }
                         insertRecords.add(feishuData);
                     } else {
-                        feishuData.put("fields", feishuDataItem);
-                        feishuData.put("record_id", data.get(recordIdFieldName));
+                        
+                        
+                        
                         if(updateRecords == null){
                             updateRecords = new ArrayList<>();
                         }
-                        updateRecords.add(feishuData);
+                        Object recordIds = data.get(recordIdFieldName);
+                        if(recordIds != null){
+                            if(recordIds instanceof String){
+                                Map feishuData = new LinkedHashMap();
+                                feishuData.put("fields", feishuDataItem);
+                                feishuData.put("record_id", recordIds);
+                                updateRecords.add(feishuData);
+                            }
+                            else if (recordIds instanceof List){
+                                List<String> ids = (List<String>) recordIds;
+                                String id = null;
+                                Map feishuData = null;
+                                for(int i = 0; i < ids.size(); i ++){
+                                    feishuData = new LinkedHashMap();
+                                    feishuData.put("fields", feishuDataItem);
+                                    id = ids.get(i);
+                                    feishuData.put("record_id", id);
+                                    updateRecords.add(feishuData);                                        
+                                }
+
+                            }
+                        }
+                        
                     }
                                
                 }
@@ -102,7 +126,15 @@ public class FeishuTaskCommandImpl extends BaseTaskCommand< String> {
                     if(deleteRecords == null){
                         deleteRecords = new ArrayList<>();
                     }
-                    deleteRecords.add((String) data.get(recordIdFieldName));
+                    Object recordIds = data.get(recordIdFieldName);
+                    if(recordIds instanceof String){
+                        deleteRecords.add((String) recordIds);
+                    }
+                    else if (recordIds instanceof List){
+                        List<String> ids = (List<String>) recordIds;
+                        deleteRecords.addAll(ids);
+
+                    }
                 }
 
 
