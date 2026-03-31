@@ -17,10 +17,12 @@ package org.frameworkset.tran.plugin.feishu;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.spi.ai.mcp.feishu.BaseFeishuConfigInf;
+import org.frameworkset.spi.ai.mcp.feishu.FeishuHelper;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
-import org.frameworkset.tran.plugin.feishu.input.FeishuTableInputConfig;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,7 +31,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @Date 2026/3/23
  */
-public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> extends BaseConfig<T>   {
+public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> extends BaseConfig<T>  implements BaseFeishuConfigInf<T> {
 
     protected String feishuDataSource;
 
@@ -74,6 +76,41 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
         this.userIdType = userIdType;
         return (T)this;
     }
+
+    public String getAccessToken(TaskContext taskContext, String accessTokenKey){
+        String accessToken = null;
+        if(taskContext.getJobFlowNodeExecuteContext() != null) {
+//		String accessToken = customOutPutContext.getTaskContext().getTaskStringData("accessToken");
+            accessToken = (String) taskContext.getJobFlowNodeExecuteContext().getJobFlowContextData(accessTokenKey);
+        }
+        else{
+            accessToken = taskContext.getTaskStringData(accessTokenKey);
+        }
+        return accessToken;
+    }
+    /**
+     * access_token expire time:默认值2小时，刷新时间提前10分钟
+     */
+    protected long accessTokenExpireTime = 2L * 50L * 60L * 1000L;
+    public long getAccessTokenExpireTime() {
+        return accessTokenExpireTime;
+    }
+    public T setAccessTokenExpireTime(long accessTokenExpireTime) {
+        this.accessTokenExpireTime = accessTokenExpireTime;
+        return (T)this;
+    }
+    public String getAccessToken(TaskContext taskContext){
+        String accessToken = null;
+        if(taskContext.getJobFlowNodeExecuteContext() != null) {
+//		String accessToken = customOutPutContext.getTaskContext().getTaskStringData("accessToken");
+            accessToken = (String) taskContext.getJobFlowNodeExecuteContext().getJobFlowContextData(accessTokenKey);
+        }
+        else{
+            accessToken = taskContext.getTaskStringData(accessTokenKey);
+        }
+        return accessToken;
+    }
+    
     public void build(ImportContext importContext, ImportBuilder importBuilder) {
         if(SimpleStringUtil.isEmpty(feishuTableAppToken) ){
             throw new IllegalArgumentException("feishuTableAppToken is empty!");
@@ -95,11 +132,21 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
             else {
                 throw new IllegalArgumentException("feishuDataSource is empty!");
             }
-        }
+        }     
         
-        feishuHelper = new FeishuHelper(this,feishuDataSource,feishuAppId,feishAppSecret);
        
     }
+    public void destroy(){
+        if(feishuHelper != null) {
+            feishuHelper.destroy();
+        }
+    }
+    public void initFeishHelper(){
+        FeishuHelper feishuHelper = new FeishuHelper(this);
+        feishuHelper.init();
+        this.feishuHelper = feishuHelper;
+    }
+
 
     public FeishuHelper getFeishuHelper() {
         return feishuHelper;

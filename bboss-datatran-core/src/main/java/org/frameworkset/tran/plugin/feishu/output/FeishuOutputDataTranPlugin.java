@@ -15,12 +15,6 @@ package org.frameworkset.tran.plugin.feishu.output;
  * limitations under the License.
  */
 
-import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.elasticsearch.template.BaseTemplateContainerImpl;
-import org.frameworkset.elasticsearch.template.BaseTemplateMeta;
-import org.frameworkset.elasticsearch.template.DSLParserException;
-import org.frameworkset.elasticsearch.template.TemplateMeta;
-import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
@@ -28,16 +22,8 @@ import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.OutputPlugin;
-import org.frameworkset.tran.plugin.http.HttpConfigClientProxy;
-import org.frameworkset.tran.plugin.http.HttpProxyHelper;
-import org.frameworkset.tran.plugin.http.output.HttpOutPutDataTran;
-import org.frameworkset.tran.plugin.http.output.HttpOutputConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.util.ResourceStartResult;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * <p>Description: </p>
@@ -49,7 +35,6 @@ import java.util.Map;
  */
 public class FeishuOutputDataTranPlugin extends BasePlugin implements OutputPlugin {
 	protected FeishuTableOutputConfig feishuTableOutputConfig ;
-	private ResourceStartResult resourceStartResult ;
    
 
 	public FeishuOutputDataTranPlugin(OutputConfig pluginOutputConfig, ImportContext importContext){
@@ -85,18 +70,18 @@ public class FeishuOutputDataTranPlugin extends BasePlugin implements OutputPlug
 
 	@Override
 	public void init() {
-		if(feishuTableOutputConfig != null && feishuTableOutputConfig.getHttpConfigs() != null){
-			resourceStartResult = HttpRequestProxy.startHttpPools(feishuTableOutputConfig.getHttpConfigs());
-		}
+//		if(feishuTableOutputConfig != null && feishuTableOutputConfig.getHttpConfigs() != null){
+//            FeishuHelper feishuHelper = new FeishuHelper(feishuTableOutputConfig
+//                    );
+//			resourceStartResult = HttpRequestProxy.startHttpPools(feishuTableOutputConfig.getHttpConfigs());
+//             
+//		}
+        feishuTableOutputConfig.initFeishHelper();
 	}
 
 	@Override
 	public void destroy(boolean waitTranStop) {
-		if(resourceStartResult != null){
-			HttpRequestProxy.stopHttpClients(resourceStartResult);
-
-
-		}
+        feishuTableOutputConfig.destroy();
        
 	}
 

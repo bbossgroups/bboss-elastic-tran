@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.feishu.input;
  * limitations under the License.
  */
 
+import org.frameworkset.spi.ai.mcp.feishu.FeishuHelper;
 import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
@@ -22,7 +23,6 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.InputPlugin;
-import org.frameworkset.tran.plugin.feishu.FeishuHelper;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.util.ResourceStartResult;
 
@@ -39,7 +39,6 @@ import java.util.*;
 public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin {
 	protected String jobType ;
 	private FeishuTableInputConfig feishuTableInputConfig;
-	private ResourceStartResult resourceStartResult ;
 
 	public FeishuInputDataTranPlugin(ImportContext importContext) {
 		super(importContext);
@@ -167,7 +166,7 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
                 String requestBody = feishuTableInputConfig.getRequestBody();
                 String searchUrl = feishuTableInputConfig.getSearchUrl();
                 FeishuHelper feishuHelper = feishuTableInputConfig.getFeishuHelper();
-                String accessToken = feishuHelper.getAccessToken(taskContext,feishuTableInputConfig.getAccessTokenKey());
+                String accessToken = feishuTableInputConfig.getAccessToken(taskContext,feishuTableInputConfig.getAccessTokenKey());
                 if(accessToken == null){
                     accessToken = feishuHelper.getTenantAccessToken();
                 }
@@ -249,16 +248,15 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
 
 	@Override
 	public void init() {
-		if(feishuTableInputConfig != null && feishuTableInputConfig.getHttpConfigs() != null){
-			resourceStartResult = HttpRequestProxy.startHttpPools(feishuTableInputConfig.getHttpConfigs());
-		}
+        feishuTableInputConfig.initFeishHelper();
+//		if(feishuTableInputConfig != null && feishuTableInputConfig.getHttpConfigs() != null){
+//			resourceStartResult = HttpRequestProxy.startHttpPools(feishuTableInputConfig.getHttpConfigs());
+//		}
 	}
 
 	@Override
 	public void destroy(boolean waitTranStop) {
-		if(resourceStartResult != null){
-			HttpRequestProxy.stopHttpClients(resourceStartResult);
-		}
+        feishuTableInputConfig.destroy();
         
 	}
 }

@@ -15,9 +15,9 @@ package org.frameworkset.tran.plugin.feishu.output;
  * limitations under the License.
  */
 
+import org.frameworkset.spi.ai.mcp.feishu.FeishuHelper;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.config.OutputConfig;
-import org.frameworkset.tran.plugin.feishu.FeishuHelper;
 import org.frameworkset.tran.record.CellMapping;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.task.BaseTaskCommand;
@@ -64,7 +64,7 @@ public class FeishuTaskCommandImpl extends BaseTaskCommand< String> {
             List<String> deleteRecords = null;
            
             
-            String accessToken = feishuHelper.getAccessToken(taskContext, feishuTableOutputConfig.getAccessTokenKey());
+            String accessToken = feishuTableOutputConfig.getAccessToken(taskContext, feishuTableOutputConfig.getAccessTokenKey());
             if(accessToken == null){
                 accessToken = feishuHelper.getTenantAccessToken();
             }
@@ -142,12 +142,12 @@ public class FeishuTaskCommandImpl extends BaseTaskCommand< String> {
             if(updateRecords != null && updateRecords.size() > 0) {
                 Map<String,Object> updateRequestData = new LinkedHashMap<>();
                 updateRequestData.put("records",updateRecords);
-                feishuHelper.sendRequest(accessToken, updateRequestData,batchUpdateUrl);
+                feishuHelper.sendRequest( accessToken,updateRequestData,batchUpdateUrl);
             }
             if(insertRecords != null && insertRecords.size() > 0) {
                 Map<String, Object> requestData = new LinkedHashMap<>();
                 requestData.put("records", insertRecords);
-                feishuHelper.sendRequest(accessToken, requestData, batchInsertUrl);
+                feishuHelper.sendRequest( accessToken,requestData, batchInsertUrl);
             }
             if(deleteRecords != null && deleteRecords.size() > 0) {
                 Map<String, Object> deleteRequestData = new LinkedHashMap<>();
