@@ -28,12 +28,12 @@ sourceSets {
 dependencies {
     
     api  (
-            [group: 'com.bbossgroups', name: 'bboss-core', version: "${PROJ_BBOSS_VERSION}", transitive: true],
+            [group: 'com.bbossgroups', name: 'bboss-core', version: PROJ_BBOSS_VERSION, transitive: true],
 
     )
 
     compileOnly  (
-            [group: 'org.apache.groovy', name: 'groovy', version: "${groovy_version}", transitive: true],
+            [group: 'org.apache.groovy', name: 'groovy', version: groovy_version, transitive: true],
 
     ){
 //            exclude group: 'org.apache.groovy', module: 'groovy-testng'
@@ -48,7 +48,7 @@ dependencies {
     }
 
     testImplementation  (
-            [group: 'org.apache.groovy', name: 'groovy', version: "${groovy_version}", transitive: true],
+            [group: 'org.apache.groovy', name: 'groovy', version: groovy_version, transitive: true],
 
     ){
 //            exclude group: 'org.apache.groovy', module: 'groovy-testng'

@@ -29,10 +29,7 @@ dependencies {
 	api (project(':bboss-datatran-geoip'))
 	api (project(':bboss-datatran-metrics'))
     api (project(':bboss-datatran-jobflow'))
-    api  (
-            [group: 'com.bbossgroups', name: 'bboss-ai', version: PROJ_BBOSS_AI_VERSION, transitive: true],
 
-    )
 	testImplementation (
 			[group: 'org.xerial', name: 'sqlite-jdbc', version: "3.50.3.0", transitive: false],
 //			[group: 'mysql', name: 'mysql-connector-java', version: "${mysqlconnectorversion}", transitive: false]

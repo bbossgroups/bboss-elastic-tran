@@ -15,8 +15,7 @@ package org.frameworkset.tran.plugin.feishu.input;
  * limitations under the License.
  */
 
-import org.frameworkset.spi.ai.mcp.feishu.FeishuHelper;
-import org.frameworkset.spi.remote.http.HttpRequestProxy;
+import org.frameworkset.spi.feishu.FeishuHelper;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;

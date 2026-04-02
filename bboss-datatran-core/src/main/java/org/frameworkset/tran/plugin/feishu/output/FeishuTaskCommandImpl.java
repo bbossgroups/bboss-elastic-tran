@@ -15,7 +15,7 @@ package org.frameworkset.tran.plugin.feishu.output;
  * limitations under the License.
  */
 
-import org.frameworkset.spi.ai.mcp.feishu.FeishuHelper;
+import org.frameworkset.spi.feishu.FeishuHelper;
 import org.frameworkset.tran.CommonRecord;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.record.CellMapping;

@@ -17,8 +17,8 @@ package org.frameworkset.tran.plugin.feishu;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.spi.ai.mcp.feishu.BaseFeishuConfigInf;
-import org.frameworkset.spi.ai.mcp.feishu.FeishuHelper;
+import org.frameworkset.spi.feishu.BaseFeishuConfigInf;
+import org.frameworkset.spi.feishu.FeishuHelper;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
