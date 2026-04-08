@@ -32,6 +32,11 @@ dependencies {
 
     )
 
+    api  (
+            [group: 'com.bbossgroups', name: 'bboss-feishu', version: PROJ_BBOSS_HTTP_VERSION, transitive: true],
+
+    )
+
     compileOnly  (
             [group: 'org.apache.groovy', name: 'groovy', version: groovy_version, transitive: true],
 
