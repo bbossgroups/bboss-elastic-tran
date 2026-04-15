@@ -142,22 +142,26 @@ public class IP2RegionV2 implements IP2Region {
                 this.ip2regionDatabaseIPV6 = ip2regionDatabases[1];
                 _init(ip2regionDatabaseIPV4,ip2regionDatabaseIPV6);
                 startMonitor();
-                daemonThread.addFile(new File(ip2regionDatabaseIPV4), new ResourceInitial() {
-                    @Override
-                    public void reinit() {
-                        synchronized (lock) {
-                            _reinitIp(ip2Region, ip2regionDatabaseIPV4,ip2regionDatabaseIPV6);
+                if(SimpleStringUtil.isNotEmpty(ip2regionDatabaseIPV4)) {
+                    daemonThread.addFile(new File(ip2regionDatabaseIPV4), new ResourceInitial() {
+                        @Override
+                        public void reinit() {
+                            synchronized (lock) {
+                                _reinitIp(ip2Region, ip2regionDatabaseIPV4, ip2regionDatabaseIPV6);
+                            }
                         }
-                    }
-                },true);
-                daemonThread.addFile(new File(ip2regionDatabaseIPV6), new ResourceInitial() {
-                    @Override
-                    public void reinit() {
-                        synchronized (lock) {
-                            _reinitIp(ip2Region, ip2regionDatabaseIPV4,ip2regionDatabaseIPV6);
+                    }, true);
+                }
+                if(SimpleStringUtil.isNotEmpty(ip2regionDatabaseIPV6)){
+                    daemonThread.addFile(new File(ip2regionDatabaseIPV6), new ResourceInitial() {
+                        @Override
+                        public void reinit() {
+                            synchronized (lock) {
+                                _reinitIp(ip2Region, ip2regionDatabaseIPV4,ip2regionDatabaseIPV6);
+                            }
                         }
-                    }
-                },true);
+                    },true);
+                }
             }
 
             
