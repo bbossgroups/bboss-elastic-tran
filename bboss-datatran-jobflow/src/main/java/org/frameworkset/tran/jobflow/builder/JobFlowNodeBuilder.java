@@ -21,6 +21,7 @@ import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.jobflow.NodeTrigger;
 import org.frameworkset.tran.jobflow.NodeTriggerCreate;
 import org.frameworkset.tran.jobflow.listener.JobFlowNodeListener;
+import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -177,7 +178,14 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
         return (T)this;
     }
 
-
+    /**
+     * 设置节点的触发器构建器，如果总触发器不成立，如果是复合节点，在不执行nodeBuilders中的所有子任务，每个子任务都可以有自己的触发器，如果简单作业节点则不执行简单作业节点
+     * @return
+     */
+    public T setTriggerScriptAPI(TriggerScriptAPI triggerScriptAPI) {
+        this.nodeTrigger = new NodeTrigger(triggerScriptAPI);
+        return (T)this;
+    }
     /**
      * 设置节点的触发器构建器，如果总触发器不成立，如果是复合节点，在不执行nodeBuilders中的所有子任务，每个子任务都可以有自己的触发器，如果简单作业节点则不执行简单作业节点
      * @param nodeTrigger

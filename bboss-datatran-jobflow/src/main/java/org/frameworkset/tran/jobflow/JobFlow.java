@@ -143,22 +143,21 @@ public class JobFlow {
                 jobFlowListener.beforeExecute(jobFlowExecuteContext);
             }
         }
-        Throwable throwable = null;
         try {
             JobFlowNodeExecuteContext jobFlowNodeExecuteContext = this.startJobFlowNode.buildJobFlowNodeExecuteContext();
             jobFlowNodeExecuteContext.setContainerJobFlowExecuteContext(this.jobFlowExecuteContext);
             this.startJobFlowNode.execute(  jobFlowNodeExecuteContext);
+             
+            
+            logger.info("Execute {} end.",jobInfo);
         }
         catch (RuntimeException e){
-            throwable = e;
             throw e;
         }
         catch (Exception e){
-            throwable = e;
             throw new JobFlowException(e);
         }
         catch (Throwable e){
-            throwable = e;
             throw new JobFlowException(e);
         }
         finally {

@@ -28,6 +28,10 @@ public abstract class CallableJobFlowNodeBuilder<T extends CallableJobFlowNodeBu
     public CallableJobFlowNodeBuilder(  String nodeName) {
         super(null, nodeName);
     }
+
+    public CallableJobFlowNodeBuilder(   ) {
+        super( );
+    }
     public CallableJobFlowNodeBuilder(String nodeId, String nodeName) {
         super(nodeId, nodeName);
     }

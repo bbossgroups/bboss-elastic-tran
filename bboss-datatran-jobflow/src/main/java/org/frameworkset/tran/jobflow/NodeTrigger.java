@@ -16,6 +16,7 @@ package org.frameworkset.tran.jobflow;
  */
 
 import org.apache.commons.lang3.StringUtils;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.frameworkset.tran.jobflow.context.NodeTriggerContext;
 import org.frameworkset.tran.jobflow.context.NodeTriggerContextImpl;
 import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;
@@ -33,6 +34,14 @@ public class NodeTrigger {
     private JobFlowNode jobFlowNode;
     private String triggerScript;
     private TriggerScriptAPI triggerScriptAPI;
+    public NodeTrigger(){
+        
+    }
+    
+    public NodeTrigger(TriggerScriptAPI triggerScriptAPI){
+        this.triggerScriptAPI = triggerScriptAPI;
+    }
+    
 
     public void setTriggerScriptAPI(TriggerScriptAPI triggerScriptAPI) {
         this.triggerScriptAPI = triggerScriptAPI;
@@ -56,6 +65,11 @@ public class NodeTrigger {
     
     private Object lock = new Object();
     public boolean assertTrigger(JobFlow jobFlow, JobFlowNode jobFlowNode) throws Exception {
+       
+        return assertTrigger(  jobFlow,   jobFlowNode, (JobFlowNodeExecuteContext)null);
+    }
+
+    public boolean assertTrigger(JobFlow jobFlow, JobFlowNode jobFlowNode, JobFlowNodeExecuteContext conditionContainerNodeExecuteContext) throws Exception {
         //todo 计算条件触发器
         if(triggerScriptAPI == null && StringUtils.isNotEmpty(triggerScript)){
             synchronized (lock) {
@@ -69,7 +83,7 @@ public class NodeTrigger {
             }
         }
         if(triggerScriptAPI != null){
-            NodeTriggerContext nodeTriggerContext = new NodeTriggerContextImpl(jobFlowNode,jobFlow); 
+            NodeTriggerContext nodeTriggerContext = new NodeTriggerContextImpl(jobFlowNode,jobFlow,conditionContainerNodeExecuteContext);
             return triggerScriptAPI.needTrigger(nodeTriggerContext);
         }
         return true;

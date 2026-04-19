@@ -128,6 +128,8 @@ public abstract class JobFlowNode {
 //        else{
 //            return null;
 //        }
+        if(jobFlowNodeExecuteContext == null)
+            return null;
         return this.jobFlowNodeExecuteContext.getContainerJobFlowNodeExecuteContext();
     }
     public JobFlowNodeExecuteContext getJobFlowNodeExecuteContext() {
@@ -245,8 +247,9 @@ public abstract class JobFlowNode {
         }
     }
 
-    public boolean assertTrigger(String conditionNodeUUID){
-        NodeTrigger nodeTrigger = conditionNodeTriggers.get(conditionNodeUUID);
+    public boolean assertTrigger(JobFlowNodeExecuteContext conditionContainerNodeExecuteContext){
+        
+        NodeTrigger nodeTrigger = conditionNodeTriggers.get(conditionContainerNodeExecuteContext.getNodeId());
         if(nodeTrigger == null){
             nodeTrigger = this.nodeTrigger;
         }
@@ -257,7 +260,7 @@ public abstract class JobFlowNode {
             return true;
         }
         try {
-            if(nodeTrigger.assertTrigger(jobFlow,this)){
+            if(nodeTrigger.assertTrigger(jobFlow,this,  conditionContainerNodeExecuteContext)){
                 if(logger_.isDebugEnabled()) {
                     logger_.debug("AssertTrigger: true,flowNode[id={},name={}].", this.getNodeId(), this.getNodeName());
                 }

@@ -108,10 +108,10 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
         return value;
     }
     @Override
-    public Object getContextData(String name,Object defaultValue,boolean fromContainer){
+    public Object getContextData(String name,Object defaultValue,boolean scanParant){
         Object value = contextDatas.get(name);
         
-        if(value == null && fromContainer){
+        if(value == null && scanParant){
             JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.getContainerJobFlowNodeExecuteContext();
             if(containerJobFlowNodeExecuteContext != null) {
                 value = containerJobFlowNodeExecuteContext.getContextData(name,true);

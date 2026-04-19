@@ -29,16 +29,19 @@ public class NodeTriggerContextImpl implements NodeTriggerContext{
     private StaticContext preJobFlowStaticContext;
     private StaticContext jobFlowStaticContext ;
     private JobFlowExecuteContext jobFlowExecuteContext;
+    private JobFlowNodeExecuteContext conditionContainerNodeExecuteContext;
     private JobFlowStatus jobFlowStatus;
     private JobFlow jobFlow;
     private JobFlowNode jobFlowNode;
     private JobFlowNode preFlowNode;
+    
     public NodeTriggerContextImpl(JobFlowNode jobFlowNode,                                   
-                                  JobFlow jobFlow){
+                                  JobFlow jobFlow,JobFlowNodeExecuteContext conditionContainerNodeExecuteContext){
        
         this.jobFlowStatus = jobFlow.getJobFlowContext().getJobFlowStatus();
         this.jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
         this.jobFlowStaticContext = jobFlowExecuteContext.getJobFlowStaticContext();
+        this.conditionContainerNodeExecuteContext = conditionContainerNodeExecuteContext;
         this.jobFlow = jobFlow;
         this.jobFlowNode = jobFlowNode;
         this.preFlowNode = jobFlowNode.getParentJobFlowNode();
@@ -51,6 +54,7 @@ public class NodeTriggerContextImpl implements NodeTriggerContext{
             this.preJobFlowNodeStatus = preJobFlowNodeExecuteContext.getJobFlowNodeStatus();
         }
     }
+    
 
     @Override
     public StaticContext getJobFlowStaticContext() {
@@ -80,49 +84,76 @@ public class NodeTriggerContextImpl implements NodeTriggerContext{
 
     @Override
     public Object getContainerContextData(String name) {
-        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
-        if(containerJobFlowNodeExecuteContext != null)
-            return containerJobFlowNodeExecuteContext.getContextData( name);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null) {
+            return containerJobFlowNodeExecuteContext.getContextData(name);
+        }
+         
         return null;
     }
 
     @Override
     public boolean containContainerContextData(String name) {
-        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
-        if(containerJobFlowNodeExecuteContext != null)
-            return containerJobFlowNodeExecuteContext.containContextData( name);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null) {
+            return containerJobFlowNodeExecuteContext.containContextData(name);
+        }
+ 
         return false;
     }
 
     @Override
     public Object getContainerContextData(String name,Object defaultValue) {
-        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
-        if(containerJobFlowNodeExecuteContext != null)
-            return containerJobFlowNodeExecuteContext.getContextData( name,defaultValue);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null) {
+            return containerJobFlowNodeExecuteContext.getContextData(name, defaultValue);
+        }
+
+ 
         return null;
     }
 
     @Override
     public Object getContainerContextData(String name,boolean scanParant) {
-        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
-        if(containerJobFlowNodeExecuteContext != null)
-            return containerJobFlowNodeExecuteContext.getContextData( name,scanParant);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null) {
+            return containerJobFlowNodeExecuteContext.getContextData(name, scanParant);
+        }
+         
         return null;
     }
 
     @Override
     public boolean containContainerContextData(String name, boolean scanParant) {
-        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
-        if(containerJobFlowNodeExecuteContext != null)
-            return containerJobFlowNodeExecuteContext.containContextData( name,scanParant);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext != null) {
+            return containerJobFlowNodeExecuteContext.containContextData(name, scanParant);
+        }
+
+      
         return false;
+    }
+    
+    public JobFlowNodeExecuteContext getContainerJobFlowNodeExecuteContext(){
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
+        if(containerJobFlowNodeExecuteContext == null){
+            if(conditionContainerNodeExecuteContext != null){
+                containerJobFlowNodeExecuteContext = conditionContainerNodeExecuteContext.getContainerJobFlowNodeExecuteContext();
+            }
+
+        }
+        return containerJobFlowNodeExecuteContext;
     }
 
     @Override
     public Object getContainerContextData(String name,Object defaultValue,boolean scanParant) {
-        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = this.jobFlowNode.getContainerJobFlowNodeExecuteContext();
-        if(containerJobFlowNodeExecuteContext != null)
-            return containerJobFlowNodeExecuteContext.getContextData( name,defaultValue,  scanParant);
+        JobFlowNodeExecuteContext containerJobFlowNodeExecuteContext = getContainerJobFlowNodeExecuteContext();
+       
+        if(containerJobFlowNodeExecuteContext != null) {
+            return containerJobFlowNodeExecuteContext.getContextData(name, defaultValue, scanParant);
+        }
+
+        
         return null;
     }
 
