@@ -389,8 +389,11 @@ public class JobFlowBuilder {
         return addJobFlowNodeBuilder(  jobFlowNodeBuilder);
     }
     
+    protected JobFlow buildJobFlow(){
+        return new JobFlow();
+    }
     public JobFlow build(){
-        JobFlow jobFlow = new JobFlow();
+        JobFlow jobFlow = buildJobFlow();
         jobFlow.setJobFlowName(this.jobFlowName);
         jobFlow.setJobFlowId(this.jobFlowId);
         jobFlow.setJobFlowListeners(this.jobFlowListeners);
