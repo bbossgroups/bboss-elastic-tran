@@ -52,7 +52,7 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
     @Override
     public void build(ImportContext importContext, ImportBuilder importBuilder) {
         super.build(importContext,importBuilder);
-        if(SimpleStringUtil.isEmpty(requestBody)){
+        if(SimpleStringUtil.isEmpty(requestBody) && SimpleStringUtil.isEmpty(dslFile)   ) {
             throw new DataImportException("requestBody can not be empty");
         }
         if(SimpleStringUtil.isEmpty(queryDslName))
