@@ -15,15 +15,15 @@ package org.frameworkset.tran.plugin.feishu.input;
  * limitations under the License.
  */
 
-import org.frameworkset.spi.feishu.FeishuHelper;
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.plugin.BasePlugin;
 import org.frameworkset.tran.plugin.InputPlugin;
+import org.frameworkset.tran.plugin.feishu.ConfigFeishuHelper;
 import org.frameworkset.tran.schedule.TaskContext;
-import org.frameworkset.util.ResourceStartResult;
 
 import java.util.*;
 
@@ -49,20 +49,47 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
 	public String getJobType() {
 		return jobType;
 	}
-	 
-
-	@Override
-	public void initStatusTableId() {
-		
-
-	}
 
 
+    @Override
+    public void initStatusTableId() {
+        if(dataTranPlugin.isIncreamentImport()) {
+            String requestBody = feishuTableInputConfig.getRequestBody();
+            if(SimpleStringUtil.isNotEmpty(feishuTableInputConfig.getRequestBody())){
+                //计算增量记录id
+                importContext.setStatusTableId((feishuTableInputConfig.getRequestBody()).hashCode());
+            }
 
+            else{
+                //计算增量记录id
+                importContext.setStatusTableId((feishuTableInputConfig.getDslFile()+"$$"+feishuTableInputConfig.getQueryDslName()+"$$"+feishuTableInputConfig.getRequestBody()).hashCode());
+            }
+        }
+
+    }
+
+
+    private void increamentImportData( TaskContext taskContext) throws Exception {
+
+
+        //单次请求
+        Map params = dataTranPlugin.getJobInputParams(taskContext);
+        params = dataTranPlugin.getParamValue(params);
+        exportData(  params, taskContext);
+         
+    }
 	@Override
 	public void doImportData(TaskContext taskContext) throws DataImportException {
-		try {			
+		try {
+            if (!importContext.isIncreamentImport()) {
 
+                commonImportData(   taskContext );
+
+            } else {
+
+                increamentImportData(   taskContext );
+
+            }
 			commonImportData(   taskContext );
 			
 		} catch (DataImportException e) {
@@ -82,7 +109,7 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
 
 	}
 
-    private FeishuQueryAction buildQueryAction(Map params,TaskContext taskContext){
+    private FeishuQueryAction buildQueryAction(final Map params,TaskContext taskContext){
         FeishuQueryAction queryAction = new FeishuQueryAction() {
              
             private boolean hasMore;
@@ -90,9 +117,10 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
             
             
 
+            
             private FeishuData handleItem(Map<String,Object> item){
-                FieldValueConvertor  fieldValueConvertor = null;
-                AllFieldValueConvertor allFieldValueConvertor = feishuTableInputConfig.getAllFieldValueConvertor();
+                FieldValueConvertor allFieldValueConvertor = feishuTableInputConfig.getFieldValueConvertor();
+                 
                 FeishuData feishuData = new FeishuData();
                 String record_id = (String)item.get("record_id");
                 feishuData.setRecordId(record_id);
@@ -103,68 +131,76 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
                     Map.Entry<String, Object> entry =  iterator.next();
                     String key =   entry.getKey();
                     Object value = entry.getValue();
-                    fieldValueConvertor = feishuTableInputConfig.fieldValueConvertor(key);
-                    if(fieldValueConvertor != null){
-                        newfields.put(key, fieldValueConvertor.handleItem(fields, key,value));
-                    }
-                    else if(allFieldValueConvertor != null){
-                        newfields.put(key, allFieldValueConvertor.handleItem(fields, key,value));
-                    }
-                    else {
-                        if (value instanceof List) {
-                            List v = (List) value;
-                            int size = v.size();
-                            if (v != null && size > 0) {
-                                Object o = v.get(0);
-                                
-                                if(o instanceof Map){
-                                    if(size == 1) {
-                                        newfields.put(key, ((Map) o).get("text"));
-                                    }
-                                    else{
-                                        List texts = new ArrayList(size);
-                                        for(Object o1:v){
-                                            texts.add(((Map) o1).get("text"));
-                                        }
-                                        newfields.put(key, texts);
-                                    }
-                                }
-                                else{
-                                    newfields.put(key, v);
-                                }
-                                
-                            }
-                        }
-                        else if(value instanceof Map){
-                            Map map = (Map)value;
-                            Integer type = (Integer) map.get("type");
-                            if(type != null){
-                                //公式值处理：{"type":1,"value":[{"text":"[100%]","type":"text"}]}
-                                List<Map> functionValue = (List<Map>) map.get("value");
-                                if(functionValue != null && functionValue.size() > 0){
-                                    newfields.put(key, functionValue.get(0).get("text"));
-                                }
-                                else{
-                                    newfields.put(key, value);
-                                }
-                            }
-                            else{
-                                newfields.put(key, value);
-                            }
-                        }
-                        else {
-                            newfields.put(key, value);
-                        }
-                    }
+                    value = allFieldValueConvertor.handleItem(taskContext,fields, key,value);
+                    newfields.put(key, value);
+                    
+//                    fieldValueConvertor = feishuTableInputConfig.fieldValueConvertor(key);
+//                    if(fieldValueConvertor != null){
+//                        newfields.put(key, fieldValueConvertor.handleItem(fields, key,value));
+//                    }
+//                    else if(allFieldValueConvertor != null){
+//                        newfields.put(key, allFieldValueConvertor.handleItem(fields, key,value));
+//                    }
+//                    else {
+//                        if (value instanceof List) {
+//                            List v = (List) value;
+//                            int size = v.size();
+//                            if (v != null && size > 0) {
+//                                Object o = v.get(0);
+//                                
+//                                if(o instanceof Map){
+//                                    if(size == 1) {
+//                                        newfields.put(key, ((Map) o).get("text"));
+//                                    }
+//                                    else{
+//                                        List texts = new ArrayList(size);
+//                                        for(Object o1:v){
+//                                            texts.add(((Map) o1).get("text"));
+//                                        }
+//                                        newfields.put(key, texts);
+//                                    }
+//                                }
+//                                else{
+//                                    newfields.put(key, v);
+//                                }
+//                                
+//                            }
+//                        }
+//                        else if(value instanceof Map){
+//                            Map map = (Map)value;
+//                            Integer type = (Integer) map.get("type");
+//                            if(type != null){
+//                                //公式值处理：{"type":1,"value":[{"text":"[100%]","type":"text"}]}
+//                                List functionValues = (List) map.get("value");
+//                                if(functionValues != null && functionValues.size() > 0){
+//                                    Object functionValue = functionValues.get(0);
+//                                    if(functionValue instanceof Map) {
+//                                        newfields.put(key, ((Map) functionValue).get("text"));
+//                                    }
+//                                    else{
+//                                        newfields.put(key, functionValue);
+//                                    }
+//                                }
+//                                else{
+//                                    newfields.put(key, value);
+//                                }
+//                            }
+//                            else{
+//                                newfields.put(key, value);
+//                            }
+//                        }
+//                        else {
+//                            newfields.put(key, value);
+//                        }
+//                    }
                 }
                 feishuData.setFields(newfields);
                 return feishuData;
             }
             @Override
             public List<FeishuData> execute() {
-                String requestBody = feishuTableInputConfig.getRequestBody();
                 String searchUrl = feishuTableInputConfig.getSearchUrl();
-                FeishuHelper feishuHelper = feishuTableInputConfig.getFeishuHelper();
+                ConfigFeishuHelper feishuHelper = feishuTableInputConfig.getFeishuHelper();
                 String accessToken = feishuTableInputConfig.getAccessToken(taskContext,feishuTableInputConfig.getAccessTokenKey());
                 if(accessToken == null){
                     accessToken = feishuHelper.getTenantAccessToken();
@@ -173,7 +209,7 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
                     searchUrl = searchUrl + "&page_token=" + pageToken;
                 }
                 List<FeishuData> feishuTableResult = null;
-                Map datas = feishuHelper.searchData(accessToken,searchUrl,  requestBody);
+                Map datas = feishuHelper.searchDataConfigable(feishuTableInputConfig,searchUrl,accessToken,params);
                 if(datas != null ){
                     int code = (Integer)datas.get("code");
                     if(code != 0){
@@ -233,12 +269,12 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
 		httpDataTran.initTran();
         dataTranPlugin.callTran( httpDataTran);
 	}
-	 
+    @Override
+    public void afterInit() {
+         
+    }
 
-	@Override
-	public void afterInit() {
-		 
-	}
+ 
 
 	@Override
 	public void beforeInit() {

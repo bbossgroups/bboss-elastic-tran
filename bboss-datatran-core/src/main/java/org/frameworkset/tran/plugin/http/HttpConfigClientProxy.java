@@ -18,10 +18,10 @@ package org.frameworkset.tran.plugin.http;
 
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.frameworkset.elasticsearch.client.ConfigHolder;
 import org.frameworkset.elasticsearch.template.BaseTemplateContainerImpl;
@@ -37,7 +37,6 @@ import org.frameworkset.tran.plugin.http.input.HttpInputDataTranPlugin;
 import org.frameworkset.tran.plugin.http.input.HttpResultParserContext;
 import org.frameworkset.tran.plugin.http.output.HttpOutputConfig;
 import org.frameworkset.tran.plugin.http.output.HttpOutputDataTranPlugin;
-import org.frameworkset.util.shutdown.ShutdownUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

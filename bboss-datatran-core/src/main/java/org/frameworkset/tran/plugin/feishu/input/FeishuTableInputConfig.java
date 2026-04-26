@@ -17,6 +17,8 @@ package org.frameworkset.tran.plugin.feishu.input;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.spi.feishu.FeishuHelper;
+import org.frameworkset.spi.remote.http.HttpConfigInf;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.InputConfig;
@@ -25,20 +27,27 @@ import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.feishu.BaseFeishuTableConfig;
 import org.slf4j.Logger;
 
-import java.util.Map;
-
 /**
  * @author biaoping.yin
  * @Date 2026/3/23
  */
-public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInputConfig> implements InputConfig<FeishuTableInputConfig> {
+public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInputConfig> implements InputConfig<FeishuTableInputConfig>, HttpConfigInf {
     private static Logger logger = org.slf4j.LoggerFactory.getLogger(FeishuTableInputConfig.class);
 
    private String requestBody;
+
+   
+
+    protected boolean showDsl;
+    /**
+     * 通过虚拟一个自定义dsl管理容器，实现queryDsl的模拟配置文件加载,保持接口逻辑的统一管理
+     */
+    protected String dslNamespace;
+    protected String dslFile;
+    private String queryDslName;
+ 
    @JsonIgnore
-   private Map<String,FieldValueConvertor> fieldValueConvertors;
-   @JsonIgnore
-   private AllFieldValueConvertor allFieldValueConvertor;
+   private FieldValueConvertor fieldValueConvertor;
 
     @Override
     public void build(ImportContext importContext, ImportBuilder importBuilder) {
@@ -46,6 +55,10 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
         if(SimpleStringUtil.isEmpty(requestBody)){
             throw new DataImportException("requestBody can not be empty");
         }
+        if(SimpleStringUtil.isEmpty(queryDslName))
+            queryDslName = "feishuQueryDslName";
+        if(SimpleStringUtil.isEmpty(dslNamespace))
+            dslNamespace = "feishuQueryDslNamespace"+SimpleStringUtil.getUUID32();
         if(SimpleStringUtil.isEmpty(userIdType)){
             userIdType = "open_id";
         }
@@ -58,10 +71,10 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
             fetchSize = 500;
             
         }
-        searchUrl = "/open-apis/bitable/v1/apps/"
-                +super.feishuTableAppToken+"/tables/"
-                +super.feishuTableId+"/records/search?page_size="
-                +fetchSize+"&user_id_type="+userIdType   ;
+        searchUrl = FeishuHelper.buildSearchUrl( super.feishuTableAppToken,super.feishuTableId,fetchSize,userIdType  ) ;
+        if(fieldValueConvertor == null){
+            fieldValueConvertor = new FieldValueConvertor();
+        }
     }
 
    
@@ -81,27 +94,49 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
     }
 
 
-    public FeishuTableInputConfig registFieldValueConvertor(String field,FieldValueConvertor fieldValueConvertor) {
-        if(fieldValueConvertors == null){
-            fieldValueConvertors = new java.util.HashMap<>();
-        }
-        fieldValueConvertors.put(field,fieldValueConvertor);
+    public FieldValueConvertor getFieldValueConvertor() {
+        return fieldValueConvertor;
+    }
+
+    public FeishuTableInputConfig setFieldValueConvertor(FieldValueConvertor fieldValueConvertor) {
+        this.fieldValueConvertor = fieldValueConvertor;
         return this;
     }
 
-    public FieldValueConvertor fieldValueConvertor(String field) {
-        if(fieldValueConvertors != null){
-            return fieldValueConvertors.get(field);
-        }
-        return null;
+    public String getQueryDslName() {
+        return queryDslName;
     }
-    
-    public FeishuTableInputConfig setAllFieldValueConvertor(AllFieldValueConvertor allFieldValueConvertor) {
-        this.allFieldValueConvertor = allFieldValueConvertor;
+
+    public FeishuTableInputConfig setQueryDslName(String queryDslName) {
+        this.queryDslName = queryDslName; 
         return this;
     }
-    
-    public AllFieldValueConvertor getAllFieldValueConvertor() {
-        return allFieldValueConvertor;
+       
+
+    public boolean isShowDsl() {
+        return showDsl;
+    }
+
+    public FeishuTableInputConfig setShowDsl(boolean showDsl) {
+        this.showDsl = showDsl;
+        return this;
+    }
+
+    public String getDslNamespace() {
+        return dslNamespace;
+    }
+
+    public FeishuTableInputConfig setDslNamespace(String dslNamespace) {
+        this.dslNamespace = dslNamespace;
+        return this;
+    }
+
+    public String getDslFile() {
+        return dslFile;
+    }
+
+    public FeishuTableInputConfig setDslFile(String dslFile) {
+        this.dslFile = dslFile;
+        return this;
     }
 }

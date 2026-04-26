@@ -77,12 +77,12 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 		if(dataTranPlugin.isIncreamentImport()) {
 			if(SimpleStringUtil.isNotEmpty(httpInputConfig.getQueryDsl())){
 				//计算增量记录id
-				importContext.setStatusTableId((httpInputConfig.getQueryDsl()+"$$"+httpInputConfig.getQueryUrl()).hashCode());
+				importContext.setStatusTableId((httpInputConfig.getDslNamespace() +"$$"+ httpInputConfig.getQueryDsl()).hashCode());
 			}
 
 			else{
 				//计算增量记录id
-				importContext.setStatusTableId((httpInputConfig.getDslFile()+"$$"+httpInputConfig.getQueryDslName() +"$$"+httpInputConfig.getQueryUrl() ).hashCode());
+				importContext.setStatusTableId((httpInputConfig.getDslFile()+"$$"+httpInputConfig.getQueryDslName() +"$$"+httpInputConfig.getQueryDsl()).hashCode());
 			}
 		}
 
@@ -245,6 +245,7 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 
 	@Override
 	public void afterInit() {
+        //通过虚拟一个自定义dsl管理容器，实现queryDsl的模拟配置文件加载,保持接口逻辑的统一管理
 		if(SimpleStringUtil.isNotEmpty(httpInputConfig.getQueryDsl())) {
 			httpConfigClientProxy = httpProxyHelper.getHttpConfigClientProxy(new BaseTemplateContainerImpl(httpInputConfig.getDslNamespace()) {
 				@Override
@@ -267,6 +268,10 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 				protected long getLastModifyTime(String namespace) {
 					return -1;
 				}
+                @Override
+                public boolean needMonitor(){
+                    return false;
+                }
 			});
 		}
 		else{

@@ -28,7 +28,9 @@ sourceSets {
 dependencies {
 
 	api project(':bboss-datatran-schedule-quartz')
-	compileOnly([group: 'org.apache.hbase', name: 'hbase-shaded-client', version: "2.5.7", transitive: true])
+    compileOnly([group: 'org.apache.hbase', name: 'hbase-shaded-client', version: "2.5.7", transitive: true])
+
+//    compileOnly([group: 'org.apache.hbase', name: 'hbase-shaded-client', version: "1.2.4", transitive: true])
 
 
 

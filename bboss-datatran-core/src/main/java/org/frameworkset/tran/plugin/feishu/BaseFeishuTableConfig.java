@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.spi.feishu.BaseFeishuConfigInf;
 import org.frameworkset.spi.feishu.FeishuHelper;
+import org.frameworkset.spi.remote.http.HttpConfigInf;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
@@ -31,7 +32,7 @@ import java.util.Map;
  * @author biaoping.yin
  * @Date 2026/3/23
  */
-public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> extends BaseConfig<T>  implements BaseFeishuConfigInf<T> {
+public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> extends BaseConfig<T>  implements BaseFeishuConfigInf<T> , HttpConfigInf {
 
     protected String feishuDataSource;
 
@@ -56,8 +57,9 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
 
 
     protected Map<String,Object> httpConfigs;
+    protected boolean showDsl;
     @JsonIgnore
-    protected FeishuHelper feishuHelper;
+    protected ConfigFeishuHelper feishuHelper;
 
     public Map<String, Object> getHttpConfigs() {
         return httpConfigs;
@@ -66,7 +68,15 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
     public String getSearchUrl() {
         return searchUrl;
     }
+    
+    public T setShowDsl(boolean showDsl) {
+        this.showDsl = showDsl;
+        return (T)this;
+    }
 
+    public boolean isShowDsl() {
+        return showDsl;
+    }
 
     public String getUserIdType() {
         return userIdType;
@@ -130,9 +140,19 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
                 }
             }
             else {
-                throw new IllegalArgumentException("feishuDataSource is empty!");
+                String feishuDatasource = SimpleStringUtil.getUUID32();
+                addHttpConfig("http.poolNames", feishuDatasource)
+                        .addHttpConfig(feishuDatasource+ ".http.hosts", "https://open.feishu.cn")
+                        .addHttpConfig(feishuDatasource+ ".http.maxTotal", 100)
+                        .addHttpConfig(feishuDatasource+ ".http.defaultMaxPerRoute", 100)
+                        .addHttpConfig(feishuDatasource+ ".http.timeoutConnection", 15000)
+                        .addHttpConfig(feishuDatasource+ ".http.connectionRequestTimeout", 10000)
+//                    #socket通讯超时时间，如果在通讯过程中出现sockertimeout异常，可以适当调整timeoutSocket参数值，单位：毫秒
+                        .addHttpConfig(feishuDatasource+ ".http.timeoutSocket", 120000);
+                this.feishuDataSource = feishuDatasource;        
             }
-        }     
+        }
+        
         
        
     }
@@ -142,13 +162,13 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
         }
     }
     public void initFeishHelper(){
-        FeishuHelper feishuHelper = new FeishuHelper(this);
+        ConfigFeishuHelper feishuHelper = new ConfigFeishuHelper(this);
         feishuHelper.init();
         this.feishuHelper = feishuHelper;
     }
 
 
-    public FeishuHelper getFeishuHelper() {
+    public ConfigFeishuHelper getFeishuHelper() {
         return feishuHelper;
     }
  
@@ -236,5 +256,10 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
     public T setRecordIdFieldName(String recordIdFieldName) {
         this.recordIdFieldName = recordIdFieldName;
         return (T)this;
+    }
+
+    @Override
+    public String getDatasource() {
+        return this.feishuDataSource;
     }
 }

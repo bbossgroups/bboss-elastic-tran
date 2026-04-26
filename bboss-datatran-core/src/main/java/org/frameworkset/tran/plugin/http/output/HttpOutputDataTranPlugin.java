@@ -97,6 +97,10 @@ public class HttpOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 					protected long getLastModifyTime(String namespace) {
 						return -1;
 					}
+                    @Override
+                    public boolean needMonitor(){
+                        return false;
+                    }
 				});
 			}
 			else{

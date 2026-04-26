@@ -54,7 +54,10 @@ public class HttpOutputConfig extends BaseHttpConfig<HttpOutputConfig> implement
 	public String getLineSeparator() {
 		return lineSeparator;
 	}
-
+    @Override
+    public String getDatasource() {
+        return getTargetHttpPool();
+    }
 	public HttpOutputConfig setShowDsl(boolean showDsl){
 		this.showDsl = showDsl;
 		return this;

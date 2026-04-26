@@ -278,4 +278,8 @@ public class HttpInputConfig extends BaseHttpConfig<HttpInputConfig> implements 
         this.queryResultQueue = queryResultQueue;
         return this;
     }
+    @Override
+    public String getDatasource() {
+        return getSourceHttpPool();
+    }
 }

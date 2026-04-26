@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.http;
  * limitations under the License.
  */
 
+import org.frameworkset.spi.remote.http.HttpConfigInf;
 import org.frameworkset.tran.plugin.BaseConfig;
 
 import java.util.LinkedHashMap;
@@ -28,8 +29,11 @@ import java.util.Map;
  * @author biaoping.yin
  * @version 1.0
  */
-public class BaseHttpConfig<T extends BaseHttpConfig> extends BaseConfig<T> {
+public class BaseHttpConfig<T extends BaseHttpConfig> extends BaseConfig<T> implements HttpConfigInf {
 	protected boolean showDsl;
+    /**
+     * 通过虚拟一个自定义dsl管理容器，实现queryDsl的模拟配置文件加载,保持接口逻辑的统一管理
+     */
 	protected String dslNamespace;
 	protected String dslFile;
 	protected Map<String,DynamicHeader> dynamicHeaders;
@@ -75,7 +79,13 @@ public class BaseHttpConfig<T extends BaseHttpConfig> extends BaseConfig<T> {
 	public boolean isShowDsl() {
 		return showDsl;
 	}
-	protected Map<String,String> httpHeaders;
+
+    @Override
+    public String getDatasource() {
+        return null;
+    }
+
+    protected Map<String,String> httpHeaders;
 	public T addHttpHeader(String header, String value){
 		if (httpHeaders == null) {
 			httpHeaders = new LinkedHashMap<>();

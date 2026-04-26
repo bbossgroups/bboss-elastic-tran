@@ -15,6 +15,7 @@ package org.frameworkset.tran.plugin.feishu.output;
  * limitations under the License.
  */
 
+import org.frameworkset.spi.feishu.FeishuHelper;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.config.OutputConfig;
 import org.frameworkset.tran.context.ImportContext;
@@ -41,13 +42,14 @@ public class FeishuTableOutputConfig extends BaseFeishuTableConfig<FeishuTableOu
         if(this.cellMappingList == null || this.cellMappingList.size() == 0){
             throw new IllegalArgumentException("未配置飞书多维表格字段映射：cellMappingList is empty!");
         }
-        batchInsertUrl = "/open-apis/bitable/v1/apps/"+feishuTableAppToken+"/tables/"+feishuTableId+"/records/batch_create";
-        batchUpdateUrl = "/open-apis/bitable/v1/apps/"+feishuTableAppToken+"/tables/"+feishuTableId+"/records/batch_update";
-        batchDeleteUrl = "/open-apis/bitable/v1/apps/"+feishuTableAppToken+"/tables/"+feishuTableId+"/records/batch_delete";
-        listFieldsUrl = "/open-apis/bitable/v1/apps/"+feishuTableAppToken+"/tables/"+feishuTableId+"/fields";
-        searchUrl = "/open-apis/bitable/v1/apps/"
-                +feishuTableAppToken+"/tables/"
-                +feishuTableId+"/records/search?page_size=10&user_id_type="+userIdType   ;
+        batchInsertUrl = FeishuHelper.buildBatchInsertUrl(feishuTableAppToken,feishuTableId);
+        batchUpdateUrl = FeishuHelper.buildBatchUpdateUrl(feishuTableAppToken,feishuTableId);
+        batchDeleteUrl = FeishuHelper.buildBatchDeleteUrl(feishuTableAppToken,feishuTableId);
+        listFieldsUrl = FeishuHelper.buildListFieldsUrl(feishuTableAppToken,feishuTableId);
+        searchUrl = FeishuHelper.buildSearchUrl(feishuTableAppToken,feishuTableId,10,userIdType);
+//        "/open-apis/bitable/v1/apps/"
+//                +feishuTableAppToken+"/tables/"
+//                +feishuTableId+"/records/search?page_size=10&user_id_type="+userIdType   ;
     }
  
 
