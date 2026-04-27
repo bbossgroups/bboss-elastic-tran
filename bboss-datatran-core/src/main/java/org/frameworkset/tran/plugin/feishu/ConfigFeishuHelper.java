@@ -84,18 +84,17 @@ public class ConfigFeishuHelper extends FeishuHelper {
 
     /**
      * 根据requestBodyName，从配置文件或者配置容器中解析和获取dsl
-     * @param accessToken
      * @param params
      * @return
      */
-    public Map searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String searchUrl,String accessToken, Map params){
-        Map headers = buildHeaders(accessToken);
+    public Map searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String searchUrl, Map params){
+//        Map headers = buildHeaders(accessToken);
 
 //        sendBodyForObject(HttpConfigInf httpConfigInf,  String searchUrl, String queryDslName,Map params,
 //                Map headers,
 //                Class<T> resultType)
         Map listFieldsResult = feishuHttpConfigClientProxy.sendBodyForObject( feishuTableInputConfig,
-                searchUrl,feishuTableInputConfig.getQueryDslName(),params,headers,Map.class);
+                searchUrl,feishuTableInputConfig.getQueryDslName(),params,(Map)null,Map.class);
 
 //        logger.info("推送多维表格结果:{}", JsonUtil.object2json(message_));
 

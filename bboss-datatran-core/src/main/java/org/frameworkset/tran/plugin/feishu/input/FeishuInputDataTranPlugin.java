@@ -201,15 +201,15 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
             public List<FeishuData> execute() {
                 String searchUrl = feishuTableInputConfig.getSearchUrl();
                 ConfigFeishuHelper feishuHelper = feishuTableInputConfig.getFeishuHelper();
-                String accessToken = feishuTableInputConfig.getAccessToken(taskContext,feishuTableInputConfig.getAccessTokenKey());
-                if(accessToken == null){
-                    accessToken = feishuHelper.getTenantAccessToken();
-                }
+//                String accessToken = feishuTableInputConfig.getAccessToken(taskContext,feishuTableInputConfig.getAccessTokenKey());
+//                if(accessToken == null){
+//                    accessToken = feishuHelper.getTenantAccessToken();
+//                }
                 if(pageToken != null){
                     searchUrl = searchUrl + "&page_token=" + pageToken;
                 }
                 List<FeishuData> feishuTableResult = null;
-                Map datas = feishuHelper.searchDataConfigable(feishuTableInputConfig,searchUrl,accessToken,params);
+                Map datas = feishuHelper.searchDataConfigable(feishuTableInputConfig,searchUrl,params);
                 if(datas != null ){
                     int code = (Integer)datas.get("code");
                     if(code != 0){
