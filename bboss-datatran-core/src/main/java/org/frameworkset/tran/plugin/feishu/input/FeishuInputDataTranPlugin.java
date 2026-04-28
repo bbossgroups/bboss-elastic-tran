@@ -90,7 +90,6 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
                 increamentImportData(   taskContext );
 
             }
-			commonImportData(   taskContext );
 			
 		} catch (DataImportException e) {
 			throw e;
