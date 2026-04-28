@@ -152,23 +152,23 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
                 }
             }
             else {
-                String feishuDatasource = SimpleStringUtil.getUUID32();
-                addHttpConfig("http.poolNames", feishuDatasource)
-                        .addHttpConfig(feishuDatasource+ ".http.hosts", "https://open.feishu.cn")
-                        .addHttpConfig(feishuDatasource+ ".http.maxTotal", 100)
-                        .addHttpConfig(feishuDatasource+ ".http.defaultMaxPerRoute", 100)
-                        .addHttpConfig(feishuDatasource+ ".http.timeoutConnection", 15000)
-                        .addHttpConfig(feishuDatasource+ ".http.connectionRequestTimeout", 10000)
+                String feishuDataSource = SimpleStringUtil.getUUID32();
+                addHttpConfig("http.poolNames", feishuDataSource)
+                        .addHttpConfig(feishuDataSource+ ".http.hosts", "https://open.feishu.cn")
+                        .addHttpConfig(feishuDataSource+ ".http.maxTotal", 100)
+                        .addHttpConfig(feishuDataSource+ ".http.defaultMaxPerRoute", 100)
+                        .addHttpConfig(feishuDataSource+ ".http.timeoutConnection", 15000)
+                        .addHttpConfig(feishuDataSource+ ".http.connectionRequestTimeout", 10000)
                         
 //                    #socket通讯超时时间，如果在通讯过程中出现sockertimeout异常，可以适当调整timeoutSocket参数值，单位：毫秒
-                        .addHttpConfig(feishuDatasource+ ".http.timeoutSocket", 120000)
+                        .addHttpConfig(feishuDataSource+ ".http.timeoutSocket", 120000)
                         .addHttpConfig(feishuDataSource+ ".http.authorTokenFunction","org.frameworkset.spi.feishu.FeishuAuthorTokenFunction")
                         .addHttpConfig(feishuDataSource+ ".http.authorTokenExpiredTime",105*60*1000L)
                         .addHttpConfig(feishuDataSource+ ".http.extendConfigs.appId",this.getFeishuAppId())
                         .addHttpConfig(feishuDataSource+ ".http.extendConfigs.appSecret", this.getFeishAppSecret());
-                this.feishuDataSource = feishuDatasource;        
+                this.feishuDataSource = feishuDataSource;        
             }
-        }
+        }     
         
         
        
