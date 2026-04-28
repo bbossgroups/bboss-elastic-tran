@@ -21,6 +21,7 @@ import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.NodeTrigger;
 import org.frameworkset.tran.jobflow.listener.JobFlowListener;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
+import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -207,8 +208,11 @@ public class JobFlowBuilder {
         return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger,false);
     }
 
- 
-   
+    public String addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger){
+        return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger,false);
+    }
+
+
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支，可以连续添加多个
      *  allCondtionNodeMathfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
@@ -236,7 +240,13 @@ public class JobFlowBuilder {
         return addConditionJobFlowNodeBuilder(false,jobFlowNodeBuilder, conditionNodeTrigger,defaultConditionNode);
     }
 
+    public String addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
+        return addConditionJobFlowNodeBuilder(false,jobFlowNodeBuilder, conditionNodeTrigger,defaultConditionNode);
+    }
 
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
+        return   addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,  jobFlowNodeBuilder, new NodeTrigger(conditionNodeTrigger), defaultConditionNode);
+    }
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支
      * allCondtionNodeMathfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
@@ -292,7 +302,28 @@ public class JobFlowBuilder {
         return addConditionJobFlowNodeBuilder(conditionNodeId ,   conditionNodeTrigger,false);
     }
 
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支，可以连续添加多个
+     * @param conditionNodeId
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(String conditionNodeId, TriggerScriptAPI conditionNodeTrigger){
+        return addConditionJobFlowNodeBuilder(conditionNodeId ,   conditionNodeTrigger,false);
+    }
 
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支
+     * @param conditionNodeId
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(String conditionNodeId, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
+        ConditionJobFlowNodeBuilder jobFlowNodeBuilder = conditionJobFlowNodeBuilders.get(conditionNodeId);
+        if(jobFlowNodeBuilder == null){
+            throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
+        }
+        return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger,  defaultConditionNode);
+    }
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支
      * @param conditionNodeId
@@ -315,6 +346,21 @@ public class JobFlowBuilder {
      */
     public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger){
         return addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger,false);
+    }
+
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
+     * addConditionJobFlowNodeBuilder方法添加
+     * 返回条件复合节点唯一ID
+     * @param jobFlowNodeBuilder
+     * @return 条件复合节点唯一ID
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger){
+        return addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger,false);
+    }
+
+    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
+        return addAnotherConditionJobFlowNodeBuilder(  jobFlowNodeBuilder, new NodeTrigger( conditionNodeTrigger), defaultConditionNode);
     }
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
@@ -361,6 +407,8 @@ public class JobFlowBuilder {
     public String addAnotherConditionJobFlowNodeBuilder(String conditionNodeId, NodeTrigger conditionNodeTrigger){
         return addAnotherConditionJobFlowNodeBuilder(conditionNodeId,   conditionNodeTrigger,false);
     }
+    
+    
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
      * addConditionJobFlowNodeBuilder方法添加
