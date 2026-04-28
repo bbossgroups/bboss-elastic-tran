@@ -99,9 +99,14 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
         return accessToken;
     }
     /**
-     * access_token expire time:默认值2小时，刷新时间提前10分钟
+     * access_token expire time:默认值2小时，刷新时间间隔25分钟
+     * tenant_access_token 的最大有效期是 2 小时。
+     *
+     * 剩余有效期小于 30 分钟时，调用本接口会返回一个新的 tenant_access_token，这会同时存在两个有效的 tenant_access_token。
+     * 剩余有效期大于等于 30 分钟时，调用本接口会返回原有的 tenant_access_token。
+     * 1500000
      */
-    protected long accessTokenExpireTime = 2L * 50L * 60L * 1000L;
+    protected long accessTokenExpireTime = 25L * 60L * 1000L;
     public long getAccessTokenExpireTime() {
         return accessTokenExpireTime;
     }
@@ -142,7 +147,7 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
                     addHttpConfig(feishuDataSource + ".http.authorTokenFunction", "org.frameworkset.spi.feishu.FeishuAuthorTokenFunction");
                 }
                 if(!this.httpConfigs.containsKey(feishuDataSource+ ".http.authorTokenExpiredTime")) {
-                    addHttpConfig(feishuDataSource + ".http.authorTokenExpiredTime", accessTokenExpireTime);
+                    addHttpConfig(feishuDataSource + ".http.authorTokenExpiredTime", 1500000L);
                 }
                 if(!this.httpConfigs.containsKey(feishuDataSource+ ".http.extendConfigs.appId")) {
                     addHttpConfig(feishuDataSource + ".http.extendConfigs.appId", this.getFeishuAppId());
@@ -163,7 +168,7 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
 //                    #socket通讯超时时间，如果在通讯过程中出现sockertimeout异常，可以适当调整timeoutSocket参数值，单位：毫秒
                         .addHttpConfig(feishuDataSource+ ".http.timeoutSocket", 120000)
                         .addHttpConfig(feishuDataSource+ ".http.authorTokenFunction","org.frameworkset.spi.feishu.FeishuAuthorTokenFunction")
-                        .addHttpConfig(feishuDataSource+ ".http.authorTokenExpiredTime",accessTokenExpireTime)
+                        .addHttpConfig(feishuDataSource+ ".http.authorTokenExpiredTime",1500000L)
                         .addHttpConfig(feishuDataSource+ ".http.extendConfigs.appId",this.getFeishuAppId())
                         .addHttpConfig(feishuDataSource+ ".http.extendConfigs.appSecret", this.getFeishAppSecret());
                 this.feishuDataSource = feishuDataSource;        

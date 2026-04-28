@@ -25,8 +25,6 @@ import org.frameworkset.elasticsearch.template.TemplateMeta;
 import org.frameworkset.spi.feishu.BaseFeishuConfigInf;
 import org.frameworkset.spi.feishu.FeishuException;
 import org.frameworkset.spi.feishu.FeishuHelper;
-import org.frameworkset.spi.remote.http.HttpConfigInf;
-import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.tran.plugin.feishu.input.FeishuTableInputConfig;
 
 import java.util.LinkedHashMap;
@@ -88,13 +86,18 @@ public class ConfigFeishuHelper extends FeishuHelper {
      * @return
      */
     public Map searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String searchUrl, Map params){
+        return searchDataConfigable(  feishuTableInputConfig,  searchUrl, feishuTableInputConfig.getQueryDslName(), params);
+//        
+    }
+
+    public Map searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String searchUrl, String queryDslName,Map params){
 //        Map headers = buildHeaders(accessToken);
 
 //        sendBodyForObject(HttpConfigInf httpConfigInf,  String searchUrl, String queryDslName,Map params,
 //                Map headers,
 //                Class<T> resultType)
         Map listFieldsResult = feishuHttpConfigClientProxy.sendBodyForObject( feishuTableInputConfig,
-                searchUrl,feishuTableInputConfig.getQueryDslName(),params,(Map)null,Map.class);
+                searchUrl,queryDslName,params,(Map)null,Map.class);
 
 //        logger.info("推送多维表格结果:{}", JsonUtil.object2json(message_));
 
@@ -105,6 +108,87 @@ public class ConfigFeishuHelper extends FeishuHelper {
         }
         return listFieldsResult;
     }
+
+
+    public <T> T searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String searchUrl, String queryDslName,Map params,Class<T> type){
+//        Map headers = buildHeaders(accessToken);
+
+//        sendBodyForObject(HttpConfigInf httpConfigInf,  String searchUrl, String queryDslName,Map params,
+//                Map headers,
+//                Class<T> resultType)
+        T listFieldsResult = feishuHttpConfigClientProxy.sendBodyForObject( feishuTableInputConfig,
+                searchUrl,queryDslName,params,(Map)null,type);
+
+//        logger.info("推送多维表格结果:{}", JsonUtil.object2json(message_));
+
+//        //是否成功 非0为不成功
+//        if(listFieldsResult != null && Integer.valueOf(0).equals(listFieldsResult.get("code"))){
+//        }else{
+//            throw new FeishuException("查询数据失败："+ JsonUtil.object2json(listFieldsResult));
+//        }
+        return listFieldsResult;
+    }
+    
+
+    public <T> T searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String tableAppToken, String tableId,
+                                      String pageToken,int pageSize,String userIdType,String queryDslName,Map params,Class<T> type){
+//        Map headers = buildHeaders(accessToken);
+
+//        sendBodyForObject(HttpConfigInf httpConfigInf,  String searchUrl, String queryDslName,Map params,
+//                Map headers,
+//                Class<T> resultType)
+        T listFieldsResult = feishuHttpConfigClientProxy.sendBodyForObject( feishuTableInputConfig,
+                FeishuHelper.buildSearchUrl(tableAppToken,tableId,pageToken,pageSize,userIdType),queryDslName,params,(Map)null,type);
+
+//        logger.info("推送多维表格结果:{}", JsonUtil.object2json(message_));
+
+//        //是否成功 非0为不成功
+//        if(listFieldsResult != null && Integer.valueOf(0).equals(listFieldsResult.get("code"))){
+//        }else{
+//            throw new FeishuException("查询数据失败："+ JsonUtil.object2json(listFieldsResult));
+//        }
+        return listFieldsResult;
+    }
+    public <T> T searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,
+                                      String tableAppToken, String tableId,int pageSize,String userIdType,String queryDslName,Map params,Class<T> type){
+ 
+        return searchDataConfigable(  feishuTableInputConfig,
+                  tableAppToken,   tableId, (String)null, pageSize,  userIdType,  queryDslName,  params,  type);
+    }
+
+    public <T> T searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String tableAppToken, String tableId,int pageSize,String queryDslName,Map params,Class<T> type){
+//        Map headers = buildHeaders(accessToken);
+
+//        sendBodyForObject(HttpConfigInf httpConfigInf,  String searchUrl, String queryDslName,Map params,
+//                Map headers,
+//                Class<T> resultType)
+        String userIdType = "open_id";
+        return searchDataConfigable(  feishuTableInputConfig,  tableAppToken, 
+                  tableId,  pageSize,  userIdType,  queryDslName,  params,  type);
+    }
+
+    public <T> T searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String tableAppToken, 
+                                      String tableId,String pageToken,
+                                      int pageSize,String queryDslName,Map params,Class<T> type){
+//        Map headers = buildHeaders(accessToken);
+
+//        sendBodyForObject(HttpConfigInf httpConfigInf,  String searchUrl, String queryDslName,Map params,
+//                Map headers,
+//                Class<T> resultType)
+        String userIdType = "open_id";
+        return searchDataConfigable(  feishuTableInputConfig,  tableAppToken,
+                tableId, pageToken, pageSize,  userIdType,  queryDslName,  params,  type);
+    }
+
+
+    
+
+
+    
+
+
+
+
 
     @Override
     public void init() {
