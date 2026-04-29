@@ -37,13 +37,12 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
    private String requestBody;
 
    
-
-    protected boolean showDsl;
+ 
     /**
      * 通过虚拟一个自定义dsl管理容器，实现queryDsl的模拟配置文件加载,保持接口逻辑的统一管理
      */
     protected String dslNamespace;
-    protected String dslFile;
+
     private String queryDslName;
  
    @JsonIgnore
@@ -113,14 +112,7 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
     }
        
 
-    public boolean isShowDsl() {
-        return showDsl;
-    }
-
-    public FeishuTableInputConfig setShowDsl(boolean showDsl) {
-        this.showDsl = showDsl;
-        return this;
-    }
+ 
 
     public String getDslNamespace() {
         return dslNamespace;
@@ -131,12 +123,5 @@ public class FeishuTableInputConfig extends BaseFeishuTableConfig<FeishuTableInp
         return this;
     }
 
-    public String getDslFile() {
-        return dslFile;
-    }
 
-    public FeishuTableInputConfig setDslFile(String dslFile) {
-        this.dslFile = dslFile;
-        return this;
-    }
 }

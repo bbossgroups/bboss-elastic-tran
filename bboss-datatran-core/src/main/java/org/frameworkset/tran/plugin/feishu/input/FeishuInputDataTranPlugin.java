@@ -133,65 +133,6 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
                     value = allFieldValueConvertor.handleItem(taskContext,fields, key,value);
                     newfields.put(key, value);
                     
-//                    fieldValueConvertor = feishuTableInputConfig.fieldValueConvertor(key);
-//                    if(fieldValueConvertor != null){
-//                        newfields.put(key, fieldValueConvertor.handleItem(fields, key,value));
-//                    }
-//                    else if(allFieldValueConvertor != null){
-//                        newfields.put(key, allFieldValueConvertor.handleItem(fields, key,value));
-//                    }
-//                    else {
-//                        if (value instanceof List) {
-//                            List v = (List) value;
-//                            int size = v.size();
-//                            if (v != null && size > 0) {
-//                                Object o = v.get(0);
-//                                
-//                                if(o instanceof Map){
-//                                    if(size == 1) {
-//                                        newfields.put(key, ((Map) o).get("text"));
-//                                    }
-//                                    else{
-//                                        List texts = new ArrayList(size);
-//                                        for(Object o1:v){
-//                                            texts.add(((Map) o1).get("text"));
-//                                        }
-//                                        newfields.put(key, texts);
-//                                    }
-//                                }
-//                                else{
-//                                    newfields.put(key, v);
-//                                }
-//                                
-//                            }
-//                        }
-//                        else if(value instanceof Map){
-//                            Map map = (Map)value;
-//                            Integer type = (Integer) map.get("type");
-//                            if(type != null){
-//                                //公式值处理：{"type":1,"value":[{"text":"[100%]","type":"text"}]}
-//                                List functionValues = (List) map.get("value");
-//                                if(functionValues != null && functionValues.size() > 0){
-//                                    Object functionValue = functionValues.get(0);
-//                                    if(functionValue instanceof Map) {
-//                                        newfields.put(key, ((Map) functionValue).get("text"));
-//                                    }
-//                                    else{
-//                                        newfields.put(key, functionValue);
-//                                    }
-//                                }
-//                                else{
-//                                    newfields.put(key, value);
-//                                }
-//                            }
-//                            else{
-//                                newfields.put(key, value);
-//                            }
-//                        }
-//                        else {
-//                            newfields.put(key, value);
-//                        }
-//                    }
                 }
                 feishuData.setFields(newfields);
                 return feishuData;
@@ -200,10 +141,8 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
             public List<FeishuData> execute() {
                 String searchUrl = feishuTableInputConfig.getSearchUrl();
                 ConfigFeishuHelper feishuHelper = feishuTableInputConfig.getFeishuHelper();
-//                String accessToken = feishuTableInputConfig.getAccessToken(taskContext,feishuTableInputConfig.getAccessTokenKey());
-//                if(accessToken == null){
-//                    accessToken = feishuHelper.getTenantAccessToken();
-//                }
+
+                hasMore = false;
                 if(pageToken != null){
                     searchUrl = searchUrl + "&page_token=" + pageToken;
                 }
@@ -229,10 +168,7 @@ public class FeishuInputDataTranPlugin extends BasePlugin implements InputPlugin
                         }
                         hasMore = (boolean) data.get("has_more");
                         pageToken = (String) data.get("page_token");
-                    }
-                    else{
-                        
-                    }
+                    }                    
                 }
                 
                 

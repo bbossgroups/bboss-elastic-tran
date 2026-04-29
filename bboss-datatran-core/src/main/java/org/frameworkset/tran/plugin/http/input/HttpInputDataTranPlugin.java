@@ -126,6 +126,7 @@ public class HttpInputDataTranPlugin extends BasePlugin implements InputPlugin {
 
             @Override
             public HttpResult<Map> execute() {
+                hasMore = false;
                 if (httpInputConfig.isPagine()) {
                     params.put(httpInputConfig.getPagineFromKey(), from);//从0开始
                     int pageSize = httpInputConfig.getPageSize();

@@ -18,11 +18,11 @@ package org.frameworkset.tran.plugin.feishu;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.spi.feishu.BaseFeishuConfigInf;
-import org.frameworkset.spi.feishu.FeishuHelper;
 import org.frameworkset.spi.remote.http.HttpConfigInf;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
+import org.frameworkset.tran.plugin.feishu.input.FeishuTableInputConfig;
 import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.LinkedHashMap;
@@ -42,7 +42,7 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
     protected String feishuAppId;
     protected String feishAppSecret;
 
-
+    protected String dslFile;
 
 
     private String recordIdFieldName = "record_id";
@@ -86,18 +86,15 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
         this.userIdType = userIdType;
         return (T)this;
     }
-
-    public String getAccessToken(TaskContext taskContext, String accessTokenKey){
-        String accessToken = null;
-        if(taskContext.getJobFlowNodeExecuteContext() != null) {
-//		String accessToken = customOutPutContext.getTaskContext().getTaskStringData("accessToken");
-            accessToken = (String) taskContext.getJobFlowNodeExecuteContext().getJobFlowContextData(accessTokenKey);
-        }
-        else{
-            accessToken = taskContext.getTaskStringData(accessTokenKey);
-        }
-        return accessToken;
+    public String getDslFile() {
+        return dslFile;
     }
+
+    public T setDslFile(String dslFile) {
+        this.dslFile = dslFile;
+        return (T)this;
+    }
+     
     /**
      * access_token expire time:默认值2小时，刷新时间间隔25分钟
      * tenant_access_token 的最大有效期是 2 小时。
@@ -114,17 +111,7 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
         this.accessTokenExpireTime = accessTokenExpireTime;
         return (T)this;
     }
-    public String getAccessToken(TaskContext taskContext){
-        String accessToken = null;
-        if(taskContext.getJobFlowNodeExecuteContext() != null) {
-//		String accessToken = customOutPutContext.getTaskContext().getTaskStringData("accessToken");
-            accessToken = (String) taskContext.getJobFlowNodeExecuteContext().getJobFlowContextData(accessTokenKey);
-        }
-        else{
-            accessToken = taskContext.getTaskStringData(accessTokenKey);
-        }
-        return accessToken;
-    }
+    
     
     public void build(ImportContext importContext, ImportBuilder importBuilder) {
         if(SimpleStringUtil.isEmpty(feishuTableAppToken) ){
@@ -132,6 +119,10 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
         }
         if(SimpleStringUtil.isEmpty(feishuTableId) ){
             throw new IllegalArgumentException("feishuTableId is empty!");
+        }
+        long _accessTokenExpireTime = accessTokenExpireTime;
+        if(_accessTokenExpireTime > 1500000L){
+            _accessTokenExpireTime = 1500000L;
         }
         if(SimpleStringUtil.isEmpty(feishuDataSource) ){
             if(this.httpConfigs != null){
@@ -147,7 +138,21 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
                     addHttpConfig(feishuDataSource + ".http.authorTokenFunction", "org.frameworkset.spi.feishu.FeishuAuthorTokenFunction");
                 }
                 if(!this.httpConfigs.containsKey(feishuDataSource+ ".http.authorTokenExpiredTime")) {
-                    addHttpConfig(feishuDataSource + ".http.authorTokenExpiredTime", 1500000L);
+                    addHttpConfig(feishuDataSource + ".http.authorTokenExpiredTime", _accessTokenExpireTime);
+                }
+                else{
+                    Object accessTokenExpireTimeTemp =  this.httpConfigs.get(feishuDataSource+ ".http.authorTokenExpiredTime");
+                    if(accessTokenExpireTimeTemp instanceof Long){
+                        _accessTokenExpireTime = (Long)accessTokenExpireTimeTemp;
+                        
+                    }
+                    else{
+                        _accessTokenExpireTime = Long.parseLong(String.valueOf(accessTokenExpireTimeTemp));
+                    }
+                    if(_accessTokenExpireTime > 1500000L){
+                        _accessTokenExpireTime = 1500000L;
+                        addHttpConfig(feishuDataSource + ".http.authorTokenExpiredTime", _accessTokenExpireTime);
+                    }
                 }
                 if(!this.httpConfigs.containsKey(feishuDataSource+ ".http.extendConfigs.appId")) {
                     addHttpConfig(feishuDataSource + ".http.extendConfigs.appId", this.getFeishuAppId());
@@ -168,7 +173,7 @@ public abstract class BaseFeishuTableConfig<T extends BaseFeishuTableConfig> ext
 //                    #socket通讯超时时间，如果在通讯过程中出现sockertimeout异常，可以适当调整timeoutSocket参数值，单位：毫秒
                         .addHttpConfig(feishuDataSource+ ".http.timeoutSocket", 120000)
                         .addHttpConfig(feishuDataSource+ ".http.authorTokenFunction","org.frameworkset.spi.feishu.FeishuAuthorTokenFunction")
-                        .addHttpConfig(feishuDataSource+ ".http.authorTokenExpiredTime",1500000L)
+                        .addHttpConfig(feishuDataSource+ ".http.authorTokenExpiredTime",_accessTokenExpireTime)
                         .addHttpConfig(feishuDataSource+ ".http.extendConfigs.appId",this.getFeishuAppId())
                         .addHttpConfig(feishuDataSource+ ".http.extendConfigs.appSecret", this.getFeishAppSecret());
                 this.feishuDataSource = feishuDataSource;        
