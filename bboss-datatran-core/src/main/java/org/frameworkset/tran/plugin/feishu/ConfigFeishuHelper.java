@@ -61,6 +61,28 @@ public class ConfigFeishuHelper extends FeishuHelper {
         return httpConfigClientProxy;
     }
 
+    @Override
+    public void destroy(){
+        super.destroy();
+        destoryConfigHolder();
+    }
+    /**
+     * 只能在系统退出时调用
+     */
+    public void destoryConfigHolder(){
+        try {
+            if(configDSLUtils != null){
+                configDSLUtils.clear();
+            }
+            if (configHolder != null)
+                configHolder.destory();
+        }
+        catch (Exception e){
+            
+        }
+    } 
+ 
+
     public FeishuHttpConfigClientProxy getHttpConfigClientProxy(BaseTemplateContainerImpl templateContainer){
         String namespace = templateContainer.getNamespace();
         FeishuHttpConfigClientProxy httpConfigClientProxy = configDSLUtils.get(namespace);
@@ -86,15 +108,15 @@ public class ConfigFeishuHelper extends FeishuHelper {
      * @param params
      * @return
      */
-    public Map searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String searchUrl, Map params){
+    public Map searchDataConfigable(BaseFeishuConfigInf feishuTableInputConfig, String searchUrl, Map params){
         return searchDataConfigable(  feishuTableInputConfig,  searchUrl, feishuTableInputConfig.getQueryDslName(), params);
 //        
     }
 
-    public Map searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String searchUrl, String queryDslName,Map params){
+    public Map searchDataConfigable(BaseFeishuConfigInf feishuTableInputConfig,String searchUrl, String queryDslName,Map params){
 //        Map headers = buildHeaders(accessToken);
 
-//        sendBodyForObject(HttpConfigInf httpConfigInf,  String searchUrl, String queryDslName,Map params,
+//        sendBodyForObject(BaseFeishuConfigInf httpConfigInf,  String searchUrl, String queryDslName,Map params,
 //                Map headers,
 //                Class<T> resultType)
         Map listFieldsResult = feishuHttpConfigClientProxy.sendBodyForObject( feishuTableInputConfig,
@@ -111,7 +133,7 @@ public class ConfigFeishuHelper extends FeishuHelper {
     }
 
 
-    public <T> T searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String searchUrl, String queryDslName,Map params,Class<T> type){
+    public <T> T searchDataConfigable(BaseFeishuConfigInf feishuTableInputConfig,String searchUrl, String queryDslName,Map params,Class<T> type){
 //        Map headers = buildHeaders(accessToken);
 
 //        sendBodyForObject(HttpConfigInf httpConfigInf,  String searchUrl, String queryDslName,Map params,
@@ -131,7 +153,7 @@ public class ConfigFeishuHelper extends FeishuHelper {
     }
     
 
-    public <T> T searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String tableAppToken, String tableId,
+    public <T> T searchDataConfigable(BaseFeishuConfigInf feishuTableInputConfig,String tableAppToken, String tableId,
                                       String pageToken,int pageSize,String userIdType,String queryDslName,Map params,Class<T> type){
 //        Map headers = buildHeaders(accessToken);
 
@@ -150,14 +172,14 @@ public class ConfigFeishuHelper extends FeishuHelper {
 //        }
         return listFieldsResult;
     }
-    public <T> T searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,
+    public <T> T searchDataConfigable(BaseFeishuConfigInf feishuTableInputConfig,
                                       String tableAppToken, String tableId,int pageSize,String userIdType,String queryDslName,Map params,Class<T> type){
  
         return searchDataConfigable(  feishuTableInputConfig,
                   tableAppToken,   tableId, (String)null, pageSize,  userIdType,  queryDslName,  params,  type);
     }
 
-    public <T> T searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String tableAppToken, String tableId,int pageSize,String queryDslName,Map params,Class<T> type){
+    public <T> T searchDataConfigable(BaseFeishuConfigInf feishuTableInputConfig,String tableAppToken, String tableId,int pageSize,String queryDslName,Map params,Class<T> type){
 //        Map headers = buildHeaders(accessToken);
 
 //        sendBodyForObject(HttpConfigInf httpConfigInf,  String searchUrl, String queryDslName,Map params,
@@ -168,7 +190,7 @@ public class ConfigFeishuHelper extends FeishuHelper {
                   tableId,  pageSize,  userIdType,  queryDslName,  params,  type);
     }
 
-    public <T> T searchDataConfigable(FeishuTableInputConfig feishuTableInputConfig,String tableAppToken, 
+    public <T> T searchDataConfigable(BaseFeishuConfigInf feishuTableInputConfig,String tableAppToken, 
                                       String tableId,String pageToken,
                                       int pageSize,String queryDslName,Map params,Class<T> type){
 //        Map headers = buildHeaders(accessToken);

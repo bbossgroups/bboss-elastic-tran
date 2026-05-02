@@ -33,10 +33,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version 1.0
  */
 public class HttpProxyHelper {
-	private Map<String, HttpConfigClientProxy> configDSLUtils = new ConcurrentHashMap<>();
+	private static Map<String, HttpConfigClientProxy> configDSLUtils = new ConcurrentHashMap<>();
     
-    private ConfigHolder configHolder = new ConfigHolder("HttpProxy");
-	public HttpConfigClientProxy getHttpConfigClientProxy( String configDSLFile){
+    private static ConfigHolder configHolder = new ConfigHolder("HttpProxy");
+	public static HttpConfigClientProxy getHttpConfigClientProxy( String configDSLFile){
 		HttpConfigClientProxy httpConfigClientProxy = configDSLUtils.get(configDSLFile);
 		if(httpConfigClientProxy != null)
 			return httpConfigClientProxy;
@@ -51,7 +51,7 @@ public class HttpProxyHelper {
 		return httpConfigClientProxy;
 	}
 
-	public HttpConfigClientProxy getHttpConfigClientProxy(BaseTemplateContainerImpl templateContainer){
+	public static HttpConfigClientProxy getHttpConfigClientProxy(BaseTemplateContainerImpl templateContainer){
 		String namespace = templateContainer.getNamespace();
 		HttpConfigClientProxy httpConfigClientProxy = configDSLUtils.get(namespace);
 		if(httpConfigClientProxy != null)
