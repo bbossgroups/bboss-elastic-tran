@@ -16,6 +16,7 @@ package org.frameworkset.tran.jobflow.builder;
  */
 
 import org.frameworkset.tran.jobflow.*;
+import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
     private JobFlowNodeBuilder headerJobFlowNodeBuilder;
     private JobFlowNodeBuilder currentJobFlowNodeBuilder;
     private Map<String,ConditionJobFlowNodeBuilder> conditionJobFlowNodeBuilders = new LinkedHashMap<>();
-
+    private Map<String ,JobFlowNodeBuilder> jobFlowNodeBuilderMap = new LinkedHashMap<>();
    
     public SequenceJobFlowNodeBuilder(String nodeId,String nodeName){
         super(nodeId,nodeName,JobFlowNodeType.SEQUENCE);
@@ -43,7 +44,9 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         super(JobFlowNodeType.SEQUENCE);
     }
 
-
+    public JobFlowNodeBuilder getJobFlowNodeBuilder(String nodeId){
+        return jobFlowNodeBuilderMap.get(nodeId);
+    }   
     /**
      * 添加复杂串行子任务，存在串行多个子任务或者串行任务
      * @param jobFlowNodeBuilder
@@ -61,6 +64,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
             this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
         this.currentJobFlowNodeBuilder = jobFlowNodeBuilder;
         nodeBuilders.add(jobFlowNodeBuilder);
+        jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
         return this;
     }
     
@@ -100,6 +104,17 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
      * @return
      */
     public String addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
+         
+        return addConditionJobFlowNodeBuilder(  false,  jobFlowNodeBuilder,   conditionNodeTrigger,  defaultConditionNode);
+    }
+    /**
+     * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
+     * @param jobFlowNodeBuilder
+     * @param conditionNodeTrigger 节点条件触发器
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
         init();
         CompositionJobFlowNodeBuilder compositionJobFlowNodeBuilder = jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder();
         if(compositionJobFlowNodeBuilder != null ){
@@ -116,19 +131,22 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
                 ((ConditionJobFlowNodeBuilder)currentJobFlowNodeBuilder).addJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger);
                 cid = ((ConditionJobFlowNodeBuilder)currentJobFlowNodeBuilder).getConditionJobFlowNodeUUID();
             }
-            else { 
+            else {
                 ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
                 conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+                conditionJobFlowNodeBuilder.setAllCondtionNodeMathfailedContinue(allCondtionNodeMathfailedContinue);
                 currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
                 nodeBuilders.add(conditionJobFlowNodeBuilder);
                 currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
                 cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
                 conditionJobFlowNodeBuilders.put(cid, conditionJobFlowNodeBuilder);
+                this.jobFlowNodeBuilderMap.put(cid, conditionJobFlowNodeBuilder);
             }
 
         }
         else{
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+            conditionJobFlowNodeBuilder.setAllCondtionNodeMathfailedContinue(allCondtionNodeMathfailedContinue);
             conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
             this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
             nodeBuilders.add(conditionJobFlowNodeBuilder);
@@ -138,11 +156,15 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
             }
             cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
             conditionJobFlowNodeBuilders.put(cid, conditionJobFlowNodeBuilder);
-        }
 
+            this.jobFlowNodeBuilderMap.put(cid, conditionJobFlowNodeBuilder);
+        }
+        this.jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(), jobFlowNodeBuilder);
         jobFlowNodeBuilder.setDefaultConditionNode(cid,defaultConditionNode);
         return cid;
     }
+
+    
 
     /**
      * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
@@ -190,6 +212,72 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         return this.addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,nodeTrigger,defaultConditionNode);
 
     }
+    
+    
+    //************************************//
+
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支，可以连续添加多个
+     * @param conditionNodeId
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(String conditionNodeId, TriggerScriptAPI conditionNodeTrigger){
+        return addConditionJobFlowNodeBuilder(conditionNodeId ,   conditionNodeTrigger,false);
+    }
+
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支
+     * @param conditionNodeId
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(String conditionNodeId, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
+        ConditionJobFlowNodeBuilder jobFlowNodeBuilder = conditionJobFlowNodeBuilders.get(conditionNodeId);
+        if(jobFlowNodeBuilder == null){
+            throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
+        }
+        return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger != null?new NodeTrigger(conditionNodeTrigger):null,  defaultConditionNode);
+    }
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支
+     * @param conditionNodeId
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,String conditionNodeId, TriggerScriptAPI conditionNodeTrigger){
+
+        return addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,  conditionNodeId,   conditionNodeTrigger,false);
+    }
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支
+     * @param conditionNodeId
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,String conditionNodeId, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
+        ConditionJobFlowNodeBuilder jobFlowNodeBuilder = conditionJobFlowNodeBuilders.get(conditionNodeId);
+        if(jobFlowNodeBuilder == null){
+            throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
+        }
+        return addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,jobFlowNodeBuilder,   conditionNodeTrigger != null?new NodeTrigger(conditionNodeTrigger):null,  defaultConditionNode);
+    }
+
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支
+     * @param conditionNodeId
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,String conditionNodeId, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
+        ConditionJobFlowNodeBuilder jobFlowNodeBuilder = conditionJobFlowNodeBuilders.get(conditionNodeId);
+        if(jobFlowNodeBuilder == null){
+            throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
+        }
+        return addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,jobFlowNodeBuilder,   conditionNodeTrigger,  defaultConditionNode);
+    }
+    
+    //***********************************//
+    
+    
 
     /**
      * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
@@ -257,6 +345,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
             jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
         }
         String cid = null;
+       
         if(currentJobFlowNodeBuilder != null) {
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
             conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,  nodeTrigger);
@@ -266,6 +355,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
             cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
 
             conditionJobFlowNodeBuilders.put(cid, conditionJobFlowNodeBuilder);
+            jobFlowNodeBuilderMap.put(cid, conditionJobFlowNodeBuilder);
         }
         else{
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
@@ -278,8 +368,9 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
             }
             cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
             conditionJobFlowNodeBuilders.put(cid, conditionJobFlowNodeBuilder);
+            jobFlowNodeBuilderMap.put(cid, conditionJobFlowNodeBuilder);
         }
-
+        this.jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(), jobFlowNodeBuilder);
         jobFlowNodeBuilder.setDefaultConditionNode(cid,defaultConditionNode);
         return cid;
     }
@@ -307,16 +398,25 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         }
         return this.addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,  nodeTrigger,defaultConditionNode);
     }
-    
-    
 
-
+    public String addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger){
+        return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger,false);
+    }
+    public String addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
+        return addConditionJobFlowNodeBuilder(false,jobFlowNodeBuilder, conditionNodeTrigger,defaultConditionNode);
+    }
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
+        return   addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,  jobFlowNodeBuilder, new NodeTrigger(conditionNodeTrigger), defaultConditionNode);
+    }
+    protected SequenceJobFlowNode buildSequenceJobFlowNode(){
+        return new SequenceJobFlowNode();
+    }
     @Override
     public JobFlowNode build(JobFlow jobFlow){
         if(this.jobFlowNode != null){
             return jobFlowNode;
         }
-        SequenceJobFlowNode sequenceJobFlowNode = new SequenceJobFlowNode();
+        SequenceJobFlowNode sequenceJobFlowNode = buildSequenceJobFlowNode();
          
         sequenceJobFlowNode.setNodeId(this.getNodeId());
         sequenceJobFlowNode.setNodeName(this.getNodeName());
@@ -343,6 +443,8 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         return sequenceJobFlowNode;
 
     }
+    
+    
 
 
 }

@@ -39,6 +39,8 @@ public class JobFlowBuilder {
         BBOSSVersion.getVersion();
         TranVersion.getVersion();
     }
+    
+    private Map<String,JobFlowNodeBuilder> jobFlowNodeBuilders = new LinkedHashMap<>();
 
     private Map<String,ConditionJobFlowNodeBuilder> conditionJobFlowNodeBuilders = new LinkedHashMap<>();
     /**
@@ -95,7 +97,7 @@ public class JobFlowBuilder {
         if(currentJobFlowNodeBuilder != null)
             this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
         this.currentJobFlowNodeBuilder = jobFlowNodeBuilder;
-
+        this.jobFlowNodeBuilders.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
 
         return this;
     }
@@ -152,51 +154,7 @@ public class JobFlowBuilder {
         }
         return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,  defaultConditionNode);
     }
-    /**
-     * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
-     * addConditionJobFlowNodeBuilder方法添加
-     * 返回条件复合节点唯一ID
-     * @param jobFlowNodeBuilder
-     * @return 条件复合节点唯一ID
-     */
-    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
-        return addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,false);
-    }
-    /**
-     * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
-     * addConditionJobFlowNodeBuilder方法添加
-     * @param jobFlowNodeBuilder
-     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
-     * @return 条件复合节点唯一ID
-     */
-    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,boolean defaultConditionNode){
-        return addAnotherConditionJobFlowNodeBuilder(  jobFlowNodeBuilder, (NodeTrigger) null,  defaultConditionNode);
-    }
-
-    /**
-     * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
-     * addConditionJobFlowNodeBuilder方法添加
-     * 返回条件复合节点唯一ID
-     * @param conditionNodeId 条件节点ID
-     * @return 条件复合节点唯一ID
-     */
-    public String addAnotherConditionJobFlowNodeBuilder(String conditionNodeId){
-        return addAnotherConditionJobFlowNodeBuilder(conditionNodeId,false);
-    }
-    /**
-     * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
-     * addConditionJobFlowNodeBuilder方法添加
-     * @param conditionNodeId 条件节点ID
-     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
-     * @return 条件复合节点唯一ID
-     */
-    public String addAnotherConditionJobFlowNodeBuilder(String conditionNodeId,boolean defaultConditionNode){
-        ConditionJobFlowNodeBuilder jobFlowNodeBuilder = conditionJobFlowNodeBuilders.get(conditionNodeId);
-        if(jobFlowNodeBuilder == null){
-            throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
-        }
-        return addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,  defaultConditionNode);
-    }
+   
 
 
     /**
@@ -268,7 +226,7 @@ public class JobFlowBuilder {
      */
     public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
         validateJobFlowNodeBuilder(jobFlowNodeBuilder);
-
+        jobFlowNodeBuilders.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
         String cid = null;
         if(currentJobFlowNodeBuilder != null) {
             if(currentJobFlowNodeBuilder instanceof ConditionJobFlowNodeBuilder){
@@ -285,6 +243,7 @@ public class JobFlowBuilder {
                 currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
                 cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
                 conditionJobFlowNodeBuilders.put(cid,conditionJobFlowNodeBuilder);
+                jobFlowNodeBuilders.put(cid,conditionJobFlowNodeBuilder);
             }
 
         }
@@ -299,6 +258,7 @@ public class JobFlowBuilder {
             }
             cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
             conditionJobFlowNodeBuilders.put(cid,conditionJobFlowNodeBuilder);
+            jobFlowNodeBuilders.put(cid,conditionJobFlowNodeBuilder);
         }
         jobFlowNodeBuilder.setDefaultConditionNode(cid,defaultConditionNode);
         return cid;
@@ -395,6 +355,52 @@ public class JobFlowBuilder {
     public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
         return addAnotherConditionJobFlowNodeBuilder(  jobFlowNodeBuilder, new NodeTrigger( conditionNodeTrigger), defaultConditionNode);
     }
+
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
+     * addConditionJobFlowNodeBuilder方法添加
+     * 返回条件复合节点唯一ID
+     * @param jobFlowNodeBuilder
+     * @return 条件复合节点唯一ID
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
+        return addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,false);
+    }
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
+     * addConditionJobFlowNodeBuilder方法添加
+     * @param jobFlowNodeBuilder
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return 条件复合节点唯一ID
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,boolean defaultConditionNode){
+        return addAnotherConditionJobFlowNodeBuilder(  jobFlowNodeBuilder, (NodeTrigger) null,  defaultConditionNode);
+    }
+
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
+     * addConditionJobFlowNodeBuilder方法添加
+     * 返回条件复合节点唯一ID
+     * @param conditionNodeId 条件节点ID
+     * @return 条件复合节点唯一ID
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(String conditionNodeId){
+        return addAnotherConditionJobFlowNodeBuilder(conditionNodeId,false);
+    }
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
+     * addConditionJobFlowNodeBuilder方法添加
+     * @param conditionNodeId 条件节点ID
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return 条件复合节点唯一ID
+     */
+    public String addAnotherConditionJobFlowNodeBuilder(String conditionNodeId,boolean defaultConditionNode){
+        ConditionJobFlowNodeBuilder jobFlowNodeBuilder = conditionJobFlowNodeBuilders.get(conditionNodeId);
+        if(jobFlowNodeBuilder == null){
+            throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
+        }
+        return addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,  defaultConditionNode);
+    }
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
      * addConditionJobFlowNodeBuilder方法添加
@@ -404,6 +410,8 @@ public class JobFlowBuilder {
      */
     public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
         validateJobFlowNodeBuilder(jobFlowNodeBuilder);
+        
+        jobFlowNodeBuilders.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
         String cid = null;
         if(currentJobFlowNodeBuilder != null) {
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
@@ -412,6 +420,7 @@ public class JobFlowBuilder {
             currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
             cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
             conditionJobFlowNodeBuilders.put(cid,conditionJobFlowNodeBuilder);
+            jobFlowNodeBuilders.put(cid,conditionJobFlowNodeBuilder);
 
         }
         else{
@@ -424,6 +433,7 @@ public class JobFlowBuilder {
             }
             cid = conditionJobFlowNodeBuilder.getConditionJobFlowNodeUUID();
             conditionJobFlowNodeBuilders.put(cid,conditionJobFlowNodeBuilder);
+            jobFlowNodeBuilders.put(cid,conditionJobFlowNodeBuilder);
         }
 
         jobFlowNodeBuilder.setDefaultConditionNode(cid,defaultConditionNode);
@@ -502,5 +512,8 @@ public class JobFlowBuilder {
 
     public void setJobFlowScheduleConfig(JobFlowScheduleConfig jobFlowScheduleConfig) {
         this.jobFlowScheduleConfig = jobFlowScheduleConfig;
+    }
+    public JobFlowNodeBuilder getJobFlowNodeBuilder(String nodeId){
+        return this.jobFlowNodeBuilders.get(nodeId);
     }
 }
