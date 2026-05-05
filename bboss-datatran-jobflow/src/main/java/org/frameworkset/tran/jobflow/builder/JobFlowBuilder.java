@@ -211,7 +211,18 @@ public class JobFlowBuilder {
     public String addConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger){
         return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger,false);
     }
-
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支，可以连续添加多个
+     *  allCondtionNodeMathfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     *       true 执行，false 终止执行，默认值false
+     * @param allCondtionNodeMathfailedContinue
+     * @param jobFlowNodeBuilder
+     * @param conditionNodeTrigger
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger){
+        return addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,jobFlowNodeBuilder,   conditionNodeTrigger,false);
+    }
 
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支，可以连续添加多个
@@ -323,6 +334,28 @@ public class JobFlowBuilder {
             throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
         }
         return addConditionJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger,  defaultConditionNode);
+    }
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支
+     * @param conditionNodeId
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,String conditionNodeId, TriggerScriptAPI conditionNodeTrigger){
+      
+        return addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,  conditionNodeId,   conditionNodeTrigger,false);
+    }
+    /**
+     * 主干流程管理：为当前作业节点添加后续条件分支
+     * @param conditionNodeId
+     * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
+     * @return
+     */
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,String conditionNodeId, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
+        ConditionJobFlowNodeBuilder jobFlowNodeBuilder = conditionJobFlowNodeBuilders.get(conditionNodeId);
+        if(jobFlowNodeBuilder == null){
+            throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
+        }
+        return addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,jobFlowNodeBuilder,   conditionNodeTrigger,  defaultConditionNode);
     }
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支

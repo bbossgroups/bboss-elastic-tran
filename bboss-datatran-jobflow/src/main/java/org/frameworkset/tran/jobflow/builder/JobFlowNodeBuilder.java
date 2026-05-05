@@ -183,7 +183,8 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
      * @return
      */
     public T setTriggerScriptAPI(TriggerScriptAPI triggerScriptAPI) {
-        this.nodeTrigger = new NodeTrigger(triggerScriptAPI);
+        if(triggerScriptAPI != null)
+            this.nodeTrigger = new NodeTrigger(triggerScriptAPI);
         return (T)this;
     }
     /**

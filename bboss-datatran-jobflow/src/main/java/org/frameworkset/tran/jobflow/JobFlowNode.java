@@ -355,6 +355,7 @@ public abstract class JobFlowNode {
     public void nodeComplete(Throwable throwable){
         nodeComplete(throwable,false);
     }
+    
     /**
      * 作业结束时，节点任务结束,可以唤醒下一个任务
      * 如果没有下一个任务，则检查是否有父节点：
