@@ -17,14 +17,10 @@ package org.frameworkset.tran.plugin.feishu;
 
 import com.frameworkset.util.JsonUtil;
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.elasticsearch.client.ConfigHolder;
-import org.frameworkset.elasticsearch.template.BaseTemplateContainerImpl;
-import org.frameworkset.elasticsearch.template.BaseTemplateMeta;
-import org.frameworkset.elasticsearch.template.DSLParserException;
-import org.frameworkset.elasticsearch.template.TemplateMeta;
 import org.frameworkset.spi.feishu.BaseFeishuConfigInf;
 import org.frameworkset.spi.feishu.FeishuException;
 import org.frameworkset.spi.feishu.FeishuHelper;
+import org.frameworkset.spi.remote.http.template.*;
 import org.frameworkset.tran.plugin.feishu.input.FeishuTableInputConfig;
 
 import java.util.LinkedHashMap;
@@ -83,7 +79,7 @@ public class ConfigFeishuHelper extends FeishuHelper {
     } 
  
 
-    public FeishuHttpConfigClientProxy getHttpConfigClientProxy(BaseTemplateContainerImpl templateContainer){
+    public FeishuHttpConfigClientProxy getHttpConfigClientProxy(BaseDslTemplateContainerImpl templateContainer){
         String namespace = templateContainer.getNamespace();
         FeishuHttpConfigClientProxy httpConfigClientProxy = configDSLUtils.get(namespace);
         if(httpConfigClientProxy != null)
@@ -363,20 +359,20 @@ public class ConfigFeishuHelper extends FeishuHelper {
         if(baseFeishuConfig instanceof FeishuTableInputConfig) {
             FeishuTableInputConfig feishuTableInputConfig = (FeishuTableInputConfig)baseFeishuConfig;
             if (SimpleStringUtil.isNotEmpty(feishuTableInputConfig.getRequestBody())) {
-                feishuHttpConfigClientProxy = getHttpConfigClientProxy(new BaseTemplateContainerImpl(feishuTableInputConfig.getDslNamespace()) {
+                feishuHttpConfigClientProxy = getHttpConfigClientProxy(new BaseDslTemplateContainerImpl(feishuTableInputConfig.getDslNamespace()) {
                     @Override
-                    protected Map<String, TemplateMeta> loadTemplateMetas(String namespace) {
+                    protected Map<String, DslTemplateMeta> loadTemplateMetas(String namespace) {
                         try {
-                            BaseTemplateMeta baseTemplateMeta = new BaseTemplateMeta();
+                            BaseDslTemplateMeta baseTemplateMeta = new BaseDslTemplateMeta();
                             baseTemplateMeta.setName(feishuTableInputConfig.getQueryDslName());
                             baseTemplateMeta.setNamespace(namespace);
                             baseTemplateMeta.setDslTemplate(feishuTableInputConfig.getRequestBody());
                             baseTemplateMeta.setMultiparser(true);
-                            Map<String, TemplateMeta> templateMetaMap = new LinkedHashMap<>();
+                            Map<String, DslTemplateMeta> templateMetaMap = new LinkedHashMap<>();
                             templateMetaMap.put(baseTemplateMeta.getName(), baseTemplateMeta);
                             return templateMetaMap;
                         } catch (Exception e) {
-                            throw new DSLParserException(e);
+                            throw new DslConfigException(e);
                         }
                     }
 

@@ -16,14 +16,13 @@ package org.frameworkset.tran.plugin.feishu;
  */
 
 
-import org.frameworkset.elasticsearch.client.ConfigHolder;
-import org.frameworkset.elasticsearch.template.BaseTemplateContainerImpl;
-import org.frameworkset.elasticsearch.template.ConfigDSLUtil;
-import org.frameworkset.elasticsearch.template.ESTemplateHelper;
 import org.frameworkset.spi.remote.http.HttpConfigInf;
 import org.frameworkset.spi.remote.http.HttpRequestProxy;
 import org.frameworkset.spi.remote.http.proxy.HttpProxyRequestException;
-import org.frameworkset.tran.plugin.feishu.input.FeishuTableInputConfig;
+import org.frameworkset.spi.remote.http.template.BaseDslTemplateContainerImpl;
+import org.frameworkset.spi.remote.http.template.ConfigDSLUtil;
+import org.frameworkset.spi.remote.http.template.ConfigHolder;
+import org.frameworkset.spi.remote.http.template.DslTemplateHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +40,7 @@ public class FeishuHttpConfigClientProxy {
 	private static Logger logger = LoggerFactory.getLogger(FeishuHttpConfigClientProxy.class);
 	protected String configFile;
 	protected ConfigDSLUtil configDSLUtil;
-	private  ConfigHolder configHolder = null;//new ConfigHolder("HttpProxy");
+	private ConfigHolder configHolder = null;//new ConfigHolder("HttpProxy");
 //	static
 //	{
 //		ShutdownUtil.addShutdownHook(new Runnable(){
@@ -57,12 +56,12 @@ public class FeishuHttpConfigClientProxy {
 		this.configFile = configFile;
 		configDSLUtil = configHolder.getConfigDSLUtil(configFile);
 	}
-	public FeishuHttpConfigClientProxy(ConfigHolder configHolder, BaseTemplateContainerImpl templateContainer){
+	public FeishuHttpConfigClientProxy(ConfigHolder configHolder, BaseDslTemplateContainerImpl templateContainer){
 		templateContainer.setConfigHolder(configHolder);
 		configDSLUtil = configHolder.getConfigDSLUtil(templateContainer);
 	}
 	protected String evalTemplate(String templateName, Object params){
-		return ESTemplateHelper.evalTemplate(configDSLUtil,templateName, params);
+		return DslTemplateHelper.evalTemplate(configDSLUtil,templateName, params);
 	}
 
  

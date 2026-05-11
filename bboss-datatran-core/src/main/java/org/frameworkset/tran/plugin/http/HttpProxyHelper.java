@@ -15,8 +15,8 @@ package org.frameworkset.tran.plugin.http;
  * limitations under the License.
  */
 
-import org.frameworkset.elasticsearch.client.ConfigHolder;
-import org.frameworkset.elasticsearch.template.BaseTemplateContainerImpl;
+import org.frameworkset.spi.remote.http.template.BaseDslTemplateContainerImpl;
+import org.frameworkset.spi.remote.http.template.ConfigHolder;
 import org.frameworkset.tran.DataImportException;
 
 import java.util.Iterator;
@@ -51,7 +51,7 @@ public class HttpProxyHelper {
 		return httpConfigClientProxy;
 	}
 
-	public static HttpConfigClientProxy getHttpConfigClientProxy(BaseTemplateContainerImpl templateContainer){
+	public static HttpConfigClientProxy getHttpConfigClientProxy(BaseDslTemplateContainerImpl templateContainer){
 		String namespace = templateContainer.getNamespace();
 		HttpConfigClientProxy httpConfigClientProxy = configDSLUtils.get(namespace);
 		if(httpConfigClientProxy != null)

@@ -16,11 +16,12 @@ package org.frameworkset.tran.plugin.http.output;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.elasticsearch.template.BaseTemplateContainerImpl;
-import org.frameworkset.elasticsearch.template.BaseTemplateMeta;
-import org.frameworkset.elasticsearch.template.DSLParserException;
-import org.frameworkset.elasticsearch.template.TemplateMeta;
+ 
 import org.frameworkset.spi.remote.http.HttpRequestProxy;
+import org.frameworkset.spi.remote.http.template.BaseDslTemplateContainerImpl;
+import org.frameworkset.spi.remote.http.template.BaseDslTemplateMeta;
+import org.frameworkset.spi.remote.http.template.DslConfigException;
+import org.frameworkset.spi.remote.http.template.DslTemplateMeta;
 import org.frameworkset.tran.BaseDataTran;
 import org.frameworkset.tran.JobCountDownLatch;
 import org.frameworkset.tran.TranResultSet;
@@ -76,20 +77,20 @@ public class HttpOutputDataTranPlugin extends BasePlugin implements OutputPlugin
 	public void afterInit() {
 		if(!httpOutputConfig.isDirectSendData()){
 			if(SimpleStringUtil.isNotEmpty(httpOutputConfig.getDataDsl())) {
-				httpConfigClientProxy = httpProxyHelper.getHttpConfigClientProxy(new BaseTemplateContainerImpl(httpOutputConfig.getDslNamespace()) {
+				httpConfigClientProxy = httpProxyHelper.getHttpConfigClientProxy(new BaseDslTemplateContainerImpl(httpOutputConfig.getDslNamespace()) {
 					@Override
-					protected Map<String, TemplateMeta> loadTemplateMetas(String namespace) {
+					protected Map<String, DslTemplateMeta> loadTemplateMetas(String namespace) {
 						try {
-							BaseTemplateMeta baseTemplateMeta = new BaseTemplateMeta();
+							BaseDslTemplateMeta baseTemplateMeta = new BaseDslTemplateMeta();
 							baseTemplateMeta.setName(httpOutputConfig.getDataDslName());
 							baseTemplateMeta.setNamespace(namespace);
 							baseTemplateMeta.setDslTemplate(httpOutputConfig.getDataDsl());
 							baseTemplateMeta.setMultiparser(true);
-							Map<String, TemplateMeta> templateMetaMap = new LinkedHashMap<>();
+							Map<String, DslTemplateMeta> templateMetaMap = new LinkedHashMap<>();
 							templateMetaMap.put(baseTemplateMeta.getName(), baseTemplateMeta);
 							return templateMetaMap;
 						} catch (Exception e) {
-							throw new DSLParserException(e);
+							throw new DslConfigException(e);
 						}
 					}
 
