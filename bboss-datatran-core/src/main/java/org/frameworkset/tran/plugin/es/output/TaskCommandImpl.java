@@ -452,7 +452,7 @@ public class TaskCommandImpl extends BaseTaskCommand< String> {
                         if (esVoidResponseHandler.getElasticSearchException() != null)
                             throw ImportExceptionUtil.buildDataImportException(importContext, esVoidResponseHandler.getElasticSearchException());
                     }
-                    return null;
+                    data = null;
                 } else {
                     for (ClientInterface clientInterface : clientInterfaces) {
                         data = clientInterface.executeHttp(actionUrl, datas, ClientUtil.HTTP_POST);
