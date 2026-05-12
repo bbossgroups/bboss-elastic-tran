@@ -16,6 +16,7 @@ package org.frameworkset.tran.jobflow;
  */
 
 
+import com.frameworkset.util.JsonUtil;
 import groovy.lang.GroovyClassLoader;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -124,19 +125,31 @@ public class JobFlow {
         info.append("JobFlow[jobFlowId=").append(this.getJobFlowId()).append(",jobFlowName=").append(this.getJobFlowName()).append("]");
         jobInfo = info.toString();
     }
-    public void execute(){
-        logger.info("Execute {} begin.",jobInfo );
-       
+    private JobParams jobParams;
+    public void execute(JobParams jobParams){
+        
+
         startEndScheduleThread(new ScheduleEndCall() {
             @Override
             public void call(boolean scheduled) {
                 stop(true);
             }
         });
-        
-       
+
+
         reset();
+        if(jobParams != null){
+            this.jobParams = jobParams;
+        }
         this.jobFlowExecuteContext = new DefaultJobFlowExecuteContext(this);
+        if(this.jobParams != null && this.jobParams.getParams() != null) {
+            
+            logger.info("Execute {} begin,job input params:{}.", jobInfo, JsonUtil.object2json(this.jobParams.getParams()));
+            jobFlowExecuteContext.putAll(this.jobParams.getParams());
+        }
+        else{
+            logger.info("Execute {} begin.", jobInfo);
+        }
         jobFlowMetrics.addTotalCount();
         if(CollectionUtils.isNotEmpty(this.jobFlowListeners)){
             for(JobFlowListener jobFlowListener:jobFlowListeners){
@@ -147,8 +160,8 @@ public class JobFlow {
             JobFlowNodeExecuteContext jobFlowNodeExecuteContext = this.startJobFlowNode.buildJobFlowNodeExecuteContext();
             jobFlowNodeExecuteContext.setContainerJobFlowExecuteContext(this.jobFlowExecuteContext);
             this.startJobFlowNode.execute(  jobFlowNodeExecuteContext);
-             
-            
+
+
             logger.info("Execute {} end.",jobInfo);
         }
         catch (RuntimeException e){
@@ -160,9 +173,10 @@ public class JobFlow {
         catch (Throwable e){
             throw new JobFlowException(e);
         }
-        finally {
-            
-        }
+         
+    }
+    public void execute(){
+        this.execute(null);
     }
 
 
