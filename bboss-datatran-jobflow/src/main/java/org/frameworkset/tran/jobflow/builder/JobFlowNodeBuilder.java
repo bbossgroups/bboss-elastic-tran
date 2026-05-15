@@ -111,6 +111,14 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
         jobFlowNodeListeners.add(jobFlowNodeListener);
         return (T)this;
     }
+
+    public T addJobFlowNodeListeners(List<JobFlowNodeListener> jobFlowNodeListeners){
+        if(jobFlowNodeListeners == null){
+            jobFlowNodeListeners = new ArrayList<>();
+        }
+        jobFlowNodeListeners.addAll(jobFlowNodeListeners);
+        return (T)this;
+    }
     protected T setParentJobFlowNodeBuilder(JobFlowNodeBuilder parentJobFlowNodeBuilder) {
         this.parentJobFlowNodeBuilder = parentJobFlowNodeBuilder;
         return (T)this;
