@@ -134,7 +134,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
             else {
                 ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
                 conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
-                conditionJobFlowNodeBuilder.setAllCondtionNodeMathfailedContinue(allCondtionNodeMathfailedContinue);
+                conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMathfailedContinue);
                 currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
                 nodeBuilders.add(conditionJobFlowNodeBuilder);
                 currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
@@ -146,7 +146,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         }
         else{
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
-            conditionJobFlowNodeBuilder.setAllCondtionNodeMathfailedContinue(allCondtionNodeMathfailedContinue);
+            conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMathfailedContinue);
             conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
             this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
             nodeBuilders.add(conditionJobFlowNodeBuilder);
@@ -326,6 +326,9 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
     public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,NodeTrigger nodeTrigger){
         return addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,  nodeTrigger,false);
     }
+    public String addAnotherConditionJobFlowNodeBuilder( JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger, boolean defaultConditionNode) {
+        return addAnotherConditionJobFlowNodeBuilder(false, jobFlowNodeBuilder, conditionNodeTrigger, defaultConditionNode);
+    }
     /**
      * 串行流程节点管理：为当前作业节点添加带条件的下一个作业节点
      * @param jobFlowNodeBuilder
@@ -333,7 +336,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
      * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
      * @return
      */
-    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder,NodeTrigger nodeTrigger,boolean defaultConditionNode){
+    public String addAnotherConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder,NodeTrigger nodeTrigger,boolean defaultConditionNode){
         init();
         CompositionJobFlowNodeBuilder compositionJobFlowNodeBuilder = jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder();
         if(compositionJobFlowNodeBuilder != null ){
@@ -348,6 +351,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
        
         if(currentJobFlowNodeBuilder != null) {
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+            conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMathfailedContinue);
             conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,  nodeTrigger);
             currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
             nodeBuilders.add(conditionJobFlowNodeBuilder);
@@ -359,6 +363,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         }
         else{
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+            conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMathfailedContinue);
             conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,  nodeTrigger);
             this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
             nodeBuilders.add(conditionJobFlowNodeBuilder);

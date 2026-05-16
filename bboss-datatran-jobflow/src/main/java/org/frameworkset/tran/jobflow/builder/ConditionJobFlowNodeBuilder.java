@@ -15,7 +15,6 @@ package org.frameworkset.tran.jobflow.builder;
  * limitations under the License.
  */
 
-import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.jobflow.*;
 
 
@@ -31,7 +30,7 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
      * true 执行，false 终止执行，默认值false
      * 需要在添加第一个条件节点时时，进行设置
      */
-    private boolean allCondtionNodeMathfailedContinue;
+    private boolean allCondtionNodeMatchfailedContinue;
     public ConditionJobFlowNodeBuilder(){
         super(JobFlowNodeType.CONDITION);
         this.conditionJobFlowNodeUUID = nodeId;
@@ -55,7 +54,7 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
             return jobFlowNode;
         }
         ConditionJobFlowNode  conditionJobFlowNode = new ConditionJobFlowNode(this.conditionJobFlowNodeUUID);
-        conditionJobFlowNode.setAllCondtionNodeMathfailedContinue(this.allCondtionNodeMathfailedContinue);
+        conditionJobFlowNode.setAllCondtionNodeMathfailedContinue(this.allCondtionNodeMatchfailedContinue);
         conditionJobFlowNode.setNodeId(this.getNodeId());
         conditionJobFlowNode.setNodeName(this.getNodeName());
         conditionJobFlowNode.setJobFlow(jobFlow);
@@ -112,16 +111,16 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
      * true 执行，false 终止执行，默认值false
      * 需要在添加第一个条件节点时时，进行设置
      */
-    public boolean isAllCondtionNodeMathfailedContinue() {
-        return allCondtionNodeMathfailedContinue;
+    public boolean isAllCondtionNodeMatchfailedContinue() {
+        return allCondtionNodeMatchfailedContinue;
     }
     /**
      * 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
      * true 执行，false 终止执行，默认值false
      * 需要在添加第一个条件节点时时，进行设置
      */
-    public void setAllCondtionNodeMathfailedContinue(boolean allCondtionNodeMathfailedContinue) {
-        this.allCondtionNodeMathfailedContinue = allCondtionNodeMathfailedContinue;
+    public void setAllCondtionNodeMatchfailedContinue(boolean allCondtionNodeMatchfailedContinue) {
+        this.allCondtionNodeMatchfailedContinue = allCondtionNodeMatchfailedContinue;
     }
 
 

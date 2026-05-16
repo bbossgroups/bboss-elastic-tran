@@ -171,35 +171,35 @@ public class JobFlowBuilder {
     }
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支，可以连续添加多个
-     *  allCondtionNodeMathfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     *  allCondtionNodeMatchfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
      *       true 执行，false 终止执行，默认值false
-     * @param allCondtionNodeMathfailedContinue
+     * @param allCondtionNodeMatchfailedContinue
      * @param jobFlowNodeBuilder
      * @param conditionNodeTrigger
      * @return
      */
-    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger){
-        return addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,jobFlowNodeBuilder,   conditionNodeTrigger,false);
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMatchfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger){
+        return addConditionJobFlowNodeBuilder(  allCondtionNodeMatchfailedContinue,jobFlowNodeBuilder,   conditionNodeTrigger,false);
     }
 
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支，可以连续添加多个
-     *  allCondtionNodeMathfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     *  allCondtionNodeMatchfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
      *       true 执行，false 终止执行，默认值false
-     * @param allCondtionNodeMathfailedContinue 
+     * @param allCondtionNodeMatchfailedContinue 
      * @param jobFlowNodeBuilder
      * @param conditionNodeTrigger
      * @return
      */
-    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger){
-        return addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,jobFlowNodeBuilder,   conditionNodeTrigger,false);
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMatchfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger){
+        return addConditionJobFlowNodeBuilder(  allCondtionNodeMatchfailedContinue,jobFlowNodeBuilder,   conditionNodeTrigger,false);
     }
 
 
 
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支
-     * allCondtionNodeMathfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     * allCondtionNodeMatchfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
      * true 执行，false 终止执行，默认值false
      * @param jobFlowNodeBuilder
      * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
@@ -213,18 +213,18 @@ public class JobFlowBuilder {
         return addConditionJobFlowNodeBuilder(false,jobFlowNodeBuilder, conditionNodeTrigger,defaultConditionNode);
     }
 
-    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
-        return   addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,  jobFlowNodeBuilder, new NodeTrigger(conditionNodeTrigger), defaultConditionNode);
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMatchfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
+        return   addConditionJobFlowNodeBuilder(  allCondtionNodeMatchfailedContinue,  jobFlowNodeBuilder, new NodeTrigger(conditionNodeTrigger), defaultConditionNode);
     }
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支
-     * allCondtionNodeMathfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
+     * allCondtionNodeMatchfailedContinue 第一次执行条件节点时，所有节点条件都不匹配时，是否继续执行条件节点后续节点
      * true 执行，false 终止执行，默认值false
      * @param jobFlowNodeBuilder
      * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
      * @return
      */
-    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMatchfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
         validateJobFlowNodeBuilder(jobFlowNodeBuilder);
         jobFlowNodeBuilders.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
         String cid = null;
@@ -237,7 +237,7 @@ public class JobFlowBuilder {
 
 
                 ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
-                conditionJobFlowNodeBuilder.setAllCondtionNodeMathfailedContinue(allCondtionNodeMathfailedContinue);
+                conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMatchfailedContinue);
                 conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger);
                 currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
                 currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
@@ -249,7 +249,7 @@ public class JobFlowBuilder {
         }
         else{
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
-            conditionJobFlowNodeBuilder.setAllCondtionNodeMathfailedContinue(allCondtionNodeMathfailedContinue);
+            conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMatchfailedContinue);
             conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
             this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
             if(this.headerJobFlowNodeBuilder == null) {
@@ -300,9 +300,9 @@ public class JobFlowBuilder {
      * @param conditionNodeId
      * @return
      */
-    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,String conditionNodeId, TriggerScriptAPI conditionNodeTrigger){
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMatchfailedContinue,String conditionNodeId, TriggerScriptAPI conditionNodeTrigger){
       
-        return addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,  conditionNodeId,   conditionNodeTrigger,false);
+        return addConditionJobFlowNodeBuilder(  allCondtionNodeMatchfailedContinue,  conditionNodeId,   conditionNodeTrigger,false);
     }
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支
@@ -310,12 +310,12 @@ public class JobFlowBuilder {
      * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
      * @return
      */
-    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMathfailedContinue,String conditionNodeId, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
+    public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMatchfailedContinue,String conditionNodeId, TriggerScriptAPI conditionNodeTrigger,boolean defaultConditionNode){
         ConditionJobFlowNodeBuilder jobFlowNodeBuilder = conditionJobFlowNodeBuilders.get(conditionNodeId);
         if(jobFlowNodeBuilder == null){
             throw new JobFlowBuilderException("条件节点"+conditionNodeId+"不存在");
         }
-        return addConditionJobFlowNodeBuilder(  allCondtionNodeMathfailedContinue,jobFlowNodeBuilder,   conditionNodeTrigger,  defaultConditionNode);
+        return addConditionJobFlowNodeBuilder(  allCondtionNodeMatchfailedContinue,jobFlowNodeBuilder,   conditionNodeTrigger,  defaultConditionNode);
     }
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支
@@ -401,6 +401,9 @@ public class JobFlowBuilder {
         }
         return addAnotherConditionJobFlowNodeBuilder(jobFlowNodeBuilder,  defaultConditionNode);
     }
+    public String addAnotherConditionJobFlowNodeBuilder( JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger, boolean defaultConditionNode){
+        return addAnotherConditionJobFlowNodeBuilder(false, jobFlowNodeBuilder,  conditionNodeTrigger,  defaultConditionNode);
+    }
     /**
      * 主干流程管理：为当前作业节点添加后续条件分支，如果当前节点是一个复合条件节点，则为在该复合条件节点后新加一个条件复合节点，新复合节点后续条件分支就可以直接调用
      * addConditionJobFlowNodeBuilder方法添加
@@ -408,13 +411,14 @@ public class JobFlowBuilder {
      * @param defaultConditionNode 是否默认条件节点,条件节点必须配置一个默认流程节点
      * @return 条件复合节点唯一ID
      */
-    public String addAnotherConditionJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
+    public String addAnotherConditionJobFlowNodeBuilder(boolean allCondtionNodeMatchfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
         validateJobFlowNodeBuilder(jobFlowNodeBuilder);
         
         jobFlowNodeBuilders.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
         String cid = null;
         if(currentJobFlowNodeBuilder != null) {
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+            conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMatchfailedContinue);
             conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger);
             currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
             currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
@@ -425,6 +429,7 @@ public class JobFlowBuilder {
         }
         else{
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+            conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMatchfailedContinue);
             conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger);
             this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
             if(this.headerJobFlowNodeBuilder == null) {
