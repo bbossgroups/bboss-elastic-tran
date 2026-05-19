@@ -63,7 +63,8 @@ public abstract class CompositionJobFlowNodeBuilder<T extends CompositionJobFlow
 
     protected void validate(JobFlowNodeBuilder jobFlowNodeBuilder){
         if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null){
-            throw new JobFlowBuilderException("节点不能重复添加到复合节点中");
+            if(!(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() instanceof ConditionJobFlowNodeBuilder))
+                throw new JobFlowBuilderException("节点不能重复添加到复合节点中");
         }
     }
 

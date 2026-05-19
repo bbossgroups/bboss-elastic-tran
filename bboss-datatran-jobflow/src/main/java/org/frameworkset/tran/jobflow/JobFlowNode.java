@@ -329,10 +329,10 @@ public abstract class JobFlowNode {
     /**
      * 启动流程当前节点
      */
-    public abstract boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier);
-    public void execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
+    public abstract ExecuteResult execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier);
+    public ExecuteResult execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
 
-        execute(jobFlowNodeExecuteContext,null);
+        return execute(jobFlowNodeExecuteContext,null);
     }
 //    /**
 //     * 启动流程当前节点
@@ -387,7 +387,8 @@ public abstract class JobFlowNode {
             }
 
             release();
-
+            //-----------------需要注释掉:开始--------------------//
+            /**
             if (this.nextJobFlowNode != null && !ignoreExecute) {
                 if(logger_.isDebugEnabled()) {
                     logger_.debug("{} execute complete and start nextJobFlowNode[{}]", getJobFlowNodeInfo(), nextJobFlowNode.getJobFlowNodeInfo());
@@ -440,6 +441,8 @@ public abstract class JobFlowNode {
 
 
             }
+             */
+            //-----------------需要注释掉:结束--------------------//
         }
         catch (JobFlowException e){
             logger_.error("Execute nodeComplete failed:"+jobFlow.getJobInfo()+", "+this.getJobFlowNodeInfo(),e);

@@ -101,10 +101,12 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      * 启动流程当前节点
      */
     @Override
-    public boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier){
+    public ExecuteResult execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier){
+        ExecuteResult executeResult = new ExecuteResult();
         try {
             logger.info("Execute {} begin.", this.getJobFlowNodeInfo());
             lastException = null;
+          
             this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
             jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
             nodeStart();
@@ -123,7 +125,7 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
             if (assertResult.isTrue()) {
                 logger.info("AssertStopped: true,ignore execute {}.", this.getJobFlowNodeInfo());
 //            nodeComplete(null,true);
-                return false;
+                return executeResult;
             } else if (assertTrigger()) {
                 if (jobFlowNodes == null || jobFlowNodes.size() == 0) {
                     logger.info("Execute {} jobFlowNodes == null || jobFlowNodes.size() == 0, must set jobFlowNodes,please set jobFlowNodes first. .", this.getJobFlowNodeInfo());
@@ -152,10 +154,37 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                         for (int i = 0; i < jobFlowNodes.size(); i++) {
                             JobFlowNode jobFlowNode = jobFlowNodes.get(i);
                             futureList.add(blockedExecutor.submit(() -> {
-                                JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = jobFlowNode.buildJobFlowNodeExecuteContext();
-                                //todo call assertTrigger 
-                                _jobFlowNodeExecuteContext.setContainerParrelJobFlowNodeExecuteContext(jobFlowNodeExecuteContext);
-                                jobFlowNode.execute(_jobFlowNodeExecuteContext, thisBarrier);
+                                JobFlowNode branchJobFlowNode = jobFlowNode;
+                                JobFlowNode currentBranchJobFlowNode = null;
+
+                                boolean header = true;
+                                do {
+                                    currentBranchJobFlowNode = branchJobFlowNode;
+                                    if(jobFlowContext.assertStopped().isTrue()){
+                                        break;
+                                    }
+                                    JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = branchJobFlowNode.buildJobFlowNodeExecuteContext();
+                                    //todo call assertTrigger 
+                                    _jobFlowNodeExecuteContext.setContainerParrelJobFlowNodeExecuteContext(jobFlowNodeExecuteContext);
+                                    ExecuteResult branchNodeExecuteResult = null;
+                                    if(header) {
+                                        header = false;
+                                        branchNodeExecuteResult = branchJobFlowNode.execute(_jobFlowNodeExecuteContext, thisBarrier);
+                                    }
+                                    else{
+                                        branchNodeExecuteResult = branchJobFlowNode.execute(_jobFlowNodeExecuteContext, null);
+                                    }
+                                    if(branchNodeExecuteResult.isIgnoreNextNodeExecute()){
+                                        break;
+                                    }
+                                    branchJobFlowNode = branchJobFlowNode.getNextJobFlowNode();
+                                    if(branchJobFlowNode == null)
+                                        break;
+                                }
+                                while (true);
+                                brachComplete(currentBranchJobFlowNode,null);                     
+                                
+                                
                             }));
 
 
@@ -180,7 +209,8 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
 
 
                 }
-                return true;
+                executeResult.setResultFlag(true);
+                return executeResult;
             } else {
                 logger.info("AssertTrigger: false,ignore execute {}.", this.getJobFlowNodeInfo());
 //            jobFlowNodeExecuteContext = buildJobFlowNodeExecuteContext();
@@ -195,14 +225,16 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
                         }
                     }
                 }
+                executeResult.setIgnoreNextNodeExecute(true);
                 nodeComplete(null, true);
             }
-            return false;
+            return executeResult;
         }
         catch (Exception e){
             logger.error(this.getJobFlowNodeInfo()+" execute failed:",e);
             lastException = e;
-            return false;
+            executeResult.setIgnoreNextNodeExecute(true);
+            return executeResult;
         }
         
     }

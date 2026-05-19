@@ -82,11 +82,12 @@ public class JobFlowBuilder {
      */
     public JobFlowBuilder addJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
         validateJobFlowNodeBuilder(jobFlowNodeBuilder);
-        if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null){
-            throw new JobFlowBuilderException("串行分支节点或者并行分支节点中的作业节点不能添加到主干流程中");
-        }
+         
         if(jobFlowNodeBuilder.getJobFlowBuilder() != null){
             throw new JobFlowBuilderException("作业节点不能重复添加到主干流程中");
+        }
+        if(!jobFlowNodeBuilders.containsKey(jobFlowNodeBuilder.getNodeId())) {
+            jobFlowNodeBuilders.put(jobFlowNodeBuilder.getNodeId(), jobFlowNodeBuilder);
         }
         jobFlowNodeBuilder.setJobFlowBuilder(this);
         if(this.headerJobFlowNodeBuilder == null) {
@@ -97,13 +98,13 @@ public class JobFlowBuilder {
         if(currentJobFlowNodeBuilder != null)
             this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
         this.currentJobFlowNodeBuilder = jobFlowNodeBuilder;
-        this.jobFlowNodeBuilders.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
 
         return this;
     }
     private void validateJobFlowNodeBuilder(JobFlowNodeBuilder jobFlowNodeBuilder){
-        if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null){
-            throw new JobFlowBuilderException("串行分支节点或者并行分支节点中的作业节点不能添加到主干流程中");
+        if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() != null ){
+            if(!(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() instanceof ConditionJobFlowNodeBuilder))
+                throw new JobFlowBuilderException("串行分支节点或者并行分支节点中的作业节点不能添加到主干流程中");
         }
 
     }
@@ -226,7 +227,9 @@ public class JobFlowBuilder {
      */
     public String addConditionJobFlowNodeBuilder(boolean allCondtionNodeMatchfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
         validateJobFlowNodeBuilder(jobFlowNodeBuilder);
-        jobFlowNodeBuilders.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
+        if(!jobFlowNodeBuilders.containsKey(jobFlowNodeBuilder.getNodeId())) {
+            jobFlowNodeBuilders.put(jobFlowNodeBuilder.getNodeId(), jobFlowNodeBuilder);
+        }
         String cid = null;
         if(currentJobFlowNodeBuilder != null) {
             if(currentJobFlowNodeBuilder instanceof ConditionJobFlowNodeBuilder){
@@ -413,8 +416,10 @@ public class JobFlowBuilder {
      */
     public String addAnotherConditionJobFlowNodeBuilder(boolean allCondtionNodeMatchfailedContinue,JobFlowNodeBuilder jobFlowNodeBuilder, NodeTrigger conditionNodeTrigger,boolean defaultConditionNode){
         validateJobFlowNodeBuilder(jobFlowNodeBuilder);
-        
-        jobFlowNodeBuilders.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
+
+        if(!jobFlowNodeBuilders.containsKey(jobFlowNodeBuilder.getNodeId())) {
+            jobFlowNodeBuilders.put(jobFlowNodeBuilder.getNodeId(), jobFlowNodeBuilder);
+        }
         String cid = null;
         if(currentJobFlowNodeBuilder != null) {
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();

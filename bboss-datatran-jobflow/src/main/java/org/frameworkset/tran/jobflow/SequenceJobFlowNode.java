@@ -67,8 +67,9 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
      * 启动流程当前节点
      */
     @Override
-    public boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier){
+    public ExecuteResult execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier){
         this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
+        ExecuteResult executeResult = new ExecuteResult();
         SequenceJobFlowNodeExecuteContext sequenceJobFlowNodeExecuteContext = (SequenceJobFlowNodeExecuteContext) jobFlowNodeExecuteContext;   
 //        headerJobFlowNode.setContainerSequenceJobFlowNodeExecuteContext(sequenceJobFlowNodeExecuteContext);
         sequenceJobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
@@ -87,7 +88,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
         if(assertResult.isTrue())
         {
             logger.info("AssertStopped: true,ignore execute {}.",this.getJobFlowNodeInfo());
-            return false;
+            return executeResult;
 //            nodeComplete(null,true);
         }
         else if(assertTrigger()) {
@@ -113,14 +114,32 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
                         }
                     }
                 }
-                JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = headerJobFlowNode.buildJobFlowNodeExecuteContext();
-                _jobFlowNodeExecuteContext.setContainerSequenceJobFlowNodeExecuteContext(sequenceJobFlowNodeExecuteContext);
-                //todo call assertTrigger 
-                headerJobFlowNode.execute(_jobFlowNodeExecuteContext);
+                JobFlowNode jobFlowNode = headerJobFlowNode;
+                ExecuteResult nodeExecuteResult = null;
+                JobFlowNode currentJobFlowNode = null;
+                do {
+                    currentJobFlowNode = jobFlowNode;
+                    JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = headerJobFlowNode.buildJobFlowNodeExecuteContext();
+                    _jobFlowNodeExecuteContext.setContainerSequenceJobFlowNodeExecuteContext(sequenceJobFlowNodeExecuteContext);
+                    //todo call assertTrigger 
+                    nodeExecuteResult = jobFlowNode.execute(_jobFlowNodeExecuteContext);
+                    if(jobFlowContext.assertStopped().isTrue()){
+                        break;
+                    }
+                    if(nodeExecuteResult.isIgnoreNextNodeExecute()){
+                        break;
+                    }
+                    jobFlowNode = jobFlowNode.getNextJobFlowNode();
+                    if(jobFlowNode == null){
+                        break;
+                    }
+                }while (true);
 //                logger.info("Execute SequenceJobFlowNode[id={},name={}] complete.",this.getNodeId(),this.getNodeName());
 //                this.nodeComplete( null);
+                this.brachComplete(currentJobFlowNode,null);
             }
-            return true;
+            executeResult.setResultFlag(true);
+            return executeResult;
         }
         else{
 //            jobFlowNodeExecuteContext = new SequenceJobFlowNodeExecuteContext(this);
@@ -137,9 +156,10 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
                 }
             }
             logger.info("AssertTrigger: false,ignore execute {}.",this.getJobFlowNodeInfo());
+            executeResult.setIgnoreNextNodeExecute(true);
             nodeComplete(null,true);
         }
-        return false;
+        return executeResult;
         
     }
 

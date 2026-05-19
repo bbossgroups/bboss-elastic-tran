@@ -92,10 +92,11 @@ public class SimpleJobFlowNode extends JobFlowNode{
      * 启动流程当前节点
      */
     @Override
-    public boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext, JobFlowCyclicBarrier barrier){
+    public ExecuteResult execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext, JobFlowCyclicBarrier barrier){
         if(logger.isDebugEnabled()) {
             logger.debug("Execute [{}] enter.", getJobFlowNodeInfo());
         }
+        ExecuteResult executeResult = new ExecuteResult();
         this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
         jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STARTED);
         nodeStart();
@@ -113,7 +114,7 @@ public class SimpleJobFlowNode extends JobFlowNode{
         if(assertResult.isTrue())
         {
             logger.info("AssertStopped: true,ignore execute {}.",this.getJobFlowNodeInfo());
-            return false;
+            return executeResult;
 //            nodeComplete(null,true);
         }        
         else if(this.assertTrigger()) {
@@ -152,7 +153,8 @@ public class SimpleJobFlowNode extends JobFlowNode{
             }
             
 //            this.nodeComplete(null);
-            return true;
+            executeResult.setResultFlag(true);
+            return executeResult;
         }
         else{
 //            jobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(this);
@@ -169,9 +171,10 @@ public class SimpleJobFlowNode extends JobFlowNode{
                 }
             }
             logger.info("AssertTrigger: false,ignore execute {}.",this.getJobFlowNodeInfo());
+            executeResult.setIgnoreNextNodeExecute(true);
             nodeComplete(null,true);
         }
-        return false;
+        return executeResult;
     }
     protected void release(){
 //        if(dataStream != null){

@@ -17,7 +17,6 @@ package org.frameworkset.tran.jobflow;
 
 import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.jobflow.context.ConditionJobFlowNodeExecuteContext;
-import org.frameworkset.tran.jobflow.context.DefaultJobFlowNodeExecuteContext;
 import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.slf4j.Logger;
@@ -148,10 +147,11 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
      * @param barrier
      */
     @Override
-    public boolean execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier) {
+    public ExecuteResult execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier) {
         if(logger.isDebugEnabled()) {
             logger.debug("Execute [{}] entered", getJobFlowNodeInfo());
         }
+        ExecuteResult executeResult = new ExecuteResult();
         if(barrier != null) {
             try {
                 barrier.await();
@@ -174,43 +174,63 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
                 }
                 if(checkFirstExecuteInContainerLifeCycle) {
                     if(allCondtionNodeMathfailedContinue) {
+                        executeResult.setIgnoreNextNodeExecute(false);
                         nodeComplete(null, false);
                     }
                     else{
+                        executeResult.setIgnoreNextNodeExecute(true);
                         nodeComplete(null, true);
                     }
                 }
                 else{
+                    executeResult.setIgnoreNextNodeExecute(false);
                     nodeComplete(null, false);
                 }
-                return false;
+                executeResult.setResultFlag(false);
+                return executeResult;
             }
 //            JobFlowNodeExecuteContext matchedJobFlowNodeExecuteContext = new DefaultJobFlowNodeExecuteContext(matchedJobFlowNode);
             JobFlowNodeExecuteContext matchedJobFlowNodeExecuteContext = matchedJobFlowNode.buildJobFlowNodeExecuteContext();
+            if (jobFlowNodeExecuteContext.getContainerParrelJobFlowNodeExecuteContext() != null) {
+                matchedJobFlowNodeExecuteContext.setContainerParrelJobFlowNodeExecuteContext(jobFlowNodeExecuteContext.getContainerParrelJobFlowNodeExecuteContext());
+            }
+            if (jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext() != null) {
+                matchedJobFlowNodeExecuteContext.setContainerSequenceJobFlowNodeExecuteContext(jobFlowNodeExecuteContext.getContainerSequenceJobFlowNodeExecuteContext());
+            }
             matchedJobFlowNodeExecuteContext.setContainerConditionJobFlowNodeExecuteContext(jobFlowNodeExecuteContext);
             ((ConditionJobFlowNodeExecuteContext)jobFlowNodeExecuteContext).setMatchedJobFlowNodeExecuteContext(matchedJobFlowNodeExecuteContext);
-            boolean result = matchedJobFlowNode.execute(matchedJobFlowNodeExecuteContext, barrier);
+            executeResult = matchedJobFlowNode.execute(matchedJobFlowNodeExecuteContext, barrier);
             if(logger.isDebugEnabled()){
                 logger.debug("Execute [{}] complete", getJobFlowNodeInfo());
             }
-            return result;
+            return executeResult;
         }
         catch (JobFlowException e)
         {
             logger.error("",e);
+            executeResult.setIgnoreNextNodeExecute(true);
             nodeComplete(e,true);
-            return false;
+            return executeResult;
         }
 
         catch (Exception e)
         {
             logger.error("",e);
+            executeResult.setIgnoreNextNodeExecute(true);
             nodeComplete(e,true);
-            return false;
+            return executeResult;
             
         }
        
          
+    }
+
+    @Override
+    public JobFlowNode getNextJobFlowNode() {
+        if(matchedJobFlowNode != null && matchedJobFlowNode.getNextJobFlowNode() != null){
+            return matchedJobFlowNode.getNextJobFlowNode();
+        }
+        return super.getNextJobFlowNode();
     }
 
     /**
@@ -218,8 +238,28 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public void stop() {
-        if(matchedJobFlowNode != null)
-            matchedJobFlowNode.stop();
+        if(this.jobFlowNodeExecuteContext == null){
+            return;
+        }
+        if(jobFlowNodeExecuteContext.assertStoped()){
+            return;
+        }
+        jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
+        if(this.jobFlowNodes != null){
+            for (JobFlowNode jobFlowNode : jobFlowNodes)
+                jobFlowNode.stop();
+        }
+        if(defaultJobFlowNode != null){
+            defaultJobFlowNode.stop();
+        }
+       
+        release();
+//        jobFlowNodeExecuteContext = null;
+        if(this.nextJobFlowNode != null){
+            this.nextJobFlowNode.stop();
+        }
+//        if(matchedJobFlowNode != null)
+//            matchedJobFlowNode.stop();
     }
 
     /**

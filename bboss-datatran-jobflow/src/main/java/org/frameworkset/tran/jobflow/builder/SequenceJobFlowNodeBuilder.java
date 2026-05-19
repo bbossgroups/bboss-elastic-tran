@@ -64,7 +64,10 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
             this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
         this.currentJobFlowNodeBuilder = jobFlowNodeBuilder;
         nodeBuilders.add(jobFlowNodeBuilder);
-        jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
+        if(!jobFlowNodeBuilderMap.containsKey(jobFlowNodeBuilder.getNodeId())) {
+            jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
+        }
+        
         return this;
     }
     
@@ -159,7 +162,10 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
 
             this.jobFlowNodeBuilderMap.put(cid, conditionJobFlowNodeBuilder);
         }
-        this.jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(), jobFlowNodeBuilder);
+        if(!jobFlowNodeBuilderMap.containsKey(jobFlowNodeBuilder.getNodeId())) {
+            this.jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(), jobFlowNodeBuilder);
+        }
+        
         jobFlowNodeBuilder.setDefaultConditionNode(cid,defaultConditionNode);
         return cid;
     }
@@ -347,6 +353,9 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         else{
             jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
         }
+        if(!jobFlowNodeBuilderMap.containsKey(jobFlowNodeBuilder.getNodeId())) {
+            this.jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(), jobFlowNodeBuilder);
+        }
         String cid = null;
        
         if(currentJobFlowNodeBuilder != null) {
@@ -375,7 +384,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
             conditionJobFlowNodeBuilders.put(cid, conditionJobFlowNodeBuilder);
             jobFlowNodeBuilderMap.put(cid, conditionJobFlowNodeBuilder);
         }
-        this.jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(), jobFlowNodeBuilder);
+        
         jobFlowNodeBuilder.setDefaultConditionNode(cid,defaultConditionNode);
         return cid;
     }

@@ -376,7 +376,7 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     @Override
     public void setContainerConditionJobFlowNodeExecuteContext(JobFlowNodeExecuteContext containerConditionJobFlowNodeExecuteContext ){
         this.containerConditionJobFlowNodeExecuteContext = containerConditionJobFlowNodeExecuteContext;
-        this.containerJobFlowNodeExecuteContext = containerConditionJobFlowNodeExecuteContext;
+//        this.containerJobFlowNodeExecuteContext = containerConditionJobFlowNodeExecuteContext;
     }
 
     @Override

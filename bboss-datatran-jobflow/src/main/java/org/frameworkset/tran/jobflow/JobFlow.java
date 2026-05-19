@@ -157,10 +157,36 @@ public class JobFlow {
             }
         }
         try {
-            JobFlowNodeExecuteContext jobFlowNodeExecuteContext = this.startJobFlowNode.buildJobFlowNodeExecuteContext();
-            jobFlowNodeExecuteContext.setContainerJobFlowExecuteContext(this.jobFlowExecuteContext);
-            this.startJobFlowNode.execute(  jobFlowNodeExecuteContext);
-
+            
+            ExecuteResult executeResult = null;
+            JobFlowNode jobFlowNode = this.startJobFlowNode;
+            do {
+                JobFlowNodeExecuteContext jobFlowNodeExecuteContext = jobFlowNode.buildJobFlowNodeExecuteContext();
+                jobFlowNodeExecuteContext.setContainerJobFlowExecuteContext(this.jobFlowExecuteContext);
+                executeResult = jobFlowNode.execute(jobFlowNodeExecuteContext);
+                
+                if(logger.isDebugEnabled()) {
+                    logger.debug("{} execute complete.", jobFlowNode.getJobFlowNodeInfo());
+                }
+                if(jobFlowContext.assertStopped().isTrue()){
+                    break;
+                }
+                if(executeResult.isIgnoreNextNodeExecute()){
+                    break;
+                }
+                if(jobFlowNode.getNextJobFlowNode() != null){
+                    jobFlowNode = jobFlowNode.getNextJobFlowNode();
+                }
+                else{
+                    break;
+                }
+                
+            }while (true);
+            if(logger.isDebugEnabled()) {
+                logger.debug("Job Flow Execute complete and call {}'s complete.", this.getJobInfo());
+            }
+            this.complete(null);
+            
 
             logger.info("Execute {} end.",jobInfo);
         }
