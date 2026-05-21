@@ -169,15 +169,19 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
             evalJobFlowNode();
             if(matchedJobFlowNode == null) {
                 boolean checkFirstExecuteInContainerLifeCycle = checkFirstExecuteInContainerLifeCycle(jobFlowNodeExecuteContext);
-                if(checkFirstExecuteInContainerLifeCycle){
-                    logger.info("流程{}中的条件流程节点{}没有匹配到任何条件，且没有默认节点，终止条件节点后续节点执行。",this.getJobFlow().getJobInfo(),this.getJobFlowNodeInfo()   );
-                }
+                
                 if(checkFirstExecuteInContainerLifeCycle) {
                     if(allCondtionNodeMathfailedContinue) {
+                        if(logger.isInfoEnabled()) {
+                            logger.info("流程{}中的条件流程节点{}没有匹配到任何条件，且没有默认节点，allCondtionNodeMathfailedContinue=true，继续执行后续流程节点。", this.getJobFlow().getJobInfo(), this.getJobFlowNodeInfo());
+                        }
                         executeResult.setIgnoreNextNodeExecute(false);
                         nodeComplete(null, false);
                     }
                     else{
+                        if(logger.isInfoEnabled()) {
+                            logger.info("流程{}中的条件流程节点{}没有匹配到任何条件，且没有默认节点，终止条件节点后续节点执行。", this.getJobFlow().getJobInfo(), this.getJobFlowNodeInfo());
+                        }
                         executeResult.setIgnoreNextNodeExecute(true);
                         nodeComplete(null, true);
                     }
