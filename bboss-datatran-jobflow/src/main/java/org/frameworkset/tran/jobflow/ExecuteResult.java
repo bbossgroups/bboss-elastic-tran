@@ -24,6 +24,12 @@ public class ExecuteResult {
      * 是否忽略后续节点执行 true 忽略 false 不忽略
      */
     private boolean ignoreNextNodeExecute;
+
+
+    /**
+     * 执行失败标记：true 失败  false 正常
+     */
+    private boolean failed;
     private JobFlowNode nextNode;
     /**
      * 是否执行成功，true 表示执行成功 false 表示执行失败或者忽略执行
@@ -51,5 +57,13 @@ public class ExecuteResult {
     }
     public void setResultFlag(boolean resultFlag) {
         this.resultFlag = resultFlag;
+    }
+
+    public boolean isFailed() {
+        return failed;
+    }
+
+    public void setFailed(boolean failed) {
+        this.failed = failed;
     }
 }
