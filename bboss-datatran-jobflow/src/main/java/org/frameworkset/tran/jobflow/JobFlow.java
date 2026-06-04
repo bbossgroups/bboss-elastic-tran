@@ -373,13 +373,20 @@ public class JobFlow {
 
     }
     
-    
+    private boolean stopped;
+    private Object stopLock = new Object();
     /**
      * 停止工作流
      * @param fromScheduled 标记工作流停止操作是否是因为结束日期到达后触发 true 是 false 否
      */
     protected void stop(boolean fromScheduled){
-        
+        if(stopped)
+            return;
+        synchronized (stopLock) {
+            if(stopped)
+                return;
+            stopped = true;
+        }
         
 //                this.startJobFlowNode.stop();
         boolean stopResult = this.jobFlowContext.stop(new Function() {
