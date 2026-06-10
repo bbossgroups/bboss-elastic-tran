@@ -15,7 +15,11 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.tran.jobflow.schedule.ScheduleConfigInterface;
+
+import java.util.Date;
 
 /**
  * <p>Description: </p>
@@ -25,7 +29,7 @@ import com.frameworkset.util.SimpleStringUtil;
  * @author biaoping.yin
  * @version 1.0
  */
-public class ScheduleConfig {
+public class ScheduleConfig implements ScheduleConfigInterface {
 
 
 	private Long period;
@@ -93,5 +97,55 @@ public class ScheduleConfig {
 
     public void setExecuteOneTimeSyn(boolean executeOneTimeSyn) {
         this.executeOneTimeSyn = executeOneTimeSyn;
+    }
+
+    /**
+     * 任务延迟执行时间
+     */
+    private Long delay;
+
+    /**
+     * 任务开始时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    private Date scheduleDate;
+    /**
+     * 任务结束时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    private Date scheduleEndDate;
+
+    private boolean continueOnError = true;
+
+    public Long getDelay() {
+        return delay;
+    }
+
+    public void setDelay(Long delay) {
+        this.delay = delay;
+    }
+
+    public Date getScheduleDate() {
+        return scheduleDate;
+    }
+
+    public void setScheduleDate(Date scheduleDate) {
+        this.scheduleDate = scheduleDate;
+    }
+
+    public Date getScheduleEndDate() {
+        return scheduleEndDate;
+    }
+
+    public void setScheduleEndDate(Date scheduleEndDate) {
+        this.scheduleEndDate = scheduleEndDate;
+    }
+
+    public void setContinueOnError(boolean continueOnError) {
+        this.continueOnError = continueOnError;
+    }
+
+    public boolean isContinueOnError() {
+        return continueOnError;
     }
 }

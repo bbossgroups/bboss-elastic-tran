@@ -20,7 +20,7 @@ import org.frameworkset.tran.TranVersion;
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.NodeTrigger;
 import org.frameworkset.tran.jobflow.listener.JobFlowListener;
-import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
+import org.frameworkset.tran.jobflow.schedule.ScheduleConfigInterface;
 import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;
 
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class JobFlowBuilder {
      * 作业流程名称
      */
     private String jobFlowName;
-    private JobFlowScheduleConfig jobFlowScheduleConfig;
+    private ScheduleConfigInterface jobFlowScheduleConfig;
     private JobFlowNodeBuilder headerJobFlowNodeBuilder;
     private JobFlowNodeBuilder currentJobFlowNodeBuilder;
     private boolean externalTimer;
@@ -520,7 +520,7 @@ public class JobFlowBuilder {
         return this;
     }
 
-    public void setJobFlowScheduleConfig(JobFlowScheduleConfig jobFlowScheduleConfig) {
+    public void setJobFlowScheduleConfig(ScheduleConfigInterface jobFlowScheduleConfig) {
         this.jobFlowScheduleConfig = jobFlowScheduleConfig;
     }
     public JobFlowNodeBuilder getJobFlowNodeBuilder(String nodeId){

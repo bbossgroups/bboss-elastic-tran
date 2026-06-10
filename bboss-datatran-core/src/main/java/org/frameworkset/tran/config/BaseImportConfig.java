@@ -661,13 +661,7 @@ public class BaseImportConfig {
 		return GeoIPUtil.getGeoIPUtil(geoipConfig);
 	}
 
-	public void setExternalTimer(boolean externalTimer) {
-		if(scheduleConfig == null){
-			scheduleConfig = new ScheduleConfig();
-		}
-		this.scheduleConfig.setExternalTimer(externalTimer);
-	}
-
+ 
 	public List<DBConfig> getConfigs() {
 		return configs;
 	}

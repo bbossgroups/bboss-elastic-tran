@@ -18,6 +18,9 @@ package org.frameworkset.tran.schedule;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataStream;
 import org.frameworkset.tran.config.ImportBuilder;
+import org.frameworkset.tran.jobflow.schedule.ScheduleConfigInterface;
+import org.frameworkset.tran.schedule.timer.HolidayCheckResult;
+import org.frameworkset.tran.schedule.timer.HolidayScheduleConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +35,7 @@ import org.slf4j.LoggerFactory;
 public class ExternalScheduler {
 	private DataStreamBuilder dataStreamBuilder;
 	private DataStream dataStream;
+    private ScheduleConfigInterface scheduleConfigInterface;
 	private static Logger logger = LoggerFactory.getLogger(ExternalScheduler.class);
 //	private Lock lock = new ReentrantLock();
 	public void dataStream(DataStreamBuilder dataStreamBuilder){
@@ -50,6 +54,7 @@ public class ExternalScheduler {
 //						db2ESImportBuilder.setAsyn(false);
 //					}
 					dataStream = db2ESImportBuilder.builder();
+                    scheduleConfigInterface = db2ESImportBuilder.getScheduleConfig();
 				}
 			}
 			catch (DataImportException e){
@@ -79,7 +84,22 @@ public class ExternalScheduler {
 //			dataStream.init();
 
 		}
-		dataStream.execute();
+        if(scheduleConfigInterface != null){
+            if(scheduleConfigInterface instanceof HolidayScheduleConfig){
+                HolidayScheduleConfig holidayScheduleConfig = (HolidayScheduleConfig) scheduleConfigInterface;
+                HolidayCheckResult holidayCheckResult = holidayScheduleConfig.isNeedSkip();
+                if(holidayCheckResult.isResult()){
+                    if(logger.isInfoEnabled())
+                        logger.info(holidayCheckResult.getMessage());
+                }
+                else{
+                    dataStream.execute();
+                }
+            }
+        }
+        else {
+            dataStream.execute();
+        }
 	}
 
 	public void destroy(){

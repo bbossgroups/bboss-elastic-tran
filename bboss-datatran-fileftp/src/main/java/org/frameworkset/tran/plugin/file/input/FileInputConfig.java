@@ -11,6 +11,7 @@ import org.frameworkset.tran.input.file.*;
 import org.frameworkset.tran.plugin.BaseConfig;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.schedule.AssertStopBarrier;
+import org.frameworkset.tran.schedule.ScheduleConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.schedule.timer.TimeRange;
@@ -76,7 +77,7 @@ public class FileInputConfig<T extends FileInputConfig> extends BaseConfig<T> im
         return assertMaxFilesThreshold;
     }
 
-    private TimerScheduleConfig timerScheduleConfig;
+    private ScheduleConfig timerScheduleConfig;
     /**
      * 备份成功文件
      * true 备份
@@ -387,7 +388,7 @@ public class FileInputConfig<T extends FileInputConfig> extends BaseConfig<T> im
         if(timerScheduleConfig == null){
             timerScheduleConfig = new TimerScheduleConfig();
         }
-        timerScheduleConfig.addSkipScanNewFileTimeRange(timeRange);
+        ((TimerScheduleConfig)timerScheduleConfig).addSkipScanNewFileTimeRange(timeRange);
         return (T)this;
     }
 
@@ -404,7 +405,7 @@ public class FileInputConfig<T extends FileInputConfig> extends BaseConfig<T> im
         if(timerScheduleConfig == null){
             timerScheduleConfig = new TimerScheduleConfig();
         }
-        timerScheduleConfig.addSkipScanNewFileTimeRange(timeRange);
+        ((TimerScheduleConfig)timerScheduleConfig).addSkipScanNewFileTimeRange(timeRange);
 
         return (T)this;
     }
@@ -412,11 +413,11 @@ public class FileInputConfig<T extends FileInputConfig> extends BaseConfig<T> im
 
 
     public List<TimeRange> getScanNewFileTimeRanges() {
-        return timerScheduleConfig != null?timerScheduleConfig.getScanNewFileTimeRanges():null;
+        return timerScheduleConfig != null?((TimerScheduleConfig)timerScheduleConfig).getScanNewFileTimeRanges():null;
     }
 
     public List<TimeRange> getSkipScanNewFileTimeRanges() {
-        return timerScheduleConfig != null?timerScheduleConfig.getSkipScanNewFileTimeRanges():null;
+        return timerScheduleConfig != null?((TimerScheduleConfig)timerScheduleConfig).getSkipScanNewFileTimeRanges():null;
     }
 
     public T setSleepAwaitTimeAfterFetch(long sleepAwaitTimeAfterFetch) {
@@ -465,7 +466,7 @@ public class FileInputConfig<T extends FileInputConfig> extends BaseConfig<T> im
         this.fileLiveTime = fileLiveTime;
         return (T)this;
     }
-    public TimerScheduleConfig getTimerScheduleConfig() {
+    public ScheduleConfig getTimerScheduleConfig() {
         return timerScheduleConfig;
     }
 

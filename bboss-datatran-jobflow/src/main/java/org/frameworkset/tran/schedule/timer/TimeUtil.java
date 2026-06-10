@@ -145,7 +145,7 @@ public class TimeUtil {
 		return result;
 
 	}
-
+ 
 	/**
 	 * 评估是否需要进行新文件扫描
 	 * @param timerScheduleConfig
@@ -154,6 +154,7 @@ public class TimeUtil {
 	public static boolean evalateNeedScan(TimerScheduleConfig timerScheduleConfig){
 		if(timerScheduleConfig == null)
 			return true;
+        
 		Date currentTime = new Date();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(currentTime);

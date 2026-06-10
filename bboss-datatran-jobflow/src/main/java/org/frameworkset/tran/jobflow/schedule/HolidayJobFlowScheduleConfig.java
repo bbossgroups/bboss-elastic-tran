@@ -15,15 +15,14 @@ package org.frameworkset.tran.jobflow.schedule;
  * limitations under the License.
  */
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
+import org.frameworkset.tran.schedule.timer.HolidayScheduleConfig;
 
-import java.util.Date;
 
 /**
  * @author biaoping.yin
  * @Date 2025/6/10
  */
-public class JobFlowScheduleConfig extends TimerScheduleConfig implements ScheduleConfigInterface {
+public class HolidayJobFlowScheduleConfig extends HolidayScheduleConfig implements ScheduleConfigInterface {
+    
     
 }

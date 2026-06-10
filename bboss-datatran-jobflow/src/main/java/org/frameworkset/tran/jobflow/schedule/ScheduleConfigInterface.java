@@ -1,6 +1,6 @@
 package org.frameworkset.tran.jobflow.schedule;
 /**
- * Copyright 2025 bboss
+ * Copyright 2026 bboss
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,25 @@ package org.frameworkset.tran.jobflow.schedule;
  * limitations under the License.
  */
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
-
 import java.util.Date;
 
 /**
  * @author biaoping.yin
- * @Date 2025/6/10
+ * @Date 2026/6/9
  */
-public class JobFlowScheduleConfig extends TimerScheduleConfig implements ScheduleConfigInterface {
-    
+public interface ScheduleConfigInterface {
+    Date getScheduleDate();
+    Date getScheduleEndDate();
+    Long getDelay();
+    boolean isContinueOnError();
+    Long getPeriod();
+    boolean isExecuteOneTime();
+    boolean isExecuteOneTimeSyn();
+    boolean isExternalTimer();
+    void setExecuteOneTime(Boolean executeOneTime);
+
+ 
+
+    void setExecuteOneTimeSyn(boolean executeOneTimeSyn);
+
 }

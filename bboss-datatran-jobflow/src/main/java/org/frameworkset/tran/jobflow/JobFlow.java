@@ -24,7 +24,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.frameworkset.tran.jobflow.context.*;
 import org.frameworkset.tran.jobflow.listener.JobFlowListener;
 import org.frameworkset.tran.jobflow.metrics.JobFlowMetrics;
-import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleConfig;
+import org.frameworkset.tran.jobflow.schedule.ScheduleConfigInterface;
 import org.frameworkset.tran.jobflow.schedule.JobFlowScheduleTimer;
 import org.frameworkset.tran.schedule.ScheduleEndCall;
 import org.slf4j.Logger;
@@ -58,7 +58,7 @@ public class JobFlow {
 
    
 
-    private JobFlowScheduleConfig jobFlowScheduleConfig;
+    private ScheduleConfigInterface jobFlowScheduleConfig;
     private boolean externalTimer;
     /**
      * 流程的首节点
@@ -259,7 +259,7 @@ public class JobFlow {
         jobFlowContext.initJob();            
     }
     
-    public static void delay(String jobInfo,JobFlowScheduleConfig jobFlowScheduleConfig){
+    public static void delay(String jobInfo, ScheduleConfigInterface jobFlowScheduleConfig){
         //第一次执行时，设置延时时间
         Long _deLay = null;
         Long deyLay = jobFlowScheduleConfig.getDelay();
@@ -526,11 +526,11 @@ public class JobFlow {
         return false;
     }
 
-    public JobFlowScheduleConfig getJobScheduleConfig() {
+    public ScheduleConfigInterface getJobScheduleConfig() {
         return jobFlowScheduleConfig;
     }
 
-    public void setJobScheduleConfig(JobFlowScheduleConfig jobFlowScheduleConfig) {
+    public void setJobScheduleConfig(ScheduleConfigInterface jobFlowScheduleConfig) {
         this.jobFlowScheduleConfig = jobFlowScheduleConfig;
     }
     

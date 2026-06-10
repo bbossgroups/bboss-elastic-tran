@@ -18,6 +18,7 @@ package org.frameworkset.tran.jobflow.schedule;
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.JobFlowException;
 import org.frameworkset.tran.jobflow.builder.JobFlowBuilder;
+import org.frameworkset.tran.schedule.timer.HolidayCheckResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +90,21 @@ public class ExternalJobFlowScheduler {
     }
 	public void execute(Object params){
         initJobFlow(  params);
-        jobFlow.execute();
+        ScheduleConfigInterface scheduleConfigInterface = jobFlow.getJobScheduleConfig();
+        if(scheduleConfigInterface != null && scheduleConfigInterface instanceof HolidayJobFlowScheduleConfig) {
+            HolidayJobFlowScheduleConfig holidayJobFlowScheduleConfig = (HolidayJobFlowScheduleConfig) scheduleConfigInterface;
+            HolidayCheckResult holidayCheckResult = holidayJobFlowScheduleConfig.isNeedSkip();
+            if(holidayCheckResult.isResult()){
+                if(logger.isInfoEnabled())
+                    logger.info("ExternalJobScheduler execute skipped:"+holidayCheckResult.getMessage());
+            }
+            else {
+                jobFlow.execute();
+            }
+        }
+        else{
+            jobFlow.execute();
+        }
 	}
 
 	public void destroy(){

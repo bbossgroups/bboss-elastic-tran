@@ -18,6 +18,8 @@ package org.frameworkset.tran.schedule;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
+import org.frameworkset.tran.schedule.timer.HolidayCheckResult;
+import org.frameworkset.tran.schedule.timer.HolidayScheduleConfig;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.frameworkset.tran.util.TranUtil;
 import org.slf4j.Logger;
@@ -154,26 +156,54 @@ public class ScheduleService {
 		//		scheduleImportData(dataTranPlugin.getBatchSize());
 
 		timer = new Timer("JobJdkTimeSchedule-"+importContext.getJobName() + "-Timer");
-		TimerTask timerTask = new TimerTask() {
-			@Override
-			public void run() {
-				if(isSchedulePaused(isEnableAutoPauseScheduled())){
-//					if(logger.isInfoEnabled()){
-//						logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
-//					}
-                    if(importContext.getDataTranPlugin().checkTranToStop())//任务处于停止状态，不再执行定时作业
-                    {
-                        if(logger.isInfoEnabled()){
-                            logger.info("Schedule Task has stopped,stop resume schedule.");
-                        }
+        
+        TimerTask timerTask = null;
+        if(scheduleConfig instanceof HolidayScheduleConfig){
+            HolidayScheduleConfig holidayScheduleConfig = (HolidayScheduleConfig)scheduleConfig;
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    HolidayCheckResult holidayCheckResult = holidayScheduleConfig.isNeedSkip();
+                    if(holidayCheckResult.isResult()){
+                        logger.info(holidayCheckResult.getMessage());
                         return;
                     }
-//					return;
-				}
-				externalTimeSchedule();
+                    if(isSchedulePaused(isEnableAutoPauseScheduled())){
 
-			}
-		};
+                        if(importContext.getDataTranPlugin().checkTranToStop())//任务处于停止状态，不再执行定时作业
+                        {
+                            if(logger.isInfoEnabled()){
+                                logger.info("Schedule Task has stopped,stop resume schedule.");
+                            }
+                            return;
+                        }
+                    }
+
+                    externalTimeSchedule();
+
+                }
+            };
+        }
+        else {
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+
+                    if (isSchedulePaused(isEnableAutoPauseScheduled())) {
+                        if (importContext.getDataTranPlugin().checkTranToStop())//任务处于停止状态，不再执行定时作业
+                        {
+                            if (logger.isInfoEnabled()) {
+                                logger.info("Schedule Task has stopped,stop resume schedule.");
+                            }
+                            return;
+                        }
+                    }
+
+                    externalTimeSchedule();
+
+                }
+            };
+        }
 		Date scheduleDate = importContext.getScheduleDate();
 		Long delay = importContext.getDeyLay();
 		if(scheduleDate != null) {

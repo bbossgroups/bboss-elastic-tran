@@ -37,6 +37,7 @@ import org.frameworkset.tran.plugin.multi.output.MultiOutputConfig;
 import org.frameworkset.tran.plugin.multi.output.OutputRecordsFilter;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.*;
+import org.frameworkset.tran.schedule.timer.HolidayScheduleConfig;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
@@ -1324,11 +1325,17 @@ public class ImportBuilder {
 		return this;
 	}
 
+    /**
+     * 设置支持节假日暂停执行的调度配置
+     * @param holidayScheduleConfig
+     * @return
+     */
+    public ImportBuilder setScheduleConfig(HolidayScheduleConfig holidayScheduleConfig) {
+        this.scheduleConfig = holidayScheduleConfig;
+        return this;
+    }
 
-
-
-
-	public static void main(String[] args){
+    public static void main(String[] args){
 		logger.info("meta:_id".substring(5));//""
 	}
 

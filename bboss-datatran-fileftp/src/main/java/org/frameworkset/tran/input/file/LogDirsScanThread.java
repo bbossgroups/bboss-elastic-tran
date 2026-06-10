@@ -1,6 +1,9 @@
 package org.frameworkset.tran.input.file;
 
 import org.frameworkset.tran.plugin.file.input.FileInputConfig;
+import org.frameworkset.tran.schedule.ScheduleConfig;
+import org.frameworkset.tran.schedule.timer.HolidayCheckResult;
+import org.frameworkset.tran.schedule.timer.HolidayScheduleConfig;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.slf4j.Logger;
@@ -18,7 +21,7 @@ public class LogDirsScanThread implements Runnable{
     private Thread thread = null;
     protected volatile boolean running = false;
     protected ScanNewFile scan;
-    protected TimerScheduleConfig timerScheduleConfig;
+    protected ScheduleConfig timerScheduleConfig;
     protected FileInputConfig fileInputConfig;
     /**
      * Constructs a monitor with the specified interval and set of observers.
@@ -123,13 +126,22 @@ public class LogDirsScanThread implements Runnable{
             /**
              * 如果没有到达执行时间点，则定时检查直到命中扫描时间点
              */
-            do {
+            if(timerScheduleConfig == null){
+                try {
+                    scan.run();
+                } catch (Exception e) {
+                    logger.error("扫描新文件失败", e);
+                }
+            }
+            else if(timerScheduleConfig instanceof  TimerScheduleConfig) {
+                TimerScheduleConfig timerScheduleConfig_ = (TimerScheduleConfig)timerScheduleConfig;
+                do {
 
-                if (TimeUtil.evalateNeedScan(timerScheduleConfig)) {
-                    if (!running) {
-                        break;
-                    }
-                    try {
+                    if (TimeUtil.evalateNeedScan(timerScheduleConfig_)) {
+                        if (!running) {
+                            break;
+                        }
+                        try {
 //                        boolean schedulePaused = this.fileListenerService.isSchedulePaussed(autoSchedulePaused);
 //                        if(!schedulePaused) {
 //                            scanNewFile();
@@ -139,27 +151,41 @@ public class LogDirsScanThread implements Runnable{
 //                                logger.info("Ignore  Paussed Schedule Task,waiting for next resume schedule sign to continue.");
 //                            }
 //                        }
+                            scan.run();
+                        } catch (Exception e) {
+                            logger.error("扫描新文件失败", e);
+                        }
+                        break;
+                    } else {
+                        try {
+                            if (logger.isInfoEnabled()) {
+                                if (interval > 30000) {
+                                    logger.info("Wait {} ms to next newfiles scan.", interval);
+                                }
+                            }
+                            Thread.sleep(interval);
+
+                        } catch (final InterruptedException ignored) {
+                            // ignore
+                            break;
+                        }
+                    }
+                } while (true);
+            }
+            else{
+                HolidayScheduleConfig holidayScheduleConfig = (HolidayScheduleConfig)timerScheduleConfig;
+                HolidayCheckResult holidayCheckResult = holidayScheduleConfig.isNeedSkip();
+                if(holidayCheckResult.isResult()){
+                    logger.info(holidayCheckResult.getMessage());
+                }
+                else{
+                    try {
                         scan.run();
                     } catch (Exception e) {
                         logger.error("扫描新文件失败", e);
                     }
-                    break;
                 }
-                else {
-                    try {
-                        if(logger.isInfoEnabled()) {
-                            if (interval > 30000) {
-                                logger.info("Wait {} ms to next newfiles scan.", interval);
-                            }
-                        }
-                        Thread.sleep(interval);
-                        
-                    } catch (final InterruptedException ignored) {
-                        // ignore
-                        break;
-                    }
-                }
-            }while(true);
+            }
             if (!running) {
                 break;
             }

@@ -17,11 +17,11 @@ package org.frameworkset.tran.jobflow.schedule;
 
 import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.context.JobFlowExecuteContext;
+import org.frameworkset.tran.schedule.timer.HolidayCheckResult;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
+import org.frameworkset.tran.schedule.timer.TimerScheduleConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Date;
 
 /**
  * job工作流调度器，作业中节点如果配置了定时调度器，将失效，已作业调度器为准
@@ -29,13 +29,13 @@ import java.util.Date;
  * @Date 2025/6/10
  */
 public class JobFlowScheduleTimer implements Runnable{
-    private JobFlowScheduleConfig jobFlowScheduleConfig;
+    private ScheduleConfigInterface jobFlowScheduleConfig;
     private JobFlow jobFlow;
     private JobFlowExecuteContext jobFlowExecuteContext;
     private static Logger logger = LoggerFactory.getLogger(JobFlowScheduleTimer.class);
     private Thread thread = null;
     protected volatile boolean running = false;
-    public JobFlowScheduleTimer(JobFlowScheduleConfig jobFlowScheduleConfig, JobFlow jobFlow ){
+    public JobFlowScheduleTimer(ScheduleConfigInterface jobFlowScheduleConfig, JobFlow jobFlow ){
         this.jobFlowScheduleConfig = jobFlowScheduleConfig;
         this.jobFlow = jobFlow;
         this.jobFlowExecuteContext = jobFlow.getJobFlowExecuteContext();
@@ -101,7 +101,7 @@ public class JobFlowScheduleTimer implements Runnable{
         if(interval == null){
             interval = 100000l;
         }
-        jobFlow.delay(jobFlow.getJobInfo(), jobFlowScheduleConfig);
+        jobFlow.delay(jobFlow.getJobInfo(), (ScheduleConfigInterface)jobFlowScheduleConfig);
 //        //第一次执行时，设置延时时间
 //        Long _deLay = null;
 //        Long deyLay = jobFlowScheduleConfig.getDelay();
@@ -132,34 +132,51 @@ public class JobFlowScheduleTimer implements Runnable{
              * 如果没有到达执行时间点，则定时检查直到命中扫描时间点
              */
             Exception exception = null;
-            do {
+            if(jobFlowScheduleConfig instanceof TimerScheduleConfig) {
+                TimerScheduleConfig timerScheduleConfig = (TimerScheduleConfig) jobFlowScheduleConfig;
+                do {
 
-                if (TimeUtil.evalateNeedScan(jobFlowScheduleConfig)) {
-                    if(jobFlow.isSchedulePaused(jobFlow.isEnableAutoPauseScheduled())){
-                        if(logger.isInfoEnabled()){
-                            logger.info("Ignore  paused schedule job,waiting for next resume schedule sign to continue.");
+                    if (TimeUtil.evalateNeedScan(timerScheduleConfig)) {
+                        if (jobFlow.isSchedulePaused(jobFlow.isEnableAutoPauseScheduled())) {
+                            if (logger.isInfoEnabled()) {
+                                logger.info("Ignore  paused schedule job,waiting for next resume schedule sign to continue.");
+                            }
+                            break;
+                        }
+                        synchronized (runLock) {
+                            try {
+                                jobFlow.execute();
+                            } catch (Exception e) {
+                                exception = e;
+                            }
                         }
                         break;
+                    } else {
+                        try {
+                            Thread.sleep(1000l);
+                        } catch (final InterruptedException ignored) {
+                            // ignore
+                            break;
+                        }
                     }
+                } while (true);
+            }
+            else{
+                HolidayJobFlowScheduleConfig holidayJobFlowScheduleConfig = (HolidayJobFlowScheduleConfig)jobFlowScheduleConfig;
+                HolidayCheckResult holidayCheckResult = holidayJobFlowScheduleConfig.isNeedSkip();
+                if(holidayCheckResult.isResult()){
+                    logger.info(holidayCheckResult.getMessage());                    
+                }
+                else {
                     synchronized (runLock) {
                         try {
                             jobFlow.execute();
-                        }
-                        catch (Exception e){
+                        } catch (Exception e) {
                             exception = e;
                         }
                     }
-                    break;
                 }
-                else {
-                    try {
-                        Thread.sleep(1000l);
-                    } catch (final InterruptedException ignored) {
-                        // ignore
-                        break;
-                    }
-                }
-            }while(true);
+            }
             if (!running) {
                 logger.warn("running=false and end JobFlowScheduleTimer.");
                 break;
@@ -176,7 +193,7 @@ public class JobFlowScheduleTimer implements Runnable{
             try {
                 Thread.sleep(interval);
             } catch (final InterruptedException ignored) {
-                // ignore
+                break;
             }
         }
     }
