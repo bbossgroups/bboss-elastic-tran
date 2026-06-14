@@ -235,6 +235,7 @@ public class HolidayScheduleConfig extends ScheduleConfig {
 		this.skipMidAutumnFestival = true;
 		this.skipNationalDay = true;
 		this.skipSpringFestival = true;
+        this.skipWeekends();
 		return this;
 	}
 
