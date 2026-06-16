@@ -44,86 +44,97 @@ public class IPDBTest {
 	}
 //	@Test
 	public static void test() throws IOException {
-				String fieldName = "a.keyword";
-				System.out.println(fieldName.substring(0,fieldName.lastIndexOf(".keyword")));
+			 
 
 			// 测试ip 221.232.245.73 湖北武汉
 			try {
 				GeoIPUtil addressUtils = new GeoIPUtil();
-				addressUtils.setAsnDatabase("d:\\geolite2\\GeoLite2-ASN.mmdb");
-				addressUtils.setDatabase("d:\\geolite2\\GeoLite2-City.mmdb");
-				addressUtils.setIp2regionDatabase("d:\\geolite2\\ip2region.db");
+                
+                //		
+				addressUtils.setAsnDatabase("C:/workdir/geolite2/GeoLite2-ASN.mmdb");
+				addressUtils.setDatabase("C:/workdir/geolite2/GeoLite2-City.mmdb");
+				addressUtils.setIp2regionDatabase("C:/workdir/geolite2/ip2region_v4.xdb;C:/workdir/geolite2/ip2region_v6.xdb");
 				addressUtils.setCachesize(2000);
 				addressUtils.init();
 //				addressUtils.setIpUrl("http://ip.taobao.com/service/getIpInfo.php");
 				IpInfo address = addressUtils.getIpInfo("223.104.130.11");
+
+                
+                String isp = (address.getIsp());
+                String city1 = (address.getCity());
+                String region = (address.getRegion());
+                if ("0".equals(address.getCountry())){
+                    address.setCountry("未知");
+                }
+               String country1 = (address.getCountry());
+                
 				System.out.println(address);
 				address = addressUtils.getIpInfo("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");
 				System.out.println(address);
-				DatabaseReader databaseReader = new DatabaseReader.Builder(new File("d:\\geolite2\\GeoLite2-City.mmdb"))
-																  .withCache(new CHMCache(2000)).build();
-				final InetAddress ipAddress = InetAddress.getByName("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");
-				CityResponse response = databaseReader.city(ipAddress);
-				Country country = response.getCountry();
-				City city = response.getCity();
-				Location location = response.getLocation();
-				Continent continent = response.getContinent();
-				Postal postal = response.getPostal();
-				Subdivision subdivision = response.getMostSpecificSubdivision();
-
-				address = addressUtils.getIpInfo("185.180.222.151");
-				System.out.println(address);
-				address = addressUtils.getIpInfo("103.254.69.246");
-				System.out.println(address);
-				address = addressUtils.getIpInfo("180.168.192.126");
-				System.out.println(address);
-				address = addressUtils.getIpInfo("2408:84e2:1db:c9ec:4062:61d4:9340:85f7");
-				System.out.println(address);
-				address = addressUtils.getIpInfo("172.168.22.26");
-				System.out.println(address);
-				address = addressUtils.getIpInfo("36.148.49.213");
-				System.out.println(address);
-				address = addressUtils.getIpInfo("10.11.13.12");
-
-				System.out.println(address);
+//				DatabaseReader databaseReader = new DatabaseReader.Builder(new File("d:\\geolite2\\GeoLite2-City.mmdb"))
+//																  .withCache(new CHMCache(2000)).build();
+//				final InetAddress ipAddress = InetAddress.getByName("2409:8950:5ee1:d5c4:a5ce:69f0:d9fb:72c8");
+//				CityResponse response = databaseReader.city(ipAddress);
+//				Country country = response.getCountry();
+//				City city = response.getCity();
+//				Location location = response.getLocation();
+//				Continent continent = response.getContinent();
+//				Postal postal = response.getPostal();
+//				Subdivision subdivision = response.getMostSpecificSubdivision();
+//
+//				address = addressUtils.getIpInfo("185.180.222.151");
+//				System.out.println(address);
+//				address = addressUtils.getIpInfo("103.254.69.246");
+//				System.out.println(address);
+//				address = addressUtils.getIpInfo("180.168.192.126");
+//				System.out.println(address);
+//				address = addressUtils.getIpInfo("2408:84e2:1db:c9ec:4062:61d4:9340:85f7");
+//				System.out.println(address);
+//				address = addressUtils.getIpInfo("172.168.22.26");
+//				System.out.println(address);
+//				address = addressUtils.getIpInfo("36.148.49.213");
+//				System.out.println(address);
+//				address = addressUtils.getIpInfo("10.11.13.12");
+//
+//				System.out.println(address);
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			File database = new File("d:\\geolite2\\GeoLite2-City.mmdb");
-			Reader reader = new Reader(database,new CHMCache(4096));
-			InetAddress address = InetAddress.getByName("36.148.49.213");
-
-
-			// getRecord() returns a Record class that contains both
-			// the data for the record and associated metadata.
-			Map record = reader.get(address,Map.class);
-
-			logger.info(SimpleStringUtil.object2json(record));
-
-
-
-			database = new File("d:\\geolite2\\GeoLite2-ASN.mmdb");
-			reader = new Reader(database,new CHMCache(4096));
-			address = InetAddress.getByName("183.15.204.103");
-
-			// get() returns just the data for the associated record
-		record = reader.get(address,Map.class);
-
-		logger.info(SimpleStringUtil.object2json(record));
-
-			// getRecord() returns a Record class that contains both
-			// the data for the record and associated metadata.
-
-			// 输出结果为：中国 湖北省 武汉市
-
-			database = new File("d:\\geolite2\\GeoLite2-Country.mmdb");
-			reader = new Reader(database,new CHMCache(4096));
-			address = InetAddress.getByName("183.15.204.103");
-
-			// get() returns just the data for the associated record
-		record = reader.get(address,Map.class);
-
-		logger.info(SimpleStringUtil.object2json(record));
+//			File database = new File("d:\\geolite2\\GeoLite2-City.mmdb");
+//			Reader reader = new Reader(database,new CHMCache(4096));
+//			InetAddress address = InetAddress.getByName("36.148.49.213");
+//
+//
+//			// getRecord() returns a Record class that contains both
+//			// the data for the record and associated metadata.
+//			Map record = reader.get(address,Map.class);
+//
+//			logger.info(SimpleStringUtil.object2json(record));
+//
+//
+//
+//			database = new File("d:\\geolite2\\GeoLite2-ASN.mmdb");
+//			reader = new Reader(database,new CHMCache(4096));
+//			address = InetAddress.getByName("183.15.204.103");
+//
+//			// get() returns just the data for the associated record
+//		record = reader.get(address,Map.class);
+//
+//		logger.info(SimpleStringUtil.object2json(record));
+//
+//			// getRecord() returns a Record class that contains both
+//			// the data for the record and associated metadata.
+//
+//			// 输出结果为：中国 湖北省 武汉市
+//
+//			database = new File("d:\\geolite2\\GeoLite2-Country.mmdb");
+//			reader = new Reader(database,new CHMCache(4096));
+//			address = InetAddress.getByName("183.15.204.103");
+//
+//			// get() returns just the data for the associated record
+//		record = reader.get(address,Map.class);
+//
+//		logger.info(SimpleStringUtil.object2json(record));
 	}
 }

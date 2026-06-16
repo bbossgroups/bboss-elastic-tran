@@ -253,9 +253,9 @@ public class IP2RegionV2 implements IP2Region {
                 ipInfo.setCountry(infos[0]);
                  
                 if(!infos[1].equals( "0"))
-                    ipInfo.setRegion(infos[2]);
+                    ipInfo.setRegion(infos[1]);
                 if(!infos[2].equals( "0"))
-                    ipInfo.setCity(infos[3]);
+                    ipInfo.setCity(infos[2]);
                 if(!infos[3].equals( "0"))
                     ipInfo.setIsp(infos[3]);
             }
