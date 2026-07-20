@@ -38,7 +38,11 @@ public class JDBCGetVariableValue extends BaseESGetVariableValue {
 	public Object getValue(String field) {
 
 		try {
-			return commonRecord.getData(field);
+			Object value = commonRecord.getData(field);
+			if(value == null){
+				value = commonRecord.getTempData(field);
+			}
+			return value;
 		} catch (Exception e) {
 			throw new DataImportException(new StringBuilder()
 											.append("JDBCGetVariableValue getValue failed:")
