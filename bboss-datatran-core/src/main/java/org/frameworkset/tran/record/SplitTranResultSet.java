@@ -195,8 +195,15 @@ public class SplitTranResultSet  implements TranResultSet {
 				if(baseRecord.removed()){//标记为removed状态的记录不需要切割
 					return nextAssert;
 				}
-				List<KeyMap> splitRecords_ = splitHandler.splitField(getTaskContext(), baseRecord,
-						baseRecord.getValue(getTaskContext().getImportContext().getSplitFieldName()));
+				
+				List<KeyMap> splitRecords_ = null;
+				if(getTaskContext().getImportContext().getSplitFieldName() != null) {
+					splitRecords_ = splitHandler.splitField(getTaskContext(), baseRecord,
+							baseRecord.getValue(getTaskContext().getImportContext().getSplitFieldName()));
+				}
+				else{
+					splitRecords_ = splitHandler.splitRecord(getTaskContext(), baseRecord);
+				}
 				if (splitRecords_ == null || splitRecords_.size() == 0) {
 					record = null;
 					splitPos = 0;

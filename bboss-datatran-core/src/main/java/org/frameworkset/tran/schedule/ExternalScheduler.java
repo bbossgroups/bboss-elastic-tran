@@ -96,6 +96,9 @@ public class ExternalScheduler {
                     dataStream.execute();
                 }
             }
+			else{
+				dataStream.execute();
+			}
         }
         else {
             dataStream.execute();

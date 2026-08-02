@@ -22,7 +22,11 @@ import org.frameworkset.tran.schedule.TaskContext;
 import java.util.List;
 
 /**
- * <p>Description: 记录切割器，将字段值切换为多条记录</p>
+ * <p>Description: 记录切割器，具备以下能力：
+ * 根据单个字段将字段值切换为多条记录
+ * 根据多个字段将字段值切换为多条记录
+ * 如果无需切割记录，则两个接口方法返回null即可
+ * </p>
  * <p></p>
  * <p>Copyright (c) 2020</p>
  * @Date 2021/9/21 12:06
@@ -52,5 +56,17 @@ public interface SplitHandler {
 	 * 	}
      * }
 	 */
-	public List<KeyMap> splitField(TaskContext taskContext, Record record, Object fieldValue);
+	default List<KeyMap> splitField(TaskContext taskContext, Record record, Object fieldValue){
+		return null;
+	}
+	
+	/**
+	 * 将记录切割为多条记录
+	 * @param taskContext
+	 * @param record
+	 * @return
+	 */
+	default List<KeyMap> splitRecord(TaskContext taskContext, Record record){
+		return null;
+	}
 }
