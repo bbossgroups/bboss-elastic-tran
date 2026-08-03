@@ -194,7 +194,9 @@ public class SimpleJobFlowNode extends JobFlowNode{
         }
         if(jobFlowNodeExecuteContext.assertStoped())
             return;
-        logger.info("Stop {} begin.",this.getJobFlowNodeInfo());
+		if(logger.isDebugEnabled()) {
+			logger.debug("Stop {} begin.", this.getJobFlowNodeInfo());
+		}
         jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPPING);
 //        if(dataStream != null){
 //            dataStream.destroy(true);
@@ -203,7 +205,9 @@ public class SimpleJobFlowNode extends JobFlowNode{
         jobFlowNodeFunction.stop();
 
         jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
-        logger.info("Stop {} complete.",this.getJobFlowNodeInfo());
+		if(logger.isDebugEnabled()) {
+			logger.debug("Stop {} complete.", this.getJobFlowNodeInfo());
+		}
         if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
             for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
                 

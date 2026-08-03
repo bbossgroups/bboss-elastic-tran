@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.frameworkset.tran.jobflow.context.*;
 import org.frameworkset.tran.jobflow.listener.JobFlowNodeListener;
@@ -77,13 +78,25 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         }
         return "Thread pool not initialized";
     }
-
+	protected void assignGroupId(JobFlowNode jobFlowNode){
+		if(this.getGroupId() != null){
+			jobFlowNode.setParentGroupId(this.getGroupId());
+		}
+		if(jobFlowNode.getNodeId() != null) {
+			jobFlowNode.setGroupId(jobFlowNode.getNodeId());
+		}
+//		else{
+//			jobFlowNode.setGroupId(SimpleStringUtil.getUUID());
+//		}
+	}
     public void addJobFlowNode(JobFlowNode jobFlowNode){
         if(this.jobFlowNodes == null){
             jobFlowNodes = new ArrayList<>();
         }
+		
         jobFlowNode.setCompositionJobFlowNode(this);
         jobFlowNode.setContainerParrelJobFlowNodeContext(this.parrelJobFlowNodeContext);
+		assignGroupId(jobFlowNode);
         this.jobFlowNodes.add(jobFlowNode);
     }
     /**
@@ -254,7 +267,9 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         if(jobFlowNodeExecuteContext.assertStoped()){
             return;
         }
-        logger.info("Stop {} begin.",this.getJobFlowNodeInfo());
+		if(logger.isDebugEnabled()) {
+			logger.debug("Stop {} begin.", this.getJobFlowNodeInfo());
+		}
         jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPPING);
         for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
             JobFlowNode jobFlowNode = jobFlowNodes.get(i);
@@ -265,7 +280,9 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         }
         release();
         jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
-        logger.info("Stop {} complete.",this.getJobFlowNodeInfo());
+		if(logger.isDebugEnabled()) {
+			logger.debug("Stop {} complete.", this.getJobFlowNodeInfo());
+		}
         if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
             for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
                 

@@ -34,6 +34,8 @@ public interface JobFlowNodeExecuteContext {
     JobFlowNodeStatus updateJobFlowNodeStatus(JobFlowNodeStatus jobFlowNodeStatus);
     boolean checkFirstExecuteInContainerLifeCycle(ConditionJobFlowNode conditionJobFlowNode);
     JobFlowNodeContext getJobFlowNodeContext();
+	String getGroupId();
+	String getParentGroupId();
     /**
      * 获取当前节点对应的上下文数据
      * @param name

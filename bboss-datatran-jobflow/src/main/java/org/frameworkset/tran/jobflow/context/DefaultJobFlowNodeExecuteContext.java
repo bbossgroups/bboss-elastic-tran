@@ -66,8 +66,18 @@ public class DefaultJobFlowNodeExecuteContext implements JobFlowNodeExecuteConte
     public JobFlowNodeContext getJobFlowNodeContext() {
         return jobFlowNodeContext;
     }
-
-    public StaticContext getStaticContext() {
+	
+	@Override
+	public String getGroupId() {
+		return jobFlowNode.getGroupId();
+	}
+	
+	@Override
+	
+	public String getParentGroupId(){
+		return jobFlowNode.getParentGroupId();
+	}
+	public StaticContext getStaticContext() {
         return staticContext;
     }
 

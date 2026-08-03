@@ -131,10 +131,14 @@ public class JobFlowContext  {
             AssertResult assertResult = this.assertStatus(JobFlowStatus.COMPLETE,JobFlowStatus.RUNNING,
                                                     JobFlowStatus.STARTED,JobFlowStatus.PAUSE);
             if(assertResult.isFalse()){
-                logger.info("Stop {} [fromScheduled={}] 处于非运行状态:{}，忽略停止操作.", jobFlow.getJobInfo(), fromScheduled,assertResult.getJobFlowStatus().name());
+				if(logger.isDebugEnabled()) {
+					logger.debug("Stop {} [fromScheduled={}] 处于非运行状态:{}，忽略停止操作.", jobFlow.getJobInfo(), fromScheduled, assertResult.getJobFlowStatus().name());
+				}
                 return result;
             }
-            logger.info("Stop {} [fromScheduled={}] start.", jobFlow.getJobInfo(), fromScheduled);
+			if(logger.isDebugEnabled()) {
+				logger.debug("Stop {} [fromScheduled={}] start.", jobFlow.getJobInfo(), fromScheduled);
+			}
             updateJobFlowStatus(JobFlowStatus.STOPPING);
         }
         /**
@@ -145,7 +149,9 @@ public class JobFlowContext  {
             runningJobFlowNode.stop();                
         }
         else{
-            logger.info("Stop {} [fromScheduled={}] :ignore stop runningJobFlowNode,runningJobFlowNode is null.", jobFlow.getJobInfo(), fromScheduled);
+			if(logger.isDebugEnabled()) {
+				logger.debug("Stop {} [fromScheduled={}] :ignore stop runningJobFlowNode,runningJobFlowNode is null.", jobFlow.getJobInfo(), fromScheduled);
+			}
         }
         
         callback.apply(null);
@@ -153,7 +159,9 @@ public class JobFlowContext  {
             updateJobFlowStatus(JobFlowStatus.STOPED);
             result = true;
         }
-        logger.info("Stop {} [fromScheduled={}] complete.", jobFlow.getJobInfo(), fromScheduled);
+		if(logger.isDebugEnabled()) {
+			logger.debug("Stop {} [fromScheduled={}] complete.", jobFlow.getJobInfo(), fromScheduled);
+		}
         
         
         return result;

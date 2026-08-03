@@ -175,8 +175,10 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
 
         if(this.jobFlowNodeExecuteContext.assertStoped()){
             return;
-        }        
-        logger.info("Stop {} begin.",this.getJobFlowNodeInfo());
+        }
+		if(logger.isDebugEnabled()) {
+			logger.debug("Stop {} begin.", this.getJobFlowNodeInfo());
+		}
         jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPPING);
         try {
 //            for (int i = 0; jobFlowNodes != null && i < jobFlowNodes.size(); i++) {
@@ -193,7 +195,9 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
             logger.warn("Stop "+this.getJobFlowNodeInfo()+" failed:",e);
         }
         jobFlowNodeExecuteContext.updateJobFlowNodeStatus(JobFlowNodeStatus.STOPED);
-        logger.info("Stop {} complete.",this.getJobFlowNodeInfo());
+		if(logger.isDebugEnabled()) {
+			logger.debug("Stop {} complete.", this.getJobFlowNodeInfo());
+		}
         if(CollectionUtils.isNotEmpty(this.jobFlowNodeListeners)){
             for(JobFlowNodeListener jobFlowNodeListener:jobFlowNodeListeners){
                 try {
