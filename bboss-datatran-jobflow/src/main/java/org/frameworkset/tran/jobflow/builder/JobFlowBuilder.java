@@ -495,8 +495,12 @@ public class JobFlowBuilder {
     }
     public JobFlow build(){
         JobFlow jobFlow = buildJobFlow();
-        jobFlow.setJobFlowName(this.jobFlowName);
-        jobFlow.setJobFlowId(this.jobFlowId);
+		if(this.jobFlowName != null) {
+			jobFlow.setJobFlowName(this.jobFlowName);
+		}
+		if(this.jobFlowId != null) {
+			jobFlow.setJobFlowId(this.jobFlowId);
+		}
         jobFlow.setJobFlowListeners(this.jobFlowListeners);
         if(!isExternalTimer()) {
             jobFlow.setJobScheduleConfig(jobFlowScheduleConfig);

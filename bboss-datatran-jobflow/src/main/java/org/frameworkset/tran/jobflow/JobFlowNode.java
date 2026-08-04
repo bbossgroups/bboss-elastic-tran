@@ -76,8 +76,8 @@ public abstract class JobFlowNode {
      */
     protected NodeTrigger nodeTrigger;
     /**
-     * 父节点作业配置
-     * 父节点可能是串行节点，也可能是并行节点
+     * 父节点作业配置:当前节点的上一个节点
+     * 父节点可能是串行节点，也可能是并行节点，也可能是简单节点
      */
     protected JobFlowNode parentJobFlowNode;
     protected Stack<JobFlowNode> parentJobFlowNodeStack;
@@ -576,8 +576,8 @@ public abstract class JobFlowNode {
 		if(groupId != null) {
 			return groupId;
 		}
-		else if(this.parentJobFlowNode != null){
-			return this.parentJobFlowNode.getGroupId();
+		else if(this.compositionJobFlowNode != null){
+			return this.compositionJobFlowNode.getGroupId();
 		}
 		return null;
 	}
@@ -589,8 +589,8 @@ public abstract class JobFlowNode {
 		if(parentGroupId != null) {
 			return parentGroupId;
 		}
-		else if(this.parentJobFlowNode != null){
-			return this.parentJobFlowNode.getParentGroupId();
+		else if(this.compositionJobFlowNode != null){
+			return this.compositionJobFlowNode.getParentGroupId();
 		}
 		return null;
 	}
