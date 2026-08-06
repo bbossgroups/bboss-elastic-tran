@@ -510,7 +510,9 @@ public class JobFlowBuilder {
         }
         jobFlow.initJobInfo();
         jobFlow.initGroovyClassLoader();
-        jobFlow.setStartJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));    
+		if(headerJobFlowNodeBuilder != null) {
+			jobFlow.setStartJobFlowNode(headerJobFlowNodeBuilder.buildWrapper(jobFlow));
+		}
         
         return jobFlow;
     }

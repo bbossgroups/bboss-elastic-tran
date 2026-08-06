@@ -16,6 +16,7 @@ package org.frameworkset.tran.jobflow.builder;
  */
 
 import org.frameworkset.tran.jobflow.*;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +31,27 @@ public abstract class CompositionJobFlowNodeBuilder<T extends CompositionJobFlow
      
     private JobFlowNodeType jobFlowNodeType ; 
     /**
-     * 并行节点作业配置
+     * 并行节点作业配置清单-定义是添加
      */
     protected List<JobFlowNodeBuilder> nodeBuilders;
-     
-    public CompositionJobFlowNodeBuilder(String nodeId,String nodeName,JobFlowNodeType jobFlowNodeType){
+	
+	/**
+	 * 并行节点作业配置-动态添加
+	 */
+	protected List<JobFlowNodeBuilder> dynamicNodeBuilders;
+	
+	protected DynamicNodeBuilder dynamicNodeBuilder;
+	
+	
+	/**
+	 * 并行节点作业配置-动态添加
+	 */
+	protected List<JobFlowNodeBuilder> dynamicRemovedNodeBuilders;
+	
+	
+	
+	
+	public CompositionJobFlowNodeBuilder(String nodeId,String nodeName,JobFlowNodeType jobFlowNodeType){
         super(nodeId,nodeName);
         this.jobFlowNodeType = jobFlowNodeType;
     }
@@ -52,13 +69,20 @@ public abstract class CompositionJobFlowNodeBuilder<T extends CompositionJobFlow
         super(nodeId,nodeName);
         jobFlowNodeType = JobFlowNodeType.SEQUENCE;
     }
-
-
-
-    protected void init(){
+	
+	public void setDynamicNodeBuilder(DynamicNodeBuilder dynamicNodeBuilder) {
+		this.dynamicNodeBuilder = dynamicNodeBuilder;
+	}
+	
+	public DynamicNodeBuilder getDynamicNodeBuilder() {
+		return dynamicNodeBuilder;
+	}
+	
+	protected void init(){
         if(nodeBuilders == null){
             nodeBuilders = new ArrayList<>();
         }
+		
     }
 
     protected void validate(JobFlowNodeBuilder jobFlowNodeBuilder){
@@ -68,7 +92,25 @@ public abstract class CompositionJobFlowNodeBuilder<T extends CompositionJobFlow
         }
     }
 
-
+	protected void buildDanymicNodes(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
+		
+	}
+	public void handleDynamicNodeBuilders(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
+		if(builded) {
+			if(this.dynamicNodeBuilder != null){
+				dynamicNodeBuilder.nodeBuilder(jobFlowNodeExecuteContext);
+			}
+			if (dynamicNodeBuilders != null && dynamicNodeBuilders.size() > 0) {
+			 
+				buildDanymicNodes(jobFlowNodeExecuteContext);
+				/**
+				 * 标记工作流节点是否已经构建过
+				 * 主要用于工作流中节点动态调整，添加或者移除节点
+				 */
+				dynamicBuilded = true;
+			}
+		}
+	}
     /**
      * 添加复杂并行子任务，存在串行多个子任务或者串行任务
      * @param jobFlowNodeBuilder
@@ -81,7 +123,16 @@ public abstract class CompositionJobFlowNodeBuilder<T extends CompositionJobFlow
         if(jobFlowNodeBuilder.getCompositionJobFlowNodeBuilder() == null) {
             jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
         }
-        nodeBuilders.add(jobFlowNodeBuilder);
+		if(!this.builded) {
+			nodeBuilders.add(jobFlowNodeBuilder);
+		}
+		else{
+			if(dynamicNodeBuilders == null || dynamicBuilded){
+				dynamicNodeBuilders = new ArrayList<>();
+				dynamicBuilded = false;
+			}
+			dynamicNodeBuilders.add(jobFlowNodeBuilder);
+		}
         return (T)this;
     }
 

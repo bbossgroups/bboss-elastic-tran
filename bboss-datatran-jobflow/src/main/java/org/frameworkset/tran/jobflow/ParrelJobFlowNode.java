@@ -15,9 +15,13 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
-import com.frameworkset.util.SimpleStringUtil;
 import org.apache.commons.collections.CollectionUtils;
-import org.frameworkset.tran.jobflow.context.*;
+import org.frameworkset.tran.jobflow.builder.CompositionJobFlowNodeBuilder;
+import org.frameworkset.tran.jobflow.builder.ParrelJobFlowNodeBuilder;
+import org.frameworkset.tran.jobflow.context.AssertResult;
+import org.frameworkset.tran.jobflow.context.JobFlowContext;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
+import org.frameworkset.tran.jobflow.context.ParrelJobFlowNodeContext;
 import org.frameworkset.tran.jobflow.listener.JobFlowNodeListener;
 import org.frameworkset.util.concurrent.ThreadPoolFactory;
 import org.slf4j.Logger;
@@ -42,7 +46,9 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
         this.parrelJobFlowNodeContext = new ParrelJobFlowNodeContext(this);
         this.jobFlowNodeContext = parrelJobFlowNodeContext;
     }
-    private ExecutorService buildThreadPool(){
+	
+	
+	private ExecutorService buildThreadPool(){
         if(blockedExecutor != null)
             return blockedExecutor;
         synchronized (blockedExecutorLock) {
@@ -115,7 +121,8 @@ public class ParrelJobFlowNode extends CompositionJobFlowNode{
      */
     @Override
     public ExecuteResult execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier){
-        ExecuteResult executeResult = new ExecuteResult();
+		this.compositionJobFlowNodeBuilder.handleDynamicNodeBuilders(jobFlowNodeExecuteContext);
+		ExecuteResult executeResult = new ExecuteResult();
         try {
             logger.info("Execute {} begin.", this.getJobFlowNodeInfo());
             lastException = null;

@@ -58,25 +58,26 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
         conditionJobFlowNode.setNodeId(this.getNodeId());
         conditionJobFlowNode.setNodeName(this.getNodeName());
         conditionJobFlowNode.setJobFlow(jobFlow);
-        for(JobFlowNodeBuilder jobFlowNodeBuilder : nodeBuilders) {
-            if(jobFlowNodeBuilder == this){
-                NodeTrigger conditionNodeTrigger = jobFlowNodeBuilder.getConditionNodeTrigger(this.conditionJobFlowNodeUUID);
-                conditionJobFlowNode.addJobFlowNode(conditionJobFlowNode,conditionNodeTrigger);
-                if(jobFlowNodeBuilder.isDefaultConditionNode(this.conditionJobFlowNodeUUID)){
-                    conditionJobFlowNode.setDefaultJobFlowNode(conditionJobFlowNode);
-                }
-            }
-            else {
-                JobFlowNode jobFlowNode = jobFlowNodeBuilder.build(jobFlow);
-                NodeTrigger conditionNodeTrigger = jobFlowNodeBuilder.getConditionNodeTrigger(this.conditionJobFlowNodeUUID);
-                conditionJobFlowNode.addJobFlowNode(jobFlowNode,conditionNodeTrigger);
-                if(jobFlowNodeBuilder.isDefaultConditionNode(this.conditionJobFlowNodeUUID)){
-                    conditionJobFlowNode.setDefaultJobFlowNode(jobFlowNode);
-                }
-            }
-            
-            
-        }
+		if(nodeBuilders != null && nodeBuilders.size() > 0) {
+			for (JobFlowNodeBuilder jobFlowNodeBuilder : nodeBuilders) {
+				if (jobFlowNodeBuilder == this) {
+					NodeTrigger conditionNodeTrigger = jobFlowNodeBuilder.getConditionNodeTrigger(this.conditionJobFlowNodeUUID);
+					conditionJobFlowNode.addJobFlowNode(conditionJobFlowNode, conditionNodeTrigger);
+					if (jobFlowNodeBuilder.isDefaultConditionNode(this.conditionJobFlowNodeUUID)) {
+						conditionJobFlowNode.setDefaultJobFlowNode(conditionJobFlowNode);
+					}
+				} else {
+					JobFlowNode jobFlowNode = jobFlowNodeBuilder.buildWrapper(jobFlow);
+					NodeTrigger conditionNodeTrigger = jobFlowNodeBuilder.getConditionNodeTrigger(this.conditionJobFlowNodeUUID);
+					conditionJobFlowNode.addJobFlowNode(jobFlowNode, conditionNodeTrigger);
+					if (jobFlowNodeBuilder.isDefaultConditionNode(this.conditionJobFlowNodeUUID)) {
+						conditionJobFlowNode.setDefaultJobFlowNode(jobFlowNode);
+					}
+				}
+				
+				
+			}
+		}
        
        
         this.jobFlowNode = conditionJobFlowNode;
@@ -84,7 +85,7 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
             jobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
         }
         if(this.nextJobFlowNodeBuilder != null){
-            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.build(jobFlow);
+            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow);
             this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
         }
         jobFlowNode.setJobFlowNodeListeners(this.jobFlowNodeListeners);

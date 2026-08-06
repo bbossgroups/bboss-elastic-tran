@@ -15,6 +15,7 @@ package org.frameworkset.tran.jobflow;
  * limitations under the License.
  */
 
+import org.frameworkset.tran.jobflow.builder.CompositionJobFlowNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,27 +27,29 @@ import java.util.List;
  * @Date 2025/3/31
  */
 public abstract class CompositionJobFlowNode extends JobFlowNode{
+	protected CompositionJobFlowNodeBuilder compositionJobFlowNodeBuilder;
     private static Logger logger = LoggerFactory.getLogger(CompositionJobFlowNode.class);
     /**
      * 并行/串行/条件符合节点作业节点清单
      */
     protected List<JobFlowNode> jobFlowNodes;
-
-   
-
- 
-
-    /**
+	
+	
+	
+	public void setCompositionJobFlowNodeBuilder(CompositionJobFlowNodeBuilder compositionJobFlowNodeBuilder) {
+		this.compositionJobFlowNodeBuilder = compositionJobFlowNodeBuilder;
+	}
+	
+	public CompositionJobFlowNodeBuilder getCompositionJobFlowNodeBuilder() {
+		return compositionJobFlowNodeBuilder;
+	}
+	
+	/**
      * 分支完成
      * @param jobFlowNode
      */
     public abstract void brachComplete(JobFlowNode jobFlowNode,  Throwable e) ;
-//    {
-//        int liveNodes = this.staticContext.decreament();
-//        if(liveNodes <= 0){
-////            this.nodeComplete( e);
-//        }
-//    }
+ 
 
     
 }

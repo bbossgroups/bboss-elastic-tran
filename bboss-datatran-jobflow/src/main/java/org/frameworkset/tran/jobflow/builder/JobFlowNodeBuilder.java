@@ -36,6 +36,17 @@ import java.util.Map;
  * @Date 2025/3/31
  */
 public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
+	/**
+	 * 标记工作流节点是否已经构建过
+	 * 主要用于工作流中节点动态调整，添加或者移除节点
+	 */
+	protected boolean builded;
+	
+	/**
+	 * 标记工作流节点是否已经构建过
+	 * 主要用于工作流中节点动态调整，添加或者移除节点
+	 */
+	protected boolean dynamicBuilded;
 
     protected JobFlowNodeBuilder parentJobFlowNodeBuilder;
     
@@ -165,6 +176,13 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
         ((ConditionJobFlowNodeBuilder)this.nextJobFlowNodeBuilder).addJobFlowNodeBuilder(conditionJobFlowNodeBuilder);       
         return (T)this;
     }
+	
+	protected JobFlowNode buildWrapper(JobFlow jobFlow){
+		JobFlowNode jobFlowNode = build(jobFlow);
+		this.builded = true;
+		return jobFlowNode;
+		
+	}
     
     public abstract JobFlowNode build(JobFlow jobFlow);
 

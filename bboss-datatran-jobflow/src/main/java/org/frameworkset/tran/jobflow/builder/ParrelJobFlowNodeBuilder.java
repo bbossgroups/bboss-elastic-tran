@@ -19,6 +19,7 @@ import org.frameworkset.tran.jobflow.JobFlow;
 import org.frameworkset.tran.jobflow.JobFlowNode;
 import org.frameworkset.tran.jobflow.JobFlowNodeType;
 import org.frameworkset.tran.jobflow.ParrelJobFlowNode;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 
 /**
  * 
@@ -44,12 +45,24 @@ public class ParrelJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Parr
     protected ParrelJobFlowNode buildParrelJobFlowNode(){
         return new ParrelJobFlowNode();
     }
+	
+	protected void buildDanymicNodes(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
+		
+		if(dynamicNodeBuilders != null && dynamicNodeBuilders.size() > 0) {
+			ParrelJobFlowNode parrelJobFlowNode = (ParrelJobFlowNode)this.jobFlowNode;
+			for (JobFlowNodeBuilder jobFlowNodeBuilder : dynamicNodeBuilders) {
+				parrelJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.buildWrapper(parrelJobFlowNode.getJobFlow()));
+			}
+			
+		}
+	}
     @Override
     public JobFlowNode build(JobFlow jobFlow){
         if(this.jobFlowNode != null){
             return jobFlowNode;
         }
         ParrelJobFlowNode parrelJobFlowNode = buildParrelJobFlowNode();
+		parrelJobFlowNode.setCompositionJobFlowNodeBuilder(this);
         parrelJobFlowNode.setNodeId(this.getNodeId());
         parrelJobFlowNode.setNodeName(this.getNodeName());
         parrelJobFlowNode.setJobFlow(jobFlow);
@@ -63,13 +76,14 @@ public class ParrelJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Parr
         else if(this.nodeTriggerCreate != null){
             parrelJobFlowNode.setNodeTrigger(this.nodeTriggerCreate.createNodeTrigger(this));
         }
-        
-        for(JobFlowNodeBuilder jobFlowNodeBuilder:nodeBuilders){
-            parrelJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.build(jobFlow));
-        }
+        if(nodeBuilders != null && nodeBuilders.size() > 0) {
+			for (JobFlowNodeBuilder jobFlowNodeBuilder : nodeBuilders) {
+				parrelJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.buildWrapper(jobFlow));
+			}
+		}
         this.jobFlowNode = parrelJobFlowNode;
         if(this.nextJobFlowNodeBuilder != null){
-            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.build(jobFlow);
+            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow);
             this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
         }
         parrelJobFlowNode.setJobFlowNodeListeners(this.jobFlowNodeListeners);

@@ -86,7 +86,7 @@ public abstract class SimpleJobFlowNodeBuilder<T extends SimpleJobFlowNodeBuilde
        
         this.jobFlowNode = simpleJobFlowNode;
         if(this.nextJobFlowNodeBuilder != null){
-            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.build(jobFlow);
+            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow);
             this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
         }        
         simpleJobFlowNode.setJobFlowNodeListeners(this.jobFlowNodeListeners);

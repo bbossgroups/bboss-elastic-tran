@@ -114,6 +114,7 @@ public class ConditionJobFlowNode extends CompositionJobFlowNode{
         }
         if(matchedJobFlowNode == null) {
             if (defaultJobFlowNode != null) {
+				logger.info("流程{}中的条件流程节点{}没有满足条件的条件节点，执行默认节点{}",this.getJobFlow().getJobInfo(),this.getJobFlowNodeInfo(),defaultJobFlowNode.getJobFlowNodeInfo());
                 matchedJobFlowNode = defaultJobFlowNode;
             } else {
                 return null;

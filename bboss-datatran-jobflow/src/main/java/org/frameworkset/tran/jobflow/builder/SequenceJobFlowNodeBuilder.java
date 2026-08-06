@@ -445,11 +445,13 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
             sequenceJobFlowNode.setNodeTrigger(this.nodeTriggerCreate.createNodeTrigger(this));
         }
         //构建顺序节点链路
-        sequenceJobFlowNode.setHeaderJobFlowNode(headerJobFlowNodeBuilder.build(jobFlow));
+		if(headerJobFlowNodeBuilder != null) {
+			sequenceJobFlowNode.setHeaderJobFlowNode(headerJobFlowNodeBuilder.buildWrapper(jobFlow));
+		}
  
         this.jobFlowNode = sequenceJobFlowNode;
         if(this.nextJobFlowNodeBuilder != null){
-            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.build(jobFlow);
+            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow);
             this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
         }
 
