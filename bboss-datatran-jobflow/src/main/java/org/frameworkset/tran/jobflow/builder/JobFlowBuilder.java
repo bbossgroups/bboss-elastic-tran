@@ -253,7 +253,7 @@ public class JobFlowBuilder {
         else{
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
             conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMatchfailedContinue);
-            conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+            conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger);
             this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
             if(this.headerJobFlowNodeBuilder == null) {
                 this.headerJobFlowNodeBuilder = conditionJobFlowNodeBuilder;

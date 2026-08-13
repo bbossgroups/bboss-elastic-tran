@@ -15,10 +15,7 @@ package org.frameworkset.tran.jobflow.builder;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowNode;
-import org.frameworkset.tran.jobflow.JobFlowNodeFunction;
-import org.frameworkset.tran.jobflow.SimpleJobFlowNode;
+import org.frameworkset.tran.jobflow.*;
 
 /**
  * 通用工作流作业节点
@@ -69,7 +66,7 @@ public abstract class SimpleJobFlowNodeBuilder<T extends SimpleJobFlowNodeBuilde
     protected abstract JobFlowNodeFunction buildJobFlowNodeFunction();
     
     @Override
-    public JobFlowNode build(JobFlow jobFlow){
+    public JobFlowNode build(JobFlow jobFlow, CompositionJobFlowNode compositionJobFlowNode){
         if(this.jobFlowNode != null){
             return jobFlowNode;
         }
@@ -81,12 +78,17 @@ public abstract class SimpleJobFlowNodeBuilder<T extends SimpleJobFlowNodeBuilde
         simpleJobFlowNode.setJobFlow(jobFlow);
         simpleJobFlowNode.setAutoNodeComplete(this.autoNodeComplete);
         if(this.parentJobFlowNodeBuilder != null) {
-            simpleJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
+			JobFlowNode parentJobFlowNode = parentJobFlowNodeBuilder.getJobFlowNode();
+            simpleJobFlowNode.setParentJobFlowNode(parentJobFlowNode);
+			simpleJobFlowNode.setCompositionJobFlowNode(parentJobFlowNode.getCompositionJobFlowNode());
         }
+		else{
+			simpleJobFlowNode.setCompositionJobFlowNode(compositionJobFlowNode);
+		}
        
         this.jobFlowNode = simpleJobFlowNode;
         if(this.nextJobFlowNodeBuilder != null){
-            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow);
+            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow,compositionJobFlowNode);
             this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
         }        
         simpleJobFlowNode.setJobFlowNodeListeners(this.jobFlowNodeListeners);

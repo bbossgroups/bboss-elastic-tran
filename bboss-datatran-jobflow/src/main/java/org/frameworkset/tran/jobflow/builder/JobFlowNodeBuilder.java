@@ -16,10 +16,7 @@ package org.frameworkset.tran.jobflow.builder;
  */
 
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowNode;
-import org.frameworkset.tran.jobflow.NodeTrigger;
-import org.frameworkset.tran.jobflow.NodeTriggerCreate;
+import org.frameworkset.tran.jobflow.*;
 import org.frameworkset.tran.jobflow.listener.JobFlowNodeListener;
 import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;
 
@@ -163,28 +160,23 @@ public abstract class JobFlowNodeBuilder<T extends JobFlowNodeBuilder> {
         this.nextJobFlowNodeBuilder.setParentJobFlowNodeBuilder(this);
         return (T)this;
     }
-
-    /**
-     * 添加后续条件分支节点构建器，如果存在则添加
-     * @param conditionJobFlowNodeBuilder
-     */
-    protected T addNextConditionJobFlowNodeBuilder(JobFlowNodeBuilder conditionJobFlowNodeBuilder){
-        if(this.nextJobFlowNodeBuilder == null){
-            this.nextJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
-            this.nextJobFlowNodeBuilder.setParentJobFlowNodeBuilder(this);
-        }
-        ((ConditionJobFlowNodeBuilder)this.nextJobFlowNodeBuilder).addJobFlowNodeBuilder(conditionJobFlowNodeBuilder);       
-        return (T)this;
-    }
+ 
 	
 	protected JobFlowNode buildWrapper(JobFlow jobFlow){
-		JobFlowNode jobFlowNode = build(jobFlow);
+		JobFlowNode jobFlowNode = build(jobFlow,null);
+		this.builded = true;
+		return jobFlowNode;
+		
+	}
+	
+	protected JobFlowNode buildWrapper(JobFlow jobFlow, CompositionJobFlowNode compositionJobFlowNode){
+		JobFlowNode jobFlowNode = build(jobFlow,   compositionJobFlowNode);
 		this.builded = true;
 		return jobFlowNode;
 		
 	}
     
-    public abstract JobFlowNode build(JobFlow jobFlow);
+    public abstract JobFlowNode build(JobFlow jobFlow, CompositionJobFlowNode compositionJobFlowNode);
 
     public String getNodeId() {
         return nodeId;

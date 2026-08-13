@@ -69,6 +69,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
     @Override
     public ExecuteResult execute(JobFlowNodeExecuteContext jobFlowNodeExecuteContext,JobFlowCyclicBarrier barrier){
         this.jobFlowNodeExecuteContext = jobFlowNodeExecuteContext;
+		this.compositionJobFlowNodeBuilder.handleDynamicNodeBuilders(jobFlowNodeExecuteContext);
         ExecuteResult executeResult = new ExecuteResult();
         SequenceJobFlowNodeExecuteContext sequenceJobFlowNodeExecuteContext = (SequenceJobFlowNodeExecuteContext) jobFlowNodeExecuteContext;   
 //        headerJobFlowNode.setContainerSequenceJobFlowNodeExecuteContext(sequenceJobFlowNodeExecuteContext);
@@ -119,7 +120,7 @@ public class SequenceJobFlowNode extends CompositionJobFlowNode{
                 JobFlowNode currentJobFlowNode = null;
                 do {
                     currentJobFlowNode = jobFlowNode;
-                    JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = headerJobFlowNode.buildJobFlowNodeExecuteContext();
+                    JobFlowNodeExecuteContext _jobFlowNodeExecuteContext = jobFlowNode.buildJobFlowNodeExecuteContext();
                     _jobFlowNodeExecuteContext.setContainerSequenceJobFlowNodeExecuteContext(sequenceJobFlowNodeExecuteContext);
                     //todo call assertTrigger 
                     nodeExecuteResult = jobFlowNode.execute(_jobFlowNodeExecuteContext);

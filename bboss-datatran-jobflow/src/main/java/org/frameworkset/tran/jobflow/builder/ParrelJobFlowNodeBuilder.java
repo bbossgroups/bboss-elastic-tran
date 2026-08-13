@@ -15,10 +15,7 @@ package org.frameworkset.tran.jobflow.builder;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.jobflow.JobFlow;
-import org.frameworkset.tran.jobflow.JobFlowNode;
-import org.frameworkset.tran.jobflow.JobFlowNodeType;
-import org.frameworkset.tran.jobflow.ParrelJobFlowNode;
+import org.frameworkset.tran.jobflow.*;
 import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 
 /**
@@ -45,19 +42,19 @@ public class ParrelJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Parr
     protected ParrelJobFlowNode buildParrelJobFlowNode(){
         return new ParrelJobFlowNode();
     }
-	
+	@Override
 	protected void buildDanymicNodes(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
 		
 		if(dynamicNodeBuilders != null && dynamicNodeBuilders.size() > 0) {
 			ParrelJobFlowNode parrelJobFlowNode = (ParrelJobFlowNode)this.jobFlowNode;
 			for (JobFlowNodeBuilder jobFlowNodeBuilder : dynamicNodeBuilders) {
-				parrelJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.buildWrapper(parrelJobFlowNode.getJobFlow()));
+				parrelJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.buildWrapper(parrelJobFlowNode.getJobFlow(),parrelJobFlowNode));
 			}
 			
 		}
 	}
     @Override
-    public JobFlowNode build(JobFlow jobFlow){
+    public JobFlowNode build(JobFlow jobFlow, CompositionJobFlowNode compositionJobFlowNode){
         if(this.jobFlowNode != null){
             return jobFlowNode;
         }
@@ -67,8 +64,13 @@ public class ParrelJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Parr
         parrelJobFlowNode.setNodeName(this.getNodeName());
         parrelJobFlowNode.setJobFlow(jobFlow);
         if(this.parentJobFlowNodeBuilder != null) {
-            parrelJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
+			JobFlowNode parentJobFlowNode = parentJobFlowNodeBuilder.getJobFlowNode();
+            parrelJobFlowNode.setParentJobFlowNode(parentJobFlowNode);
+			parrelJobFlowNode.setCompositionJobFlowNode(parentJobFlowNode.getCompositionJobFlowNode());
         }
+		else{
+			parrelJobFlowNode.setCompositionJobFlowNode(compositionJobFlowNode);
+		}
 
         if(this.nodeTrigger != null){
             parrelJobFlowNode.setNodeTrigger(nodeTrigger);
@@ -78,12 +80,12 @@ public class ParrelJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Parr
         }
         if(nodeBuilders != null && nodeBuilders.size() > 0) {
 			for (JobFlowNodeBuilder jobFlowNodeBuilder : nodeBuilders) {
-				parrelJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.buildWrapper(jobFlow));
+				parrelJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.buildWrapper(jobFlow,parrelJobFlowNode));
 			}
 		}
         this.jobFlowNode = parrelJobFlowNode;
         if(this.nextJobFlowNodeBuilder != null){
-            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow);
+            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow,compositionJobFlowNode);
             this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
         }
         parrelJobFlowNode.setJobFlowNodeListeners(this.jobFlowNodeListeners);

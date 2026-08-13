@@ -16,8 +16,10 @@ package org.frameworkset.tran.jobflow.builder;
  */
 
 import org.frameworkset.tran.jobflow.*;
+import org.frameworkset.tran.jobflow.context.JobFlowNodeExecuteContext;
 import org.frameworkset.tran.jobflow.script.TriggerScriptAPI;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -46,7 +48,42 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
 
     public JobFlowNodeBuilder getJobFlowNodeBuilder(String nodeId){
         return jobFlowNodeBuilderMap.get(nodeId);
-    }   
+    }
+	
+	@Override
+	protected void buildDanymicNodes(JobFlowNodeExecuteContext jobFlowNodeExecuteContext){
+		
+		if(dynamicNodeBuilders != null && dynamicNodeBuilders.size() > 0) {
+//			ParrelJobFlowNode parrelJobFlowNode = (ParrelJobFlowNode)this.jobFlowNode;
+//			for (JobFlowNodeBuilder jobFlowNodeBuilder : dynamicNodeBuilders) {
+//				parrelJobFlowNode.addJobFlowNode(jobFlowNodeBuilder.buildWrapper(parrelJobFlowNode.getJobFlow()));
+//			}
+			boolean fromHeader = false;
+			JobFlowNodeBuilder firstNodeBuilder = null;
+			for(JobFlowNodeBuilder jobFlowNodeBuilder : dynamicNodeBuilders){
+				if(this.headerJobFlowNodeBuilder == null) {
+					this.headerJobFlowNodeBuilder = jobFlowNodeBuilder;
+					fromHeader = true;
+				}
+				if(firstNodeBuilder == null)
+					firstNodeBuilder = jobFlowNodeBuilder;
+				if(currentJobFlowNodeBuilder != null)
+					this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
+				this.currentJobFlowNodeBuilder = jobFlowNodeBuilder;
+				if(!jobFlowNodeBuilderMap.containsKey(jobFlowNodeBuilder.getNodeId())) {
+					jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
+				}
+			}
+			SequenceJobFlowNode sequenceJobFlowNode = (SequenceJobFlowNode) this.jobFlowNode;
+			if(fromHeader){
+				sequenceJobFlowNode.setHeaderJobFlowNode(this.headerJobFlowNodeBuilder.buildWrapper(sequenceJobFlowNode.getJobFlow(),sequenceJobFlowNode));
+			}
+			else{
+				firstNodeBuilder.buildWrapper(sequenceJobFlowNode.getJobFlow(),sequenceJobFlowNode);
+			}
+			
+		}
+	}
     /**
      * 添加复杂串行子任务，存在串行多个子任务或者串行任务
      * @param jobFlowNodeBuilder
@@ -56,17 +93,27 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         init();
         validate(jobFlowNodeBuilder);
         jobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
-        if(this.headerJobFlowNodeBuilder == null) {
-            this.headerJobFlowNodeBuilder = jobFlowNodeBuilder;
-
-        }
-        if(currentJobFlowNodeBuilder != null)
-            this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
-        this.currentJobFlowNodeBuilder = jobFlowNodeBuilder;
-        nodeBuilders.add(jobFlowNodeBuilder);
-        if(!jobFlowNodeBuilderMap.containsKey(jobFlowNodeBuilder.getNodeId())) {
-            jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
-        }
+		if(!this.builded) {
+			if(this.headerJobFlowNodeBuilder == null) {
+				this.headerJobFlowNodeBuilder = jobFlowNodeBuilder;
+	
+			}
+			if(currentJobFlowNodeBuilder != null)
+				this.currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(jobFlowNodeBuilder);
+			this.currentJobFlowNodeBuilder = jobFlowNodeBuilder;
+			nodeBuilders.add(jobFlowNodeBuilder);
+			if(!jobFlowNodeBuilderMap.containsKey(jobFlowNodeBuilder.getNodeId())) {
+				jobFlowNodeBuilderMap.put(jobFlowNodeBuilder.getNodeId(),jobFlowNodeBuilder);
+			}
+		}
+		else{
+			if(dynamicNodeBuilders == null || dynamicBuilded){
+				dynamicNodeBuilders = new ArrayList<>();
+				dynamicBuilded = false;
+			}
+			dynamicNodeBuilders.add(jobFlowNodeBuilder);
+		}
+        
         
         return this;
     }
@@ -136,7 +183,9 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
             }
             else {
                 ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
-                conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+				
+				conditionJobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
+                conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder, conditionNodeTrigger);
                 conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMathfailedContinue);
                 currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
                 nodeBuilders.add(conditionJobFlowNodeBuilder);
@@ -149,8 +198,9 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         }
         else{
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+			conditionJobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
             conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMathfailedContinue);
-            conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder);
+            conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,   conditionNodeTrigger);
             this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
             nodeBuilders.add(conditionJobFlowNodeBuilder);
             if(this.headerJobFlowNodeBuilder == null) {
@@ -360,6 +410,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
        
         if(currentJobFlowNodeBuilder != null) {
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+			conditionJobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
             conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMathfailedContinue);
             conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,  nodeTrigger);
             currentJobFlowNodeBuilder.setNextJobFlowNodeBuilder(conditionJobFlowNodeBuilder);
@@ -372,6 +423,7 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         }
         else{
             ConditionJobFlowNodeBuilder conditionJobFlowNodeBuilder = new ConditionJobFlowNodeBuilder();
+			conditionJobFlowNodeBuilder.setCompositionJobFlowNodeBuilder(this);
             conditionJobFlowNodeBuilder.setAllCondtionNodeMatchfailedContinue(allCondtionNodeMathfailedContinue);
             conditionJobFlowNodeBuilder.addJobFlowNodeBuilder(jobFlowNodeBuilder,  nodeTrigger);
             this.currentJobFlowNodeBuilder = conditionJobFlowNodeBuilder;
@@ -426,18 +478,25 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         return new SequenceJobFlowNode();
     }
     @Override
-    public JobFlowNode build(JobFlow jobFlow){
+    public JobFlowNode build(JobFlow jobFlow, CompositionJobFlowNode compositionJobFlowNode){
         if(this.jobFlowNode != null){
             return jobFlowNode;
         }
         SequenceJobFlowNode sequenceJobFlowNode = buildSequenceJobFlowNode();
-         
+		
+		sequenceJobFlowNode.setCompositionJobFlowNodeBuilder(this);
         sequenceJobFlowNode.setNodeId(this.getNodeId());
         sequenceJobFlowNode.setNodeName(this.getNodeName());
         sequenceJobFlowNode.setJobFlow(jobFlow);
+		this.jobFlowNode = sequenceJobFlowNode;
         if(this.parentJobFlowNodeBuilder != null) {
-            sequenceJobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
+			JobFlowNode parentJobFlowNode = parentJobFlowNodeBuilder.getJobFlowNode();
+            sequenceJobFlowNode.setParentJobFlowNode(parentJobFlowNode);
+			sequenceJobFlowNode.setCompositionJobFlowNode(parentJobFlowNode.getCompositionJobFlowNode());
         }
+		else{
+			sequenceJobFlowNode.setCompositionJobFlowNode(compositionJobFlowNode);
+		}
         if(this.nodeTrigger != null){
             sequenceJobFlowNode.setNodeTrigger(nodeTrigger);
         }
@@ -446,12 +505,12 @@ public class SequenceJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<Se
         }
         //构建顺序节点链路
 		if(headerJobFlowNodeBuilder != null) {
-			sequenceJobFlowNode.setHeaderJobFlowNode(headerJobFlowNodeBuilder.buildWrapper(jobFlow));
+			sequenceJobFlowNode.setHeaderJobFlowNode(headerJobFlowNodeBuilder.buildWrapper(jobFlow,sequenceJobFlowNode));
 		}
  
-        this.jobFlowNode = sequenceJobFlowNode;
+      
         if(this.nextJobFlowNodeBuilder != null){
-            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow);
+            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow,compositionJobFlowNode);
             this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
         }
 

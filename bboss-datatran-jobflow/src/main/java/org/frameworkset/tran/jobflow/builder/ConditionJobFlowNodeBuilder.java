@@ -49,7 +49,7 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
 //        }
     }
     @Override
-    public JobFlowNode build(JobFlow jobFlow){
+    public JobFlowNode build(JobFlow jobFlow,CompositionJobFlowNode compositionJobFlowNode){
         if(this.jobFlowNode != null){
             return jobFlowNode;
         }
@@ -58,6 +58,15 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
         conditionJobFlowNode.setNodeId(this.getNodeId());
         conditionJobFlowNode.setNodeName(this.getNodeName());
         conditionJobFlowNode.setJobFlow(jobFlow);
+		this.jobFlowNode = conditionJobFlowNode;
+		if (this.parentJobFlowNodeBuilder != null) {
+			JobFlowNode parentJobFlowNode = parentJobFlowNodeBuilder.getJobFlowNode();
+			jobFlowNode.setParentJobFlowNode(parentJobFlowNode);
+			jobFlowNode.setCompositionJobFlowNode(parentJobFlowNode.getCompositionJobFlowNode());
+		}
+		else{
+			jobFlowNode.setCompositionJobFlowNode(compositionJobFlowNode);
+		}
 		if(nodeBuilders != null && nodeBuilders.size() > 0) {
 			for (JobFlowNodeBuilder jobFlowNodeBuilder : nodeBuilders) {
 				if (jobFlowNodeBuilder == this) {
@@ -67,7 +76,7 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
 						conditionJobFlowNode.setDefaultJobFlowNode(conditionJobFlowNode);
 					}
 				} else {
-					JobFlowNode jobFlowNode = jobFlowNodeBuilder.buildWrapper(jobFlow);
+					JobFlowNode jobFlowNode = jobFlowNodeBuilder.buildWrapper(jobFlow,conditionJobFlowNode);
 					NodeTrigger conditionNodeTrigger = jobFlowNodeBuilder.getConditionNodeTrigger(this.conditionJobFlowNodeUUID);
 					conditionJobFlowNode.addJobFlowNode(jobFlowNode, conditionNodeTrigger);
 					if (jobFlowNodeBuilder.isDefaultConditionNode(this.conditionJobFlowNodeUUID)) {
@@ -80,12 +89,9 @@ public class ConditionJobFlowNodeBuilder extends CompositionJobFlowNodeBuilder<C
 		}
        
        
-        this.jobFlowNode = conditionJobFlowNode;
-        if (this.parentJobFlowNodeBuilder != null) {
-            jobFlowNode.setParentJobFlowNode(parentJobFlowNodeBuilder.getJobFlowNode());
-        }
+        
         if(this.nextJobFlowNodeBuilder != null){
-            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow);
+            JobFlowNode nextJobFlowNode = nextJobFlowNodeBuilder.buildWrapper(jobFlow,compositionJobFlowNode);
             this.jobFlowNode.setNextJobFlowNode(nextJobFlowNode);
         }
         jobFlowNode.setJobFlowNodeListeners(this.jobFlowNodeListeners);
