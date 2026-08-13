@@ -37,5 +37,10 @@ public enum JobFlowNodeType {
     /**
      * 条件复合类型节点，每次从节点清单中选取符合条件的节点执行
      */
-    CONDITION
+    CONDITION,
+	
+	/**
+	 * 通用流程节点
+	 */
+	FLOWNODE
 }
