@@ -31,10 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>Description: import datas to database task command</p>
@@ -104,7 +101,23 @@ public class HBaseTaskCommandImpl extends BaseTaskCommand<  String> {
 	private Put convert(CommonRecord dbRecord){
 
 		Map<String, Object> datas = dbRecord.getDatas();
-		long timestamp = System.currentTimeMillis();
+		Long timestamp = null;
+		if(hBaseOutputConfig.isUserSourceMetaTimestamp()){
+			Date date = (Date)dbRecord.getMetaValue("timestamp");
+			if(date != null)
+				timestamp = date.getTime();
+		}
+		else if(hBaseOutputConfig.getRowTimestampField() != null){
+			Object rfiled = datas.get(hBaseOutputConfig.getRowTimestampField());
+			if(rfiled != null) {
+				if(rfiled instanceof Date)
+					timestamp = ((Date)rfiled).getTime();
+				else if(rfiled instanceof Number)
+					timestamp = ((Number)rfiled).longValue();
+			}
+		}
+		if(timestamp == null)
+			timestamp = System.currentTimeMillis();
         Object rowKey = null;
         if(hBaseOutputConfig.isRowKeyUseTempData()){
             rowKey = dbRecord.getTempData(hBaseOutputConfig.getRowKeyField());

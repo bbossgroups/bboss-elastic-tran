@@ -41,6 +41,15 @@ public class HBaseOutputConfig extends HBasePluginConfig<HBaseOutputConfig> impl
 
 	private Map<String, List<FamilyColumnMapping>> familyColumnMappings;
 	private String rowKeyField;
+	/**
+	 * 是否使用源hbase表的meta时间戳，只有源为hbase时才能配置，可选，当userSourceMetaTimestamp和rowTimestampField都没有设置时，采用系统当前时间作为记录timestamp
+	 */
+	private boolean userSourceMetaTimestamp;
+	
+	/**
+	 * 指定row Timestamp对应的字段名称，可选，当userSourceMetaTimestamp和rowTimestampField都没有设置时，采用系统当前时间作为记录timestamp
+	 */
+	private String rowTimestampField;
     private boolean rowKeyUseTempData ;
 	private String globalFamiliy;
 	private byte[] bglobalFamiliy = Bytes.toBytes("df");
@@ -114,6 +123,7 @@ public class HBaseOutputConfig extends HBasePluginConfig<HBaseOutputConfig> impl
 
 	}
 
+	
 	/**
 	 * 指定rowkey对应的源字段名称，必须指定
 	 * @param rowKeyField
@@ -135,6 +145,7 @@ public class HBaseOutputConfig extends HBasePluginConfig<HBaseOutputConfig> impl
         this.rowKeyUseTempData = rowKeyUseTempData;
         return this;
     }
+	
 
     public boolean isRowKeyUseTempData() {
         return rowKeyUseTempData;
@@ -151,6 +162,22 @@ public class HBaseOutputConfig extends HBasePluginConfig<HBaseOutputConfig> impl
 	public List<FamilyColumnMapping> getFamilyColumnMappings(String field) {
 		return familyColumnMappings.get(field);
 	}
-
-
+	
+	public boolean isUserSourceMetaTimestamp() {
+		return userSourceMetaTimestamp;
+	}
+	
+	public HBaseOutputConfig setUserSourceMetaTimestamp(boolean userSourceMetaTimestamp) {
+		this.userSourceMetaTimestamp = userSourceMetaTimestamp;
+		return this;
+	}
+	
+	public String getRowTimestampField() {
+		return rowTimestampField;
+	}
+	
+	public HBaseOutputConfig setRowTimestampField(String rowTimestampField) {
+		this.rowTimestampField = rowTimestampField;
+		return this;
+	}
 }
