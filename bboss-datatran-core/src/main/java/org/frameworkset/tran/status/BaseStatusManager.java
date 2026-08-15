@@ -26,10 +26,10 @@ import org.frameworkset.tran.DataTranPlugin;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
+import org.frameworkset.tran.schedule.LastValueFunction;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.timer.TimeUtil;
 import org.frameworkset.tran.task.BaseTranJob;
-import org.frameworkset.util.shutdown.ShutdownUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,6 +125,7 @@ public abstract class BaseStatusManager implements StatusManager {
 	protected String statusStorePath;
     protected String statusStorePassword = "Root_123456#";
 	protected String lastValueClumnName;
+	protected LastValueFunction lastValueFunction;
 	private static Logger logger = LoggerFactory.getLogger(BaseStatusManager.class);
 	protected int lastValueType;
 	private StatusFlushThread flushThread ;
@@ -822,22 +823,24 @@ public abstract class BaseStatusManager implements StatusManager {
             setIncreamentImport(false);
             return;
         }
-		if(lastValueClumnName != null){
+		if(lastValueFunction == null){
+			lastValueFunction = importContext.getLastValueFunction();
+			
+		}
+		if(lastValueClumnName != null ){
 			return ;
 		}
 
 		if (importContext.getLastValueColumn() != null) {
 			lastValueClumnName = importContext.getLastValueColumn();
 		}
-//		else if (importContext.getNumberLastValueColumn() != null) {
-//			lastValueClumnName = importContext.getNumberLastValueColumn();
-//		}
+
 		else if (dataTranPlugin.getLastValueVarName() != null) {
 			lastValueClumnName =  dataTranPlugin.getLastValueVarName();
 		}
 
         
-		if (lastValueClumnName == null){
+		if (lastValueClumnName == null ){
             if(!importContext.validateIncreamentConfig()) {
                 throw ImportExceptionUtil.buildDataImportException(importContext,"配置校验失败：增量导入情况下，未指定增量导入状态字段!");
             }

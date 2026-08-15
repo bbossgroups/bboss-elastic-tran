@@ -27,6 +27,7 @@ import org.frameworkset.tran.plugin.metrics.output.ETLMetrics;
 import org.frameworkset.tran.record.SplitHandler;
 import org.frameworkset.tran.schedule.CallInterceptor;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
+import org.frameworkset.tran.schedule.LastValueFunction;
 import org.frameworkset.tran.schedule.ScheduleConfig;
 import org.frameworkset.util.annotations.DateFormateMeta;
 import org.slf4j.Logger;
@@ -564,6 +565,10 @@ public class BaseImportConfig {
 
 	public String getLastValueColumn() {
 		return importIncreamentConfig != null?importIncreamentConfig.getLastValueColumn():null;
+	}
+	
+	public LastValueFunction getLastValueFunction(){
+		return importIncreamentConfig != null?importIncreamentConfig.getLastValueFunction():null;
 	}
 
 

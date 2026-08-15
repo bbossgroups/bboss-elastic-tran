@@ -268,7 +268,11 @@ public interface ImportContext extends DataTranPluginMetricsLogAPI {
 //	void setEsIndexWrapper(ESIndexWrapper esIndexWrapper);
 //
 //	ESIndexWrapper getEsIndexWrapper();
-
+	/**
+	 * 返回配置的增量值获取函数
+	 * @return
+	 */
+	LastValueFunction getLastValueFunction();
 	/**
 	 * 返回配置的增量字段名称
 	 * @return

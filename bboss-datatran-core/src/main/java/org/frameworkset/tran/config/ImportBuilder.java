@@ -967,7 +967,19 @@ public class ImportBuilder {
 		lastValueColumnSetted = true;
 		return this;
 	}
-
+	
+	/**
+	 * 增量同步增加函数方式获取增量字段值功能，用于处理在复杂结构中获取增量字段值，同时务必设置增量字段名称
+	 * @param lastValueFunction
+	 * @return
+	 */
+	public ImportBuilder setLastValueFunction(LastValueFunction lastValueFunction) {
+		if(importIncreamentConfig == null){
+			importIncreamentConfig = new ImportIncreamentConfig();
+		}
+		this.importIncreamentConfig.setLastValueFunction(lastValueFunction);
+		return this;
+	}
 	/**
 	 * @See use setLastValueColumn(String numberLastValueColumn)
 	 * @param numberLastValueColumn

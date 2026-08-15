@@ -22,6 +22,7 @@ import org.frameworkset.tran.TranMeta;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.schedule.ImportIncreamentConfig;
+import org.frameworkset.tran.schedule.LastValueFunction;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
 import org.frameworkset.tran.util.TranUtil;
@@ -197,27 +198,30 @@ public abstract class BaseRecord implements Record {
     }
     public Object getLastValue(String colName) throws DataImportException {
         try {
-            if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
-                return getValue(colName);
-            else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
-                if(importContext.getLastValueDateformat() == null || importContext.getLastValueDateformat().equals("")) {
-                    return getDateTimeValue(colName);
-                }
-                else{
-                    return getDateTimeValue(colName,importContext.getLastValueDateformat());
-                }
-            }
-            else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
-                return getLocalDateTimeValue(colName);
-            }
-            else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.STRING_TYPE){
-                if(colName != null) {
-                    return getValue(colName);
-                }
-                else{
-                    return null;
-                }
-            }
+			LastValueFunction lastValueFunction = importContext.getLastValueFunction();
+			if(lastValueFunction == null) {
+				if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE)
+					return getValue(colName);
+				else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
+					if (importContext.getLastValueDateformat() == null || importContext.getLastValueDateformat().equals("")) {
+						return getDateTimeValue(colName);
+					} else {
+						return getDateTimeValue(colName, importContext.getLastValueDateformat());
+					}
+				} else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.LOCALDATETIME_TYPE) {
+					return getLocalDateTimeValue(colName);
+				} else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.STRING_TYPE) {
+					if (colName != null) {
+						return getValue(colName);
+					} else {
+						return null;
+					}
+				}
+			}
+			else{
+				return lastValueFunction.getLastValue(this,colName);
+			}
+			
         }
         catch (DataImportException e){
             throw (e);

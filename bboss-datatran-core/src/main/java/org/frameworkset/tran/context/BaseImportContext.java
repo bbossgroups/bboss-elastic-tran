@@ -16,6 +16,7 @@ package org.frameworkset.tran.context;
  */
 
 import com.frameworkset.orm.annotation.BatchContext;
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.*;
 import org.frameworkset.tran.config.*;
@@ -498,7 +499,7 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
                         || type == ImportIncreamentConfig.LOCALDATETIME_TYPE))
                 {
                     String column = baseImportConfig.getImportIncreamentConfig().getLastValueColumn();
-                    if(column == null || column.trim().equals("")){
+                    if(SimpleStringUtil.isEmpty(column)  ){
                         return false;
                     }
                 }
@@ -570,12 +571,19 @@ public  class BaseImportContext extends BaseMetricsLogReport implements ImportCo
 	public boolean isExternalTimer() {
 		return baseImportConfig.isExternalTimer();
 	}
+	@Override
+	public LastValueFunction getLastValueFunction() {
+		return baseImportConfig.getLastValueFunction();
+	}
+	@Override
 	public String getLastValueColumn(){
 		return baseImportConfig.getLastValueColumn();
 	}
+	@Override
 	public String getLastValueColumnName(){
 		return dataTranPlugin.getLastValueClumnName();
 	}
+	@Override
 	public boolean isImportIncreamentConfigSetted(){
 		return baseImportConfig.isImportIncreamentConfigSetted();
 	}

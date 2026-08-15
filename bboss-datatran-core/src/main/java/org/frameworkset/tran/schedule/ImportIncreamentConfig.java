@@ -15,6 +15,7 @@ package org.frameworkset.tran.schedule;
  * limitations under the License.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.frameworkset.util.SimpleStringUtil;
 
 /**
@@ -26,6 +27,8 @@ import com.frameworkset.util.SimpleStringUtil;
  * @version 1.0
  */
 public class ImportIncreamentConfig {
+	@JsonIgnore
+	private LastValueFunction lastValueFunction;
 	private String lastValueColumn;
 	private String lastValueDateformat;
 //	private String numberLastValueColumn;
@@ -96,12 +99,12 @@ public class ImportIncreamentConfig {
 	}
 
     public boolean validate(){
-        if(lastValueColumn == null || lastValueColumn.trim().equals(""))
+        if(SimpleStringUtil.isNotEmpty(lastValueColumn))
         {
-            return false;
-        }
-        else{            
             return true;
+        }	 
+        else{            
+            return false;
         }
     }
 
@@ -177,5 +180,13 @@ public class ImportIncreamentConfig {
 	}
 	public String toString(){
 		return SimpleStringUtil.object2json(this);
+	}
+	
+	public LastValueFunction getLastValueFunction() {
+		return lastValueFunction;
+	}
+	
+	public void setLastValueFunction(LastValueFunction lastValueFunction) {
+		this.lastValueFunction = lastValueFunction;
 	}
 }

@@ -27,6 +27,7 @@ import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.metrics.JobTaskMetrics;
 import org.frameworkset.tran.record.RecordColumnInfo;
 import org.frameworkset.tran.record.SplitKeys;
+import org.frameworkset.tran.schedule.LastValueFunction;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +103,11 @@ public abstract class BasePlugin {
 	public String getLastValueVarName() {
 		return importContext.getLastValueColumn();
 	}
+	
+	public LastValueFunction getLastValueFunction() {
+		return importContext.getLastValueFunction();
+	}
+	
 	public boolean isEnableAutoPauseScheduled(){
 		return true;
 	}
