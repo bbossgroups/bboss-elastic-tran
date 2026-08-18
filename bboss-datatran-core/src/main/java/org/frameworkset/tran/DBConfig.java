@@ -37,6 +37,13 @@ public class DBConfig {
 
 
     private String statusHistoryTableDML;
+	
+
+	
+	/**
+	 * 如果设置了状态管理sql配置文件，则statusTableDML和statusHistoryTableDML代表配置文件中对应dml语句配置名称
+	 */
+	private String statusDMLXMLFile;
 	private Integer jdbcFetchSize;
 	private String dbDriver;
 	private String dbUrl;
@@ -784,4 +791,12 @@ public class DBConfig {
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
+	
+	public String getStatusDMLXMLFile() {
+		return statusDMLXMLFile;
+	}
+	
+	public void setStatusDMLXMLFile(String statusDMLXMLFile) {
+		this.statusDMLXMLFile = statusDMLXMLFile;
+	}
 }

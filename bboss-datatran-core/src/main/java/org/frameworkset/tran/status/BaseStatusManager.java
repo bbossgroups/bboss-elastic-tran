@@ -20,6 +20,8 @@ import com.frameworkset.common.poolman.util.DBConf;
 import com.frameworkset.common.poolman.util.SQLManager;
 import com.frameworkset.common.poolman.util.SQLUtil;
 import com.frameworkset.util.SimpleStringUtil;
+import org.frameworkset.spi.BaseApplicationContext;
+import org.frameworkset.spi.DefaultApplicationContext;
 import org.frameworkset.tran.DBConfig;
 import org.frameworkset.tran.DataImportException;
 import org.frameworkset.tran.DataTranPlugin;
@@ -779,11 +781,22 @@ public abstract class BaseStatusManager implements StatusManager {
 		}
 	}
 	private void initStatusSQL(DBConfig statusDBConfig ){
+		String statusDMLXMLFile = statusDBConfig.getStatusDMLXMLFile();
 		createStatusTableSQL = statusDBConfig.getStatusTableDML();
+		BaseApplicationContext baseApplicationContext = null;
+		if(SimpleStringUtil.isNotEmpty(statusDMLXMLFile) && SimpleStringUtil.isNotEmpty(createStatusTableSQL)){
+			baseApplicationContext = DefaultApplicationContext.getApplicationContext(statusDMLXMLFile);
+			createStatusTableSQL = baseApplicationContext.getProperty(createStatusTableSQL);
+		}
 		if(createStatusTableSQL == null){
 			createStatusTableSQL = statusDBConfig.getCreateStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
 		}
         createHistoryStatusTableSQL = statusDBConfig.getStatusHistoryTableDML();
+		if(SimpleStringUtil.isNotEmpty(statusDMLXMLFile) && SimpleStringUtil.isNotEmpty(createHistoryStatusTableSQL)){
+			if(baseApplicationContext == null)
+				baseApplicationContext = DefaultApplicationContext.getApplicationContext(statusDMLXMLFile);
+			createHistoryStatusTableSQL = baseApplicationContext.getProperty(createHistoryStatusTableSQL);
+		}
         if(createHistoryStatusTableSQL == null)
 		    createHistoryStatusTableSQL = statusDBConfig.getCreateHistoryStatusTableSQL(SQLUtil.getPool(statusDbname).getDBType());
 		createStatusTableSQL = createStatusTableSQL.replace("$statusTableName",statusTableName);

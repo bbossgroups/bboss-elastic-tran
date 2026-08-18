@@ -16,6 +16,7 @@ package org.frameworkset.tran.config;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.frameworkset.util.SimpleStringUtil;
 import org.frameworkset.spi.BBOSSVersion;
 import org.frameworkset.spi.DefaultApplicationContext;
 import org.frameworkset.spi.assemble.GetProperties;
@@ -91,6 +92,10 @@ public class ImportBuilder {
 	private String statusDbname;
 	private String statusTableDML;
     private String statusHistoryTableDML;
+	/**
+	 * 如果设置了状态管理sql配置文件，则statusTableDML和statusHistoryTableDML代表配置文件中对应dml语句配置名称
+	 */
+	private String statusDMLXMLFile;
 	private Integer fetchSize = 5000;
 	private String jobName;
 	private String jobId;
@@ -586,6 +591,9 @@ public class ImportBuilder {
                 if(statusHistoryTableDML != null && !statusHistoryTableDML.equals("")){
                     statusDbConfig.setStatusHistoryTableDML(statusHistoryTableDML);
                 }
+				if(SimpleStringUtil.isNotEmpty(statusDMLXMLFile)){
+					statusDbConfig.setStatusDMLXMLFile(statusDMLXMLFile);
+				}
 			}
 
 	}
@@ -2012,8 +2020,17 @@ public class ImportBuilder {
         return outputRecordsFilter;
     }
 
-    public void setOutputRecordsFilter(OutputRecordsFilter outputRecordsFilter) {
+    public ImportBuilder setOutputRecordsFilter(OutputRecordsFilter outputRecordsFilter) {
         this.outputRecordsFilter = outputRecordsFilter;
+		return this;
     }
-
+	
+	public String getStatusDMLXMLFile() {
+		return statusDMLXMLFile;
+	}
+	
+	public ImportBuilder setStatusDMLXMLFile(String statusDMLXMLFile) {
+		this.statusDMLXMLFile = statusDMLXMLFile;
+		return this;
+	}
 }
