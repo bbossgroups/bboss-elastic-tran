@@ -22,8 +22,6 @@ import org.frameworkset.spi.remote.http.HttpConfigInf;
 import org.frameworkset.tran.config.ImportBuilder;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.plugin.BaseConfig;
-import org.frameworkset.tran.plugin.feishu.input.FeishuTableInputConfig;
-import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
