@@ -90,9 +90,9 @@ public class MetricsData {
                 throw new MetricsException("dataTimeField["+dataTimeField+"]="+dateTime +"不是Date类型，请处理为Date类型!");
             }
         }
-        else {
-            dateTime = buildMapDataContext.getCurrentTime();
-        }
+//        else {
+//            dateTime = buildMapDataContext.getCurrentTime();
+//        }
         mapData.setDataTime(dateTime);
         mapData.setData(getCommonRecord());
         mapData.setYearFormat(buildMapDataContext.getYearFormat());

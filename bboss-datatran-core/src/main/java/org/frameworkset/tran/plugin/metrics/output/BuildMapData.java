@@ -15,8 +15,6 @@ package org.frameworkset.tran.plugin.metrics.output;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.metrics.entity.MapData;
-
 /**
  * <p>Description: </p>
  * <p></p>
