@@ -34,39 +34,39 @@ import java.util.List;
 public interface BaseMetrics {
 
 
-	default public BaseMetrics addMetricBuilder(MetricBuilder metricBuilder){
+	default BaseMetrics addMetricBuilder(MetricBuilder metricBuilder){
 		return this;
 	}
-    default public void setMetricsLogAPI(MetricsLogAPI metricsLogAPI){
+    default void setMetricsLogAPI(MetricsLogAPI metricsLogAPI){
         
     }
 
-    default public MetricsLogAPI getMetricsLogAPI(){
+    default MetricsLogAPI getMetricsLogAPI(){
         return null;
     }
-	default public List<MetricBuilder> getMetricBuilders(){
+	default List<MetricBuilder> getMetricBuilders(){
 		return null;
 	}
 
-	default public void builderMetrics(){
+	default void builderMetrics(){
 
 	}
 
-	public void stopMetrics();
+	void stopMetrics();
 	/**
 	 * 对数据进行指标加工处理
 	 * @param mapData
 	 */
-	public void map(MapData mapData);
+	void map(MapData mapData);
 
 	/**
 	 * 定时存储指标表数据
 	 * @param metrics
 	 */
-	public abstract void persistent(Collection<KeyMetric> metrics);
+	void persistent(Collection<KeyMetric> metrics);
 
-	public KeyMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder);
-    public KeyMetric metric(MetricKey metricsKey, MapData data, KeyMetricBuilder metricBuilder);
+	KeyMetric metric(String metricsKey, MapData data, KeyMetricBuilder metricBuilder);
+    KeyMetric metric(MetricKey metricsKey, MapData data, KeyMetricBuilder metricBuilder);
 
     /**
 	 *
@@ -75,8 +75,8 @@ public interface BaseMetrics {
 	 *                           TimeKeyMetrics和KeyMetrics   true 代表初始化指标容器，false代表清理指标容器为null（意味后续不再使用对应的指标容器）
      * @param waitComplete 是否等待任务完成
 	 */
-	public void forceFlush(boolean cleanMetricsKey,boolean waitComplete);
-	public void init();
-	public void setMetricsName(String metricsName);
+	void forceFlush(boolean cleanMetricsKey,boolean waitComplete);
+	void init();
+	void setMetricsName(String metricsName);
 
 }
