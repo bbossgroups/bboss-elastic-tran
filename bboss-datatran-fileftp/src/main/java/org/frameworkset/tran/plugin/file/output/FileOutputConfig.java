@@ -60,7 +60,9 @@ public class FileOutputConfig<T extends FileOutputConfig> extends BaseConfig<T> 
 	private FileSend2Ftp fileSend2Ftp;
     private OSSFileConfig ossFileConfig;
     private BaseRemoteConfig baseRemoteConfig;
-    
+	private String fileEncoding = "UTF-8";
+	
+
 	public final static String JobExecutorDatas_genFileInfos = "jobExecutorDatas.fileFtpOutPut.genFileInfos";
 	/**
 	 * 输出文件记录处理器:org.frameworkset.tran.kafka.output.fileftp.ReocordGenerator
@@ -534,7 +536,17 @@ public class FileOutputConfig<T extends FileOutputConfig> extends BaseConfig<T> 
         return recordGeneratorV1;
     }
 
-    public void setRecordGeneratorV1(RecordGeneratorV1 recordGeneratorV1) {
+    public T setRecordGeneratorV1(RecordGeneratorV1 recordGeneratorV1) {
         this.recordGeneratorV1 = recordGeneratorV1;
+		return (T)this;
     }
+	
+	public String getFileEncoding() {
+		return fileEncoding;
+	}
+	
+	public T setFileEncoding(String fileEncoding) {
+		this.fileEncoding = fileEncoding;
+		return (T)this;
+	}
 }

@@ -33,10 +33,7 @@ import org.frameworkset.util.concurrent.LongCount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -60,7 +57,7 @@ public class FileTransfer {
 	 */
 	protected LongCount records;
 	protected BufferedWriter bw = null;
-	private FileWriter fw = null;
+	private OutputStreamWriter fw = null;
 	private String filePath;
 	private String remoteFilePath;
 	private String transferFailedFile;
@@ -119,8 +116,15 @@ public class FileTransfer {
 	protected void initTransfer() throws IOException {
         if(!file.exists())
             file.createNewFile();
-		fw = new FileWriter(file);
-		bw = new BufferedWriter(fw,buffsize);
+//		fw = new FileWriter(file);
+//		bw = new BufferedWriter(fw,buffsize);
+		
+		String encoding = fileOutputConfig.getFileEncoding();
+		if(encoding == null || encoding.trim().isEmpty()){
+			encoding = "UTF-8";
+		}
+		fw = new OutputStreamWriter(new FileOutputStream(file), encoding);
+		bw = new BufferedWriter(fw, buffsize);
 	}
 	private boolean init;
 
