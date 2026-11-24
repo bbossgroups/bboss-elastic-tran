@@ -110,28 +110,7 @@ public class HBaseResultSet extends LastValue implements TranResultSet {
 	public Object getMetaValue(String fieldName) {
 		return record.getMetaValue(fieldName);
 	}
-	public Object getLastValue(TranResultSet tranResultSet,ImportContext importContext,String colName) throws DataImportException {
-		try {
-			if (importContext.getLastValueType() == null || importContext.getLastValueType().intValue() == ImportIncreamentConfig.NUMBER_TYPE) {
-				Object value = tranResultSet.getValue(importContext.getLastValueColumnName());
-				Long l = Bytes.toLong((byte[])value);
-				return l;
-			}
-			else if(incrementByTimeRange){
-				return tranResultSet.getMetaValue("timestamp");
-			}
-			else if (importContext.getLastValueType().intValue() == ImportIncreamentConfig.TIMESTAMP_TYPE) {
-				return tranResultSet.getDateTimeValue(importContext.getLastValueColumnName());
-			}
-		}
-		catch (DataImportException e){
-			throw (e);
-		}
-		catch (Exception e){
-			throw ImportExceptionUtil.buildDataImportException(importContext,e);
-		}
-		throw ImportExceptionUtil.buildDataImportException(importContext,"Unsupport last value type:"+importContext.getLastValueType().intValue());
-	}
+	 
 
     @Override
     public void destroy(){

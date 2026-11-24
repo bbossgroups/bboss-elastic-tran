@@ -40,8 +40,6 @@ import org.frameworkset.tran.schedule.ImportIncreamentConfig;
 import org.frameworkset.tran.schedule.Status;
 import org.frameworkset.tran.schedule.TaskContext;
 import org.frameworkset.tran.status.LastValueWrapper;
-import org.frameworkset.tran.task.CommonRecordTranJob;
-import org.frameworkset.tran.task.TranJob;
 import org.frameworkset.util.ResourceStartResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

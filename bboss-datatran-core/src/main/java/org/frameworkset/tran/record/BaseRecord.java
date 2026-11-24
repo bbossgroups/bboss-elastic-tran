@@ -143,8 +143,12 @@ public abstract class BaseRecord implements Record {
     }
 
     protected Object _getMetaValue(String metaName){
-        if(metaDatas.containsKey(metaName))
-            return metaDatas.get(metaName);
+		if(metaDatas == null){
+			return null;
+		}
+        if(metaDatas.containsKey(metaName)) {
+			return metaDatas.get(metaName);
+		}
         else{
             throw ImportExceptionUtil.buildDataImportException(importContext,new StringBuilder().append("Get Meta Value failed: ").append( metaName ).append( " is not a meta field").append( SimpleStringUtil.object2json(metaDatas.keySet())).append(".").toString());
         }
