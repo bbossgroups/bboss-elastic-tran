@@ -19,6 +19,7 @@ import org.frameworkset.tran.*;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.record.NextAssert;
+import org.frameworkset.tran.record.TranMetaDataLazeLoad;
 
 import java.util.List;
 import java.util.Map;
@@ -115,7 +116,7 @@ public class CustomResultSet extends LastValue implements TranResultSet {
 
 	@Override
 	public TranMeta getMetaData() {
-		return new DefaultTranMetaData(null);
+		return new DefaultTranMetaData((TranMetaDataLazeLoad)null);
 	}
 	public Object getKeys(){
 		return  record.getKeys();
@@ -138,7 +139,7 @@ public class CustomResultSet extends LastValue implements TranResultSet {
 
     @Override
     public void destroy(){
-         
+         super.destroy();
     }
 	
 }

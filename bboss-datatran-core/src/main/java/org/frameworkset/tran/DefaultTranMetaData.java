@@ -30,32 +30,41 @@ import java.util.Set;
  */
 public class DefaultTranMetaData implements TranMeta {
     private TranMetaDataLazeLoad tranMetaDataLazeLoad ;
-	public DefaultTranMetaData(Object keys) {
  
-        this.keys = convert(keys);
-        loaded = true;
-	}
+	private static String[] dummp = new String[0];
     public static String[] convert(Object keys){
         String[] tmp = null;
         if(keys != null) {
-            if (keys instanceof Set )
-                tmp = ((Set<String> )keys).toArray(new String[0]);
+            if (keys instanceof Set ) {
+				Set<String> set = (Set<String> )keys;
+				tmp = set.toArray(new String[set.size()]);
+			}
             else
                 tmp = ((String[])keys);
         }
         else {
-            tmp = new String[0];
+            tmp = dummp;
         }
         return tmp;
     }
-
+	public DefaultTranMetaData(String[] keys) {
+		if(keys != null) {
+			this.keys = keys;
+		}
+		else {
+			this.keys = dummp;
+		}
+		loaded = true;
+		 
+		
+	}
     public DefaultTranMetaData(TranMetaDataLazeLoad tranMetaDataLazeLoad) {
         if(tranMetaDataLazeLoad != null) {
             this.tranMetaDataLazeLoad = tranMetaDataLazeLoad;
 //            this.keys = tranMetaDataLazeLoad.lazeLoad();
         }
         else {
-            this.keys = new String[0];
+            this.keys = dummp;
             loaded = true;
         }
         
@@ -84,6 +93,7 @@ public class DefaultTranMetaData implements TranMeta {
             else{
                 this.keys = new String[0];
             }
+			loaded = true;
         }
     }
 	@Override

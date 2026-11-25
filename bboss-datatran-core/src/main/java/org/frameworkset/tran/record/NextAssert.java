@@ -53,4 +53,8 @@ public class NextAssert {
     public void setNeedFlush(boolean needFlush) {
         this.needFlush = needFlush;
     }
+	public void reset(){
+		this.hasNext = false;
+		this.needFlush = false;
+	}
 }

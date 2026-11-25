@@ -37,6 +37,7 @@ import static org.frameworkset.tran.util.TranConstant.*;
 public abstract class LastValue implements TranResultSet{
 	protected ImportContext importContext;
 	protected BaseDataTran baseDataTran;
+	protected DataTranPlugin dataTranPlugin;
 	protected Record record;
     private volatile int status = STATUS_DEFAULT;
 	public BaseDataTran getBaseDataTran(){
@@ -44,9 +45,9 @@ public abstract class LastValue implements TranResultSet{
 	}
     private Object stopLock = new Object();
     public boolean isStop(){
-        synchronized (stopLock) {
+//        synchronized (stopLock) {
             return status == STATUS_STOP_NORMAL || status == STATUS_STOP_EXCEPTION;
-        }
+//        }
     }
     @Override
     public TaskContext getRecordTaskContext() {
@@ -68,9 +69,9 @@ public abstract class LastValue implements TranResultSet{
     }
 
     public boolean isStopFromException(){
-        synchronized (stopLock) {
+//        synchronized (stopLock) {
             return status == STATUS_STOP_EXCEPTION;
-        }
+//        }
     }
     @Override
     public void stop(boolean exception){
@@ -101,6 +102,7 @@ public abstract class LastValue implements TranResultSet{
 	}
 	public void setBaseDataTran(BaseDataTran baseDataTran){
 		this.baseDataTran = baseDataTran;
+		this.dataTranPlugin = baseDataTran.getDataTranPlugin();
 	}
 	public void setImportContext(ImportContext importContext) {
 		this.importContext = importContext;

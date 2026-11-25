@@ -133,6 +133,9 @@ public class MilvusResultSet extends LastValue implements TranResultSet {
 	public Object getMetaValue(String fieldName) {
 		return getValue(fieldName);
 	}
+	/**
+	 * 销毁资源,调用方法是数据迭代处理已经结束，不会再调用next方法
+	 */
     @Override
     public void destroy(){
         try {

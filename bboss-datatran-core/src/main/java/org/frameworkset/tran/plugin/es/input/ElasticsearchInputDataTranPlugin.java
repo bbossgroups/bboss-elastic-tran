@@ -327,7 +327,7 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 			throw ImportExceptionUtil.buildDataImportException(importContext,e);
 		}
 		finally {
-			jdbcResultSet.reachEend();
+			jdbcResultSet.reachEnd();
 			try {
 				countDownLatch.await();
 

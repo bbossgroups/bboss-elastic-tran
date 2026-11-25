@@ -111,10 +111,11 @@ public class FeishuTranResultset extends LastValue implements TranResultSet {
         nextAssert.setHasNext(hasNext);
 		return nextAssert;
 	}
-
+	
+	private static  final TranMeta tranMeta = new DefaultTranMetaData(new String[]{"recordId"});
 	@Override
 	public TranMeta getMetaData() {
-		return new DefaultTranMetaData(() -> new String[]{"recordId"});
+		return tranMeta;
 	}
 
 	public Object getKeys(){

@@ -202,8 +202,8 @@ public abstract class BasePlugin {
             useLowcase = false;
         }
         Object temp = null;
-
-
+		
+		boolean hasColumnMeta = metaData != null && metaData.getColumnCount() > 0;
         Map<String,Object> addedFields = new HashMap<String,Object>();
         //计算记录级别字段配置值
         Map<String,FieldMeta> fieldValueMetas = context.getValuesIdxByName();//context优先级高于splitColumns,splitColumns高于全局配置，全局配置高于数据源级别字段值
@@ -240,7 +240,7 @@ public abstract class BasePlugin {
                 if(varName == null || varName.equals(""))
                     throw ImportExceptionUtil.buildDataImportException(importContext,"fieldName["+colName+"]名称映射配置错误：varName="+varName);
             }
-            else if(useResultKeys && metaData != null && metaData.getColumnCount() > 0 ){
+            else if(useResultKeys && hasColumnMeta ){
                 if(useJavaName) {
                     varName = metaData.getColumnJavaNameByIndex(i);
                 }

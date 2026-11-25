@@ -1168,13 +1168,13 @@ public class DataTranPluginImpl implements DataTranPlugin {
 
     @Override
     public boolean isPluginStopAppending(){
-		lock.lock();
-		try {
+//		lock.lock();
+//		try {
 			return status == TranConstant.PLUGIN_STOPAPPENDING || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY;
-		}
-		finally {
-			lock.unlock();
-		}
+//		}
+//		finally {
+//			lock.unlock();
+//		}
 	}
 
 
@@ -1185,8 +1185,8 @@ public class DataTranPluginImpl implements DataTranPlugin {
      * @return
      */
 	public boolean checkTranToStop(){
-		lock.lock();
-		try {
+//		lock.lock();
+//		try {
 
 			return status == TranConstant.PLUGIN_STOPAPPENDING  || status == TranConstant.PLUGIN_STOPAPPENDING_STOPREADY
 				|| status == TranConstant.PLUGIN_STOPPED ;
@@ -1194,10 +1194,10 @@ public class DataTranPluginImpl implements DataTranPlugin {
             //TranConstant.PLUGIN_STOPREADY是所有tran执行完成后自动设置的状态标记，说明次状态可以退出同步作业
 //            return status == TranConstant.PLUGIN_STOPAPPENDING
 //                    || status == TranConstant.PLUGIN_STOPREADY || status == TranConstant.PLUGIN_STOPPED ;
-		}
-		finally {
-			lock.unlock();
-		}
+//		}
+//		finally {
+//			lock.unlock();
+//		}
 	}
     protected Object latchLock = new Object();
     protected void canFinishTran(boolean onceTaskFinish){

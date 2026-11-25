@@ -76,7 +76,7 @@ public interface TranResultSet {
     }
 
     /**
-     * 销毁资源
+     * 销毁资源,调用方法是数据迭代处理已经结束，不会再调用next方法
      */
     default public void destroy(){
         

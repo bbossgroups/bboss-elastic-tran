@@ -17,7 +17,9 @@ package org.frameworkset.tran;
 
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.NextAssert;
-import org.frameworkset.tran.record.TranMetaDataLazeLoad;
+import org.frameworkset.tran.record.TranMetaDataLazeLoadImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -33,28 +35,65 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0
  */
 public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTranResultSet {
+	/**
+	 * 终止标记（Poison Pill）：采集端数据采集完毕时写入队列，用于立即唤醒消费线程
+	 */
+	private static final Data<?> END_MARKER = new Data<Object>() {
+		@Override
+		public List<Object> getDatas() {
+			return null;
+		}
+	};
+	/**
+	 * 当前正在处理的数据批次
+	 */
 	private List records;
+	/**
+	 * 当前批次中下一条待处理数据的位置
+	 */
 	private int pos = 0;
 	private int size;
 
-
-	private BlockingQueue<Data> queue ;
+	/**
+	 * 数据缓冲队列：采集线程写入，转换线程读取；
+	 * 停止或者销毁时置为null，用于拒绝采集线程后续的数据写入，由volatile保证多线程可见性
+	 */
+	private volatile BlockingQueue<Data> queue ;
+	/**
+	 * 构造当前批次时的最后一条记录是否已经是EOF记录，是则处理完当前批次后不再迭代
+	 */
     private boolean preReachEOFRecord;
-
+	/**
+	 * 队列中没有有效数据时开始计时的时间点，0表示尚未开始计时，用于计算强制flush的时间间隔
+	 *  仅在空数据周期开始计时，获取有效数据后清零
+	 */
+	private long pollStartTime ;
+	
+	/**
+	 * 采集端数据是否已经采集完毕
+	 */
+	private volatile boolean endReached;
+	private long flushInterval  ;
+	private long asynResultPollTimeOut;
 	public AsynBaseTranResultSet(ImportContext importContext) {
 		queue = new ArrayBlockingQueue(importContext.getTranDataBufferQueue());
 		this.importContext = importContext;
+		flushInterval = importContext.getFlushInterval();
+		asynResultPollTimeOut = importContext.getAsynResultPollTimeOut();
 	}
 	protected abstract Record buildRecord(Object data);
 	public Object getKeys(){
 		return record.getKeys();
 	}
-
-    /**
-     * 销毁资源
-     */
+	
+	/**
+	 * 销毁资源,调用方法是数据迭代处理已经结束，不会再调用next方法
+	 */
     public void destroy(){
         this.clearQueue();
+		this.records = null;
+		this.pos = 0;
+		this.size = 0;
     }
 
 
@@ -75,35 +114,50 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	public Object getMetaValue(String fieldName) {
 		return record.getMetaValue(fieldName);
 	}
-
-
-
-
-//	@Override
-//	public void stopTranOnly(){
-//		status = STATUS_STOPTRANONLY;
-//	}
-	private boolean reachEnd;
-	public void reachEend(){
-		this.reachEnd = true;
+	
+	
+	
+	
+	/**
+	 * 采集端数据采集完毕，通知转换线程处理完队列中的剩余数据后结束迭代。
+	 * 向队列写入终止标记（Poison Pill），立即唤醒可能在 poll 阻塞的消费线程。
+	 */
+	public void reachEnd(){
+		this.endReached = true;
+		// 写入终止标记，唤醒消费线程
+		BlockingQueue<Data> q = this.queue;
+		if(q != null){
+			try {
+				q.offer((Data) END_MARKER, 1000L, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
 	}
 
 	private boolean stopIterator(){
-		return  isStop() || importContext.getDataTranPlugin().checkTranToStop();
+		return  isStop() || dataTranPlugin.checkTranToStop();
 //				|| importContext.getDataTranPlugin().isPluginStopREADY();
 //				|| importContext.getDataTranPlugin().isStopCollectData();
 	}
     private boolean reachEOFRecord(){
         return record.reachEOFRecord();
     }
-    private Long pollStartTime ;
+  
 
+    /**
+     * 判断当前批次是否需要检查强制刷数据的时间间隔：
+     * 只有空批次，或者批次中只有一条被标记为直接忽略的记录（仅用于传递数据位置状态）时才需要检查，
+     * 避免每一批数据都去计算flush时间间隔
+     * @return true 需要检查强制刷数据的时间间隔
+     */
     private boolean recordsCheckForceFlush(){
         boolean needCheckForceFlush = false;
-        if(this.records == null || this.records.size() == 0)
+		int size = this.records != null ?this.records.size():0;
+        if(this.records == null || size == 0)
             needCheckForceFlush = true;
         else{
-            if(records.size() == 1 ){
+            if(size == 1 ){
                 Object record = records.get(0);
                 if(record instanceof Record){
                     needCheckForceFlush = ((Record)record).getAction() == Record.RECORD_DIRECT_IGNORE;
@@ -112,13 +166,16 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
         }
         return needCheckForceFlush;
     }
-
+	/**
+	 * 检查开始等待数据的时间是否已经超过flushInterval，超过则要求上层强制刷数据
+	 * @return true 需要强制刷数据
+	 */
     private boolean checkForceFlush(NextAssert nextAssert){
-        if(importContext.getFlushInterval() > 0) {
+		if(flushInterval > 0 && pollStartTime > 0) {
             long interval = System.currentTimeMillis() - pollStartTime;
-            if (interval > importContext.getFlushInterval()){
+            if (interval > flushInterval){
                 nextAssert.setNeedFlush(true);
-                pollStartTime = null;
+                pollStartTime = 0;
                 return true;
             }
         }
@@ -126,56 +183,87 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
     }
 
     public void appendData(Data datas) throws InterruptedException{
+		if (datas == null) {
+			return;
+		}
+		BlockingQueue<Data> writeQueue = this.queue;
+		if(isStop() || writeQueue == null){
+			if(!isStopFromException()) {
+				throw new InterruptedException("AsynBaseTranResultSet already stopped.");
+			}
+			else {
+				throw new InterruptedException("AsynBaseTranResultSet already stopped by exception.");
+			}
+		}
+		/**
+		 * 队列可能在判断之后才被清空，此时数据写入的是一个已经废弃的队列，等同于丢弃，
+		 * 这是结果集停止后的正常行为，不需要再做额外处理
+		 */
+		
+//		writeQueue.put(datas);
 
-        try {
-            if(isStop() || queue == null){
-                if(!isStopFromException()) {
-                    throw new InterruptedException("AsynBaseTranResultSet already stopped.");
-                }
-                else {
-                    throw new InterruptedException("AsynBaseTranResultSet already stopped by exception.");
-                }
-            }
-            queue.put(datas);
-        } catch (InterruptedException e) {
-            throw e;
-        }
-        catch (Throwable e) {
-//            throw e;
-        }
-
-//		this.esDatas = datas;
-//		this.records = esDatas.getDatas();
-//		size = records !=null ?records.size():0;
-//		pos = 0;
-//		totalSize = esDatas.getTotalSize();
-//		this.handlerInfo = handlerInfo;
-
+//		boolean success = writeQueue.offer(datas, 1000L, TimeUnit.MILLISECONDS);
+//		if(!success ){
+//			do {
+//				if(isStop()){
+//					break;
+//				}
+//				writeQueue = this.queue;
+//				if (writeQueue != null) {
+//					success = writeQueue.offer(datas, 1000L, TimeUnit.MILLISECONDS);
+//					if(success){
+//						break;
+//					}
+//				}
+//				else{
+//					break;
+//				}
+//			}while (true);
+//		}
+		
+		while (true) {
+			BlockingQueue<Data> q = this.queue;
+			if (q == null || isStop()) {
+				throw new InterruptedException("AsynBaseTranResultSet already stopped.");  // 或 return 丢弃
+			}
+			if (q.offer(datas, 1000L, TimeUnit.MILLISECONDS)) {
+				return;
+			}
+		}
+		 
 
     }
     @Override
     public void clearQueue(){
-        if(queue == null){
-            return;
-        }
-        try {
-
-           queue.clear();
-           do{
-               Data datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
-               if(datas == null) {
-                   queue = null;
-                   break;
-               }
-               else {
-                   queue.clear();
-               }
-           }while (true);
-
-
-        } catch (Exception e) {
-        }
+         
+		BlockingQueue<Data> clearQueue = this.queue;
+		this.queue = null;
+		if(clearQueue != null){
+			clearQueue.clear();
+		}
+//        try {
+//
+//           queue.clear();
+//           do{
+//               Data datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
+//               if(datas == null) {
+//                   queue = null;
+//                   break;
+//               }
+//               else {
+//                   queue.clear();
+//               }
+//           }while (true);
+//
+//
+//        } catch (Exception e) {
+//        }
     }
+	
+	/**
+	 * 由 ResultSet 复用，调用方不得跨 next() 保存或跨线程共享
+	 */
+	private  final NextAssert nextAssert = new NextAssert();
     @Override
 	public NextAssert next() throws DataImportException {
 		/**
@@ -184,17 +272,19 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 //		if(status == STATUS_STOP){
 //			return false;
 //		}
-        NextAssert nextAssert = new NextAssert();
+		nextAssert.reset();
+	
         if(preReachEOFRecord){
             stop(false);
             clearQueue();
             return nextAssert;
         }
-		if(baseDataTran.getDataTranPlugin().checkTranToStop()) {//作业已停止或者准备停止，修改迭代器状态，同时清空队列数据
+		if(dataTranPlugin.checkTranToStop()) {//作业已停止或者准备停止，修改迭代器状态，同时清空队列数据
             stop(false);
             clearQueue();
             return nextAssert;
         }
+		
 		if( pos < size){
 
 			record = buildRecord(records.get(pos));
@@ -205,9 +295,13 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 			return nextAssert;
 		}
 		else{
-
+			
 			try {
-				Data datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
+				BlockingQueue<Data> pollQueue = this.queue;
+				if(pollQueue == null){//结果集已经被销毁
+					return nextAssert;
+				}
+				Data datas = pollQueue.poll(asynResultPollTimeOut, TimeUnit.MILLISECONDS);
 				/**
 				 * 要把数据处理完毕，才停迭代器
 				 */
@@ -217,6 +311,10 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 
                 boolean needCheckForceFlush = false;
                 if(datas != null){
+					// 检查是否为终止标记
+					if(datas == END_MARKER){
+						return nextAssert;
+					}
 					this.records = datas.getDatas();
 					size = records != null ? records.size():0;
                     needCheckForceFlush = recordsCheckForceFlush();
@@ -228,11 +326,11 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
                 }
 
                 if(needCheckForceFlush){
-                    if(pollStartTime == null)
+                    if(pollStartTime == 0)
                         pollStartTime = System.currentTimeMillis();
                 }
                 else{
-                    pollStartTime = null;
+                    pollStartTime = 0;
                 }
 
 				if(datas == null || size == 0)
@@ -244,10 +342,12 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 					}
 
 					do{
-                        if(queue == null){
+						pollQueue = this.queue;
+						 
+                        if(pollQueue == null){
                             return nextAssert;
                         }
-						datas = queue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
+						datas = pollQueue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
                         if(isStopFromException()){//因异常终止则停止后续数据处理，不管有没有数据，如果是正常停止，则需要处理后续数据
                             clearQueue();
                             return nextAssert;
@@ -256,35 +356,31 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 //							return false;
 //						}
 						if(datas == null){
-							if(reachEnd)
+							if(endReached)
 								break;
 							if(stopIterator()) {
                                 stop(false);
                                 clearQueue();
                                 return nextAssert;
                             }
-//							if(importContext.getFlushInterval() > 0) {
-//								long interval = System.currentTimeMillis() - pollStartTime;
-//								if (interval > importContext.getFlushInterval()){
-//                                    nextAssert.setNeedFlush(true);
-//                                    pollStartTime = null;
-//									return nextAssert;
-//								}
-//							}
                             if(checkForceFlush( nextAssert))
                                 return nextAssert;
 							continue;
+						}
+						// 检查是否为终止标记
+						if(datas == END_MARKER){
+							return nextAssert;
 						}
 
 						this.records = datas.getDatas();
 						size = records != null ? records.size():0;
                         needCheckForceFlush = recordsCheckForceFlush();
                         if(needCheckForceFlush){
-                            if(pollStartTime == null)
+                            if(pollStartTime == 0)
                                 pollStartTime = System.currentTimeMillis();
                         }
                         else{
-                            pollStartTime = null;
+                            pollStartTime = 0;
                         }
 						if(size > 0) {
                             if(needCheckForceFlush )
@@ -299,7 +395,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
                             }
 						}
 					}while (true);
-					if((datas == null )&& reachEnd){
+					if((datas == null )&& endReached){
 						return nextAssert;
 					}
 				}
@@ -323,6 +419,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
                 nextAssert.setHasNext(true);
 				return nextAssert;
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
                 stop(false);
                 clearQueue();
 				return nextAssert;
@@ -332,12 +429,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 
 	@Override
 	public TranMeta getMetaData() {
-		return new DefaultTranMetaData(new TranMetaDataLazeLoad() {
-            @Override
-            public String[] lazeLoad() {
-                return DefaultTranMetaData.convert(record.getKeys());
-            }
-        });
+		return new DefaultTranMetaData(new TranMetaDataLazeLoadImpl(record));
 	}
 	public Object getRecord(){
 		return record.getData();
