@@ -2,9 +2,7 @@ package org.frameworkset.tran.input.pdf;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.input.file.FileListenerService;
 import org.frameworkset.tran.input.file.FileLogRecord;
@@ -107,10 +105,18 @@ public class PDFFileReaderTask extends FileReaderTask {
             taskEnded();
 
 
-		} catch (InterruptedException e){
+		}  catch (InterruptedException e){
+			Thread.currentThread().interrupt();
 			logger.error("",e);
 //            throw new DataImportException("",e);
-		} catch (Exception e) {
+		}  catch (DataAppendException e){
+			
+			logger.error("",e);
+//            throw new DataImportException("",e);
+		}catch (DataImportException e) {
+//            logger.error("",e);
+			throw e;
+		}  catch (Exception e) {
 //            logger.error("",e);
 			throw new DataImportException("", e);
 		} finally {

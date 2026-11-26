@@ -3,9 +3,7 @@ package org.frameworkset.tran.input.word;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.input.file.FileListenerService;
 import org.frameworkset.tran.input.file.FileLogRecord;
@@ -110,10 +108,18 @@ public class WordFileReaderTask extends FileReaderTask {
             taskEnded();
 
 
-		} catch (InterruptedException e){
+		}  catch (InterruptedException e){
+			Thread.currentThread().interrupt();
 			logger.error("",e);
 //            throw new DataImportException("",e);
-		} catch (Exception e) {
+		}  catch (DataAppendException e){
+			
+			logger.error("",e);
+//            throw new DataImportException("",e);
+		}catch (DataImportException e) {
+//            logger.error("",e);
+			throw e;
+		}  catch (Exception e) {
 //            logger.error("",e);
 			throw new DataImportException("", e);
 		} finally {

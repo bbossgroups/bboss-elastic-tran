@@ -71,7 +71,7 @@ public interface TranResultSet {
     public Object getLastValue();
 
    
-    default public void clearQueue(){
+    default public void clearQueue(boolean fromDestory){
 
     }
 

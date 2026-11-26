@@ -106,7 +106,7 @@ public abstract class BaseDataTran implements DataTran{
 
 
 
-	public void appendData(Data data) throws InterruptedException{
+	public void appendData(Data data) throws DataAppendException{
 
 		if(asynTranResultSet != null)
 			asynTranResultSet.appendData(data);
@@ -196,7 +196,7 @@ public abstract class BaseDataTran implements DataTran{
         if(asynTranResultSet != null) {
             asynTranResultSet.stop(fromException);
             if(cleanQueue)
-                asynTranResultSet.clearQueue();
+                asynTranResultSet.clearQueue(false);
             asynTranResultSet = null;
         }
         if(breakableScrollHandler != null) {

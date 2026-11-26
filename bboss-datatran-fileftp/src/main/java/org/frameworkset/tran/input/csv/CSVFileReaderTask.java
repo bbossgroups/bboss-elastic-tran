@@ -5,9 +5,8 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
-import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.*;
+
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.input.file.CustomFileReader;
 import org.frameworkset.tran.input.file.FileListenerService;
@@ -214,8 +213,16 @@ public class CSVFileReaderTask extends FileReaderTask {
 
 			}
 		} catch (InterruptedException e){
+			Thread.currentThread().interrupt();
 			logger.error("",e);
 //            throw new DataImportException("",e);
+		} catch (DataAppendException e){
+			Thread.currentThread().interrupt();
+			logger.error("",e);
+//            throw new DataImportException("",e);
+		}catch (DataImportException e) {
+//            logger.error("",e);
+			throw e;
 		} catch (Exception e) {
 //            logger.error("",e);
 			throw new DataImportException("", e);

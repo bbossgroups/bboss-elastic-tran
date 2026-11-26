@@ -18,8 +18,6 @@ package org.frameworkset.tran;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.record.TranMetaDataLazeLoadImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -85,15 +83,15 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	public Object getKeys(){
 		return record.getKeys();
 	}
-	
+	private volatile boolean destroyed;
 	/**
 	 * 销毁资源,调用方法是数据迭代处理已经结束，不会再调用next方法
 	 */
     public void destroy(){
-        this.clearQueue();
-		this.records = null;
-		this.pos = 0;
-		this.size = 0;
+		destroyed = true;
+        this.clearQueue(true);
+ 
+		
     }
 
 
@@ -136,7 +134,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	}
 
 	private boolean stopIterator(){
-		return  isStop() || dataTranPlugin.checkTranToStop();
+		return  isStop() || dataTranPlugin.checkTranToStop() ;
 //				|| importContext.getDataTranPlugin().isPluginStopREADY();
 //				|| importContext.getDataTranPlugin().isStopCollectData();
 	}
@@ -182,17 +180,17 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
         return false;
     }
 
-    public void appendData(Data datas) throws InterruptedException{
+    public void appendData(Data datas) throws DataAppendException{
 		if (datas == null) {
 			return;
 		}
 		BlockingQueue<Data> writeQueue = this.queue;
-		if(isStop() || writeQueue == null){
+		if(isStop() || writeQueue == null || destroyed){
 			if(!isStopFromException()) {
-				throw new InterruptedException("AsynBaseTranResultSet already stopped.");
+				throw new DataAppendException("AsynBaseTranResultSet already stopped.");
 			}
 			else {
-				throw new InterruptedException("AsynBaseTranResultSet already stopped by exception.");
+				throw new DataAppendException("AsynBaseTranResultSet already stopped by exception.");
 			}
 		}
 		/**
@@ -220,27 +218,46 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 //				}
 //			}while (true);
 //		}
-		
+		BlockingQueue<Data> q = null;
 		while (true) {
-			BlockingQueue<Data> q = this.queue;
-			if (q == null || isStop()) {
-				throw new InterruptedException("AsynBaseTranResultSet already stopped.");  // 或 return 丢弃
+			q = this.queue;
+			if (destroyed || q == null || isStop()) {
+				throw new DataAppendException("AsynBaseTranResultSet already stopped.");  // 或 return 丢弃
 			}
-			if (q.offer(datas, 1000L, TimeUnit.MILLISECONDS)) {
-				return;
+			
+			
+			try {
+				if (q.offer(datas, 2000L, TimeUnit.MILLISECONDS)) {
+					break;
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new DataAppendException("AsynBaseTranResultSet already stopped by exception.",e);
+//				throw new RuntimeException(e);
 			}
+//			Thread.sleep(500l);
 		}
 		 
 
     }
     @Override
-    public void clearQueue(){
+    public void clearQueue(boolean fromDestory){
          
 		BlockingQueue<Data> clearQueue = this.queue;
 		this.queue = null;
 		if(clearQueue != null){
+			
 			clearQueue.clear();
+			if(fromDestory){
+				// 如果是外部终止作业，则写入终止标记，唤醒消费线程
+				try {
+					clearQueue.offer((Data) END_MARKER, 100L, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			}
 		}
+		
 //        try {
 //
 //           queue.clear();
@@ -276,12 +293,12 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	
         if(preReachEOFRecord){
             stop(false);
-            clearQueue();
+            clearQueue(false);
             return nextAssert;
         }
 		if(dataTranPlugin.checkTranToStop()) {//作业已停止或者准备停止，修改迭代器状态，同时清空队列数据
             stop(false);
-            clearQueue();
+            clearQueue(false);
             return nextAssert;
         }
 		
@@ -337,7 +354,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 				{
 					if(stopIterator()){
                         stop(false);
-                        clearQueue();
+                        clearQueue(false);
                         return nextAssert;
 					}
 
@@ -347,9 +364,9 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
                         if(pollQueue == null){
                             return nextAssert;
                         }
-						datas = pollQueue.poll(importContext.getAsynResultPollTimeOut(), TimeUnit.MILLISECONDS);
+						datas = pollQueue.poll(asynResultPollTimeOut, TimeUnit.MILLISECONDS);
                         if(isStopFromException()){//因异常终止则停止后续数据处理，不管有没有数据，如果是正常停止，则需要处理后续数据
-                            clearQueue();
+                            clearQueue(false);
                             return nextAssert;
                         }
 //						if(isStop() ){
@@ -360,7 +377,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 								break;
 							if(stopIterator()) {
                                 stop(false);
-                                clearQueue();
+                                clearQueue(false);
                                 return nextAssert;
                             }
                             if(checkForceFlush( nextAssert))
@@ -390,7 +407,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 						else{
 							if(stopIterator()) {
                                 stop(false);
-                                clearQueue();
+                                clearQueue(false);
                                 return nextAssert;
                             }
 						}
@@ -421,7 +438,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
                 stop(false);
-                clearQueue();
+                clearQueue(false);
 				return nextAssert;
 			}
 		}

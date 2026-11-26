@@ -3,9 +3,7 @@ package org.frameworkset.tran.input.file;
 import com.frameworkset.util.BaseSimpleStringUtil;
 import com.frameworkset.util.FileUtil;
 import com.frameworkset.util.SimpleStringUtil;
-import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.file.monitor.FileInodeHandler;
 import org.frameworkset.tran.file.monitor.FileManager;
@@ -990,10 +988,19 @@ public class FileReaderTask extends FieldManager{
                 }
 
 //            }
-        }catch (InterruptedException e){
+        } catch (InterruptedException e){
+			Thread.currentThread().interrupt();
+			logger.error("",e);
+//            throw new DataImportException("",e);
+		}  catch (DataAppendException e){
+			
+			logger.error("",e);
+//            throw new DataImportException("",e);
+		}catch (DataImportException e) {
 //            logger.error("",e);
-        }
-        catch (Exception e){
+			throw e;
+		}
+		catch (Exception e){
             throw new DataImportException("",e);
         }
         finally {

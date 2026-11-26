@@ -15,9 +15,7 @@ package org.frameworkset.tran.input.file;
  * limitations under the License.
  */
 
-import org.frameworkset.tran.BaseDataTran;
-import org.frameworkset.tran.DataImportException;
-import org.frameworkset.tran.DataTranPlugin;
+import org.frameworkset.tran.*;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.plugin.InputPlugin;
 import org.frameworkset.tran.plugin.file.input.FileInputConfig;
@@ -31,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -361,8 +358,16 @@ public class BufferFileReaderTask extends FileReaderTask{
 
 //            }
         }catch (InterruptedException e){
-//            logger.error("",e);
-        }
+			Thread.currentThread().interrupt();
+            logger.error("",e);
+        } catch (DataAppendException e){
+			
+			logger.error("",e);
+//            throw new DataImportException("",e);
+		}
+		catch (DataImportException e){
+			throw  e;
+		}
         catch (Exception e){
             throw new DataImportException("",e);
         }

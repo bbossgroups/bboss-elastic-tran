@@ -23,6 +23,7 @@ import com.github.shyiko.mysql.binlog.event.deserialization.ColumnType;
 import com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer;
 import com.github.shyiko.mysql.binlog.event.deserialization.json.JsonBinary;
 import org.frameworkset.tran.BaseDataTran;
+import org.frameworkset.tran.DataAppendException;
 import org.frameworkset.tran.Record;
 import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.record.CommonData;
@@ -406,10 +407,14 @@ public class MySQLBinlogListener {
                     else{
                         sendDropedEvent();
                     }
-                } catch (InterruptedException e) {
-                    logger.warn("Shutdown MySQLBinlogListener[] on InterruptedException",e);
+                } catch (DataAppendException e) {
+                    logger.warn("Shutdown MySQLBinlogListener[] on DataAppendException",e);
                     shutdown();
-                }
+                }catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					logger.warn("Shutdown MySQLBinlogListener[] on InterruptedException",e);
+					shutdown();
+				}
                 catch (Exception e) {
 //                    logger.error("处理数据异常：",e);
                     importContext.getDataTranPlugin().throwException(mysqlBinlogDataTran.getTaskContext(),e);
@@ -482,9 +487,13 @@ public class MySQLBinlogListener {
             else{
                 logger.info("Collect binlogs[{}] finished.elapsed time：{}秒.",binFileInfos,(end -start)/1000);
             }
-        } catch (InterruptedException e) {
+        } catch (DataAppendException e) {
             shutdown();
         }
+//		catch (InterruptedException e) {
+//			Thread.currentThread().interrupt();
+//			shutdown();
+//		}
     }
 
     public void listBinLogFile(BinFileInfo fileName) throws InterruptedException {
@@ -631,7 +640,7 @@ public class MySQLBinlogListener {
 
             long end = System.currentTimeMillis();
             logger.info("Collect binlog[{}] finished. Elapsed time：{}秒.",fileName,(end -start)/1000);
-        } catch (InterruptedException e) {
+        } catch (DataAppendException e) {
 //            throw new RuntimeException(e);
 
             throw e;

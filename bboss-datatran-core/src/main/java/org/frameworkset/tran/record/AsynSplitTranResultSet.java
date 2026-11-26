@@ -17,6 +17,7 @@ package org.frameworkset.tran.record;
 
 import org.frameworkset.tran.AsynTranResultSet;
 import org.frameworkset.tran.Data;
+import org.frameworkset.tran.DataAppendException;
 import org.frameworkset.tran.context.ImportContext;
 
 /**
@@ -34,7 +35,7 @@ public class AsynSplitTranResultSet extends SplitTranResultSet implements AsynTr
 		this.tranResultSet = tranResultSet;
 	}
 	@Override
-	public void appendData(Data datas) throws InterruptedException{
+	public void appendData(Data datas) throws DataAppendException {
 		tranResultSet.appendData(datas);
 	}
 }
