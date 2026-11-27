@@ -124,9 +124,9 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 		this.endReached = true;
 		// 写入终止标记，唤醒消费线程
 		BlockingQueue<Data> q = this.queue;
-		if(q != null){
+		if(q != null && pollStarted){
 			try {
-				q.offer((Data) END_MARKER, 1000L, TimeUnit.MILLISECONDS);
+				q.offer((Data) END_MARKER, 500L, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
@@ -248,7 +248,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 		if(clearQueue != null){
 			
 			clearQueue.clear();
-			if(fromDestory){
+			if(fromDestory && pollStarted){
 				// 如果是外部终止作业，则写入终止标记，唤醒消费线程
 				try {
 					clearQueue.offer((Data) END_MARKER, 100L, TimeUnit.MILLISECONDS);
@@ -281,6 +281,7 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 	 * 由 ResultSet 复用，调用方不得跨 next() 保存或跨线程共享
 	 */
 	private  final NextAssert nextAssert = new NextAssert();
+	private  volatile boolean pollStarted;
     @Override
 	public NextAssert next() throws DataImportException {
 		/**
@@ -318,7 +319,9 @@ public abstract class AsynBaseTranResultSet extends  LastValue implements AsynTr
 				if(pollQueue == null){//结果集已经被销毁
 					return nextAssert;
 				}
+				pollStarted = true;
 				Data datas = pollQueue.poll(asynResultPollTimeOut, TimeUnit.MILLISECONDS);
+				pollStarted = false;
 				/**
 				 * 要把数据处理完毕，才停迭代器
 				 */
