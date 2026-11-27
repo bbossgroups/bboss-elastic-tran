@@ -20,6 +20,7 @@ import org.frameworkset.tran.context.ImportContext;
 import org.frameworkset.tran.exception.ImportExceptionUtil;
 import org.frameworkset.tran.record.NextAssert;
 import org.frameworkset.tran.record.TranMetaDataLazeLoad;
+import org.frameworkset.tran.schedule.TaskContext;
 
 import java.util.List;
 import java.util.Map;
@@ -65,17 +66,22 @@ public class CustomResultSet extends LastValue implements TranResultSet {
 
 
 
-
+	private final static NextAssert nextAssert = new NextAssert();
 
 	@Override
 	public NextAssert next() throws DataImportException {
-        NextAssert nextAssert = new NextAssert();
+        
 		try {
-			
+			nextAssert.reset();
 			if(isStop() || importContext.getInputPlugin().isStopCollectData() )
 				return nextAssert;
 			if(first){
-				datas = customDataGenerator.generateData(importContext, getTaskContext());
+				Map params = dataTranPlugin.getJobInputParams(getTaskContext());
+				dataTranPlugin.putLastParamValue(params);
+				GeneratorContext generatorContext = new GeneratorContext(  importContext,   customInputConfig,
+						params,
+						getTaskContext(),   dataTranPlugin);
+				datas = customDataGenerator.generateData(generatorContext);
 				if(datas != null && datas.isEmpty()){
 					datas = null;
 				}
@@ -89,10 +95,15 @@ public class CustomResultSet extends LastValue implements TranResultSet {
 			}			
 			else{
 				//重置数据和位置
-				datas.clear();
+				datas = null;
 				position = 0;
 				if(customDataGenerator.isPaging()) {
-					datas = customDataGenerator.generateData(importContext, getTaskContext());
+					Map params = dataTranPlugin.getJobInputParams(getTaskContext());
+					dataTranPlugin.putLastParamValue(params);
+					GeneratorContext generatorContext = new GeneratorContext(  importContext,   customInputConfig,
+							params,
+							getTaskContext(),   dataTranPlugin);
+					datas = customDataGenerator.generateData(generatorContext);
 					if (datas != null && !datas.isEmpty()) {
 						record = datas.get(position++);
 					}
@@ -137,9 +148,5 @@ public class CustomResultSet extends LastValue implements TranResultSet {
 	}
 	 
 
-    @Override
-    public void destroy(){
-         super.destroy();
-    }
 	
 }

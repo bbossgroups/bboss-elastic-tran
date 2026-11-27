@@ -28,7 +28,7 @@ import java.util.Map;
  * @Date 2026/11/24
  */
 public interface CustomDataGenerator {
-	List<Map<String, Object>> generateData(ImportContext importContext, TaskContext taskContext);
+	List<Map<String, Object>> generateData(GeneratorContext generatorContext);
 	
 	default Map<String, Object> getMetaDatas(Map<String, Object> data){
 		return new LinkedHashMap<>();

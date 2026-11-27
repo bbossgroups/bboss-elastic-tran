@@ -232,6 +232,9 @@ public class ElasticsearchInputDataTranPlugin extends BaseESPlugin implements In
 			params.put("sliceMax",elasticsearchInputConfig.getSliceSize());
 		}
 		Object[] lastValues = dataTranPlugin.putLastParamValue(params);
+		if(lastValues == null || lastValues.length == 0){
+			throw ImportExceptionUtil.buildDataImportException(importContext,"lastValue is null,can not continue increamentImportData.");
+		}
 		Object lastValue = lastValues[0];
 		if(lastValue instanceof Date) {
 			Date lastEndValue = null;

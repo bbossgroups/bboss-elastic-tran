@@ -1342,9 +1342,13 @@ public abstract class BaseStatusManager implements StatusManager {
 		return this.lastValueClumnName;
 	}
 	public Object[] putLastParamValue(Map params){
-		Object[] ret = new Object[2];
-        LastValueWrapper lastValueWrapper = this.currentStatus.getCurrentLastValueWrapper();
+		
         String lastValueVarName = dataTranPlugin.getLastValueVarName();
+		if(lastValueVarName == null || lastValueVarName.equals("")){
+			return null;
+		}
+		Object[] ret = new Object[2];
+		LastValueWrapper lastValueWrapper = this.currentStatus.getCurrentLastValueWrapper();
         Object lastValue = lastValueWrapper.getLastValue();
 		if(this.lastValueType == ImportIncreamentConfig.NUMBER_TYPE) {
 			params.put(lastValueVarName, lastValue);
